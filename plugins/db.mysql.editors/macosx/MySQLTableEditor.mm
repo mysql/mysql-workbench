@@ -206,20 +206,11 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   mBackEnd = new MySQLTableEditorBE(table);
 
   if (!isReinit) {
-    if (!mBackEnd->is_editing_live_object()) {
-      mUnusedColumnsDetailsBox = mColumnsDetailsBox;
-      mColumnsDetailsBox = mColumnsDetailsBox2;
-      mColumnsCharset = mColumnsCharset2;
-      mColumnsCollation = mColumnsCollation2;
-      mColumnsComment = mColumnsComment2;
-      [mColumnsSplitter setVertical: YES];
-    } else {
-      mUnusedColumnsDetailsBox = mColumnsDetailsBox2;
-      [mColumnsSplitter setVertical: NO];
+    [mColumnsSplitter setVertical: NO];
 
-      GrtVersionRef version = mBackEnd->get_catalog()->version();
-      [mIndicesComment setEditable:bec::is_supported_mysql_version_at_least(version, 5, 5)];
-    }
+    GrtVersionRef version = mBackEnd->get_catalog()->version();
+    [mIndicesComment setEditable:bec::is_supported_mysql_version_at_least(version, 5, 5)];
+
     [mColumnsSplitter addSubview:mColumnsDetailsBox];
   }
 
@@ -244,12 +235,12 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
     if ((i = [mEditorsTabView indexOfTabViewItemWithIdentifier: @"inserts"]) == NSNotFound) {
       id item = [[NSTabViewItem alloc] initWithIdentifier: @"inserts"];
-      [item setView:mEditorInserts];
+      [item setView: mEditorInserts];
       [item setLabel: @"Inserts"];
-      [mEditorsTabView addTabViewItem:item];
+      [mEditorsTabView addTabViewItem: item];
       [mEditorInserts setAutoresizesSubviews: YES];
     } else {
-      [[mEditorsTabView tabViewItemAtIndex:i] setView:mEditorInserts];
+      [[mEditorsTabView tabViewItemAtIndex: i] setView:mEditorInserts];
     }
   }
 
@@ -480,41 +471,39 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     NSString* comments = [mColumnsDataSource objectValueForValueIndex:bec::TableColumnsListBE::Comment row: rowIndex];
     [mColumnsComment setString:comments];
 
-    if (mBackEnd->is_editing_live_object()) {
-      NSArray* flags = MArrayFromStringVector(mBackEnd->get_columns()->get_datatype_flags(rowIndex, true));
-      ssize_t flag;
-      mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsPK, flag);
-      [mColumnsFlagPK setState:flag ? NSOnState : NSOffState];
-      mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsNotNull, flag);
-      [mColumnsFlagNN setState:flag ? NSOnState : NSOffState];
-      mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsUnique, flag);
-      [mColumnsFlagUNQ setState:flag ? NSOnState : NSOffState];
+    NSArray* flags = MArrayFromStringVector(mBackEnd->get_columns()->get_datatype_flags(rowIndex, true));
+    ssize_t flag;
+    mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsPK, flag);
+    [mColumnsFlagPK setState:flag ? NSOnState : NSOffState];
+    mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsNotNull, flag);
+    [mColumnsFlagNN setState:flag ? NSOnState : NSOffState];
+    mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsUnique, flag);
+    [mColumnsFlagUNQ setState:flag ? NSOnState : NSOffState];
 
-      [mColumnsFlagBIN setEnabled: [flags containsObject: @"BINARY"]];
-      [mColumnsFlagBIN setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "BINARY") ? NSOnState : NSOffState];
-      [mColumnsFlagUN setEnabled: [flags containsObject: @"UNSIGNED"]];
-      [mColumnsFlagUN setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "UNSIGNED") ? NSOnState : NSOffState];
-      [mColumnsFlagZF setEnabled: [flags containsObject: @"ZEROFILL"]];
-      [mColumnsFlagZF setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "ZEROFILL") ? NSOnState : NSOffState];
+    [mColumnsFlagBIN setEnabled: [flags containsObject: @"BINARY"]];
+    [mColumnsFlagBIN setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "BINARY") ? NSOnState : NSOffState];
+    [mColumnsFlagUN setEnabled: [flags containsObject: @"UNSIGNED"]];
+    [mColumnsFlagUN setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "UNSIGNED") ? NSOnState : NSOffState];
+    [mColumnsFlagZF setEnabled: [flags containsObject: @"ZEROFILL"]];
+    [mColumnsFlagZF setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "ZEROFILL") ? NSOnState : NSOffState];
 
-      mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrementable, flag);
-      [mColumnsFlagAI setEnabled:flag];
-      mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrement, flag);
-      [mColumnsFlagAI setState:flag ? NSOnState : NSOffState];
-      mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsGenerated, flag);
-      [mColumnsFlagG setState:flag ? NSOnState : NSOffState];
-      mDefaultLabel.stringValue = flag ? @"Expression" : @"Default";
+    mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrementable, flag);
+    [mColumnsFlagAI setEnabled:flag];
+    mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrement, flag);
+    [mColumnsFlagAI setState:flag ? NSOnState : NSOffState];
+    mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsGenerated, flag);
+    [mColumnsFlagG setState:flag ? NSOnState : NSOffState];
+    mDefaultLabel.stringValue = flag ? @"Expression" : @"Default";
 
-      mButtonGCStored.enabled = flag;
-      mButtonGCVirtual.enabled = flag;
-      if (flag) {
-        std::string storageType;
-        mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::GeneratedStorageType, storageType);
-        if (base::toupper(storageType) != "STORED")
-          mButtonGCVirtual.state = NSOnState;
-        else
-          mButtonGCStored.state = NSOnState;
-      }
+    mButtonGCStored.enabled = flag;
+    mButtonGCVirtual.enabled = flag;
+    if (flag) {
+      std::string storageType;
+      mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::GeneratedStorageType, storageType);
+      if (base::toupper(storageType) != "STORED")
+        mButtonGCVirtual.state = NSOnState;
+      else
+        mButtonGCStored.state = NSOnState;
     }
   }
 }
