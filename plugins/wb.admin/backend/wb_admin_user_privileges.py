@@ -233,7 +233,7 @@ class UserHostPrivileges(object):
             # On the indicated host
             result = self.context.ctrl_be.exec_query("SHOW GRANTS FOR `%s`@`%s`" % (self.user, host))
             
-            context = grt.modules.MySQLParserServices.createParserContext(self._character_sets, self._target_version, 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 1)
+            context = grt.modules.MySQLParserServices.createNewParserContext(self._character_sets, self._target_version, 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION', 1)
             
             if result:
                 while result.nextRow():

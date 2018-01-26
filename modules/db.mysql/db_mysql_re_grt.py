@@ -297,7 +297,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
         schema.owner = catalog
         schema.name = schema_name
         catalog.schemata.append(schema)
-        context = grt.modules.MySQLParserServices.createParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
+        context = grt.modules.MySQLParserServices.createNewParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
         options = {}
 
         if get_tables or get_views:
@@ -400,7 +400,7 @@ def reverseEngineerTable(connection, schema_name, table_name):
     result = execute_query(connection, "SHOW CREATE TABLE `%s`.`%s`" % (escape_sql_identifier(schema_name), escape_sql_identifier(table_name)))
     if result and result.nextRow():
         sql = result.stringByIndex(2)
-        context = grt.modules.MySQLParserServices.createParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
+        context = grt.modules.MySQLParserServices.createNewParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
         options = {}
         grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, ("USE `%s`;\n" % escape_sql_identifier(schema_name)) + sql, options)
     else:
@@ -428,7 +428,7 @@ def reverseEngineerTableToCatalog(connection, catalog, schema_name, table_name):
     result = execute_query(connection, "SHOW CREATE TABLE `%s`.`%s`" % (escape_sql_identifier(schema_name), escape_sql_identifier(table_name)))
     if result and result.nextRow():
         sql = result.stringByIndex(2)
-        context = grt.modules.MySQLParserServices.createParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
+        context = grt.modules.MySQLParserServices.createNewParserContext(catalog.characterSets, getServerVersion(connection), getServerMode(connection), 1)
         options = {}
         grt.modules.MySQLParserServices.parseSQLIntoCatalogSql(context, catalog, ("USE `%s`;\n" % escape_sql_identifier(schema_name))+sql, options)
     else:
