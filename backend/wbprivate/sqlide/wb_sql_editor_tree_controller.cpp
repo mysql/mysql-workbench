@@ -507,35 +507,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(
             tables->push_back(name);
         }
       }
-
-      if (_owner->rdbms_version().is_valid() && is_supported_mysql_version_at_least(_owner->rdbms_version(), 5, 7))
-        _use_show_procedure = true;
-
-      if (!_use_show_procedure) {
-        // SHOW PROCEDURE uses I_S which can be very slow for big dbs, so we try a hack and go to mysql.proc and .func
-        // directly
-        // if an error occurs with these, we fallback to show procedure
-        // Something will happen once the DD is introduced in 5.7, but don't know what as of now... maybe this hack
-        // will become unnecessary then
-        try {
-          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(
-            std::string(sqlstring("SELECT name, type FROM mysql.proc WHERE Db=?", 0) << schema_name)));
-
-          while (rs->next()) {
-            std::string name = rs->getString(1);
-            std::string type = rs->getString(2);
-            if (type == "PROCEDURE")
-              procedures->push_back(name);
-            else
-              functions->push_back(name);
-          }
-        } catch (std::exception &exc) {
-          logException("Exception querying metadata from mysql.proc, will fallback to SHOW PROCEDURE", exc);
-          _use_show_procedure = true;
-        }
-      }
-
-      if (_use_show_procedure) {
         {
           std::auto_ptr<sql::ResultSet> rs(
             stmt->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
@@ -553,7 +524,6 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(
             functions->push_back(name);
           }
         }
-      }
     }
 
     if (arrived_slot) {
