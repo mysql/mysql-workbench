@@ -215,18 +215,18 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 
   mColumnsDataSource =
-    [[MacTableEditorColumnsInformationSource alloc] initWithListModel:mBackEnd->get_columns() tableBackEnd:mBackEnd];
-  mIndicesDataSource = [[MacTableEditorInformationSource alloc] initWithListModel:mBackEnd->get_indexes()];
+    [[MacTableEditorColumnsInformationSource alloc] initWithListModel: mBackEnd->get_columns() tableBackEnd: mBackEnd];
+  mIndicesDataSource = [[MacTableEditorInformationSource alloc] initWithListModel: mBackEnd->get_indexes()];
 
   mIndexColumnsDataSource =
-    [[MacTableEditorIndexColumnsInformationSource alloc] initWithListModel:mBackEnd->get_indexes()->get_columns()
-                                                              tableBackEnd:mBackEnd];
+    [[MacTableEditorIndexColumnsInformationSource alloc] initWithListModel: mBackEnd->get_indexes()->get_columns()
+                                                              tableBackEnd: mBackEnd];
 
-  mFKDataSource = [[MacTableEditorInformationSource alloc] initWithListModel:mBackEnd->get_fks()];
+  mFKDataSource = [[MacTableEditorInformationSource alloc] initWithListModel: mBackEnd->get_fks()];
 
   mFKColumnsDataSource =
-    [[MacTableEditorFKColumnsInformationSource alloc] initWithListModel:mBackEnd->get_fks()->get_columns()
-                                                           tableBackEnd:mBackEnd];
+    [[MacTableEditorFKColumnsInformationSource alloc] initWithListModel: mBackEnd->get_fks()->get_columns()
+                                                           tableBackEnd: mBackEnd];
 
   if (!mBackEnd->is_editing_live_object()) {
     NSInteger i;
@@ -270,7 +270,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   mColumnTypes = MArrayFromStringVector(((MySQLTableColumnsListBE*)mBackEnd->get_columns())->get_datatype_names());
 
   // Set up combo boxes in Partitioning tab.
-  mPartitionsTreeDataSource = [[GRTTreeDataSource alloc] initWithTreeModel:mBackEnd->get_partitions()];
+  mPartitionsTreeDataSource = [[GRTTreeDataSource alloc] initWithTreeModel: mBackEnd->get_partitions()];
   [mPartitionTable setDataSource:mPartitionsTreeDataSource];
   [mPartitionTable setDelegate:mPartitionsTreeDataSource];
   NSTableColumn* column = [mPartitionTable tableColumnWithIdentifier: @"0"];
@@ -282,7 +282,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     if (index != NSNotFound)
       [mEditorsTabView removeTabViewItem: [mEditorsTabView tabViewItemAtIndex:index]];
 
-    mPrivilegesTab = [[DbPrivilegeEditorTab alloc] initWithObjectEditor:mBackEnd];
+    mPrivilegesTab = [[DbPrivilegeEditorTab alloc] initWithObjectEditor: mBackEnd];
 
     NSTabViewItem* item = [[NSTabViewItem alloc] initWithIdentifier: @"privileges"];
     [item setView: [mPrivilegesTab view]];
@@ -395,12 +395,12 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 - (void)refreshTableEditorGUITableTab;
 {
   if (mBackEnd != nil) {
-    NSString* name = [NSString stringWithCPPString:mBackEnd->get_name()];
+    NSString* name = [NSString stringWithCPPString: mBackEnd->get_name()];
     [mTableName setStringValue:name];
 
-    [mSchemaName setStringValue: [NSString stringWithCPPString:mBackEnd->get_schema_name()]];
+    [mSchemaName setStringValue: [NSString stringWithCPPString: mBackEnd->get_schema_name()]];
 
-    NSString* charset = [NSString stringWithCPPString:mBackEnd->get_table_option_by_name("CHARACTER SET")];
+    NSString* charset = [NSString stringWithCPPString: mBackEnd->get_table_option_by_name("CHARACTER SET")];
     if ([charset isEqualToString: @"DEFAULT"] || [charset length] == 0) {
       charset = [NSString stringWithUTF8String:DEFAULT_CHARSET_CAPTION];
     }
@@ -414,7 +414,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     [mTableCharset selectItemWithTitle:charset];
     [self updateCollation: mTableCollation forCharset: [charset UTF8String]];
 
-    NSString* collation = [NSString stringWithCPPString:mBackEnd->get_table_option_by_name("COLLATE")];
+    NSString* collation = [NSString stringWithCPPString: mBackEnd->get_table_option_by_name("COLLATE")];
     if ([collation isEqualToString: @"DEFAULT"] || [collation length] == 0) {
       collation = [NSString stringWithUTF8String:DEFAULT_COLLATION_CAPTION];
     }
@@ -427,10 +427,10 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     }
     [mTableCollation selectItemWithTitle:collation];
 
-    NSString* engine = [NSString stringWithCPPString:mBackEnd->get_table_option_by_name("ENGINE")];
+    NSString* engine = [NSString stringWithCPPString: mBackEnd->get_table_option_by_name("ENGINE")];
     [mTableEngine selectItemWithTitle:engine];
 
-    NSString* comments = [NSString stringWithCPPString:mBackEnd->get_comment()];
+    NSString* comments = [NSString stringWithCPPString: mBackEnd->get_comment()];
     [mTableComment setString:comments];
   }
 }
@@ -481,11 +481,11 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     [mColumnsFlagUNQ setState:flag ? NSOnState : NSOffState];
 
     [mColumnsFlagBIN setEnabled: [flags containsObject: @"BINARY"]];
-    [mColumnsFlagBIN setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "BINARY") ? NSOnState : NSOffState];
+    [mColumnsFlagBIN setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "BINARY") ? NSOnState : NSOffState];
     [mColumnsFlagUN setEnabled: [flags containsObject: @"UNSIGNED"]];
-    [mColumnsFlagUN setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "UNSIGNED") ? NSOnState : NSOffState];
+    [mColumnsFlagUN setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "UNSIGNED") ? NSOnState : NSOffState];
     [mColumnsFlagZF setEnabled: [flags containsObject: @"ZEROFILL"]];
-    [mColumnsFlagZF setState:mBackEnd->get_columns()->get_column_flag(rowIndex, "ZEROFILL") ? NSOnState : NSOffState];
+    [mColumnsFlagZF setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "ZEROFILL") ? NSOnState : NSOffState];
 
     mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrementable, flag);
     [mColumnsFlagAI setEnabled:flag];
@@ -1355,19 +1355,19 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 
   else if (sender == mOptionsPackKeys) {
-    [[sender window] makeFirstResponder:sender];
+    [[sender window] makeFirstResponder: sender];
     mBackEnd->set_table_option_by_name("PACK_KEYS", [popItemTitle UTF8String]);
   } else if (sender == mOptionsRowFormat) {
-    [[sender window] makeFirstResponder:sender];
+    [[sender window] makeFirstResponder: sender];
     mBackEnd->set_table_option_by_name("ROW_FORMAT", [popItemTitle UTF8String]);
   } else if (sender == mOptionsBlockSize) {
     std::string bsize;
-    [[sender window] makeFirstResponder:sender];
+    [[sender window] makeFirstResponder: sender];
     if ([sender indexOfSelectedItem] > 0)
       bsize = [[popItemTitle componentsSeparatedByString: @" "][0] UTF8String];
     mBackEnd->set_table_option_by_name("KEY_BLOCK_SIZE", bsize);
   } else if (sender == mOptionsMergeMethod) {
-    [[sender window] makeFirstResponder:sender];
+    [[sender window] makeFirstResponder: sender];
     if ([sender indexOfSelectedItem] == 0)
       popItemTitle = @""; // Reset to nothing to remove the option entirely.
     mBackEnd->set_table_option_by_name("INSERT_METHOD", [[popItemTitle uppercaseString] UTF8String]);
@@ -1438,10 +1438,10 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     mBackEnd->set_explicit_subpartitions(([sender state] == NSOnState ? true : false));
     [self refreshTableEditorGUIPartitioningTab];
   } else if (sender == mOptionsDelayKeyUpdates) {
-    [[sender window] makeFirstResponder:sender];
+    [[sender window] makeFirstResponder: sender];
     mBackEnd->set_table_option_by_name("DELAY_KEY_WRITE", ([sender state] == NSOnState ? "1" : "0"));
   } else if (sender == mOptionsUseChecksum) {
-    [[sender window] makeFirstResponder:sender];
+    [[sender window] makeFirstResponder: sender];
     mBackEnd->set_table_option_by_name("CHECKSUM", ([sender state] == NSOnState ? "1" : "0"));
   } else if (sender == mFKModelOnly) {
     if ([mFKTable selectedRow] >= 0)
@@ -1630,7 +1630,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 - (id)identifier;
 {
   // An identifier for this editor (just take the object id).
-  return [NSString stringWithCPPString:mBackEnd->get_object().id()];
+  return [NSString stringWithCPPString: mBackEnd->get_object().id()];
 }
 
 - (BOOL)matchesIdentifierForClosingEditor: (NSString*)identifier {
@@ -1639,11 +1639,11 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
 - (void)pluginDidShow: (id)sender {
   [[[self view] window] makeFirstResponder: mTableName];
-  [super pluginDidShow:sender];
+  [super pluginDidShow: sender];
 }
 
 - (BOOL)pluginWillClose: (id)sender {
-  return [super pluginWillClose:sender];
+  return [super pluginWillClose: sender];
 }
 
 - (bec::BaseEditor*)editorBE {
@@ -1683,4 +1683,5 @@ static void call_partial_refresh(int what, void* theEditor) {
       break;
   }
 }
+
 @end

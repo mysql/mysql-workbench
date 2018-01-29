@@ -2241,9 +2241,8 @@ simpleExpr:
     | simpleExpr CONCAT_PIPES_SYMBOL simpleExpr                                                         # simpleExprConcat
     | op = (PLUS_OPERATOR | MINUS_OPERATOR | BITWISE_NOT_OPERATOR) simpleExpr                           # simpleExprUnary
     | not2Rule simpleExpr                                                                               # simpleExprNot
-    | subquery                                                                                          # simpleExprSubquery
     | ROW_SYMBOL? OPEN_PAR_SYMBOL exprList CLOSE_PAR_SYMBOL                                             # simpleExprList
-    | EXISTS_SYMBOL OPEN_PAR_SYMBOL subquery CLOSE_PAR_SYMBOL                                           # simpleExprExists
+    | EXISTS_SYMBOL? subquery                                                                           # simpleExprSubQuery
     | OPEN_CURLY_SYMBOL identifier expr CLOSE_CURLY_SYMBOL                                              # simpleExprOdbc
     | MATCH_SYMBOL identListArg AGAINST_SYMBOL OPEN_PAR_SYMBOL bitExpr fulltextOptions CLOSE_PAR_SYMBOL # simpleExprMatch
     | BINARY_SYMBOL simpleExpr                                                                          # simpleExprBinary
