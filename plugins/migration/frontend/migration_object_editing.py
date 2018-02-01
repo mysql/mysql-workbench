@@ -861,7 +861,7 @@ class MainView(WizardPage):
         if tag and tag in self._object_dict:
             obj = self._object_dict[tag]
             if hasattr(obj, 'commentedOut'):
-                self._all_menu.get_item(0).set_checked(obj.commentedOut)
+                self._all_menu.get_item(0).set_checked(obj.commentedOut != 0)
                 if obj.__grtclassname__ in ("db.Index", "db.ForeignKey"):
                     self._all_menu.get_item(0).set_enabled(True)
 
