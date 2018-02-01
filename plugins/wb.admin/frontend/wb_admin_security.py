@@ -1285,7 +1285,7 @@ class SecurityAccount(mforms.Box):
         self.hostlimit_box.add(self.hostlimithost_valid_icon, False, False)
         self.password_caption2 = dLabel("% and _ wildcards may be used")
         self.hostlimit_box.add(self.password_caption2, True, True)
-        table.add(self.hostlimit_box, 2, 3, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(self.hostlimit_box, 2, 3, 2, 3, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
 
         self.password_caption = rLabel("Password:")
         table.add(self.password_caption, 0, 1, 3, 4, mforms.HFillFlag)
