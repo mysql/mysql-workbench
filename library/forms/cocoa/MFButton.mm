@@ -61,6 +61,7 @@
     self.target = self;
     self.action = @selector(performCallback:);
   }
+  [self sizeToFit];
   return self;
 }
 
@@ -103,7 +104,7 @@
     size.width += size.height;
 
   NSSize minSize = super.minimumSize;
-  return {MAX(size.width, minSize.width), MAX(size.height, minSize.height)};
+  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) };
 }
 
 - (NSSize)preferredSize: (NSSize)proposal {

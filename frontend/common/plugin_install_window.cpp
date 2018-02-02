@@ -58,7 +58,7 @@ private:
   std::string _dest_path;
 
   void download_finished(grt::ValueRef ret);
-  void download_failed(const std::exception &exc);
+  void download_failed(const std::string &error);
   grt::ValueRef perform_download();
   void handle_output(const grt::Message &message);
 };
@@ -90,8 +90,8 @@ AddOnDownloadWindow::DownloadItem::DownloadItem(AddOnDownloadWindow *owner, cons
   _progress.set_value(0.0);
 }
 
-void AddOnDownloadWindow::DownloadItem::download_failed(const std::exception &exc) {
-  _info.set_text(base::strfmt("Failed: %s", exc.what()));
+void AddOnDownloadWindow::DownloadItem::download_failed(const std::string &error) {
+  _info.set_text("Failed: " + error);
   _owner->download_failed(this);
 }
 

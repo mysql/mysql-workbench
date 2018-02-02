@@ -1657,8 +1657,10 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         if (listener.parts.size() > 1 && !listener.parts[0].empty())
           schema = ObjectListener::ensureSchemaExists(catalog, listener.parts[0], caseSensitive);
         db_EventRef event = find_named_object_in_list(schema->events(), listener.parts.back());
-        schema->events()->remove(event);
-        createdObjects.remove_value(event);
+        if (event.is_valid()) {
+          schema->events()->remove(event);
+          createdObjects.remove_value(event);
+        }
 
         break;
       }
@@ -1677,8 +1679,10 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         if (listener.parts.size() > 1 && !listener.parts[0].empty())
           schema = ObjectListener::ensureSchemaExists(catalog, listener.parts[0], caseSensitive);
         db_RoutineRef routine = find_named_object_in_list(schema->routines(), listener.parts.back());
-        schema->routines()->remove(routine);
-        createdObjects.remove_value(routine);
+        if (routine.is_valid()) {
+          schema->routines()->remove(routine);
+          createdObjects.remove_value(routine);
+        }
 
         break;
       }

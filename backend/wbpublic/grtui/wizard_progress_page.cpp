@@ -450,17 +450,19 @@ void WizardProgressPage::process_grt_task_message(const grt::Message &msg) {
   add_log_text(msgTypeStr + msg.text);
 }
 
-void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec::GRTTask *task) {
+//----------------------------------------------------------------------------------------------------------------------
+
+void WizardProgressPage::process_grt_task_fail(const std::string &error, bec::GRTTask *task) {
   _tasks[_current_task]->async_failed = true;
   if (_tasks[_current_task]->process_fail) {
     // if process_fail returns true, the error was recovered
     if (_tasks[_current_task]->process_fail())
       _tasks[_current_task]->async_failed = false;
     else
-      set_status_text(std::string("Error: ").append(error.what()), true);
+      set_status_text(std::string("Error: ").append(error), true);
   } else {
-    add_log_text(std::string("Operation failed: ").append(error.what()));
-    set_status_text(std::string("Error: ").append(error.what()), true);
+    add_log_text(std::string("Operation failed: ").append(error));
+    set_status_text(std::string("Error: ").append(error), true);
   }
 
   // continue with task execution
@@ -471,7 +473,7 @@ void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec:
   perform_tasks();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void WizardProgressPage::process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask *task) {
   bec::GRTManager::get()->perform_idle_tasks();

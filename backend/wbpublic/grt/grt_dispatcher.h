@@ -149,13 +149,13 @@ namespace bec {
     virtual void finished_m(const grt::ValueRef &result);
 
     virtual void failed(const std::exception &exc);
-    virtual void failed_m(const std::exception &exc);
+    virtual void failed_m();
 
     virtual bool process_message(const grt::Message &msg);
     virtual void process_message_m(const grt::Message &msg);
 
-    grt::grt_runtime_error *get_error() {
-      return _exception;
+    std::string get_error() {
+      return _error;
     };
 
     // Signals.
@@ -170,12 +170,11 @@ namespace bec {
 
   protected:
     std::shared_ptr<GRTDispatcher> _dispatcher;
-    grt::grt_runtime_error *_exception;
+    std::string _error;
     grt::ValueRef _result;
 
     GRTTaskBase(const std::string &name, const std::shared_ptr<GRTDispatcher> dispatcher)
       : _dispatcher(dispatcher),
-        _exception(0),
         _name(name),
         _cancelled(false),
         _finished(false),
@@ -200,7 +199,7 @@ namespace bec {
   class WBPUBLICBACKEND_PUBLIC_FUNC GRTTask : public GRTTaskBase {
     typedef boost::signals2::signal<void()> StartedSignal;
     typedef boost::signals2::signal<void(grt::ValueRef)> FinishedSignal;
-    typedef boost::signals2::signal<void(const std::exception &)> FailedSignal;
+    typedef boost::signals2::signal<void(std::string const&)> FailedSignal;
     typedef boost::signals2::signal<void(const grt::Message &)> ProcessMessageSignal;
 
   public:
@@ -237,7 +236,7 @@ namespace bec {
             const std::function<grt::ValueRef()> &function);
     virtual void started_m();
     virtual void finished_m(const grt::ValueRef &result);
-    virtual void failed_m(const std::exception &error);
+    virtual void failed_m();
 
     virtual bool process_message(const grt::Message &msg);
     virtual void process_message_m(const grt::Message &msg);

@@ -130,7 +130,7 @@ public:
 private:
   void process_msg(const grt::Message &msgs);
   void process_finish(grt::ValueRef res);
-  void process_fail(const std::exception &error);
+  void process_fail(const std::string &error);
 
 private:
   Proc_cb _proc_cb;

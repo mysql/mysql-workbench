@@ -21,8 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _SQL_IMPORT_BE_H_
-#define _SQL_IMPORT_BE_H_
+#pragma once
 
 #include "grts/structs.db.h"
 #include "grts/structs.workbench.h"
@@ -47,7 +46,6 @@ private:
   virtual void parse_sql_script(parsers::MySQLParserServices::Ref sql_parser, parsers::MySQLParserContext::Ref context,
                                 db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options);
   virtual db_CatalogRef target_catalog();
-  virtual GrtVersionRef getVersion();
 
 public:
   virtual std::string sql_script() {
@@ -72,4 +70,3 @@ protected:
   std::string _sql_script_codeset;
 };
 
-#endif /* _SQL_IMPORT_BE_H_ */

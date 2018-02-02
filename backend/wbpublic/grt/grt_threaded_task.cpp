@@ -141,9 +141,9 @@ void GrtThreadedTask::process_msg(const grt::Message &msg) {
 
 //--------------------------------------------------------------------------------------------------
 
-void GrtThreadedTask::process_fail(const std::exception &error) {
+void GrtThreadedTask::process_fail(const std::string &error) {
   if (_fail_cb) {
-    _fail_cb(error.what());
+    _fail_cb(error);
     if (_onetime_fail_cb)
       _fail_cb = Fail_cb();
   }

@@ -62,7 +62,7 @@ grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::st
 
   parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
   db_mgmt_RdbmsRef rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/"));
-  parsers::MySQLParserContext::Ref context = services->createParserContext(rdbms->characterSets(), getVersion(), "", /*_lower_case_table_names != 0*/ 0);
+  parsers::MySQLParserContext::Ref context = services->createParserContext(rdbms->characterSets(), catalog->version(), "", /*_lower_case_table_names != 0*/ 0);
 
   parse_sql_script(services, context, catalog, sql_script, _options);
 
@@ -112,7 +112,3 @@ grt::ValueRef Sql_import::autoplace_grt() {
   return grt::ValueRef();
 }
 
-GrtVersionRef Sql_import::getVersion() {
-  GrtVersionRef version;
-  return version;
-}

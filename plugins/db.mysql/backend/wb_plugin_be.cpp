@@ -40,7 +40,7 @@ void Wb_plugin::exec_task(bool sync) {
     bec::GRTManager::get()->get_dispatcher()->add_task(task);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void Wb_plugin::process_task_msg(const grt::Message &msg) {
   switch (msg.type) {
@@ -59,10 +59,14 @@ void Wb_plugin::process_task_msg(const grt::Message &msg) {
   }
 }
 
-void Wb_plugin::process_task_fail(const std::exception &error) {
+//----------------------------------------------------------------------------------------------------------------------
+
+void Wb_plugin::process_task_fail(const std::string &error) {
   if (_task_fail_cb)
-    _task_fail_cb(error.what());
+    _task_fail_cb(error);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void Wb_plugin::process_task_finish(grt::ValueRef res) {
   grt::GRT::get()->send_info(grt::StringRef::cast_from(res));
@@ -70,6 +74,8 @@ void Wb_plugin::process_task_finish(grt::ValueRef res) {
   if (_task_fail_cb)
     _task_finish_cb();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 template <typename T1, typename T2>
 T2 get_option(const grt::DictRef &options, const std::string &name) {

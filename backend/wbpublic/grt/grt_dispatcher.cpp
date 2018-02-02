@@ -82,7 +82,6 @@ void DispatcherCallbackBase::signal() {
 //----------------- GRTTaskBase --------------------------------------------------------------------
 
 GRTTaskBase::~GRTTaskBase() {
-  delete _exception;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,20 +124,14 @@ void GRTTaskBase::finished_m(const grt::ValueRef &result) {
 //--------------------------------------------------------------------------------------------------
 
 void GRTTaskBase::failed(const std::exception &exc) {
-  const grt::grt_runtime_error *rterr = dynamic_cast<const grt::grt_runtime_error *>(&exc);
-
-  if (rterr)
-    _exception = new grt::grt_runtime_error(*rterr);
-  else
-    _exception = new grt::grt_runtime_error(exc.what(), "");
-
+  _error = exc.what();
   signal_failing_task();
-  _dispatcher->call_from_main_thread<void>(std::bind(&GRTTaskBase::failed_m, this, exc), false, false);
+  _dispatcher->call_from_main_thread<void>(std::bind(&GRTTaskBase::failed_m, this), false, false);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void GRTTaskBase::failed_m(const std::exception &exc) {
+void GRTTaskBase::failed_m() {
   set_finished();
 }
 
@@ -206,12 +199,7 @@ protected:
   }
 
   virtual void failed(const std::exception &exc) {
-    const grt::grt_runtime_error *rterr = dynamic_cast<const grt::grt_runtime_error *>(&exc);
-
-    if (rterr)
-      _exception = new grt::grt_runtime_error(*rterr);
-    else
-      _exception = new grt::grt_runtime_error(exc.what(), "");
+    _error = exc.what();
   }
 
 private:
@@ -255,9 +243,9 @@ void GRTTask::finished_m(const grt::ValueRef &result) {
 
 //--------------------------------------------------------------------------------------------------
 
-void GRTTask::failed_m(const std::exception &error) {
-  GRTTaskBase::failed_m(error);
-  _sigFailed(error);
+void GRTTask::failed_m() {
+  GRTTaskBase::failed_m();
+  _sigFailed(_error);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -493,10 +481,8 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
     self->execute_task(task);
 
     logDebug3("Task \"%s\" finished\n", task->name().c_str());
-    if (task->get_error()) {
-      logError("%s\n",
-               std::string(("worker: task '" + task->name() + "' has failed with error:.") + task->get_error()->what())
-                 .c_str());
+    if (!task->get_error().empty()) {
+      logError("worker: task '%s' has failed with error: %s\n", task->name().c_str(), task->get_error().c_str());
       g_atomic_int_dec_and_test(&self->_busy);
       continue;
     }
@@ -686,11 +672,11 @@ void GRTDispatcher::execute_task(const GRTTaskBase::Ref gtask) {
     restore_callbacks(gtask);
     gtask->finished(result);
   } catch (std::exception &error) {
-    logException("exception in grt execute_task, continuing", error);
+    logException("Exception in grt execute_task", error);
     restore_callbacks(gtask);
     gtask->failed(error);
   } catch (std::exception *error) {
-    logException("exception in grt execute_task, continuing", *error);
+    logException("Exception in grt execute_task", *error);
     restore_callbacks(gtask);
     gtask->failed(*error);
   } catch (...) {
@@ -737,9 +723,8 @@ grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) THRO
 
   // if there was an exception during execution in the worker thread,
   // we throw an exception signaling its failure
-  if (task->get_error()) {
-    grt::grt_runtime_error error = *task->get_error();
-    throw error;
+  if (!task->get_error().empty()) {
+    throw std::runtime_error(task->get_error());
   }
 
   return task->result();
