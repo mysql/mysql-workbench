@@ -48,16 +48,21 @@ PrimaryKeyPredicate::PrimaryKeyPredicate(const Recordset::Column_types *column_t
 std::string PrimaryKeyPredicate::operator()(std::vector<std::shared_ptr<sqlite::result> > &data_row_results) {
   std::string predicate;
   sqlite::variant_t v;
+
   for (auto col : *_pkey_columns) {
+    if (!predicate.empty())
+      predicate += " and ";
+
     size_t partition;
     ColumnId partition_column = Recordset::translate_data_swap_db_column(col, &partition);
     std::shared_ptr<sqlite::result> &data_row_rs = data_row_results[partition];
 
     v = data_row_rs->get_variant((int)partition_column);
-    predicate += "`" + (*_column_names)[col] + "`=" + boost::apply_visitor(*_qv, (*_column_types)[col], v) + " and";
+    predicate += "(`" + (*_column_names)[col] + "`";
+    std::string value = boost::apply_visitor(*_qv, (*_column_types)[col], v);
+    predicate += (value == "NULL") ? " IS NULL" : " = " + value + ")";
   }
-  if (!predicate.empty())
-    predicate.resize(predicate.size() - 4);
+
   return predicate;
 }
 
@@ -364,17 +369,17 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
     PrimaryKeyPredicate pkey_pred(&real_column_types, &column_names, &_pkey_columns, &pk_qv);
 
     std::list<std::shared_ptr<sqlite::query> > data_row_queries(partition_count);
-    Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s` where id=?", data_row_queries);
+    Recordset::prepare_partition_queries(data_swap_db, "select * from `data%s` where id = ?", data_row_queries);
 
     std::list<std::shared_ptr<sqlite::query> > deleted_row_queries(partition_count);
-    Recordset::prepare_partition_queries(data_swap_db, "select * from `deleted_rows%s` where id=?",
+    Recordset::prepare_partition_queries(data_swap_db, "select * from `deleted_rows%s` where id = ?",
                                          deleted_row_queries);
 
     sqlite::query changed_row_columns_query(*data_swap_db,
                                             "select\n"
                                             "c.`column`\n"
                                             "from `changes` c\n"
-                                            "where `record`=? and `action`=0\n"
+                                            "where `record` = ? and `action` = 0\n"
                                             "group by c.`column`\n"
                                             "order by 1");
     sqlite::query changes_query(*data_swap_db,
@@ -383,12 +388,12 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
                                 "c.`record`,\n"
                                 "case\n"
                                 "when exists(select 1 from `deleted_rows` where id=c.`record`) then -1\n"
-                                "when `record`>=? then 1\n"
+                                "when `record` >= ? then 1\n"
                                 "else 0\n"
                                 "end as `action`\n"
                                 "from `changes` c\n"
                                 "group by c.`record`\n"
-                                "having `record`<? or not exists(select 1 from `deleted_rows` where id=c.`record`)\n"
+                                "having `record` < ? or not exists(select 1 from `deleted_rows` where id = c.`record`)\n"
                                 "order by 1");
 
     changes_query % (int)min_new_rowid;
@@ -489,7 +494,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
 
                 if (!qv.store_unknown_as_string && boost::apply_visitor(jsonTypeFinder, column_types[column], v))
                   qv.store_unknown_as_string = true;
-                values += strfmt("`%s`=%s, ", column_names[column].c_str(),
+                values += strfmt("`%s` = %s, ", column_names[column].c_str(),
                                  boost::apply_visitor(qv, column_types[column], v).c_str());
                 if (unknownAsStringOrginal != qv.store_unknown_as_string)
                   qv.store_unknown_as_string = unknownAsStringOrginal;

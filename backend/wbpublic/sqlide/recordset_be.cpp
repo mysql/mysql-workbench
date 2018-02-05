@@ -170,23 +170,26 @@ bool Recordset::reset(Recordset_data_storage::Ptr data_storage_ptr, bool rethrow
     CATCH_AND_DISPATCH_EXCEPTION(rethrow, "Reset recordset")
   }
 
-  // We need to reapply filters once everything is loaded.
-  if (_preserveRowFilters) {
-    if (_toolbar != nullptr) {
-      auto item = _toolbar->find_item("Search Field");
-      if (item != nullptr) {
-        _data_search_string = item->get_text();
-        rebuild_data_index(data_swap_db.get(), true, false);
+  bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(
+    [this, data_swap_db]() {
+      // We need to reapply filters once everything is loaded.
+      if (_preserveRowFilters) {
+        if (_toolbar != nullptr) {
+          auto item = _toolbar->find_item("Search Field");
+          if (item != nullptr) {
+            _data_search_string = item->get_text();
+            rebuild_data_index(data_swap_db.get(), true, false);
+          }
+        }
+      } else {
+        // Otherwise, we clear up toolbar.
+        if (_toolbar != nullptr) {
+          auto item = _toolbar->find_item("Search Field");
+          if (item != nullptr)
+            item->set_text("");
+        }
       }
-    }
-  } else {
-    // Otherwise, we clear up toolbar.
-    if (_toolbar != nullptr) {
-      auto item = _toolbar->find_item("Search Field");
-      if (item != nullptr)
-        item->set_text("");
-    }
-  }
+    }, false, false);
 
   // Don't use refresh() to send update requests for the UI. It's regularly called from a background thread.
   // Instead the caller should schedule refresh calls (and coalesce them).
