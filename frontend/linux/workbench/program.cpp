@@ -197,8 +197,8 @@ void Program::finalize_initialization(wb::WBOptions* options) {
 bool Program::idle_stuff() {
   // if there are tasks to be executed, schedule it to be done when idle so that the timer
   // doesn't get blocked during its execution
-  _idleConnections.push_back(Glib::signal_idle().connect(
-    sigc::bind_return(sigc::mem_fun(wb::WBContextUI::get()->get_wb(), &wb::WBContext::flush_idle_tasks), false)));
+  _idleConnections.push_back(Glib::signal_idle().connect(sigc::bind(
+    sigc::bind_return(sigc::mem_fun(wb::WBContextUI::get()->get_wb(), &wb::WBContext::flush_idle_tasks), false), false)));
   return true;
 }
 

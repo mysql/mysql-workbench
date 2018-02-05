@@ -938,8 +938,8 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string &arg_id,
   // _overview is OverviewPanel
   switch (type) {
     case wb::RefreshNeeded: {
-      _sig_flush_idle = Glib::signal_idle().connect(
-        sigc::bind_return(sigc::mem_fun(wb::WBContextUI::get()->get_wb(), &wb::WBContext::flush_idle_tasks), false));
+      _sig_flush_idle = Glib::signal_idle().connect(sigc::bind(
+        sigc::bind_return(sigc::mem_fun(wb::WBContextUI::get()->get_wb(), &wb::WBContext::flush_idle_tasks), false), false));
       break;
     }
 
