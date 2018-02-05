@@ -2088,7 +2088,7 @@ bool WBContext::cancel_idle_tasks() {
   return result;
 }
 
-void WBContext::flush_idle_tasks() {
+void WBContext::flush_idle_tasks(bool force) {
   try {
     _grtManager->perform_idle_tasks();
 
@@ -2107,7 +2107,7 @@ void WBContext::flush_idle_tasks() {
         std::list<RefreshRequest>::iterator next = iter;
         ++next;
 
-        if (now - iter->timestamp >= UI_REQUEST_THROTTLE) {
+        if (force || (now - iter->timestamp >= UI_REQUEST_THROTTLE)) {
           refreshes.push_back(*iter);
           _pending_refreshes.erase(iter);
         }

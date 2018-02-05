@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "base/geometry.h"
@@ -33,8 +33,7 @@
 #import "DbPrivilegeEditorTab.h"
 #include "mysql_view_editor.h"
 
-@interface DbMysqlViewEditor()
-{
+@interface DbMysqlViewEditor () {
   IBOutlet NSTabView *tabView;
 
   IBOutlet NSTextField *nameText;
@@ -44,89 +43,77 @@
 
   MySQLViewEditorBE *mBackEnd;
   DbPrivilegeEditorTab *mPrivileges;
-
 }
 
 @end
 
 @implementation DbMysqlViewEditor
 
-static void call_refresh(void *theEditor)
-{
+static void call_refresh(void *theEditor) {
   DbMysqlViewEditor *editor = (__bridge DbMysqlViewEditor *)theEditor;
   [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
 
-- (instancetype)initWithModule: (grt::Module*)module
-                     arguments: (const grt::BaseListRef &)args
-{
-  self = [super initWithNibName: @"MySQLViewEditor"  bundle: [NSBundle bundleForClass:[self class]]];
-  if (self != nil)
-  {
+- (instancetype)initWithModule: (grt::Module *)module arguments: (const grt::BaseListRef &)args {
+  self = [super initWithNibName: @"MySQLViewEditor" bundle: [NSBundle bundleForClass: [self class]]];
+  if (self != nil) {
     // load GUI. Top level view in the nib is the NSTabView that will be docked to the main window
     [self loadView];
-    
+
     // take the minimum size of the view from the initial size in the nib.
     // Therefore the nib should be designed as small as possible
     // note: the honouring of the min size is not yet implemented
     [self setMinimumSize: [[tabView superview] frame].size];
-    
+
     [self reinitWithArguments: args];
-    
+
     if (mBackEnd && mBackEnd->is_editing_live_object())
-      [tabView removeTabViewItem: [tabView tabViewItemAtIndex: [tabView indexOfTabViewItemWithIdentifier:@"comment"]]];
+      [tabView removeTabViewItem: [tabView tabViewItemAtIndex: [tabView indexOfTabViewItemWithIdentifier: @"comment"]]];
   }
   return self;
 }
 
+- (void)reinitWithArguments:(const grt::BaseListRef &)args {
+  [super reinitWithArguments:args];
 
-- (void)reinitWithArguments: (const grt::BaseListRef&)args
-{
-  [super reinitWithArguments: args];
-  
   delete mBackEnd;
-  
+
   // setup the editor backend with the schema object (args[0])
   mBackEnd = new MySQLViewEditorBE(db_mysql_ViewRef::cast_from(args[0]));
-  
+
   // register a callback that will make [self refresh] get called
   // whenever the backend thinks its needed to refresh the UI from the backend data (ie, the
   // edited object was changed from somewhere else in the application)
-  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void*)self));
-  
-  NSUInteger index= [tabView indexOfTabViewItemWithIdentifier: @"privileges"];
+  mBackEnd->set_refresh_ui_slot(std::bind(call_refresh, (__bridge void *)self));
+
+  NSUInteger index = [tabView indexOfTabViewItemWithIdentifier: @"privileges"];
   if (index != NSNotFound)
     [tabView removeTabViewItem: [tabView tabViewItemAtIndex: index]];
-  
-  if (!mBackEnd->is_editing_live_object())
-  {
-    NSTabViewItem *tabItem= [[NSTabViewItem alloc] initWithIdentifier:@"privileges"];
-    mPrivileges= [[DbPrivilegeEditorTab alloc] initWithObjectEditor: mBackEnd];
+
+  if (!mBackEnd->is_editing_live_object()) {
+    NSTabViewItem *tabItem = [[NSTabViewItem alloc] initWithIdentifier: @"privileges"];
+    mPrivileges = [[DbPrivilegeEditorTab alloc] initWithObjectEditor: mBackEnd];
     [tabItem setView: [mPrivileges view]];
     [tabItem setLabel: @"Privileges"];
     [tabView addTabViewItem: tabItem];
   }
   [self setupEditorOnHost: editorHost];
   mBackEnd->load_view_sql();
-  
+
   // update the UI
   [self refresh];
   mBackEnd->reset_editor_undo_stack();
 }
 
-
-- (void)dealloc
-{
+- (void)dealloc {
   delete mBackEnd;
 }
 
-- (void)refresh
-{
-  if (mBackEnd)
-  {
+- (void)refresh {
+  if (mBackEnd) {
     [nameText setStringValue: [NSString stringWithCPPString: mBackEnd->get_name()]];
-    [self updateTitle: [self title]];
-    
+    [self updateTitle:[self title]];
+
     if (!mBackEnd->is_editing_live_object())
       [commentText setString: [NSString stringWithCPPString: mBackEnd->get_comment()]];
 
@@ -134,29 +121,23 @@ static void call_refresh(void *theEditor)
   }
 }
 
-- (id)identifier
-{
+- (id)identifier {
   // an identifier for this editor (just take the object id)
-  return [NSString stringWithCPPString:mBackEnd->get_object().id()];
+  return [NSString stringWithCPPString: mBackEnd->get_object().id()];
 }
 
-- (BOOL)matchesIdentifierForClosingEditor:(NSString*)identifier
-{
+- (BOOL)matchesIdentifierForClosingEditor:(NSString *)identifier {
   return mBackEnd->should_close_on_delete_of([identifier UTF8String]);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)textDidEndEditing: (NSNotification *) aNotification
-{
-  if ([[aNotification object] isKindOfClass: [ScintillaView class]])
-  {
+- (void)textDidEndEditing:(NSNotification *)aNotification {
+  if ([[aNotification object] isKindOfClass:[ScintillaView class]]) {
     // Name field could change.
     if (!self->mBackEnd->get_name().compare([[self->nameText stringValue] UTF8String]))
-      [self->nameText setStringValue: [NSString stringWithCPPString:self->mBackEnd->get_name()]];
-  }
-  else if ([aNotification object] == commentText)
-  {
+      [self->nameText setStringValue: [NSString stringWithCPPString: self->mBackEnd->get_name()]];
+  } else if ([aNotification object] == commentText) {
     [[aNotification object] breakUndoCoalescing];
 
     // Set comment for the view.
@@ -166,8 +147,7 @@ static void call_refresh(void *theEditor)
 
 //--------------------------------------------------------------------------------------------------
 
-- (bec::BaseEditor*)editorBE
-{
+- (bec::BaseEditor *)editorBE {
   return mBackEnd;
 }
 

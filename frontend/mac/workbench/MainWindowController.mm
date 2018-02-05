@@ -36,6 +36,8 @@
 #include "model/wb_model_diagram_form.h"
 #include "model/wb_overview_physical.h"
 
+#include "ScintillaView.h"
+
 #import "MainWindowController.h"
 #import "WBMainController.h"
 #import "WBOverviewPanel.h"
@@ -398,7 +400,9 @@ void setup_mforms_app(MainWindowController *mwin);
       if (oldResponder != nil && [oldResponder isKindOfClass: [NSTextView class]] && [oldResponder isFieldEditor])
         oldResponder = [[oldResponder delegate] isKindOfClass: [NSResponder class]] ? [oldResponder delegate] : nil;
 
-      if ([oldResponder isKindOfClass: [NSTableView class]] || [oldResponder isKindOfClass: [NSTextView class]]) {
+      if ([oldResponder isKindOfClass: [NSTableView class]]
+          || [oldResponder isKindOfClass: [NSTextView class]]
+          || [oldResponder isKindOfClass: [SCIContentView class]]) {
         [window makeFirstResponder: nil];
         [window makeFirstResponder: oldResponder];
       }

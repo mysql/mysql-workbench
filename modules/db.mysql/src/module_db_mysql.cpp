@@ -1864,6 +1864,8 @@ protected:
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static std::string generateDocumentProperties(const db_CatalogRef cat) {
   std::string output;
   if (cat->owner().is_valid() && cat->owner()->owner().is_valid()) {
@@ -1880,13 +1882,15 @@ static std::string generateDocumentProperties(const db_CatalogRef cat) {
       output.append("-- Author: ").append(doc->info()->author()).append("\n");
     if (strlen(doc->info()->description().c_str())) {
       std::string description = doc->info()->description();
-      base::replaceStringInplace(description, "\n", "\n --");
+      base::replaceStringInplace(description, "\n", "\n-- ");
       output.append("-- ").append(description).append("\n");
     }
   }
 
   return output;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class SQLExportComposer : public SQLComposer {
   bool gen_create_index;

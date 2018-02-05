@@ -974,6 +974,10 @@ void CommandUI::activate_command(const std::string &command) {
   if (command.empty() || !_wb->user_interaction_allowed())
     return;
 
+  // Finish any ongoing editing task before starting a new one.
+  _wb->request_refresh(RefreshType::RefreshFinishEdits, "");
+  _wb->flush_idle_tasks(true);
+
   ParsedCommand cmdparts(command);
 
   if (!cmdparts.valid())
