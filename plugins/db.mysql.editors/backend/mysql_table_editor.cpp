@@ -1466,24 +1466,26 @@ static struct TableOption {
   const char *option_name;
   const char *object_field;
   bool text;
-} table_options[] = {{"PACK_KEYS", "packKeys", false},
-                     {"PASSWORD", "password", true},
-                     {"AUTO_INCREMENT", "nextAutoInc", true},
-                     {"DELAY_KEY_WRITE", "delayKeyWrite", false},
-                     {"ROW_FORMAT", "rowFormat", true},
-                     {"KEY_BLOCK_SIZE", "keyBlockSize", true},
-                     {"AVG_ROW_LENGTH", "avgRowLength", true},
-                     {"MAX_ROWS", "maxRows", true},
-                     {"MIN_ROWS", "minRows", true},
-                     {"DATA DIRECTORY", "tableDataDir", true},
-                     {"INDEX DIRECTORY", "tableIndexDir", true},
-                     {"UNION", "mergeUnion", true},
-                     {"INSERT_METHOD", "mergeInsert", true},
-                     {"ENGINE", "tableEngine", false},
-                     {"CHARACTER SET", "defaultCharacterSetName", false},
-                     {"COLLATE", "defaultCollationName", false},
-                     {"CHECKSUM", "checksum", false},
-                     {NULL, NULL, false}};
+} table_options[] = {
+  {"PACK_KEYS", "packKeys", false},
+  {"PASSWORD", "password", true},
+  {"AUTO_INCREMENT", "nextAutoInc", true},
+  {"DELAY_KEY_WRITE", "delayKeyWrite", false},
+  {"ROW_FORMAT", "rowFormat", true},
+  {"KEY_BLOCK_SIZE", "keyBlockSize", true},
+  {"AVG_ROW_LENGTH", "avgRowLength", true},
+  {"MAX_ROWS", "maxRows", true},
+  {"MIN_ROWS", "minRows", true},
+  {"DATA DIRECTORY", "tableDataDir", true},
+  {"INDEX DIRECTORY", "tableIndexDir", true},
+  {"UNION", "mergeUnion", true},
+  {"INSERT_METHOD", "mergeInsert", true},
+  {"ENGINE", "tableEngine", false},
+  {"CHARACTER SET", "defaultCharacterSetName", false},
+  {"COLLATE", "defaultCollationName", false},
+  {"CHECKSUM", "checksum", false},
+  {NULL, NULL, false}
+};
 
 void MySQLTableEditorBE::set_table_option_by_name(const std::string &name, const std::string &value) {
   bool found = false;
