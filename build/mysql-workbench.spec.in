@@ -69,7 +69,9 @@
 %define antlr_dir        %{linuxres_binaries}/antlr
 %define python_dir       %{linuxres_home}/python
 %define antlr_jar_path   %{linuxres_home}/bin/antlr-4.7.1-complete.jar
+%if !%{defined boost_root}
 %define boost_root       %{linuxres_home}
+%endif
 
 Summary: A MySQL visual database modeling, administration, development and migration tool
 Name   : mysql-workbench-%{edition}
