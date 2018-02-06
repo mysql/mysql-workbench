@@ -326,7 +326,7 @@ void setup_mforms_app(MainWindowController *mwin);
       [self closeEditorsMatching:nil]; // close all editors
 
       // flush anything waiting to be executed
-      wb::WBContextUI::get()->get_wb()->flush_idle_tasks();
+      wb::WBContextUI::get()->get_wb()->flush_idle_tasks(true);
 
       wb::WBContextUI::get()->get_wb()->close_document_finish();
 

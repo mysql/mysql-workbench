@@ -18,41 +18,55 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
 
 // Helper class to find context sensitive help based on a statement and a position in it.
 
+namespace JsonParser {
+  class JsonObject;
+}
+
 namespace help {
 
-class MYSQLWBBACKEND_PUBLIC_FUNC HelpContext {
-public:
-  HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion);
-  ~HelpContext();
+  class MYSQLWBBACKEND_PUBLIC_FUNC HelpContext {
+  public:
+    HelpContext(GrtCharacterSetsRef charsets, const std::string &sqlMode, long serverVersion);
+    ~HelpContext();
 
-  long serverVersion() const;
-private:
-  friend class DbSqlEditorContextHelp;
-  
-  class Private;
-  Private *_d;
-};
+    long serverVersion() const;
 
-class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp // Made public for tests only.
-{
-public:
-  static DbSqlEditorContextHelp* get();
-  static bool helpReady();
+  private:
+    friend class DbSqlEditorContextHelp;
 
-  bool helpTextForTopic(HelpContext *helpContext, const std::string &topic, std::string &text);
-  std::string helpTopicFromPosition(HelpContext *helpContext, const std::string &query, std::pair<size_t, size_t> caret);
+    class Private;
+    Private *_d;
+  };
 
-protected:
-  DbSqlEditorContextHelp();
+  // Exported ony for public for tests.
+  class MYSQLWBBACKEND_PUBLIC_FUNC DbSqlEditorContextHelp {
+  public:
+    static DbSqlEditorContextHelp *get();
 
-  bool topicExists(long serverVersion, const std::string &topic);
-};
+    void waitForLoading();
+
+    bool helpTextForTopic(HelpContext *helpContext, const std::string &topic, std::string &text);
+    std::string helpTopicFromPosition(HelpContext *helpContext, const std::string &query,
+                                      std::pair<size_t, size_t> caret);
+
+  protected:
+    std::thread loaderThread;
+    std::map<std::string, std::string> pageMap;
+    std::map<long, std::set<std::string>> helpTopics;               // Quick lookup for help topics per server version.
+    std::map<long, std::map<std::string, std::string>> helpContent; // Help text from a topic (also per version).
+
+    DbSqlEditorContextHelp();
+    ~DbSqlEditorContextHelp();
+
+    std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &json);
+    bool topicExists(long serverVersion, const std::string &topic);
+  };
 
 } // namespace help

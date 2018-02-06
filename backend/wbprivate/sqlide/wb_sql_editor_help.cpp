@@ -118,20 +118,6 @@ DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static bool helpDataReady = false; // Set once the loader thread is done.
-
-/**
- * Required if you need to sync loading and use (e.g. in tests).
- */
-bool DbSqlEditorContextHelp::helpReady() {
-  return helpDataReady;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static std::map<long, std::set<std::string>> helpTopics; // Quick lookup for help topics per server version.
-static std::map<long, std::map<std::string, std::string>> helpContent; // Help text from a topic (also per version).
-
 static std::string helpStyleSheet = "<style>\n"
   "body { color: #404040; spacing: 5px; }\n"
   "emphasis {font-style: italic; font-size: 100%; font-weight: 400;}\n"
@@ -227,7 +213,7 @@ std::string convertList(long version, JsonParser::JsonArray const &list) {
 /**
  * Creates the HTML formatted help text from the object that's passed in.
  */
-std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
+std::string DbSqlEditorContextHelp::createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
   std::string result = "<html><head>" + helpStyleSheet + "</head><body>";
 
   std::string id = json.get("id");
@@ -278,12 +264,6 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
 
   std::string page = base::replaceString(base::tolower(id), " ", "-");
 
-  static std::map<std::string, std::string> pageMap = {
-    { "now", "date-and-time-functions" },
-    { "like", "string-comparison-functions" },
-    { "auto_increment", "example-auto-increment" },
-  };
-
   auto iterator = pageMap.find(page);
   if (iterator != pageMap.end())
     page = iterator->second;
@@ -296,7 +276,13 @@ std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &j
 
 DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
 
-  std::thread([]() {
+  pageMap = {
+    { "now", "date-and-time-functions" },
+    { "like", "string-comparison-functions" },
+    { "auto_increment", "example-auto-increment" },
+  };
+
+  loaderThread = std::thread([this]() {
     std::string dataDir = base::makePath(mforms::App::get()->baseDir(), "modules/data/sqlide");
     for (long version : { 800, 507, 506, 505 }) {
       std::string fileName = "help-" + std::to_string(version / 100) + "." + std::to_string(version % 10) + ".json";
@@ -326,9 +312,21 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
       }
       
     }
-    helpDataReady = true;
-  }).detach();
+  });
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+DbSqlEditorContextHelp::~DbSqlEditorContextHelp() {
+  waitForLoading();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DbSqlEditorContextHelp::waitForLoading() {
+  if (loaderThread.joinable())
+    loaderThread.join();
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -336,8 +334,7 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
  * A quick lookup if the help topic exists actually, without retrieving help text.
  */
 bool DbSqlEditorContextHelp::topicExists(long serverVersion, const std::string &topic) {
-  if (!helpDataReady)
-    return false;
+  waitForLoading();
 
   auto iterator = helpTopics.find(serverVersion / 100);
   if (iterator == helpTopics.end())
@@ -350,7 +347,7 @@ bool DbSqlEditorContextHelp::topicExists(long serverVersion, const std::string &
 bool DbSqlEditorContextHelp::helpTextForTopic(HelpContext *context, const std::string &topic, std::string &text) {
   logDebug2("Looking up help topic: %s\n", topic.c_str());
 
-  if (helpDataReady && !topic.empty()) {
+  if (!loaderThread.joinable() && !topic.empty()) {
     auto iterator = helpContent.find(context->serverVersion() / 100);
     if (iterator == helpContent.end())
       return false;

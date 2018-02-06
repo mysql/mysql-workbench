@@ -626,7 +626,7 @@ TEST_FUNCTION(75) {
   tester->wb->new_document();
 
   while (dynamic_cast<ModelDiagramForm *>(WBContextUI::get()->get_active_main_form()) != 0)
-    tester->wb->flush_idle_tasks();
+    tester->wb->flush_idle_tasks(false);
 
   ensure("Could not close document", tester->close_document());
   tester->wb->close_document_finish();

@@ -946,7 +946,7 @@ void MainForm::refresh_gui_becb(wb::RefreshType type, const std::string &arg_id,
     case wb::RefreshCloseDocument: {
       prepare_close_document();
 
-      wb::WBContextUI::get()->get_wb()->flush_idle_tasks();
+      wb::WBContextUI::get()->get_wb()->flush_idle_tasks(true);
 
       wb::WBContextUI::get()->get_wb()->close_document_finish();
 

@@ -246,7 +246,7 @@ namespace MySQL {
       bool has_unsaved_changes();
       void open_document(String ^ file);
       bool save_changes();
-      void flush_idle_tasks();
+      void flush_idle_tasks(bool force);
       double delay_for_next_timer();
       void flush_timers();
 

@@ -301,7 +301,7 @@ namespace MySQL.GUI.Workbench
               workbenchPhysicalOverviewForm = null;
             }
 
-            wbContext.flush_idle_tasks();
+            wbContext.flush_idle_tasks(true);
             wbContext.close_document_finish();
 
             break;

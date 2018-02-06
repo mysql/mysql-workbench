@@ -644,16 +644,20 @@ std::map<std::string, std::string> WBContextSQLIDE::auto_save_sessions() {
   return ::auto_save_sessions;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CommandUI *WBContextSQLIDE::get_cmdui() {
   return wb::WBContextUI::get()->get_command_ui();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void WBContextSQLIDE::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
   if (name == "GNAppClosing")
     finalize();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void WBContextSQLIDE::init() {
 
@@ -748,6 +752,8 @@ void WBContextSQLIDE::init() {
                              std::bind(validate_list_members, this));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void WBContextSQLIDE::finalize() {
   if (_auto_save_handle) {
     mforms::Utilities::cancel_timeout(_auto_save_handle);
@@ -763,6 +769,8 @@ void WBContextSQLIDE::finalize() {
     ed = next;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor) {
   std::shared_ptr<sql::TunnelConnection> tunnel;

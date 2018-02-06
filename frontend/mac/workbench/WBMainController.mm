@@ -813,7 +813,7 @@ static NSString *applicationSupportFolder() {
 
     wb::WBContextUI::get()->init(&wbcallbacks, _options);
 
-    _wb->flush_idle_tasks();
+    _wb->flush_idle_tasks(false);
   } catch (std::exception &exc) {
     MShowCPPException(exc);
   }
@@ -977,7 +977,7 @@ static void init_mforms() {
   if (!_showingUnhandledException) {
     _showingUnhandledException = YES;
     try {
-      _wb->flush_idle_tasks();
+      _wb->flush_idle_tasks(false);
     } catch (const std::exception &exc) {
       NSAlert *alert = [NSAlert new];
       alert.messageText = @"Unhandled Exception";
@@ -993,7 +993,7 @@ static void init_mforms() {
 - (void)idleTasks:(NSTimer *)timer {
   static NSArray *modes = nil;
   if (!modes)
-    modes = @[ NSDefaultRunLoopMode, NSModalPanelRunLoopMode ];
+    modes = @[NSDefaultRunLoopMode, NSModalPanelRunLoopMode];
 
   // if we call flush_idle_tasks() directly here, we could get blocked by a plugin with a
   // modal loop. In that case, the timer would not get fired again until the modal loop
@@ -1001,7 +1001,8 @@ static void init_mforms() {
   [[NSRunLoop currentRunLoop] performSelector: @selector(flushIdleTasks:)
                                        target: self
                                      argument: self
-                                        order: 0 modes: modes];
+                                        order: 0
+                                        modes: modes];
 }
 
 - (void)requestRefresh {

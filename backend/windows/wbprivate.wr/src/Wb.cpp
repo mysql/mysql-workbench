@@ -569,9 +569,9 @@ bool WbContext::save_changes() {
 
 //--------------------------------------------------------------------------------------------------
 
-void WbContext::flush_idle_tasks() {
+void WbContext::flush_idle_tasks(bool force) {
   try {
-    WBContextUI::get()->get_wb()->flush_idle_tasks();
+    WBContextUI::get()->get_wb()->flush_idle_tasks(force);
   } catch (std::exception *ex) {
     throw gcnew MySQL::Grt::BackendException(ex);
   } catch (std::exception &ex) {

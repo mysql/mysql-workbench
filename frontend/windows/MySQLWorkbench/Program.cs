@@ -377,7 +377,7 @@ namespace MySQL.GUI.Workbench
         if (wbContext != null)
         {
           while (wbContext.is_busy())
-            wbContext.flush_idle_tasks();
+            wbContext.flush_idle_tasks(true);
 
           wbContext.finalize();
           wbContext.Dispose();
@@ -426,7 +426,7 @@ namespace MySQL.GUI.Workbench
       {
         try
         {
-          wbContext.flush_idle_tasks();
+          wbContext.flush_idle_tasks(false);
         }
         catch (Exception exception)
         {

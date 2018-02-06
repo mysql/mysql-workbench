@@ -311,7 +311,7 @@ namespace wb {
     }
 
     bool cancel_idle_tasks();
-    void flush_idle_tasks(bool force = false);
+    void flush_idle_tasks(bool force);
 
     // utilities for error reporting
     void show_exception(const std::string &operation, const std::exception &exc);
