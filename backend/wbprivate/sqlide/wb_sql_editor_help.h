@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <thread>
+
 // Helper class to find context sensitive help based on a statement and a position in it.
 
 namespace JsonParser {
