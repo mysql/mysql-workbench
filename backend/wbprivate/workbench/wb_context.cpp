@@ -747,6 +747,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   _frontendCallbacks = callbacks;
 
   _grtManager->set_status_slot(_frontendCallbacks->show_status_text);
+  _grt->setTesting(options->testing);
 
   // Already blocked (when constructed), but call it again so that lock_gui() gets called now.
   // Unlock not before a new document is created (see new_document()).
@@ -1010,8 +1011,8 @@ void WBContext::init_finish_(WBOptions *options) {
 
   _frontendCallbacks->show_status_text(_("Ready."));
 
-  if (options->open_at_startup_type !=
-      "run-script") // <--- so that our runtime tests don't lock up when a modal warning dialog is displayed
+  // Avoid our runtime tests to lock up when a modal warning dialog is displayed.
+  if (options->open_at_startup_type != "run-script")
     warnIfRunningOnUnsupportedOS();
 
   try {

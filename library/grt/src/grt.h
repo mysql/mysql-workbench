@@ -2424,6 +2424,10 @@ namespace grt {
       return _verbose;
     }
 
+    // Set to true when we are running unit tests.
+    void setTesting(bool flag) { _testing = flag; };
+    bool testing() { return _testing; };
+
     // metaclasss
 
     /** Load metaclasses defined in a XML file.
@@ -2729,6 +2733,7 @@ namespace grt {
     bool _check_serialized_crc;
     bool _verbose;
     bool _scanning_modules;
+    bool _testing;
 
   private:
     GRT();

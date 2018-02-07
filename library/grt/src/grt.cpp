@@ -226,7 +226,7 @@ StringRef StringRef::format(const char *format, ...) {
 
 //--------------------------------------------------------------------------------------------------
 
-GRT::GRT() : _check_serialized_crc(false), _verbose(false) {
+GRT::GRT() : _check_serialized_crc(false), _verbose(false), _testing(false) {
   _scanning_modules = false;
 
   _tracking_changes = 0;
