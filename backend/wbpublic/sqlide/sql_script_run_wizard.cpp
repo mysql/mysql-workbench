@@ -264,7 +264,7 @@ std::string SqlScriptApplyPage::next_button_caption() {
 }
 
 bool SqlScriptApplyPage::allow_back() {
-  return !_busy;
+  return !_busy && !_done;
 }
 
 bool SqlScriptApplyPage::allow_next() {

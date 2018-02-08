@@ -777,7 +777,6 @@ void SchemaListener::enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx
 void SchemaListener::exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   schema->name(MySQLBaseLexer::sourceTextForContext(ctx->schemaName()));
-  schema->oldName(schema->name());
   ignoreIfExists = ctx->ifNotExists() != nullptr;
 }
 
@@ -836,7 +835,6 @@ void TableListener::exitTableName(MySQLParser::TableNameContext *ctx) {
   IdentifierListener listener(ctx);
 
   table->name(listener.parts.back());
-  table->oldName(listener.parts.back());
   if (listener.parts.size() > 1) {
     if (!listener.parts[0].empty())
       _schema = ensureSchemaExists(listener.parts[0]);
@@ -1309,7 +1307,6 @@ void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGrou
 
   db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
   group->name(listener.parts[0]);
-  group->oldName(listener.parts[0]);
 
   // TODO: no info is stored about UNDO or REDO.
   group->undoFile(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
@@ -1473,7 +1470,6 @@ void RoutineListener::readRoutineName(ParserRuleContext *ctx) {
 
   IdentifierListener listener(ctx);
   routine->name(listener.parts.back());
-  routine->oldName(listener.parts.back());
 
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     routine->owner(ensureSchemaExists(listener.parts[0]));
@@ -1512,10 +1508,8 @@ void IndexListener::exitCreateIndex(MySQLParser::CreateIndexContext *ctx) {
 
   if (ctx->indexNameAndType() != nullptr) {
     index->name(base::unquote(ctx->indexNameAndType()->indexName()->getText()));
-    index->oldName(base::unquote(ctx->indexNameAndType()->indexName()->getText()));
   } else {
     index->name(base::unquote(ctx->indexName()->getText()));
-    index->oldName(base::unquote(ctx->indexName()->getText()));
   }
 }
 
@@ -1623,7 +1617,6 @@ void TriggerListener::exitCreateTrigger(MySQLParser::CreateTriggerContext *ctx) 
 
   // We store triggers relative to the tables they act on, so we ignore here any qualifying schema.
   trigger->name(listener.parts.back());
-  trigger->oldName(listener.parts.back());
 
   trigger->timing(ctx->timing->getText());
   trigger->event(ctx->event->getText());
@@ -1678,7 +1671,6 @@ void ViewListener::exitCreateView(MySQLParser::CreateViewContext *ctx) {
 
   IdentifierListener listener(ctx->viewName());
   view->name(listener.parts.back());
-  view->oldName(listener.parts.back());
 
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     view->owner(ensureSchemaExists(listener.parts[0]));
@@ -1732,7 +1724,6 @@ void ServerListener::exitCreateServer(MySQLParser::CreateServerContext *ctx) {
 
   IdentifierListener listener(ctx->serverName());
   server->name(listener.parts.back());
-  server->oldName(listener.parts.back());
 
   server->wrapperName(base::unquote(ctx->textOrIdentifier()->getText()));
 }
@@ -1783,7 +1774,6 @@ void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceConte
 
   IdentifierListener listener(ctx->tablespaceName());
   tablespace->name(listener.parts.back());
-  tablespace->oldName(listener.parts.back());
 
   tablespace->dataFile(base::unquote(ctx->textLiteral()->getText()));
 }
@@ -1896,7 +1886,6 @@ void EventListener::exitCreateEvent(MySQLParser::CreateEventContext *ctx) {
 
   IdentifierListener listener(ctx->eventName());
   event->name(listener.parts.back());
-  event->oldName(listener.parts.back());
 
   if (listener.parts.size() > 1 && !listener.parts[0].empty())
     event->owner(ensureSchemaExists(listener.parts[0]));

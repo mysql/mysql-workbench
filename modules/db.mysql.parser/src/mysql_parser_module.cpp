@@ -797,7 +797,6 @@ size_t MySQLParserServicesImpl::parseTrigger(MySQLParserContext::Ref context, db
     db_mysql_TableRef ownerTable = db_mysql_TableRef::cast_from(trigger->owner());
     if (!base::same_string(table->name(), ownerTable->name(), false)) {
       trigger->name(*trigger->name() + "_WRONG_SCHEMA");
-      trigger->oldName(trigger->name());
     }
   } else {
     trigger->modelOnly(1);
@@ -867,7 +866,6 @@ size_t MySQLParserServicesImpl::parseView(MySQLParserContext::Ref context, db_my
     db_mysql_SchemaRef ownerSchema = db_mysql_SchemaRef::cast_from(view->owner());
     if (schema.is_valid() && !base::same_string(schema->name(), ownerSchema->name(), impl->caseSensitive)) {
       view->name(*view->name() + "_WRONG_SCHEMA");
-      view->oldName(view->name());
     }
   } else {
     // Finished with errors. See if we can get at least the view name out.
@@ -937,10 +935,8 @@ size_t MySQLParserServicesImpl::parseRoutine(MySQLParserContext::Ref context, db
     RoutineListener listener(tree, catalog, routine, impl->caseSensitive);
 
     db_mysql_SchemaRef ownerSchema = db_mysql_SchemaRef::cast_from(routine->owner());
-    if (!base::same_string(schema->name(), ownerSchema->name(), false)) // Routine names are never case sensitive.
-    {
+    if (!base::same_string(schema->name(), ownerSchema->name(), false)) { // Routine names are never case sensitive.
       routine->name(*routine->name() + "_WRONG_SCHEMA");
-      routine->oldName(routine->name());
     }
   } else {
     // Finished with errors. See if we can get at least the routine name and type out.

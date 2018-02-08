@@ -1430,14 +1430,6 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
     }
 
-    // Make a copy of the catalog before we modify it with new/edited objects,
-    // so we can later do a diff between both to find changes.
-    db_CatalogRef server_state_catalog = grt::copy_object(client_state_catalog);
-
-#ifdef __APPLE__
-  retry_search:
-#endif
-
     // reset_references for the created object is called when the base editor is destroyed.
     db_DatabaseObjectRef db_object;
     switch (type) {
@@ -1463,25 +1455,14 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
         break;
     }
 
-#ifdef __APPLE__
-    if (!db_object.is_valid()) {
-      std::string lower;
-      // There is a bug in server that causes get_object_ddl_script() for uppercase named tables
-      // to be returned in lowercase, in OS X. http://bugs.mysql.com/bug.php?id=57830
-      // So, if you try to alter FOOBAR, it will not find it, since the table will be returned
-      // in lowercase. To work around that, we convert the object name to lowercase and repeat
-      // the search if the 1st try didn't work.
-      lower = tolower(obj_name);
-      if (lower != obj_name) {
-        logWarning("Object name %s was not found in catalog, trying to search it as %s", obj_name.c_str(),
-                   lower.c_str());
-        obj_name = lower;
-        goto retry_search;
-      } else
-        logWarning("Object name %s was not found in catalog.", aobj_name.c_str());
-      return;
+    if (db_object->oldName().empty()) {
+      db_object->oldName(db_object->name());
     }
-#endif
+
+    // Make a copy of the catalog before we modify it with new/edited objects,
+    // so we can later do a diff between both to find changes.
+    db_CatalogRef server_state_catalog = grt::copy_object(client_state_catalog);
+
     if (db_object.is_valid()) {
       db_object->customData().set("sqlMode", grt::StringRef(sql_mode));
       db_object->customData().set("originalObjectDDL", grt::StringRef(ddl_script));
@@ -1618,6 +1599,8 @@ db_TableRef SqlEditorTreeController::create_new_table(db_SchemaRef owner) {
   return object;
 }
 
+//--------------------------------------------------------------------------------------------------
+
 db_ViewRef SqlEditorTreeController::create_new_view(db_SchemaRef owner) {
   db_ViewRef object = grt::GRT::get()->create_object<db_View>(owner->views()->content_type_spec().object_class);
   object->owner(owner);
@@ -1625,6 +1608,8 @@ db_ViewRef SqlEditorTreeController::create_new_view(db_SchemaRef owner) {
   owner->views().insert(object);
   return object;
 }
+
+//--------------------------------------------------------------------------------------------------
 
 db_RoutineRef SqlEditorTreeController::create_new_routine(db_SchemaRef owner, wb::LiveSchemaTree::ObjectType type) {
   db_RoutineRef object =
@@ -1950,7 +1935,6 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
 
   if (obj_name != *db_object->name())
     db_object->name(obj_name);
-  db_object->oldName("");
   obj_editor->thaw_refresh_on_object_change(true);
 
   std::string schema_name = db_SchemaRef::can_wrap(db_object) ? std::string() : *db_object->owner()->name();
@@ -2004,8 +1988,6 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
         }
       }
 
-      db_object->oldName(obj_name);
-
       try {
         sql::Dbc_connection_handler::Ref conn;
         RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
@@ -2043,6 +2025,10 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
         db_object = client_state_catalog->schemata()[0];
       break;
   }
+
+  // The current name becomes now also the old name, so that we create alter scripts from the current name,
+  // not the one from before this change.
+  db_object->oldName(obj_name);
 
   {
     db_CatalogRef server_state_catalog(db_CatalogRef::cast_from(grt::copy_object(client_state_catalog)));
@@ -2100,8 +2086,7 @@ bool SqlEditorTreeController::parse_ddl_into_catalog(db_mysql_CatalogRef catalog
     errorCount = services->parseSQLIntoCatalog(_owner->work_parser_context(), catalog, sql, options);
     _owner->work_parser_context()->updateSqlMode(currentSqlMode);
 
-    if (errorCount == 0) // Error(s) solved by new sql mode -> inconsistency.
-    {
+    if (errorCount == 0) { // Error(s) solved by new sql mode -> inconsistency.
       if (mforms::Utilities::show_warning(
             strfmt(_("Error Parsing DDL for %s"), objectDescription.c_str()),
             _("The object's DDL retrieved from the server is inconsistent with respect to the SQL_MODE variable "
@@ -2141,7 +2126,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE *obj
   RowId log_id = -1;
   if (!dry_run) {
     log_descr = strfmt(_("Apply changes to %s"), obj_editor->get_name().c_str());
-    log_id = _owner->add_log_message(DbSqlEditorLog::BusyMsg, "Preparing...", log_descr, "");
+    log_id = _owner->add_log_message(DbSqlEditorLog::BusyMsg, "Applying object changes ...", log_descr, "");
   }
   try {
     if (!dry_run && obj_editor->has_editor() && obj_editor->get_sql_editor()->has_sql_errors()) {

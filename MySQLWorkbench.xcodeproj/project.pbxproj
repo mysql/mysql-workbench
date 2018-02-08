@@ -10921,7 +10921,7 @@
 				27CD3E9B18E3253000CDBD39 /* myx_sql_parser.tab.hh */,
 			);
 			name = linux;
-			path = "library/sql-parser/source/linux";
+			path = library/sql.parser/source/linux;
 			sourceTree = "<group>";
 		};
 		2BE0A258184CCCE00056AE11 /* Secondary Sidebar */ = {
