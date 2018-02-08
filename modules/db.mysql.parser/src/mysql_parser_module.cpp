@@ -1386,6 +1386,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         schema->owner(catalog);
 
         SchemaListener listener(statementContext, catalog, schema, impl->caseSensitive);
+        schema->oldName(schema->name());
 
         db_SchemaRef existing = find_named_object_in_list(catalog->schemata(), schema->name(), caseSensitive);
         if (existing.is_valid()) {
@@ -1419,6 +1420,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
 
         TableListener listener(statementContext, catalog, currentSchema, table, caseSensitive, autoGenerateFkNames,
                                refCache);
+        table->oldName(table->name());
 
         db_mysql_SchemaRef schema =
           db_mysql_SchemaRef::cast_from(table->owner()); // Might be different from current schema.
@@ -1451,6 +1453,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         index->lastChangeDate(index->createDate());
 
         IndexListener listener(statementContext, catalog, currentSchema, index, impl->caseSensitive, refCache);
+        index->oldName(index->name());
 
         db_TableRef table = db_TableRef::cast_from(index->owner());
         if (table.is_valid()) {
@@ -1474,6 +1477,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         event->owner(currentSchema);
 
         EventListener listener(statementContext, catalog, event, impl->caseSensitive);
+        event->oldName(event->name());
 
         db_mysql_SchemaRef schema =
           db_mysql_SchemaRef::cast_from(event->owner()); // Might be different from current schema.
@@ -1503,6 +1507,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         view->owner(currentSchema);
 
         ViewListener listener(statementContext, catalog, view, caseSensitive);
+        view->oldName(view->name());
 
         db_mysql_SchemaRef schema =
           db_mysql_SchemaRef::cast_from(view->owner()); // Might be different from current schema.
@@ -1532,6 +1537,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         routine->lastChangeDate(routine->createDate());
 
         RoutineListener listener(statementContext, catalog, routine, caseSensitive);
+        routine->oldName(routine->name());
 
         db_mysql_SchemaRef schema =
           db_mysql_SchemaRef::cast_from(routine->owner()); // Might be different from current schema.
@@ -1554,6 +1560,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         trigger->lastChangeDate(trigger->createDate());
 
         TriggerListener listener(statementContext, catalog, currentSchema, trigger, caseSensitive);
+        trigger->oldName(trigger->name());
 
         // It could be the listener had to create stub table. We have to add this to our created objects list.
         db_mysql_TableRef table = db_mysql_TableRef::cast_from(trigger->owner());
@@ -1578,6 +1585,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         group->owner(catalog);
 
         LogfileGroupListener listener(statementContext, catalog, group, impl->caseSensitive);
+        group->oldName(group->name());
 
         db_LogFileGroupRef existing = find_named_object_in_list(catalog->logFileGroups(), group->name());
         if (existing.is_valid()) {
@@ -1598,6 +1606,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         server->owner(catalog);
 
         ServerListener listener(statementContext, catalog, server, impl->caseSensitive);
+        server->oldName(server->name());
 
         db_ServerLinkRef existing = find_named_object_in_list(catalog->serverLinks(), server->name());
         if (existing.is_valid()) {
@@ -1617,6 +1626,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
         tablespace->owner(catalog);
 
         TablespaceListener listener(statementContext, catalog, tablespace, impl->caseSensitive);
+        tablespace->oldName(tablespace->name());
 
         db_TablespaceRef existing = find_named_object_in_list(catalog->tablespaces(), tablespace->name());
         if (existing.is_valid()) {
@@ -1861,8 +1871,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
       case QtAlterServer:
         break;
 
-      case QtAlterTable: // Alter table only for adding/removing indices and for renames.
-      {
+      case QtAlterTable: { // Alter table only for adding/removing indices and for renames.
         IdentifierListener listener(statementContext->alterStatement()->alterTable()->tableRef());
 
         db_mysql_SchemaRef schema = currentSchema;

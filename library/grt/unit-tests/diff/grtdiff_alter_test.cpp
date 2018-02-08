@@ -1085,7 +1085,7 @@ TEST_FUNCTION(10) {
     tester->get_rdbms()->version(), "", false);
   grt::DictRef options(true);
   for (int i = 0; data[i].description != NULL; i++) {
-    std::cout << ".";
+    std::cout << "." << std::flush;
     if ((i + 1) % 30 == 0)
       std::cout << std::endl;
 
