@@ -136,8 +136,12 @@ int LexerDocument::LineFromPosition(int position) const {
 //--------------------------------------------------------------------------------------------------
 
 int LexerDocument::LineStart(int line) const {
+  if (_lines.empty())
+    return 1;
+
   if (line >= (int)_lines.size())
     return (int)(_lines.back().first + _lines.back().second); // A position after the last one.
+
   return (int)_lines[line].first;
 }
 
