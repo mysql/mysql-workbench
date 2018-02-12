@@ -38,6 +38,8 @@
 }
 
 - (void)dealloc {
+  [NSObject cancelPreviousPerformRequestsWithTarget: self];
+
   if (_view)
     _view->pre_destroy();
   delete _view;

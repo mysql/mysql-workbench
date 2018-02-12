@@ -729,7 +729,7 @@ void CanvasView::repaint_area(const Rect &aBounds, int wx, int wy, int ww, int w
 }
 
 void CanvasView::queue_repaint() {
-  if (_repaint_lock > 0) {
+  if (_repaint_lock > 0 || _destroying) {
     _repaints_missed++;
     return;
   }
@@ -744,7 +744,7 @@ void CanvasView::queue_repaint() {
 }
 
 void CanvasView::queue_repaint(const Rect &bounds) {
-  if (_repaint_lock > 0) {
+  if (_repaint_lock > 0 || _destroying) {
     _repaints_missed++;
     return;
   }

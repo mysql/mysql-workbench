@@ -213,17 +213,20 @@ public:
 
   DEFINE_INIT_MODULE_DOC(
     DbMySQL_VERSION, "Oracle", DOC_DbMySQLImpl, grt::ModuleImplBase,
-    DECLARE_MODULE_FUNCTION(DbMySQLImpl::getTargetDBMSName), DECLARE_MODULE_FUNCTION(DbMySQLImpl::initializeDBMSInfo),
+    DECLARE_MODULE_FUNCTION(DbMySQLImpl::getTargetDBMSName),
+    DECLARE_MODULE_FUNCTION(DbMySQLImpl::initializeDBMSInfo),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::quoteIdentifier),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::fullyQualifiedObjectName),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::generateSQLForDifferences),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::generateReportForDifferences),
-    DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeSQLExportScript), DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeSQLSyncScript),
+    DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeSQLExportScript),
+    DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeSQLSyncScript),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::getTraitsForServerVersion),
     DECLARE_MODULE_FUNCTION_DOC(DbMySQLImpl::makeCreateScriptForObject, "Generates a CREATE script for the object.",
                                 "object the object to be processed (Table, View, Routine etc)"),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeAlterScriptForObject),
-    DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeAlterScript), DECLARE_MODULE_FUNCTION(DbMySQLImpl::getKnownEngines),
+    DECLARE_MODULE_FUNCTION(DbMySQLImpl::makeAlterScript),
+    DECLARE_MODULE_FUNCTION(DbMySQLImpl::getKnownEngines),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::getDefaultUserDatatypes),
     DECLARE_MODULE_FUNCTION(DbMySQLImpl::getDefaultColumnValueMappings));
 
