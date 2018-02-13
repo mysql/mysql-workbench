@@ -193,7 +193,7 @@ tabs = newTabView(mforms.TabViewSystemStandard)
 system_variables = VariablesGrouper(variable_groups.variable_groups, raw_opts.ropts, os.path.join(temp_path, "variable_groups.py"))
 status_variables = VariablesGrouper(status_groups.variable_groups, raw_vars.status_vars_list, os.path.join(temp_path, "status_groups.py"))
 
-tabs.add_page(system_variables, "Syatem Variables")
+tabs.add_page(system_variables, "System Variables")
 tabs.add_page(status_variables, "Status Variables")
 
 form.set_content(tabs)

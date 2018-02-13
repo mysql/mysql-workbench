@@ -99,6 +99,8 @@ def parse_string(node, value, opt):
                         print "existing str value tag", aname, value
                     else:
                         value[str(aname)] = str(aval)
+                        if aname == 'default' and str(aval) == "empty string":
+                            value[str(aname)] = ""
             elif t.tagName == 'choice':
                 for (aname, aval) in t.attributes.items():
                     if aname == 'value':
@@ -144,6 +146,8 @@ def parse_filename(node, value, opt):
             if t.tagName == 'value':
                 for (aname, aval) in t.attributes.items():
                     value[str(aname)] = str(aval)
+                    if aname == 'default' and str(aval) == "empty string":
+                        value[str(aname)] = ""
 
 #-------------------------------------------------------------------------------
 def parse_enumeration(node, value, opt):
@@ -346,8 +350,8 @@ def check_redundant_option(opts, optid):
 for option in doc.documentElement.getElementsByTagName('mysqloption'):
     opt = {}
     optid = str(option.getAttribute('id'))
-    opt['name'] = optid
-    opt['caption'] = optid
+    opt['name'] = optid.strip()
+    opt['caption'] = optid.strip()
     is_mycnf_opt = False
     is_variable_dynamic = False
     variable_class = None
