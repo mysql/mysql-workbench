@@ -28,7 +28,7 @@ from sqlide_catalogman_ext import MaintenanceResultForm
 from sqlide_catalogman_ext import ObjectManager
 from sqlide_catalogman_ext import TriggerManager
 from sqlide_catalogman_ext import ColumnManager
-from mforms import IconStringColumnType, StringColumnType, IntegerColumnType
+from mforms import IconStringColumnType, StringColumnType, LongIntegerColumnType
 from wb_admin_utils import make_panel_header
 from workbench.utils import human_size, Version
 
@@ -881,18 +881,18 @@ class PartitionManager(TableManDefs, ObjectManager):
     icon_column = 0
     columns = [("partition_name", IconStringColumnType, "Name", 200, None),
                ("subpartition_name", StringColumnType, "Subpartiton Name", 100, None),
-               ("partition_ordinal_position", IntegerColumnType, "Ordinal Pos", 100, None),
-               ("subpartition_ordinal_position", IntegerColumnType, "Subpartiton Ordinal Pos", 100, None),
+               ("partition_ordinal_position", LongIntegerColumnType, "Ordinal Pos", 100, None),
+               ("subpartition_ordinal_position", LongIntegerColumnType, "Subpartiton Ordinal Pos", 100, None),
                ("partition_method", StringColumnType, "Partition Method", 100, None),
                ("subpartition_method", StringColumnType, "Subpartition Method", 100, None),
                ("partition_expression", StringColumnType, "Partition expression", 100, None),
                ("subpartition_expression", StringColumnType, "Subpartition expression", 100, None),
                ("partition_description", StringColumnType, "Partition description", 100, None),
-               ("table_rows", IntegerColumnType, "Table rows", 100, None),
-               ("avg_row_length", IntegerColumnType, "AVG row length", 100, None),
-               ("data_length", IntegerColumnType, "Data length", 100, None),
-               ("max_data_length", IntegerColumnType, "max data length", 100, None),
-               ("index_length", IntegerColumnType, "Index length", 100, None),
+               ("table_rows", LongIntegerColumnType, "Table rows", 100, None),
+               ("avg_row_length", LongIntegerColumnType, "AVG row length", 100, None),
+               ("data_length", LongIntegerColumnType, "Data length", 100, None),
+               ("max_data_length", LongIntegerColumnType, "max data length", 100, None),
+               ("index_length", LongIntegerColumnType, "Index length", 100, None),
                ("create_time", StringColumnType, "Create time", 150, None),
                ("update_time", StringColumnType, "Update time", 150, None),
                ("check_time", StringColumnType, "Check time", 150, None)]
