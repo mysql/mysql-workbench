@@ -125,7 +125,7 @@ namespace grtui {
     void execute_grt_task(const std::function<grt::ValueRef()> &slot, bool sync);
 
     void process_grt_task_message(const grt::Message &msg);
-    void process_grt_task_fail(const std::string &error, bec::GRTTask *task);
+    void process_grt_task_fail(const std::exception &error, bec::GRTTask *task);
     void process_grt_task_finish(const grt::ValueRef &result, bec::GRTTask *task);
 
   protected:

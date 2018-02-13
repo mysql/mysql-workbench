@@ -194,8 +194,8 @@ MessageListStorage *GRTManager::get_messages_list() {
   return _messages_list;
 }
 
-void GRTManager::task_error_cb(const std::string &error, const std::string &title) {
-  mforms::Utilities::show_error(title, error, _("Close"));
+void GRTManager::task_error_cb(const std::exception &error, const std::string &title) {
+  mforms::Utilities::show_error(title, error.what(), _("Close"));
 }
 
 void GRTManager::execute_grt_task(const std::string &title, const std::function<grt::ValueRef()> &function,

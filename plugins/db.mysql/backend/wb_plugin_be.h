@@ -70,7 +70,7 @@ public:
 
   void process_task_msg(const grt::Message &msgs);
   void process_task_finish(grt::ValueRef res);
-  void process_task_fail(const std::string &error);
+  void process_task_fail(const std::exception &error);
 
 private:
   Task_msg_cb _task_msg_cb;

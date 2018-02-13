@@ -452,17 +452,17 @@ void WizardProgressPage::process_grt_task_message(const grt::Message &msg) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WizardProgressPage::process_grt_task_fail(const std::string &error, bec::GRTTask *task) {
+void WizardProgressPage::process_grt_task_fail(const std::exception &error, bec::GRTTask *task) {
   _tasks[_current_task]->async_failed = true;
   if (_tasks[_current_task]->process_fail) {
     // if process_fail returns true, the error was recovered
     if (_tasks[_current_task]->process_fail())
       _tasks[_current_task]->async_failed = false;
     else
-      set_status_text(std::string("Error: ").append(error), true);
+      set_status_text(std::string("Error: ").append(error.what()), true);
   } else {
-    add_log_text(std::string("Operation failed: ").append(error));
-    set_status_text(std::string("Error: ").append(error), true);
+    add_log_text(std::string("Operation failed: ").append(error.what()));
+    set_status_text(std::string("Error: ").append(error.what()), true);
   }
 
   // continue with task execution

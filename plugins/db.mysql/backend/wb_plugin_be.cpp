@@ -61,9 +61,9 @@ void Wb_plugin::process_task_msg(const grt::Message &msg) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Wb_plugin::process_task_fail(const std::string &error) {
+void Wb_plugin::process_task_fail(const std::exception &error) {
   if (_task_fail_cb)
-    _task_fail_cb(error);
+    _task_fail_cb(error.what());
 }
 
 //----------------------------------------------------------------------------------------------------------------------

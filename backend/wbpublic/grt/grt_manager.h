@@ -288,6 +288,6 @@ namespace bec {
 
     grt::ValueRef setup_grt();
     void shell_write(const std::string &text);
-    void task_error_cb(const std::string &error, const std::string &title);
+    void task_error_cb(const std::exception &error, const std::string &title);
   };
 };
