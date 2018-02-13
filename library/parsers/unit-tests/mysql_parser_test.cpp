@@ -199,6 +199,8 @@ TEST_FUNCTION(10) {
 
   size_t count = 0;
   for (size_t i = 0; i < sizeof(test_files) / sizeof(test_files[0]); ++i) {
+    std::cout << std::endl << "Test file: " << i << std::endl;
+
 #ifdef _WIN32
     std::ifstream stream(base::string_to_wstring(test_files[i].name), std::ios::binary);
 #else
@@ -212,13 +214,19 @@ TEST_FUNCTION(10) {
                                         test_files[i].line_break);
     count += ranges.size();
 
+    size_t j = 0;
     for (auto &range : ranges) {
+      std::cout << "." << std::flush; // Need a progress indicator or pb2 might kill our test process.
+      if (++j % 50 == 0)
+        std::cout << std::endl;
+
       if (parse(std::string(sql.c_str() + range.first, range.second), 50610, "ANSI_QUOTES") > 0U) {
         std::string query(sql.c_str() + range.first, range.second);
         ensure("This query failed to parse:\n" + query, false);
       }
     }
   }
+  std::cout << std::endl;
 
 #if VERBOSE_OUTPUT
   test_time_point t2;
