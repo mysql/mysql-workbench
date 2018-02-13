@@ -31,9 +31,6 @@ public:
     : WizardSchemaFilterPage(form, name), _dbplugin(0) {
     set_short_title(_("Select Schemas"));
     set_title(_("Select Schemas to Reverse Engineer"));
-
-    add(&_missing_label, false, true);
-    _missing_label.show(false);
   }
 
   virtual void leave(bool advancing) {
@@ -70,5 +67,4 @@ public:
 private:
   std::vector<std::string> _schemas;
   Db_plugin *_dbplugin;
-  mforms::Label _missing_label;
 };

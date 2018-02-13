@@ -45,10 +45,13 @@ static void refill_list(mforms::ListBox &list, bec::GrtStringListModel *model) {
 DBObjectFilterFrame::DBObjectFilterFrame()
   : mforms::Panel(mforms::BorderedPanel), _enabled_flag(NULL), _box(false), _object_list(true), _mask_list(true) {
   set_padding(8);
+  set_name("objectFilterFrame");
+
   _box.set_spacing(8);
-  _box.set_name("panel content box");
+  _box.set_name("filterContentBox");
 
   // summary view
+  _summary_table.set_name("summaryTable");
   _box.add(&_summary_table, false, true);
 
   _summary_table.set_row_count(2);
@@ -58,26 +61,31 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _summary_table.set_column_spacing(8);
 
   _icon.set_size(48, 48);
+  _icon.set_name("filterIcon");
 
+  _check.set_name("filterCheckBox");
   _check.set_text("Include Objects of This Type"); // this text will be updated later on
   scoped_connect(_check.signal_clicked(), std::bind(&DBObjectFilterFrame::toggle_enabled, this));
 
   _summary_table.add(&_icon, 0, 1, 0, 2, 0);
 
+  _summary_label.set_name("filterSummaryLabel");
   _summary_label.set_text(_("Selected/Total Objects:"));
   _summary_label.set_style(mforms::SmallStyle);
+  _summary_label.set_name("summaryLabel");
 
-  _summary_table.add(&_check, 1, 2, 0, 1, mforms::HExpandFlag | mforms::HFillFlag);
-  _summary_table.add(&_summary_label, 1, 2, 1, 2, mforms::HFillFlag);
+  _summary_table.add(&_check, 1, 2, 0, 1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
+  _summary_table.add(&_summary_label, 1, 2, 1, 2, mforms::HFillFlag | mforms::VFillFlag);
   _summary_label.set_text_align(mforms::MiddleLeft);
 
-  _show_button.enable_internal_padding(true);
+  _show_button.set_name("filterShowListsButton");
   _show_button.set_text(_("Show Filter"));
   scoped_connect(_show_button.signal_clicked(), std::bind(&DBObjectFilterFrame::toggle_detailed, this));
 
   _summary_table.add(&_show_button, 2, 3, 0, 2, mforms::HFillFlag);
 
   // detailed view
+  _detailed_table.set_name("filterDetailTable");
   _box.add(&_detailed_table, true, true);
   _detailed_table.show(false);
 
@@ -102,6 +110,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _detailed_table.add(&_filter_combo, 3, 4, 0, 1);
   */
 
+  _object_list.set_name("filterSourceList");
   _object_list.set_heading(_("Objects to Process"));
 #ifdef _WIN32
   _object_list.set_size(120, -1); // Need a minimum size for Windows, or layouting does not work properly.
@@ -109,16 +118,23 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _detailed_table.add(&_object_list, 0, 1, 1, 8, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
   scoped_connect(_object_list.signal_changed(), std::bind(&DBObjectFilterFrame::update_button_enabled, this));
 
+  _add1_button.set_name("filterAddSelectedObjectButton");
   _add1_button.set_text(">");
   scoped_connect(_add1_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_clicked, this, false));
+
+  _add1_button.set_name("filterRemoveSelectedObjectButton");
   _del1_button.set_text("<");
   scoped_connect(_del1_button.signal_clicked(), std::bind(&DBObjectFilterFrame::del_clicked, this, false));
 
+  _add1_button.set_name("filterAddAllObjectsButton");
   _add2_button.set_text(">>");
   scoped_connect(_add2_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_clicked, this, true));
+
+  _add1_button.set_name("filterRemoveAllObjectsButton");
   _del2_button.set_text("<<");
   scoped_connect(_del2_button.signal_clicked(), std::bind(&DBObjectFilterFrame::del_clicked, this, true));
 
+  _add1_button.set_name("filterAddPatternButton");
   _mask_button.set_text("+");
   scoped_connect(_mask_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_mask, this));
 
@@ -128,13 +144,17 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _detailed_table.add(&_del2_button, 1, 2, 5, 6, mforms::HFillFlag);
   _detailed_table.add(&_mask_button, 1, 2, 6, 7, mforms::HFillFlag);
 
+  _mask_list.set_name("filterTargetList");
+
 #ifdef _WIN32
   _mask_list.set_size(120, -1);
 #endif
+
   _mask_list.set_heading(_("Excluded Objects"));
-  _detailed_table.add(&_mask_list, 2, 3, 1, 8, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
+  _detailed_table.add(&_mask_list, 2, 3, 1, 8, mforms::HFillFlag | mforms::VFillFlag | mforms::HExpandFlag);
   scoped_connect(_mask_list.signal_changed(), std::bind(&DBObjectFilterFrame::update_button_enabled, this));
 
+  _filter_help_label.set_name("filterHelpLabel");
   _filter_help_label.set_style(mforms::SmallHelpTextStyle);
   _filter_help_label.set_text(_("Use the + button to exclude objects matching wildcards such as * and ?"));
   _detailed_table.add(&_filter_help_label, 0, 3, 8, 9, mforms::HFillFlag | mforms::VFillFlag);

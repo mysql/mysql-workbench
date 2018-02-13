@@ -21,20 +21,18 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#import <Cocoa/Cocoa.h>
-
 #import "MFView.h"
 #include "mforms/panel.h"
 
 @interface MFPanelImpl : NSBox {
   NSButtonCell *mCheckButton;
-  NSPoint mTopLeftOffset;
-  NSPoint mBottomRightOffset;
+  NSSize contentOffset; // The internal padding a box adds depending on its type.
+
 @public
   mforms::Panel *mOwner;
   mforms::PanelType mType;
 }
 
-- (void)setBackgroundImage:(NSString *)path withAlignment:(mforms::Alignment)align;
+- (void)setBackgroundImage: (NSString *)path withAlignment: (mforms::Alignment)align;
 
 @end

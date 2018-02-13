@@ -39,14 +39,14 @@ WizardSchemaFilterPage::WizardSchemaFilterPage(WizardForm *form, const char *nam
   _header.set_spacing(4);
 
   _image.set_image(bec::IconManager::get_instance()->get_icon_path("db.Schema.32x32.png"));
-  _header.add(&_image, false);
+  _header.add(&_image, false, true);
 
   _label.set_text_align(mforms::MiddleLeft);
-  _label.set_text(_("Select the schemas below you want to include:"));
+  _label.set_text(_("Select the schemas you want to include:"));
   _label.set_style(mforms::BoldStyle);
   _header.add(&_label, true, true);
 
-  add(&_header, false, false);
+  add(&_header, false, true);
 
   add(&_check_list, true, true);
 

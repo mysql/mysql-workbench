@@ -236,7 +236,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 }
 
 - (void)relayout {
-  [self resizeSubviewsWithOldSize:self.frame.size];
+  [self resizeSubviewsWithOldSize: self.frame.size];
 }
 
 - (void)drawBounds: (NSRect)rect {
