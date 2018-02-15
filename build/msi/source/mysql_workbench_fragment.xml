@@ -54,6 +54,8 @@
                 <File Id="file1023" Name="libiconv.dll"/>
                 <File Id="file1085" Name="libintl-8.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
+                <File Id="ssleay32.dll" Name="ssleay32.dll"/>
+                <File Id="libeay32.dll" Name="libeay32.dll"/>
                 <File Id="file1034" Name="libmysql.dll"/>
                 <File Id="file1035" Name="libpng.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>

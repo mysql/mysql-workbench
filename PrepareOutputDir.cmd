@@ -124,6 +124,8 @@ xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
 
 echo * MySQL client library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libeay32.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\ssleay32.dll %TARGET_DIR%\.
 rem xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.pdb %TARGET_DIR%\. 1> nul 2> nul
 
 echo * MySQL cdbc driver ...
