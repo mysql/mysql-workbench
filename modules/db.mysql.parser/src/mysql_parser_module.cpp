@@ -2305,28 +2305,28 @@ public:
   grt::DictRef data = grt::DictRef(true);
 
   GrantListener(ParseTree *tree) {
-    // TODO: currently we only handle standard grants here. What's missing is handling for
-    //       proxy and role grants.
     data.set("privileges", _privileges);
     data.set("users", _users);
+    data.set("options", _options);
 
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
   virtual void exitGrant(MySQLParser::GrantContext *ctx) override {
-    std::string target;
-    if (ctx->aclType() != nullptr)
-      target = ctx->aclType()->getText() + " ";
-    target += MySQLBaseLexer::sourceTextForContext(ctx->grantIdentifier());
-    data.gset("target", target);
-    if (ctx->WITH_SYMBOL() != nullptr)
-      data.set("options", _options);
+    if (ctx->ON_SYMBOL() != nullptr && ctx->PROXY_SYMBOL() == nullptr) {
+      // Handle specialities for the classic grant command.
+      std::string target;
+      if (ctx->aclType() != nullptr)
+        target = ctx->aclType()->getText() + " ";
+      target += MySQLBaseLexer::sourceTextForContext(ctx->grantIdentifier());
+      data.gset("target", target);
 
-    if (ctx->ALL_SYMBOL() != nullptr) {
-      std::string priv = ctx->ALL_SYMBOL()->getText();
-      if (ctx->PRIVILEGES_SYMBOL() != nullptr)
-        priv += " " + ctx->PRIVILEGES_SYMBOL()->getText();
-      _privileges.insert(priv);
+      if (ctx->ALL_SYMBOL() != nullptr) {
+        std::string priv = ctx->ALL_SYMBOL()->getText();
+        if (ctx->PRIVILEGES_SYMBOL() != nullptr)
+          priv += " " + ctx->PRIVILEGES_SYMBOL()->getText();
+        _privileges.insert(priv);
+      }
     }
   }
 
@@ -2343,8 +2343,11 @@ public:
     _privileges.insert(privilege);
   }
 
-  virtual void enterGrantUser(MySQLParser::GrantUserContext *ctx) override {
-    _currentUser = grt::DictRef(true); // Starting a new user.
+  virtual void enterUser(MySQLParser::UserContext *ctx) override {
+    // There are 3 places where a user is parsed: as source user in a proxy grant, in the user list of a
+    // roles-to-user grant and the grant list of the classic grant command. The handling is different however.
+    // In the first case we keep the user as proxy user reference, while for the other 2 the user goes to the user list.
+    _currentUser = grt::DictRef(true);
   }
 
   virtual void exitGrantUser(MySQLParser::GrantUserContext *ctx) override {
@@ -2361,6 +2364,19 @@ public:
   }
 
   virtual void exitUser(MySQLParser::UserContext *ctx) override {
+    auto name = fillUserDetails(ctx, _currentUser);
+
+    // Is the parent the grant rule? If so this is the proxy user, otherwise a user in an assignee list.
+    auto parent = dynamic_cast<MySQLParser::GrantContext *>(ctx->parent);
+    if (parent != nullptr) {
+      if (parent->WITH_SYMBOL())
+        _options.gset("GRANT", "");
+      data.set("proxyUser", _currentUser);
+    } else
+      _users.set(name, _currentUser);
+  }
+
+  std::string fillUserDetails(MySQLParser::UserContext *ctx, grt::DictRef user) {
     std::string name;
     if (ctx->CURRENT_USER_SYMBOL() != nullptr)
       name = ctx->CURRENT_USER_SYMBOL()->getText();
@@ -2370,14 +2386,14 @@ public:
       if (ctx->AT_SIGN_SYMBOL() != nullptr) {
         // Host part.
         if (ctx->AT_TEXT_SUFFIX() != nullptr)
-          _currentUser.gset("host", base::unquote(ctx->AT_TEXT_SUFFIX()->getText().substr(1))); // Omit the @ char.
+          user.gset("host", base::unquote(ctx->AT_TEXT_SUFFIX()->getText().substr(1))); // Omit the @ char.
         else
-          _currentUser.gset("host", MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()[1]));
+          user.gset("host", MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()[1]));
       }
     }
 
-    _currentUser.gset("user", name);
-    _users.set(name, _currentUser);
+    user.gset("user", name);
+    return name;
   }
 
   virtual void exitRequireClause(MySQLParser::RequireClauseContext *ctx) override {
