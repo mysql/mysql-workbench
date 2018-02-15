@@ -561,12 +561,15 @@ class TableIndexInfoPanel(mforms.Box):
 
         table.add(make_title("Indexes in Table"), 0, 1, 0, 1, mforms.HFillFlag)
         self.index_list = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
+        if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+            self.index_list.add_column(mforms.CheckColumnType, "Visible", 50, True)
         self.index_list.add_column(mforms.IconStringColumnType, "Key", 140, False)
         self.index_list.add_column(mforms.StringColumnType, "Type", 80, False)
         self.index_list.add_column(mforms.StringColumnType, "Unique", 40, False)
         self.index_list.add_column(mforms.StringColumnType, "Columns", 200, False)
         self.index_list.end_columns()
         self.index_list.add_changed_callback(self.index_selected)
+        self.index_list.set_cell_edited_callback(self.edit_index)
         self.index_list.set_size(450, -1)
         table.add(self.index_list, 0, 1, 1, 2, mforms.HFillFlag|mforms.VFillFlag)
 
@@ -655,11 +658,10 @@ class TableIndexInfoPanel(mforms.Box):
         hbox.add_end(self.create_index, False, True)
         self.add(hbox, False, True)
 
-
     def do_drop_index(self):
         node = self.index_list.get_selected_node()
         if node:
-            index = node.get_string(0)
+            index = node.get_string(1) if self.target_version.is_supported_mysql_version_at_least(8, 0, 0) else node.get_string(0)
             if mforms.Utilities.show_message("Drop Index", "Drop index `%s` from table `%s`.`%s`?" % (index, self._schema, self._table), "Drop", "Cancel", "") == mforms.ResultOk:
                 try:
                     self.editor.executeManagementCommand("DROP INDEX `%s` ON `%s`.`%s`" % (index, self._schema, self._table), 1)
@@ -667,17 +669,24 @@ class TableIndexInfoPanel(mforms.Box):
                 except grt.DBError, e:
                     mforms.Utilities.show_error("Drop Index", "Error dropping index.\n%s" % e.args[0], "OK", "", "")
 
-
     def do_create_index(self):
         cols = []
         for node in self.column_list.get_selection():
-            cols.append(node.get_string(0))
+            cols.append(node.get_string(1) if self.target_version.is_supported_mysql_version_at_least(8, 0, 0) else node.get_string(0))
         if cols:
             form = CreateIndexForm(self, self.editor, self._schema, self._table, cols, self.get_table_engine() if self.get_table_engine else None)
             if form.run():
                 self.refresh()
         else:
             mforms.Utilities.show_warning("Create Index","You have to select at least one column.\n", "OK", "", "")
+
+    def edit_index(self, node, column, value):
+        if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+            index = node.get_string(1)
+            sql = "ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s" % (self._schema, self._table, index, "INVISIBLE" if node.get_bool(0) is True else "VISIBLE")
+            if mforms.Utilities.show_message("Alter Index", "Do you really want to %s ?" % sql, "Yes", "Cancel", "") == mforms.ResultOk:
+                self.editor.executeManagementCommand(sql, 1)
+                node.set_bool(0, False if node.get_bool(0) is True else True)
 
     def index_selected(self):
         node = self.index_list.get_selected_node()
@@ -742,22 +751,32 @@ class TableIndexInfoPanel(mforms.Box):
                 curname = None
                 itype = None
                 non_unique = None
+                is_visible = True
                 columns = []
                 while ok:
                     name = rset.stringFieldValue(2)
                     if name != curname:
                         if columns:
                             node = self.index_list.add_node()
-                            node.set_icon_path(0, index_icon)
-                            node.set_string(0, curname)
-                            node.set_string(1, itype)
-                            node.set_string(2, "YES" if non_unique != "1" else "NO")
-                            node.set_string(3, ", ".join([c[1] for c in columns]))
+                            if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+                                node.set_bool(0, is_visible)
+                                node.set_icon_path(1, index_icon)
+                                node.set_string(1, curname)
+                                node.set_string(2, itype)
+                                node.set_string(3, "YES" if non_unique != "1" else "NO")
+                                node.set_string(4, ", ".join([c[1] for c in columns]))
+                            else:
+                                node.set_icon_path(0, index_icon)
+                                node.set_string(0, curname)
+                                node.set_string(1, itype)
+                                node.set_string(2, "YES" if non_unique != "1" else "NO")
+                                node.set_string(3, ", ".join([c[1] for c in columns]))
                         columns = []
                         self.index_info.append(([rset.stringFieldValue(i) for i in index_rs_columns], columns))
                         curname = name
                         itype = rset.stringFieldValue(10)
                         non_unique = rset.stringFieldValue(1)
+                        is_visible = True if rset.stringFieldValue(13) == "YES" else False
 
                     cname = rset.stringFieldValue(4)
                     if cname not in column_to_index:
@@ -766,13 +785,22 @@ class TableIndexInfoPanel(mforms.Box):
                         column_to_index[cname].append(name)
                     columns.append([rset.stringFieldValue(i) for i in column_rs_columns])
                     ok = rset.nextRow()
+
                 if columns:
                     node = self.index_list.add_node()
-                    node.set_icon_path(0, index_icon)
-                    node.set_string(0, curname)
-                    node.set_string(1, itype)
-                    node.set_string(2, "YES" if non_unique != "1" else "NO")
-                    node.set_string(3, ", ".join([c[1] for c in columns]))
+                    if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+                        node.set_bool(0, is_visible)
+                        node.set_icon_path(1, index_icon)
+                        node.set_string(1, curname)
+                        node.set_string(2, itype)
+                        node.set_string(3, "YES" if non_unique != "1" else "NO")
+                        node.set_string(4, ", ".join([c[1] for c in columns]))
+                    else:
+                        node.set_icon_path(0, index_icon)
+                        node.set_string(0, curname)
+                        node.set_string(1, itype)
+                        node.set_string(2, "YES" if non_unique != "1" else "NO")
+                        node.set_string(3, ", ".join([c[1] for c in columns]))
             try:
                 rset = self.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (schema, table), 0)
             except grt.DBError, e:

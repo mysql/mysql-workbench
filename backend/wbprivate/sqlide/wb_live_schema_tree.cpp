@@ -209,6 +209,7 @@ void LiveSchemaTree::IndexData::copy(LSTData* other) {
     this->columns.assign(pother->columns.begin(), pother->columns.end());
     this->type = pother->type;
     this->unique = pother->unique;
+    this->visible = pother->visible;
   }
 }
 
@@ -218,8 +219,8 @@ std::string LiveSchemaTree::IndexData::get_details(bool full, const mforms::Tree
   if (details.empty()) {
     details = "<table style=\"border: none; border-collapse: collapse;\">";
     details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Type", externalize_token(type).c_str());
-    std::string unique_str = unique ? "Yes" : "No";
-    details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Unique", unique_str.c_str());
+    details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Unique", unique ? "Yes" : "No");
+    details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Visible", visible ? "Yes" : "No");
     details += strfmt(LST_INFO_BOX_DETAIL_ROW.c_str(), "Columns", columns[0].c_str());
 
     for (std::size_t index = 1; index < columns.size(); index++)

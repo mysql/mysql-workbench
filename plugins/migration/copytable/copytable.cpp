@@ -27,7 +27,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include <my_config.h>
+#include <mysql.h>
 
 #include "base/log.h"
 #include "base/string_utilities.h"
@@ -323,11 +323,18 @@ RowBuffer::RowBuffer(std::shared_ptr<std::vector<ColumnInfo> > columns,
         throw std::logic_error(
           base::strfmt("Unhandled MySQL type %i for column '%s'", col->target_type, col->target_name.c_str()));
     }
-    bind.error = (my_bool *)malloc(sizeof(my_bool));
+
+#if MYSQL_VERSION_ID >= 80004
+    typedef bool WB_BOOL;
+#else
+    typedef my_bool WB_BOOL;
+#endif
+
+    bind.error = (WB_BOOL *)malloc(sizeof(WB_BOOL));
     if (!bind.error)
       throw std::runtime_error("Could not allocate memory for row buffer");
     if (col->target_type != MYSQL_TYPE_NULL) {
-      bind.is_null = (my_bool *)malloc(sizeof(my_bool));
+      bind.is_null = (WB_BOOL *)malloc(sizeof(WB_BOOL));
       if (!bind.is_null) {
         if (bind.length) {
           free(bind.length);
@@ -1203,12 +1210,19 @@ MySQLCopyDataSource::MySQLCopyDataSource(const std::string &hostname, int port, 
 
   mysql_options(&_mysql, MYSQL_OPT_CONNECT_TIMEOUT, &_connection_timeout);
 
-#if MYSQL_CHECK_VERSION(5, 5, 27)
-  my_bool use_cleartext = use_cleartext_plugin;
-  mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
-#else
+#if MYSQL_VERSION_ID >= 80004
   if (use_cleartext_plugin)
     logWarning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+#else
+
+  #if MYSQL_VERSION_ID >= 50527
+    my_bool use_cleartext = use_cleartext_plugin;
+    mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
+  #else
+    if (use_cleartext_plugin)
+      logWarning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+  #endif
+
 #endif
 
   if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
@@ -1753,7 +1767,8 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port, 
     _incoming_data_charset = "latin1";
 
   mysql_init(&_mysql);
-#if MYSQL_CHECK_VERSION(5, 6, 6)
+
+#if MYSQL_VERSION_ID >= 50606
   if (is_mysql_version_at_least(5, 6, 6))
     mysql_options4(&_mysql, MYSQL_OPT_CONNECT_ATTR_ADD, "program_name", app_name.c_str());
 #endif
@@ -1784,12 +1799,21 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port, 
     logInfo("Connecting to MySQL server using socket %s with user %s\n", socket.c_str(), username.c_str());
   }
   mysql_options(&_mysql, MYSQL_OPT_CONNECT_TIMEOUT, &_connection_timeout);
-#if MYSQL_CHECK_VERSION(5, 5, 27)
-  my_bool use_cleartext = use_cleartext_plugin;
-  mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
-#else
+
+
+#if MYSQL_VERSION_ID >= 80004
   if (use_cleartext_plugin)
     logWarning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+#else
+
+  #if MYSQL_VERSION_ID >= 50527
+    my_bool use_cleartext = use_cleartext_plugin;
+    mysql_options(&_mysql, MYSQL_ENABLE_CLEARTEXT_PLUGIN, &use_cleartext);
+  #else
+    if (use_cleartext_plugin)
+      logWarning("Trying to use the ClearText plugin, but it's not supported by libmysqlclient\n");
+  #endif
+
 #endif
 
   if (!mysql_real_connect(&_mysql, hostname.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
@@ -2619,7 +2643,9 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
   // This is needed because the escaping depends on the character set in use by the server
   unsigned long ret_length = 0;
 
-#if MYSQL_CHECK_VERSION(5, 7, 6)
+
+
+#if MYSQL_VERSION_ID >= 50706
   if (_target->is_mysql_version_at_least(5, 7, 6))
     ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '\'');
   else

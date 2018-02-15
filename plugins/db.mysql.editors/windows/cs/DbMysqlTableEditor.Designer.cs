@@ -205,7 +205,9 @@ namespace MySQL.GUI.Workbench.Plugins
       this.panel2 = new System.Windows.Forms.Panel();
       this.splitContainer5 = new System.Windows.Forms.SplitContainer();
       this.indexParserText = new System.Windows.Forms.TextBox();
+      this.visibleCheckBox = new System.Windows.Forms.CheckBox();
       this.label17 = new System.Windows.Forms.Label();
+      this.label58 = new System.Windows.Forms.Label();
       this.label15 = new System.Windows.Forms.Label();
       this.indexRowBlockSizeText = new System.Windows.Forms.TextBox();
       this.label13 = new System.Windows.Forms.Label();
@@ -2219,6 +2221,8 @@ namespace MySQL.GUI.Workbench.Plugins
       // splitContainer5.Panel1
       // 
       this.splitContainer5.Panel1.Controls.Add(this.indexParserText);
+      this.splitContainer5.Panel1.Controls.Add(this.visibleCheckBox);
+      this.splitContainer5.Panel1.Controls.Add(this.label58);
       this.splitContainer5.Panel1.Controls.Add(this.label17);
       this.splitContainer5.Panel1.Controls.Add(this.label15);
       this.splitContainer5.Panel1.Controls.Add(this.indexRowBlockSizeText);
@@ -2233,7 +2237,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.splitContainer5.Panel2.Controls.Add(this.indexCommentText);
       this.splitContainer5.Size = new System.Drawing.Size(208, 303);
-      this.splitContainer5.SplitterDistance = 119;
+      this.splitContainer5.SplitterDistance = 146;
       this.splitContainer5.TabIndex = 14;
       // 
       // indexParserText
@@ -2252,6 +2256,23 @@ namespace MySQL.GUI.Workbench.Plugins
       this.label17.TabIndex = 15;
       this.label17.Text = "Parser:";
       this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+      // 
+      // indexParserText
+      // 
+      this.visibleCheckBox.Location = new System.Drawing.Point(96, 99);
+      this.visibleCheckBox.Name = "visibilityCheck";
+      this.visibleCheckBox.Size = new System.Drawing.Size(111, 24);
+      this.visibleCheckBox.TabIndex = 3;
+      this.visibleCheckBox.CheckStateChanged += new System.EventHandler(this.visibleChanged);
+      // 
+      // label17
+      // 
+      this.label58.Location = new System.Drawing.Point(3, 99);
+      this.label58.Name = "label58";
+      this.label58.Size = new System.Drawing.Size(87, 21);
+      this.label58.TabIndex = 16;
+      this.label58.Text = "Visible:";
+      this.label58.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // label15
       // 
@@ -2294,7 +2315,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.label14.AutoSize = true;
-      this.label14.Location = new System.Drawing.Point(0, 106);
+      this.label14.Location = new System.Drawing.Point(0, 133);
       this.label14.Name = "label14";
       this.label14.Size = new System.Drawing.Size(108, 17);
       this.label14.TabIndex = 9;
@@ -2317,7 +2338,7 @@ namespace MySQL.GUI.Workbench.Plugins
       this.bevel5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
       this.bevel5.BevelStyle = MySQL.Utilities.BevelStyleType.Dark;
       this.bevel5.BorderSide = System.Windows.Forms.Border3DSide.Middle;
-      this.bevel5.Location = new System.Drawing.Point(0, 106);
+      this.bevel5.Location = new System.Drawing.Point(0, 133);
       this.bevel5.Name = "bevel5";
       this.bevel5.Size = new System.Drawing.Size(208, 13);
       this.bevel5.TabIndex = 12;
@@ -3392,7 +3413,9 @@ namespace MySQL.GUI.Workbench.Plugins
     private System.Windows.Forms.Panel panel2;
     private System.Windows.Forms.SplitContainer splitContainer5;
     private System.Windows.Forms.TextBox indexParserText;
+    private System.Windows.Forms.CheckBox visibleCheckBox;
     private System.Windows.Forms.Label label17;
+    private System.Windows.Forms.Label label58;
     private System.Windows.Forms.Label label15;
     private System.Windows.Forms.TextBox indexRowBlockSizeText;
     private System.Windows.Forms.Label label13;
@@ -3467,5 +3490,5 @@ namespace MySQL.GUI.Workbench.Plugins
     private System.Windows.Forms.CheckBox generatedCheckbox;
     private System.Windows.Forms.RadioButton virtualRadioButton;
     private System.Windows.Forms.RadioButton storedRadioButton;
-	}
+  }
 }

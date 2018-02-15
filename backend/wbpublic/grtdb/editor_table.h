@@ -168,7 +168,7 @@ namespace bec {
     friend class TableEditorBE;
 
   public:
-    enum IndexListColumns { Name, Type, Comment, LastColumn };
+    enum IndexListColumns { Name, Type, Visible, Comment, LastColumn };
 
     IndexListBE(TableEditorBE *owner);
 

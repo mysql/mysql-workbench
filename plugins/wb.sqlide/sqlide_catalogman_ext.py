@@ -745,6 +745,7 @@ class IndexManager(ObjectManager):
                ("Sub_part", StringColumnType, "Sub part", 50, None),
                ("Null", StringColumnType, "NULL", 50, None),
                ("Comment", StringColumnType, "Comment", 200, None)]
+    
     #actions = [("Manage Indexes", "manage")]
 
     def __init__(self, editor, schema, owner):
@@ -752,7 +753,10 @@ class IndexManager(ObjectManager):
 
         self.owner= owner
         self.table_manager = owner.tab_tables
-
+            
+    def preload_columns(self):
+        if self.target_version.is_supported_mysql_version_at_least(8, 0, 4):
+            self.columns.append(("Visible", StringColumnType, "Visible", 75, None))
 
     def manage(self):
         self.owner.show_index_manager()

@@ -2121,6 +2121,30 @@ bool MySQLTableIndexListBE::set_field(const NodeId &node, ColumnId column, const
   }
 }
 
+bool MySQLTableIndexListBE::set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value) {
+    if(!node.is_valid() || !index_editable(get_selected_index()))
+      return false;
+
+    db_mysql_IndexRef index(db_mysql_IndexRef::cast_from(get_selected_index()));
+    if (index.is_valid()) {
+      switch(column) {
+        case Visible:
+          if (index->visible() != value) {
+            AutoUndoEdit undo(_owner, index, "Visible");
+
+            index->visible(value);
+            _owner->update_change_date();
+
+            undo.end(strfmt(_("Set Visibility of Index '%s.%s'"), _owner->get_name().c_str(), index->name().c_str()));
+          }
+          return true;
+        default:
+          return false;
+      }
+    }
+    return false;
+}
+
 bool MySQLTableIndexListBE::get_field_grt(const NodeId &node, ColumnId column, grt::ValueRef &value) {
   if (node.is_valid()) {
     const bool existing_node = node.end() < real_count();
@@ -2136,6 +2160,9 @@ bool MySQLTableIndexListBE::get_field_grt(const NodeId &node, ColumnId column, g
         return true;
       case Parser:
         value = existing_node && index.is_valid() ? index->withParser() : grt::StringRef("");
+        return true;
+      case Visible:
+        value = existing_node && index.is_valid() ? index->visible() : grt::IntegerRef(1);
         return true;
       default:
         return IndexListBE::get_field_grt(node, column, value);

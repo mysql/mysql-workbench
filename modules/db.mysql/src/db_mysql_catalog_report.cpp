@@ -22,6 +22,7 @@
  */
 
 #include <cstring>
+#include "grtdb/db_helpers.h"
 #include "db_mysql_catalog_report.h"
 #include "mtemplate/template.h"
 
@@ -104,7 +105,8 @@ static void get_fk_desc(db_mysql_ForeignKeyRef fk, std::string &col_list, std::s
 }
 
 ActionGenerateReport::ActionGenerateReport(grt::StringRef template_filename)
-  : fname(template_filename.c_str()), has_attributes(false), has_partitioning(false) {
+  : fname(template_filename.c_str()), current_table_dictionary(nullptr),
+    current_schema_dictionary(nullptr), has_attributes(false), has_partitioning(false) {
   dictionary = mtemplate::CreateMainDictionary();
 }
 
@@ -584,6 +586,50 @@ void ActionGenerateReport::alter_table_drop_index(db_mysql_IndexRef index) {
 void ActionGenerateReport::alter_table_indexes_end(db_mysql_TableRef table) {
   if (table->indices().count() > 0)
     current_table_dictionary->addSectionDictionary(kbtr_ALTER_TABLE_INDEXES_FOOTER);
+}
+
+void ActionGenerateReport::alter_table_change_index(db_mysql_IndexRef orgIndex, db_mysql_IndexRef newIndex) {
+  auto catalog = db_CatalogRef::cast_from(orgIndex->owner()->owner()->owner());
+
+  if (!bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+    alter_table_drop_index(newIndex);
+    alter_table_add_index(newIndex);
+    return;
+  }
+
+  auto orgColumns = orgIndex->columns();
+  auto newColumns = newIndex->columns();
+
+  if (orgColumns.count() != newColumns.count()) {
+    alter_table_drop_index(newIndex);
+    alter_table_add_index(newIndex);
+    return;
+  }
+
+  for (size_t i = 0; i < orgColumns.count(); i++) {
+    if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name()) {
+      alter_table_drop_index(newIndex);
+      alter_table_add_index(newIndex);
+      return;
+    }
+  }
+
+  auto properties = { "algorithm", "keyBlockSize", "lockOption", "withParser", "visible" };
+
+  std::vector<std::string> diffProps;
+  for (const auto &it : properties) {
+    if (orgIndex->get_member(it) != newIndex->get_member(it))
+      diffProps.push_back(it);
+  }
+
+  if (diffProps.size() > 1 || diffProps[0] != "visible") {
+    alter_table_drop_index(newIndex);
+    alter_table_add_index(newIndex);
+    return;
+  }
+
+  mtemplate::DictionaryInterface *ix2 = current_table_dictionary->addSectionDictionary(kbtr_TABLE_INDEX_MODIFIED);
+  ix2->setValue(kbtr_TABLE_INDEX_NAME, (std::string)newIndex->name());
 }
 
 void ActionGenerateReport::alter_table_fks_begin(db_mysql_TableRef table) {

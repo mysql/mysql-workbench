@@ -1224,7 +1224,8 @@ public:
       _indexKind(""),
       _keyBlockSize(0),
       _lockOption(""),
-      _withParser("")
+      _withParser(""),
+      _visible(1)
 
   {
     _columns.content().__retype(grt::ObjectType, "db.mysql.IndexColumn");
@@ -1352,12 +1353,33 @@ obj.withParser = value
     member_changed("withParser", ovalue, value);
   }
 
+  /** Setter for attribute visible
+
+  \par In Python:
+value = obj.visible
+  */
+ grt::IntegerRef visible() const {
+   return _visible;
+ }
+ /** Setter for attribute unique
+
+
+   \par In Python:
+obj.unique = value
+  */
+ virtual void visible(const grt::IntegerRef &value) {
+   grt::ValueRef ovalue(_visible);
+   _visible = value;
+   member_changed("visible", ovalue, value);
+ }
+
 protected:
   grt::StringRef _algorithm;
   grt::StringRef _indexKind;
   grt::IntegerRef _keyBlockSize;
   grt::StringRef _lockOption;
   grt::StringRef _withParser;
+  grt::IntegerRef _visible;
 
 private: // wrapper methods for use by grt
   static grt::ObjectRef create() {
@@ -1400,6 +1422,11 @@ public:
       void (db_mysql_Index::*setter)(const grt::StringRef &) = &db_mysql_Index::withParser;
       grt::StringRef (db_mysql_Index::*getter)() const = &db_mysql_Index::withParser;
       meta->bind_member("withParser", new grt::MetaClass::Property<db_mysql_Index, grt::StringRef>(getter, setter));
+    }
+    {
+      void (db_mysql_Index::*setter)(const grt::IntegerRef &) = &db_mysql_Index::visible;
+      grt::IntegerRef (db_mysql_Index::*getter)() const = &db_mysql_Index::visible;
+      meta->bind_member("visible", new grt::MetaClass::Property<db_mysql_Index, grt::IntegerRef>(getter, setter));
     }
   }
 };

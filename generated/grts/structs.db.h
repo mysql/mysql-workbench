@@ -3551,7 +3551,6 @@ public:
       _indexType(""),
       _isPrimary(0),
       _unique(0)
-
   {
   }
 

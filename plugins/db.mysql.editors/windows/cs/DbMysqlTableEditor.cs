@@ -1144,7 +1144,8 @@ namespace MySQL.GUI.Workbench.Plugins
 
         if (node != null)
         {
-          indexCommentText.Enabled = tableEditorBE.is_server_version_at_least(5, 5);
+          indexCommentText.Enabled = tableEditorBE.is_server_version_at_least(5, 5, -1);
+          visibleCheckBox.Enabled = false;
           indexStorageTypeComboBox.Enabled = true;
           indexRowBlockSizeText.Enabled = true;
           indexParserText.Enabled = true;
@@ -1176,6 +1177,20 @@ namespace MySQL.GUI.Workbench.Plugins
           indexRowBlockSizeText.Text = value;
           ilist.get_field(node.NodeId, (int)MySQLIndexListWrapper.Columns.Parser, out value);
           indexParserText.Text = value;
+
+          if (tableEditorBE.is_server_version_at_least(8, 0, 0))
+          {
+            String type = "";
+            ilist.get_field(node.NodeId, (int)MySQLIndexListWrapper.Columns.Type, out type);
+            int visible = 1;
+            if (type != "PRIMARY")
+              ilist.get_field(node.NodeId, (int)MySQLIndexListWrapper.Columns.Visible, out visible);
+            visibleCheckBox.Checked = visible == 1;
+            if (type == "PRIMARY" || (type == "UNIQUE" && ilist.count() == 2))
+              visibleCheckBox.Enabled = false;
+            else
+              visibleCheckBox.Enabled = true;
+          }
         }
         else
         {
@@ -1189,6 +1204,8 @@ namespace MySQL.GUI.Workbench.Plugins
           indexStorageTypeComboBox.Enabled = false;
           indexRowBlockSizeText.Enabled = false;
           indexParserText.Enabled = false;
+          visibleCheckBox.Enabled = false;
+          visibleCheckBox.Checked = false;
         }
       }
       else
@@ -1203,6 +1220,8 @@ namespace MySQL.GUI.Workbench.Plugins
         indexStorageTypeComboBox.Enabled = false;
         indexRowBlockSizeText.Enabled = false;
         indexParserText.Enabled = false;
+        visibleCheckBox.Enabled = false;
+        visibleCheckBox.Checked = false;
       }
     }
 
@@ -1243,6 +1262,18 @@ namespace MySQL.GUI.Workbench.Plugins
             tableEditorBE.get_indexes().set_field(node.NodeId, 
               (int)MySQLIndexListWrapper.Columns.Parser, indexParserText.Text);
           }
+        }
+      }
+    }
+
+    void visibleChanged(object sender, System.EventArgs e) 
+    {
+      if (indicesTreeView.SelectedNode != null)
+      {
+        GrtListNode node = indicesTreeView.SelectedNode.Tag as GrtListNode;
+        if (node != null) {
+          int value = visibleCheckBox.Checked ? 1 : 0;
+          tableEditorBE.get_indexes().set_field(node.NodeId, (int)MySQLIndexListWrapper.Columns.Visible, value);
         }
       }
     }

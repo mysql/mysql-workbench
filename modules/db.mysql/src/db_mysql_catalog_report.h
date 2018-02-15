@@ -152,6 +152,7 @@ public:
   void alter_table_add_index(db_mysql_IndexRef);
   void alter_table_drop_index(db_mysql_IndexRef);
   void alter_table_indexes_end(db_mysql_TableRef);
+  void alter_table_change_index(db_mysql_IndexRef orgIndex, db_mysql_IndexRef newIndex);
 
   void alter_table_fks_begin(db_mysql_TableRef);
   void alter_table_add_fk(db_mysql_ForeignKeyRef);

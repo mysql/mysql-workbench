@@ -196,8 +196,9 @@ namespace wb {
 
     class MYSQLWBBACKEND_PUBLIC_FUNC IndexData : public LSTData {
     public:
-      IndexData() : LSTData(), unique(false), type(0) {
+      IndexData() : LSTData(), visible(true), unique(false), type(0) {
       }
+      bool visible;
       bool unique;
       unsigned char type;
       std::vector<std::string> columns;

@@ -265,6 +265,7 @@ namespace {
     std::string _lock_type;
 
     std::string sql;
+    std::string indexAlter;
     std::string comma;
     std::string table_q_name;
     size_t empty_length;
@@ -389,6 +390,7 @@ namespace {
     void alter_table_add_index(db_mysql_IndexRef);
     void alter_table_drop_index(db_mysql_IndexRef);
     void alter_table_indexes_end(db_mysql_TableRef);
+    void alter_table_change_index(db_mysql_IndexRef orgIndex, db_mysql_IndexRef newIndex);
 
     void alter_table_fks_begin(db_mysql_TableRef);
     void alter_table_add_fk(db_mysql_ForeignKeyRef);
@@ -649,6 +651,21 @@ namespace {
     if (!comment.empty())
       index_sql.append(" COMMENT ").append(comment).append(" ");
 
+
+
+    auto catalog = db_CatalogRef::cast_from(index->owner()->owner()->owner());
+
+    if (bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+      auto table = db_mysql_TableRef::cast_from(index->owner());
+
+      if (index->isPrimary() == 0 && (index->unique() == 0 || table->indices().count() > 1))
+      {
+        if (index->visible() == 1)
+          index_sql.append(" VISIBLE");
+        else
+          index_sql.append(" INVISIBLE");
+      }
+    }
     return base::trim_right(index_sql);
   }
 
@@ -1192,7 +1209,66 @@ namespace {
     sql.append(generate_drop_index(index));
   }
 
+  void ActionGenerateSQL::alter_table_change_index(db_mysql_IndexRef orgIndex, db_mysql_IndexRef newIndex) {
+
+    auto catalog = db_CatalogRef::cast_from(orgIndex->owner()->owner()->owner());
+
+    if (!bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+      alter_table_drop_index(newIndex);
+      alter_table_add_index(newIndex);
+      return;
+    }
+
+    auto orgColumns = orgIndex->columns();
+    auto newColumns = newIndex->columns();
+
+    if (orgColumns.count() != newColumns.count()) {
+      alter_table_drop_index(newIndex);
+      alter_table_add_index(newIndex);
+      return;
+    }
+
+    for (size_t i = 0; i < orgColumns.count(); i++) {
+      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name()) {
+        alter_table_drop_index(newIndex);
+        alter_table_add_index(newIndex);
+        return;
+      }
+    }
+
+    auto properties = { "algorithm", "keyBlockSize", "lockOption", "withParser", "visible", "comment" };
+
+    std::vector<std::string> diffProps;
+    for (const auto &it : properties) {
+      if (orgIndex->get_member(it) != newIndex->get_member(it))
+        diffProps.push_back(it);
+    }
+
+    if (diffProps.size() > 1 || (diffProps.size() == 1 && diffProps[0] != "visible")) {
+      alter_table_drop_index(newIndex);
+      alter_table_add_index(newIndex);
+      return;
+    }
+
+    if (!indexAlter.empty()) {
+      padding.pad(indexAlter);
+      indexAlter.append(";\n");
+    }
+
+    indexAlter.append(
+        strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
+               db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+               db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
+               newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
+  }
+
   void ActionGenerateSQL::alter_table_indexes_end(db_mysql_TableRef) {
+    if (first_change) {
+      first_change = false;
+    }
+    sql.append(";\n");
+
+    sql.append(indexAlter);
   }
 
   void ActionGenerateSQL::alter_table_fks_begin(db_mysql_TableRef) {

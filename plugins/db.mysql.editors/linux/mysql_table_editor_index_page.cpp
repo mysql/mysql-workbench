@@ -61,6 +61,16 @@ DbMySQLTableEditorIndexPage::DbMySQLTableEditorIndexPage(DbMySQLTableEditor *own
                                    &DbMySQLTableEditorIndexPage::set_index_key_block_size);
   _owner->bind_entry_and_be_setter("index_parser", this, &DbMySQLTableEditorIndexPage::set_index_parser);
 
+  _xml->get_widget("index_visibility", _indexVisibility);
+
+  auto toggleFunc = [this]() {
+    if (_index_node.is_valid()) {
+      _be->get_indexes()->set_field(_index_node, ::MySQLTableIndexListBE::Visible, _indexVisibility->get_active());
+    }
+  };
+
+  _visibilitySignal = _indexVisibility->signal_toggled().connect(toggleFunc);
+
   Gtk::TextView *text(0);
   _xml->get_widget("index_comment", text);
   _owner->add_text_change_timer(text, sigc::mem_fun(this, &DbMySQLTableEditorIndexPage::set_index_comment));
@@ -76,6 +86,9 @@ DbMySQLTableEditorIndexPage::~DbMySQLTableEditorIndexPage() {
     _editable_cell = 0;
   }
 
+  if(!_visibilitySignal.empty())
+    _visibilitySignal.disconnect();
+
   if (!_editing_sig.empty())
     _editing_sig.disconnect();
 
@@ -83,13 +96,15 @@ DbMySQLTableEditorIndexPage::~DbMySQLTableEditorIndexPage() {
     _refresh_sig.disconnect();
 }
 
+#include <iostream>
 //------------------------------------------------------------------------------
 void DbMySQLTableEditorIndexPage::update_gui_for_server() {
   Gtk::TextView *text(0);
   _xml->get_widget("index_comment", text);
   if (_be->is_editing_live_object()) {
-    if (!bec::is_supported_mysql_version_at_least(_be->get_catalog()->version(), 5, 5))
+    if (!bec::is_supported_mysql_version_at_least(_be->get_catalog()->version(), 5, 5)) {
       text->set_sensitive(false);
+    }
   }
 }
 
@@ -281,6 +296,29 @@ void DbMySQLTableEditorIndexPage::update_index_details() {
     entry->set_sensitive(got_indices && _index_node.is_valid() && _index_node.back() < indices_be->real_count());
     _xml->get_widget("index_comment", textview);
     textview->set_sensitive(got_indices && _index_node.is_valid() && _index_node.back() < indices_be->real_count());
+
+
+    // We've got always +1 no of indices in the indices_be because the last one is a placeholder.
+    if (bec::is_supported_mysql_version_at_least(_be->get_catalog()->version(), 8, 0, 0)) {
+      if (_index_node.is_valid()) {
+        std::string type;
+        indices_be->get_field(_index_node, ::MySQLTableIndexListBE::Type, type);
+        ssize_t visible = 1;
+        if (type != "PRIMARY")
+          indices_be->get_field(_index_node, ::MySQLTableIndexListBE::Visible, visible);
+        _visibilitySignal.block();
+        _indexVisibility->set_active(visible == 1);
+        _visibilitySignal.unblock();
+
+        if (type == "PRIMARY" || (type == "UNIQUE" && indices_be->count() == 2)) {
+          _indexVisibility->set_sensitive(0);
+        } else {
+          _indexVisibility->set_sensitive(1);
+        }
+      }
+    } else {
+      _indexVisibility->set_sensitive(0);
+    }
 
     this->update_gui_for_server();
 

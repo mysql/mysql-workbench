@@ -623,8 +623,9 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Index> indices, co
       case grt::ListItemModified: {
         const grt::ListItemModifiedChange *modified_change =
           static_cast<const grt::ListItemModifiedChange *>(index_change.get());
-        callback->alter_table_drop_index(db_mysql_IndexRef::cast_from(modified_change->get_new_value()));
-        callback->alter_table_add_index(db_mysql_IndexRef::cast_from(modified_change->get_new_value()));
+
+        callback->alter_table_change_index(db_mysql_IndexRef::cast_from(modified_change->get_old_value()),
+                                           db_mysql_IndexRef::cast_from(modified_change->get_new_value()));
       } break;
       default:
         break;

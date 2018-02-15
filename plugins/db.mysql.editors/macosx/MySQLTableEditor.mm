@@ -113,6 +113,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   IBOutlet __weak NSTextField* mIndicesParser;
   IBOutlet NSTextView* mIndicesComment;
   IBOutlet __weak NSBox* mIndicesDetailsBox;
+  IBOutlet __weak NSButton* mIndicesVisibleCheckbox;
 
   // Foreigh Keys
   IBOutlet __weak WBCustomTabItemView* mEditorForeignKeys;
@@ -205,11 +206,13 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(args[0]);
   mBackEnd = new MySQLTableEditorBE(table);
 
+  
   if (!isReinit) {
     [mColumnsSplitter setVertical: NO];
 
     GrtVersionRef version = mBackEnd->get_catalog()->version();
     [mIndicesComment setEditable:bec::is_supported_mysql_version_at_least(version, 5, 5)];
+    [mIndicesVisibleCheckbox setEnabled: bec::is_supported_mysql_version_at_least(version, 8, 0, 0)];
 
     [mColumnsSplitter addSubview:mColumnsDetailsBox];
   }
@@ -525,7 +528,6 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
     {
       mBackEnd->get_indexes()->select_index(rowIndex);
-
       NSString* storageType =
         [mIndicesDataSource objectValueForValueIndex:MySQLTableIndexListBE::StorageType row: rowIndex];
       [mIndicesStorageTypes selectItemWithTitle:storageType];
@@ -538,6 +540,26 @@ extern const char* DEFAULT_COLLATION_CAPTION;
       NSString* comment = [mIndicesDataSource objectValueForValueIndex:bec::IndexListBE::Comment row: rowIndex];
       [mIndicesComment setString:comment];
 
+      GrtVersionRef version = mBackEnd->get_catalog()->version();
+            
+      if (bec::is_supported_mysql_version_at_least(version, 8, 0, 0)) {
+        NSString* indexType = [mIndicesDataSource objectValueForValueIndex: MySQLTableIndexListBE::Type
+                                                                       row: rowIndex];
+      
+        ssize_t visible = 1;
+        if (![indexType isEqualToString:@"PRIMARY"]) {
+          visible = [[mIndicesDataSource objectValueForValueIndex: bec::IndexListBE::Visible
+                                                             row: rowIndex] intValue];
+        
+        }
+        [mIndicesVisibleCheckbox setState: (visible == 1 ? NSOnState: NSOffState)];
+        if ([indexType isEqualToString:@"PRIMARY"] || ([indexType isEqualToString:@"UNIQUE"] && mBackEnd->get_indexes()->count() == 2)) {
+          mIndicesVisibleCheckbox.enabled = FALSE;
+        } else {
+          mIndicesVisibleCheckbox.enabled = TRUE;
+        }
+      }
+            
       [mIndexColumnsTable reloadData];
     }
   }
@@ -1070,6 +1092,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
     if (shouldRefreshGUI) {
       [self refreshTableEditorGUIColumnsTab];
+      [self refreshTableEditorGUIIndicesTab];
     }
   }
 
@@ -1449,6 +1472,8 @@ extern const char* DEFAULT_COLLATION_CAPTION;
                                      [sender state] == NSOnState);
   } else if (sender == mHeaderExpander) {
     [self toggleHeader: [sender state] == NSOnState];
+  } else if (sender == mIndicesVisibleCheckbox) {
+    mBackEnd->get_indexes()->set_field([mIndicesTable selectedRow], MySQLTableIndexListBE::Visible, [sender state] == NSOnState);
   } else {
     NSAssert1(NO, @"DEBUG - User clicked unmatched button: '%@'", [sender title]);
   }

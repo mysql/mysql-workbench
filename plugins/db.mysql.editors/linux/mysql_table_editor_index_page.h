@@ -26,6 +26,7 @@
 
 #include "grt/tree_model.h"
 #include <gtkmm/builder.h>
+#include <gtkmm/checkbutton.h>
 
 class MySQLTableEditorBE;
 class ListModelWrapper;
@@ -89,6 +90,9 @@ private:
   gulong _editing_done_id;
   GtkCellEditable* _editable_cell;
   std::string _user_index_name;
+  Gtk::CheckButton *_indexVisibility;
+  sigc::connection _visibilitySignal;
+  bool _supportIndexVisibility;
 };
 
 #endif

@@ -124,6 +124,7 @@
             <member name="algorithm" type="string" attr:desc = "one of DEFAULT, INPLACE and COPY"/>
             <member name="lockOption" type="string" attr:desc = "one of DEFAULT, NONE, SHARED and EXCLUSIVE"/>
             <member name="columns" type="list" content-type="object" content-struct-name="db.mysql.IndexColumn" overrides="db.IndexColumn" owned="1"/>
+            <member name="visible" type="int"/>
         </members>
     </gstruct>
 

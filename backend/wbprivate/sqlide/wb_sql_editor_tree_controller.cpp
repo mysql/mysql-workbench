@@ -847,6 +847,8 @@ void SqlEditorTreeController::fetch_index_data(const std::string &schema_name, c
     std::auto_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring("SHOW INDEXES FROM !.!", 0) << schema_name << obj_name)));
 
+    bool supportVisibility = _owner->rdbms_version().is_valid() && is_supported_mysql_version_at_least(_owner->rdbms_version(), 8, 0, 0);
+
     while (rs->next()) {
       LiveSchemaTree::IndexData index_data;
 
@@ -858,6 +860,9 @@ void SqlEditorTreeController::fetch_index_data(const std::string &schema_name, c
 
         index_data.type = wb::LiveSchemaTree::internalize_token(rs->getString(11));
         index_data.unique = (rs->getInt(2) == 0);
+        if (supportVisibility) {
+          index_data.visible = rs->getString(14) == "YES";
+        }
 
         index_data_dict[name] = index_data;
       }

@@ -451,6 +451,7 @@ public:
       _autoGenerateFkNames(autoGenerateFkNames),
       _currentIndex(grt::Initialized) {
     _currentIndex->owner(_table);
+    _currentIndex->visible(1); // By default all indexes are visible.
     tree::ParseTreeWalker::DEFAULT.walk(this, tree);
   }
 
@@ -549,8 +550,12 @@ public:
   virtual void exitCommonIndexOption(MySQLParser::CommonIndexOptionContext *ctx) override {
     if (ctx->KEY_BLOCK_SIZE_SYMBOL() != nullptr)
       _currentIndex->keyBlockSize((size_t)std::stoull(ctx->ulong_number()->getText()));
-    if (ctx->COMMENT_SYMBOL() != nullptr)
+    else if (ctx->COMMENT_SYMBOL() != nullptr)
       _currentIndex->comment(ctx->textLiteral()->getText());
+
+    if (ctx->visibility() != nullptr) {
+        _currentIndex->visible(ctx->visibility()->VISIBLE_SYMBOL() != nullptr);
+    }
   }
 
   virtual void exitFulltextIndexOption(MySQLParser::FulltextIndexOptionContext *ctx) override {

@@ -76,9 +76,9 @@ void MySQLTableEditorWrapper::commit_changes() {
 
 //--------------------------------------------------------------------------------------------------
 
-bool MySQLTableEditorWrapper::is_server_version_at_least(int major, int minor) {
+bool MySQLTableEditorWrapper::is_server_version_at_least(int major, int minor, int release) {
   db_CatalogRef catalog = get_unmanaged_object()->get_catalog();
-  return bec::is_supported_mysql_version_at_least(catalog->version(), major, minor);
+  return bec::is_supported_mysql_version_at_least(catalog->version(), major, minor, release);
 }
 
 //--------------------------------------------------------------------------------------------------

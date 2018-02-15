@@ -65,6 +65,7 @@ public:
   MySQLTableIndexListBE(MySQLTableEditorBE *owner);
 
   virtual bool set_field(const ::bec::NodeId &node, ColumnId column, const std::string &value);
+  virtual bool set_field(const ::bec::NodeId &node, ColumnId column, ssize_t value);
 
 protected:
   virtual bool get_field_grt(const ::bec::NodeId &node, ColumnId column, grt::ValueRef &value);

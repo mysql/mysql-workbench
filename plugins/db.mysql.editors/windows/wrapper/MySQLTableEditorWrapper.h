@@ -98,9 +98,13 @@ namespace MySQL {
         }
 
         enum class Columns {
+          Name = ::MySQLTableIndexListBE::IndexListBE::IndexListColumns::Name,
+          Type = ::MySQLTableIndexListBE::IndexListBE::IndexListColumns::Type,
+          Visible = ::MySQLTableIndexListBE::IndexListBE::IndexListColumns::Visible,
           StorageType = ::MySQLTableIndexListBE::StorageType,
           RowBlockSize = ::MySQLTableIndexListBE::RowBlockSize,
-          Parser = ::MySQLTableIndexListBE::Parser
+          Parser = ::MySQLTableIndexListBE::Parser,
+          
         };
       };
 
@@ -230,7 +234,7 @@ namespace MySQL {
           return get_unmanaged_object()->get_explicit_subpartitions();
         }
 
-        bool is_server_version_at_least(int major, int minor);
+        bool is_server_version_at_least(int major, int minor, int release);
         void load_trigger_sql();
       };
 

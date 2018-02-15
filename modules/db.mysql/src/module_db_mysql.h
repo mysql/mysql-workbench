@@ -163,6 +163,7 @@ public:
   virtual void alter_table_indexes_begin(db_mysql_TableRef) = 0;
   virtual void alter_table_add_index(db_mysql_IndexRef) = 0;
   virtual void alter_table_drop_index(db_mysql_IndexRef) = 0;
+  virtual void alter_table_change_index(db_mysql_IndexRef orgIndex, db_mysql_IndexRef newIndex) = 0;
   virtual void alter_table_indexes_end(db_mysql_TableRef) = 0;
 
   virtual void alter_table_fks_begin(db_mysql_TableRef) = 0;
