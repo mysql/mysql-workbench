@@ -20,7 +20,7 @@
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 from wb_admin_utils import not_running_warning_label, make_panel_header, weakcb
-
+from workbench.log import log_error
 
 from mforms import newBox, newTreeView, newButton, newTabView, newTextEntry
 import mforms
@@ -28,20 +28,21 @@ import mforms
 import wb_admin_variable_list
 
 class VariablesViewer(mforms.Box):
-    def __init__(self, ctrl_be, variables, command, type):
+    def __init__(self, ctrl_be, variables, command, viewer_type):
         mforms.Box.__init__(self, False)
         self.set_managed()
         self.set_release_on_add()
 
-        self.user_groups = VariablesGroupContainer(type)
+        self.user_groups = VariablesGroupContainer(viewer_type)
         self.user_groups.load()
-        
+        self.viewer_type = viewer_type
         self.variables = variables
 
         self.suspend_layout()
 
         self.command = command
         self.ctrl_be = ctrl_be
+        self.support_variable_persistence = self.viewer_type == "system" and self.ctrl_be.target_version.is_supported_mysql_version_at_least(8, 0, 0)
 
         box = newBox(True)
         box.set_spacing(12)
@@ -72,9 +73,12 @@ class VariablesViewer(mforms.Box):
         self.values = newTreeView(mforms.TreeFlatList)
         self.values.set_selection_mode(mforms.TreeSelectMultiple)
         box.add(self.values, True, True)
-
+        if self.support_variable_persistence:
+            self.values.add_column(mforms.CheckColumnType, "Persist", 50, True)
         self.values.add_column(mforms.StringColumnType, "Name", 200, False)
         self.values.add_column(mforms.StringColumnType, "Value", 120, True)
+        if self.support_variable_persistence:
+            self.values.add_column(mforms.StringColumnType, "Persist Value", 120, True)
         self.values.add_column(mforms.StringColumnType, "Description", 1000, False)
         self.values.end_columns()
         self.values.set_allow_sorting(True)
@@ -94,11 +98,18 @@ class VariablesViewer(mforms.Box):
         copy_shown_button.set_text('Copy Selected to Clipboard')
         copy_shown_button.add_clicked_callback(self.copy_selected_to_clipboard)
         box.add(copy_shown_button, False, False)
+
+        if self.support_variable_persistence:
+            reset_persist = newButton()
+            reset_persist.set_text('Reset persist values')
+            reset_persist.add_clicked_callback(weakcb(self, "reset_persist_cb"))
+            box.add(reset_persist, False, False)
+
         self.copy_selected_to_clipboard_button = copy_shown_button
         button = newButton()
         box.add_end(button, False, True)
         button.set_text("Refresh")
-        box.set_padding(12)
+        box.set_padding(0, 8, 0, 8)
 
         button.add_clicked_callback(weakcb(self, "refresh"))
 
@@ -112,10 +123,15 @@ class VariablesViewer(mforms.Box):
         self.resume_layout()
 
         self.variable_info = {}
-        self.variables_in_group = {"Other":[]}
+        self.variables_in_group = {"Other": [], "Persisted": []}
 
         self._delayed_init_tm = mforms.Utilities.add_timeout(0.1, lambda: self.delayed_init(self.variables))
 
+    def reset_persist_cb(self):
+        if mforms.Utilities.show_message('Confirmation', 'Do you really want to reset ALL persistent variables?',
+                                         'Ok', 'Cancel', '') == mforms.ResultOk:
+            self.ctrl_be.exec_query("RESET PERSIST")
+            self.refresh()
 
     def refresh_groups(self):
         self.tree.clear()
@@ -125,24 +141,39 @@ class VariablesViewer(mforms.Box):
         row.set_string(0, "Filtered")
 
         self.variable_info = {}
-        self.variables_in_group = {"Other":[]}
+        self.variables_in_group = {"Other": []}
         self.delayed_init(self.variables)
 
     def shutdown(self):
         if self._delayed_init_tm:
             mforms.Utilities.cancel_timeout(self._delayed_init_tm)
             self._delayed_init_tm = None
-        
+
+    def load_persist_variables(self):
+        self.persist_variables = []
+        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(8, 0, 1):
+            result = self.ctrl_be.exec_query("select @@performance_schema")
+            if result:
+                if result.nextRow():
+                    if result.intByIndex(1) == 1:
+                        result_variables = self.ctrl_be.exec_query("select * from performance_schema.persisted_variables")
+                        if result_variables is not None:
+                            while result_variables.nextRow():
+                                self.persist_variables.append({'name': result_variables.stringByName("VARIABLE_NAME"),
+                                                               'value': result_variables.stringByName("VARIABLE_VALUE")})
 
     def delayed_init(self, variables):
         self._delayed_init_tm = None
-        
+
         variables_in_server = []
         result = self.ctrl_be.exec_query(self.command)
         if result is not None:
             while result.nextRow():
                 name = result.stringByName("Variable_name")
                 variables_in_server.append(name)
+
+        if self.support_variable_persistence:
+            self.load_persist_variables()
 
         existing_groups = set()
         for name, description, editable, groups in variables:
@@ -165,18 +196,46 @@ class VariablesViewer(mforms.Box):
             row.set_string(0, "Other")
             row.set_tag("Other")
 
+        if self.support_variable_persistence:
+            row = self.tree.add_node()
+            row.set_string(0, "Persisted")
+            row.set_tag("Persisted")
+            for elem in self.persist_variables:
+                self.variables_in_group["Persisted"].append(elem['name'])
+
         self.copy_selected_to_clipboard_button.set_enabled(len(self.values.get_selection()) > 0)
         for group in self.user_groups.content:
             row = self.tree.add_node()
             row.set_string(0, group)
             row.set_tag("Custom: %s" % group)
             if "Custom: %s" % group not in self.variables_in_group:
-                self.variables_in_group["Custom: %s" % group] = self.user_groups.content[group] 
-
+                self.variables_in_group["Custom: %s" % group] = self.user_groups.content[group]
 
     def edit_variable(self, node, column, value):
-        name = node.get_string(0)
-        if name and self.variable_info.has_key(name) and self.variable_info[name][1]:
+        name = ""
+        if self.support_variable_persistence:
+            if column == 0:
+                if node.get_bool(0) is False:
+                    if self.set_persist_value(node.get_string(1), node.get_string(2)):
+                        node.set_bool(0, True)
+                        node.set_string(3, node.get_string(2))
+                else:
+                    if self.reset_persist_single_value(node.get_string(1)):
+                        node.set_bool(0, False)
+                        sel = self.tree.get_selection()
+                        if len(sel) == 1 and sel[0].get_string(0) == "Persisted":
+                            self.refresh()
+                        else:
+                            node.set_string(3, "")
+                return
+            if column == 3 and node.get_bool(0) is True and self.set_persist_value(node.get_string(1), value):
+                node.set_string(3, value)
+
+            name = node.get_string(1)
+        else:
+            name = node.get_string(0)
+
+        if name and name in self.variable_info and self.variable_info[name][1]:
             try:
                 self.ctrl_be.exec_sql("SET GLOBAL %s=%s" % (name, int(value)))
             except ValueError:
@@ -186,7 +245,6 @@ class VariablesViewer(mforms.Box):
             if value.firstRow():
                 node.set_string(column, value.stringByIndex(2))
 
-          
     def value_selection_changed(self):
         self.copy_selected_to_clipboard_button.set_enabled(len(self.values.get_selection()) > 0)
 
@@ -204,27 +262,33 @@ class VariablesViewer(mforms.Box):
         if not self.ctrl_be.is_sql_connected():
             return
 
+        if self.support_variable_persistence:
+            self.load_persist_variables()
+            self.variables_in_group["Persisted"] = []
+            for elem in self.persist_variables:
+                self.variables_in_group["Persisted"].append(elem['name'])
+
         rows = self.tree.get_selection()
         if not rows:
             self.values.clear()
             return
 
-        filter = []
+        filter_value = []
         search = None
         for row in rows:
             if self.tree.row_for_node(row) == 0:
-                filter = None
+                filter_value = None
                 search = None
                 break
             elif self.tree.row_for_node(row) == 1:
-                filter = None
+                filter_value = None
                 search = self.searchEntry.get_string_value().replace("-", "_")
             else:
                 tag = row.get_tag()
-                if tag and filter is not None:
-                    filter += self.variables_in_group.get(tag.encode('utf-8'), [])
-        if filter:
-            filter = set(filter)
+                if tag and filter_value is not None:
+                    filter_value += self.variables_in_group.get(tag.encode('utf-8'), [])
+        if filter_value:
+            filter_value = set(filter_value)
 
         result = self.ctrl_be.exec_query(self.command)
 
@@ -235,7 +299,7 @@ class VariablesViewer(mforms.Box):
             while result.nextRow():
                 name = result.stringByName("Variable_name")
 
-                if filter is not None and name.replace("-", "_") not in filter:
+                if filter_value is not None and name.replace("-", "_") not in filter_value:
                     continue
 
                 if search is not None and search.lower() not in name.lower():
@@ -243,22 +307,44 @@ class VariablesViewer(mforms.Box):
 
                 value = result.stringByName("Value")
                 r = self.values.add_node()
-                r.set_string(0, name)
-                r.set_string(1, value)
-                if name.replace("-", "_") not in self.variable_info:
-                    r.set_string(2, "")
+                if self.support_variable_persistence:
+                    r.set_bool(0, False)
+                    r.set_string(1, name)
+                    r.set_string(2, value)
+                    for elem in self.persist_variables:
+                        if elem['name'] == name:
+                            r.set_string(3, elem['value'])
+                            r.set_bool(0, True)
+
+                    if name.replace("-", "_") not in self.variable_info:
+                        r.set_string(4, "")
+                    else:
+                        editable = self.variable_info[name.replace("-", "_")][1] and "[rw] " or ""
+                        r.set_string(4, editable + self.variable_info[name.replace("-", "_")][0])
                 else:
-                    editable = self.variable_info[name.replace("-", "_")][1] and "[rw] " or ""
-                    r.set_string(2, editable + self.variable_info[name.replace("-", "_")][0])
+                    r.set_string(0, name)
+                    r.set_string(1, value)
+                    if name.replace("-", "_") not in self.variable_info:
+                        r.set_string(2, "")
+                    else:
+                        editable = self.variable_info[name.replace("-", "_")][1] and "[rw] " or ""
+                        r.set_string(2, editable + self.variable_info[name.replace("-", "_")][0])
 
         if self.values.count() == 0:
             if len(rows) == 1 and row.get_string(0) == "Custom":
                 r = self.values.add_node()
-                r.set_string(2, "Right click on a variable to add them to this category.")
+                if self.support_variable_persistence:
+                    r.set_string(4, "Right click on a variable to add them to this category.")
+                else:
+                    r.set_string(2, "Right click on a variable to add them to this category.")
+
+            if len(rows) == 1 and row.get_string(0) == "Persisted":
+                r = self.values.add_node()
+                if self.support_variable_persistence:
+                    r.set_string(4, "Right click on a variable to add them to this category.")
 
         self.values.thaw_refresh()
 
-          
     def filterOutput(self):
         self.tree.select_node(self.tree.node_at_row(1))
         self.refresh()
@@ -274,21 +360,20 @@ class VariablesViewer(mforms.Box):
         result = self.ctrl_be.exec_query('SHOW GLOBAL STATUS')
         if result:
             while result.nextRow():
-                global_status.append( (result.stringByName('Variable_name'), result.stringByName('Value')) )
+                global_status.append((result.stringByName('Variable_name'), result.stringByName('Value')))
 
         global_variables = []
         result = self.ctrl_be.exec_query('SHOW GLOBAL VARIABLES')
         if result:
             while result.nextRow():
-                global_variables.append( (result.stringByName('Variable_name'), result.stringByName('Value')) )
+                global_variables.append((result.stringByName('Variable_name'), result.stringByName('Value')))
 
-        max_length = max( len(name) for name, val in global_status + global_variables ) + 5
+        max_length = max(len(name) for name, val in global_status + global_variables) + 5
         status = 'GLOBAL STATUS:\n'
-        status += '\n'.join( [var_name.ljust(max_length, '.') + ' ' + var_value for var_name, var_value in global_status] )
+        status += '\n'.join([var_name.ljust(max_length, '.') + ' ' + var_value for var_name, var_value in global_status])
         status += '\n\nGLOBAL VARIABLES:\n'
-        status += '\n'.join( [var_name.ljust(max_length, '.') + ' ' + var_value for var_name, var_value in global_variables] )
+        status += '\n'.join([var_name.ljust(max_length, '.') + ' ' + var_value for var_name, var_value in global_variables])
         mforms.Utilities.set_clipboard_text(status)
-
 
     def copy_selected_to_clipboard(self):
         selection = []
@@ -296,11 +381,10 @@ class VariablesViewer(mforms.Box):
         if not selected_vars:
             return
         for node in selected_vars:
-            selection.append((node.get_string(0), node.get_string(1)))
-        max_length = max( len(name) for name, val in selection ) + 5
-        status = '\n'.join( [var_name.ljust(max_length, '.') + ' ' + var_value for var_name, var_value in selection] )
+            selection.append((node.get_string(0), node.get_string(1)) if not self.support_variable_persistence else (node.get_string(1), node.get_string(2)))
+        max_length = max(len(name) for name, val in selection) + 5
+        status = '\n'.join([var_name.ljust(max_length, '.') + ' ' + var_value for var_name, var_value in selection])
         mforms.Utilities.set_clipboard_text(status)
-
 
     def delete_category(self):
         node = self.tree.get_selected_node()
@@ -311,18 +395,16 @@ class VariablesViewer(mforms.Box):
                 self.user_groups.save()
                 node.remove_from_parent()
 
-
     def cat_menu_will_show(self, item):
         node = self.tree.get_selected_node()
         self.cat_menu.find_item("delete").set_enabled(True if node and node.get_string(0) in self.user_groups.content and node.get_tag().startswith("Custom: ") else False)
-            
 
     def menu_will_show(self, item):
         self.menu.remove_all()
         selected_vars = self.values.get_selection()
         if not selected_vars:
             return
-        
+
         if len(selected_vars) == 1 and selected_vars[0].get_string(2).startswith('Right click on'):
             return
 
@@ -331,14 +413,15 @@ class VariablesViewer(mforms.Box):
             sel_group = self.tree.get_selection()
             for node in sel_group:
                 group = node.get_string(0).encode('utf-8')
-                tag = node.get_tag().encode('utf-8') 
+                tag = node.get_tag().encode('utf-8')
                 if tag.startswith("Custom: "):
-                    self.menu.add_item_with_title("Remove from %s" % group, lambda self=self, x = group: self.remove_from_group(x), "remove_from_group_%s" % group)
+                    self.menu.add_item_with_title("Remove from %s" % group, lambda self=self, x=group: self.remove_from_group(x), "remove_from_group_%s" % group)
 
             if len(self.user_groups.content):
                 self.menu.add_separator()
+
             for group in self.user_groups.content:
-                self.menu.add_item_with_title("Add to %s" % group , lambda self=self, x = group: self.var_to_group(x), "var_to_group_%s" % group)
+                self.menu.add_item_with_title("Add to %s" % group, lambda self=self, x=group: self.var_to_group(x), "var_to_group_%s" % group)
 
     def remove_from_group(self, grp):
         selected_vars = self.values.get_selection()
@@ -347,7 +430,7 @@ class VariablesViewer(mforms.Box):
 
         selection = []
         for node in selected_vars:
-            selection.append(node.get_string(0))
+            selection.append(node.get_string(0) if not self.support_variable_persistence else node.get_string(1))
 
         self.user_groups.remove_from_group(grp, selection)
         self.user_groups.save()
@@ -360,12 +443,54 @@ class VariablesViewer(mforms.Box):
             return
 
         for node in selected_vars:
-            selection.append(node.get_string(0))
+            selection.append(node.get_string(0) if not self.support_variable_persistence else node.get_string(1))
 
-        self.user_groups.assign({grp:selection})
+        self.user_groups.assign({grp: selection})
         self.user_groups.save()
         self.refresh_all()
-        
+
+    def reset_persist_single_value(self, value_name):
+            if mforms.Utilities.show_message('Confirmation', 'Do you really want to reset selected persistent variable: %s?' % value_name,
+                                             'Ok', 'Cancel', '') == mforms.ResultOk:
+                try:
+                    self.ctrl_be.exec_query("RESET PERSIST %s" % value_name)
+                    return True
+                except Exception, e:
+                    log_error("Error occured while unsetting persisting variables: %s" % e)
+            return False
+
+    def set_persist_value(self, name, value):
+        try:
+            if name in wb_admin_variable_list.ro_persistable:
+                mforms.Utilities.show_message('Information', 'This value can\'t be persisted: %s' % name, 'Ok', '', '')
+                return False
+
+            if self.variable_info and name in self.variable_info and self.variable_info[name][1]:
+                if not self.store_persist_value(name, value):
+                    mforms.Utilities.show_message('Information', 'Unable to store status of the value: %s' % name, 'Ok', '', '')
+                    return False
+                return True
+            else:
+                if not self.store_persist_value(name, value, True):
+                    mforms.Utilities.show_message('Information', 'Unable to store status of the value: %s' % name, 'Ok', '', '')
+                    return False
+                return True
+        except Exception, e:
+            log_error("Error occured while persisting variables: %s" % e)
+            return False
+
+    def store_persist_value(self, value_name, value, only=False):
+        if value_name in self.variable_info:
+            persist_type = "PERSIST" if not only else "PERSIST_ONLY"
+            try:
+                self.ctrl_be.exec_sql("SET %s %s=%s" % (persist_type, value_name, int(value)))
+            except ValueError:
+                self.ctrl_be.exec_sql("SET %s %s='%s'" % (persist_type, value_name, value.replace("'", "''")))
+
+            return True
+
+        return False
+
     def var_to_custom_group(self):
         selection = []
         selected_vars = self.values.get_selection()
@@ -373,12 +498,13 @@ class VariablesViewer(mforms.Box):
             return
 
         for node in selected_vars:
-            selection.append(node.get_string(0))
-        
+            selection.append(node.get_string(0) if not self.support_variable_persistence else node.get_string(1))
+
         grp_select = VariablesGroupSelector(self.user_groups, selection)
         grp_select.run()
-        #VariablesGroupSelector is modal
+        # VariablesGroupSelector is modal
         self.refresh_all()
+
 
 def _decode_list(data):
     rv = []
@@ -391,6 +517,7 @@ def _decode_list(data):
             item = _decode_dict(item)
         rv.append(item)
     return rv
+
 
 def _decode_dict(data):
     rv = {}
@@ -406,21 +533,22 @@ def _decode_dict(data):
         rv[key] = value
     return rv
 
+
 class VariablesGroupContainer:
-    def __init__(self, type):
+    def __init__(self, container_type):
         self.content = {}
-        self.type = type 
+        self.type = container_type
         self.group_file = "%s/custom_%s_group.json" % (mforms.App.get().get_user_data_folder(), self.type)
-        
+
     def load(self):
         self.content = {}
         try:
             with open(self.group_file, 'r') as fp:
                 import json
                 self.content = json.load(fp, object_hook=_decode_dict)
-        except:
-            #Group file doesn't exists, probably user never created any, 
-            #create then the default custom group and save it
+        except Exception:
+            # Group file doesn't exists, probably user never created any,
+            # create then the default custom group and save it
             self.add("Custom")
             self.save()
 
@@ -429,7 +557,7 @@ class VariablesGroupContainer:
             with open(self.group_file, 'wb') as fp:
                 import json
                 json.dump(self.content, fp)
-        except:
+        except Exception:
             pass
 
     def add(self, name):
@@ -454,23 +582,23 @@ class VariablesGroupContainer:
 
 
 class VariablesGroupSelector(mforms.Form):
-    def __init__(self, group_container, vars):
+    def __init__(self, group_container, variables):
         mforms.Form.__init__(self, None)
         self.pending_changes = False
-        self.sel_vars = vars
+        self.sel_vars = variables
         self.group_container = group_container
         self.suspend_layout()
-        
+
         self.set_title("Custom Variable Categories")
 
         content = mforms.newBox(False)
         self.set_content(content)
         content.set_padding(20)
         content.set_spacing(12)
-        
-        l = mforms.newLabel("Select or create new category for custom variable categories.")
-        content.add(l, False, False)
-        
+
+        lbl = mforms.newLabel("Select or create new category for custom variable categories.")
+        content.add(lbl, False, False)
+
         self.groups = newTreeView(mforms.TreeFlatList)
         self.groups.set_selection_mode(mforms.TreeSelectMultiple)
         self.groups.add_column(mforms.StringColumnType, "Category name", 100, False)
@@ -485,8 +613,8 @@ class VariablesGroupSelector(mforms.Form):
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(5)
 
-        l = mforms.newLabel("Category name:")
-        entry_box.add(l, False, False)
+        lbl = mforms.newLabel("Category name:")
+        entry_box.add(lbl, False, False)
         self.name = mforms.newTextEntry()
         self.name.add_action_callback(self.group_name_action)
         entry_box.add(self.name, True, True)
@@ -507,10 +635,10 @@ class VariablesGroupSelector(mforms.Form):
         self.delete = newButton()
         self.delete.set_text("Delete")
         self.delete.add_clicked_callback(self.group_delete)
-        
+
         bbox = mforms.newBox(True)
         bbox.set_spacing(12)
-        
+
         okcancel_box = mforms.newBox(True)
         okcancel_box.set_spacing(12)
 
@@ -526,7 +654,7 @@ class VariablesGroupSelector(mforms.Form):
 
         self.resume_layout()
 
-    def load_groups(self,soft_load = False, grp_name = None):
+    def load_groups(self, soft_load=False, grp_name=None):
         self.groups.clear()
         if not soft_load:
             self.group_container.load()
@@ -535,7 +663,7 @@ class VariablesGroupSelector(mforms.Form):
         for item in self.group_container.content:
             node = self.groups.add_node()
             node.set_string(0, item)
-            if grp_name != None and item == grp_name.encode('utf-8'):
+            if grp_name is not None and item == grp_name.encode('utf-8'):
                 matched_node = node
         if self.groups.count() > 0:
             self.groups.select_node(self.groups.node_at_row(0))
@@ -545,18 +673,18 @@ class VariablesGroupSelector(mforms.Form):
     def group_name_action(self, action):
         if action == mforms.EntryActivate:
             self.group_add()
-            
+
     def group_add(self):
         val = self.name.get_string_value().strip()
         if len(val) == 0:
-            mforms.Utilities.show_error("Missing value", "You must supply a category name.", "OK",  "", "")
+            mforms.Utilities.show_error("Missing value", "You must supply a category name.", "OK", "", "")
             return
 
         try:
             self.group_container.add(val)
             self.pending_changes = True
         except Exception as e:
-            mforms.Utilities.show_error(e.args[0], e.args[1], "OK",  "", "")
+            mforms.Utilities.show_error(e.args[0], e.args[1], "OK", "", "")
             return
 
         self.groups.set_node_selected(self.load_groups(True, val), True)
@@ -570,7 +698,6 @@ class VariablesGroupSelector(mforms.Form):
         for node in selected_vars:
             selection.append(node.get_string(0))
 
-
         groups_for_delete = []
         for node in selected_vars:
             groups_for_delete.append(node.get_string(0))
@@ -578,7 +705,7 @@ class VariablesGroupSelector(mforms.Form):
 
         self.pending_changes = True
 
-        self.load_groups(soft_load = True)
+        self.load_groups(soft_load=True)
 
     def cancel_click(self):
         self.group_container.load()
@@ -601,7 +728,7 @@ class VariablesGroupSelector(mforms.Form):
 
 class WbAdminVariables(mforms.Box):
     ui_created = False
-    
+
     @classmethod
     def wba_register(cls, admin_context):
         admin_context.register_page(cls, "wba_management", "Status and System Variables")
@@ -609,7 +736,6 @@ class WbAdminVariables(mforms.Box):
     @classmethod
     def identifier(cls):
         return "admin_status_vars"
-
 
     def __init__(self, ctrl_be, server_profile, main_view):
         mforms.Box.__init__(self, False)
@@ -639,7 +765,6 @@ class WbAdminVariables(mforms.Box):
         self.server = VariablesViewer(self.ctrl_be, wb_admin_variable_list.system_variable_list, "SHOW GLOBAL VARIABLES", 'system')
         self.server.set_padding(6)
         self.tab.add_page(self.server, "System Variables")
-  
 
     def page_activated(self):
         if not self.ui_created:

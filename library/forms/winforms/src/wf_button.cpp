@@ -107,10 +107,10 @@ int ButtonWrapper::set_text(const std::string &text) {
   SizeF size = g->MeasureString(control->Text, control->Font);
   delete g;
 
-  if (size.Width < control->Width)
-    size.Width = (float)control->Width;
-  control->Width = (int)size.Width;
-  return (int)size.Height;
+  if (std::ceill(size.Width) < control->Width)
+    size.Width = static_cast<float>(control->Width);
+  control->Width = static_cast<int>(std::ceill(size.Width));
+  return static_cast<int>(std::ceill(size.Height));
 }
 
 //-------------------------------------------------------------------------------------------------
