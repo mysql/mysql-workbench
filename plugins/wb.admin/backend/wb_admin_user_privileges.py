@@ -175,17 +175,21 @@ class UserHostPrivileges(object):
         return ret_val
 
     def add_privileges(self, target, priv_list):
-
         # Converts the privilege lists to its binary representation
         priv_value = self.get_privilege_value(priv_list, target.get_target_type())
 
         # Creates the entry for the target if it doesn't exist
-        if not self._granted_privileges.has_key(target):
-            self._granted_privileges[target] = 0
+        target_to_use = None
+        for tgt in self._granted_privileges.keys():
+            if tgt.matches(target):
+                target_to_use = tgt
 
+        if target_to_use is None:
+                self._granted_privileges[target] = 0
+                target_to_use = target
+        
         # Appends the new privileges to the existing ones
-        self._granted_privileges[target] |= priv_value
-
+        self._granted_privileges[target_to_use] |= priv_value
 
     def check_privileges(self, target, privileges):
         for tgt in self._granted_privileges.keys():
