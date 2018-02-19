@@ -472,16 +472,13 @@ class WbAdminConfigFileBE(object):
                 for opt in grpcont:
                     if 'versions' in opt:
                         if not option_is_for_version(server_version, opt['versions']):
-                            print "skipping ", server_version,  opt,"\n------------------"
                             skipped += 1
                             continue
                     if 'deprecated' in opt:
                         if is_opt_deprecated(opt['deprecated'], server_version):
-                            print "skipping deprecated", opt, "\n------------------"
                             deprecated += 1
                             continue
                     value = pick_value(opt, server_version, platform)
-                    print "pick_value for %s: %s" % (opt['caption'], value)
                     if value:
                         copt = copy.copy(opt)
                         del copt['values']
