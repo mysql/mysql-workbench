@@ -19,13 +19,15 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from wb_admin_utils import not_running_warning_label, make_panel_header, weakcb
-from workbench.log import log_error
+from wb_admin_utils import weakcb
+
 
 from mforms import newBox, newTreeView, newButton, newTabView, newTextEntry
 import mforms
 
 import wb_admin_variable_list
+
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection
 
 class VariablesViewer(mforms.Box):
     def __init__(self, ctrl_be, variables, command, viewer_type):
@@ -726,8 +728,12 @@ class VariablesGroupSelector(mforms.Form):
         self.run_modal(None, self.cancel)
 
 
-class WbAdminVariables(mforms.Box):
-    ui_created = False
+class WbAdminVariables(WbAdminTabBase):
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+        
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
+        self.set_standard_header("title_variables.png", self.instance_info.name, "Server Variables")
 
     @classmethod
     def wba_register(cls, admin_context):
@@ -737,46 +743,21 @@ class WbAdminVariables(mforms.Box):
     def identifier(cls):
         return "admin_status_vars"
 
-    def __init__(self, ctrl_be, server_profile, main_view):
-        mforms.Box.__init__(self, False)
-        self.set_managed()
-        self.set_release_on_add()
-        self.ctrl_be = ctrl_be
-        self.main_view = main_view
-        self.server_profile = server_profile
-
     def create_ui(self):
-        self.set_padding(12)
-        self.set_spacing(8)
-
-        self.heading = make_panel_header("title_variables.png", self.server_profile.name, "Server Variables")
-        self.add(self.heading, False, True)
-
-        self.warning = not_running_warning_label()
-        self.add(self.warning, False, True)
-
         self.tab = newTabView(False)
-        self.add(self.tab, True, True)
 
         self.status = VariablesViewer(self.ctrl_be, wb_admin_variable_list.status_variable_list, "SHOW GLOBAL STATUS", 'status')
         self.status.set_padding(6)
-        self.tab.add_page(self.status, "Status Variables")
 
         self.server = VariablesViewer(self.ctrl_be, wb_admin_variable_list.system_variable_list, "SHOW GLOBAL VARIABLES", 'system')
         self.server.set_padding(6)
+
+        self.tab.add_page(self.status, "Status Variables")
         self.tab.add_page(self.server, "System Variables")
+        
+        return self.tab
+  
 
-    def page_activated(self):
-        if not self.ui_created:
-            self.create_ui()
-            self.ui_created = True
-
-        if self.ctrl_be.is_sql_connected():
-            self.warning.show(False)
-            self.tab.show(True)
-        else:
-            self.warning.show(True)
-            self.tab.show(False)
-
+    def update_ui(self):
         self.status.refresh()
         self.server.refresh()

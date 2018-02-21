@@ -43,7 +43,6 @@ except ImportError:
 from wb_server_management import local_run_cmd
 
 from workbench.db_utils import QueryError, ConnectionTunnel, escape_sql_identifier
-from wb_admin_utils import not_running_warning_label, make_panel_header
 from collections import deque
 from workbench.utils import Version
 from workbench.log import log_warning, log_error, log_debug
@@ -52,6 +51,8 @@ from workbench.log import log_warning, log_error, log_debug
 from mforms import newBox, newButton, newPanel, newTextBox, newRadioButton, newLabel, newTreeView, newProgressBar, newTextEntry, newCheckBox, newScrollPanel, newTabView, newSelector
 from mforms import Utilities, FileChooser
 import mforms
+
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection
 
 
 def local_quote_shell_token(s):
@@ -446,9 +447,7 @@ class WbAdminSchemaListTab(mforms.Box):
         super(WbAdminSchemaListTab, self).__init__(False)
 
         self.skip_data_check = False
-
         self.suspend_layout()
-
         progress_tab.operation_tab = self
 
         self.owner = owner
@@ -459,6 +458,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.bad_password_detected = False
         self.server_profile = server_profile
         self.out_pipe = None
+
         if self.savefolder_path is None:
             self.savefolder_path = self.get_default_dump_folder()
         if self.savefile_path is None:
@@ -479,17 +479,13 @@ class WbAdminSchemaListTab(mforms.Box):
         self.table_list.set_allow_sorting(True)
 
         self.table_list.set_cell_edited_callback(self.table_list_edit)
-
         self.schema_list.add_changed_callback(self.schema_selected)
 
         self.set_padding(8)
         self.set_spacing(10)
 
-
         box = newBox(True)
         box.set_spacing(12)
-        
-
 
         optionspanel = newPanel(mforms.TitledBoxPanel)
         if is_importing:
@@ -521,7 +517,6 @@ class WbAdminSchemaListTab(mforms.Box):
             #self.dump_view_check = None
             self.dump_routines_check = None
             self.dump_events_check = None
-            
         else:
             self.filelabel = newLabel("All selected database objects will be exported into a single, self-contained file.")
             self.folderlabel = newLabel("Each table will be exported into a separate file. This allows a selective restore, but may be slower.")
@@ -543,7 +538,7 @@ class WbAdminSchemaListTab(mforms.Box):
         else:
             self.fileradio = newRadioButton(self._radio_group)
             self.fileradio.set_text("Export to Self-Contained File")
-            
+
         self.fileradio.set_size(260,-1)
         self.fileradio.add_clicked_callback(self.set_save_option)
 
@@ -604,15 +599,12 @@ class WbAdminSchemaListTab(mforms.Box):
             export_options.set_row_spacing(2)
             export_options.set_column_spacing(2)
             optionsbox.add(export_options, False, True)
-            
 
         if self.single_transaction_check:
             export_options.add(self.single_transaction_check,0,1,0,1)
         if self.include_schema_check:
             export_options.add(self.include_schema_check,1,2,0,1)
             
-        #if self.dump_view_check:
-        #    suboptionsbox.add(self.dump_view_check, False, True)
         if self.dump_routines_check:
             export_objects_opts.add(self.dump_routines_check,0,1,0,1)
         if self.dump_events_check:
@@ -620,18 +612,11 @@ class WbAdminSchemaListTab(mforms.Box):
 
         if self.dump_triggers_check:
             export_objects_opts.add(self.dump_triggers_check,2,3,0,1)
-            
 
         self.file_te.set_enabled(False)
 
-        #spanel = newScrollPanel(mforms.ScrollPanelNoFlags)
-        #spanel.add(optionsbox)
-        #spanel.set_autohide_scrollers(True)
-        #optionspanel.add(spanel)
         optionspanel.add(optionsbox)
         
-        
-
         selectionpanel = newPanel(mforms.TitledBoxPanel)
         if is_importing:
             selectionpanel.set_title("Select Database Objects to Import (only available for Project Folders)")
@@ -680,7 +665,6 @@ class WbAdminSchemaListTab(mforms.Box):
         selectionvbox.add(selectionbbox, False, True)
         selectionpanel.add(selectionvbox)
 
-        #box.set_homogeneous(True)
         if is_importing:
             self.add(optionspanel, False, True)
 
@@ -722,12 +706,6 @@ class WbAdminSchemaListTab(mforms.Box):
             self.export_button.set_enabled(False)
         box.add_end(self.export_button, False, True)
         self.export_button.add_clicked_callback(self.start)
-
-        #self.stop_button = newButton()
-        #self.stop_button.set_text("Stop")
-        #self.stop_button.set_enabled(False)
-        #self.stop_button.add_clicked_callback(self.stop)
-        #box.add_end(self.stop_button, False, True)
 
         if is_importing:
             self.file_btn.add_clicked_callback(lambda: self.open_file_chooser(mforms.OpenFile))
@@ -1339,7 +1317,6 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 ####################################################################################################
 
 class WbAdminExportTab(WbAdminSchemaListTab):
-
     class ExportTableListModel(TableListModel):
         def __init__(self):
             TableListModel.__init__(self)
@@ -2056,7 +2033,7 @@ class WbAdminExportOptionsTab(mforms.Box):
                 box.add(max_allowed_packet_box,False,True)
                 self.options['max_allowed_packet'] = self.Text_option_model('max_allowed_packet', self.max_allowed_packet_te, "1G")
             panel.add(box)
-            outerbox.add(panel, True, True)
+            outerbox.add(panel, False, True)
         scrollpan = newScrollPanel(mforms.ScrollPanelNoFlags)
         scrollpan.add(outerbox)
         self.add(scrollpan, True, True)
@@ -2217,9 +2194,7 @@ class WbAdminProgressTab(mforms.Box):
 
 ####################################################################################################
 
-class WbAdminExport(mforms.Box):
-    ui_created = False
-
+class WbAdminExport(WbAdminTabBase):
     @classmethod
     def wba_register(cls, admin_context):
         admin_context.register_page(cls, "wba_management", "Data Export")
@@ -2228,31 +2203,18 @@ class WbAdminExport(mforms.Box):
     def identifier(cls):
         return "admin_export"
 
-    def __init__(self, ctrl_be, server_profile, main_view):
-        mforms.Box.__init__(self, False)
-        self.ctrl_be = ctrl_be
-        self.set_managed()
-        self.set_release_on_add()
-        self.server_profile = server_profile
-        self.main_view = main_view
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+        
+        self.showing_options = False
+        
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
 
-    def page_activated(self):
-        if not self.ui_created:
-            self.suspend_layout()
-            self.create_ui()
-            self.resume_layout()
-            self.ui_created = True
-            self.export_tab.check_mysqldump_version()
-            self.export_tab.set_show_internal_schemas(self.get_export_options({})['$internal$show-internal-schemas'] == 'TRUE')
-            self.options_tab.add_clicked_callback_to_checkbox('$internal$show-internal-schemas', self.show_internal_schemas_changed)
-            self.export_tab.refresh_table_list()
+        self.advanced_options_btn = mforms.newButton()
+        self.advanced_options_btn.set_text("Advanced Options...")
+        self.advanced_options_btn.add_clicked_callback(self.show_options)
 
-        if self.ctrl_be.is_sql_connected():
-            self.warning.show(False)
-            self.tabview.show(True)
-        else:
-            self.warning.show(True)
-            self.tabview.show(False)
+        self.set_header(self.create_standard_header("title_export.png", self.instance_info.name, "Data Export", self.advanced_options_btn))
 
     def switch_to_progress(self):
         self.tabview.set_active_tab(1)
@@ -2268,42 +2230,38 @@ class WbAdminExport(mforms.Box):
             self.options_tab.show(False)
             self.advanced_options_btn.set_text("Advanced Options...")
 
+    def validation_failed_notification(self, failed_validation):
+        self.advanced_options_btn.show(False)
+
+    def validation_successful_notification(self):
+        self.advanced_options_btn.show(True)
+
     def create_ui(self):
-        self.suspend_layout()
-
-        self.showing_options = False
-        self.advanced_options_btn = mforms.newButton()
-        self.advanced_options_btn.set_text("Advanced Options...")
-        self.advanced_options_btn.add_clicked_callback(self.show_options)
-        self.set_padding(12)
-        self.set_spacing(8)
-        self.heading = make_panel_header("title_export.png", self.server_profile.name, "Data Export", self.advanced_options_btn)
-        self.add(self.heading, False, True)
-
-        self.warning = not_running_warning_label()
-        self.add(self.warning, False, True)
+        self.ui_box = mforms.newBox(False)
 
         self.tabview = newTabView(False)
-        self.add(self.tabview, True, True)
+        self.ui_box.add(self.tabview, True, True)
         self.tabview.show(False)
 
         self.progress_tab = WbAdminProgressTab(self, True)
 
-        self.export_tab = WbAdminExportTab(self, self.server_profile, self.progress_tab)
+        self.export_tab = WbAdminExportTab(self, self.instance_info, self.progress_tab)
         self.tabview.add_page(self.export_tab, "Object Selection")
 
         self.options_tab = WbAdminExportOptionsTab(self.ctrl_be.target_version, self.export_tab.mysqldump_defaults)
-        self.add(self.options_tab, True, True)
+        self.ui_box.add(self.options_tab, True, True)
         self.options_tab.show(False)
 
         self.tabview.add_page(self.progress_tab, "Export Progress")
 
-        self.resume_layout()
+        self.tabview.show(True)
         self.recall_options()
+        self.export_tab.refresh_table_list()
+        return self.ui_box
 
     def shutdown(self): # called when admin tab is closed
         self.remember_options()
-        if self.ui_created:
+        if self.ui_created():
             self.export_tab.close()
             self.progress_tab.close()
 
@@ -2318,7 +2276,7 @@ class WbAdminExport(mforms.Box):
         return options
 
     def remember_options(self):
-        if self.ui_created:
+        if self.ui_created():
             dic = grt.root.wb.options.options
             dic["wb.admin.export:exportType"] = self.export_tab.folderradio.get_active() and "folder" or "file"
             dic["wb.admin.export:selectedFolder"] = self.export_tab.folder_te.get_string_value()
@@ -2366,8 +2324,11 @@ class WbAdminExport(mforms.Box):
 
 ####################################################################################################
 
-class WbAdminImport(mforms.Box):
-    ui_created = False
+class WbAdminImport(WbAdminTabBase):
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
+        self.set_standard_header("title_import.png", self.instance_info.name, "Data Import")
 
     @classmethod
     def wba_register(cls, admin_context):
@@ -2377,61 +2338,23 @@ class WbAdminImport(mforms.Box):
     def identifier(cls):
         return "admin_restore_data"
 
-
-    def __init__(self, ctrl_be, server_profile, main_view):
-        mforms.Box.__init__(self, False)
-        self.ctrl_be = ctrl_be
-        self.set_managed()
-        self.set_release_on_add()
-        self.server_profile = server_profile
-        self.main_view = main_view
-
-
     def shutdown(self):
-        if self.ui_created:
+        if self.ui_created():
             self.import_tab.close()
             self.progress_tab.close()
-
-
-    def page_activated(self):
-        if not self.ui_created:
-            self.suspend_layout()
-            self.create_ui()
-            self.resume_layout()
-            self.ui_created = True
-        if self.ctrl_be.is_sql_connected():
-            self.warning.show(False)
-            self.tabview.show(True)
-            self.import_tab.refresh_schema_list()
-            self.import_tab.set_save_option()
-        else:
-            self.warning.show(True)
-            self.tabview.show(False)
 
 
     def switch_to_progress(self):
         self.tabview.set_active_tab(1)
 
-    def create_ui(self):
-        self.suspend_layout()
-
-        self.set_padding(12)
-        self.set_spacing(8)
-        self.heading = make_panel_header("title_import.png", self.server_profile.name, "Data Import")
-        self.add(self.heading, False, True)
-
-        self.warning = not_running_warning_label()
-        self.add(self.warning, False, True)
-
+    def create_ui(self):        
         self.tabview = newTabView(False)
-        self.add(self.tabview, True, True)
         self.tabview.show(False)
 
         self.progress_tab = WbAdminProgressTab(self, False)
-        self.import_tab = WbAdminImportTab(self, self.server_profile, self.progress_tab)
+        self.import_tab = WbAdminImportTab(self, self.instance_info, self.progress_tab)
         self.tabview.add_page(self.import_tab, "Import from Disk")
 
         self.tabview.add_page(self.progress_tab, "Import Progress")
 
-        self.resume_layout()
-        self.ui_created = True
+        return self.tabview

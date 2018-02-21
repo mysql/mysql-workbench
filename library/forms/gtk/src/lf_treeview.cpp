@@ -1804,7 +1804,7 @@ namespace mforms {
                                 get_owner()->get_column_type(i)));
             break;
           default:
-            logWarning("Unknown column storage type");
+            logWarning("Unknown column storage type[%d]\n", mcol->type());
             break;
         }
       }

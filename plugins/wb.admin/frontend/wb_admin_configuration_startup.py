@@ -24,22 +24,70 @@ import mforms
 
 from wb_common import dprint_ex, OperationCancelledError
 import datetime
-from wb_admin_utils import no_remote_admin_warning_label, make_panel_header
+from wb_admin_utils import no_remote_admin_warning_label
 
 from wb_log_reader import ErrorLogFileReader
 from workbench.notifications import nc
 
-class WbAdminConfigurationStartup(mforms.Box):
-    long_status_msg = None
-    short_status_msg = None
-    start_stop_btn = None
-    offline_mode_btn = None
-    startup_msgs_log = None
-    is_server_running_prev_check = None
-    copy_to_clipboard_button = None
-    clear_messages_button = None
-    ui_created = False
-    error_log_reader = None
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection, WbAdminValidationBase
+
+class WbAdminValidationRemoteAccess(WbAdminValidationBase):
+    def __init__(self, instance_info):
+        WbAdminValidationBase.__init__(self, "")
+        
+        self._instance_info = instance_info
+
+        if self._instance_info.uses_ssh:
+            self.set_error_message("There is no SSH connection to the server.\nTo use this functionality, the server where MySQL is located must have an SSH server running\nand you must provide its login information in the server profile.")
+        elif self._instance_info.uses_wmi:
+            self.set_error_message("There is no WMI connection to the server.\nTo use this functionality, the server where MySQL is located must be configured to use WMI\nand you must provide its login information in the server profile.")
+        else:
+            self.set_error_message("Remote Administration is disabled.\nTo use this functionality, the server where MySQL is located must have either an SSH server running,\nor if it is a computer running Windows, must have WMI enabled.\nAdditionally, you must enable remote administration in the server profile and provide login details for it.")
+
+    def validate(self):
+        return self._instance_info.admin_enabled
+
+
+class WbAdminConfigurationStartup(WbAdminTabBase):
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+
+        self.add_validation(WbAdminValidationRemoteAccess(instance_info))
+        self.set_standard_header("title_startup.png", self._instance_info.name, "Startup / Shutdown MySQL Server")
+        self.long_status_msg = None
+        self.short_status_msg = None
+        self.start_stop_btn = None
+        self.offline_mode_btn = None
+        self.startup_msgs_log = None
+        self.is_server_running_prev_check = None
+        self.copy_to_clipboard_button = None
+        self.clear_messages_button = None
+        self.error_log_reader = None
+
+        if self.server_control:
+            self.server_control.set_output_handler(self.print_output_cb)
+
+        button_box = newBox(True)
+        self.refresh_button = newButton()
+        self.refresh_button.set_size(150, -1)
+        self.refresh_button.set_text("Refresh Status")
+        self.refresh_button.add_clicked_callback(lambda:self.refresh(True))
+        button_box.add(self.refresh_button, False, True)
+
+        self.copy_to_clipboard_button = newButton()
+        self.copy_to_clipboard_button.set_size(150, -1)
+        self.copy_to_clipboard_button.set_text("Copy to Clipboard")
+        self.copy_to_clipboard_button.add_clicked_callback(self.copy_to_clipboard)
+        button_box.add_end(self.copy_to_clipboard_button, False, True)
+
+        self.clear_messages_button = newButton()
+        self.clear_messages_button.set_size(150, -1)
+        self.clear_messages_button.set_text("Clear Messages")
+        self.clear_messages_button.add_clicked_callback(self.clear_messages)
+        button_box.add_end(self.clear_messages_button, False, True)
+        
+        self.set_footer(button_box)
+
 
     @classmethod
     def wba_register(cls, admin_context):
@@ -51,50 +99,29 @@ class WbAdminConfigurationStartup(mforms.Box):
 
     #---------------------------------------------------------------------------
     def print_output_cb(self, text):
-        self.ctrl_be.uitask(self.print_output, text)
+        self._ctrl_be.uitask(self.print_output, text)
 
     #---------------------------------------------------------------------------
     def print_output(self, text):
         ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S - ")
         if self.startup_msgs_log:
-            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self.ctrl_be.server_helper.cmd_output_encoding, True)
-
-    #---------------------------------------------------------------------------
-    def __init__(self, ctrl_be, server_profile, main_view):
-        mforms.Box.__init__(self, False)
-        self.set_managed()
-        self.set_release_on_add()
-        self.main_view = main_view
-        self.ctrl_be = ctrl_be
-        self.ctrl_be.server_profile = server_profile
+            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self._ctrl_be.server_helper.cmd_output_encoding, True)
 
     #---------------------------------------------------------------------------
     @property
     def server_profile(self):
-        return self.ctrl_be.server_profile
+        return self._ctrl_be.server_profile
 
     #---------------------------------------------------------------------------
     @property
     def server_control(self):
-        return self.ctrl_be.server_control
+        return self._ctrl_be.server_control
 
     #---------------------------------------------------------------------------
     def create_ui(self):
-        self.suspend_layout()
+        ui_box = mforms.newBox(False)
 
-        if not self.server_profile.admin_enabled:
-            self.add(no_remote_admin_warning_label(self.server_profile), False, True)
-            self.resume_layout()
-            return
-
-        self.set_padding(12)
-        self.set_spacing(8)
-
-        # Left pane (start/stop).
-        self.heading = make_panel_header("title_startup.png", self.server_profile.name, "Startup / Shutdown MySQL Server")
-        self.add(self.heading, False, True)
-
-        self.add(newLabel(" "), False, True)
+        ui_box.add(newLabel(" "), False, True)
 
         self.long_status_msg = newLabel("The database server is stopped")
         self.long_status_msg.set_style(mforms.SmallStyle)
@@ -117,107 +144,77 @@ class WbAdminConfigurationStartup(mforms.Box):
         start_stop_hbox.add(self.start_stop_btn, False, True)
         start_stop_hbox.add(self.offline_mode_btn, False, True)
 
-        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+        if self._ctrl_be.target_version and self._ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
             self.offline_mode_btn.show(True)
         else:
             self.offline_mode_btn.show(False)
 
-        self.add(self.long_status_msg, False, True)
-        self.add(start_stop_hbox, False, True)
+        ui_box.add(self.long_status_msg, False, True)
+        ui_box.add(start_stop_hbox, False, True)
 
-        description = newLabel("If you stop the server, you and your applications will not be able to use the database and all current connections will be closed\n")
+        description = newLabel("If you stop the server, neither you nor your applications can use the database and all current connections will be closed.\n")
         description.set_style(mforms.SmallStyle)
-        self.add(description, False, True)
+        ui_box.add(description, False, True)
 
         auto_start_checkbox = newCheckBox()
         auto_start_checkbox.set_text("Automatically Start Database Server on Startup")
         auto_start_checkbox.set_active(True)
 
-        description = newLabel("You may select to have the Database server start automatically whenever the computer starts up.")
+        description = newLabel("You may select to have the database server start automatically whenever the computer starts up.")
         description.set_style(mforms.SmallStyle)
         description.set_wrap_text(True)
 
         # Right pane (log).
         heading = newLabel("\nStartup Message Log")
         heading.set_style(mforms.BoldStyle)
-        self.add(heading, False, True)
+        ui_box.add(heading, False, True)
 
         self.startup_msgs_log = newTextBox(mforms.BothScrollBars)
         self.startup_msgs_log.set_name('StartupMessagesLog')
         self.startup_msgs_log.set_read_only(True)
-        self.add(self.startup_msgs_log, True, True)
+        ui_box.add(self.startup_msgs_log, True, True)
 
-        button_box = newBox(True)
-        self.refresh_button = newButton()
-        self.refresh_button.set_size(150, -1)
-        self.refresh_button.set_text("Refresh Status")
-        self.refresh_button.add_clicked_callback(lambda:self.refresh(True))
-        button_box.add(self.refresh_button, False, True)
-
-        self.copy_to_clipboard_button = newButton()
-        self.copy_to_clipboard_button.set_size(150, -1)
-        self.copy_to_clipboard_button.set_text("Copy to Clipboard")
-        self.copy_to_clipboard_button.add_clicked_callback(self.copy_to_clipboard)
-        button_box.add_end(self.copy_to_clipboard_button, False, True)
-
-        self.clear_messages_button = newButton()
-        self.clear_messages_button.set_size(150, -1)
-        self.clear_messages_button.set_text("Clear Messages")
-        self.clear_messages_button.add_clicked_callback(self.clear_messages)
-        button_box.add_end(self.clear_messages_button, False, True)
-        self.add(button_box, False, True)
-
-        self.resume_layout()
-
-        self.ctrl_be.add_me_for_event("server_started", self)
-        self.ctrl_be.add_me_for_event("server_offline", self)
-        self.ctrl_be.add_me_for_event("server_stopped", self)
-
-    #---------------------------------------------------------------------------
-    def page_activated(self):
-        if not self.server_profile.admin_enabled:
-            self.add(no_remote_admin_warning_label(self.server_profile), True, True)
-            return
+        self._ctrl_be.add_me_for_event("server_started", self)
+        self._ctrl_be.add_me_for_event("server_offline", self)
+        self._ctrl_be.add_me_for_event("server_stopped", self)
         
-        if not self.ui_created:
-            self.create_ui()
-            self.ui_created = True
+        self.update_ui()
+        
+        return ui_box
 
-        if self.server_control:
-            self.server_control.set_output_handler(self.print_output_cb)
-
+    def update_ui(self):
         if self.is_server_running_prev_check is None:
             self.is_server_running_prev_check = self.ctrl_be.is_server_running()
-            self.update_ui(self.is_server_running_prev_check)
+            self.real_update_ui(self.is_server_running_prev_check)
             self.print_new_error_log_entries()
         else:
             self.ctrl_be.query_server_info() 
-            self.update_ui(self.ctrl_be.is_server_running())
+            self.real_update_ui(self.ctrl_be.is_server_running())
 
     #---------------------------------------------------------------------------
     def server_started_event(self):
         dprint_ex(2, "Handling server start event in start/stop page")
-        self.update_ui("running")
+        self.real_update_ui("running")
 
     #---------------------------------------------------------------------------
     def server_offline_event(self):
         dprint_ex(2, "Handling server offline event in start/stop page")
-        self.update_ui("offline")
+        self.real_update_ui("offline")
 
     #---------------------------------------------------------------------------
     def server_stopped_event(self):
         dprint_ex(2, "Handling server stop event in start/stop page")
-        self.update_ui("stopped")
+        self.real_update_ui("stopped")
 
     #---------------------------------------------------------------------------
-    def update_ui(self, server_status):
+    def real_update_ui(self, server_status):
         dprint_ex(3, "server_status on enter is %s" % str(server_status))
         
         if not self.server_profile.admin_enabled:
             return
 
         self.is_server_running_prev_check = server_status
-        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+        if self._ctrl_be.target_version and self._ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
             self.offline_mode_btn.show(True)
         else:
             self.offline_mode_btn.show(False)
@@ -269,17 +266,17 @@ class WbAdminConfigurationStartup(mforms.Box):
 
     #---------------------------------------------------------------------------
     def start_error_log_tracking(self):
-        if self.ctrl_be.server_profile.error_log_file_path:
+        if self._ctrl_be.server_profile.error_log_file_path:
             try:
-                self.error_log_reader = ErrorLogFileReader(self.ctrl_be, self.server_profile.error_log_file_path)
+                self.error_log_reader = ErrorLogFileReader(self._ctrl_be, self.server_profile.error_log_file_path)
                 self.error_log_position = self.error_log_reader.file_size
             except OperationCancelledError, e:
                 self.startup_msgs_log.append_text_with_encoding("Cancelled password input to open error log file: %s\n" % e,
-                                                              self.ctrl_be.server_helper.cmd_output_encoding, True)
+                                                              self._ctrl_be.server_helper.cmd_output_encoding, True)
                 raise
             except Exception, e:
                 self.startup_msgs_log.append_text_with_encoding("Could not open error log file: %s\n" % e,
-                                                                self.ctrl_be.server_helper.cmd_output_encoding, True)
+                                                                self._ctrl_be.server_helper.cmd_output_encoding, True)
 
     #---------------------------------------------------------------------------
     def print_new_error_log_entries(self):
@@ -292,9 +289,9 @@ class WbAdminConfigurationStartup(mforms.Box):
                 records = self.error_log_reader.current()
                 if records:
                     self.startup_msgs_log.append_text_with_encoding('\nFROM %s:\n' % self.server_profile.error_log_file_path,
-                                                                    self.ctrl_be.server_helper.cmd_output_encoding, True)
+                                                                    self._ctrl_be.server_helper.cmd_output_encoding, True)
                     self.startup_msgs_log.append_text_with_encoding('    '+'\n    '.join( ["  ".join(line) for line in records]) + '\n',
-                                                                    self.ctrl_be.server_helper.cmd_output_encoding, True)
+                                                                    self._ctrl_be.server_helper.cmd_output_encoding, True)
 
 
     #---------------------------------------------------------------------------
@@ -306,7 +303,7 @@ class WbAdminConfigurationStartup(mforms.Box):
             # to avoid user having to cancel that twice, but since we're not sure if the start/stop will
             # indeed require the sudo password, we can't give up yet
             pass
-        status = self.ctrl_be.is_server_running(verbose=1)
+        status = self._ctrl_be.is_server_running(verbose=1)
         # Check if server was started/stoped from outside
         if self.is_server_running_prev_check == status:
             if status == "running" or status == "offline":
@@ -317,14 +314,14 @@ class WbAdminConfigurationStartup(mforms.Box):
 
                 try:
                     if self.server_control and not self.server_control.stop_async(self.async_stop_callback, True):
-                        if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                        if self._ctrl_be.target_version and self._ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
                             self.offline_mode_btn.show(True)
 
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
                 except Exception, exc:
-                    if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+                    if self._ctrl_be.target_version and self._ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
                         self.offline_mode_btn.show(True)
 
                     self.start_stop_btn.set_enabled(True)
@@ -359,27 +356,27 @@ class WbAdminConfigurationStartup(mforms.Box):
                 self.print_output("Unable to detect server status.")
             self.refresh()
 
-            if self.ctrl_be.target_version and self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
+            if self._ctrl_be.target_version and self._ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
                 self.offline_mode_btn.show(True)
 
     def offline_mode_clicked(self):
-        info = { "state" : -1, "connection" : self.ctrl_be.server_profile.db_connection_params }
-        if self.ctrl_be.is_server_running() == "offline":
-            self.ctrl_be.exec_query("SET GLOBAL offline_mode = off")
-            self.ctrl_be.event_from_main("server_started")
+        info = { "state" : -1, "connection" : self._ctrl_be.server_profile.db_connection_params }
+        if self._ctrl_be.is_server_running() == "offline":
+            self._ctrl_be.exec_query("SET GLOBAL offline_mode = off")
+            self._ctrl_be.event_from_main("server_started")
             info['state'] = 1
         else:
-            self.ctrl_be.exec_query("SET GLOBAL offline_mode = on")
-            self.ctrl_be.event_from_main("server_offline")
+            self._ctrl_be.exec_query("SET GLOBAL offline_mode = on")
+            self._ctrl_be.event_from_main("server_offline")
             info['state'] = -1
             
         #we need to send notification that server state has changed,
-        nc.send("GRNServerStateChanged", self.ctrl_be.editor, info)
+        nc.send("GRNServerStateChanged", self._ctrl_be.editor, info)
              
 
     #---------------------------------------------------------------------------
     def async_stop_callback(self, status):
-        self.ctrl_be.uitask(self.async_stop_finished, status)
+        self._ctrl_be.uitask(self.async_stop_finished, status)
 
     #---------------------------------------------------------------------------
     def async_stop_finished(self, status): # status can be one of success, bad_password or error message
@@ -410,12 +407,12 @@ class WbAdminConfigurationStartup(mforms.Box):
 
     #---------------------------------------------------------------------------
     def async_start_callback(self, status):
-        self.ctrl_be.uitask(self.async_start_finished, status)
+        self._ctrl_be.uitask(self.async_start_finished, status)
 
     #---------------------------------------------------------------------------
     def async_start_finished(self, status):
         if status == "success":
-            self.ctrl_be.event_from_main("server_started")
+            self._ctrl_be.event_from_main("server_started")
             self.print_output("Server start done.")
         elif status == "bad_password":
             r = Utilities.show_error("Start Server",
@@ -441,10 +438,10 @@ class WbAdminConfigurationStartup(mforms.Box):
 
     #---------------------------------------------------------------------------
     def refresh(self, verbose=False):
-        new_state = self.ctrl_be.force_check_server_state(verbose=verbose)
+        new_state = self._ctrl_be.force_check_server_state(verbose=verbose)
         if new_state:
             self.is_server_running_prev_check = new_state
-            self.update_ui(self.is_server_running_prev_check)
+            self.real_update_ui(self.is_server_running_prev_check)
             self.print_new_error_log_entries()
 
     #---------------------------------------------------------------------------

@@ -28,6 +28,8 @@
 #include "base/file_functions.h"
 #include "base/log.h"
 
+#include <iostream>
+
 DEFAULT_LOG_DOMAIN("ModulePython");
 
 using namespace grt;
@@ -240,6 +242,50 @@ PythonModuleLoader::PythonModuleLoader(const std::string &module_path) : _pycont
 PythonModuleLoader::~PythonModuleLoader() {
 }
 
+static std::string formatStringList(PyObject *list) {
+    std::string result;
+    PyObject *item;
+
+    int count = PyList_Size(list);
+    for (int index = 0; index < count; ++index) {
+        item = PyList_GetItem(list, index);
+        result += PyString_AsString(item);
+    }
+    return result;
+}
+
+static std::string handlePyError() {
+  if (!PyErr_Occurred()) 
+    return "";
+    
+  PyObject *type, *value, *traceback;
+  PyObject *pythonErrorDescryption, *moduleName, *pythonModule, *formatExceptionFunction;
+
+  PyErr_Fetch(&type, &value, &traceback);
+  pythonErrorDescryption = PyObject_Str(value);
+  std::string errorDescription = PyString_AsString(pythonErrorDescryption);
+  std::string result = "Unhandled exception in Python code: \n";
+
+  // See if we can get a full traceback
+  moduleName = PyString_FromString("traceback");
+  pythonModule = PyImport_Import(moduleName);
+  Py_DECREF(moduleName);
+
+  if (pythonModule) {
+    formatExceptionFunction = PyObject_GetAttrString(pythonModule, "format_exception");
+    
+    if (formatExceptionFunction && PyCallable_Check(formatExceptionFunction)) {
+      PyObject *formatExceptionFunctionResult;
+
+      formatExceptionFunctionResult = PyObject_CallFunctionObjArgs(formatExceptionFunction, type, value, traceback, NULL);
+
+      result += formatStringList(formatExceptionFunctionResult);
+    }
+  }
+
+  return result;
+}
+
 Module *PythonModuleLoader::init_module(const std::string &path) {
   PyObject *mod;
   std::string name;
@@ -268,12 +314,13 @@ Module *PythonModuleLoader::init_module(const std::string &path) {
     }
     // import module
     mod = PyImport_ImportModule((char *)name.c_str());
-
+    
     // restore path
     PyDict_SetItemString(PyModule_GetDict(sysmod), "path", old_path);
     Py_DECREF(old_path);
     if (mod == NULL) {
-      PythonContext::log_python_error(base::strfmt("Error importing Python module %s\n", path.c_str()).c_str());
+      std::string exception = handlePyError();
+      PythonContext::log_python_error(base::strfmt("Error importing Python module %s\n%s", path.c_str(), exception.c_str()).c_str());
       return 0;
     }
   }

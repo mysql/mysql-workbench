@@ -28,12 +28,10 @@ from workbench.db_utils import escape_sql_string, QueryError
 from functools import partial
 
 from wb_common import dprint_ex
-from wb_admin_utils import weakcb, WbAdminBaseTab
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationBase, WbAdminValidationConnection
 import json
 
 from workbench.log import log_error
-
-from wb_admin_utils import not_running_warning_label
 
 class WBThreadStack(mforms.Form):
     enable_debug_info = False
@@ -88,7 +86,7 @@ class WBThreadStack(mforms.Form):
         self.ok = newButton()
         self.ok.set_text("Close")
         self.ok.add_clicked_callback(self.close_form)
-        bbox.add_end(self.ok, False, False)
+        bbox.add_end(self.ok, False, True)
         vbox.add_end(bbox, False, True)
 
         self.set_size(800, 600)
@@ -259,8 +257,31 @@ class ConnectionDetailsPanel(mforms.Table):
             self.explain.set_enabled(True if node and node.get_tag() else False)
 
 
-class WbAdminConnections(WbAdminBaseTab):
-    ui_created = False
+class WbAdminValidationPermissions(WbAdminValidationBase):
+    def __init__(self, ctrl_be):
+        WbAdminValidationBase.__init__(self)
+        self._ctrl_be = ctrl_be
+        
+    def validate(self):
+        try:
+            self._ctrl_be.exec_query("SELECT COUNT(*) FROM performance_schema.threads")
+        except QueryError, e:
+            import traceback
+            log_error("QueryError in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
+            if e.error == 1142:
+                self.set_error_message("The account you are currently using does not have sufficient privileges to view the client connections.")
+            else:
+                self.set_error_message("There was a problem opening the Client Connections. Please check the error log for more details.")
+            return False
+        except Exception, e:
+            import traceback
+            log_error("Exception in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
+            self.set_error_message("There was a problem opening the Client Connections. Please check the error log for more details.")
+            return False
+        return True
+
+class WbAdminConnections(WbAdminTabBase):
+    #ui_created = False
     serial = 0
 
     @classmethod
@@ -272,12 +293,15 @@ class WbAdminConnections(WbAdminBaseTab):
         return "admin_connections"
 
     def __init__(self, ctrl_be, instance_info, main_view):
-        WbAdminBaseTab.__init__(self, ctrl_be, instance_info, main_view)
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+        
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
+        self.add_validation(WbAdminValidationPermissions(ctrl_be))
+        
+        self.set_standard_header("title_connections.png", self.instance_info.name, "Client Connections")
+        
         self.set_managed()
         self.set_release_on_add()
-        self.set_padding(12)
-        self.set_spacing(15)
-        self.page_active = False
         self._new_processlist = self.check_if_ps_available()
         self._refresh_timeout = None
         self.warning = None
@@ -325,12 +349,12 @@ class WbAdminConnections(WbAdminBaseTab):
                             ]
             self.long_int_columns = [0, 5]
             self.info_column = 7
+            
 
     def create_ui(self):
         dprint_ex(4, "Enter")
-        self.suspend_layout()
-
-        self.create_basic_ui("title_connections.png", "Client Connections")
+        
+        uiBox = mforms.newBox(False)
 
         if self.new_processlist():
             widths = grt.root.wb.state.get("wb.admin:ConnectionListColumnWidthsPS", None)
@@ -377,35 +401,32 @@ class WbAdminConnections(WbAdminBaseTab):
         info_table.add(self.create_labeled_info("Errors:", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
 
         self.info_table = info_table
-        self.add(info_table, False, True)
+        uiBox.add(info_table, False, True)
 
-        #self.set_padding(8)
-        self.add(self.connection_box, True, True)
-
+        uiBox.add(self.connection_box, True, True)
 
         box = newBox(True)
         self.button_box = box
-        self.add_end(box, False, True)
 
-        box.set_spacing(12)
+        self.button_box.set_spacing(12)
         
         refresh_button = newButton()
         refresh_button.set_text("Refresh")
-        box.add_end(refresh_button, False, True)
+        self.button_box.add_end(refresh_button, False, True)
         refresh_button.add_clicked_callback(weakcb(self, "refresh"))
 
         self.kill_button = newButton()
         self.kill_button.set_text("Kill Connection(s)")
-        box.add_end(self.kill_button, False, True)
+        self.button_box.add_end(self.kill_button, False, True)
         self.kill_button.add_clicked_callback(weakcb(self, "kill_connection"))
         
         self.killq_button = newButton()
         self.killq_button.set_text("Kill Query(s)")
-        box.add_end(self.killq_button, False, True)
+        self.button_box.add_end(self.killq_button, False, True)
         self.killq_button.add_clicked_callback(weakcb(self, "kill_query"))
         
         refresh_label = newLabel("Refresh Rate:")
-        box.add(refresh_label, False, True)
+        self.button_box.add(refresh_label, False, True)
 
         self._menu = mforms.newContextMenu()
         self._menu.add_will_show_callback(self.menu_will_show)
@@ -427,7 +448,8 @@ class WbAdminConnections(WbAdminBaseTab):
         self.refresh_selector.set_selected(refresh_rate_index)
         self.update_refresh_rate()
         self.refresh_selector.add_changed_callback(weakcb(self, "update_refresh_rate"))
-        box.add(self.refresh_selector, False, True)
+        self.button_box.add(self.refresh_selector, False, True)
+        
 
         self.check_box = newBox(True)
         self.check_box.set_spacing(12)
@@ -516,14 +538,24 @@ class WbAdminConnections(WbAdminBaseTab):
             self.show_extras.set_text('Show Details')
             self.show_extras.add_clicked_callback(self.toggle_extras)
             self.check_box.add_end(self.show_extras, False, True)
-
-        self.add(self.check_box, False, True)
+            self.check_box.set_padding(0, 5, 0, 5)
+            
+        
+        footerBox = mforms.newBox(False)
+        footerBox.add_end(self.check_box, False, True)
+        footerBox.add_end(self.button_box, False, True)
+        
+        self.set_footer(footerBox)
         
         self.resume_layout()
         
         self.connection_selected()
         
+        self.relayout()
+        
         dprint_ex(4, "Leave")
+        
+        return uiBox
 
 
     def shutdown(self):
@@ -536,15 +568,15 @@ class WbAdminConnections(WbAdminBaseTab):
         lbox = newBox(True)
         lbox.set_spacing(5)
         l = mforms.newLabel(lbl_txt)
-        lbox.add(l, False, False)
+        lbox.add(l, False, True)
         setattr(self, lbl_name, mforms.newLabel(""))
         l.set_style(mforms.BoldStyle)
-        lbox.add(getattr(self, lbl_name), False, False)
+        lbox.add(getattr(self, lbl_name), False, True)
         if tooltip_name != None:
             i = mforms.newImageBox()
             i.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
             i.set_tooltip("")
-            lbox.add(i, False, False)
+            lbox.add(i, False, True)
             setattr(self, tooltip_name, i)
 
         return lbox
@@ -787,67 +819,6 @@ class WbAdminConnections(WbAdminBaseTab):
 
         self.mdl_waiting_label.set_text(waiting_label_text)
 
-        
-    def show_warning_message(self, text):
-        if not self.heading:
-            self.create_basic_ui("title_connections.png", "Client Connections")
-      
-        if self.warning:
-            self.remove(self.warning)
-            self.warning = None
-
-        self.warning = not_running_warning_label()
-        self.warning.set_text("\n\n\n\n%s" % text)
-        self.warning.show(True)
-        self.add(self.warning, False, True)
-
-    def show_no_permission(self):
-        self.show_warning_message("The account you are currently using does not have sufficient privileges to view the client connections.")
-        
-    def show_generic_error(self):
-        self.show_warning_message("There was a problem opening the Client Connections. Please check the error log for more details.")
-        
-    def page_activated(self):
-
-        try:
-            self.ctrl_be.exec_query("SELECT COUNT(*) FROM performance_schema.threads")
-        except QueryError, e:
-            import traceback
-            log_error("QueryError in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
-            if e.error == 1142:
-                self.show_no_permission()
-            else:
-                self.show_generic_error()
-            return
-        except Exception, e:
-            import traceback
-            log_error("Exception in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
-            self.show_generic_error()
-            return
-
-        WbAdminBaseTab.page_activated(self)
-
-        if not self.ui_created:
-            self.create_ui()
-            self.ui_created = True
-        
-        self.page_active = True
-        if self.ctrl_be.is_sql_connected():
-            self.connection_box.show(True)
-            self.info_table.show(True)
-            self.button_box.show(True)
-            self.check_box.show(True)
-        else:
-            self.connection_box.show(False)
-            self.info_table.show(False)
-            self.button_box.show(False)
-            self.check_box.show(False)
-        
-        self.refresh()
-    
-    def page_deactivated(self):
-        self.page_active = False
-    
     def get_process_list(self):
         if self.new_processlist():
             return self.get_process_list_new()
@@ -1038,7 +1009,7 @@ class WbAdminConnections(WbAdminBaseTab):
 
 
     def refresh(self, query_result = None, my_serial = 0):
-        if not self.page_active:
+        if not self.page_active():
             dprint_ex(2, "Leave. Page is inactive")
             return True
  

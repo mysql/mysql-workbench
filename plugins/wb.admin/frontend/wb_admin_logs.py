@@ -174,7 +174,6 @@ Use cases for the server logs
 import grt
 from mforms import newBox, newLabel, newTreeView, newTabView, newButton
 import mforms
-from wb_admin_utils import not_running_warning_label, make_panel_header, show_error_page, remove_error_page_if_exists
 from wb_log_reader import GeneralQueryLogReader, SlowQueryLogReader, GeneralLogFileReader, SlowLogFileReader, ErrorLogFileReader
 import wb_admin_config_file_be
 
@@ -182,6 +181,9 @@ from wb_common import LogFileAccessError, ServerIOError, OperationCancelledError
 from workbench.utils import WorkerThreadHelper
 
 from workbench.log import log_error, log_debug
+
+from wb_admin_utils import WbAdminTabBase, WbAdminValidationConfigFile, WbAdminValidationConnection, WbAdminValidationBase
+
 
 class LogView(mforms.Box):
     '''
@@ -466,7 +468,6 @@ class LogView(mforms.Box):
 
 
 class LogViewGeneric(LogView):
-
     def __init__(self, owner, BackendLogReaderClass, *args):
         self.filter_list = {}
         self.filter_box = mforms.newBox(True)
@@ -507,7 +508,21 @@ class LogViewGeneric(LogView):
                     filtered_records.append(record)
         super(LogViewGeneric, self).refresh(filtered_records)
 
-class WbAdminLogs(mforms.Box):
+
+class WbAdminValidationLogOutputType(WbAdminValidationBase):
+    def __init__(self, instance_info):
+        WbAdminValidationBase.__init__(self)
+        self._instance_info = instance_info
+        
+        self.set_error_message("""A problem was detected in your current log destination.
+It is set to %s. Please refer to the documentation for further information:
+https://dev.mysql.com/doc/en/log-destinations.html""" % self._instance_info.log_output)
+        
+    def validate(self):
+        return self._instance_info.log_output == "FILE" or self._instance_info.log_output == "TABLE" or self._instance_info.log_output == "FILE,TABLE" or self._instance_info.log_output == "TABLE,FILE" or not self._instance_info.log_output
+
+
+class WbAdminLogs(WbAdminTabBase):
     ui_created = False
 
     @classmethod
@@ -518,33 +533,31 @@ class WbAdminLogs(mforms.Box):
     def identifier(cls):
         return "admin_server_logs"
 
-    def __init__(self, ctrl_be, server_profile, main_view):
-        super(WbAdminLogs, self).__init__(False)
-        self.set_managed()
-        self.ctrl_be = ctrl_be
-        self.server_profile = server_profile
-        self.main_view = main_view
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
         self.disable_log_refresh = False
+        
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
+        self.add_validation(WbAdminValidationConfigFile(instance_info))
+        self.add_validation(WbAdminValidationLogOutputType(instance_info))
+        
+        self.set_standard_header("title_logs.png", self.instance_info.name, "Server Logs")
+        
 
     def create_ui(self):
-        self.set_padding(12)
-        self.set_spacing(8)
-
-        self.heading = make_panel_header("title_logs.png", self.server_profile.name, "Server Logs")
-        self.add(self.heading, False, True)
-
-        self.warning = not_running_warning_label()
-        self.add(self.warning, False, True)
-        self.warning.show(False)
+        self.detect_paths()
 
         self.tabView = newTabView(False)
-        self.add(self.tabView, True, True)
 
         self.general_log_tab = None
         self.slow_log_tab = None
         self.general_file_log_tab = None
         self.slow_file_log_tab = None
         self.error_file_log_tab = None
+        
+        self.update_ui()
+        
+        return self.tabView
 
     def get_log_destination(self):
         dest = {}
@@ -556,8 +569,8 @@ class WbAdminLogs(mforms.Box):
                         return dest
                 except:
                     return dest
-                self.server_profile.log_output = 'FILE' if result.stringByName("Value")=='ON' else 'NONE'
-                log_debug('%s: log_output = %s\n' % (self.__class__.__name__, self.server_profile.log_output) )
+                self.instance_info.log_output = 'FILE' if result.stringByName("Value")=='ON' else 'NONE'
+                log_debug('%s: log_output = %s\n' % (self.__class__.__name__, self.instance_info.log_output) )
             else:
                 try:
                     result = self.ctrl_be.exec_query("SHOW VARIABLES LIKE 'log_output'")
@@ -565,20 +578,20 @@ class WbAdminLogs(mforms.Box):
                         return dest
                 except:
                     return dest
-                self.server_profile.log_output = result.stringByName("Value")
+                self.instance_info.log_output = result.stringByName("Value")
 
-                if 'FILE' in self.server_profile.log_output and 'TABLE' in self.server_profile.log_output:
+                if 'FILE' in self.instance_info.log_output and 'TABLE' in self.instance_info.log_output:
                     def open_remote_file(path):
                         import wb_admin_ssh, wb_server_control
                         ssh = wb_admin_ssh.WbAdminSSH()
-                        ssh.wrapped_connect(self.server_profile, wb_server_control.PasswordHandler(self.server_profile))
+                        ssh.wrapped_connect(self.instance_info, wb_server_control.PasswordHandler(self.instance_info))
                         sftp = ssh.client.open_sftp()
                         if not ssh.is_connected():
                             raise IOError, ''
                         sftp.open(path)
 
                     # Can't read logs from files if admin is disabled:
-                    if not self.server_profile.admin_enabled:
+                    if not self.instance_info.admin_enabled:
                         dest['general_log'] = 'TABLE'
                         dest['slow_log'] = 'TABLE'
                         log_debug('%s: log_output = %s\n' % (self.__class__.__name__, dest) )
@@ -586,9 +599,9 @@ class WbAdminLogs(mforms.Box):
 
                     # Try to prioritize the files if they are readable
                     if not getattr(self, 'stored_general_log_source_choice', None):
-                        if self.server_profile.general_log_file_path:
+                        if self.instance_info.general_log_file_path:
                             try:
-                                open(self.server_profile.general_log_file_path) if self.server_profile.is_local else open_remote_file(self.server_profile.general_log_file_path)
+                                open(self.instance_info.general_log_file_path) if self.instance_info.is_local else open_remote_file(self.instance_info.general_log_file_path)
                                 dest['general_log'] = 'FILE'
                             except:
                                 dest['general_log'] = 'TABLE'
@@ -599,9 +612,9 @@ class WbAdminLogs(mforms.Box):
                         dest['general_log'] = self.stored_general_log_source_choice
 
                     if not getattr(self, 'stored_slow_log_source_choice', None):
-                        if self.server_profile.slow_log_file_path:
+                        if self.instance_info.slow_log_file_path:
                             try:
-                                open(self.server_profile.slow_log_file_path) if self.server_profile.is_local else open_remote_file(self.server_profile.slow_log_file_path)
+                                open(self.instance_info.slow_log_file_path) if self.instance_info.is_local else open_remote_file(self.instance_info.slow_log_file_path)
                                 dest['slow_log'] = 'FILE'
                             except:
                                 dest['slow_log'] = 'TABLE'
@@ -648,36 +661,36 @@ class WbAdminLogs(mforms.Box):
         if 'FILE' in source:
             source = list(source) + ['general_file_tab', 'slow_file_tab']
 
-        if 'error_file_tab' in source and self.server_profile.error_log_file_path and not self.error_file_log_tab:
+        if 'error_file_tab' in source and self.instance_info.error_log_file_path and not self.error_file_log_tab:
             try:
-                self.error_file_log_tab = LogViewGeneric(self, ErrorLogFileReader, self.ctrl_be, self.server_profile.error_log_file_path)
+                self.error_file_log_tab = LogViewGeneric(self, ErrorLogFileReader, self.ctrl_be, self.instance_info.error_log_file_path)
                 self.tabView.add_page(self.error_file_log_tab, "Error Log File")
             except IOError:
-                self.show_message_panel('There was a problem reading %s. Please verify that you have read permissions on that file' % self.server_profile.error_log_file_path)
+                self.show_message_panel('There was a problem reading %s. Please verify that you have read permissions on that file' % self.instance_info.error_log_file_path)
                 self.error_file_log_tab = None
 
-        if 'general_file_tab' in source and self.server_profile.general_log_enabled and self.server_profile.general_log_file_path and not self.general_file_log_tab:
+        if 'general_file_tab' in source and self.instance_info.general_log_enabled and self.instance_info.general_log_file_path and not self.general_file_log_tab:
             try:
-                self.general_file_log_tab = LogView(self, GeneralLogFileReader, self.ctrl_be, self.server_profile.general_log_file_path)
+                self.general_file_log_tab = LogView(self, GeneralLogFileReader, self.ctrl_be, self.instance_info.general_log_file_path)
                 self.tabView.add_page(self.general_file_log_tab, "General Log File")
             except IOError:
-                self.show_message_panel('There was a problem reading %s.\nPlease verify that you have read permissions on that file' % self.server_profile.general_log_file_path)
+                self.show_message_panel('There was a problem reading %s.\nPlease verify that you have read permissions on that file' % self.instance_info.general_log_file_path)
                 self.general_file_log_tab = None
 
 
-        if 'slow_file_tab' in source and self.server_profile.slow_log_enabled and self.server_profile.slow_log_file_path and not self.slow_file_log_tab:
+        if 'slow_file_tab' in source and self.instance_info.slow_log_enabled and self.instance_info.slow_log_file_path and not self.slow_file_log_tab:
             try:
-                self.slow_file_log_tab = LogView(self, SlowLogFileReader, self.ctrl_be, self.server_profile.slow_log_file_path)
+                self.slow_file_log_tab = LogView(self, SlowLogFileReader, self.ctrl_be, self.instance_info.slow_log_file_path)
                 self.tabView.add_page(self.slow_file_log_tab, "Slow Log File")
             except IOError:
-                self.show_message_panel('There was a problem reading %s. Please verify that you have read permissions on that file' % self.server_profile.slow_log_file_path)
+                self.show_message_panel('There was a problem reading %s. Please verify that you have read permissions on that file' % self.instance_info.slow_log_file_path)
                 self.slow_file_log_tab = None
 
-        if 'general_tab' in source and self.server_profile.general_log_enabled and not self.general_log_tab:
+        if 'general_tab' in source and self.instance_info.general_log_enabled and not self.general_log_tab:
             self.general_log_tab = LogView(self, GeneralQueryLogReader, self.ctrl_be)
             self.tabView.add_page(self.general_log_tab, 'General Log Table')
 
-        if 'slow_tab' in source and self.server_profile.slow_log_enabled and not self.slow_log_tab:
+        if 'slow_tab' in source and self.instance_info.slow_log_enabled and not self.slow_log_tab:
             self.slow_log_tab = LogView(self, SlowQueryLogReader, self.ctrl_be)
             self.tabView.add_page(self.slow_log_tab, 'Slow Query Log Table')
 
@@ -686,21 +699,21 @@ class WbAdminLogs(mforms.Box):
 
         self._add_tabs('error_file_tab')
         
-        if not self.server_profile.log_output:
-            self.server_profile.log_output = 'TABLE,FILE'
+        if not self.instance_info.log_output:
+            self.instance_info.log_output = 'TABLE,FILE'
 
-        if 'NONE' in self.server_profile.log_output:
+        if 'NONE' in self.instance_info.log_output:
             self._remove_tabs('TABLE', 'FILE')
 
-        elif self.server_profile.log_output == 'FILE':
+        elif self.instance_info.log_output == 'FILE':
             self._remove_tabs('TABLE')
             self._add_tabs('FILE')
 
-        elif self.server_profile.log_output == 'TABLE':
+        elif self.instance_info.log_output == 'TABLE':
             self._remove_tabs('FILE')
             self._add_tabs('TABLE')
 
-        elif self.server_profile.log_output == 'TABLE,FILE' or self.server_profile.log_output == 'FILE,TABLE':
+        elif self.instance_info.log_output == 'TABLE,FILE' or self.instance_info.log_output == 'FILE,TABLE':
             tabs = set(['general_tab', 'slow_tab', 'general_file_tab', 'slow_file_tab'])
             to_be_added = []
             if not self.ctrl_be.is_sql_connected():
@@ -711,67 +724,45 @@ class WbAdminLogs(mforms.Box):
             self._remove_tabs( *tuple(tabs - set(to_be_added)) )  # Remove the ones that aren't added
             self._add_tabs( *tuple(to_be_added) )
 
-        else:
-            msg = """We have detected a problem in your current Log Destination.
-It is set to %s. Please refer to the documentation for further information:
-http://dev.mysql.com/doc/refman/5.1/en/log-destinations.html""" % self.server_profile.log_output
-            self.show_message_panel(msg)
-            return
-
-        self.warning.show(False)
         self.tabView.show(True)
-
-    def page_activated(self):
-
-        if not self.server_profile.config_file_path:
-            show_error_page(self, "Location of MySQL configuration file (ie: my.cnf) not specified")
-            return
-        else:
-            remove_error_page_if_exists(self)
-
-        if not self.ui_created:
-            self.detect_paths()
-            self.create_ui()
-            self.ui_created = True
-
-        self.update_ui()
+        
         try:
             self.refresh()
         except Exception, e:
             r = mforms.Utilities.show_warning("Log Refresh", "An error occurred while displaying MySQL server logs: %s" % e, "Ignore", "Cancel", "")
             if r == mforms.ResultCancel:
-                self.disable_log_refresh = True
+                self.disable_log_refresh = True        
 
     def detect_paths(self):
         # Retrieve from server the log file paths if exist
         status = self.ctrl_be.is_server_running(verbose=0)
         if status in ['stopped', 'unknown'] and not all(
-                [ self.server_profile.general_log_file_path,  # only proceed to parse the config file if
-                  self.server_profile.slow_log_file_path,     # any of these is missing
-                  self.server_profile.error_log_file_path,
-                  self.server_profile.log_output ] ):
+                [ self.instance_info.general_log_file_path,  # only proceed to parse the config file if
+                  self.instance_info.slow_log_file_path,     # any of these is missing
+                  self.instance_info.error_log_file_path,
+                  self.instance_info.log_output ] ):
 
-            cfg_be = wb_admin_config_file_be.WbAdminConfigFileBE(self.server_profile, self.ctrl_be)
-            cfg_be.open_configuration_file(self.server_profile.config_file_path, warn_missing=False)
-            options = dict(cfg_be.get_options(self.server_profile.config_file_section))
+            cfg_be = wb_admin_config_file_be.WbAdminConfigFileBE(self.instance_info, self.ctrl_be)
+            cfg_be.open_configuration_file(self.instance_info.config_file_path, warn_missing=False)
+            options = dict(cfg_be.get_options(self.instance_info.config_file_section))
 
-            if not self.server_profile.log_output and options.has_key('log-output'):
-                self.server_profile.log_ouput = options['log-output']
+            if not self.instance_info.log_output and options.has_key('log-output'):
+                self.instance_info.log_ouput = options['log-output']
 
-            if not self.server_profile.general_log_file_path:
+            if not self.instance_info.general_log_file_path:
                 path = options['general_log_file'] if options.has_key('general_log_file') else (
                        options['log'] if options.has_key('log') else '')  # the 'log' option is deprecated but still allowed
                 if path:
-                    self.server_profile.general_log_file_path = path.strip('"')
+                    self.instance_info.general_log_file_path = path.strip('"')
 
-            if not self.server_profile.slow_log_file_path:
+            if not self.instance_info.slow_log_file_path:
                 path = options['slow_query_log_file'] if options.has_key('slow_query_log_file') else (
                        options['log-slow-queries'] if options.has_key('log-slow-queries') else '')  # the 'log-slow-queries' option is deprecated but still allowed
                 if path:
-                    self.server_profile.slow_log_file_path = path.strip('"')
+                    self.instance_info.slow_log_file_path = path.strip('"')
 
-            if not self.server_profile.error_log_file_path and options.has_key('log-error'):
-                self.server_profile.error_log_file_path = options['log-error'].strip('"')
+            if not self.instance_info.error_log_file_path and options.has_key('log-error'):
+                self.instance_info.error_log_file_path = options['log-error'].strip('"')
 
 
     def refresh(self):

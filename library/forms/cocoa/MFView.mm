@@ -232,7 +232,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
  * override this and compute their real preferred size.
  */
 - (NSSize)preferredSize: (NSSize)proposal {
-  return {MAX(self.minimumSize.width, proposal.width), MAX(self.minimumSize.height, proposal.height)};
+  return { MAX(self.minimumSize.width, proposal.width), MAX(self.minimumSize.height, proposal.height) };
 }
 
 - (void)relayout {
@@ -775,11 +775,8 @@ static int view_get_height(const mforms::View *self) {
 static int view_get_preferred_width(::mforms::View *self) {
   id frontend = self->get_data();
   if (frontend != nil) {
-    if ([frontend isKindOfClass: NSWindow.class]) {
-      NSSize size = [frontend preferredSize: [frontend frame].size];
-      return size.width;
-    }
-    return NSWidth([frontend frame]);
+    NSSize size = [frontend preferredSize: [frontend frame].size];
+    return size.width;
   }
   return 0;
 }
@@ -787,11 +784,8 @@ static int view_get_preferred_width(::mforms::View *self) {
 static int view_get_preferred_height(::mforms::View *self) {
   id frontend = self->get_data();
   if (frontend != nil) {
-    if ([frontend isKindOfClass: NSWindow.class]) {
-      NSSize size = [frontend preferredSize: [frontend frame].size];
-      return size.height;
-    }
-    return NSHeight([frontend frame]);
+    NSSize size = [frontend preferredSize: [frontend frame].size];
+    return size.height;
   }
   return 0;
 }

@@ -19,13 +19,14 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
+import sys
 import mforms
 
 from workbench.graphics.charting import DBTimeLineGraph, DBSimpleCounter, DBRoundMeter, DBLevelMeter, DBImage, DBText
 from workbench.graphics.canvas import Canvas, TextFigure
 from workbench.graphics.cairo_utils import Context
 
-from wb_admin_utils import WbAdminBaseTab
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection
 import re
 from workbench.log import log_error
 from workbench.utils import Version
@@ -182,17 +183,17 @@ class RenderBox(mforms.PyDrawBox):
                                 t = t[:-1]
                             label = mforms.newLabel(t)
                             label.set_style(mforms.SmallStyle)
-                            box.add(label, False, False)
+                            box.add(label, False, True)
                             t = ""
                         label = mforms.newLabel(line[1:].rstrip("\n"))
                         label.set_style(mforms.SmallBoldStyle)
-                        box.add(label, False, False)
+                        box.add(label, False, True)
                     else:
                         t += line+"\n"
                 if t:
                     label = mforms.newLabel(t.rstrip("\n"))
                     label.set_style(mforms.SmallStyle)
-                    box.add(label, False, False)
+                    box.add(label, False, True)
             
                 self.tooltip.set_size(max(box.get_preferred_width(), 100), max(box.get_preferred_height(), 50))
             
@@ -458,11 +459,11 @@ GLOBAL_DASHBOARD_WIDGETS_MYSQL_POST_80 = \
  ("Table Open Cache", DBRoundMeter, ("Efficiency",), None, (CRawValue, "%(Table_open_cache_hits)s/(%(Table_open_cache_hits)s+%(Table_open_cache_misses)s+0.0)"),
   (124/255.0, 193/255.0, 80/255.0), (380, 150),
   """Table Open Cache
-      Cache for minimizing number of times MySQL
-      will open database tables when accessed.
+Cache for minimizing number of times MySQL
+will open database tables when accessed.
       
-      Table open cache hits: %(Table_open_cache_hits)s
-      Table open cache misses: %(Table_open_cache_misses)s"""),
+Table open cache hits: %(Table_open_cache_hits)s
+Table open cache misses: %(Table_open_cache_misses)s"""),
  
  ("SQL Statements Executed (#)", DBTimeLineGraph, ("%.1f %s", 3, True), None, (CTupleDifferencePerSecond, "(%(Com_select)s,%(Com_insert)s+%(Com_update)s+%(Com_delete)s,%(Com_create_db)s+%(Com_create_event)s+%(Com_create_function)s+%(Com_create_index)s+%(Com_create_procedure)s+%(Com_create_server)s+%(Com_create_table)s+%(Com_create_trigger)s+%(Com_create_udf)s+%(Com_create_user)s+%(Com_create_view)s+%(Com_create_role)s+%(Com_alter_db)s+%(Com_alter_event)s+%(Com_alter_function)s+%(Com_alter_procedure)s+%(Com_alter_server)s+%(Com_alter_table)s+%(Com_alter_tablespace)s+%(Com_alter_user)s+%(Com_alter_user_default_role)s+%(Com_drop_db)s+%(Com_drop_event)s+%(Com_drop_function)s+%(Com_drop_index)s+%(Com_drop_procedure)s+%(Com_drop_server)s+%(Com_drop_table)s+%(Com_drop_trigger)s+%(Com_drop_user)s+%(Com_drop_view)s+%(Com_drop_role)s)"),
   [(255/255.0, 201/255.0, 2/255.0), (126/255.0, 142/255.0, 207/255.0), (194/255.0, 123/255.0, 206/255.0)], (350, 330),
@@ -639,12 +640,18 @@ Total: %(Innodb_data_read)s"""),
 ]
 
 
-class WbAdminDashboard(WbAdminBaseTab):
-    min_server_version = (5,6,6)
+class WbAdminDashboard(WbAdminTabBase):
+  
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+        
+        self.min_server_version = (5,6,6)
     
-    _refresh_tm = None
-    drawbox = None
-    _form_deactivated_conn = None
+        self._refresh_tm = None
+        self.drawbox = None
+        self._form_deactivated_conn = None
+        
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
     
     @classmethod
     def wba_register(cls, admin_context):
@@ -672,8 +679,6 @@ class WbAdminDashboard(WbAdminBaseTab):
         self.drawbox.set_size(1024, 700)
         self.content.add(self.drawbox)
 
-        self.add(self.content, True, True)
-
         self.widgets = []
         
         self.last_refresh_time = None
@@ -688,8 +693,8 @@ class WbAdminDashboard(WbAdminBaseTab):
         for caption, wclass, args, init, (calc, calc_expr), color, pos, hover_text in GLOBAL_DASHBOARD_WIDGETS:
             if caption:
                 fig = TextFigure(caption)
-                fig.set_text_color(0.5, 0.5, 0.5)
-                fig.set_font_size(11)
+                fig.set_text_color(0.3, 0.3, 0.3)
+                fig.set_font_size(13)
                 fig.set_font_bold(True)
                 self.drawbox.add(fig)
                 fig.move(pos[0], pos[1] - 20)
@@ -713,6 +718,8 @@ class WbAdminDashboard(WbAdminBaseTab):
             
         self.ctrl_be.add_me_for_event("server_started", self)
         self.ctrl_be.add_me_for_event("server_stopped", self)
+        
+        return self.content
 
 
     def server_started_event(self):
@@ -768,7 +775,10 @@ class WbAdminDashboard(WbAdminBaseTab):
     def relayout(self):
         full_width = max(1024, self.content.get_width())
         full_height = max(700, self.content.get_height())
-
+        
+        if sys.platform.lower() == "darwin":
+            if self.drawbox.get_width() != full_width or self.drawbox.get_height() != full_height:
+                self.drawbox.set_size(full_width, full_height)
         # return offset
         return (full_width - 1024) / 2, (full_height - 700) / 2
 

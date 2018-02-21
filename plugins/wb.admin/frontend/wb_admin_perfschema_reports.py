@@ -460,7 +460,6 @@ class JSSourceHelperViewTab(PSHelperViewTab):
 
 
 class WbAdminPerformanceSchema(WbAdminPSBaseTab):
-    min_server_version = (5,6,6)
     
     @classmethod
     def wba_register(cls, admin_context):
@@ -473,13 +472,13 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
     def __init__(self, ctrl_be, instance_info, main_view):
         WbAdminPSBaseTab.__init__(self, ctrl_be, instance_info, main_view)
 
+        self.min_server_version = (5,6,6)
         self._selected_report = None
+        
+        self.set_standard_header("title_performance_reports.png", self._instance_info.name, "Performance Reports")
 
 
     def create_ui(self):
-        self.create_basic_ui("title_performance_reports.png", "Performance Reports")
-
-
         known_views = []
         res = self.ctrl_be.exec_query("show full tables from sys where Table_type='VIEW'")
         while res.nextRow():
@@ -498,7 +497,6 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
         self.tabview = mforms.newTabView(mforms.TabViewTabless)
         self.content.add(self.tabview, True, True)
         
-        self.add(self.content, True, True)
         self.relayout() # force relayout for mac
 
         self.pages = []
@@ -547,6 +545,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
             parent.expand()
 
         print "The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"])
+        return self.content
 
 
     def refresh(self):

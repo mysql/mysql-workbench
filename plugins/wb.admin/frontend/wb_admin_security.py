@@ -31,13 +31,15 @@ import os
 import mforms
 
 from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, newScrollPanel, App
-from wb_admin_utils import not_running_warning_label, make_panel_header
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
 from wb_common import PermissionDeniedError
 from workbench.log import log_error, log_debug3
 
 import grt
 from workbench import db_utils
+
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection, WbAdminValidationBase
+
 
 SCHEMA_OBJECT_RIGHTS = [
 "Select_priv",
@@ -342,15 +344,10 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.privs_list.add_column(mforms.StringColumnType, "Privileges", 800, False)
         self.privs_list.end_columns()
         self.privs_list.add_changed_callback(self.schema_priv_selected)
+        self.privs_list.set_min_size(-1, 100)
 
-
-        topbox = newBox(False)
-        topbox.set_spacing(8)
+        self.add(self.privs_list, True, True)
         
-        topbox.add(self.privs_list, True, True)
-        
-        splitter = mforms.newSplitter(False)
-
         bbox = newBox(True)
         bbox.set_spacing(8)
 
@@ -372,13 +369,10 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.revoke_all_button.add_clicked_callback(self._owner.revoke_all)
         self.revoke_all_button.set_tooltip("Immediately remove all privileges from the account, from every object at all levels.\nThe account itself will be left untouched and logins will still be possible.")
 
-        topbox.add(bbox, False, True)
+        self.add(bbox, False, True)
 
         self.schema_priv_label = newLabel("")
-        topbox.add(self.schema_priv_label, False, True)
-        
-        splitter.add(topbox, 200)
-
+        self.add(self.schema_priv_label, False, True)
 
         hbox = newBox(True)
         hbox.set_spacing(8)
@@ -408,26 +402,10 @@ class SecuritySchemaPrivileges(mforms.Box):
         panel.add(box)
         hbox.add(panel, False, True)
         
-        scrollbox = newScrollPanel(0)
-        scrollbox.add(hbox)
-
-        splitter.add(scrollbox, 200)
-        self.add(splitter, True, True)
+        self.add(hbox, False, True)
 
         bottom_box = newBox(True)
         bottom_box.set_spacing(8)
-
-        if 0:
-            img = newImageBox()
-            if App.get().get_resource_path("task_warning_mac.png"):
-                img.set_image("task_warning_mac.png")
-            else:
-                img.set_image("task_warning.png")
-            bottom_box.add(img, False, True)
-            bottom_box.add(dLabel("There are %i schema privilege entries for accounts that don't exist"), False, True)
-            purge = newButton()
-            purge.set_text("Purge")
-            bottom_box.add(purge, False, True)
 
 
         self.grant_all = newButton()
@@ -443,8 +421,6 @@ class SecuritySchemaPrivileges(mforms.Box):
         self.add(bottom_box, False, True)
 
         self.resume_layout()
-        splitter.set_divider_position(200)
-        splitter.set_expanded(False, True)
 
     ####
 
@@ -993,7 +969,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         cache_list_box = mforms.newBox(True)
 
         self.cache_list = mforms.newListBox(True)
-        self.cache_list.set_size(500, 200)
+        self.cache_list.set_size(500, 150)
         
         cache_list_box.add(self.cache_list, True, True)
         
@@ -1139,7 +1115,6 @@ class SecurityAccount(mforms.Box):
         self._selected_user_original = None
 
         self.suspend_layout()
-        self.set_padding(8)
         self.set_spacing(8)
 
         if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode') and not grt.root.wb.info.edition == "Community":
@@ -1158,11 +1133,6 @@ class SecurityAccount(mforms.Box):
         bottom_box.add(self.add_button, False, True)
         self.add_button.add_clicked_callback(self.add_account)
 
-        #self.dup_button = newButton()
-        #self.dup_button.set_text("Duplicate")
-        #bottom_box.add(self.dup_button, False, True)
-        #self.dup_button.add_clicked_callback(self.dup_account)
-
         self.del_button = newButton()
         self.del_button.set_text("Delete")
         bottom_box.add(self.del_button, False, True)
@@ -1170,7 +1140,7 @@ class SecurityAccount(mforms.Box):
 
         self.refresh_button = newButton()
         self.refresh_button.set_text("Refresh")
-        self.refresh_button.add_clicked_callback(self.owner.refresh)
+        self.refresh_button.add_clicked_callback(self.owner.page_active)
         bottom_box.add(self.refresh_button, False, True)
 
         self.save_button = newButton()
@@ -1182,6 +1152,8 @@ class SecurityAccount(mforms.Box):
         self.revert_button.set_text("Revert")
         bottom_box.add_end(self.revert_button, False, True)
         self.revert_button.add_clicked_callback(self.revert)
+        
+        self.owner.set_footer(bottom_box)
 
         account_list_box = newBox(False)
         account_list_box.set_spacing(8)
@@ -1189,9 +1161,6 @@ class SecurityAccount(mforms.Box):
 
         label = newLabel("User Accounts")
         account_list_box.add(label, False, True)
-
-        #searchbox = TextEntry(SearchEntry)
-        #account_list_box.add(searchbox, False, True)
 
         self.user_list = newTreeView(mforms.TreeFlatList)
         self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
@@ -1418,9 +1387,13 @@ class SecurityAccount(mforms.Box):
         self.firewall_rules.tweak_tabs(tabView)
 
         abox.add(tabView, True, True)
-        self.splitter.add(abox, 200)
+        
+        scroller = newScrollPanel(0)
+        scroller.add(abox)
+        
+        self.splitter.add(scroller, 200)
         self.add(self.splitter, True, True)
-        self.add(bottom_box, False, True)
+        #self.add(bottom_box, False, True)
 
         self.resume_layout()
 
@@ -1429,6 +1402,8 @@ class SecurityAccount(mforms.Box):
         self.current_action = ""
 
         self.user_selected()
+            
+        self.relayout()
 
     def shutdown(self):
        self.password_validator.shutdown() 
@@ -2075,7 +2050,7 @@ or a new password must be supplied.'''
             caption = 'This is an anonymous account. It is usually advisable to delete this account.'
         elif user.blank_password :
             caption = 'No password is set for this account.'
-        
+
         self.bottom_message_caption.set_text(caption)
         self.bottom_message_hbox.show(bool(user.old_authentication or user.password_expired or user.blank_password or not user.username))
         self.upgrade_account_button.show(bool(user.old_authentication)) 
@@ -2096,10 +2071,21 @@ or a new password must be supplied.'''
 
 #############################
 
+class WbAdminValidationPermissions(WbAdminValidationBase):
+    def __init__(self, owner):
+        WbAdminValidationBase.__init__(self, WbAdminValidationPermissions)
+        self.owner = owner
+        
+    def validate(self):
+            try:
+                self.owner.secman.async_refresh(self.owner.async_callback)
+            except PermissionDeniedError:
+                return False
+            return True
 
-class WbAdminSecurity(mforms.Box):
+class WbAdminSecurity(WbAdminTabBase):
     _schema_priv_entries = []
-    ui_created = False
+    #ui_created = False
 
     @classmethod
     def wba_register(cls, admin_context):
@@ -2112,20 +2098,21 @@ class WbAdminSecurity(mforms.Box):
     def shutdown(self):
         self.account_tab.shutdown()
 
-    def __init__(self, ctrl_be, server_profile, main_view):
-        mforms.Box.__init__(self, False)
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+
+        self.account_tab = SecurityAccount(self)
+        self.secman = AdminSecurity(self.ctrl_be)
+
+        self.add_validation(WbAdminValidationConnection(ctrl_be))
+        self.add_validation(WbAdminValidationPermissions(self))
+        
+        self.set_standard_header("title_users.png", self.instance_info.name, "Users and Privileges")
+
         self.set_managed()
         self.set_release_on_add()
-        self.ctrl_be = ctrl_be
-        self.secman  = None
-        self.server_profile = server_profile
-        self.main_view = main_view
 
         self.firewall_enabled = False
-        
-        self.heading = None
-        self.warning = None
-        self.account_tab = None
 
     def firewall_status_changed(self):
         current_status = self.ctrl_be.server_variables.get('mysql_firewall_mode')
@@ -2134,99 +2121,41 @@ class WbAdminSecurity(mforms.Box):
         return changed
 
     def create_ui(self):
-        self.suspend_layout()
 
-        self.set_padding(12)
-        self.set_spacing(8)
+        self.secman.async_refresh(self.do_refresh)
 
-        if self.heading:
-            self.remove(self.heading)
-            self.heading = None
+        try:
+            anon_accounts = [ (user, host) for user, host in self.secman.account_names if user=='']
+            if anon_accounts and not self.__dict__.get('already_asked_for_anon_accounts', False):
+                logged_username = self.ctrl_be.instance_info.db_connection_params.parameterValues['userName']
+                logged_servername = self.ctrl_be.instance_info.db_connection_params.hostIdentifier
+                privs = self.secman.get_valid_privileges()
+        except:
+            privs = []
 
-        self.heading = make_panel_header("title_users.png", self.server_profile.name, "Users and Privileges")
-        self.add(self.heading, False, True)
+            if 'DELETE' in privs or 'CREATE USER' in privs:
+                if Utilities.show_message_and_remember('Anonymous accounts detected',
+                    'Anonymous accounts were detected in the server %s.\nAnonymous accounts can cause great confusion and are also a potential security issue and are advised to be removed. Would you like Workbench to delete them now?.' % logged_servername,
+                    'Delete', 'Leave Accounts', '',
+                    'wb.admin.delete_anonymous_accounts:' + logged_username + '@' + logged_servername,
+                    "Don't show this message again") == mforms.ResultOk:
+                    for name, host in anon_accounts:
+                        self.secman.async_get_account(self.secman.delete_account, name, host)
+            else:
+                Utilities.show_message_and_remember('Anonymous accounts detected',
+                    'Anonymous accounts were detected in the server %s.\nAnonymous accounts can cause great confusion and are also a potential security issue and are advised to be removed. Please ask a DBA to delete them.' % logged_servername,
+                    'OK', '', '',
+                    'wb.admin.delete_anonymous_accounts:' + logged_username + '|no_privileges|' + '@' + logged_servername,
+                    "Don't show this message again")
+            self.already_asked_for_anon_accounts = True        
 
-        if self.warning:
-            self.remove(self.warning)
-            self.warning = None
-
-        self.warning = not_running_warning_label()
-        self.add(self.warning, False, True)
-
-        if self.account_tab:
-            self.remove(self.account_tab)
-            self.account_tab = None
-
-        self.account_tab = SecurityAccount(self)
-        self.add(self.account_tab, True, True)
-
-        self.resume_layout()
-
-    def show_no_permission(self):
-        self.warning.set_text("\n\n\n\nThe account you are currently using does not have sufficient privileges to make changes to MySQL users and privileges.")
-        self.warning.show(True)
-        self.account_tab.show(False)
-
+        return self.account_tab
 
     def update_ui(self):
-        if self.ctrl_be.is_sql_connected():
-            self.secman = AdminSecurity(self.ctrl_be)
+        self.secman = AdminSecurity(self.ctrl_be)
 
-            self.warning.show(False)
-            self.account_tab.show(True)
-        else:
-            self.secman = None
-
-            self.warning.show(True)
-            self.account_tab.show(False)
-
-
-
-    def page_activated(self):
-        if (not self.ui_created) or self.firewall_status_changed():
-            self.create_ui()
-            self.ui_created = True
-        self.update_ui()
-        self.refresh()
-
-        # Ask the user to remove anonymous accounts if present
-        if self.ctrl_be.is_sql_connected():
-            try:
-                anon_accounts = [ (user, host) for user, host in self.secman.account_names if user=='']
-                if anon_accounts and not self.__dict__.get('already_asked_for_anon_accounts', False):
-                    logged_username = self.ctrl_be.server_profile.db_connection_params.parameterValues['userName']
-                    logged_servername = self.ctrl_be.server_profile.db_connection_params.hostIdentifier
-                    privs = self.secman.get_valid_privileges()
-            except:
-                privs = []
-
-                if 'DELETE' in privs or 'CREATE USER' in privs:
-                    if Utilities.show_message_and_remember('Anonymous accounts detected',
-                        'Anonymous accounts were detected in the server %s.\nAnonymous accounts can cause great confusion and are also a potential security issue and are advised to be removed. Would you like Workbench to delete them now?.' % logged_servername,
-                        'Delete', 'Leave Accounts', '',
-                        'wb.admin.delete_anonymous_accounts:' + logged_username + '@' + logged_servername,
-                        "Don't show this message again") == mforms.ResultOk:
-                        for name, host in anon_accounts:
-                            self.secman.async_get_account(self.secman.delete_account, name, host)
-                else:
-                    Utilities.show_message_and_remember('Anonymous accounts detected',
-                        'Anonymous accounts were detected in the server %s.\nAnonymous accounts can cause great confusion and are also a potential security issue and are advised to be removed. Please ask a DBA to delete them.' % logged_servername,
-                        'OK', '', '',
-                        'wb.admin.delete_anonymous_accounts:' + logged_username + '|no_privileges|' + '@' + logged_servername,
-                        "Don't show this message again")
-                self.already_asked_for_anon_accounts = True
-
-
-
-    def refresh(self):
-        if self.ctrl_be.is_sql_connected():
-            try:
-                self.secman.async_refresh(self.do_refresh)
-            except PermissionDeniedError:
-                self.show_no_permission()
-            mforms.Utilities.driver_shutdown()
-
-
+    def async_callback(self):
+            pass
 
     def do_refresh(self):
         if not self.account_tab.dirty:

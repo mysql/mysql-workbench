@@ -41,7 +41,7 @@ from workbench.notifications import nc
 import grt
 import mforms
 
-from workbench.log import log_info, log_warning, log_error, log_debug
+from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2, log_debug3
 
 MYSQL_ERR_ACCESS_DENIED = 1045
 MYSQL_ERR_PASSWORD_EXPIRED = 1820
@@ -72,7 +72,7 @@ class EventManager(object):
                 self.events[event_name] = handlers_list
 
             handlers_list.append(handler)
-            log_debug("Added " + handler.__class__.__name__ + " for event " + event_name + '\n')
+            log_debug3("Added " + handler.__class__.__name__ + " for event " + event_name + '\n')
         else:
             log_error(handler.__class__.__name__ + " does not have method " + event_name + '\n')
 
@@ -93,13 +93,13 @@ class EventManager(object):
         if name not in self.valid_events:
             log_error('EventManager: invalid event: ' + name + '\n')
         elif name in self.events:
-            log_debug("Found event " + name + " in list" + '\n')
+            log_debug3("Found event " + name + " in list" + '\n')
             for obj in self.events[name]:
                 if hasattr(obj, name):
-                    log_debug("Passing event " + name + " to " + obj.__class__.__name__ + '\n')
+                    log_debug3("Passing event " + name + " to " + obj.__class__.__name__ + '\n')
                     getattr(obj, name)()
         else:
-            log_debug("Found valid but unrequested event " + name + " in list" + '\n')
+            log_debug3("Found valid but unrequested event " + name + " in list" + '\n')
 
 #===============================================================================
 #import thread
@@ -108,7 +108,7 @@ class SQLQueryExecutor(object):
     mtx     = None
 
     def __init__(self, dbconn):
-        log_debug("Constructing SQL query runner, dbconn (" + repr(dbconn) + ')\n')
+        log_debug2("Constructing SQL query runner, dbconn (" + repr(dbconn) + ')\n')
         self.mtx = threading.Lock()
         self.dbconn = dbconn
 
@@ -130,7 +130,7 @@ class SQLQueryExecutor(object):
         self.mtx.acquire()
         try:
             if self.is_connected():
-                log_debug("Executing query %s\n" % strip_password(query))
+                log_debug3("Executing query %s\n" % strip_password(query))
                 result = self.dbconn.executeQuery(query)
         finally:
             self.mtx.release()
@@ -141,7 +141,7 @@ class SQLQueryExecutor(object):
         self.mtx.acquire()
         try:
             if self.is_connected():
-                log_debug("Executing query multi result %s\n" % strip_password(query))
+                log_debug3("Executing query multi result %s\n" % strip_password(query))
                 result = self.dbconn.executeQueryMultiResult(query)
         finally:
             self.mtx.release()
@@ -152,7 +152,7 @@ class SQLQueryExecutor(object):
         self.mtx.acquire()
         try:
             if self.is_connected():
-                log_debug("Executing statement %s\n" % strip_password(query))
+                log_debug3("Executing statement %s\n" % strip_password(query))
                 result = self.dbconn.execute(query)
         finally:
             self.mtx.release()
@@ -289,7 +289,7 @@ class WbAdminControl(object):
         os_info = self.detect_operating_system_version()
         if os_info:
             os_type, os_name, os_variant, os_version = os_info
-            log_info("Target OS detection returned: os_type=%s, os_name=%s, os_variant=%s, os_version=%s\n" % (os_type, os_name, os_variant, os_version))
+            log_debug("Target OS detection returned: os_type=%s, os_name=%s, os_variant=%s, os_version=%s\n" % (os_type, os_name, os_variant, os_version))
             self.server_profile.set_os_version_info(os_type or "", os_name or "", os_variant or "", os_version or "")
         else:
             log_warning("Could not detect target OS details\n")
@@ -529,7 +529,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 connection.connect()
             except grt.UserInterrupt:
-                log_info("Cancelled connection\n")
+                log_debug("Cancelled connection\n")
                 return
 
             self.sql = SQLQueryExecutor(connection)
@@ -540,7 +540,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             else:
                 log_error("Failed to connect to MySQL server\n")
         else:
-            log_info("Already connected to MySQL server\n")
+            log_debug("Already connected to MySQL server\n")
 
     #---------------------------------------------------------------------------
     def disconnect_sql(self):
@@ -570,7 +570,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             mforms.Utilities.driver_shutdown()
             return None
 
-        log_info("Monitoring thread running...\n")
+        log_debug("Monitoring thread running...\n")
         time.sleep(self.status_variable_poll_interval)
         try:
             # runs in a separate thread to fetch status variables
@@ -586,7 +586,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         except QueryError:
             log_error("Error in monitoring thread: %s\n" % traceback.format_exc())
 
-        log_info("Monitoring thread done.\n")
+        log_debug("Monitoring thread done.\n")
         self.poll_connection.disconnect()
         self.poll_connection = None
         mforms.Utilities.driver_shutdown()
@@ -632,7 +632,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 else: # if exception is not handled, give a chance to the caller do it
                     raise e
         else:
-            log_info("sql connection is down\n")
+            log_debug("sql connection is down\n")
 
         return ret
 
@@ -649,7 +649,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 else: # if exception is not handled, give a chance to the caller do it
                     raise e
         else:
-            log_info("sql connection is down\n")
+            log_debug("sql connection is down\n")
 
         return ret
 
@@ -667,7 +667,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 else:
                     raise e
         else:
-            log_info("sql connection is down\n")
+            log_debug("sql connection is down\n")
 
         return None, -1
 
@@ -724,8 +724,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             self.target_version = Version.fromstr(self.raw_version)
 
             if self.server_profile.server_version != self.raw_version: # Update profile version with live data from server
-                log_info('%s.connect_sql(): The server version stored in the server instance profile was "%s". '
-                            'Changed to the version reported by the server: "%s"\n' % (self.__class__.__name__,
+                log_debug('%s.connect_sql(): The server version stored in the server instance profile was "%s". '
+                            'Changed it to the version reported by the server: "%s"\n' % (self.__class__.__name__,
                             self.server_profile.server_version, self.raw_version) )
                 self.server_profile.server_version = self.raw_version
 

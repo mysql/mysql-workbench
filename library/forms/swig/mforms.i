@@ -4,6 +4,8 @@
 
 %{
 #include <boost/signals2/signal.hpp>
+#include <sstream>
+#include <frameobject.h>
 #include <base/drawing.h>
 #include <base/log.h>
 #include <mforms/view.h>
@@ -99,40 +101,50 @@ struct PyObjectRef
 };
 
 
+static std::string format_string_list(PyObject *list) {
+    std::string result;
+    PyObject *item;
+
+    int count = PyList_Size(list);
+    for (int index = 0; index < count; ++index) {
+        item = PyList_GetItem(list, index);
+        result += PyString_AsString(item);
+    }
+    return result;
+}
+
 static void show_python_exception()
 {
-  if (!PyErr_Occurred())
+  if (!PyErr_Occurred()) 
     return;
-  std::string reason, stack;
-  PyObject *exc, *val, *tb;
-
-  PyErr_Fetch(&exc, &val, &tb);
-  PyErr_NormalizeException(&exc, &val, &tb);
-
-  if (val)
-  {
-    PyObject *tmp = PyObject_Str(val);
-    if (tmp)
-    {
-      reason = PyString_AsString(tmp);
-      Py_DECREF(tmp);
-    }
-  }
     
-  if (tb)
-  {
-    PyObject *tmp = PyObject_Str(tb);
-    if (tmp)
-    {
-      stack = PyString_AsString(tmp);
-      Py_DECREF(tmp);
+  PyObject *type, *value, *traceback;
+  PyObject *pythonErrorDescryption, *moduleName, *pythonModule, *formatExceptionFunction;
+
+  PyErr_Fetch(&type, &value, &traceback);
+  pythonErrorDescryption = PyObject_Str(value);
+  std::string errorDescription = PyString_AsString(pythonErrorDescryption);
+  std::string result;
+
+  /* See if we can get a full traceback */
+  moduleName = PyString_FromString("traceback");
+  pythonModule = PyImport_Import(moduleName);
+  Py_DECREF(moduleName);
+
+  if (pythonModule) {
+    formatExceptionFunction = PyObject_GetAttrString(pythonModule, "format_exception");
+    
+    if (formatExceptionFunction && PyCallable_Check(formatExceptionFunction)) {
+      PyObject *formatExceptionFunctionResult;
+
+      formatExceptionFunctionResult = PyObject_CallFunctionObjArgs(formatExceptionFunction, type, value, traceback, NULL);
+
+      result = format_string_list(formatExceptionFunctionResult);
     }
   }
-  
-  PyErr_Restore(exc, val, tb);
 
-  logError("Unhandled exception in Python code: %s\n%s\n", reason.c_str(), stack.c_str());
-  mforms::Utilities::show_error("Error", std::string("Unhandled exception: ").append(reason), "OK", "", "");
+  logError("Unhandled exception in Python code: \n%s", result.c_str());
+  mforms::Utilities::show_error("Error", std::string("Unhandled exception: ").append(errorDescription).append("\n\nCheck the log for more details."), "OK", "", "");
 }
 
 static void call_void_pycallable(PyObjectRef &callable)

@@ -19,8 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-import os
-import copy
+import os, copy, sys
 
 from mforms import newTabView, newBox, newTable, newPanel, TitledBoxPanel, newScrollPanel, newCheckBox, newTextEntry, newTextBox
 from mforms import newLabel, HFillFlag, VFillFlag, HExpandFlag, Utilities, newSelector
@@ -31,9 +30,10 @@ import mforms
 import wb_admin_config_file_be
 from wb_common import dprint_ex, debug_level, PermissionDeniedError, InvalidPasswordError, OperationCancelledError, Users
 from wb_admin_config_file_be import multi_separator
-from wb_admin_utils import make_panel_header
 
 from workbench.utils import server_os_path
+
+from wb_admin_utils import WbAdminTabBase, WbAdminValidationConfigFile, WbAdminValidationConnection, WbAdminValidationBase
 
 #from grt.modules.WBAdmin import openRemoteFileSelector
 
@@ -161,9 +161,63 @@ class Page(object):
         self.update_cb = update_cb
 
 
+class WbAdminValidationRequiredRemoteAdmin(WbAdminValidationBase):
+    def __init__(self, instance_info):
+        WbAdminValidationBase.__init__(self, "MySQL Workbench requires an SSH connection to support managing Option File remotely.")
+        self._instance_info = instance_info
+        
+    def validate(self):
+        return self._instance_info.is_local or self._instance_info.remote_admin_enabled
 
-#===============================================================================
-class WbAdminConfigFileUI(mforms.Box):
+
+class WbAdminConfigFileUI(WbAdminTabBase):
+    def __init__(self, ctrl_be, instance_info, main_view, version="5.1"):
+        WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+
+        self.add_validation(WbAdminValidationConfigFile(instance_info))
+        self.add_validation(WbAdminValidationRequiredRemoteAdmin(instance_info))
+
+        self.search_panel = self.create_search_panel()
+        
+        self.set_header(self.create_standard_header("title_options.png", instance_info.name, "Options File", self.search_panel))
+
+
+        self.tab_view = newTabView()
+
+        self.myopts = None
+        self.opt2ctrl_map = {}
+        self.not_multiline_options = set()
+        self.loading = True
+        self.section = None
+
+        self.version = version
+        self.version = version
+        self.dir_dict = {}  # Will be filled later when loading default values
+
+        self.pack_to_top()
+        
+        self.bottom_box = newBox(True)
+
+        accept_btn = newButton()
+        accept_btn.set_text("Apply...")
+        accept_btn.add_clicked_callback(self.config_apply_changes_clicked)
+
+        discard_btn = newButton()
+        discard_btn.set_text("Discard")
+        discard_btn.add_clicked_callback(self.config_discard_changes_clicked)
+
+        self.bottom_box.add(newLabel("Configuration File:"), False, True)
+        self.bottom_box.add(self.file_name_ctrl, True, True)
+        self.bottom_box.add(self.section_ctrl, False, True)
+        if sys.platform.lower() == "darwin":
+            self.bottom_box.add(accept_btn, False, True)
+            self.bottom_box.add(discard_btn, False, True)
+        else:
+            self.bottom_box.add(discard_btn, False, True)
+            self.bottom_box.add(accept_btn, False, True)
+
+        self.set_footer(self.bottom_box)
+        
     @classmethod
     def wba_register(cls, admin_context):
         admin_context.register_page(cls, "wba_instance", "Options File", True)
@@ -173,73 +227,15 @@ class WbAdminConfigFileUI(mforms.Box):
         return "admin_option_file"
 
         #---------------------------------------------------------------------------
-    def page_activated(self):
-        def error_page(text):
-            import mforms
-            box = mforms.newBox(False)
+    
 
-            label = mforms.newLabel(text)
-            label.set_style(mforms.BoldStyle)
-            label.set_text_align(mforms.MiddleCenter)
-            box.add(label, True, True)
-
-            self.tab_view.add_page(box, "")
-            self.search_panel.show(False)
-            self.bottom_box.show(False)
-
-        if not self.server_profile.is_local and not self.server_profile.remote_admin_enabled:
-            error_page("MySQL Workbench requires an SSH connection to support managing Option File remotely.")
-            return
-
-        if not self.server_profile.config_file_path:
-            error_page("Location of MySQL configuration file (ie: my.cnf) not specified")
-            return
-
-        if not self.ui_created:
-            self.ui_created = True
-            #self.suspend_layout()
-            self.create_ui()
-            #self.resume_layout()
-        else:
-            on = bool(self.server_profile.admin_enabled)
-            self.file_name_ctrl.set_enabled(on)
-            self.section_ctrl.set_enabled(on)
-            self.bottom_box.set_enabled(on)
-            self.tab_view.set_enabled(on)
-            self.search_panel.set_enabled(on)
-
-    #---------------------------------------------------------------------------
-    def __init__(self, ctrl_be, server_profile, main_view, version="5.1"):
-        mforms.Box.__init__(self, False)
-        self.set_managed()
-        self.set_release_on_add()
-
-        self.set_padding(12)
-        self.set_spacing(8)
-
-        self.search_panel = self.create_search_panel()
-
-        self.heading = make_panel_header("title_options.png", server_profile.name, "Options File", self.search_panel)
-        self.add(self.heading, False, True)
-
-        self.tab_view = newTabView()
-        self.main_view = main_view
-
-        self.myopts = None
-        self.opt2ctrl_map = {}
-        self.not_multiline_options = set()
-        self.loading = True
-        self.section = None
-        self.ui_created = False
-
-        self.version = version
-        self.ctrl_be = ctrl_be
-        self.server_profile = server_profile
-        self.cfg_be = None # Will be created later in self.create_ui
-        self.version = version
-        self.dir_dict = {}  # Will be filled later when loading default values
-
-        self.pack_to_top()
+    def update_ui(self):
+        on = bool(self._instance_info.admin_enabled)
+        self.file_name_ctrl.set_enabled(on)
+        self.section_ctrl.set_enabled(on)
+        self.bottom_box.set_enabled(on)
+        self.tab_view.set_enabled(on)
+        self.search_panel.set_enabled(on)
 
     #---------------------------------------------------------------------------
     def create_search_panel(self):
@@ -471,6 +467,8 @@ class WbAdminConfigFileUI(mforms.Box):
         self.tab_view.add_tab_changed_callback(self.tab_changed)
 
         self.loading = False
+        
+        return self.tab_view
 
     #---------------------------------------------------------------------------
     def update_file_content_tab(self, page):
@@ -1054,7 +1052,6 @@ class WbAdminConfigFileUI(mforms.Box):
 
         return (filter(lambda x: x.isdigit() or x == '-', value), suffix)
 
-
     #---------------------------------------------------------------------------
     def set_string_value_to_control(self, ctrl, value):
         tag = ctrl[0] #ctrl is a tuple from map
@@ -1212,7 +1209,6 @@ class WbAdminConfigFileUI(mforms.Box):
 
         self.loading = False
 
-
     #-------------------------------------------------------------------------------
     def pack_to_top(self):
         self.file_name_ctrl = newLabel("")
@@ -1221,32 +1217,10 @@ class WbAdminConfigFileUI(mforms.Box):
         if sys_config_path is None:
             sys_config_path = ""
         self.file_name_ctrl.set_text(sys_config_path)
-        self.file_name_ctrl.set_size(300, -1)
+        self.file_name_ctrl.set_size(200, -1)
 
         self.section_ctrl = newSelector()
-        self.section_ctrl.set_size(150, -1)
-
-        self.bottom_box = newBox(True)
-
-        accept_btn = newButton()
-        accept_btn.set_text("Apply...")
-        accept_btn.add_clicked_callback(self.config_apply_changes_clicked)
-
-        discard_btn = newButton()
-        discard_btn.set_text("Discard")
-        discard_btn.add_clicked_callback(self.config_discard_changes_clicked)
-
-        self.add(self.tab_view, True, True)
-        self.add(self.bottom_box, False, True)
-
-        self.bottom_box.add(newLabel("Configuration File:"), False, True)
-        self.bottom_box.add(self.file_name_ctrl, True, True)
-        self.bottom_box.add(self.section_ctrl, False, True)
-
-        Utilities.add_end_ok_cancel_buttons(self.bottom_box, accept_btn, discard_btn)
-
-        self.bottom_box.set_spacing(8)
-        self.bottom_box.set_padding(12)
+        self.section_ctrl.set_size(100, -1)
 
     #-------------------------------------------------------------------------------
     def shutdown(self):

@@ -223,9 +223,9 @@ namespace mforms {
     }
 
     int ViewImpl::get_preferred_width() {
-      int w, h;
-      get_outer()->get_size_request(w, h);
-      return w;
+      int minimum, natural;
+      get_outer()->get_preferred_width(minimum, natural);
+      return natural;
     }
 
     int ViewImpl::get_preferred_height(::mforms::View *self) {
@@ -236,9 +236,9 @@ namespace mforms {
     }
 
     int ViewImpl::get_preferred_height() {
-      int w, h;
-      get_outer()->get_size_request(w, h);
-      return h;
+      int minimum, natural;
+      get_outer()->get_preferred_height(minimum, natural);
+      return natural;
     }
 
     int ViewImpl::get_x(::mforms::View *self) {

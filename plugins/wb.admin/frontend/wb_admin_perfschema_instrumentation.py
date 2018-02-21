@@ -1361,7 +1361,17 @@ class SetupThreads(mforms.Box):
 
 
 class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
-    min_server_version = (5,6,6)
+    def __init__(self, ctrl_be, instance_info, main_view):
+        WbAdminPSBaseTab.__init__(self, ctrl_be, instance_info, main_view)
+        ChangeCounter.__init__(self)
+
+        self.min_server_version = (5,6,6)
+        self.content = None
+
+        self.advanced_button = mforms.newButton()
+        self.advanced_button.add_clicked_callback(self.switch_advanced)
+        self.advanced_button.set_text("Show Advanced")
+        self.set_header(self.create_standard_header("title_instrumentation_setup.png", self.instance_info.name, "Performance Schema - Setup", self.advanced_button))
 
     @classmethod
     def wba_register(cls, admin_context):
@@ -1371,18 +1381,9 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
     def identifier(cls):
         return "admin_instrumentation_setup"
 
-    def __init__(self, ctrl_be, instance_info, main_view):
-        WbAdminPSBaseTab.__init__(self, ctrl_be, instance_info, main_view)
-        ChangeCounter.__init__(self)
-
-        self.ctrl_be = ctrl_be
-        self.content = None
-
-
     @property
     def target_version(self):
         return self.ctrl_be.target_version
-
 
     def count_change(self, change, attr, value):
         ChangeCounter.count_change(self, change, attr, value)
@@ -1391,12 +1392,13 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
         self.apply_button.set_enabled(self.change_count != 0)
         #self.cancel_button.set_enabled(self.change_count)
 
-    def create_ui(self):
-        self.advanced_button = mforms.newButton()
-        self.advanced_button.add_clicked_callback(self.switch_advanced)
-        self.advanced_button.set_text("Show Advanced")
-        self.create_basic_ui("title_instrumentation_setup.png", "Performance Schema - Setup", self.advanced_button)
+    def validation_failed_notification(self, failed_validation):
+        self.advanced_button.show(False)
 
+    def validation_successful_notification(self):
+        self.advanced_button.show(True)
+
+    def create_ui(self):
         self.content = mforms.newBox(False)
         self.config_tab = mforms.TabView(mforms.TabViewSystemStandard)
 
@@ -1405,10 +1407,10 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
         self.content.add(self.config_tab, True, True)
 
         self.rebuild_ui(True)
-        self.add(self.content, True, True)
 
         self._showing_advanced = True
         self.switch_advanced()
+        return self.content
 
 
     def switch_config_tabs(self, flag):

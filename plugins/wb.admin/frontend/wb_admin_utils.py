@@ -23,6 +23,7 @@ import weakref
 
 from mforms import newLabel
 import mforms
+from workbench.log import log_error, log_debug3
 
 #-------------------------------------------------------------------------------
 
@@ -39,14 +40,6 @@ def weakcb(object, cbname):
 
     return lambda ref=weakref.ref(object): call(ref, cbname)
 
-
-not_running_warning_label_text = "There is no connection to the MySQL Server.\nThis functionality requires an established connection to a running MySQL server."
-def not_running_warning_label():
-    warning = newLabel("\n\n\n\n"+not_running_warning_label_text)
-    warning.set_style(mforms.BigStyle)
-    warning.set_text_align(mforms.MiddleCenter)
-    warning.show(False)
-    return warning
 
 def no_remote_admin_warning_label(server_instance_settings):
     if server_instance_settings.uses_ssh:
@@ -84,7 +77,6 @@ def make_panel_header(icon, title, subtitle, button=None):
     return table
 
 def show_error_page(parent, text):
-
     if not hasattr(parent, '_error_label'):
         parent._error_label = None
 
@@ -95,78 +87,230 @@ def show_error_page(parent, text):
         parent.add(parent._error_label, True, True)
 
 def remove_error_page_if_exists(parent):
-
     if not hasattr(parent, '_error_label'):
         parent._error_label = None
 
     if parent._error_label:
         parent.remove(parent._error_label)
 
+class WbAdminValidationBase:
+    def __init__(self, error_message = ""):
+        self._error_message = error_message
+        
+    def validate(self):
+        pass
+    
+    def set_error_message(self, error_message):
+        self._error_message = error_message
+    
+    def errorScreen(self):
+        warning = newLabel("\n\n\n\n" + self._error_message)
+        warning.set_style(mforms.BigStyle)
+        warning.set_text_align(mforms.MiddleCenter)
+        warning.show(False)      
+        return warning
+
+ValidationErrorServerNotRunning = "There is no connection to the MySQL Server.\nThis functionality requires an established connection to a running MySQL server."
+
+class WbAdminValidationConnection(WbAdminValidationBase):
+    def __init__(self, ctrl_be):
+        WbAdminValidationBase.__init__(self, ValidationErrorServerNotRunning)
+        self._ctrl_be = ctrl_be
+        
+    def validate(self):
+        return self._ctrl_be.is_sql_connected()
 
 
-class WbAdminBaseTab(mforms.Box):
-    ui_created = False
-    warning_panel = None
-    content = None
+class WbAdminValidationConfigFile(WbAdminValidationBase):
+    def __init__(self, instance_info):
+        WbAdminValidationBase.__init__(self, "Location of MySQL configuration file (ie: my.cnf) not specified")
+        self._instance_info = instance_info
+        
+    def validate(self):
+        return self._instance_info.config_file_path
 
+#
+# New features can be easily implemented, now...like:
+#   - Auto page update
+#       - Update the page periodically (like vars screen). Several pages will benefit from this
+#       - Show error screen as soon as the validation don't pass and vice-versa
+#   - Show loading screen before the UI page (good for slower tabs, like config file tab, maybe others)
+#   - Force minimum height/width depending on the header/body/footer minimuns
+#
+class WbAdminTabBase(mforms.Box):
     def __init__(self, ctrl_be, instance_info, main_view):
         mforms.Box.__init__(self, False)
+        
         self.set_managed()
         self.set_release_on_add()
+                
+        self._instance_info = instance_info
+        self._ctrl_be = ctrl_be
+        self._main_view = main_view
+         
+        self._page_active = False
+        self._error_screen_displayed = False
         
-        self.set_spacing(12)
+        self._page_header = mforms.newBox(False)
+        self._page_body = mforms.newBox(False)
+        self._page_footer = mforms.newBox(False)
         
-        self.instance_info = instance_info
-        self.ctrl_be = ctrl_be
-        self.main_view = main_view
+        self.add(self._page_header, False, True)
+        self.add(self._page_body, True, True)
+        self.add(self._page_footer, False, True)
         
-        self.heading = None
-        self.warning_panel = None
-    
-    
+        self._header_contents = None
+        self._body_contents = None
+        self._footer_contents = None
+        
+        self._body_scroller = mforms.newScrollPanel()
+        self._page_body.add(self._body_scroller, True, True)
+
+        self._validations = []
+        
     @property
     def editor(self):
-        return self.main_view.editor
+        return self._main_view.editor
     
-
-    def create_basic_ui(self, icon, title, button=None):
-        self.heading = make_panel_header(icon, self.instance_info.name, title, button)
-        self.heading.set_padding(12)
-        self.add(self.heading, False, True)
+    @property
+    def backend(self):
+        return self._ctrl_be
+      
+    @property
+    def ctrl_be(self):
+        return self._ctrl_be    
+      
+    @property
+    def instance_info(self):
+        return self._instance_info
+    
+    @property
+    def server_profile(self):
+        return self._instance_info
+    
+    @property
+    def main_view(self):
+        return self._main_view
+    
+    def validate(self):
+        for validation in self._validations:
+            if not validation.validate():
+                return validation
+        return None
+      
+    def add_validation(self, validation):
+        self._validations.append(validation)
+      
+    def create_standard_header(self, icon, title, description, rightViewObject = None):
+        header = mforms.newTable()
+        header.set_row_count(2)
+        header.set_column_count(3)
+        header.set_row_spacing(0)
+        header.set_column_spacing(15)
+        header.set_padding(12)
         
-        self.content = None
+        image = mforms.newImageBox()
+        image.set_image(mforms.App.get().get_resource_path(icon))
+        image.set_image_align(mforms.TopCenter)
+        
+        label1 = mforms.newLabel(title)
+        label1.set_text_align(mforms.BottomLeft)
+        label1.set_style(mforms.SmallStyle)
+        
+        label2 = mforms.newLabel(description)
+        label2.set_text_align(mforms.TopLeft)
+        label2.set_style(mforms.VeryBigStyle)
+        
+        header.add(image, 0, 1, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
+        header.add(label1, 1, 2, 0, 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
+        header.add(label2, 1, 2, 1, 2, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
+        
+        if rightViewObject:
+            header.add(rightViewObject, 2, 3, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
+            
+        return header
     
+    def set_header(self, header):
+        if self._header_contents:
+            self._page_header.remove(self._header_contents)
+        self._header_contents = header
+        self._header_contents.set_padding(10, 10, 10, 5)
+        self._page_header.add(self._header_contents, True, True)
+    
+    def set_standard_header(self, icon, title, description):
+        self.set_header(self.create_standard_header(icon, title, description))
+    
+    def set_body_contents(self, body_contents):
+        if self._body_contents:
+            self._body_scroller.remove()
+        self._body_contents = body_contents
+        self._body_scroller.add(self._body_contents)
+        self._body_scroller.set_padding(12)
+    
+    def set_error_screen(self, failedValidation):
+        self.set_body_contents(failedValidation.errorScreen())
+        self._error_screen_displayed = True
+        
+    def set_footer(self, footer):
+        if self._footer_contents:
+            self._page_footer.remove(self._footer)
+        self._footer_contents = footer
+        self._footer_contents.set_padding(10, 5, 10, 10)
+        self._page_footer.add(self._footer_contents, True, True)
+    
+    def ui_created(self):
+        return False if self._body_contents is None else True
+    
+    def needs_to_create_ui(self):
+        if self._error_screen_displayed:
+            return True
+        
+        if not self._body_contents:
+            return True
+        
+        return False
+    
+    def validation_failed_notification(self, failed_validation):
+        pass
+    
+    def validation_successful_notification(self):
+        pass
+    
+    def create_ui(self):
+        pass
+    
+    def update_ui(self):
+        pass
+    
+    def page_active(self):
+        return self._page_active
     
     def page_activated(self):
-        if self.warning_panel:
-            self.remove(self.warning_panel)
-            self.warning_panel = None
+        self._page_active = True
+        try:
+            self.suspend_layout()
 
-        button_data = None
-        self.page_active = True
-        if not self.ctrl_be.is_sql_connected():
-            if self.content:
-                self.content.show(False)
-            text = ("There is no connection to the MySQL Server.", "This functionality requires an established connection to a running MySQL server to work.")
-        else:
-            text = None
-          
-        if text:
-            title, text = text
-            self.warning_panel = MessageButtonPanel("", title, text, button_data)
-            self.add(self.warning_panel, True, True)
-        else:
-            if not self.ui_created:
-              self.suspend_layout()
-              self.create_ui()
-              self.resume_layout()
-              self.ui_created = True
+            failed_validation = self.validate()
 
-    def get_select_int_result(self, query, column=0):
-        res = self.main_view.editor.executeManagementQuery(query, 0)
-        if res and res.goToFirstRow():
-            return res.intFieldValue(column)
-        return None
+            if failed_validation:
+                # create error screen
+                self.validation_failed_notification(failed_validation)
+                self.set_error_screen(failed_validation)
+            elif self.needs_to_create_ui():
+                self.validation_successful_notification()
+                self._error_screen_displayed = False
+                self.set_body_contents(self.create_ui())
+            else:
+                self.update_ui()
+        except Exception, e:
+            import traceback
+            traceback.print_exc()
+            log_error("Exception activating the page - %s" % str(e))
+        finally:
+            self.resume_layout()
+
+    def page_deactivated(self):
+        self._page_active = False
 
 
 class MessageButtonPanel(mforms.Table):
@@ -178,7 +322,7 @@ class MessageButtonPanel(mforms.Table):
         self.set_padding(-1) # center contents
         self.set_column_spacing(12)
         self.set_row_spacing(12)
-        self.set_row_count(3)
+        self.set_row_count(4)
         self.set_column_count(2)
         self._buttonBox = None
         if icon:
@@ -190,9 +334,9 @@ class MessageButtonPanel(mforms.Table):
         self._label = mforms.newLabel(title)
         self._label.set_style(mforms.BigBoldStyle)
         self._label.set_text_align(mforms.MiddleCenter)
-        self.add(self._label, 1, 2, 0, 1, mforms.VFillFlag|mforms.HFillFlag)
+        self.add(self._label, 1, 2, 0, 1, mforms.VFillFlag | mforms.HFillFlag)
         
-        self.add(mforms.newLabel(text), 1, 2, 1, 2, mforms.VFillFlag|mforms.HFillFlag)
+        self.add(mforms.newLabel(text), 1, 2, 1, 2, mforms.VFillFlag | mforms.HFillFlag)
 
         if button1 or button2:
             self._buttonBox = mforms.newBox(True)
@@ -217,4 +361,4 @@ class MessageButtonPanel(mforms.Table):
             self._alt_button = None
 
         if button1 or button2:
-            self.add(self._buttonBox, 1, 2, 2, 3, mforms.VFillFlag|mforms.HFillFlag)
+            self.add(self._buttonBox, 1, 2, 2, 3, mforms.VFillFlag | mforms.HFillFlag)

@@ -99,7 +99,7 @@
   NSTextField *field = mOwner->get_data(); \
   NSSize contentSize = field.cell.cellSize; \
   NSSize minSize = super.minimumSize; \
-  return { MAX(contentSize.width, minSize.width), MAX(contentSize.height, minSize.height) }; \
+  return { minSize.width, MAX(contentSize.height, minSize.height) }; \
 } \
 \
 - (NSSize)preferredSize: (NSSize)proposal \

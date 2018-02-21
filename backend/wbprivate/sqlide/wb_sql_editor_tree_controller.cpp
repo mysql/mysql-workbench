@@ -203,7 +203,7 @@ void SqlEditorTreeController::finish_init() {
   _schema_side_bar->add_section("SchemaTree", _("SCHEMAS"), flags);
 
   if (!_unified_mode) {
-    _task_tabview->add_page(_admin_side_bar, _("Management"));
+    _task_tabview->add_page(_admin_side_bar, _("Administration"));
     _task_tabview->add_page(_schema_side_bar, _("Schemas"));
 
     int i = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ActiveTaskTab", 0);
@@ -1176,7 +1176,7 @@ bool SqlEditorTreeController::sidebar_action(const std::string &name) {
       _taskbar_box->remove(_admin_side_bar);
       _taskbar_box->remove(_schema_side_bar);
 
-      _task_tabview->add_page(_admin_side_bar, _("Management"));
+      _task_tabview->add_page(_admin_side_bar, _("Administration"));
       _task_tabview->add_page(_schema_side_bar, _("Schemas"));
       _task_tabview->set_active_tab(1);
       _task_tabview->show(true);
