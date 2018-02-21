@@ -60,7 +60,7 @@ std::string PrimaryKeyPredicate::operator()(std::vector<std::shared_ptr<sqlite::
     v = data_row_rs->get_variant((int)partition_column);
     predicate += "(`" + (*_column_names)[col] + "`";
     std::string value = boost::apply_visitor(*_qv, (*_column_types)[col], v);
-    predicate += (value == "NULL") ? " IS NULL" : " = " + value + ")";
+    predicate += (value == "NULL" ? " IS NULL" : " = " + value) + ")";
   }
 
   return predicate;
