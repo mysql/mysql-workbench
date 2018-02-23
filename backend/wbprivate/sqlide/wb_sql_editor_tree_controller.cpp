@@ -1405,7 +1405,11 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       }
     }
 
-    // reset_references for the created object is called when the base editor is destroyed.
+    // Make a copy of the catalog before we modify it with new/edited objects,
+    // so we can later do a diff between both to find changes.
+    db_CatalogRef server_state_catalog = grt::copy_object(client_state_catalog);
+
+    // "reset_references" for the created object is called when the base editor is destroyed.
     db_DatabaseObjectRef db_object;
     switch (type) {
       case wb::LiveSchemaTree::Schema:
@@ -1429,14 +1433,6 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       default:
         break;
     }
-
-    if (db_object->oldName().empty()) {
-      db_object->oldName(db_object->name());
-    }
-
-    // Make a copy of the catalog before we modify it with new/edited objects,
-    // so we can later do a diff between both to find changes.
-    db_CatalogRef server_state_catalog = grt::copy_object(client_state_catalog);
 
     if (db_object.is_valid()) {
       db_object->customData().set("sqlMode", grt::StringRef(sql_mode));

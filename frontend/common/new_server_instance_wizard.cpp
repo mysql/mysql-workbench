@@ -330,7 +330,7 @@ void HostAndRemoteTypePage::enter(bool advancing) {
   toggle_remote_admin();
 
   if (wizard()->is_local())
-    set_title(_("Specify the installation type for you target operation system"));
+    set_title(_("Specify the installation type for your target operation system"));
   else
     set_title(_("Specify remote management type and target operation system"));
 

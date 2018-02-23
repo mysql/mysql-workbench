@@ -151,7 +151,7 @@ namespace MySQL.GUI.Workbench.Plugins
       // pictureBox1
       // 
       this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-      this.pictureBox1.Location = new System.Drawing.Point(13, 14);
+      this.pictureBox1.Location = new System.Drawing.Point(20, 20);
       this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
       this.pictureBox1.Name = "pictureBox1";
       this.pictureBox1.Size = new System.Drawing.Size(64, 59);
@@ -162,30 +162,28 @@ namespace MySQL.GUI.Workbench.Plugins
       // 
       this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.label5.Font = new System.Drawing.Font("Tahoma", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.label5.Font = new System.Drawing.Font("Tahoma", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.label5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
       this.label5.Location = new System.Drawing.Point(469, 82);
       this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label5.Name = "label5";
       this.label5.Size = new System.Drawing.Size(847, 27);
       this.label5.TabIndex = 19;
-      this.label5.Text = "Specifies which charset/collations the schema\'s tables will use if they do not ha" +
-    "ve an explicit setting. Common choices are Latin1 or UTF8.";
+      this.label5.Text = "The character set and its collation selected here will be used when no other charset/collation is set for a database object (it uses the DEFAULT value then). Setting DEFAULT here will make the schema to use the server defaults.";
       this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
       // label4
       // 
       this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-      this.label4.Font = new System.Drawing.Font("Tahoma", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.label4.Font = new System.Drawing.Font("Tahoma", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this.label4.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
       this.label4.Location = new System.Drawing.Point(469, 6);
       this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
       this.label4.Name = "label4";
       this.label4.Size = new System.Drawing.Size(847, 27);
       this.label4.TabIndex = 18;
-      this.label4.Text = "The name of the schema. It is recommended to use only alpha-numeric characters. S" +
-    "paces should be avoided and be replaced by _";
+      this.label4.Text = "Specify the name of the schema here. You can use any combination of ANSI letters, numbers and the underscore character for names that don't require quoting. For more flexibility you can use the entire Unicode Basic Multilingual Pane (BMP), but you will have to quote the name later when you refer to it.";
       this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
       // label2
