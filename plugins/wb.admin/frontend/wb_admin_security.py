@@ -27,6 +27,7 @@ import functools
 import random
 import string
 import os
+import sys
 
 import mforms
 
@@ -1387,14 +1388,15 @@ class SecurityAccount(mforms.Box):
         self.firewall_rules.tweak_tabs(tabView)
 
         abox.add(tabView, True, True)
-        
-        scroller = newScrollPanel(0)
-        scroller.add(abox)
-        
-        self.splitter.add(scroller, 200)
-        self.add(self.splitter, True, True)
-        #self.add(bottom_box, False, True)
 
+        if sys.platform.lower() == "darwin": # No scrollbox on macOS as this is not needed and breaks selection.
+            self.splitter.add(abox, 200)
+        else:
+            scroller = newScrollPanel(0)
+            scroller.add(abox)
+            self.splitter.add(scroller, 200)
+
+        self.add(self.splitter, True, True)
         self.resume_layout()
 
         mforms.Utilities.add_timeout(0.1, lambda self=self: self.splitter.set_divider_position(240))

@@ -20,6 +20,7 @@
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 import weakref
+import sys
 
 from mforms import newLabel
 import mforms
@@ -152,7 +153,13 @@ class WbAdminTabBase(mforms.Box):
         self._error_screen_displayed = False
         
         self._page_header = mforms.newBox(False)
-        self._page_body = mforms.newBox(False)
+        
+        if sys.platform.lower() == "darwin": # No scrollbox on macOS as this is not needed and breaks selection.
+                self._page_body = mforms.newBox(False)
+        else:
+                self._page_body = mforms.newScrollPanel()
+        self._page_body.set_padding(8)
+        
         self._page_footer = mforms.newBox(False)
         
         self.add(self._page_header, False, True)
@@ -163,8 +170,9 @@ class WbAdminTabBase(mforms.Box):
         self._body_contents = None
         self._footer_contents = None
         
-        self._body_scroller = mforms.newScrollPanel()
-        self._page_body.add(self._body_scroller, True, True)
+         #if sys.platform.lower() != "darwin": # No scrollbox on macOS as this is not needed and breaks selection.
+                #self._body_scroller = mforms.newScrollPanel()
+                #self._page_body.add(self._body_scroller, True, True)
 
         self._validations = []
         
@@ -242,10 +250,13 @@ class WbAdminTabBase(mforms.Box):
     
     def set_body_contents(self, body_contents):
         if self._body_contents:
-            self._body_scroller.remove()
+            self._body_contents.remove_from_parent()
         self._body_contents = body_contents
-        self._body_scroller.add(self._body_contents)
-        self._body_scroller.set_padding(12)
+
+        if sys.platform.lower() == "darwin": 
+                self._page_body.add(self._body_contents, True, True)
+        else:
+                self._page_body.add(self._body_contents)
     
     def set_error_screen(self, failedValidation):
         self.set_body_contents(failedValidation.errorScreen())

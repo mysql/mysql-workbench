@@ -246,8 +246,8 @@ static std::string formatStringList(PyObject *list) {
     std::string result;
     PyObject *item;
 
-    int count = PyList_Size(list);
-    for (int index = 0; index < count; ++index) {
+    ssize_t count = PyList_Size(list);
+    for (ssize_t index = 0; index < count; ++index) {
         item = PyList_GetItem(list, index);
         result += PyString_AsString(item);
     }

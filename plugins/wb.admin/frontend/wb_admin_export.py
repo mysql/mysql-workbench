@@ -2356,5 +2356,6 @@ class WbAdminImport(WbAdminTabBase):
         self.tabview.add_page(self.import_tab, "Import from Disk")
 
         self.tabview.add_page(self.progress_tab, "Import Progress")
+        self.tabview.show(True)
 
         return self.tabview
