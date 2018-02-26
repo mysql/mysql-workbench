@@ -1484,7 +1484,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SynchronizeObjectColors", 1);
 
   // MySQL Defaults
-  set_default(options, "DefaultTargetMySQLVersion", "5.6.30");
+  set_default(options, "DefaultTargetMySQLVersion", "5.7.10");
 
   set_default(options, "db.mysql.Table:tableEngine", "InnoDB");
   set_default(options, "SqlGenerator.Mysql:SQL_MODE", "TRADITIONAL,ALLOW_INVALID_DATES");
