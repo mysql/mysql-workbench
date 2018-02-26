@@ -390,13 +390,16 @@ bool isParentContext(tree::ParseTree *tree, size_t type) {
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::map<std::string, std::string> functionSynonyms = {
-  {"ST_ASWKB", "ASBINARY"},
-  {"ASWKB", "ASBINARY"},
-  {"ST_ASWKT", "ASTEXT"},
-  {"ASWKT", "ASTEXT"},
-  {"ST_CROSSES", "CROSSES"},
-  {"GEOMETRYFROMTEXT", "GEOMFROMTEXT"},
-  {"GEOMETRYFROMWKB", "GEOMFROMWKB"},
+  { "ST_ASWKB", "ASBINARY" },
+  { "ASWKB", "ASBINARY" },
+  { "ST_ASWKT", "ASTEXT" },
+  { "ASWKT", "ASTEXT" },
+  { "ST_CROSSES", "CROSSES" },
+  { "GEOMETRYFROMTEXT", "GEOMFROMTEXT" },
+  { "GEOMETRYFROMWKB", "GEOMFROMWKB" },
+  { "ST_GEOMETRYFROMTEXT", "ST_GEOMFROMTEXT" },
+  { "ST_GEOMETRYFROMWKB", "ST_GEOMFROMWKB" },
+  { "ST_GLENGTH", "GLENGTH" },
 };
 
 std::string functionTopicForContext(ParserRuleContext *context) {
@@ -652,14 +655,15 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
   // This usually will give us a good result, except in cases where the query has an error before the caret such that
   // we cannot predict the path through the rules.
   ParserRuleContext *parseTree = helpContext->_d->parse(query);
+  //std::cout << "Parse tree: " << parseTree->toStringTree(&helpContext->_d->parser) << std::endl;
+
   ++caret.second; // ANTLR lines are one-based.
   tree::ParseTree *tree = MySQLRecognizerCommon::contextFromPosition(parseTree, caret);
 
   if (tree == nullptr)
     return "";
 
-  if (antlrcpp::is<tree::TerminalNode *>(tree)) // Should always be the case at this point.
-  {
+  if (antlrcpp::is<tree::TerminalNode *>(tree)) { // Should always be the case at this point.
     tree::TerminalNode *node = dynamic_cast<tree::TerminalNode *>(tree);
     size_t token = node->getSymbol()->getType();
     if (token == MySQLLexer::SEMICOLON_SYMBOL) {
@@ -670,7 +674,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
 
     // First check if we can get a topic for this single token, either from our topic table or by lookup.
     // This is a double-edged sword. It will help in incomplete statements where we do not get a good parse tree
-    // but might also show help topics for unrelated stuff (e.g. returns "SAVEPOINT" for "select a := savepoint(c);".
+    // but might also show help topics for unrelated stuff (e.g. returns "SAVEPOINT" for "select a := savepoint(c);").
     if (supportedOperatorsAndKeywords.count(token) > 0)
       return supportedOperatorsAndKeywords[token];
 
