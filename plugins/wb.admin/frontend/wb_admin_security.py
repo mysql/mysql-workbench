@@ -2062,7 +2062,7 @@ or a new password must be supplied.'''
         the_name = self._selected_user.formatted_name()
         self._selected_user.load(self._selected_user.username, self._selected_user.host)
         self.unset_dirty()
-        self.owner.refresh()
+        self.owner.do_refresh()
         if is_new_user:
             mforms.App.get().set_status_text("Created account '%s'" % the_name)
         else:
