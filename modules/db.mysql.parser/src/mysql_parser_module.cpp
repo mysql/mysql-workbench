@@ -2151,7 +2151,7 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
 
   while (tail < end) {
     switch (*tail) {
-      case '/': // Possible multi line comment or hidden (conditional) command.
+      case '/': { // Possible multi line comment or hidden (conditional) command.
         if (*(tail + 1) == '*') {
           tail += 2;
           bool is_hidden_command = (*tail == '!');
@@ -2174,9 +2174,9 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
           tail++;
 
         break;
+      }
 
-      case '-': // Possible single line comment.
-      {
+      case '-': { // Possible single line comment.
         const unsigned char *end_char = tail + 2;
         if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || is_line_break(end_char, new_line))) {
           // Skip everything until the end of the line.
@@ -2191,17 +2191,17 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
         break;
       }
 
-      case '#': // MySQL single line comment.
+      case '#': { // MySQL single line comment.
         while (tail < end && !is_line_break(tail, new_line))
           tail++;
         if (!have_content)
           head = tail;
         break;
+      }
 
       case '"':
       case '\'':
-      case '`': // Quoted string/id. Skip this in a local loop.
-      {
+      case '`': { // Quoted string/id. Skip this in a local loop.
         have_content = true;
         char quote = *tail++;
         while (tail < end && *tail != quote) {

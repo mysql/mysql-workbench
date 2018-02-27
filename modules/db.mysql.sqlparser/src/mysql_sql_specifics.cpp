@@ -278,10 +278,7 @@ std::string Mysql_sql_specifics::setting_non_std_sql_delimiter() {
 }
 
 std::string Mysql_sql_specifics::non_std_sql_delimiter() {
-  DictRef options = DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
-  if (!options.is_valid())
-    return "$$";
-  return options.get_string("SqlDelimiter", "$$");
+  return bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
 }
 
 std::string Mysql_sql_specifics::setting_ansi_quotes() {

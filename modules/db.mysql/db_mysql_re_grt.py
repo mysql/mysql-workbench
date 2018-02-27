@@ -289,7 +289,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, context):
         return "USE `%s`;\n%s"%(escape_sql_identifier(schema), sql)
 
     def wrap_routine_sql(sql):
-        return "DELIMITER $$\n"+sql
+        return "DELIMITER " + grt.root.wb.options.options['SqlDelimiter'] + "\n" + sql
 
     i = 0.0
     for schema_name in schemata_list:

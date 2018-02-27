@@ -54,21 +54,22 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
                 obj.temp_sql = "-- no script was generated for %s" % obj.name
     
     for schema in catalog.schemata:
+        delimiter = grt.root.wb.options.options['SqlDelimiter']
         apply_script(schema, create_scripts.get(schema.__id__, None), drop_scripts.get(schema.__id__, None))
         for table in schema.tables:
             apply_script(table, create_scripts.get(table.__id__, None))
             for trigger in table.triggers:
                 sql = create_scripts.get(trigger.__id__, None)
                 if sql:
-                    sql = "DELIMITER $$\n"+sql
-                apply_script(trigger, sql, delim="$$")
+                    sql = "DELIMITER " + delimiter + "\n" + sql
+                apply_script(trigger, sql, delim = delimiter)
         for view in schema.views:
             apply_script(view, create_scripts.get(view.__id__, None))
         for routine in schema.routines:
             sql = create_scripts.get(routine.__id__, None)
             if sql:
-                sql = "DELIMITER $$\n"+sql        
-            apply_script(routine, sql, delim="$$")
+                sql = "DELIMITER " + delimiter + "\n"+sql
+            apply_script(routine, sql, delim = delimiter)
 
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mysql_Catalog, grt.classes.GrtVersion, grt.DICT)

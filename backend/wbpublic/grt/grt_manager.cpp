@@ -697,11 +697,11 @@ grt::ValueRef GRTManager::get_app_option(const std::string &name) {
   return grt::ValueRef();
 }
 
-std::string GRTManager::get_app_option_string(const std::string &name) {
+std::string GRTManager::get_app_option_string(const std::string &name, std::string default_) {
   grt::ValueRef value(get_app_option(name));
   if (value.is_valid() && grt::StringRef::can_wrap(value))
     return *grt::StringRef::cast_from(value);
-  return "";
+  return default_;
 }
 
 long GRTManager::get_app_option_int(const std::string &name, long default_) {

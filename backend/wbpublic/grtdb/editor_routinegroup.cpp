@@ -49,7 +49,8 @@ std::string RoutineGroupEditorBE::get_sql() {
   if (!routines.is_valid())
     return "";
 
-  std::string sql = "DELIMITER $$\n\n";
+  std::string delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
+  std::string sql = "DELIMITER " + delimiter + "\n\n";
 
   typedef std::map<size_t, db_RoutineRef> OrderedRoutines;
   typedef std::list<db_RoutineRef> UnorderedRoutines;
@@ -69,10 +70,10 @@ std::string RoutineGroupEditorBE::get_sql() {
   }
 
   for (OrderedRoutines::iterator i = ordered_routines.begin(); i != ordered_routines.end(); ++i)
-    sql += base::trim(i->second->sqlDefinition()) + "$$\n\n";
+    sql += base::trim(i->second->sqlDefinition()) + delimiter + "\n\n";
 
   for (UnorderedRoutines::iterator i = unordered_routines.begin(); i != unordered_routines.end(); ++i)
-    sql += base::trim((*i)->sqlDefinition()) + "$$\n\n";
+    sql += base::trim((*i)->sqlDefinition()) + delimiter + "\n\n";
 
   return sql;
 }

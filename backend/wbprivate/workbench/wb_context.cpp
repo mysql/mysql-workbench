@@ -1403,11 +1403,6 @@ void WBContext::set_default_options(grt::DictRef options) {
   // URL of latest versions file (used by version updater)
   set_default(options, "VersionsFileURL", "http://wb.mysql.com/versions.php");
 
-  // Network settings (proxy)
-  set_default(options, "ProxyType", "HTTP");
-  set_default(options, "ProxyServer", "");  // syntax: [servername]:[port]
-  set_default(options, "ProxyUserPwd", ""); // syntax: [user]:[password]
-
   // SQL parsing options
   set_default(options, "SqlIdentifiersCS", 1);
   set_default(options, "SqlMode", "");
@@ -1448,11 +1443,6 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "DbSqlEditor:Reformatter:UpcaseKeywords", 1);
   set_default(options, "DbSqlEditor::MaxResultsets", 50);
 
-  // options.gset("DbSqlEditor:IsLiveObjectAlterationWizardEnabled", 1);
-
-  // DB SQL editor (MySQL)
-  // set_default(options, "DbSqlEditor:MySQL:TreatBinaryAsText", 0);
-
   // Migration
   set_default(options, "Migration:ConnectionTimeOut", 60); // in seconds
 
@@ -1471,7 +1461,6 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "ColumnNameTemplate", "%table%col");
   set_default(options, "DefaultColumnType", "VARCHAR(45)");
 
-  // set_default(options, "FKNameTemplate", "fk%table%");
   set_default(options, "FKNameTemplate", "fk_%stable%_%dtable%");
   set_default(options, "FKColumnNameTemplate", "%table%_%column%");
   set_default(options, "AuxTableTemplate", "%stable%_has_%dtable%");
@@ -1746,7 +1735,7 @@ void WBContext::load_app_options(bool update) {
 
   // load options specific for other parts of wb
   FOREACH_COMPONENT(_components, iter)
-  (*iter)->load_app_options(update);
+    (*iter)->load_app_options(update);
 
   // load list of server instances
   db_mgmt_ManagementRef mgmt = get_root()->rdbmsMgmt();
@@ -1786,7 +1775,7 @@ void WBContext::load_other_connections() {
         replace_contents(mgmt->otherStoredConns(), list);
 
         GRTLIST_FOREACH(db_mgmt_Connection, list, iter)
-        (*iter)->owner(mgmt);
+          (*iter)->owner(mgmt);
       }
 
       _other_connections_loaded = true;

@@ -1076,7 +1076,7 @@ bool SqlEditorTreeController::fetch_routine_details(const std::string &schema_na
       SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms(_owner->rdbms());
       SqlFacade::String_tuple_list parameters;
       std::string ddl_type, ddl_name, ddl_ret, ddl_comments;
-      ddl = "DELIMITER $$\n" + ddl;
+      ddl = "DELIMITER " + bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$") + "\n" + ddl;
       sql_facade->parseRoutineDetails(ddl, ddl_type, ddl_name, parameters, ddl_ret, ddl_comments);
 
       std::string details = "";
@@ -1645,7 +1645,8 @@ std::string SqlEditorTreeController::generate_alter_script(const db_mgmt_RdbmsRe
 std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::ObjectType type,
                                                            const std::string &schema_name,
                                                            const std::string &obj_name) {
-  std::string ddl_script = "delimiter $$\n\n";
+  std::string delimiter =  bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
+  std::string ddl_script = "delimiter " + delimiter + "\n\n";
 
   // Triggers are fetched prior to table ddl, but should appear after table created.
   std::string additional_ddls;
@@ -1685,7 +1686,7 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
           if (rs.get() && rs->next()) {
             std::string trigger_ddl = (rs->getString(3));
             additional_ddls += trigger_ddl;
-            additional_ddls += "$$\n\n";
+            additional_ddls += delimiter + "\n\n";
           }
         }
       }
@@ -1715,9 +1716,9 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
     // Note: show create procedure includes the sql mode in the result before the actual DDL.
     if (rs.get() && rs->next()) {
       if (type == wb::LiveSchemaTree::Function || type == wb::LiveSchemaTree::Procedure)
-        ddl_script += rs->getString(3) + "$$\n\n";
+        ddl_script += rs->getString(3) + delimiter + "\n\n";
       else
-        ddl_script += rs->getString(2) + "$$\n\n";
+        ddl_script += rs->getString(2) + delimiter + "\n\n";
     }
     ddl_script += additional_ddls;
   } catch (const sql::SQLException &e) {
@@ -1745,7 +1746,7 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
         ddl_script += "CREATE ALGORITHM=UNDEFINED DEFINER=" + definer;
         ddl_script += " SQL SECURITY " + rs->getString(2);
         ddl_script += " VIEW " + view + " AS ";
-        ddl_script += rs->getString(3) + "$$\n\n";
+        ddl_script += rs->getString(3) + delimiter + "\n\n";
       }
     } else {
       ddl_script.clear();
