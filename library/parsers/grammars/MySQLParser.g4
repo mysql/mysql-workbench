@@ -3013,7 +3013,7 @@ dataType:
     | type = ENUM_SYMBOL stringList charsetWithOptBinary?
     | type = SET_SYMBOL stringList charsetWithOptBinary?
     | type = SERIAL_SYMBOL
-    | {serverVersion >= 50707}? type = JSON_SYMBOL
+    | {serverVersion >= 50708}? type = JSON_SYMBOL
     | type = (
         GEOMETRY_SYMBOL
         | GEOMETRYCOLLECTION_SYMBOL

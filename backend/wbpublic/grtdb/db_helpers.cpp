@@ -112,7 +112,7 @@ GrtVersionRef bec::parse_version(const std::string &target_version) {
  */
 int bec::version_to_int(const GrtVersionRef &version) {
   if (!version.is_valid() || version->majorNumber() == -1)
-    return 50100;
+    return 80000;
 
   size_t result = version->majorNumber() * 10000;
   if (version->minorNumber() > -1)

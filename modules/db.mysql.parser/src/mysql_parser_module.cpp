@@ -2513,7 +2513,7 @@ static bool doParseType(const std::string &type, GrtVersionRef targetVersion, Si
   length = (int)typeListener.length;
   explicitParams = typeListener.explicitParams;
 
-  return true;
+  return simpleType.is_valid();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

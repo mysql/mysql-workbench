@@ -659,8 +659,7 @@ void DataTypeListener::exitDataType(MySQLParser::DataTypeContext *ctx) {
   }
 
   dataType = MySQLParserServices::findDataType(_typeList, _version, typeName);
-  if (dataType.is_valid()) // Should always be valid at this point.
-  {
+  if (dataType.is_valid()) { // Should always be valid at this point.
     // Unfortunately, the length + precision handling in WB is a bit crude and we cannot simply use what the grammar
     // dictates. So we have to inspect the associated simple data type to know where to store the parsed
     // length/precision values.
