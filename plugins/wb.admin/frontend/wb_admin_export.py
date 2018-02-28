@@ -105,7 +105,7 @@ def get_path_to_mysqldump():
 def get_mysqldump_version():
     path = get_path_to_mysqldump()
     if not path:
-        log_error("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
+        log_error("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> Administration")
         return None
       
     output = StringIO.StringIO()
@@ -116,7 +116,11 @@ def get_mysqldump_version():
         log_error("Error retrieving version from %s:\n%s (exit %s)"%(path, output, rc))
         return None
       
-    s = re.match(".*Distrib ([\d.a-z]+).*", output)
+    regexp = ".*Ver ([\d.a-z]+).*"
+    if ("Distrib" in output):
+        regexp = ".*Distrib ([\d.a-z]+).*"
+    
+    s = re.match(regexp, output)
     
     if not s:
         log_error("Could not parse version number from %s:\n%s"%(path, output))
@@ -1820,7 +1824,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         params.update(options)
         cmd = get_path_to_mysqldump()
         if cmd == None:
-            self.failed("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> MySQL")
+            self.failed("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> Administration")
             return
 
 
