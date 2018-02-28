@@ -160,8 +160,9 @@ public:
                                 "schema name of the schema from where to get the list of objects\n"
                                 "object_type type of objects to fetch. One of: table, view, routine, trigger. Passing "
                                 "an empty string will fetch everything."),
-    DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::generateDdlScript), DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::openTunnel),
-    DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::getTunnelPort), DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::closeTunnel),
+    DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::openTunnel),
+    DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::getTunnelPort),
+    DECLARE_MODULE_FUNCTION(DbMySQLQueryImpl::closeTunnel),
     DECLARE_MODULE_FUNCTION_DOC(DbMySQLQueryImpl::getServerVariables,
                                 "Utility function to return a dictionary containing name/value pairs for the server "
                                 "variables, as returned by SHOW VARIABLES.",
@@ -785,22 +786,6 @@ grt::DictRef DbMySQLQueryImpl::loadSchemaObjectList(int conn, grt::StringRef sch
   if (loadSchemaObjects(conn, schema, object_type, objects) == 0)
     return objects;
   return grt::DictRef();
-}
-
-std::string DbMySQLQueryImpl::generateDdlScript(grt::StringRef schema, grt::DictRef objects) {
-  const std::string delimiter = "$$";
-  std::string ddl_script = "DELIMITER " + delimiter + "\n\n";
-  ddl_script += "USE `" + *schema + "`\n" + delimiter + "\n\n";
-  for (grt::DictRef::const_iterator i = objects.begin(), end = objects.end(); i != end; ++i) {
-    std::string name = i->first;
-    std::string ddl = (grt::StringRef::can_wrap(i->second)) ? grt::StringRef::cast_from(i->second) : "";
-    if (g_utf8_validate(ddl.c_str(), -1, NULL))
-      ddl_script += ddl;
-    else
-      ddl_script += "CREATE ... `" + *schema + "`.`" + name + "`: DDL contains non-UTF symbol(s)";
-    ddl_script += "\n" + delimiter + "\n\n";
-  }
-  return ddl_script;
 }
 
 int DbMySQLQueryImpl::openTunnel(const db_mgmt_ConnectionRef &info) {

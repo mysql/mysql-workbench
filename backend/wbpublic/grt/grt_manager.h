@@ -157,7 +157,7 @@ namespace bec {
     void set_app_option_slots(const std::function<grt::ValueRef(std::string)> &slot,
                               const std::function<void(std::string, grt::ValueRef)> &set_slot);
     grt::ValueRef get_app_option(const std::string &name);
-    std::string get_app_option_string(const std::string &name);
+    std::string get_app_option_string(const std::string &name, std::string default_ = "");
     long get_app_option_int(const std::string &name, long default_ = 0);
     void set_app_option(const std::string &name, const grt::ValueRef &value);
 

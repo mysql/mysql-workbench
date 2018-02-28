@@ -810,6 +810,7 @@ class CodeGenerator:
 
     def create_statement(self):
         parts = []
+        delimiter = grt.root.wb.options.options['SqlDelimiter']
         for obj in self.selection:
             wrapper = "%s;\n"
             if obj.type == 'db.Schema':
@@ -821,15 +822,15 @@ class CodeGenerator:
             elif obj.type == 'db.Trigger':
                 rs = self.editor.executeManagementQuery("SHOW CREATE TRIGGER %s.%s" % (esc_ident(obj.schemaName), esc_ident(obj.name)), 0)
                 field_name = 'Statement'
-                wrapper = "DELIMITER $$\n%s$$\nDELIMITER ;\n"
+                wrapper = "DELIMITER " + delimiter + "\n%s" + delimiter + "\nDELIMITER ;\n"
             elif obj.type == 'db.StoredProcedure':
                 rs = self.editor.executeManagementQuery("SHOW CREATE PROCEDURE %s.%s" % (esc_ident(obj.schemaName), esc_ident(obj.name)), 0)
                 field_name = 'Create Procedure'
-                wrapper = "DELIMITER $$\n%s$$\nDELIMITER ;\n"
+                wrapper = "DELIMITER " + delimiter + "\n%s" + delimiter + "\nDELIMITER ;\n"
             elif obj.type == 'db.Function':
                 rs = self.editor.executeManagementQuery("SHOW CREATE FUNCTION %s.%s" % (esc_ident(obj.schemaName), esc_ident(obj.name)), 0)
                 field_name = 'Create Function'
-                wrapper = "DELIMITER $$\n%s$$\nDELIMITER ;\n"
+                wrapper = "DELIMITER " + delimiter + "\n%s" + delimiter + "\nDELIMITER ;\n"
             elif obj.type == 'db.View':
                 rs = self.editor.executeManagementQuery("SHOW CREATE VIEW %s.%s" % (esc_ident(obj.schemaName), esc_ident(obj.name)), 0)
                 field_name = 'Create View'

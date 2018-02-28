@@ -904,8 +904,7 @@ mforms::View *PreferencesForm::create_general_editor_page() {
       mforms::TextEntry *entry = new_entry_option("SqlDelimiter", false);
       entry->set_size(50, -1);
       entry->set_tooltip(
-        _("SQL statement delimiter different from the normally used one (ie, shouldn't be ;). Change this only if the "
-          "delimiter you normally use, specially in stored routines, happens to be the current setting."));
+        _("Delimiter used for statements that use the semicolon as part of their syntax (e.g. stored routines)"));
       tbox->add(entry, false, false);
     }
   }

@@ -442,7 +442,7 @@ namespace {
 
     SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
-    _non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
+    _non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
 
     if (target.type() == DictType) {
       this->target_list = grt::StringListRef();
@@ -1781,7 +1781,7 @@ protected:
     sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
     SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
-    non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
+    non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
     show_warnings = options.get_int("GenerateWarnings") != 0;
     use_short_names = options.get_int("UseShortNames") != 0;
     no_view_placeholder = options.get_int("NoViewPlaceholders") != 0;
@@ -2538,12 +2538,7 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
   std::shared_ptr<DiffChange> diff = diff_make(source, target, &omf);
 
   std::string sql;
-  std::string non_std_sql_delimiter("$$");
-  if (ObjectRef::can_wrap(target)) {
-    SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
-    Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
-    non_std_sql_delimiter = sql_specifics->non_std_sql_delimiter();
-  }
+  std::string non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
 
   if (diff.get()) {
     ActionGenerateSQL generator =
@@ -2617,16 +2612,18 @@ std::string DbMySQLImpl::makeAlterScriptForObject(GrtNamedObjectRef source, GrtN
           }
         }
       }
+
       for (size_t c = triggers.count(), i = 0; i < c; i++) {
         std::string trigger_code =
           result.get_string(get_full_object_name_for_key(triggers.get(i), case_sensitive != 0), "");
         if (!trigger_code.empty()) {
-          sql += base::sqlstring("DROP TRIGGER IF EXISTS !.!;\n\nDELIMITER $$\n", 0) << table->owner()->name()
-                                                                                     << triggers.get(i)->name();
-          sql += trigger_code + "$$\nDELIMITER ;\n";
+          std::string ddl = "DROP TRIGGER IF EXISTS !.!;\n\nDELIMITER " + non_std_sql_delimiter + "\n";
+          sql += base::sqlstring(ddl.c_str(), 0) << table->owner()->name() << triggers.get(i)->name();
+          sql += trigger_code + non_std_sql_delimiter + "\nDELIMITER ;\n";
         }
       }
-    };
+    }
+
     if (!sql.empty())
       if (db_RoutineRef::can_wrap(obj) && ((obj->name() == obj->oldName()) || obj->oldName().empty())) {
         db_mysql_RoutineRef routine = db_mysql_RoutineRef::cast_from(obj);

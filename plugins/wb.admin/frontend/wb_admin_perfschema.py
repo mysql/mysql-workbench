@@ -72,8 +72,9 @@ def download_server_install_script(ctrl_be):
         content = ""
         if line.startswith("CREATE DEFINER='root'@'localhost'"):
             # Set delimiters for functions/procedures/triggers, so that we can run them on the server properly
-            line = re.sub(r'(.*);', r'\1$$', line)
-            content = "\nDELIMITER $$\n%s\nDELIMITER ;\n" % line
+            delimiter = delimiter = grt.root.wb.options.options['SqlDelimiter']
+            line = re.sub(r'(.*);', r'\1' + delimiter, line)
+            content = "\nDELIMITER " + delimiter + "\n%s\nDELIMITER ;\n" % line
         else:
             content = line
         f.write("%s\n" % content)
