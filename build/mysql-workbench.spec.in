@@ -226,9 +226,10 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
 
 %if %{defined linuxres_binaries}
+  mkdir -p %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
   # Bundle pre-built libs
-  cp -a %{pyodbc_dir}                                 %{buildroot}%{_libdir}/mysql-workbench/modules/
-  cp -a %{pysqlite_dir}                               %{buildroot}%{_libdir}/mysql-workbench/modules/
+  cp -a %{pyodbc_dir}/*.so                            %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{pysqlite_dir}/*                             %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
   cp -a %{sqlite_dir}/lib/*.so*                       %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{gdal_dir}/lib/*.so*                         %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{mysqlcppconn_dir}/lib/libmysqlcppconn.so*   %{buildroot}%{_libdir}/mysql-workbench/

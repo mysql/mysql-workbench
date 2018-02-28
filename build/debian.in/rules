@@ -136,7 +136,7 @@ install: build
 
 	# Add here commands to install the package into debian/mysql-workbench.
 	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
-
+	mkdir -p $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
 	# Bundle libaries 
 	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(ODBC_HOME)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
@@ -146,7 +146,7 @@ install: build
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(PYSQLITE2_HOME)                     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
+	cp -a $(PYSQLITE2_HOME)/*                   $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
 
 @ifdef paramiko
 	#bundle paramiko based on the param
