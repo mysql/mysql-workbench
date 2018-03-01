@@ -5,6 +5,7 @@
 
 
 output_distros = [
+    ("bionic", "ubuntu18.04", "1804", ""),
     ("artful", "ubuntu17.10", "1710", ""),
     ("zesty", "ubuntu17.04", "1704", ""),
     ("yakkety", "ubuntu16.10", "1610", ""),
