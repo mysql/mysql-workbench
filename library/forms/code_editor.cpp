@@ -1114,10 +1114,14 @@ void CodeEditor::on_notify(SCNotification* notification) {
   switch (notification->nmhdr.code) {
     case SCN_MARGINCLICK: {
       sptr_t line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, notification->position, 0);
+
+#ifndef __APPLE__
+      // This handling is already implemented in ScintillaView.mm.
       if (notification->margin == 2) {
         // A click on the folder margin. Toggle the current line if possible.
         _code_editor_impl->send_editor(this, SCI_TOGGLEFOLD, line, 0);
       }
+#endif
 
       mforms::ModifierKey modifiers = getModifiers(notification->modifiers);
       _gutter_clicked_event(notification->margin, (int)line, modifiers);
