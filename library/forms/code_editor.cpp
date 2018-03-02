@@ -336,6 +336,7 @@ void CodeEditor::setup() {
   // Folder setup.
   _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (uptr_t) "fold", (sptr_t) "1");
   _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 2, 16);
+  _code_editor_impl->send_editor(this, SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW | SC_AUTOMATICFOLD_CHANGE, 0);
   _code_editor_impl->send_editor(this, SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 2, 1); // Margin is clickable.
   _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
