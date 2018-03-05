@@ -854,6 +854,7 @@ class WbAdminSchemaListTab(mforms.Box):
             else:
                 self.progress_tab.set_start_enabled(True)
                 self.import_target_schema_panel.set_enabled(True)
+                self.refresh_schema_list()
             self.schema_list.set_enabled(folder_selected)
             self.table_list.set_enabled(folder_selected)
         else:
