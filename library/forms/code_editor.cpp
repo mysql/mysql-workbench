@@ -346,8 +346,7 @@ void CodeEditor::setup() {
   _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED);
   _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED);
   _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER);
-  for (int n = 25; n < 32; ++n) // Markers 25..31 are reserved for folding.
-  {
+  for (int n = 25; n < 32; ++n) { // Markers 25..31 are reserved for folding.
     _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, 0xffffff);
     _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, 0x404040);
   }
@@ -378,7 +377,9 @@ void CodeEditor::setup() {
   Color color = Color::getSystemColor(base::SelectedTextBackgroundColor);
   sptr_t rawColor = color.toBGR();
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
-  //_code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, 0xFFFFFF);
+  color = Color::getSystemColor(base::SelectedTextColor);
+  rawColor = color.toBGR();
+  _code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, rawColor);
 
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEVISIBLE, 1, 0);
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACK, 0xF8C800, 0);
