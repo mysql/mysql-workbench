@@ -1991,7 +1991,7 @@ class SecurityAccount(mforms.Box):
                 self._selected_user.auth_plugin = self.selected_plugin_type()
 
             self._selected_user.auth_string = None
-            if self._selected_user.auth_plugin and AUTHENTICATION_PLUGIN_TYPES[self._selected_user.auth_plugin]["auth_string_label"]:
+            if self._selected_user.auth_plugin and ((self._selected_user.auth_plugin in AUTHENTICATION_PLUGIN_TYPES) or (self._selected_user.auth_plugin in self.active_plugins)):
                 self._selected_user.auth_string = self.auth_string_param.get_string_value()
 
             try:

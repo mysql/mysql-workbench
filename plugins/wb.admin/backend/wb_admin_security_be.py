@@ -50,7 +50,9 @@ GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY = "SELECT * FROM mysql.tables_priv WHERE Hos
 CREATE_USER_QUERY = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
 CREATE_USER_QUERY_PLUGIN_AUTH_STRING = "CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
 CREATE_USER_QUERY_PLUGIN = "CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = "CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
 
+ALTER_USER_RESOURCES = "ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
 GRANT_GLOBAL_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
 REVOKE_GLOBAL_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON *.* FROM '%(user)s'@'%(host)s'"
 GRANT_LIMITS_QUERY = "GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s"
@@ -777,6 +779,8 @@ class AdminAccount(object):
             if self.auth_plugin and self.auth_plugin != 'mysql_native_password':
                 if self.auth_string is None:
                     create_query = CREATE_USER_QUERY_PLUGIN
+                elif self.auth_plugin == 'caching_sha2_password':
+                    create_query = CREATE_USER_QUERY_PLUGIN_AUTH_CACHING
                 else:
                     create_query = CREATE_USER_QUERY_PLUGIN_AUTH_STRING
             else:
@@ -805,6 +809,7 @@ class AdminAccount(object):
         orig_revoked_privs =  all_normal_privs - self._orig_global_privs
         new_revoked_privs = all_normal_privs - self._global_privs - orig_revoked_privs
 
+
         if new_granted_privs or limits_changed:
             if 'Grant_priv' in new_granted_privs:
                 account_limits['GRANT'] = 'OPTION'
@@ -815,13 +820,22 @@ class AdminAccount(object):
                 priv_list = [ PrivilegeInfo[priv][0] for priv in new_granted_privs ]
             fields['granted_privs'] = ', '.join(priv_list) or 'USAGE'
             grant_query = GRANT_GLOBAL_PRIVILEGES_QUERY % fields
+
             with_clause = ''
             for key, value in account_limits.iteritems(): #name, value in zip(names, values):
                 if value != self._orig_account_limits.get(key):
+                    if key == "GRANT" and value == "OPTION":
+                        queries.append(grant_query + "WITH GRANT OPTION")
+                        continue
                     if not with_clause:
                         with_clause = ' WITH '
                     with_clause += "%s %s "%(key, value)
-            queries.append(grant_query + with_clause)
+                    
+            if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version >= Version(8, 0, 5):
+                queries.append(grant_query)
+                queries.append((ALTER_USER_RESOURCES % fields) + with_clause)
+            else:
+                queries.append(grant_query + with_clause)
 
         if new_revoked_privs:
             if all_normal_privs - new_revoked_privs: #set(self._owner.global_privilege_names) - revoked_privs_set:  # Revoke a subset of all privs
@@ -835,10 +849,12 @@ class AdminAccount(object):
             change_pw = CHANGE_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else CHANGE_PASSWORD_QUERY_576
             blank_pw = BLANK_PASSWORD_QUERY if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5,7,6) else BLANK_PASSWORD_QUERY
             # special hack required by server to handle sha256 password accounts
-            if self.auth_plugin == "sha256_password":
-                queries.append("SET old_passwords = 2")
-            else:
-                queries.append("SET old_passwords = 0")
+            if self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(8, 0, 5):
+                if self.auth_plugin == "sha256_password":
+                    queries.append("SET old_passwords = 2")
+                else:
+                    queries.append("SET old_passwords = 0")
+                    
             if fields["password"]:
                 queries.append(change_pw % fields)
             else:
