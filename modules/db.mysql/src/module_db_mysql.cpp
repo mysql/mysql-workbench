@@ -1579,14 +1579,13 @@ namespace {
   }
 
   void ActionGenerateSQL::drop_user(db_UserRef user) {
-    sql.clear();
-    // There is no IF EXISTS for DROP USER, so do a grant to create if there is no any
-    // NO_AUTO_CREATE_USER in traditional sql_mode prevents grant trick from working
-    // So there is need of additinal sql_mode change prior to using this
-    sql.append("GRANT USAGE ON *.* TO ")
-      .append(user->name().c_str())
-      .append(";\n DROP USER ")
-      .append(user->name().c_str());
+    auto catalog = db_CatalogRef::cast_from(user->owner());
+    if (bec::is_supported_mysql_version_at_least(catalog->version(), 5, 7, 0)) {
+      sql = "DROP USER IF EXISTS " + *user->name();
+    } else {
+      // Before 5.7 there was no IF EXISTS clause. So we use the implicit user creation with grant here.
+      sql = "GRANT USAGE ON *.* TO " + *user->name() + ";\n DROP USER " + *user->name();
+    }
     remember(user, sql);
   }
 
@@ -1637,7 +1636,7 @@ namespace {
 } // namespace
 
 DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader* ldr) : grt::ModuleImplBase(ldr), _default_traits(true) {
-  _default_traits.set("version", grt::StringRef("5.5.3"));
+  _default_traits.set("version", grt::StringRef("8.0.5"));
   _default_traits.set("CaseSensitive", grt::IntegerRef(1));
   _default_traits.set("maxTableCommentLength", grt::IntegerRef(60));
   _default_traits.set("maxIndexCommentLength", grt::IntegerRef(0));
@@ -2758,16 +2757,6 @@ grt::DictRef DbMySQLImpl::getTraitsForServerVersion(const int major, const int m
   }
 
   return traits;
-}
-
-grt::DictRef DbMySQLImpl::getTraitsFromServerVariables(const grt::DictRef& variables) {
-  int major = 0, minor = 0, revision = 0;
-  std::string version;
-  if (variables.has_key("version"))
-    version = variables.get_string("version");
-
-  sscanf(version.c_str(), "%i.%i.%i", &major, &minor, &revision);
-  return getTraitsForServerVersion(major, minor, revision);
 }
 
 grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_RdbmsRef rdbms) {
