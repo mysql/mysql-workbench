@@ -395,17 +395,17 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test) {
     " DELETE FROM film_text WHERE film_id = old.film_id;"
     " END;;"
 
-    " CREATE FUNCTION `dummy_function`() RETURNS int(1)"
+    " CREATE FUNCTION `dummy_function`() RETURNS int(1) DETERMINISTIC"
     " BEGIN"
     " RETURN 1;"
     " END;;"
 
-    " CREATE FUNCTION `other_function`() RETURNS int(1)"
+    " CREATE FUNCTION `other_function`() RETURNS int(1) DETERMINISTIC"
     " BEGIN"
     " RETURN 1;"
     " END;;"
 
-    " CREATE PROCEDURE `get_films`()"
+    " CREATE PROCEDURE `get_films`() READS SQL DATA"
     " BEGIN"
     " select * from film;"
     " END;;"
