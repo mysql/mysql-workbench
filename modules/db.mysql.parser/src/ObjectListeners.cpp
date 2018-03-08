@@ -936,8 +936,6 @@ void TableListener::exitPartitionDefRangeList(MySQLParser::PartitionDefRangeList
   db_mysql_TableRef table = db_mysql_TableRef::cast_from(_object);
   table->partitionType(ctx->RANGE_SYMBOL() != nullptr ? "RANGE" : "LISTE");
 
-  table->partitionExpression(MySQLBaseLexer::sourceTextForContext(ctx->bitExpr()));
-
   if (ctx->COLUMNS_SYMBOL() != nullptr) {
     auto list = ctx->identifierList();
     if (list != nullptr)
