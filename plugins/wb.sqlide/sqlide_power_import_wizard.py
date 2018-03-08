@@ -91,9 +91,8 @@ class ResultsPage(WizardPage):
             itime = float("%d.%d" % (self.main.import_progress_page.import_time.seconds, self.main.import_progress_page.import_time.microseconds))
             self.content.add(mforms.newLabel(str("File %s was imported in %.3f s" % (self.get_path(), itime))), False, True)
         
-        
-        self.content.add(mforms.newLabel(str("Table %s.%s %s" % (self.main.destination_table['schema'], 
-                                                                 self.main.destination_table['table'], 
+        self.content.add(mforms.newLabel(str("Table %s.%s %s" % (self.main.destination_table['schema'].encode('utf-8'), 
+                                                                 self.main.destination_table['table'].encode('utf-8'), 
                                                                  "has been used" if self.main.destination_page.existing_table_radio.get_active() else "was created"))), False, True)
         self.content.add(mforms.newLabel(str("%d records imported" % self.main.import_progress_page.module.item_count)), False, True)
 

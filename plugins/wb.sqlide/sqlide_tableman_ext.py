@@ -83,6 +83,7 @@ class TableInfoPanel(mforms.Box):
         self.set_release_on_add()
         
         self.editor = editor
+        self.target_version = Version.fromgrt(self.editor.serverVersion)
         
         self.table = mforms.newTable()
         offset = 2 if self.i_s_innodb_available() else 0
@@ -240,7 +241,9 @@ class TableInfoPanel(mforms.Box):
         self.refresh()
         
     def i_s_innodb_available(self):
-        return self.editor.serverVersion.majorNumber == 5 and self.editor.serverVersion.minorNumber == 6
+          return  self.target_version.is_supported_mysql_version_at_least(5, 6)
+
+        
 
     def refresh(self):
         try:
@@ -288,17 +291,26 @@ class TableInfoPanel(mforms.Box):
                 self.column_count.set_text(rset.stringFieldValueByName("column_count"));
             
         if self.i_s_innodb_available():
+            if self.target_version.is_supported_mysql_version_at_least(8, 0):
+                query = "SELECT @@datadir datadir,sd.path FROM information_schema.INNODB_TABLES st JOIN information_schema.innodb_datafiles sd USING(space) WHERE st.name = '%s/%s'" % (self._schema, self._table)
+            else:
+                query = "SELECT @@datadir datadir,st.FILE_FORMAT,sd.path FROM information_schema.INNODB_SYS_TABLES st JOIN information_schema.innodb_sys_datafiles sd USING(space) WHERE st.name = '%s/%s'" % (self._schema, self._table)
             try:
-                rset = self.editor.executeManagementQuery("SELECT @@datadir datadir,st.FILE_FORMAT,sd.path FROM information_schema.INNODB_SYS_TABLES st JOIN information_schema.innodb_sys_datafiles sd USING(space) WHERE st.name = '%s/%s'" % (self._schema, self._table), 0)
+                print(query)
+                rset = self.editor.executeManagementQuery(query, 0)
             except grt.DBError, e:
-                log_error("SELECT @@datadir datadir,st.FILE_FORMAT,sd.path FROM information_schema.INNODB_SYS_TABLES st JOIN information_schema.innodb_sys_datafiles sd USING(space) WHERE st.name = '%s/%s'': %s\n" % (self._schema, self._table, e))
+                log_error("%s': %s\n" % (query, e))
                 rset = None
-
             if rset:
                 ok = rset.goToFirstRow()
                 if ok:
-                    self.file_format.set_text(rset.stringFieldValueByName("FILE_FORMAT"))
-                    data_path = rset.stringFieldValueByName("path")
+                    if self.target_version.is_supported_mysql_version_at_least(8, 0):
+                            self.file_format.set_text("")
+                            data_path = rset.stringFieldValueByName("PATH")
+                    else:
+                            self.file_format.set_text(rset.stringFieldValueByName("FILE_FORMAT"))
+                            data_path = rset.stringFieldValueByName("path")
+
                     if data_path[:1] == ".":
                         self.data_path.set_text("%s%s" %(rset.stringFieldValueByName("datadir"), data_path[2:]))
                     else:
@@ -776,7 +788,9 @@ class TableIndexInfoPanel(mforms.Box):
                         curname = name
                         itype = rset.stringFieldValue(10)
                         non_unique = rset.stringFieldValue(1)
-                        is_visible = True if rset.stringFieldValue(13) == "YES" else False
+                        is_visible = True
+                        if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+                            is_visible = rset.stringFieldValue(13) == "YES"
 
                     cname = rset.stringFieldValue(4)
                     if cname not in column_to_index:
@@ -1165,11 +1179,12 @@ class TableInspector(mforms.AppView):
 
     def show_table(self, schema, table):
         for tab in self.pages:
-#             try:
-            tab.show_table(schema, table)
-#             except:
-#                 print "some error"
-#                 continue # If user will launch table inspector on Information or Performance Schema, there can be some problems, let's catch those.
+            try:
+                tab.show_table(schema, table)
+            except Exception:
+                import traceback
+                log_error("Error initializing tab %s: %s\n" % (tab.node_name, traceback.format_exc()))
+                continue # If user will launch table inspector on Information or Performance Schema, there can be some problems, let's catch those.
         #After each tab is loaded we can make a ptr to the get_table_engine method
         self.pages[self.tab_list["indexes"]].get_table_engine = self.pages[self.tab_list["informations"]].get_table_engine
 
