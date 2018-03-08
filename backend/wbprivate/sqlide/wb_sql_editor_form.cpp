@@ -962,6 +962,8 @@ static void set_active_schema(SqlEditorForm::Ptr self, const std::string &schema
     ed->active_schema(schema);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn,
                                       std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth,
                                       bool autocommit_mode, bool user_connection) {
@@ -1020,7 +1022,7 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
         bec::GRTManager::get()->run_once_when_idle(this,
                                                    std::bind(&set_active_schema, shared_from_this(), default_schema));
       } catch (std::exception &exc) {
-        logError("Can't restore DefaultSchema (%s): %s", default_schema.c_str(), exc.what());
+        logError("Can't restore default schema (%s): %s\n", default_schema.c_str(), exc.what());
         temp_connection->parameterValues().gset("DbSqlEditor:LastDefaultSchema", "");
       }
     }
@@ -1030,6 +1032,8 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   dbc_conn->ref->setAutoCommit(autocommit_mode);
   dbc_conn->autocommit_mode = dbc_conn->ref->getAutoCommit();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 struct ConnectionErrorInfo {
   sql::AuthenticationError *auth_error;
