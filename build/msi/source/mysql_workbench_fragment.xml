@@ -42,9 +42,9 @@
               <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
                 <File Id="README" Name="README.md"/>
                 <?if $(var.LICENSE_TYPE) = "community"?>
-                  <File Id="COPYING" Name="COPYING"/>
+                  <File Id="License.txt" Name="License.txt"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-                  <File Id="LICENSE.mysql" Name="LICENSE.mysql"/>
+                  <File Id="License_commercial.txt" Name="License-commercial.txt"/>
                 <?endif ?>
                 <RemoveFolder Directory="Mysql_WB_Dir" Id="RemoveWbDirFolder" On="uninstall"/>
                 <RemoveFolder Directory="MysqlProgramMenuFolder" Id="RemoveProgramMenuFolder" On="uninstall"/>

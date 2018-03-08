@@ -92,7 +92,7 @@ if not exist %TARGET_DIR%\script_templates mkdir %TARGET_DIR%\script_templates
 copy %RES_DIR%\scripts\script_templates\*.txt %TARGET_DIR%\script_templates\. 1> nul 2> nul
 
 if not exist %TARGET_DIR%\sys mkdir %TARGET_DIR%\sys
-xcopy /i /s /y /d %RES_DIR%\scripts\sys %TARGET_DIR%\sys 1> nul 2> nul
+xcopy /i /s /y /d %RES_DIR%\scripts\sys %TARGET_DIR%\sys 1> nul 2> nul 
 
 echo Copy Scripting Libraries...
 xcopy /i /s /y /d %RES_DIR%\scripts\vbs\*.vbs %TARGET_DIR%\
@@ -226,6 +226,11 @@ xcopy /i /y /d %1samples\models\* %TARGET_DIR%\extras 1> nul 2> nul
 
 echo * README
 xcopy /i /y /d %1README.md %TARGET_DIR%
+
+echo * License
+echo %2
+if %2 == Release_Oss xcopy /i /y /d %1license.txt %TARGET_DIR%
+if not %2 == Release_Oss xcopy /i /y /d %1license-commercial.txt %TARGET_DIR%
 
 rem -------------------------------------------------------------------------------
 rem Call sub-scripts
