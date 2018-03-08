@@ -38,7 +38,7 @@ namespace mforms {
     class WizardImpl : public FormImpl {
       Gtk::Table _top_table;
       Gtk::Label _heading;
-      Gtk::Frame _content;
+      Gtk::ScrolledWindow _content;
       Gtk::Box _button_box;
       Gtk::Button _cancel_btn;
       Gtk::Button _fwd_btn;
