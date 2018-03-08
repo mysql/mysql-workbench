@@ -2162,7 +2162,7 @@ class WbAdminSecurity(WbAdminTabBase):
         return self.account_tab
 
     def update_ui(self):
-        self.secman = AdminSecurity(self.ctrl_be)
+        pass
 
     def async_callback(self):
             pass
