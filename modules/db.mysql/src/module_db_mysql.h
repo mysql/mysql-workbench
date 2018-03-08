@@ -293,7 +293,6 @@ public:
 
   grt::ListRef<db_mysql_StorageEngine> getKnownEngines();
 
-  grt::DictRef getTraitsFromServerVariables(const grt::DictRef& variables);
   virtual grt::DictRef getTraitsForServerVersion(const int major, const int minor, const int revision) override;
 
   grt::ListRef<db_UserDatatype> getDefaultUserDatatypes(db_mgmt_RdbmsRef rdbms);

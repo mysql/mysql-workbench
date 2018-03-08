@@ -585,92 +585,102 @@ namespace {
   void ActionGenerateSQL::create_table_indexes_end(db_mysql_TableRef) {
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   std::string ActionGenerateSQL::generate_create(db_mysql_IndexRef index, std::string table_q_name,
                                                  bool separate_index) {
-    std::string index_sql; // XXX: the construction should be rewritten using a string stream.
+    std::stringstream result;
     bool pk = (index->isPrimary() != 0);
 
     separate_index = (!pk && separate_index); // pk cannot be added via CREATE INDEX
+    bool isFullTextSpatialOrHashIndex = false;
 
+    std::string indexType = base::toupper(index->indexType());
     if (pk) {
-      index_sql.append("PRIMARY KEY ");
+      result << "PRIMARY KEY";
     } else if (index->unique() != 0) {
-      index_sql.append("UNIQUE INDEX ");
-    } else if (strlen(index->indexType().c_str()) > 0) {
-      if (strcasecmp(index->indexType().c_str(), "PRIMARY") == 0)
-        index_sql.append("PRIMARY KEY ");
-      if (strcasecmp(index->indexType().c_str(), "FOREIGN") == 0)
-        index_sql.append("INDEX ");
+      result << "UNIQUE INDEX";
+    } else if (!indexType.empty()) {
+      if (indexType == "PRIMARY")
+        result << "PRIMARY KEY";
+      else if (indexType == "FOREIGN")
+        result << "INDEX";
       else {
-        index_sql.append(index->indexType().c_str()).append(" ");
+        if (indexType == "SPATIAL" || indexType == "FULLTEXT")
+          isFullTextSpatialOrHashIndex = true;
+        result << indexType;
 
-        if (strcasecmp(index->indexType().c_str(), "INDEX") != 0)
-          index_sql.append("INDEX ");
+        if (indexType != "INDEX")
+          result << " INDEX";
       }
     } else {
-      index_sql.append("INDEX ");
+      result << " INDEX";
     }
 
     if (!pk && !index->name().empty())
-      index_sql.append(strfmt("`%s` ", index->name().c_str()));
+      result << " `" << *index->name() << "`";
 
-    if (strlen(index->indexKind().c_str()))
-      index_sql.append("USING ").append(index->indexKind().c_str()).append(" ");
+    if (!index->indexKind().empty()) {
+      isFullTextSpatialOrHashIndex = true;
+      result << " USING " << *index->indexKind();
+    }
 
     if (separate_index)
-      index_sql.append("ON ").append(table_q_name).append(" ");
+      result << " ON " << table_q_name;
 
-    index_sql.append("(");
+    result << " (";
 
     grt::ListRef<db_mysql_IndexColumn> ind_columns = index->columns();
     for (size_t index_column_count = ind_columns.count(), j = 0; j < index_column_count; j++) {
       db_IndexColumnRef ind_column = ind_columns.get(j);
 
       if (j > 0)
-        index_sql.append(", ");
+        result << ", ";
 
       db_ColumnRef col = ind_column->referencedColumn();
       if (col.is_valid())
-        index_sql.append("`").append(col->name().c_str()).append("`");
+        result << "`" << *col->name() << "`";
 
       if (ind_column->columnLength() > 0)
-        index_sql.append("(").append(ind_column->columnLength().toString()).append(")");
+        result << "(" << ind_column->columnLength() << ")";
 
-      if (!pk)
-        index_sql.append((ind_column->descend() == 0 ? " ASC" : " DESC"));
+      if (!pk && index->indexKind().empty() && !isFullTextSpatialOrHashIndex)
+        result << " " << ((ind_column->descend() == 0 ? "ASC" : "DESC"));
     }
-    index_sql.append(") ");
+    result << ")";
 
     if (index->keyBlockSize())
-      index_sql.append(" KEY_BLOCK_SIZE=").append(index->keyBlockSize().toString());
+      result << " KEY_BLOCK_SIZE = " << index->keyBlockSize();
 
     if (index->withParser().is_valid() && *index->withParser().c_str())
-      index_sql.append(" WITH PARSER ").append(index->withParser());
+      result << " WITH PARSER " << *index->withParser();
 
     std::string comment = bec::TableHelper::generate_comment_text(index->comment(), _maxIndexCommentLength);
     if (!comment.empty())
-      index_sql.append(" COMMENT ").append(comment).append(" ");
-
-
+      result << " COMMENT " << comment;
 
     auto catalog = db_CatalogRef::cast_from(index->owner()->owner()->owner());
 
     if (bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
       auto table = db_mysql_TableRef::cast_from(index->owner());
 
-      if (index->isPrimary() == 0 && (index->unique() == 0 || table->indices().count() > 1))
-      {
+      if (index->isPrimary() == 0 && (index->unique() == 0 || table->indices().count() > 1)) {
         if (index->visible() == 1)
-          index_sql.append(" VISIBLE");
+          result << " VISIBLE";
         else
-          index_sql.append(" INVISIBLE");
+          result << " INVISIBLE";
       }
     }
-    return base::trim_right(index_sql);
+
+    return result.str();
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   void ActionGenerateSQL::create_table_fks_begin(db_mysql_TableRef) {
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   void ActionGenerateSQL::create_table_fk(db_mysql_ForeignKeyRef fk) {
     grt::StringRef ename = db_mysql_TableRef::cast_from(fk->owner())->tableEngine();
@@ -1569,14 +1579,13 @@ namespace {
   }
 
   void ActionGenerateSQL::drop_user(db_UserRef user) {
-    sql.clear();
-    // There is no IF EXISTS for DROP USER, so do a grant to create if there is no any
-    // NO_AUTO_CREATE_USER in traditional sql_mode prevents grant trick from working
-    // So there is need of additinal sql_mode change prior to using this
-    sql.append("GRANT USAGE ON *.* TO ")
-      .append(user->name().c_str())
-      .append(";\n DROP USER ")
-      .append(user->name().c_str());
+    auto catalog = db_CatalogRef::cast_from(user->owner());
+    if (bec::is_supported_mysql_version_at_least(catalog->version(), 5, 7, 0)) {
+      sql = "DROP USER IF EXISTS " + *user->name();
+    } else {
+      // Before 5.7 there was no IF EXISTS clause. So we use the implicit user creation with grant here.
+      sql = "GRANT USAGE ON *.* TO " + *user->name() + ";\n DROP USER " + *user->name();
+    }
     remember(user, sql);
   }
 
@@ -1627,7 +1636,7 @@ namespace {
 } // namespace
 
 DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader* ldr) : grt::ModuleImplBase(ldr), _default_traits(true) {
-  _default_traits.set("version", grt::StringRef("5.5.3"));
+  _default_traits.set("version", grt::StringRef("8.0.5"));
   _default_traits.set("CaseSensitive", grt::IntegerRef(1));
   _default_traits.set("maxTableCommentLength", grt::IntegerRef(60));
   _default_traits.set("maxIndexCommentLength", grt::IntegerRef(0));
@@ -2748,16 +2757,6 @@ grt::DictRef DbMySQLImpl::getTraitsForServerVersion(const int major, const int m
   }
 
   return traits;
-}
-
-grt::DictRef DbMySQLImpl::getTraitsFromServerVariables(const grt::DictRef& variables) {
-  int major = 0, minor = 0, revision = 0;
-  std::string version;
-  if (variables.has_key("version"))
-    version = variables.get_string("version");
-
-  sscanf(version.c_str(), "%i.%i.%i", &major, &minor, &revision);
-  return getTraitsForServerVersion(major, minor, revision);
 }
 
 grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_RdbmsRef rdbms) {

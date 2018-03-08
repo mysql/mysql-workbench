@@ -67,7 +67,7 @@ TEST_FUNCTION(1) {
 }
 
 void test_serialization(const ValueRef& val) {
-  static const std::string filename("serialization_test.xml");
+  static const std::string filename("output/serialization_test.xml");
   grt::GRT::get()->serialize(val, filename);
   ValueRef res_val(grt::GRT::get()->unserialize(filename));
   grt_ensure_equals("serialization test", res_val, val, true);
@@ -164,9 +164,9 @@ TEST_FUNCTION(5) {
   list.insert(db_TableRef());
   list.insert(db_TableRef(grt::Initialized));
 
-  grt::GRT::get()->serialize(list, "null_list.xml");
+  grt::GRT::get()->serialize(list, "output/null_list.xml");
 
-  list = grt::ListRef<db_Table>::cast_from(grt::GRT::get()->unserialize("null_list.xml"));
+  list = grt::ListRef<db_Table>::cast_from(grt::GRT::get()->unserialize("output/null_list.xml"));
 
   ensure("list[0]", list[0].is_valid());
   ensure("list[1]", list[1].is_valid() == false);
@@ -177,7 +177,7 @@ TEST_FUNCTION(5) {
 TEST_FUNCTION(5) {
   // dontfollow means the object will be saved as a link, not that it wont be saved
 
-  static const std::string filename("serialization_test.xml");
+  static const std::string filename("output/serialization_test.xml");
 
   {
     db_CatalogRef catalog(grt::Initialized);
