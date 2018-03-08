@@ -32,6 +32,8 @@ from workbench.utils import Version
 
 from workbench.log import log_debug3, log_debug2, log_error, log_warning
 
+from wb_common import to_unicode
+
 last_location = ""
 
 def showPowerImport(editor, selection):
@@ -55,10 +57,10 @@ def handleContextMenu(name, sender, args):
     
     for s in selection:
         if s.type == 'db.Schema':
-            user_selection = {'schema': s.name, 'table': None}
+            user_selection = {'schema': to_unicode(s.name), 'table': None}
             break
         elif s.type == 'db.Table':
-            user_selection = {'table': s.name, 'schema': s.schemaName}
+            user_selection = {'table': to_unicode(s.name), 'schema': to_unicode(s.schemaName)}
             break
         else:
             return
@@ -594,7 +596,7 @@ class json_module(base_module):
             limit = "LIMIT %d" % int(self._limit)
             if self._offset:
                 limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
-        return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
+        return u"""SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
     
     def start_export(self):
         if self._user_query:
@@ -639,11 +641,12 @@ class json_module(base_module):
                             row.append("\"%s\":%s" % (col['name'], rset.geoJsonFieldValueByName(col['name'])))
                         else:
                             if col['type'] == "json":
-                                row.append("\"%s\":%s" % (col['name'], rset.stringFieldValueByName(col['name'])))
+                                row.append(u"\"%s\":%s" % (col['name'], to_unicode(rset.stringFieldValueByName(col['name']))))
                             else:
-                                row.append("\"%s\":%s" % (col['name'], json.dumps(rset.stringFieldValueByName(col['name']))))
+                                row.append("\"%s\":%s" % (col['name'], json.dumps(to_unicode(rset.stringFieldValueByName(col['name'])))))
                     ok = rset.nextRow()
-                    jsonfile.write("{%s}%s" % (', '.join(row), ",\n " if ok else ""))
+                    line = u"{%s}%s" % (', '.join(row), ",\n " if ok else "")
+                    jsonfile.write(line.encode('utf-8'))
                     jsonfile.flush()
                 jsonfile.write(']')
 

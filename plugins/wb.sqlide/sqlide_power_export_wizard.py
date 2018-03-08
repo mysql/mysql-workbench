@@ -38,6 +38,8 @@ import operator
 
 from workbench.log import log_error
 
+from wb_common import to_unicode
+
 last_location = None
 
 def showPowerExport(editor, selection):
@@ -54,10 +56,10 @@ def handleContextMenu(name, sender, args):
     
     for s in selection:
         if s.type == 'db.Schema':
-            user_selection = {'schema': s.name, 'table': None}
+            user_selection = {'schema': to_unicode(s.name), 'table': None}
             break
         elif s.type == 'db.Table':
-            user_selection = {'table': s.name, 'schema': s.schemaName}
+            user_selection = {'table': to_unicode(s.name), 'schema': to_unicode(s.schemaName)}
             break
         else:
             return
@@ -167,8 +169,8 @@ class SimpleTabExport(mforms.Box):
             limit = "LIMIT %d" % int(self.limit_entry.get_string_value())
             if self.offset_entry.get_string_value():
                 limit = "LIMIT %d,%d" % (int(self.offset_entry.get_string_value()), int(self.limit_entry.get_string_value()))
-        table_w_prefix = "%s.%s" % (self.owner.main.source_table['schema'], self.owner.main.source_table['table'])
-        return """SELECT %s FROM %s %s""" % (",".join(selected_columns), table_w_prefix, limit)
+        table_w_prefix = u"%s.%s" % (self.owner.main.source_table['schema'], self.owner.main.source_table['table'])
+        return u"""SELECT %s FROM %s %s""" % (",".join(selected_columns), table_w_prefix, limit)
         
 class AdvancedTabExport(mforms.Box):
     def __init__(self, editor, owner):
@@ -199,7 +201,7 @@ class AdvancedTabExport(mforms.Box):
         self.content.add(box, True, True)
         
     def set_query(self, query):
-        self.code_editor.set_text(query)
+        self.code_editor.set_text(query.encode('utf-8'))
     
     def get_query(self):
         return self.code_editor.get_text(False) 
@@ -524,10 +526,10 @@ class DataInputPage(WizardPage):
         sorted_keys = self.table_list.keys()
         sorted_keys.sort()
         self.source_table_sel.add_items(sorted_keys)
-        table_name = "%s.%s" % (self.main.source_table['schema'], self.main.source_table['table'])
+        table_name = u"%s.%s" % (self.main.source_table['schema'], self.main.source_table['table'])
         if table_name in self.table_list.keys():
             self.source_table_sel.set_selected(sorted_keys.index(table_name))
-        self.source_table_sel.add_changed_callback(lambda selector = self.source_table_sel: self.source_table_changed(selector.get_string_value()))
+        self.source_table_sel.add_changed_callback(lambda selector = self.source_table_sel: self.source_table_changed(to_unicode(selector.get_string_value())))
         headingBox.add(self.source_table_sel, False, True)
         
         self.simple_export_box.add(headingBox, False, True)
@@ -547,16 +549,16 @@ class DataInputPage(WizardPage):
     def get_table_columns(self, table):
         cols = []
         try:
-            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
+            rset = self.main.editor.executeManagementQuery(u"SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
         except grt.DBError, e:
-            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], e))
+            log_error(u"SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], to_unicode(e.message)))
             rset = None
             
         if rset:
             ok = rset.goToFirstRow()
             while ok:
                 col = {'name': None, 'type': None, 'is_string': None, 'is_geometry':None, 'is_bignumber':None, 'is_number': None, 'is_date_or_time': None, 'is_bin': None, 'value': None}
-                col['name'] = rset.stringFieldValueByName("Field")
+                col['name'] = to_unicode(rset.stringFieldValueByName("Field"))
                 col['type'] = rset.stringFieldValueByName("Type")
                 col['is_number'] = any(x in col['type'] for x in ['int', 'integer'])
                 col['is_geometry'] = any(x in col['type'] for x in ['geometry','geometrycollection', 'linestring', 'multilinestring', 'multipoint', 'multipolygon', 'point' , 'polygon'])
@@ -579,11 +581,11 @@ class DataInputPage(WizardPage):
     def preload_existing_tables(self):
         self.table_list = {}
        
-        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s`" % self.main.source_table['schema'], 0)
+        rset = self.main.editor.executeManagementQuery(u"SHOW TABLES FROM `%s`" % self.main.source_table['schema'], 0)
         if rset:
             ok = rset.goToFirstRow()
             while ok:
-                self.table_list["%s.%s" % (self.main.source_table['schema'], rset.stringFieldValue(0))] = {'schema': self.main.source_table['schema'], 'table': rset.stringFieldValue(0)}
+                self.table_list[u"%s.%s" % (self.main.source_table['schema'], to_unicode(rset.stringFieldValue(0)))] = {'schema': self.main.source_table['schema'], 'table': to_unicode(rset.stringFieldValue(0))}
                 ok = rset.nextRow()
         
     def go_advanced(self):
@@ -601,7 +603,7 @@ class DataInputPage(WizardPage):
         self.advanced_export.show(not self._showing_simple)
         
         if not self._showing_simple:
-            self.advanced_export.set_query(str(self.simple_export.get_query()))
+            self.advanced_export.set_query(self.simple_export.get_query())
             self.advanced_export.reset_dirty()
     
     def go_cancel(self):
@@ -622,7 +624,7 @@ class DataInputPage(WizardPage):
             node = self.simple_export.column_list.node_at_row(r)
             if node.get_bool(0):
                 for col in self.simple_export.columns:
-                    if col['name'] == node.get_string(1):
+                    if col['name'] == to_unicode(node.get_string(1)):
                         cols.append(col)
         return cols
     

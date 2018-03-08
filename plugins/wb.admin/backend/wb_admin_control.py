@@ -42,6 +42,7 @@ import grt
 import mforms
 
 from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2, log_debug3
+from wb_common import to_unicode
 
 MYSQL_ERR_ACCESS_DENIED = 1045
 MYSQL_ERR_PASSWORD_EXPIRED = 1820
@@ -625,7 +626,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 ret = self.sql.exec_query(q)
             except QueryError, e:
-                log_warning("Error executing query %s: %s\n"%(q, strip_password(str(e))))
+                log = u"Error executing query %s: %s\n" % (q, strip_password(to_unicode(e.message)))
+                log_warning(log)
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
@@ -642,7 +644,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 ret = self.sql.exec_query_multi_result(q)
             except QueryError, e:
-                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(str(e))))
+                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(e.message)))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query_multi_result: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
@@ -660,7 +662,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 cnt = self.sql.updateCount()
                 return ret, cnt
             except QueryError, e:
-                log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(str(e))))
+                log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(e.message)))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_sql: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)

@@ -199,7 +199,7 @@ class DumpThread(threading.Thread):
                     log_error("Error executing command %s\n%s\n" % (logstr, exc))
                     import traceback
                     traceback.print_exc()
-                    self.print_log_message("Error executing task: %s" % str(exc))
+                    self.print_log_message(u"Error executing task: %s" % exc)
 
                 pwdfile = open(pwdfilename, 'w')
             else:
@@ -214,7 +214,8 @@ class DumpThread(threading.Thread):
                 pwdfile.write('\n\n[mysqldump]\n')
 
                 for s, t in tables_to_ignore:
-                    pwdfile.write("ignore-table=%s.%s\n" % (s,t))
+                    line = "ignore-table=%s.%s\n" % (s,t)
+                    pwdfile.write(line.encode('utf-8'))
 
             pwdfile.close()
             if platform.system() == 'Windows':
@@ -236,7 +237,7 @@ class DumpThread(threading.Thread):
                     log_error("Error executing command %s\n%s\n" % (logstr, exc))
                     import traceback
                     traceback.print_exc()
-                    self.print_log_message("Error executing task: %s" % str(exc))
+                    self.print_log_message(u"Error executing task: %s" % exc)
                     p1 = None
 #                finally:
 #                    pass
@@ -258,7 +259,7 @@ class DumpThread(threading.Thread):
             import traceback
             traceback.print_exc()
             log_error("Error executing task: %s\n" % exc)
-            self.print_log_message("Error executing task: %s" % str(exc))
+            self.print_log_message(u"Error executing task: %s" % exc)
         finally:
             pass
 
@@ -342,7 +343,7 @@ class DumpThread(threading.Thread):
         except Exception, exc:
             import traceback
             traceback.print_exc()
-            self.print_log_message("Error executing task %s" % str(exc) )
+            self.print_log_message(u"Error executing task %s" % exc )
 #        finally:
         if not self.abort_requested:
             self.progress = 1

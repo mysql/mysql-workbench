@@ -21,7 +21,7 @@
 
 from workbench.db_utils import QueryError, escape_sql_string
 from workbench.utils import Version
-from wb_common import PermissionDeniedError
+from wb_common import PermissionDeniedError, to_unicode
 
 import mforms
 from workbench.log import log_error
@@ -40,36 +40,36 @@ ZOMBIE_COLUMN_PRIVS_QUERY = "SELECT c.User, c.Host, c.Db, c.Table_name, c.Column
 ZOMBIE_PROCS_PRIVS_QUERY = "SELECT p.User, p.Host, p.Db, p.Routine_name, p.Routine_type FROM mysql.procs_priv AS p LEFT JOIN mysql.user AS u ON p.User = u.user AND p.Host = u.Host WHERE u.User IS NULL"
 
 
-GET_ACCOUNT_QUERY = "SELECT * FROM mysql.user WHERE User='%(user)s' AND Host='%(host)s' ORDER BY User, Host"
+GET_ACCOUNT_QUERY = u"SELECT * FROM mysql.user WHERE User='%(user)s' AND Host='%(host)s' ORDER BY User, Host"
 
-GET_ACCOUNT_SCHEMA_PRIVS_QUERY = "SELECT * FROM mysql.db WHERE User='%(user)s' AND Host='%(host)s' ORDER BY Db"
+GET_ACCOUNT_SCHEMA_PRIVS_QUERY = u"SELECT * FROM mysql.db WHERE User='%(user)s' AND Host='%(host)s' ORDER BY Db"
 
-GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY = "SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='mysql'"
+GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY = u"SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='mysql'"
 #GET_ACCOUNT_IS_TABLE_PRIVS_QUERY = "SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='information_schema'"
 
-CREATE_USER_QUERY = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_STRING = "CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
-CREATE_USER_QUERY_PLUGIN = "CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = "CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
+CREATE_USER_QUERY = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_STRING = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
+CREATE_USER_QUERY_PLUGIN = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
 
-ALTER_USER_RESOURCES = "ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
-GRANT_GLOBAL_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
-REVOKE_GLOBAL_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON *.* FROM '%(user)s'@'%(host)s'"
-GRANT_LIMITS_QUERY = "GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s"
-RENAME_USER_QUERY = "RENAME USER '%(old_user)s'@'%(old_host)s' TO '%(user)s'@'%(host)s'"
-CHANGE_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')"
-BLANK_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = ''"
-CHANGE_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
-BLANK_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY ''"
+ALTER_USER_RESOURCES = u"ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
+GRANT_GLOBAL_PRIVILEGES_QUERY = u"GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
+REVOKE_GLOBAL_PRIVILEGES_QUERY = u"REVOKE %(revoked_privs)s ON *.* FROM '%(user)s'@'%(host)s'"
+GRANT_LIMITS_QUERY = u"GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s"
+RENAME_USER_QUERY = u"RENAME USER '%(old_user)s'@'%(old_host)s' TO '%(user)s'@'%(host)s'"
+CHANGE_PASSWORD_QUERY = u"SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')"
+BLANK_PASSWORD_QUERY = u"SET PASSWORD FOR '%(user)s'@'%(host)s' = ''"
+CHANGE_PASSWORD_QUERY_576 = u"ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
+BLANK_PASSWORD_QUERY_576 = u"ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY ''"
 
-REVOKE_SCHEMA_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON `%(db)s`.* FROM '%(user)s'@'%(host)s'"
-GRANT_SCHEMA_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON `%(db)s`.* TO '%(user)s'@'%(host)s'"
+REVOKE_SCHEMA_PRIVILEGES_QUERY = u"REVOKE %(revoked_privs)s ON `%(db)s`.* FROM '%(user)s'@'%(host)s'"
+GRANT_SCHEMA_PRIVILEGES_QUERY = u"GRANT %(granted_privs)s ON `%(db)s`.* TO '%(user)s'@'%(host)s'"
 
-EXPIRE_PASSWORD = "ALTER USER '%(user)s'@'%(host)s' PASSWORD EXPIRE"
+EXPIRE_PASSWORD = u"ALTER USER '%(user)s'@'%(host)s' PASSWORD EXPIRE"
 FLUSH_PRIVILEGES = "FLUSH PRIVILEGES"
 
-REVOKE_ALL = "REVOKE ALL PRIVILEGES, GRANT OPTION FROM '%(user)s'@'%(host)s'"
-REMOVE_USER = "DROP USER '%(user)s'@'%(host)s'"
+REVOKE_ALL = u"REVOKE ALL PRIVILEGES, GRANT OPTION FROM '%(user)s'@'%(host)s'"
+REMOVE_USER = u"DROP USER '%(user)s'@'%(host)s'"
 
 # Map of user table's column name to privilege and its description.
 # It has the form { 'TableColumnPrivName': ('PrettyName', 'ADescriptionOfThePrivilege'), ... }
@@ -312,7 +312,7 @@ class AdminSecurity(object):
 
         if result is not None:
             while result.nextRow():
-                name = result.stringByName("Database")
+                name = to_unicode(result.stringByName("Database"))
                 schema_names.append(name)
 
         schema_names.sort()
@@ -327,8 +327,8 @@ class AdminSecurity(object):
 
         if result:
             while result.nextRow():
-                user = result.stringByName("User")
-                host = result.stringByName("Host")
+                user = to_unicode(result.stringByName("User"))
+                host = to_unicode(result.stringByName("Host"))
                 accounts.append((user, host))
 
 
@@ -341,9 +341,9 @@ class AdminSecurity(object):
                 return []
             privs = []
             while result and result.nextRow():
-                user = result.stringByName("User")
-                host = result.stringByName("Host")
-                parts = [result.stringByName(f) for f in fields]
+                user = to_unicode(result.stringByName("User"))
+                host = to_unicode(result.stringByName("Host"))
+                parts = [to_unicode(result.stringByName(f)) for f in fields]
                 privs.append(((user, host), ".".join(parts)))
             return privs
 
@@ -435,8 +435,8 @@ class AdminSecurity(object):
             return name
 
         acct = AdminAccount(self)
-        acct.host = "%"
-        acct.username = unique_name('newuser', acct.host)
+        acct.host = u"%"
+        acct.username = to_unicode(unique_name(u'newuser', acct.host))
         self._account_info_cache[acct.username+"@"+acct.host] = acct
         self._accounts.append((acct.username, acct.host))
         return acct
@@ -543,7 +543,7 @@ class AdminUserDbPrivs(object):
                 if value == 'Y':
                     privs.add(priv)
 
-            schema = result.stringByName("Db")
+            schema = to_unicode(result.stringByName("Db"))
 
             self.entries.append(AdminUserDbPrivEntry(schema, privs))
 
@@ -761,7 +761,7 @@ class AdminAccount(object):
             if (self.username, self.host) in self._owner.account_names:
                 raise WBSecurityValidationError("The '%s' account already exists and cannot be saved." % (self.formatted_name()))
         elif not self.is_commited:
-            if self._owner.account_names.count((self.username, self.host)) > 1:
+            if (self.username, self.host) in self._owner.account_names:
                 raise WBSecurityValidationError("The '%s' account already exists and cannot be saved." % (self.formatted_name()))
 
         fields = {
@@ -923,10 +923,10 @@ class AdminAccount(object):
         if not result.nextRow():
             raise Exception("Could not load account information for %s@%s"%(username,hostname))
 
-        self.username = result.stringByName("User")
-        self.host = result.stringByName("Host")
+        self.username = to_unicode(result.stringByName("User"))
+        self.host = to_unicode(result.stringByName("Host"))
 
-        self._orig_password = "UnchangedPassword\t"
+        self._orig_password = u"UnchangedPassword\t"
         self.password = self._orig_password
         self._orig_username = self.username
         self._orig_host = self.host

@@ -31,6 +31,7 @@ from sqlide_catalogman_ext import ColumnManager
 from mforms import IconStringColumnType, StringColumnType, LongIntegerColumnType
 from wb_admin_utils import make_panel_header
 from workbench.utils import human_size, Version
+from wb_common import to_unicode
 
 def make_title(t):
     l = mforms.newLabel(t)
@@ -44,7 +45,7 @@ def show_table_inspector(editor, selection, page = None):
         dpoint = mforms.fromgrt(editor.dockingPoint)
         dpoint.dock_view(tinspect, "", 0)
         dpoint.select_view(tinspect)
-        tinspect.set_title("%s.%s" % (schema, table))
+        tinspect.set_title(u"%s.%s" % (to_unicode(schema), to_unicode(table)))
         if page is not None:
             tinspect.switch_to_page(page)
 

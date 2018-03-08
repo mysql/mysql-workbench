@@ -284,11 +284,11 @@ class DatabaseObjectSelector(mforms.Box):
         objects_passing_filter = self.ui[group]['objects_passing_filter']
         
         if operation == 'add':
-            involved = set(node.get_string(0) for node in available_list.get_selection() )
+            involved = set(node.get_string(0).encode('utf-8') for node in available_list.get_selection())
             selected |= involved
             available -= involved
         elif operation == 'remove':
-            involved = set(node.get_string(0) for node in selected_list.get_selection() )
+            involved = set(node.get_string(0).encode('utf-8') for node in selected_list.get_selection())
             available |= involved
             selected -= involved
         elif operation == 'add_all':

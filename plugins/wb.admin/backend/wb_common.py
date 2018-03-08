@@ -145,3 +145,8 @@ class CmdOutput(object):
     
     def __setattr__(self, name, value):
         raise NotImplementedError
+
+
+def to_unicode(text):
+    # Convert to unicode if it's not unicode yet
+    return text if isinstance(text, unicode) else text.decode('utf8')

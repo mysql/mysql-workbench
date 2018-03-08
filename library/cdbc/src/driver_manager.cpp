@@ -27,6 +27,7 @@
 #include "cppconn/driver.h"
 #include "cppconn/statement.h"
 #include "cppconn/exception.h"
+#include "cppconn/metadata.h"
 #include "base/string_utilities.h"
 
 #include <gmodule.h>
@@ -460,6 +461,13 @@ namespace sql {
       if (connection_init_slot)
         connection_init_slot(conn.get(), connectionProperties);
 
+      //  We could set this on the parameters, but we wouldn't know the server version
+      if( conn->getMetaData()->getDatabaseMajorVersion() >= 8 ) {
+        conn.get()->createStatement()->executeUpdate("set character_set_client = utf8mb4");
+        conn.get()->createStatement()->executeUpdate("set character_set_connection = utf8mb4");
+        conn.get()->createStatement()->executeUpdate("set character_set_results = utf8mb4");
+      }
+      
       std::string def_schema = parameter_values.get_string("schema", "");
       if (!def_schema.empty())
         conn->setSchema(def_schema);

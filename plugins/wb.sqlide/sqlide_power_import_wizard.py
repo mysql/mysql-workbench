@@ -38,6 +38,8 @@ from workbench.utils import Version
 
 from workbench.log import log_error, log_info
 
+from wb_common import to_unicode
+
 last_location = ""
 drop_table = False
 truncate_table = False
@@ -57,13 +59,13 @@ def handleContextMenu(name, sender, args):
     
     for s in selection:
         if s.type == 'db.Schema':
-            user_selection = {'schema': s.name, 'table': None}
+            user_selection = {'schema': to_unicode(s.name), 'table': None}
             break
         elif s.type == 'db.Table':
-            user_selection = {'table': s.name, 'schema': s.schemaName}
+            user_selection = {'table': to_unicode(s.name), 'schema': to_unicode(s.schemaName)}
             break
         elif s.type == 'tables':
-            user_selection = {'table': None, 'schema': s.schemaName}
+            user_selection = {'table': None, 'schema': to_unicode(s.schemaName)}
             break
         else:
             return
@@ -89,11 +91,13 @@ class ResultsPage(WizardPage):
     def create_ui(self):
         if self.main.import_progress_page.import_time:
             itime = float("%d.%d" % (self.main.import_progress_page.import_time.seconds, self.main.import_progress_page.import_time.microseconds))
-            self.content.add(mforms.newLabel(str("File %s was imported in %.3f s" % (self.get_path(), itime))), False, True)
+            text = u"File %s was imported in %.3f s" % (self.get_path(), itime)
+            self.content.add(mforms.newLabel(text.encode('utf-8')), False, True)
         
-        self.content.add(mforms.newLabel(str("Table %s.%s %s" % (self.main.destination_table['schema'].encode('utf-8'), 
-                                                                 self.main.destination_table['table'].encode('utf-8'), 
-                                                                 "has been used" if self.main.destination_page.existing_table_radio.get_active() else "was created"))), False, True)
+        text = u"Table %s.%s %s" % (self.main.destination_table['schema'], 
+                                                                 self.main.destination_table['table'], 
+                                                                 "has been used" if self.main.destination_page.existing_table_radio.get_active() else "was created")
+        self.content.add(mforms.newLabel(text.encode('utf-8')), False, True)
         self.content.add(mforms.newLabel(str("%d records imported" % self.main.import_progress_page.module.item_count)), False, True)
 
 class ImportProgressPage(WizardProgressPage):
@@ -318,16 +322,16 @@ class ConfigurationPage(WizardPage):
         
     def load_dest_columns(self):
         try:
-            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
+            rset = self.main.editor.executeManagementQuery(u"SHOW COLUMNS FROM `%s`.`%s`" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
         except Exception, e:
-            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], e))
+            log_error(u"SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], to_unicode(e.message)))
             rset = None
             
         if rset:
             self.dest_cols = []
             ok = rset.goToFirstRow()
             while ok:
-                self.dest_cols.append(rset.stringFieldValueByName("Field"))
+                self.dest_cols.append(to_unicode(rset.stringFieldValueByName("Field")))
                 ok = rset.nextRow()    
     
     def call_create_preview_table(self):
@@ -584,27 +588,28 @@ class SelectDestinationPage(WizardPage):
             self.table_list = {}
             db_list = []
             while ok:
-                dbname = rset.stringFieldValue(0)
+                dbname = to_unicode(rset.stringFieldValue(0))
                 if dbname.strip() in ["mysql", "sys", "information_schema", "fabric", "performance_schema"]:
                     ok = rset.nextRow()
                     continue
                 db_list.append(dbname)
                 ok = rset.nextRow()
             
-            rset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
+            rset = self.main.editor.executeManagementQuery(u"SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
             if rset:
                 ok = rset.goToFirstRow()
                 while ok:
                     if rset.stringFieldValue(1) == "BASE TABLE":
-                        table_name = rset.stringFieldValue(0) if not compare_in_lowercase else rset.stringFieldValue(0).lower() 
-                        self.table_list["%s.%s" % (self.main.destination_table['schema'], table_name)] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
+                        table_name = to_unicode(rset.stringFieldValue(0)) if not compare_in_lowercase else to_unicode(rset.stringFieldValue(0)).lower()
+                        full_name = u"%s.%s" % (self.main.destination_table['schema'], table_name)
+                        self.table_list[full_name] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
                         
                     ok = rset.nextRow()
             
             self.destination_table_sel.clear()
             self.destination_table_sel.add_items(self.table_list.keys())
             if self.main.destination_table['schema'] and self.main.destination_table['table']:
-                table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
+                table_name = u"%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
                 if table_name in self.table_list.keys():
                     self.destination_table_sel.set_selected(self.table_list.keys().index(table_name))
             self.destination_database_sel.clear()
@@ -697,7 +702,7 @@ class SelectDestinationPage(WizardPage):
         return False
     
     def check_if_table_exists(self, schema, table):
-        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
+        rset = self.main.editor.executeManagementQuery(u"SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
         if rset and rset.goToFirstRow():
             return True
         return False
@@ -705,10 +710,10 @@ class SelectDestinationPage(WizardPage):
     def validate(self):
         compare_in_lowercase = self.check_server_lower_case_table_names()
         if self.existing_table_radio.get_active():
-            self.main.destination_table = self.table_list[self.destination_table_sel.get_string_value()]
+            self.main.destination_table = self.table_list[to_unicode(self.destination_table_sel.get_string_value())]
         else:
-            self.main.destination_table['schema'] = self.destination_database_sel.get_string_value()
-            self.main.destination_table['table'] = self.new_table_name.get_string_value().strip()
+            self.main.destination_table['schema'] = to_unicode(self.destination_database_sel.get_string_value())
+            self.main.destination_table['table'] = to_unicode(self.new_table_name.get_string_value()).strip()
             if len(self.main.destination_table['table']) == 0:
                 mforms.Utilities.show_error("Table Import", "You need to specify new table name", "Ok", "", "")
                 return False 
@@ -716,7 +721,7 @@ class SelectDestinationPage(WizardPage):
             if compare_in_lowercase:
                 self.main.destination_table['table'] = self.main.destination_table['table'].lower()
             
-            table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
+            table_name = u"%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
 
             if not self.drop_table_cb.get_active() and (table_name in self.table_list or self.check_if_table_exists(self.main.destination_table['schema'], self.main.destination_table['table'])):
                 res = mforms.Utilities.show_message("Table Import", "You specified to create a new table, but a table with the same name already exists in the selected schema. Would you like to drop it, or use the existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")

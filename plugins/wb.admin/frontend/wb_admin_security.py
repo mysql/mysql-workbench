@@ -33,7 +33,7 @@ import mforms
 
 from mforms import newBox, newLabel, newButton, newTextEntry, newTreeView, newTable, newRadioButton, newSelector, newPanel, newTabView, Utilities, newCheckBox, newImageBox, newScrollPanel, App
 from wb_admin_security_be import AdminSecurity, PrivilegeInfo, PrivilegeReverseDict, SecurityAdminRoles, WBSecurityValidationError
-from wb_common import PermissionDeniedError
+from wb_common import PermissionDeniedError, to_unicode
 from workbench.log import log_error, log_debug3
 
 import grt
@@ -572,14 +572,14 @@ class SecuritySchemaPrivileges(mforms.Box):
         if entry:
             db, privs = entry.db, entry.privileges
 
-            text = "The user '%s'@'%s' " % (self._owner._selected_user.username, self._owner._selected_user.host)
+            text = u"The user '%s'@'%s' " % (self._owner._selected_user.username, self._owner._selected_user.host)
             if '_' in db or '%' in db:
                 if db == '%':
                     text += "will have the following access rights to any schema:"
                 else:
-                    text += "will have the following access rights to schemas matching '%s':" % db
+                    text += u"will have the following access rights to schemas matching '%s':" % db
             else:
-                text += "will have the following access rights to the schema '%s':" % db
+                text += u"will have the following access rights to the schema '%s':" % db
             self.schema_priv_label.set_text(text)
 
             self.del_entry_button.set_enabled(True)
@@ -675,22 +675,22 @@ class FirewallCommands:
             return result
         
         while query_result.nextRow():
-            result.append(query_result.stringByIndex(1))
+            result.append(to_unicode(query_result.stringByIndex(1)))
         return result
 
     def get_cached_user_rules(self, userhost):
         result = []
 
-        query_result = self.execute_result_command("SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        query_result = self.execute_result_command(u"SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         if not query_result:
             return result
 
         while query_result.nextRow():
-            result.append(query_result.stringByIndex(1))
+            result.append(to_unicode(query_result.stringByIndex(1)))
         return result
 
     def get_rule_count(self, userhost):
-        result = self.execute_result_command("SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = self.execute_result_command(u"SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         if not result:
             return 0
           
@@ -698,15 +698,15 @@ class FirewallCommands:
         return result.stringByIndex(1)
 
     def get_cached_rule_count(self, userhost):
-        result = self.execute_result_command("SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = self.execute_result_command(u"SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         result.nextRow()
         return result.stringByIndex(1)
 
     def reload_rules(self, userhost):
-        self.execute_multiresult_command("CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
+        self.execute_multiresult_command(u"CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
 
     def delete_user_rule(self, userhost, rule):
-        result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+        result, cnt = self.execute_command(u"DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
         deleted_something = cnt > 0
         if deleted_something:
             self.reload_rules(userhost)
@@ -719,7 +719,7 @@ class FirewallCommands:
             firewall_rule = rule
             
         if firewall_rule:
-            result = self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            result = self.execute_command(u"INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
             if result:
                 self.reload_rules(userhost)
             return True
@@ -727,12 +727,12 @@ class FirewallCommands:
         return False
 
     def normalize_query(self, query):
-        query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        query_result = self.execute_result_command(u"SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
         if not query_result:
             return False
         
         query_result.nextRow()
-        result = query_result.stringByIndex(1)
+        result = to_unicode(query_result.stringByIndex(1))
         
         if result == "":
             return False
@@ -740,7 +740,7 @@ class FirewallCommands:
         return result
 
     def get_user_mode(self, userhost):
-        result = self.execute_result_command("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
+        result = self.execute_result_command(u"SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
         if not result:
             return False
         
@@ -749,7 +749,7 @@ class FirewallCommands:
         return "OFF"
 
     def set_user_mode(self, userhost, mode):
-        multi_result = self.execute_multiresult_command("CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
+        multi_result = self.execute_multiresult_command(u"CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
         if not multi_result:
             return False
         
@@ -758,7 +758,7 @@ class FirewallCommands:
         try:
             if result.nextRow():
                 if result.stringByIndex(1).startswith("ERROR"):
-                    log_error("Firewall: Failed to set user mode (user=%s, mode=%s): %s\n" % (userhost, mode, result.stringByIndex(1)))
+                    log_error("Firewall: Failed to set user mode (user=%s, mode=%s): %s\n" % (userhost, mode, to_unicode(result.stringByIndex(1))))
                     return False
             log_debug3("Firewall: Returning 'True' due to lack of 'ERROR' records\n")
             return True
@@ -994,7 +994,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.note.set_text(text)
         
     def refresh_row(self, current_row, user, host):
-        userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
+        userhost = u"%s@%s" % (db_utils.escape_sql_string(user), host)
         current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
         current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
         current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
@@ -1581,7 +1581,7 @@ class SecurityAccount(mforms.Box):
         sel = self.user_list.get_selected_node()
         if not sel and user:
             return
-        if user and eval(sel.get_tag())[0] != user.username:
+        if user and to_unicode(eval(sel.get_tag())[0]) != user.username:
             return
 
         self.content_box.set_enabled(user != None)
@@ -1781,6 +1781,7 @@ class SecurityAccount(mforms.Box):
         self.user_list.clear()
         self.firewall_rules.refresh_users(self.owner.secman.account_names)
         for user, host in self.owner.secman.account_names:
+            user = to_unicode(user)
             row = self.user_list.add_node()
             if self.owner.secman.is_zombie(user, host):
                 row.set_string(0, "(!) "+(user or "<anonymous>"))
@@ -1905,13 +1906,13 @@ class SecurityAccount(mforms.Box):
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
         self.refresh_button.set_enabled(True)
-        self.owner.refresh()
+        self.owner.do_refresh()
 
     def commit(self):
         self.current_action = "commit account"
         if self._selected_user:
-            username = self.username.get_string_value()
-            host = self.hostlimithost.get_string_value()
+            username = to_unicode(self.username.get_string_value())
+            host = to_unicode(self.hostlimithost.get_string_value())
             if not self.valid_name:
                 Utilities.show_error('Invalid host specification',
                     'The host specification "%s" is not valid. Please correct it and try again.' % host,
@@ -1938,11 +1939,14 @@ class SecurityAccount(mforms.Box):
                                           "Ok", "", "","wb.admin.warn_ucase_hostnames", "Don't show this message again"):
                     self.hostlimithost.set_value(lcase_host)
 
-            self._selected_user.username = self.username.get_string_value()
-            self._selected_user.password = self.password.get_string_value()
-            self._selected_user.confirm_password = self.confirm.get_string_value()
+            username_to_rename = self._selected_user.username
+            host_to_rename = self._selected_user.host
+
+            self._selected_user.username = to_unicode(self.username.get_string_value())
+            self._selected_user.password = to_unicode(self.password.get_string_value())
+            self._selected_user.confirm_password = to_unicode(self.confirm.get_string_value())
             #if self.hostlimit.get_active():
-            self._selected_user.host = self.hostlimithost.get_string_value()
+            self._selected_user.host = to_unicode(self.hostlimithost.get_string_value())
            # else:
            #     self._selected_user.host = "%"
 
@@ -1998,19 +2002,19 @@ class SecurityAccount(mforms.Box):
                 self._selected_user.save()
             except WBSecurityValidationError, exc:
                 Utilities.show_error("Save Account Changes",
-                      str(exc), "OK", "", "")
+                      exc.message, "OK", "", "")
                 self.current_action = ""
                 return
             except PermissionDeniedError, exc:
                 Utilities.show_error("Permission Errors",
-                      str(exc), "OK", "", "")
+                      exc.message, "OK", "", "")
                 self.current_action = ""
                 return
             except Exception, exc:
                 import traceback
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Saving Account",
-                      str(exc), "OK", "", "")
+                      exc.message, "OK", "", "")
                 self.current_action = ""
                 return
             
@@ -2020,9 +2024,13 @@ class SecurityAccount(mforms.Box):
                 import traceback
                 log_error("Exception while saving account: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Saving Account",
-                      str(exc), "OK", "", "")
+                      exc.message, "OK", "", "")
                 self.current_action = ""
                 return
+
+            if is_new_user:
+                    self.owner.secman.account_names.remove((username_to_rename, host_to_rename))
+                    self.owner.secman.account_names.append((self._selected_user.username, self._selected_user.host))
 
             self.reload_user(is_new_user)
 

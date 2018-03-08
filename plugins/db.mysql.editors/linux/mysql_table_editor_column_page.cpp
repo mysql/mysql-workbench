@@ -67,18 +67,15 @@ DbMySQLTableEditorColumnPage::DbMySQLTableEditorColumnPage(DbMySQLTableEditor* o
   _xml->get_widget("column_comment", column_comment);
   _owner->add_text_change_timer(column_comment, sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_comment));
 
-  _xml->get_widget("charset_combo", _charset_combo);
+  _xml->get_widget("column_charset_combo", _charset_combo);
+  _charset_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_charset));
   setup_combo_for_string_list(_charset_combo);
   fill_combo_from_string_list(_charset_combo, _be->get_charset_list());
-  _charset_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_charset));
-  
-  _xml->get_widget("collation_combo", _collation_combo);
-  setup_combo_for_string_list(_collation_combo);
-
-  _collation_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_collation));
-
   set_selected_combo_item(_charset_combo, DEFAULT_CHARSET_CAPTION);
-
+  
+  _xml->get_widget("column_collation_combo", _collation_combo);
+  _collation_combo->signal_changed().connect(sigc::mem_fun(this, &DbMySQLTableEditorColumnPage::set_collation));
+  setup_combo_for_string_list(_collation_combo);
   fill_combo_from_string_list(_collation_combo, _be->get_charset_collation_list(DEFAULT_CHARSET_CAPTION));
   set_selected_combo_item(_collation_combo, DEFAULT_COLLATION_CAPTION);
   

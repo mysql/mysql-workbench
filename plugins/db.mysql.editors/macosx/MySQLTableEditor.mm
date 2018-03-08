@@ -453,10 +453,11 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     [self updateCollation:mColumnsCollation forCharset: [charset UTF8String]];
 
     NSString* collation =
-      [mColumnsDataSource objectValueForValueIndex:bec::TableColumnsListBE::CharsetCollation row: rowIndex];
+      [mColumnsDataSource objectValueForValueIndex:bec::TableColumnsListBE::Collation row: rowIndex];
     if ([collation isEqualToString: @"DEFAULT"] || [collation length] == 0) {
       collation = [NSString stringWithUTF8String:DEFAULT_COLLATION_CAPTION];
     }
+
     [mColumnsCollation selectItemWithTitle:collation];
     NSString* collationEnabled =
       [mColumnsDataSource objectValueForValueIndex:bec::TableColumnsListBE::HasCharset row: rowIndex];
