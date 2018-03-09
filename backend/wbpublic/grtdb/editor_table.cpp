@@ -2873,7 +2873,7 @@ bool TableEditorBE::showErrorMessage(const std::string &type) {
   std::string key = base::tolower(type);
   if (key == "json") {
     GrtVersionRef version = get_catalog()->version();
-    bool versionCheck = bec::is_supported_mysql_version_at_least(version, 5, 7, 7);
+    bool versionCheck = bec::is_supported_mysql_version_at_least(version, 5, 7, 8);
     if (!versionCheck) {
       mforms::Utilities::show_message(
         _("Type not supported"), "The JSON data is not available before MySQL 5.7.8. In order to use it, first set the "

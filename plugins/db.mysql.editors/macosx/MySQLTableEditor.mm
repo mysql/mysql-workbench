@@ -1509,13 +1509,25 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 }
 
-// Called by Cocoa when keyboard focus leaves a text field.
+/**
+ * Called by Cocoa when keyboard focus leaves a text field.
+ */
 - (void)controlTextDidEndEditing: (NSNotification*)aNotification {
-  [NSRunLoop cancelPreviousPerformRequestsWithTarget: self];
+  [NSRunLoop cancelPreviousPerformRequestsWithTarget:self];
 
   id sender = [aNotification object];
 
-  if ([sender isKindOfClass: [NSTableView class]])
+  // For text fields in a table view this is always the table view itself, not any of the text fields.
+  if (sender == mColumnsTable) {
+    NSText* text = [aNotification userInfo][@"NSFieldEditor"];
+
+    // We can use a generic call here because the order of the columns defined in the table view is the same
+    // as that of the column type enum. If that ever changes we need to take care here too.
+    if (text != nil && text.string != nil)
+      mBackEnd->get_columns()->set_field([sender editedRow], [sender editedColumn], [text.string UTF8String]);
+
+    return;
+  } else if ([sender isKindOfClass: [NSTableView class]])
     return;
 
   if (sender == mTableName) {
