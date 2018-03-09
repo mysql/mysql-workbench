@@ -1,8 +1,8 @@
-mysql-workbench-@edition@ (8.0.5-1@distrov@) @distro@; urgency=low
+mysql-workbench-@edition@ (8.0.11-1@distrov@) @distro@; urgency=low
 
   * New release
 
- -- Milosz Bodzek <milosz.bodzek@oracle.com>  Tue, 05 Dec 2017 10:30:17 +0100
+ -- Mike Lischke <mike.lischke@oracle.com>  Fri, 09 Mar 2018 16:14:21 +0100
 
 mysql-workbench-@edition@ (6.3.11-1@distrov@) @distro@; urgency=low
 
