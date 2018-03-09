@@ -7,7 +7,7 @@ This is a release of [MySQL Workbench](https://mysqlworkbench.org), a graphical 
 License information can be found in the [LICENSE](LICENSE) file.
 
 This distribution may include materials developed by third parties. 
-For license and attribution notices for these materials, please refer to the [LICENSE](LICENSE) file. 
+For license and attribution notices for these materials, please refer to the [License](License.txt) file. 
 
 For more information on MySQL Workbench, visit 
   [http://dev.mysql.com/doc/workbench/en](http://dev.mysql.com/doc/workbench/en)

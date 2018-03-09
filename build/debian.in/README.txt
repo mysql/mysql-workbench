@@ -1,0 +1,17 @@
+Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
+
+This is a release of MySQL Workbench, a MySQL query, managment and EER design tool.
+
+License information can be found in the License.txt file.
+
+This distribution may include materials developed by third parties.
+For license and attribution notices for these materials,
+please refer to the LICENSE file.
+
+For further information on MySQL Workbench or additional documentation, visit
+  http://dev.mysql.com/doc/
+
+For additional downloads and the source of MySQL Workbench, visit
+  http://dev.mysql.com/downloads/
+
+MySQL Workbench is brought to you by the MySQL Workbench team at Oracle.

@@ -50,13 +50,13 @@
 %define commercial       1
 %define lictag           com
 %define license_type     Commercial
-%define license_file     LICENSE.mysql
+%define license_file     License-commercial.txt
 %else
 %define community        1
 %define lictag           gpl
 %define edition          community
 %define license_type     GPLv2
-%define license_file     COPYING
+%define license_file     License.txt
 %endif
 
 %define odbc_home        %{linuxres_binaries}/odbc
