@@ -13,9 +13,9 @@ Replaces: mysql-workbench-gpl, mysql-workbench-oss, mysql-workbench, mysql-workb
 Replaces: mysql-workbench-com-se, mysql-workbench, mysql-workbench-community, mysql-workbench-data
 @endif
 @ifdef paramiko
-Depends: ${shlibs:Depends}, libglib2.0-0 (>= 2.28)
+Depends: ${shlibs:Depends}, ${misc:Depends} libglib2.0-0 (>= 2.28)
 @else
-Depends: ${shlibs:Depends}, python-paramiko (>= 1.15.1), python-crypto, libglib2.0-0 (>= 2.28)
+Depends: ${shlibs:Depends}, ${misc:Depends} python-paramiko (>= 1.15.1), python-crypto, libglib2.0-0 (>= 2.28)
 @endif
 Architecture: i386 amd64
 Suggests: gnome-keyring, libproj-dev
