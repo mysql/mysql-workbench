@@ -228,9 +228,8 @@ echo * README
 xcopy /i /y /d %1README.md %TARGET_DIR%
 
 echo * License
-echo %2
-if %2 == Release_Oss xcopy /i /y /d %1license.txt %TARGET_DIR%
-if not %2 == Release_Oss xcopy /i /y /d %1license-commercial.txt %TARGET_DIR%
+if %2 == Release_OSS xcopy /i /y /d %1license.txt %TARGET_DIR%
+if not %2 == Release_OSS xcopy /i /y /d %1license-commercial.txt %TARGET_DIR%
 
 rem -------------------------------------------------------------------------------
 rem Call sub-scripts
