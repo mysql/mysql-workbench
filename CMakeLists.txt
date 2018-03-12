@@ -319,7 +319,11 @@ endif()
 
 install(FILES ${CMAKE_BINARY_DIR}/mysql-workbench.desktop DESTINATION ${WB_INSTALL_SHARED_DIR}/applications)
 
-install(FILES README.md License.txt DESTINATION ${WB_INSTALL_DOC_DIR})
+if (IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/internal)
+    install(FILES README-commercial.md License-commercial.txt DESTINATION ${WB_INSTALL_DOC_DIR})
+else()
+    install(FILES README.md License.txt DESTINATION ${WB_INSTALL_DOC_DIR})
+endif()
 install(FILES build/mysql-workbench-commercial.sharedmimeinfo DESTINATION ${WB_INSTALL_SHARED_DIR}/mime/packages RENAME mysql-workbench.xml)
 install(FILES build/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHARED_DIR}/mime-info RENAME mysql-workbench.mime)
 
