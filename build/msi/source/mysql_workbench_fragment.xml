@@ -40,7 +40,11 @@
               </Directory>
 
               <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
+                <?if $(var.LICENSE_TYPE) = "community"?>
                 <File Id="README" Name="README.md"/>
+                <?elseif $(var.LICENSE_TYPE) = "commercial"?>
+                <File Id="README" Name="README-commercial.md"/>
+                <?endif ?>
                 <?if $(var.LICENSE_TYPE) = "community"?>
                   <File Id="License.txt" Name="License.txt"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
