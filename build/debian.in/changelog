@@ -4,12 +4,6 @@ mysql-workbench-@edition@ (8.0.11-1@distrov@) @distro@; urgency=low
 
  -- Mike Lischke <mike.lischke@oracle.com>  Fri, 09 Mar 2018 16:14:21 +0100
 
-mysql-workbench-@edition@ (6.3.11-1@distrov@) @distro@; urgency=low
-
-  * New release
-
- -- Milosz Bodzek <milosz.bodzek@oracle.com>  Mon, 09 Oct 2017 09:51:36 +0200
-
 mysql-workbench-@edition@ (6.3.10-1@distrov@) @distro@; urgency=low
 
   * The release notes for MySQL Workbench can be found at
