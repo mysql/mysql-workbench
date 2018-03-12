@@ -99,13 +99,18 @@ def generate_distro(source_dir, vars):
 
         print target_dir, "generated"
 
+if os.path.isdir("../internal"):
+    edition = "commercial"
+else:
+    edition = "community"
+
 for distro, distro_version, version, bundle in output_distros:
-        for edition in editions:
-                vars = {}
-                vars['distro'] = distro
-                vars['distrov'] = distro_version
-                vars['edition'] = edition
-                vars['bundle'] = bundle
-                vars['version'] = version
-                generate_distro("debian.in", vars)
+        #for edition in editions:
+        vars = {}
+        vars['distro'] = distro
+        vars['distrov'] = distro_version
+        vars['edition'] = edition
+        vars['bundle'] = bundle
+        vars['version'] = version
+        generate_distro("debian.in", vars)
 
