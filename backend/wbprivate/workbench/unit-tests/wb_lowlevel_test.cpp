@@ -34,7 +34,6 @@
 #include "grt_test_utility.h"
 #include "wbcanvas/table_figure.h"
 
-#include "wb.model.advfind/wb_find_dialog.h"
 
 using namespace wb;
 
