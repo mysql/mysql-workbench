@@ -225,7 +225,8 @@ if not exist %TARGET_DIR%\extras mkdir %TARGET_DIR%\extras
 xcopy /i /y /d %1samples\models\* %TARGET_DIR%\extras 1> nul 2> nul
 
 echo * README
-xcopy /i /y /d %1README.md %TARGET_DIR%
+if %2 == Release_OSS xcopy /i /y /d %1README.md %TARGET_DIR%
+if not %2 == Release_OSS xcopy /i /y /d %1README-commercial.md %TARGET_DIR%
 
 echo * License
 if %2 == Release_OSS xcopy /i /y /d %1license.txt %TARGET_DIR%
