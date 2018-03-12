@@ -1537,8 +1537,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
               
             return False
         
-        if mysqldump_version < self.owner.ctrl_be.target_version:
-            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is older than the server, some features may not be backed up properly.\nIt is recommended you upgrade your local MySQL client programs, including mysqldump, to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
+        if str(mysqldump_version).split('.')[:2] != str(self.owner.ctrl_be.target_version).split('.')[:2]:
+            msg = "%s is version %s, but the MySQL Server to be dumped has version %s.\nBecause the version of mysqldump is not the same as the server, some features may not be backed up properly.\nIt is recommended you upgrade or downgrade your local MySQL client programs, including mysqldump, to a version equal to or newer than that of the target server.\nThe path to the dump tool must then be set in Preferences -> Administrator -> Path to mysqldump Tool:" % (get_path_to_mysqldump(), mysqldump_version, self.owner.ctrl_be.target_version)
             if about_to_run:
                 if not mforms.Utilities.show_warning("mysqldump Version Mismatch", msg, "Continue Anyway", "Cancel", ""):
                     return False
