@@ -51,12 +51,14 @@
 %define lictag           com
 %define license_type     Commercial
 %define license_file     License-commercial.txt
+%define readme_file      README-commercial.md
 %else
 %define community        1
 %define lictag           gpl
 %define edition          community
 %define license_type     GPLv2
 %define license_file     License.txt
+%define readme_file      README.md
 %endif
 
 %define odbc_home        %{linuxres_binaries}/odbc
@@ -283,7 +285,7 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 
 %files 
 %defattr(0644, root, root, 0755)
-%doc %{license_file} README.md
+%doc %{license_file} %{readme_file}
 
 %attr(0755,root,root) %{_bindir}/mysql-workbench
 %attr(0755,root,root) %{_bindir}/wbcopytables
