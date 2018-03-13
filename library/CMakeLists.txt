@@ -5,7 +5,5 @@ add_subdirectory(forms)
 add_subdirectory(grt)
 add_subdirectory(parsers)
 add_subdirectory(python)
-add_subdirectory(sshtunnel)
 add_subdirectory(sql.parser)
-
 add_subdirectory(mtemplate)

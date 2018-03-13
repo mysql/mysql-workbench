@@ -21,6 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/file_functions.h"
@@ -515,10 +516,11 @@ namespace base {
     return path;
   }
 
-  FileHandle::FileHandle(const char *filename, const char *mode, bool throw_on_fail) : _file(NULL) {
-    _file = base_fopen(filename, mode);
-    if (!_file && throw_on_fail)
+  FileHandle::FileHandle(const std::string &filename, const char* mode, bool throwOnFail) : _file(nullptr) {
+    _file = base_fopen(filename.c_str(), mode);
+    if (!_file && throwOnFail)
       throw file_error(std::string("Failed to open file \"").append(filename).append("\""), errno);
+    _path = filename;
   }
 
   FileHandle &FileHandle::operator=(FileHandle &fh) {
@@ -527,14 +529,26 @@ namespace base {
     return *this;
   }
 
+  FileHandle &FileHandle::operator=(FileHandle &&fh) {
+    dispose();
+    swap(fh);
+    return *this;
+  }
+
+  std::string FileHandle::getPath() const {
+    return _path;
+  }
+
   void FileHandle::swap(FileHandle &fh) {
     std::swap(_file, fh._file);
+    _path = std::move(fh._path);
   }
 
   void FileHandle::dispose() {
     if (_file) {
       ::fclose(_file);
       _file = NULL;
+      _path = "";
     }
   }
 
@@ -634,6 +648,36 @@ namespace base {
 
     return result;
   }
+
+  /**
+   * Returns temporary file with the given prefix.
+   */
+  FileHandle makeTmpFile(const std::string &prefix) {
+    std::string tmp(prefix);
+#if _MSC_VER
+    wchar_t tempPathBuffer[MAX_PATH] = { 0 };
+    DWORD dwRetVal = GetTempPath(MAX_PATH, tempPathBuffer);
+    if (dwRetVal > MAX_PATH || (dwRetVal == 0)) {
+      throw std::runtime_error("GetTempPath failed.");
+    }
+    TCHAR tempFileName[MAX_PATH] = { 0 };
+    UINT  uRetVal = GetTempFileName(tempPathBuffer, TEXT("wb_"), 0, tempFileName);
+    if (uRetVal == 0) {
+      throw std::runtime_error("GetTempFileName failed.");
+    }
+    tmp = base::wstring_to_string(tempFileName);
+#else
+    tmp.append("XXXXXX");
+    int fd = mkstemp(&tmp[0]);
+    if (fd == -1) {
+      throw std::runtime_error("Unable to create temporary file.");
+    }
+    close(fd);
+#endif
+    FileHandle fh(tmp, "w+");
+    return fh;
+  }
+
 
   std::string pathlistAppend(const std::string &l, const std::string &s) {
     if (l.empty())

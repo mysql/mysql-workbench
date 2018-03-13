@@ -1189,11 +1189,27 @@ value = obj.connection
    */
   db_mgmt_ConnectionRef connection() const;
 
+  /** Getter for attribute sshConnection (read-only)
+
+    ssh connection
+   \par In Python:
+value = obj.sshConnection
+   */
+  db_mgmt_SSHConnectionRef sshConnection() const;
 private: // the next attribute is read-only
 public:
+
+  /** Getter for attribute getSSHTunnelPort (read-only)
+
+    get port number used for tunnel
+   \par In Python:
+value = obj.getSSHTunnelPort
+   */
+  grt::IntegerRef getSSHTunnelPort() const;
+
+
   /** Getter for attribute customData (read-only)
-
-
+   *
    \par In Python:
 value = obj.customData
    */
@@ -1542,6 +1558,12 @@ public:
       meta->bind_member("sidebar",
                         new grt::MetaClass::Property<db_query_Editor, mforms_ObjectReferenceRef>(getter, setter));
     }
+
+    meta->bind_member("sshConnection",
+                      new grt::MetaClass::Property<db_query_Editor,db_mgmt_SSHConnectionRef >(&db_query_Editor::sshConnection));
+
+    meta->bind_member("getSSHTunnelPort",
+                      new grt::MetaClass::Property<db_query_Editor,grt::IntegerRef >(&db_query_Editor::getSSHTunnelPort));
     meta->bind_method("addQueryEditor", &db_query_Editor::call_addQueryEditor);
     meta->bind_method("addToOutput", &db_query_Editor::call_addToOutput);
     meta->bind_method("alterLiveObject", &db_query_Editor::call_alterLiveObject);

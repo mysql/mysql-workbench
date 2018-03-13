@@ -197,6 +197,8 @@
     <ClCompile Include="grt\spatial_handler.cpp" />
     <ClCompile Include="grt\tree_model.cpp" />
     <ClCompile Include="grt\validation_manager.cpp" />
+    <ClCompile Include="objimpl\db.mgmt\db_mgmt_SSHConnection.cpp" />
+    <ClCompile Include="objimpl\db.mgmt\db_mgmt_SSHFile.cpp" />
     <ClCompile Include="objimpl\db.migration\db_migration_Migration.cpp" />
     <ClCompile Include="objimpl\db.query\db_query_EditableResultset.cpp" />
     <ClCompile Include="objimpl\db.query\db_query_Editor.cpp" />
@@ -377,6 +379,8 @@
     <ClInclude Include="grt\spatial_handler.h" />
     <ClInclude Include="grt\tree_model.h" />
     <ClInclude Include="grt\validation_manager.h" />
+    <ClInclude Include="objimpl\db.mgmt\db_mgmt_SSHConnection.h" />
+    <ClInclude Include="objimpl\db.mgmt\db_mgmt_SSHFile.h" />
     <ClInclude Include="objimpl\db.query\db_query_EditableResultset.h" />
     <ClInclude Include="objimpl\db.query\db_query_Editor.h" />
     <ClInclude Include="objimpl\db.query\db_query_QueryBuffer.h" />

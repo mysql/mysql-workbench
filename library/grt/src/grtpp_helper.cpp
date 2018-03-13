@@ -69,7 +69,7 @@ static std::string format_type_cpp(const TypeSpec &type, bool unknown_as_void = 
         case ListType:
           return "???? invalid ???";
         case DictType:
-          return "???? invalid ???";
+          return "grt::DictListRef";
         case ObjectType:
           return "grt::ListRef<" + cppize_class_name(type.content.object_class) + ">";
         default:

@@ -70,6 +70,8 @@ class SqlEditorResult;
 typedef std::vector<Recordset::Ref> Recordsets;
 typedef std::shared_ptr<Recordsets> RecordsetsRef;
 
+db_mgmt_ServerInstanceRef getServerInstance(const db_mgmt_ConnectionRef &connection);
+
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorForm : public bec::UIForm,
                                                  grt::GRTObserver,
                                                  public std::enable_shared_from_this<SqlEditorForm>,
@@ -180,6 +182,8 @@ public:
 private:
   int _sql_editors_serial = 0;
   int _scratch_editors_serial = 0;
+  std::shared_ptr<sql::TunnelConnection> _tunnel;
+  db_mgmt_SSHConnectionRef _sshConnection;
 
   void sql_editor_panel_switched();
   void sql_editor_panel_closed(mforms::AppView *view);
@@ -219,6 +223,8 @@ public:
     return _title;
   }
   void update_title();
+
+  int getTunnelPort() const;
 
   std::map<std::string, std::string> &connection_details() {
     return _connection_details;
@@ -276,6 +282,8 @@ public:
   db_mgmt_ConnectionRef connection_descriptor() const {
     return _connection;
   }
+
+  db_mgmt_SSHConnectionRef getSSHConnection();
 
   bool get_session_variable(sql::Connection *dbc_conn, const std::string &name, std::string &value);
 

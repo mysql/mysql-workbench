@@ -16,6 +16,8 @@
               <member name="dockingPoint" type="object" struct-name="mforms.ObjectReference"/>
               <member name="sidebar" type="object" struct-name="mforms.ObjectReference"/>
               <member name="schemaTreeSelection" type="list" content-type="object" content-struct-name="db.query.LiveDBObject" delegate-get="1" calculated="1" read-only="1" />
+              <member name="getSSHTunnelPort" type="int" calculated="1" read-only="1" delegate-get="1" attr:desc="get port number used for tunnel"/>
+              <member name="sshConnection" struct-name="db.mgmt.SSHConnection" type="object" calculated="1" delegate-get="1" read-only="1" attr:desc="ssh connection" />
 
               <method name="executeScript" attr:desc="execute the script passed as argument">
                   <argument name="sql" type="string"/>

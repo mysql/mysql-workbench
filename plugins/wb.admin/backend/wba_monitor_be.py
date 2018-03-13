@@ -152,6 +152,7 @@ class ShellDataSource(DataSource):
 
     def poll(self):
         output = StringIO.StringIO()
+        
         if self.ctrl_be.server_helper.execute_command("/usr/bin/uptime", output_handler=output.write) == 0:
             data = output.getvalue().strip(" \r\t\n,:.").split("\n")[-1]
             self._cpu_stat_return = None
@@ -163,7 +164,7 @@ class ShellDataSource(DataSource):
             except (ValueError, TypeError):
                 log_error("Shell source %s returned wrong value. Expected int or float but got '%s'\n" % (self.name, load_value))
                 result = 0
-
+    
             if self.widget is not None:
                 self.widget.set_value(self.calc_cb(result) if self.calc_cb else result)
                 if self.label_cb is not None:
@@ -196,13 +197,19 @@ class WinRemoteStats(object):
         # where mysql.ini is.
         self.script = None
 
-        self.ssh   = ctrl_be.open_ssh_session_for_monitoring()
-
-        (dirpath, code) = self.ssh.exec_cmd("cmd /C echo %USERPROFILE%") # %APPDATA% is n/a for LocalService
+        if self.ctrl_be.server_profile.uses_ssh:
+            if self.ctrl_be.editor.sshConnection.isConnected() == 0:
+                if self.ctrl_be.editor.sshConnection.connect() != 0:
+                    raise OperationCancelledError("Could not connect to SSH server")
+                self.ssh = sshConnection
+                
+        
+        if self.ssh is not None:
+            dirpath = self.ssh.executeCommand("cmd /C echo %USERPROFILE%") # %APPDATA% is n/a for LocalService
                                                                          # which is a user sshd can be run
         dirpath = dirpath.strip(" \r\t\n")
 
-        if code == 0 and dirpath is not None and dirpath != "%USERPROFILE%":
+        if dirpath is not None and dirpath != "%USERPROFILE%":
             script_path = App.get().get_resource_path("mysql_system_status_rmt.vbs")
             filename = "\"" + dirpath + "\\mysql_system_status_rmt.vbs\""
             log_debug('Script local path is "%s". Will be uploaded to "%s"\n' % (script_path, filename) )
@@ -210,7 +217,7 @@ class WinRemoteStats(object):
                 #print "Uploading file to ", filename
                 try:
                     f = open(script_path)
-                    self.ssh.exec_cmd("cmd /C echo. > " + filename)
+                    self.ssh.executeCommand("cmd /C echo. > " + filename)
                     maxsize = 1800
                     cmd = ""
                     for line in f:
@@ -219,15 +226,15 @@ class WinRemoteStats(object):
                         if len(tline) > 0:
                             if tline[0] != "'":
                                 if len(cmd) > maxsize:
-                                    self.ssh.exec_cmd("cmd /C " + cmd.strip(" &"))
-                                    self.ssh.exec_cmd("cmd /C echo " + line + " >> " + filename)
+                                    self.ssh.executeCommand("cmd /C " + cmd.strip(" &"))
+                                    self.ssh.executeCommand("cmd /C echo " + line + " >> " + filename)
                                     cmd = ""
                                 else:
                                     cmd += "echo " + line + " >> " + filename
                                     cmd += " && "
 
                     if len(cmd) > 0:
-                        self.ssh.exec_cmd("cmd /C " + cmd.strip(" &"))
+                        self.ssh.executeCommand("cmd /C " + cmd.strip(" &"))
                         cmd = ""
 
                     self.script = "cscript //NoLogo " + filename + " /DoStdIn"
@@ -238,11 +245,11 @@ class WinRemoteStats(object):
                     self.chan = None
                     self.out = ""
 
-                    self.read_thread = threading.Thread(target=self.ssh.exec_cmd, args=(self.script, Users.CURRENT, None, self.reader, 1, self.save_channel))
+                    self.read_thread = threading.Thread(target=self.ssh.executeCommand, args=(self.script, Users.CURRENT, None, self.reader, 1, self.save_channel))
                     self.read_thread.setDaemon(True)
                     self.read_thread.start()
                 except IOError, e:
-                    self.ssh.close()
+                    self.ssh.disconnect()
                     self.ssh = None
                     raise e
         else:
@@ -258,7 +265,7 @@ class WinRemoteStats(object):
                     self.read_thread.join()
             except:
                 pass
-            self.ssh.close()
+            self.ssh.disconnect()
             self.ssh = None
 
     #-----------------------------------------------------------------------------

@@ -101,31 +101,7 @@ endif ()
 
 FIND_PROGRAM(PYTHON_EXEC "python2")
 include(FindPackageHandleStandardArgs)
-function(find_python_module module minver)
-        string(TOUPPER ${module} module_upper)
-        if(NOT PY_${module_upper})
-                if(ARGC GREATER 2 AND ARGV2 STREQUAL "REQUIRED")
-                        set(PY_${module}_FIND_REQUIRED TRUE)
-                endif()
-                # A module's location is usually a directory, but for binary modules 
-                # it's a .so file. 
-                execute_process(COMMAND "${PYTHON_EXEC}" "-c" 
-                        "import re, ${module}; print ${module}.__version__ if ${module}.__version__ >= '${minver}' else exit(1)" 
-                        RESULT_VARIABLE _${module}_status 
-                        OUTPUT_VARIABLE _${module}_location 
-                        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-                if(NOT _${module}_status)
-                        set(PY_${module_upper} ${_${module}_location} CACHE STRING 
-                                "Location of Python module ${module}")
-                endif(NOT _${module}_status)
-        endif(NOT PY_${module_upper})
-        find_package_handle_standard_args(PY_${module} DEFAULT_MSG PY_${module_upper})
-endfunction(find_python_module)
 
-find_python_module(paramiko 1.15.1 QUIET)
-if(NOT PY_PARAMIKO)
-  message(WARNING "Paramiko wasn't found, you can still build Workbench, but may not work properly.")
-endif()
 find_package(MySQL 5.6.0 REQUIRED)
 if (UNIX)
 	set(MYSQL_DEFINITIONS "-DBIG_JOINS=1"  "-fno-strict-aliasing")
@@ -141,6 +117,7 @@ find_package(MySQLCppConn 1.1.8 REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
+find_package(LibSSH 0.7.3 REQUIRED)
 
 set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 

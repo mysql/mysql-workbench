@@ -21,6 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+
 #include "base/ui_form.h"
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
@@ -319,8 +320,11 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
     // Fonts only for now in Mac/Linux
     add_page(NULL, _("Fonts"), create_fonts_and_colors_page());
 #endif
-    add_page(NULL, _("Others"), create_others_page());
   }
+
+  add_page(NULL, _("SSH"), createSSHPage());
+
+  add_page(NULL, _("Others"), create_others_page());
 
   _hbox.add(&_top_box, true, true);
   set_content(&_hbox);
@@ -1311,8 +1315,123 @@ mforms::View *PreferencesForm::create_model_page() {
   return top_box;
 }
 
-mforms::View *PreferencesForm::create_others_page() {
-  Box *content = manage(new Box(false));
+mforms::View* PreferencesForm::createSSHPage()
+{
+  Box* content = manage(new Box(false));
+    content->set_spacing(8);
+
+    OptionTable *timeouts_table;
+
+    timeouts_table = mforms::manage(new OptionTable(this, _("Timeouts"), true));
+    content->add(timeouts_table, false, true);
+    {
+      // SSH timeout
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:connectTimeout", 0, 500);
+        entry->set_max_length(5);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_(
+          "Determines how long the process waits for connection until timeout"));
+
+        timeouts_table->add_option(entry, _("SSH Connect Timeout:"),
+          _("SSH connect timeout in seconds."));
+      }
+
+      // SSH readWriteTimeout
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:readWriteTimeout", 0, 500);
+        entry->set_max_length(5);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_(
+          "Determines how long the process waits for i/o"));
+
+        timeouts_table->add_option(entry, _("SSH Read Write Timeout:"),
+          _("SSH Read Write Timeout in second."));
+      }
+
+      // SSH commandtimeout
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:commandTimeout", 0, 500);
+        entry->set_max_length(5);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_(
+          "Determines how long the process waits for a command output.\nThis is also affected by SSH Command Retry Count"));
+
+        timeouts_table->add_option(entry, _("SSH Command timeout:"),
+          _("SSH Command Timeout in second."));
+      }
+
+      // SSH commandtimeout
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:commandRetryCount", 0, 500);
+        entry->set_max_length(5);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_(
+          "Determines how many times we should retry reading command output after specified SSH Command Timeout option."));
+
+        timeouts_table->add_option(entry, _("SSH Command Retry Count:"),
+          _("SSH Command Retry count."));
+      }
+
+      // SSH buffer
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:BufferSize", 0, 500);
+        entry->set_max_length(5);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_("Buffer size used for tunnel data transfer"));
+
+        timeouts_table->add_option(entry, _("SSH BufferSize:"),
+          _("SSH buffer size in bytes."));
+      }
+
+      // SSH buffer
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:maxFileSize", 0, 500);
+        entry->set_max_length(5);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_("Size used to limit transfering of big files"));
+
+        timeouts_table->add_option(entry, _("SSH Maximum File Size:"),
+          _("The maximum file that is allowed to be transfered by SSH."));
+      }
+
+    }
+
+    mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+
+    mforms::Table *ssh_table= mforms::manage(new mforms::Table());
+
+    ssh_table->set_padding(8);
+    ssh_table->set_row_spacing(12);
+    ssh_table->set_column_spacing(8);
+
+    ssh_table->set_row_count(2);
+    ssh_table->set_column_count(3);
+    frame->add(ssh_table);
+    {
+      mforms::FsObjectSelector *pathsel;
+      ssh_table->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+      pathsel= new_path_option("SSH:pathtosshconfig", true);
+      pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH config file."));
+      ssh_table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
+    }
+
+    {
+      mforms::FsObjectSelector *pathsel;
+      ssh_table->add(new_label(_("Path to SSH known hosts file:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+      pathsel= new_path_option("SSH:knownhostsfile", true);
+      pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH known hosts file."));
+      ssh_table->add(pathsel, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
+    }
+
+    content->add(frame, false);
+
+    return content;
+}
+
+mforms::View *PreferencesForm::create_others_page()
+{
+  Box* content = manage(new Box(false));
   content->set_spacing(8);
 
   {
@@ -1335,87 +1454,53 @@ mforms::View *PreferencesForm::create_others_page() {
 
   timeouts_table = mforms::manage(new OptionTable(this, _("Timeouts"), true));
   content->add(timeouts_table, false, true);
+  // migration connection timeout
   {
-    // SSH keepalive
-    {
-      mforms::TextEntry *entry = new_numeric_entry_option("sshkeepalive", 0, 500);
-      entry->set_max_length(5);
-      entry->set_size(50, -1);
+    mforms::TextEntry *entry = new_numeric_entry_option("Migration:ConnectionTimeOut", 0, 3600);
+    entry->set_max_length(5);
+    entry->set_size(50, -1);
+    entry->set_tooltip(_("The interval in seconds before connection is aborted."));
 
-      entry->set_tooltip(
-        _("The interval in seconds without sending any data over the connection, a \"keep alive\" packet will be sent. "
-          "This option will apply to both SSH tunnel connections and remote management via SSH."));
-
-      timeouts_table->add_option(entry, _("SSH KeepAlive:"),
-                                 _("SSH keep-alive interval in seconds. Use 0 to disable."));
-    }
-
-    // SSH timeout
-    {
-      mforms::TextEntry *entry = new_numeric_entry_option("sshtimeout", 0, 500);
-      entry->set_max_length(5);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_("Determines how long the process waits for a result."));
-
-      timeouts_table->add_option(entry, _("SSH Timeout:"),
-                                 _("SSH timeout in seconds. Used only in Online Backup/Restore"));
-    }
-
-    // migration connection timeout
-    {
-      mforms::TextEntry *entry = new_numeric_entry_option("Migration:ConnectionTimeOut", 0, 3600);
-      entry->set_max_length(5);
-      entry->set_size(50, -1);
-      entry->set_tooltip(_("The interval in seconds before connection is aborted."));
-
-      timeouts_table->add_option(entry, _("Migration Connection Timeout:"),
-                                 _("Maximum time to wait before a connection is aborted."));
-    }
+    timeouts_table->add_option(entry, _("Migration Connection Timeout:"),
+      _("Maximum time to wait before a connection is aborted."));
   }
+
+  mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
+  mforms::Table *optable = mforms::manage(new mforms::Table());
+
+  optable->set_padding(8);
+  optable->set_row_spacing(12);
+  optable->set_column_spacing(8);
+
+  optable->set_row_count(2);
+  optable->set_column_count(3);
+  frame->add(optable);
+
+  {
+    optable->add(new_label(_("URL location to display geometry point:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+    auto opt = new_entry_option("SqlEditor:geographicLocationURL", false);
+    opt->set_tooltip("The URL to a geographic services to be used for showing a point on an earth map.\nUse %LAT% and %LON% as a placeholder for Latitude and Longitude.");
+    optable->add(opt, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
+  }
+
+  content->add(frame, false);
+
 
 #ifdef _WIN32
   OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
   content->add(table, false, true);
   {
-    table->add_checkbox_option(
-      "DisableSingleInstance", _("Allow more than one instance of MySQL Workbench to run"),
+    table->add_checkbox_option("DisableSingleInstance", _("Allow more than one instance of MySQL Workbench to run"),
       _("By default only one instance of MySQL Workbench can run at the same time. This is more resource friendly "
         "and necessary as multiple instances share the same files (settings etc.). Change at your own risk."));
   }
 #endif
 
-  {
-    mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
-    mforms::Table *optable = mforms::manage(new mforms::Table());
-
-    optable->set_padding(8);
-    optable->set_row_spacing(12);
-    optable->set_column_spacing(8);
-
-    optable->set_row_count(2);
-    optable->set_column_count(3);
-    frame->add(optable);
-    {
-      mforms::FsObjectSelector *pathsel;
-      optable->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
-      pathsel= new_path_option("pathtosshconfig", true);
-      pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH config file."));
-      optable->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
-    }
-
-    {
-      optable->add(new_label(_("URL location to display geometry point:"), true), 0, 1, 1, 2, mforms::HFillFlag);
-      auto opt = new_entry_option("SqlEditor:geographicLocationURL", false);
-      opt->set_tooltip("The URL to a geographic services to be used for showing a point on an earth map.\nUse %LAT% and %LON% as a placeholder for Latitude and Longitude.");
-      optable->add(opt, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
-    }
-
-    content->add(frame, false);
-  }
   createLogLevelSelectionPulldown(content);
 
   return content;
 }
+
 
 void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content) {
   OptionTable *logTable = mforms::manage(new OptionTable(this, _("Logs"), true));

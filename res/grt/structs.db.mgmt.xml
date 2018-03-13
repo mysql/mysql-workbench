@@ -93,6 +93,119 @@
               <member name="isDefault" type="int"/>
           </members>
       </gstruct>
+      
+      <gstruct name="db.mgmt.SSHConnection" parent="GrtObject" impl-data="1" attr:desc="a proxy to and instance that provide access to remote server. This object cannot be instantiated directly.">
+          <members>
+              <method name="isConnected" attr:desc="check if connection is active">
+                <return type="int" />
+              </method>
+              <method name="executeCommand" attr:desc="execute command on the remote server">
+                  <argument name="text" type="string" attr:desc="the command to be executed on the server"/>
+                  <return type="string" attr:desc="command output"/>
+              </method>
+              <method name="executeSudoCommand" attr:desc="execute command on the remote server using sudo">
+                  <argument name="text" type="string" attr:desc="the command to be executed on the server"/>
+                  <return type="string" attr:desc="command output"/>
+              </method>
+              <method name="connect"  attr:desc="make connection to remote server">
+                  <return type="int"/>
+              </method>
+              
+              <method name="cd" attr:desc="change current working directory">
+                <argument name="directory" type="string" attr:desc="new location" />
+                <return type="int" attr:desc="indicator whenever change was successfull"/>
+              </method>
+              
+              <method name="pwd" attr:desc="get current working directory">
+                <return type="string" attr:desc="current working directory"/>
+              </method>
+              
+              <method name="mkdir" attr:desc="create new directory on remote host">
+                <argument name="directory" type="string" attr:desc="new directory name or absolute path to the new directory" />
+                <return type="void" />
+              </method>
+              
+              <method name="rmdir" attr:desc="remove remote directory">
+                <argument name="directory" type="string" attr:desc="directory name or absolute path to the directory" />
+                <return type="void" />
+              </method>
+              
+              <method name="unlink" attr:desc="remove remote file">
+                <argument name="file" type="string" attr:desc="filename or absolute path to the file" />
+                <return type="void" />
+              </method>
+              
+              <method name="get" attr:desc="download remote file">
+                <argument name="src" type="string" attr:desc="remote file path" />
+                <argument name="dest" type="string" attr:desc="local file path" />
+                <return type="void" />
+              </method>
+              
+              <method name="getContent" attr:desc="fetch remote file into variable">
+                <argument name="src" type="string" attr:desc="remote file path" />
+                <return type="string" attr:desc="remote file content"/>
+              </method>
+              
+              <method name="setContent" attr:desc="create remote file with content">
+                <argument name="path" type="string" attr:desc="remote file path"/>
+                <argument name="content" type="string" attr:desc="remote file content"/>
+                <return type="void" />
+              </method>
+              
+              <method name="put" attr:desc="upload file to remote location">
+                <argument name="src" type="string" attr:desc="local file path" />
+                <argument name="dest" type="string" attr:desc="remote file path" />
+                <return type="void" />
+              </method>
+              
+              <method name="stat" attr:desc="get remote path details">
+                <argument name="path" type="string" attr:desc="path to remote directory or file" />
+                <return type="dict" attr:desc="Dict object with file attributes" />
+              </method>
+
+              <method name="fileExists" attr:desc="check if given filename exists">
+                <argument name="path" type="string" attr:desc="path to remote file" />
+                <return type="int" attr:desc="indicator whenever file exists"/>
+              </method>
+
+              
+              <method name="ls" attr:desc="list remote directory contents">
+                <argument name="path" type="string" attr:desc="remote location" />
+                <return type="list" content-type="dict"/>
+              </method>
+              
+              <method name="open" attr:desc="open remote file">
+                <argument name="path" type="string" attr:desc="remote file location" />
+                <return type="object" struct-name="db.mgmt.SSHFile" />
+              </method>
+              
+              <method name="disconnect" attr:desc="disconnect ssh connection">
+                <return type="void" />
+              </method>
+          </members>
+      </gstruct>
+      
+      <gstruct name="db.mgmt.SSHFile" parent="GrtObject" impl-data="1" attr:desc="a proxy to and instance that provide access to remote file. This object cannot be instantiated directly.">
+        <members>
+          <method name="tell" attr:desc="return the file's current position.">
+            <return type="int" />
+          </method>
+          <method name="seek" attr:desc="reposition the file's current position.">
+            <argument name="offset" type="int" />
+            <return type="int" />
+          </method>
+          <method name="read" attr:desc="read up to length bytes from this file.">
+            <argument name="length" type="int" />
+            <return type="string" />
+          </method>
+          <method name="readline" attr:desc="read from file until line termination is found '\n'">
+            <return type="string" />
+          </method>
+          <method name="getPath" attr:desc="get path for the file">
+            <return type="string" />
+          </method>
+        </members>
+      </gstruct>
 
       <gstruct name="db.mgmt.ServerInstance" parent="GrtObject" attr:desc="DB server connection and management information">
           <members>

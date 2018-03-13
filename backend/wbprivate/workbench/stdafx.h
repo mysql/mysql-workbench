@@ -22,7 +22,6 @@
  */
 
 #pragma once
-
 #define HAVE_ROUND
 #include <Python/Python.h>
 
@@ -35,6 +34,7 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winsock2.h>
 
 #include <list>
 #include <vector>
@@ -73,3 +73,5 @@
 #include "grts/structs.model.h"
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.db.query.h"
+
+#include <cstring>

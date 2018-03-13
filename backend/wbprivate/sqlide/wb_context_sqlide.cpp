@@ -41,6 +41,7 @@
 #include "workbench/wb_context.h"
 #include "workbench/wb_context_ui.h"
 #include "workbench/wb_command_ui.h"
+#include "workbench/SSHSessionWrapper.h"
 
 #include "sqlide/wb_context_sqlide.h"
 #include "sqlide/wb_sql_editor_form.h"
@@ -114,6 +115,20 @@ public:
     if (ref)
       return _editor->connection_descriptor();
     return db_mgmt_ConnectionRef();
+  }
+
+  virtual db_mgmt_SSHConnectionRef sshConnection() const {
+    std::shared_ptr<SqlEditorForm> ref(_editor);
+    if (ref)
+      return _editor->getSSHConnection();
+    return db_mgmt_SSHConnectionRef();
+  }
+
+  virtual grt::IntegerRef getSSHTunnelPort() const {
+    std::shared_ptr<SqlEditorForm> ref(_editor);
+    if (ref)
+      return _editor->getTunnelPort();
+    return -1;
   }
 
   virtual grt::IntegerRef isConnected() const {
@@ -799,15 +814,6 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor) {
         bec::GRTManager::get()->replace_status_text("Connection reopened.");
       else {
         bec::GRTManager::get()->replace_status_text("Could not reconnect.");
-        if (tunnel.get()) {
-          // check whether this was a tunnel related error
-          std::string type, message;
-          while (tunnel->get_message(type, message)) {
-            logDebug("From tunnel %s: %s\n", type.c_str(), message.c_str());
-            if (type == "ERROR")
-              mforms::Utilities::show_error("Reconnect", "Tunnel error: " + message, "OK");
-          }
-        }
       }
     }
   } catch (std::exception &exc) {
@@ -831,16 +837,9 @@ static void *connect_editor(SqlEditorForm::Ref editor, std::shared_ptr<sql::Tunn
   } catch (grt::user_cancelled &) {
     logInfo("User cancelled connection\n");
     return new std::string(":CANCELLED");
-  } catch (std::exception &exc) {
-    if (tunnel.get()) {
-      // check whether this was a tunnel related error
-      std::string type, message;
-      while (tunnel->get_message(type, message)) {
-        logDebug("From tunnel %s: %s\n", type.c_str(), message.c_str());
-        if (type == "ERROR")
-          return new std::string("Tunnel error: " + message);
-      }
-    }
+  }
+  catch (std::exception &exc)
+  {
     logError("Got an exception during connection: %s\n", exc.what());
     return new std::string(exc.what());
   }

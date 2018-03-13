@@ -135,7 +135,7 @@ std::string grt::fmt_type_spec(const TypeSpec &type) {
         case ListType:
           return "???? invalid ???";
         case DictType:
-          return "???? invalid ???";
+          return "list<dict>";
         case ObjectType:
           return "list<" + type.content.object_class + ">";
         default:

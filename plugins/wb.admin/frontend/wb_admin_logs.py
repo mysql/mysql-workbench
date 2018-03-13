@@ -532,6 +532,11 @@ class WbAdminLogs(WbAdminTabBase):
     @classmethod
     def identifier(cls):
         return "admin_server_logs"
+    
+    def shutdown(self):
+        self.general_file_log_tab = None
+        self.slow_file_log_tab = None
+        self.error_file_log_tab = None
 
     def __init__(self, ctrl_be, instance_info, main_view):
         WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
@@ -582,13 +587,18 @@ class WbAdminLogs(WbAdminTabBase):
 
                 if 'FILE' in self.instance_info.log_output and 'TABLE' in self.instance_info.log_output:
                     def open_remote_file(path):
-                        import wb_admin_ssh, wb_server_control
-                        ssh = wb_admin_ssh.WbAdminSSH()
-                        ssh.wrapped_connect(self.instance_info, wb_server_control.PasswordHandler(self.instance_info))
-                        sftp = ssh.client.open_sftp()
-                        if not ssh.is_connected():
-                            raise IOError, ''
-                        sftp.open(path)
+                        import wb_server_control
+                        
+                        try:
+                            ssh = self.ctrl_be.ssh.WbAdminSSH()
+                            ssh.wrapped_connect(self.server_profile, wb_server_control.PasswordHandler(self.server_profile))
+                            if ssh.isConnected() == 1:
+                                ssh.open(path)
+                                ssh.close()
+                            return True
+                        except Exception:
+                            log_error("Error opening remote file: %s\n", path)
+                            return False
 
                     # Can't read logs from files if admin is disabled:
                     if not self.instance_info.admin_enabled:

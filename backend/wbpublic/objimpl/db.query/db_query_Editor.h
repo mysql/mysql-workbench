@@ -39,6 +39,8 @@ public:
   virtual ~ImplData() {
   }
   virtual db_mgmt_ConnectionRef connection() const = 0;
+  virtual db_mgmt_SSHConnectionRef sshConnection() const = 0;
+  virtual grt::IntegerRef getSSHTunnelPort() const = 0;
   virtual grt::IntegerRef isConnected() const = 0;
   virtual db_query_QueryEditorRef addQueryEditor() = 0;
   virtual grt::IntegerRef addToOutput(const std::string &text, long bringToFront) = 0;

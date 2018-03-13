@@ -146,6 +146,8 @@ add_library(wbpublic
     objimpl/db.query/db_query_Editor.cpp
     objimpl/db.query/db_query_EditableResultset.cpp
     objimpl/db.migration/db_migration_Migration.cpp
+    objimpl/db.mgmt/db_mgmt_SSHConnection.cpp
+    objimpl/db.mgmt/db_mgmt_SSHFile.cpp
     objimpl/ui/ui_db_ConnectPanel.cpp
     objimpl/ui/ui_ObjectEditor.cpp
     objimpl/ui/ui_ObjectEditor_impl.cpp

@@ -19,10 +19,12 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from wb import DefineModule, wbinputs
-import grt
+
 import os
 import sys
+from wb import DefineModule, wbinputs
+import grt
+
 
 from mforms import Utilities, newButton, newLabel, newBox
 import mforms
@@ -30,7 +32,6 @@ import mforms
 import wb_admin_main
 import wb_admin_utils
 import wba_ssh_ui
-import wb_admin_ssh
 import wb_admin_control
 from wb_server_control import PasswordHandler
 from wb_server_control import ServerProfile
@@ -73,7 +74,7 @@ from workbench.log import log_info, log_warning, log_error, log_debug, log_debug
 
 
 # define this Python module as a GRT module
-ModuleInfo = DefineModule(name= "WbAdmin", author= "Oracle Corp.", version="2.0")
+ModuleInfo = DefineModule(name="WbAdmin", author="Oracle Corp.", version="2.0")
 
 class DBError(Exception):
     pass
@@ -112,7 +113,7 @@ class AdministratorContext:
 
         self.sidebar.add_on_section_command_callback(self._sidebar_entry_clicked)
 
-        self.sidebar_sections = [("wba_management", "MANAGEMENT", []), ("wba_instance", "INSTANCE", []),  ("wba_performance", "PERFORMANCE", [])]
+        self.sidebar_sections = [("wba_management", "MANAGEMENT", []), ("wba_instance", "INSTANCE", []), ("wba_performance", "PERFORMANCE", [])]
 
         self.shown_in_sidebar = False
 
@@ -177,10 +178,6 @@ class AdministratorContext:
                 self.ctrl_be.acquire_admin_access()
                 mforms.App.get().set_status_text("Management support for target host enabled successfully.")
                 return True
-            except wb_admin_ssh.ConnectionError, exc:
-                self.admin_access_status = "Remote management capabilities are currently unavailable.\nSSH connection could not be established\n\n%s" % str(exc)
-                Utilities.show_error("Error opening SSH connection to server (%s@%s)" % (self.instance_profile.loginInfo["ssh.userName"], self.instance_profile.loginInfo["ssh.hostName"]), str(exc), "OK", "", "")
-                return None
             except OperationCancelledError, exc:
                 self.admin_access_status = "Remote management capabilities are currently unavailable.\nSSH connection was cancelled"
                 mforms.App.get().set_status_text("Cancelled SSH connection (%s)"%exc)
@@ -346,7 +343,7 @@ class AdministratorContext:
             self.sidebar_sections.append((name, title, []))
 
 
-    def register_page(self, page_class, section_id, title, needs_remote_access = False):
+    def register_page(self, page_class, section_id, title, needs_remote_access=False):
         if not section_id:
             section_id = "wba_management" # the default
 
@@ -406,7 +403,7 @@ def attachToSQLEditor(name, sender, args):
         context = AdministratorContext(sender)
         sender.customData["adminContext"] = grt.togrt(context)
         if sender.isConnected <= 0:
-            ignore = mforms.Utilities.add_timeout(0.1, lambda:context.open_into_section("admin_server_status", True))
+            ignore = mforms.Utilities.add_timeout(0.1, lambda: context.open_into_section("admin_server_status", True))
             del ignore
 
 #-------------------------------------------------------------------------------
@@ -422,8 +419,8 @@ def initialize():
 
     # register ourselves for when SQL Editor tabs are opened
     nc = NotificationCenter()
-    nc.add_observer(attachToSQLEditor, name = "GRNSQLEditorOpened")
-    nc.add_observer(handleReconnect, name = "GRNSQLEditorReconnected")
+    nc.add_observer(attachToSQLEditor, name="GRNSQLEditorOpened")
+    nc.add_observer(handleReconnect, name="GRNSQLEditorReconnected")
 
     return 1
 
@@ -628,7 +625,7 @@ class PasswordExpiredDialog(mforms.Form):
             retry = False
             result = 1
 
-            c = MySQLConnection(con, password = self.old_password.get_string_value())
+            c = MySQLConnection(con, password=self.old_password.get_string_value())
             # connect to server so that preInitScript will do the password reset work
             try:
                 log_info("About to connecto to MySQL Server to change expired password")
@@ -684,14 +681,14 @@ def testInstanceSettingByName(what, connection, server_instance):
         log_info("Instance test: Connecting to %s\n" % profile.ssh_hostname)
 
         try:
-            test_ssh_connection = wb_admin_control.WbAdminControl(profile, None, connect_sql=False, test_only = True)
+            test_ssh_connection = wb_admin_control.WbAdminControl(profile, None, connect_sql=False, test_only=True)
             test_ssh_connection.init()
-                
+
             grt.send_info("connected.")
         except Exception, exc:
-            log_error("Exception: %s" % exc.message)
+            log_error("Exception: %s\n" % exc.message)
             import traceback
-            log_debug2("Backtrace was: " % traceback.format_stack())
+            log_debug2("Backtrace was: ", traceback.format_stack())
             return "ERROR "+str(exc)
         except:
             return "ERROR"
@@ -699,7 +696,8 @@ def testInstanceSettingByName(what, connection, server_instance):
         try:
             test_ssh_connection.acquire_admin_access()
         except Exception, exc:
-            log_error("Exception: %s" % exc.message)
+            
+            log_error("Exception: %s\n" % exc.message)
             import traceback
             log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
@@ -780,7 +778,7 @@ def testInstanceSettingByName(what, connection, server_instance):
 
     elif what == "check_admin_commands":
         path = profile.start_server_cmd
-        cmd_start= None
+        cmd_start = None
         if path.startswith("/"):
             cmd_start = path.split()[0]
             if not test_ssh_connection.ssh.file_exists(cmd_start):
@@ -796,7 +794,7 @@ def testInstanceSettingByName(what, connection, server_instance):
 
     elif what == "check_admin_commands/local":
         path = profile.start_server_cmd
-        cmd_start= None
+        cmd_start = None
         if path.startswith("/"):
             cmd_start = path.split()[0]
             if not os.path.exists(cmd_start):

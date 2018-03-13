@@ -49,7 +49,6 @@ namespace sql {
     virtual void connect(db_mgmt_ConnectionRef connectionProperties) = 0;
     virtual void disconnect() = 0;
     virtual int get_port() = 0;
-    virtual bool get_message(std::string &type, std::string &message) = 0;
     virtual ~TunnelConnection(){};
   };
 
@@ -208,7 +207,6 @@ namespace sql {
     bool autocommit_mode;
     bool is_stop_query_requested;
   };
-
 } // namespace sql
 
 #endif // _DRIVER_MANAGER_H_

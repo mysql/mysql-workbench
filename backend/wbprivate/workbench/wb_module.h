@@ -27,7 +27,7 @@
 #include "grtpp_module_cpp.h"
 
 #include "wb_context.h"
-
+#include "grts/structs.db.mgmt.h"
 #include "interfaces/plugin.h"
 
 #ifdef _WIN32
@@ -162,7 +162,8 @@ namespace wb {
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::create_connection),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::initializeOtherRDBMS),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::deleteConnection),
-      DECLARE_MODULE_FUNCTION(WorkbenchImpl::deleteConnectionGroup));
+      DECLARE_MODULE_FUNCTION(WorkbenchImpl::deleteConnectionGroup),
+      DECLARE_MODULE_FUNCTION(WorkbenchImpl::createSSHSession));
 
   protected:
     virtual void initialization_done() override {
@@ -326,6 +327,7 @@ namespace wb {
     std::string getVideoAdapter();
     std::string getFullVideoAdapterInfo(bool indent);
     int initializeOtherRDBMS();
+    db_mgmt_SSHConnectionRef createSSHSession(const grt::ObjectRef &val);
     int deleteConnection(const db_mgmt_ConnectionRef &connection);
     int deleteConnectionGroup(const std::string &group);
   };

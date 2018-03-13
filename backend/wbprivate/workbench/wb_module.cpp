@@ -49,6 +49,7 @@
 #include "base/string_utilities.h"
 #include "base/util_functions.h"
 #include "grtdb/db_helpers.h"
+#include "SSHSessionWrapper.h"
 
 using namespace wb;
 using namespace grt;
@@ -2008,6 +2009,29 @@ int WorkbenchImpl::initializeOtherRDBMS() {
   _wb->load_other_connections();
 
   return 1;
+}
+
+db_mgmt_SSHConnectionRef WorkbenchImpl::createSSHSession(const grt::ObjectRef &val) {
+
+  if (!db_mgmt_ConnectionRef::can_wrap(val) && !db_mgmt_ServerInstanceRef::can_wrap(val)) {
+    logError("Invalid argument, Connection or ServerInstace is required.\n");
+    return db_mgmt_SSHConnectionRef();
+  }
+
+  try {
+    db_mgmt_SSHConnectionRef object(grt::Initialized);
+    object->owner(wb::WBContextUI::get()->get_wb()->get_root());
+    object->name("SSHSession");
+    if (db_mgmt_ConnectionRef::can_wrap(val))
+      object->set_data(new ssh::SSHSessionWrapper(db_mgmt_ConnectionRef::cast_from(val)));
+    else
+      object->set_data(new ssh::SSHSessionWrapper(db_mgmt_ServerInstanceRef::cast_from(val)));
+
+    return object;
+  } catch (std::runtime_error &re) {
+    logError("Unable to create db_mgmt_SSHConnectionRef object.\n");
+  }
+  return db_mgmt_SSHConnectionRef();
 }
 
 /**

@@ -38,9 +38,10 @@
 #endif
 
 #include <sstream>
-#include "boost/scoped_array.hpp"
 
 #include "base/log.h"
+#include "SSHSession.h"
+#include "SSHSessionWrapper.h"
 
 DEFAULT_LOG_DOMAIN("SSH tunnel")
 
@@ -49,34 +50,41 @@ using namespace base;
 
 class tunnel_auth_error : public std::runtime_error {
 public:
-  tunnel_auth_error(const std::string &err) : std::runtime_error(err) {
+  tunnel_auth_error(const std::string &err)
+      : std::runtime_error(err) {
   }
 };
 
 class tunnel_auth_retry : public std::runtime_error {
 public:
-  tunnel_auth_retry(const std::string &err) : std::runtime_error(err) {
+  tunnel_auth_retry(const std::string &err)
+      : std::runtime_error(err) {
   }
 };
 
 class tunnel_auth_cancelled : public std::runtime_error {
 public:
-  tunnel_auth_cancelled(const std::string &err) : std::runtime_error(err) {
+  tunnel_auth_cancelled(const std::string &err)
+      : std::runtime_error(err) {
   }
 };
 
 class tunnel_auth_key_error : public std::runtime_error {
 public:
-  tunnel_auth_key_error(const std::string &err) : std::runtime_error(err) {
+  tunnel_auth_key_error(const std::string &err)
+      : std::runtime_error(err) {
   }
 };
 
 class SSHTunnel : public sql::TunnelConnection {
   TunnelManager *_tm;
   int _port;
+  ssh::SSHConnectionConfig _config;
 
 public:
-  SSHTunnel(TunnelManager *tm, int port) : _tm(tm), _port(port) {
+  SSHTunnel(TunnelManager *tm, int port, const ssh::SSHConnectionConfig &config)
+      : _tm(tm), _port(port), _config(config) {
+    _tm->portUsageIncrement(_config);
   }
 
   virtual ~SSHTunnel() {
@@ -90,341 +98,162 @@ public:
   virtual void connect(db_mgmt_ConnectionRef connectionProperties) {
     if (_port == 0)
       throw std::runtime_error("Could not connect SSH tunnel");
-
-    _tm->wait_tunnel(_port);
-
-    /*
-    if (!g_str_has_prefix(result.c_str(), "OK"))
-    {
-      if (g_str_has_prefix(result.c_str(), "Private key file is encrypted"))
-      {
-        std::string password;
-        _tm->wb()->request_input("Enter passphrase for key", 1, password);
-        if (!password.empty())
-        {
-          grt::DictRef parameter_values= connectionProperties->parameterValues();
-          parameter_values["sshPassword"]= grt::StringRef(password);
-          connect(connectionProperties);
-          return;
-        }
-      }
-
-      throw std::runtime_error("Could not connect SSH tunnel: "+result);
-    }*/
   }
 
   virtual void disconnect() {
-  }
-
-  virtual bool get_message(std::string &type, std::string &message) {
-    return _tm->get_message_for(_port, type, message);
+    _tm->portUsageDecrement(_config);
   }
 };
 
-TunnelManager::TunnelManager(wb::WBContext *wb) : _wb(wb) {
+TunnelManager::TunnelManager()
+    : _manager(nullptr) {
 }
 
 void TunnelManager::start() {
-  std::string progpath = base::makePath(bec::GRTManager::get()->get_basedir(), "sshtunnel.py");
+  if (_manager == nullptr)
+    _manager = new ssh::SSHTunnelManager();
 
-  WillEnterPython lock;
-  grt::PythonContext *py = grt::PythonContext::get();
-  if (py->run_file(progpath, false) < 0) {
-    g_warning("Tunnel manager could not be executed");
-    throw std::runtime_error("Cannot start SSH tunnel manager");
+  if (!_manager->isRunning()) {
+    logInfo("Starting tunnel\n");
+    _manager->start();
   }
-  _tunnel = py->eval_string("TunnelManager()");
-}
-
-int TunnelManager::lookup_tunnel(const char *server, const char *username, const char *target) {
-  WillEnterPython lock;
-
-  // Note: without the (char*) cast gcc will complain about passing a const char* to a char*.
-  //       Ideally the function signature should be changed to take a const char*.
-  PyObject *ret = PyObject_CallMethod(_tunnel, (char *)"lookup_tunnel", (char *)"sss", server, username, target);
-  if (!ret) {
-    PyErr_Print();
-    return -1;
-  }
-  if (ret == Py_None) {
-    Py_XDECREF(ret);
-    return -1;
-  }
-  int port = (int)PyInt_AsLong(ret);
-  Py_XDECREF(ret);
-  return port;
 }
 
 void TunnelManager::shutdown() {
-  WillEnterPython lock;
-  if (_tunnel) {
-    PyObject *ret = PyObject_CallMethod(_tunnel, (char *)"shutdown", NULL);
-    if (!ret) {
-      PyErr_Print();
-      return;
-    }
-    Py_XDECREF(ret);
+  if (_manager != nullptr) {
+    _manager->setStop();
+    _manager->pokeWakeupSocket();
   }
 }
 
-int TunnelManager::open_tunnel(const char *server, const char *username, const char *password, const char *keyfile,
-                               const char *target) {
-  WillEnterPython lock;
-  PyObject *ret =
-    PyObject_CallMethod(_tunnel, (char *)"open_tunnel", (char *)"sssss", server, username, password, keyfile, target);
-  if (!ret) {
-    PyErr_Print();
-    throw std::runtime_error("Error calling TunnelManager.open_tunnel");
-  }
-  if (PyTuple_Size(ret) != 2) {
-    Py_XDECREF(ret);
-    throw std::runtime_error("TunnelManager.open_tunnel returned invalid value");
-  }
-
-  PyObject *status = PyTuple_GetItem(ret, 0);
-  PyObject *value = PyTuple_GetItem(ret, 1);
-
-  if (status == Py_False) {
-    char *error = PyString_AsString(value);
-    Py_XDECREF(ret);
-
-    if (g_str_has_prefix(error, "Authentication error"))
-      throw tunnel_auth_error(error);
-
-    throw std::runtime_error(error);
+void TunnelManager::portUsageIncrement(const ssh::SSHConnectionConfig &config) {
+  logDebug2("Increment port usage count: %d\n", config.localport);
+  base::MutexLock lock(_usageMapMtx);
+  auto it = _portUsage.find(config.localport);
+  if (it != _portUsage.end()) {
+    g_atomic_int_inc(&it->second.second);
   } else {
-    int port = (int)PyInt_AsLong(value);
-    Py_XDECREF(ret);
-    return port;
+    _portUsage.insert( { config.localport, { config, base::refcount_t(1) } });
   }
 }
 
-void TunnelManager::wait_tunnel(int port) {
-  WillEnterPython lock;
-
-  logDebug("Waiting on tunnel to connect...\n");
-
-  PyObject *ret = PyObject_CallMethod(_tunnel, (char *)"wait_connection", (char *)"i", port);
-  if (!ret) {
-    PyErr_Print();
-    logError("TunnelManager.wait_connection had an uncaught python exception\n");
-    throw std::runtime_error("Error calling TunnelManager.wait_connection");
+void TunnelManager::portUsageDecrement(const ssh::SSHConnectionConfig &config) {
+  logDebug2("Decrement port usage count: %d\n", config.localport);
+  base::MutexLock lock(_usageMapMtx);
+  auto it = _portUsage.find(config.localport);
+  if (it != _portUsage.end()) {
+    if (g_atomic_int_dec_and_test(&it->second.second)) {
+      if (_manager != nullptr)
+        _manager->disconnect(config);
+      _portUsage.erase(it);
+    }
   }
-  if (ret == Py_None) {
-    logInfo("TunnelManager.wait_connection returned OK\n");
-    Py_XDECREF(ret);
-    return;
-  }
-  std::string str = PyString_AsString(ret);
-  Py_XDECREF(ret);
-
-  logDebug("TunnelManager.wait_connection() returned %s\n", str.c_str());
-
-  if (g_str_has_prefix(str.c_str(), "Bad authentication type") ||
-      g_str_has_prefix(str.c_str(), "Private key file is encrypted") ||
-      g_str_has_prefix(str.c_str(), "Authentication failed"))
-    throw tunnel_auth_error(
-      "Authentication error. Please check that your username and password are correct and try again."
-      "\nDetails (Original exception message):\n" +
-      str);
-
-  if (g_str_has_prefix(str.c_str(), "Server key has been stored")) {
-    logInfo("TunnelManager.wait_connection server key stored, retrying: %s\n", str.c_str());
-    throw tunnel_auth_retry("Retry due to fingerprint missing, user accept new fingerprint");
-  }
-
-  if (g_str_has_prefix(str.c_str(), "Host key for server ")) {
-    logInfo("TunnelManager.wait_connection host key does not match, abandoning connection: %s\n", str.c_str());
-    throw tunnel_auth_key_error(str);
-  }
-
-  if (g_str_has_prefix(str.c_str(), "User cancelled")) {
-    logInfo("TunnelManager.wait_connection cancelled by the user: %s\n", str.c_str());
-    throw tunnel_auth_cancelled("Tunnel connection cancelled by the user");
-  }
-  if (g_str_has_prefix(str.c_str(), "IO Error")) {
-    logError("TunnelManager.wait_connection got IOError: %s\n", str.c_str());
-    throw tunnel_auth_key_error(str);
-  }
-
-  if (g_str_has_prefix(str.c_str(), "Authentication error")) {
-    logInfo("TunnelManager.wait_connection authentication error: %s\n", str.c_str());
-    throw tunnel_auth_error(str);
-  }
-
-  throw std::runtime_error("Error connecting SSH tunnel: " + str);
 }
 
-bool TunnelManager::get_message_for(int port, std::string &type, std::string &message) {
-  std::list<std::pair<std::string, std::string> > messages;
-
-  WillEnterPython lock;
-
-  PyObject *ret = PyObject_CallMethod(_tunnel, (char *)"get_message", (char *)"i", port);
-  if (!ret) {
-    PyErr_Print();
-    logError("TunnelManager.get_message had an uncaught python exception\n");
-    throw std::runtime_error("Error calling TunnelManager.get_message");
-  }
-  if (ret == Py_None) {
-    Py_XDECREF(ret);
-    return false;
-  }
-
-  if (!PyTuple_Check(ret) || PyTuple_GET_SIZE(ret) != 2) {
-    Py_XDECREF(ret);
-    logError("TunnelManager.get_message returned unexpected value\n");
-    return false;
-  }
-
-  PyObject *obj = PyTuple_GetItem(ret, 0);
-  if (obj && PyString_Check(obj))
-    type = PyString_AsString(obj);
-
-  obj = PyTuple_GetItem(ret, 1);
-  if (obj && PyString_Check(obj))
-    message = PyString_AsString(obj);
-
-  Py_XDECREF(ret);
-
-  return true;
-}
-
-void TunnelManager::set_keepalive(int port, int keepalive) {
-  WillEnterPython lock;
-  PyObject *ret = PyObject_CallMethod(_tunnel, (char *)"set_keepalive", (char *)"ii", port, keepalive);
-  if (!ret) {
-    PyErr_Print();
-    return;
-  }
-  Py_XDECREF(ret);
-}
-
-std::shared_ptr<sql::TunnelConnection> TunnelManager::create_tunnel(db_mgmt_ConnectionRef connectionProperties) {
-  std::shared_ptr<sql::TunnelConnection> tunnel;
+std::shared_ptr<sql::TunnelConnection> TunnelManager::createTunnel(db_mgmt_ConnectionRef connectionProperties) {
   grt::DictRef parameter_values = connectionProperties->parameterValues();
 
   if (connectionProperties->driver()->name() == "MysqlNativeSSH") {
-    if (!_tunnel) {
-      logInfo("Starting tunnel\n");
-      start();
-    }
+    start();
 
-    std::string server = parameter_values.get_string("sshHost");
-    std::string username = parameter_values.get_string("sshUserName");
-    std::string password = parameter_values.get_string("sshPassword");
-    std::string keyfile = base::expand_tilde(parameter_values.get_string("sshKeyFile"));
-    std::string target = parameter_values.get_string("hostName");
-    size_t target_port = parameter_values.get_int("port", 3306);
-
-    target += ":" + std::to_string(target_port);
+    auto connection = ssh::SSHSessionWrapper::getConnectionInfo(connectionProperties);
+    ssh::SSHConnectionConfig config = std::get<0>(connection);
+    ssh::SSHConnectionCredentials credentials = std::get<1>(connection);
 
     // before anything, check if a tunnel already exists for this server/user/target tuple
-    bec::GRTManager::get()->replace_status_text("Looking for existing SSH tunnel to " + server + "...");
-    int tunnel_port;
-    tunnel_port = lookup_tunnel(server.c_str(), username.c_str(), target.c_str());
+    bec::GRTManager::get()->replace_status_text("Looking for existing SSH tunnel to " + config.getServer() + "...");
+
+    int tunnel_port = _manager->lookupTunnel(config);
     if (tunnel_port > 0) {
       bec::GRTManager::get()->replace_status_text("Existing SSH tunnel found, connecting...");
       logInfo("Existing SSH tunnel found, connecting\n");
-      tunnel = std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port));
+      config.localport = tunnel_port;
+      return std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port, config));
     } else {
-      bool reset_password = false;
-    retry:
+      bool resetPassword = false;
 
       bec::GRTManager::get()->replace_status_text("Existing SSH tunnel not found, opening new one...");
       logInfo("Existing SSH tunnel not found, opening new one\n");
-      std::string service;
-      if (keyfile.empty() && password.empty()) {
-        // interactively ask user for password
-        service = strfmt("ssh@%s", server.c_str());
 
-        bool result = false;
-        try {
-          result = mforms::Utilities::credentials_for_service(_("Open SSH Tunnel"), service, username, reset_password,
-                                                              password);
-        } catch (std::exception &exc) {
-          logWarning("Exception caught on credentials_for_service: %s", exc.what());
-          mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()),
-                                        "OK");
-        }
+      auto session = ssh::SSHSession::createSession();
+      while (true) {
+        std::string service = ssh::SSHSessionWrapper::fillupAuthInfo(config, credentials, resetPassword);
 
-        if (!result)
-          // we need to throw an exception to signal that tunnel could not be opened (and not that it was not needed)
-          throw grt::user_cancelled("SSH password input cancelled by user");
-      }
-      if (!keyfile.empty()) {
-        bool encrypted = true;
-        char *contents = NULL;
-        gsize length;
-        // check if the keyfile is encrypted
-        if (g_file_get_contents(keyfile.c_str(), &contents, &length, NULL) && contents) {
-          if (!g_strstr_len(contents, length, "ENCRYPTED"))
-            encrypted = false;
-        }
+        bec::GRTManager::get()->replace_status_text("Opening SSH tunnel to " + config.getServer() + "...");
+        logInfo("Opening SSH tunnel to %s\n", config.getServer().c_str());
 
-        // interactively ask user for SSH key passphrase
-        service = strfmt("ssh_keyfile@%s", keyfile.c_str());
-        if (encrypted &&
-            !mforms::Utilities::find_or_ask_for_password(_("Open SSH Tunnel"), service, username, reset_password,
-                                                         password))
-          // we need to throw an exception to signal that tunnel could not be opened (and not that it was not needed)
-          throw std::runtime_error("SSH key passphrase input cancelled by user");
-      }
-
-      bec::GRTManager::get()->replace_status_text("Opening SSH tunnel to " + server + "...");
-      logInfo("Opening SSH tunnel to %s\n", server.c_str());
-
-      try {
-        tunnel_port = open_tunnel(server.c_str(), username.c_str(), password.c_str(), keyfile.c_str(), target.c_str());
-
-        bec::GRTManager::get()->replace_status_text("SSH tunnel opened, connecting...");
-
-        tunnel = std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port));
-
-        if (tunnel) {
-          tunnel->connect(connectionProperties);
-          set_keepalive(tunnel_port, (int)bec::GRTManager::get()->get_app_option_int("sshkeepalive", 0));
-          logInfo("SSH tunnel connect executed OK\n");
-        }
-      } catch (tunnel_auth_error &exc) {
-        logError("Authentication error opening SSH tunnel: %s\n", exc.what());
-        bec::GRTManager::get()->replace_status_text("Authentication error opening SSH tunnel");
-        if (mforms::Utilities::show_error("Could not connect the SSH Tunnel", exc.what(), _("Retry"), _("Cancel")) ==
-            mforms::ResultOk) {
-          reset_password = true;
-          try {
-            mforms::Utilities::forget_password(service, username);
-          } catch (std::exception &exc) {
-            logWarning("Could not clear password: %s\n", exc.what());
+        auto retVal = session->connect(config, credentials);
+        switch (std::get<0>(retVal)) {
+          case ssh::SSHReturnType::CONNECTION_FAILURE: {
+            std::string errorMsg = std::get<1>(retVal);
+            logError("Unable to open SSH tunnel: %s\n", errorMsg.c_str());
+            bec::GRTManager::get()->replace_status_text("Could not open SSH tunnel");
+            throw std::runtime_error(std::string("Cannot open SSH Tunnel: ").append(errorMsg.c_str()));
           }
+          case ssh::SSHReturnType::CONNECTED: {
+            retVal = _manager->createTunnel(session);
+            uint16_t port = std::get<1>(retVal);
+            bec::GRTManager::get()->replace_status_text("SSH tunnel opened");
+            logInfo("SSH tunnel opened on port: %d\n", (int )port);
+            config.localport = port;
+            return std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, port, config));
+          }
+          case ssh::SSHReturnType::INVALID_AUTH_DATA: {
+            std::string errorMsg = std::get<1>(retVal);
+            logError("Authentication error opening SSH tunnel: %s\n", errorMsg.c_str());
+            bec::GRTManager::get()->replace_status_text("Authentication error opening SSH tunnel");
+            if (mforms::Utilities::show_error("Could not connect the SSH Tunnel", errorMsg, _("Retry"), _("Cancel"))
+                == mforms::ResultOk) {
+              resetPassword = true;
+              try {
+                mforms::Utilities::forget_password(service, credentials.username);
+              } catch (std::exception &exc) {
+                logWarning("Could not clear password: %s\n", exc.what());
+              }
+              credentials.password = "";
+              session->disconnect();
+            } else
+              throw grt::user_cancelled("Tunnel connection cancelled");
+            break;
+          }
+          case ssh::SSHReturnType::FINGERPRINT_CHANGED:
+          case ssh::SSHReturnType::FINGERPRINT_MISMATCH: {
+            std::string fingerprint = std::get<1>(retVal);
+            std::string errorMsg =
+                "WARNING: Server public key has changed. It means either you're under attack or the administrator has changed the key. New public fingerprint is: "
+                    + fingerprint;
+            mforms::Utilities::show_error("Could not connect the SSH Tunnel", errorMsg, _("Ok"));
+            logDebug("Tunnel auth error, key fingerprint mismatch\n");
+            throw grt::user_cancelled("");
+          }
+          case ssh::SSHReturnType::FINGERPRINT_UNKNOWN:  //The server is unknown. The public key fingerprint is:"
+          case ssh::SSHReturnType::FINGERPRINT_UNKNOWN_AUTH_FILE_MISSING: {
+            std::string fingerprint = std::get<1>(retVal);
+            std::string msg = "The authenticity of host '" + config.remoteSSHhost
+                + "' can't be established.\n Server key fingerprint is " + fingerprint
+                + "\nAre you sure you want to continue connecting?";
 
-          password = "";
-          goto retry;
-        } else
-          throw grt::user_cancelled("Tunnel connection cancelled");
-      } catch (tunnel_auth_retry &exc) {
-        logWarning("Opening SSH tunnel: %s\n", exc.what());
-        goto retry;
-      } catch (tunnel_auth_cancelled &exc) {
-        logDebug("Tunnel auth cancelled: %s\n", exc.what());
-        throw grt::user_cancelled(exc.what());
-      } catch (tunnel_auth_key_error &exc) {
-        mforms::Utilities::show_error("Tunnel Connection Error", exc.what(), _("OK"));
-        logDebug("Tunnel auth key error: %s\n", exc.what());
-        throw grt::user_cancelled(exc.what());
-      } catch (std::exception &exc) {
-        logError("Exception while opening SSH tunnel: %s\n", exc.what());
-        bec::GRTManager::get()->replace_status_text("Could not open SSH tunnel");
-        throw std::runtime_error(std::string("Cannot open SSH Tunnel: ").append(exc.what()));
+            if (mforms::Utilities::show_error("Could not connect the SSH Tunnel", msg, _("Ok"), _("Cancel"))
+                != mforms::ResultOk) {
+              throw grt::user_cancelled("Tunnel connection cancelled");
+            }
+            config.fingerprint = fingerprint;
+            session->disconnect();
+            break;
+          }
+        }
       }
     }
-
-    bec::GRTManager::get()->replace_status_text("Using SSH tunnel to " + server);
   }
-
-  return tunnel;
+  return std::shared_ptr<sql::TunnelConnection>();
 }
 
 TunnelManager::~TunnelManager() {
   shutdown();
+  if (_manager != nullptr) {
+    if (_manager->isRunning())
+      _manager->join();
+
+    delete _manager;
+  }
 }

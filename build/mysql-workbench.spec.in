@@ -14,8 +14,6 @@
 
 # Enable use of "--with" and "--without" options to "rpmbuld"
 #
-# NOTE: If giving "--with paramiko" our own bundled paramiko is used,
-# else the system one is use (a bit misleading option name)
 #
 # NOTE: Currently 'mysql_static' just means we don't copy
 # "libmysqlclient.so*", a newer version of FindMySQL is needed to
@@ -23,7 +21,6 @@
 # I.e. the -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE below has currently
 # no effect (instead you need to remove the shared libraries from the
 # MySQL install)
-%bcond_with paramiko
 %bcond_without mysql_static
 
 # Allow to continue when a binary with no build-id was found
@@ -69,6 +66,8 @@
 %define gdal_dir         %{linuxres_binaries}/gdal-%{lictag}
 %define vsqlite_dir      %{linuxres_binaries}/vsqlite-%{lictag}
 %define antlr_dir        %{linuxres_binaries}/antlr
+%define libssh_dir       %{linuxres_binaries}/libssh-%{lictag}
+%define libgpg_dir       %{linuxres_binaries}/libgpg-libs
 %define python_dir       %{linuxres_home}/python
 %define antlr_jar_path   %{linuxres_home}/bin/antlr-4.7.1-complete.jar
 %if !%{defined boost_root}
@@ -123,15 +122,11 @@ BuildRequires: jasper-devel
 Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: libzip
-%if %{without paramiko}
-Requires: python-paramiko >= 1.15.1
-%endif
 Requires: gnome-keyring
 Requires: proj
 Requires: glib2 >= 2.28
 Requires: gtk3
 Requires: gtkmm30
-Requires: python2-crypto
 
 # our old package names
 Obsoletes: mysql-workbench < 7.0
@@ -151,7 +146,7 @@ Conflicts: mysql-workbench-commercial
 
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
 # FIXME if using system installs of one of these, this list is not correct
-%global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate)\\.so.*$
+%global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error)\\.so.*$
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
 
@@ -198,7 +193,9 @@ export BOOST_ROOT=%{boost_root}
        -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
        -DANTLR4_INCLUDE_DIR=%{antlr_dir}/include \
        -DANTLR4_LIBRARIES="-L%{antlr_dir}/lib -lantlr4-runtime" \
-       -DWITH_ANTLR_JAR=%{antlr_jar_path}
+       -DWITH_ANTLR_JAR=%{antlr_jar_path} \
+       -DLibSSH_INCLUDE_DIR=%{libssh_dir}/include \
+       -DLibSSH_LIBRARIES="-L%{libssh_dir}/lib -lssh" \
 
 
 make %{?_smp_mflags}
@@ -242,9 +239,8 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
   cp -a %{antlr_dir}/lib/libantlr4-runtime.so*         %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{odbc_home}/lib/libiodbc{,inst,adm}.so*      %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{odbc_home}/bin/iodbcadm-gtk                 %{buildroot}%{_libexecdir}/mysql-workbench/
-%if %{with paramiko}
-  cp -a %{python_dir}/paramiko %{python_dir}/ecdsa    %{buildroot}%{_libdir}/mysql-workbench/modules/
-%endif
+  cp -a %{libssh_dir}/lib/libssh.so*                  %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{libgpg_dir}/lib/lib*.so*                    %{buildroot}%{_libdir}/mysql-workbench/
 %endif
 
 

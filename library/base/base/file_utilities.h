@@ -78,22 +78,29 @@ namespace base {
 
   class BASELIBRARY_PUBLIC_FUNC FileHandle {
     FILE *_file;
-
+    std::string _path;
   public:
     FileHandle() : _file(NULL) {
     }
-    FileHandle(const char *filename, const char *mode, bool throw_on_fail = true);
+    FileHandle(const std::string &filename, const char* mode, bool throwOnFail = true);
     FileHandle(FileHandle &fh) : _file(NULL) {
+      swap(fh);
+    }
+
+    FileHandle(FileHandle &&fh) : _file(nullptr) {
       swap(fh);
     }
     ~FileHandle() {
       dispose();
     }
+
+    std::string getPath() const;
     void swap(FileHandle &fh);
     operator bool() const {
       return (!_file);
     }
     FileHandle &operator=(FileHandle &fh); // will pass ownership of FILE from assigned obj to this
+    FileHandle &operator=(FileHandle &&fh);
     //  NOTE: Never close this handle, because it's managed by the FileHandle class.
     FILE *file() {
       return _file;
@@ -132,6 +139,7 @@ namespace base {
   BASELIBRARY_PUBLIC_FUNC std::string joinPath(const char *prefix, ...);
   BASELIBRARY_PUBLIC_FUNC std::string makePath(const std::string &prefix, const std::string &file);
   BASELIBRARY_PUBLIC_FUNC std::string relativePath(const std::string &basePath, const std::string &pathToMakeRelative);
+  BASELIBRARY_PUBLIC_FUNC FileHandle makeTmpFile(const std::string &prefix);
 
   BASELIBRARY_PUBLIC_FUNC std::string pathlistAppend(const std::string &l, const std::string &s);
   BASELIBRARY_PUBLIC_FUNC std::string pathlistPrepend(const std::string &l, const std::string &s);

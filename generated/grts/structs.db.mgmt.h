@@ -27,6 +27,10 @@ class db_mgmt_ServerInstance;
 typedef grt::Ref<db_mgmt_ServerInstance> db_mgmt_ServerInstanceRef;
 class db_mgmt_Connection;
 typedef grt::Ref<db_mgmt_Connection> db_mgmt_ConnectionRef;
+class db_mgmt_SSHFile;
+typedef grt::Ref<db_mgmt_SSHFile> db_mgmt_SSHFileRef;
+class db_mgmt_SSHConnection;
+typedef grt::Ref<db_mgmt_SSHConnection> db_mgmt_SSHConnectionRef;
 class db_mgmt_DriverParameter;
 typedef grt::Ref<db_mgmt_DriverParameter> db_mgmt_DriverParameterRef;
 class db_mgmt_Driver;
@@ -332,6 +336,102 @@ public:
   }
 };
 
+
+/** a proxy to and instance that provide access to remote file. This object cannot be instantiated directly. */
+class GRT_STRUCTS_DB_MGMT_PUBLIC db_mgmt_SSHFile : public GrtObject {
+  typedef GrtObject super;
+public:
+  class ImplData;
+  friend class ImplData;
+  db_mgmt_SSHFile(grt::MetaClass *meta = 0)
+      : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())), _data(nullptr)
+
+  {
+  }
+
+  virtual ~db_mgmt_SSHFile();
+
+  static std::string static_class_name() {
+    return "db.mgmt.SSHFile";
+  }
+
+  virtual grt::StringRef getPath();
+
+  /** Method. read up to length bytes from this file.
+   \param length
+   \return
+
+   */
+  virtual grt::StringRef read(const size_t length);
+  /** Method. read from file until line termination is found '\n'
+   \return
+
+   */
+  virtual grt::StringRef readline();
+  /** Method. reposition the file's current position.
+   \param offset
+   \return
+
+   */
+  virtual grt::IntegerRef seek(const size_t offset);
+  /** Method. return the file's current position.
+   \return
+
+   */
+  virtual grt::IntegerRef tell();
+
+  ImplData *get_data() const {
+    return _data;
+  }
+
+  void set_data(ImplData *data);
+  // default initialization function. auto-called by ObjectRef constructor
+  virtual void init();
+
+protected:
+
+private:
+  // wrapper methods for use by grt
+  ImplData *_data;
+
+  static grt::ObjectRef create() {
+    return grt::ObjectRef(new db_mgmt_SSHFile());
+  }
+
+  static grt::ValueRef call_getPath(grt::internal::Object *self, const grt::BaseListRef &args) {
+      return dynamic_cast<db_mgmt_SSHFile*>(self)->getPath();
+  }
+
+  static grt::ValueRef call_read(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHFile*>(self)->read(grt::IntegerRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_readline(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHFile*>(self)->readline();
+  }
+
+  static grt::ValueRef call_seek(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHFile*>(self)->seek(grt::IntegerRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_tell(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHFile*>(self)->tell();
+  }
+
+public:
+  static void grt_register() {
+    grt::MetaClass *meta = grt::GRT::get()->get_metaclass(static_class_name());
+    if (!meta)
+      throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mgmt_SSHFile::create);
+    meta->bind_method("getPath", &db_mgmt_SSHFile::call_getPath);
+    meta->bind_method("read", &db_mgmt_SSHFile::call_read);
+    meta->bind_method("readline", &db_mgmt_SSHFile::call_readline);
+    meta->bind_method("seek", &db_mgmt_SSHFile::call_seek);
+    meta->bind_method("tell", &db_mgmt_SSHFile::call_tell);
+  }
+};
+
 /** a stored RDBMS connection */
 class db_mgmt_Connection : public GrtObject {
   typedef GrtObject super;
@@ -497,6 +597,269 @@ public:
     }
   }
 };
+
+/** a proxy to and instance that provide access to remote server. This object cannot be instantiated directly. */
+class GRT_STRUCTS_DB_MGMT_PUBLIC db_mgmt_SSHConnection : public GrtObject {
+  typedef GrtObject super;
+public:
+  class ImplData;
+  friend class ImplData;
+  db_mgmt_SSHConnection(grt::MetaClass *meta = 0)
+      : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())), _data(nullptr)
+
+  {
+  }
+
+  virtual ~db_mgmt_SSHConnection();
+
+  static std::string static_class_name() {
+    return "db.mgmt.SSHConnection";
+  }
+
+  /** Method. allow to disconnect
+    \return
+
+ */
+
+  virtual void disconnect();
+
+  /** Method. check if connection is active
+  \return
+
+   */
+  virtual grt::IntegerRef isConnected();
+  /** Method. make connection to remote server
+   \return
+
+   */
+  virtual grt::IntegerRef connect();
+  /** Method. execute command on the remote server
+   \param text the command to be executed on the server
+   \return command output
+
+   */
+  virtual grt::StringRef executeCommand(const std::string &text);
+  /** Method. execute command on the remote server using sudo
+   \param text the command to be executed on the server
+   \return command output
+
+   */
+  virtual grt::StringRef executeSudoCommand(const std::string &text);
+
+
+  /** Method. change current working directory
+  \param directory new location
+  \return indicator whenever change was successfull
+
+   */
+  virtual grt::IntegerRef cd(const std::string &directory);
+
+  /** Method. download remote file
+  \param src remote file path
+  \param dest local file path
+  \return
+
+   */
+  virtual void get(const std::string &src, const std::string &dest);
+  /** Method. fetch remote file into variable
+  \param src remote file path
+  \return remote file content
+
+   */
+  virtual grt::StringRef getContent(const std::string &src);
+  /** Method. list remote directory contents
+  \param path remote location
+  \return
+
+   */
+  virtual grt::DictListRef ls(const std::string &path);
+  /** Method. create new directory on remote host
+  \param directory new directory name or absolute path to the new directory
+  \return
+
+   */
+  virtual void mkdir(const std::string &directory);
+
+  /** Method. open remote file
+  \param path remote file location
+  \return
+
+   */
+  virtual db_mgmt_SSHFileRef open(const std::string &path);
+
+  /** Method. upload file to remote location
+  \param src local file path
+  \param dest remote file path
+  \return
+
+   */
+  virtual void put(const std::string &src, const std::string &dest);
+  /** Method. get current working directory
+  \return current working directory
+
+   */
+  virtual grt::StringRef pwd();
+  /** Method. remove remote directory
+  \param directory directory name or absolute path to the directory
+  \return
+
+   */
+  virtual void rmdir(const std::string &directory);
+  /** Method. create remote file with content
+  \param path remote file path
+  \param content remote file content
+  \return
+
+   */
+  virtual void setContent(const std::string &path, const std::string &content);
+  /** Method. get remote path details
+  \param path path to remote directory or file
+  \return Dict object with file attributes
+
+   */
+  virtual grt::DictRef stat(const std::string &path);
+
+  /** Method. check if given filename exists
+  \param path path to remote file
+  \return indicator whenever file exists
+
+   */
+  virtual grt::IntegerRef fileExists(const std::string &path);
+
+  /** Method. remove remote file
+  \param file filename or absolute path to the file
+  \return
+
+   */
+  virtual void unlink(const std::string &file);
+
+
+  ImplData *get_data() const {
+    return _data;
+  }
+
+  void set_data(ImplData *data);
+  // default initialization function. auto-called by ObjectRef constructor
+  virtual void init();
+
+private:
+  // wrapper methods for use by grt
+  ImplData *_data;
+
+  static grt::ObjectRef create() {
+    return grt::ObjectRef(new db_mgmt_SSHConnection());
+  }
+
+  static grt::ValueRef call_disconnect(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->disconnect();
+    return grt::ValueRef();
+  }
+
+  static grt::ValueRef call_isConnected(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->isConnected();
+  }
+
+  static grt::ValueRef call_connect(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->connect();
+  }
+
+  static grt::ValueRef call_executeCommand(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->executeCommand(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_executeSudoCommand(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->executeSudoCommand(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_cd(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->cd(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_get(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->get(grt::StringRef::cast_from(args[0]),
+                                                    grt::StringRef::cast_from(args[1]));
+    return grt::ValueRef();
+  }
+
+  static grt::ValueRef call_getContent(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->getContent(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_ls(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->ls(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_mkdir(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->mkdir(grt::StringRef::cast_from(args[0]));
+    return grt::ValueRef();
+  }
+
+  static grt::ValueRef call_open(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->open(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_put(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->put(grt::StringRef::cast_from(args[0]),
+                                                    grt::StringRef::cast_from(args[1]));
+    return grt::ValueRef();
+  }
+
+  static grt::ValueRef call_pwd(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->pwd();
+  }
+
+  static grt::ValueRef call_rmdir(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->rmdir(grt::StringRef::cast_from(args[0]));
+    return grt::ValueRef();
+  }
+
+  static grt::ValueRef call_setContent(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->setContent(grt::StringRef::cast_from(args[0]),
+                                                           grt::StringRef::cast_from(args[1]));
+    return grt::ValueRef();
+  }
+
+  static grt::ValueRef call_stat(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->stat(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_fileExists(grt::internal::Object *self, const grt::BaseListRef &args) {
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->fileExists(grt::StringRef::cast_from(args[0]));
+  }
+
+  static grt::ValueRef call_unlink(grt::internal::Object *self, const grt::BaseListRef &args) {
+    dynamic_cast<db_mgmt_SSHConnection*>(self)->unlink(grt::StringRef::cast_from(args[0]));
+    return grt::ValueRef();
+  }
+
+
+public:
+  static void grt_register() {
+    grt::MetaClass *meta = grt::GRT::get()->get_metaclass(static_class_name());
+    if (!meta)
+      throw std::runtime_error("error initializing grt object class, metaclass not found");
+    meta->bind_allocator(&db_mgmt_SSHConnection::create);
+    meta->bind_method("disconnect", &db_mgmt_SSHConnection::call_disconnect);
+    meta->bind_method("isConnected", &db_mgmt_SSHConnection::call_isConnected);
+    meta->bind_method("cd", &db_mgmt_SSHConnection::call_cd);
+    meta->bind_method("connect", &db_mgmt_SSHConnection::call_connect);
+    meta->bind_method("executeCommand", &db_mgmt_SSHConnection::call_executeCommand);
+    meta->bind_method("executeSudoCommand", &db_mgmt_SSHConnection::call_executeSudoCommand);
+    meta->bind_method("get", &db_mgmt_SSHConnection::call_get);
+    meta->bind_method("getContent", &db_mgmt_SSHConnection::call_getContent);
+    meta->bind_method("ls", &db_mgmt_SSHConnection::call_ls);
+    meta->bind_method("mkdir", &db_mgmt_SSHConnection::call_mkdir);
+    meta->bind_method("open", &db_mgmt_SSHConnection::call_open);
+    meta->bind_method("put", &db_mgmt_SSHConnection::call_put);
+    meta->bind_method("pwd", &db_mgmt_SSHConnection::call_pwd);
+    meta->bind_method("rmdir", &db_mgmt_SSHConnection::call_rmdir);
+    meta->bind_method("setContent", &db_mgmt_SSHConnection::call_setContent);
+    meta->bind_method("stat", &db_mgmt_SSHConnection::call_stat);
+    meta->bind_method("fileExists", &db_mgmt_SSHConnection::call_fileExists);
+    meta->bind_method("unlink", &db_mgmt_SSHConnection::call_unlink);
+  }
+};
+
 
 /** a list of all parameters the Jdbc driver supports */
 class db_mgmt_DriverParameter : public GrtObject {
@@ -1716,6 +2079,8 @@ inline void register_structs_db_mgmt_xml() {
   grt::internal::ClassRegistry::register_class<db_mgmt_SyncProfile>();
   grt::internal::ClassRegistry::register_class<db_mgmt_ServerInstance>();
   grt::internal::ClassRegistry::register_class<db_mgmt_Connection>();
+  grt::internal::ClassRegistry::register_class<db_mgmt_SSHFile>();
+  grt::internal::ClassRegistry::register_class<db_mgmt_SSHConnection>();
   grt::internal::ClassRegistry::register_class<db_mgmt_DriverParameter>();
   grt::internal::ClassRegistry::register_class<db_mgmt_Driver>();
   grt::internal::ClassRegistry::register_class<db_mgmt_PythonDBAPIDriver>();

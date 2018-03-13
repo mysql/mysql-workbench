@@ -58,6 +58,7 @@ PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-gpl
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl
 GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl
 VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl
+LIBSSH_HOME=$(LINUXRES_BINARIES)/libssh-gpl
 ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server/
 endif
@@ -67,6 +68,7 @@ PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-com
 CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com
 GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com
 VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com
+LIBSSH_HOME=$(LINUXRES_BINARIES)/libssh-com
 ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 endif
@@ -99,6 +101,8 @@ configure-stamp:
 	  -DIODBC_LIBRARIES_PATH=$(ODBC_HOME)/lib \
 	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
 	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
+	  -DLibSSH_INCLUDE_DIR=$(LIBSSH_HOME)/include \
+	  -DLibSSH_LIBRARIES="-L$(LIBSSH_HOME)/lib -lssh" \
 	  -DANTLR4_INCLUDE_DIR=$(ANTLR_HOME)/include \
 	  -DANTLR4_LIBRARIES="-L$(ANTLR_HOME)/lib -lantlr4-runtime" \
 	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH}
@@ -146,13 +150,8 @@ install: build
 	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(LIBSSH_HOME)/lib/libssh.so*         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(PYSQLITE2_HOME)/*                   $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
-
-@ifdef paramiko
-	#bundle paramiko based on the param
-	cp -a $(LINUXRES_HOME)/python/paramiko      $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
-	cp -a $(LINUXRES_HOME)/python/ecdsa         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/
-@endif
 
 	# Bundle client programs and lib
 #	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)

@@ -787,8 +787,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
 
   std::string loader_module_path = options->plugin_search_path;
 
-  if (options->init_python)
-    _tunnel_manager = new TunnelManager(this);
+  _tunnel_manager = new TunnelManager();
 
   {
     // Set location of cdbc drivers and module loader (python etc) DLLs
@@ -797,7 +796,8 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
     // set the tunnel factory
     if (_tunnel_manager)
       dbc_driver_man->setTunnelFactoryFunction(
-        std::bind(&TunnelManager::create_tunnel, _tunnel_manager, std::placeholders::_1));
+        std::bind(&TunnelManager::createTunnel, _tunnel_manager, std::placeholders::_1));
+
     // set function to request connection password for user
     dbc_driver_man->setPasswordFindFunction(
       std::bind(&WBContext::find_connection_password, this, std::placeholders::_1, std::placeholders::_2));
@@ -1574,8 +1574,18 @@ void WBContext::set_default_options(grt::DictRef options) {
   // Option can't be turned off by default. We've got a situation with connector c++ on windows
   // if tunnel will get closed just before calling mysql_ping() (keep alive) then ping will try to use invalid
   // mysql->net structure.
-  set_default(options, "sshkeepalive", 60);
-  set_default(options, "sshtimeout", 10);
+  set_default(options, "SSH:keepalive", 60);
+  set_default(options, "SSH:connectTimeout", 10);
+  set_default(options, "SSH:BufferSize", 10240);
+  set_default(options, "SSH:maxFileSize", 2*1024*1024*8); //set limit to 2GB by default
+
+  set_default(options, "SSH:readWriteTimeout", 5);
+  set_default(options, "SSH:commandTimeout", 1);
+  set_default(options, "SSH:commandRetryCount", 3);
+  
+#ifndef _WIN32
+  set_default(options, "SSH:pathtosshconfig", base::expand_tilde("~/.ssh/config"));
+#endif
 
   // Other options
   set_default(options, "workbench.physical.Connection:ShowCaptions", 0);

@@ -9,6 +9,10 @@ include_directories(.
     SYSTEM ${ANTLR4_INCLUDE_DIRS}
     SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
     SYSTEM ${PCRE_INCLUDE_DIRS}
+    SYSTEM ${LibSSH_INCLUDE_DIRS}
+    SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${GDAL_INCLUDE_DIRS}
+    SYSTEM ${Boost_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/library/grt/src 
     ${PROJECT_SOURCE_DIR}/library/base
@@ -26,9 +30,6 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/backend/wbpublic/grt 
     ${PROJECT_SOURCE_DIR}/library/cdbc/src
     ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${GDAL_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
 )
 
 add_library(wbprivate
@@ -85,6 +86,13 @@ add_library(wbprivate
     workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp
     workbench/about_box.cpp
+    workbench/SSHSftp.cpp
+    workbench/SSHCommon.cpp
+    workbench/SSHSession.cpp
+    workbench/SSHSessionWrapper.cpp
+    workbench/SSHFileWrapper.cpp
+    workbench/SSHTunnelHandler.cpp
+    workbench/SSHTunnelManager.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/preferences_form.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/new_connection_wizard.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/document_properties_form.cpp
@@ -110,6 +118,7 @@ target_link_libraries(wbprivate
     ${LIBZIP_LIBRARIES}
     ${PCRE_LIBRARIES}
     ${GDAL_LIBRARIES}
+    ${LibSSH_LIBRARIES}
 )
 
 add_dependencies(wbprivate generate_parser_mysql)

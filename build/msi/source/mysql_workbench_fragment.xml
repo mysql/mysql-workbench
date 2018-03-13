@@ -1715,7 +1715,6 @@
                   <File Id="file61011" Name="wb_admin_utils.py"/>
                   <File Id="file61012" Name="wb_admin_variable_list.py"/>
                   <File Id="file61013" Name="wb_admin_variables.py"/>
-                  <File Id="file61401" Name="wb_admin_ssh.py"/>
                   <File Id="file61402" Name="wb_admin_security.py"/>
                   <File Id="file61403" Name="wb_admin_security_be.py"/>
                   <File Id="file61404" Name="wb_admin_logs.py"/>

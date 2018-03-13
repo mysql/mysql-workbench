@@ -3,7 +3,6 @@ set(PY_FILES
     backend/wb_admin_config_file_be.py
     backend/wb_admin_control.py
     backend/wb_admin_security_be.py
-    backend/wb_admin_ssh.py
     backend/wb_admin_user_privileges.py
     backend/wb_admin_variable_list.py
     backend/wb_common.py

@@ -47,9 +47,7 @@ reset_sudo_prefix()
 from mforms import App
 from workbench.utils import QueueFileMP
 from wb_common import InvalidPasswordError, PermissionDeniedError, Users, sanitize_sudo_output, splitpath
-from wb_admin_ssh import WbAdminSSH, ConnectionError
 from wb_common import CmdOptions, CmdOutput
-
 from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2, log_debug3
 
 from workbench.tcp_utils import CustomCommandListener
@@ -124,52 +122,6 @@ def useAbsPath(param):
             return function(*args, **kw)
         return decorated_function
     return abs_path_validator
-
-
-class SSH(WbAdminSSH):
-    def __init__(self, profile, password_delegate):
-        self.mtx = threading.Lock()
-        self.wrapped_connect(profile, password_delegate)
-
-    def __del__(self):
-        log_debug("Closing SSH connection\n")
-        self.close()
-
-    def get_contents(self, filename):
-        self.mtx.acquire()
-        try:
-            ret = WbAdminSSH.get_contents(self, filename)
-        finally:
-            self.mtx.release()
-        return ret
-
-    def set_contents(self, filename, data, mode="w"):
-        self.mtx.acquire()
-        try:
-            ret = WbAdminSSH.set_contents(self, filename, data, mode)
-        finally:
-            self.mtx.release()
-        return ret
-
-    def exec_cmd(self, cmd, as_user = Users.CURRENT, user_password = None, output_handler = None, read_size = 128, get_channel_cb = None, options = None):
-        output   = None
-        retcode  = None
-
-        self.mtx.acquire()
-        log_debug3('%s:exec_cmd(cmd="%s", sudo=%s)\n' % (self.__class__.__name__, cmd, str(as_user)) )
-        try:
-            (output, retcode) = WbAdminSSH.exec_cmd(self, cmd,
-                                            as_user=as_user,
-                                            user_password=user_password,
-                                            output_handler=output_handler,
-                                            read_size = read_size,
-                                            get_channel_cb = get_channel_cb,
-                                            options = options)
-            log_debug3('%s:exec_cmd(): Done cmd="%s"\n' % (self.__class__.__name__, cmd) )
-        finally:
-            self.mtx.release()
-
-        return (output, retcode)
 
 ##===================================================================================================
 ## Local command execution
@@ -559,25 +511,22 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
         #if not self.ssh:
         #    raise Exception("No SSH session active")
 
-        if as_user != Users.CURRENT:
-            command = wrap_for_sudo(command, self.sudo_prefix, as_user)
-
-        def ssh_output_handler(chunk, handler):
-            if "EnterPasswordHere" in chunk and as_user != Users.CURRENT:
-                raise InvalidPasswordError("Invalid password for sudo")
-            if chunk is not None and chunk != "":
-                handler(chunk)
-            
-        if output_handler:
-            handler = lambda chunk, h=output_handler: ssh_output_handler(chunk, h)
-        else:
-            handler = None
-
         if self.ssh:
             # output_handler taken by ssh.exec_cmd is different from the one used elsewhere
-            dummy_text, ret = self.ssh.exec_cmd(command,
-                    as_user=as_user, user_password=user_password,
-                    output_handler=handler, options=options)
+            dummy_text = None
+            try:
+                if as_user != Users.CURRENT:
+                    command = wrap_for_sudo(command, self.sudo_prefix, as_user)
+                    dummy_text = self.ssh.executeSudoCommand(command)
+                else:
+                    dummy_text = self.ssh.executeCommand(command)
+            except Exception, ex:
+                # executeCommand can throw Exception when command doesn't exists or there's an error
+                ret = 1
+                log_error("Unable to execute: %s, error was: %s" % (command, str(ex)))
+
+            if output_handler:
+                output_handler(dummy_text)
         else:
             ret = 1
             if output_handler:
@@ -586,7 +535,7 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
                 print("No SSH connection is active")
                 log_info('No SSH connection is active\n')
 
-        return ret
+        return 0
 
     def spawn_process(self, command, as_user=Users.CURRENT, user_password=None, output_handler=None, options=None):
         if as_user != Users.CURRENT:
@@ -612,10 +561,12 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
           handler = None
         
         if self.ssh:
-          # output_handler taken by ssh.exec_cmd is different from the one used elsewhere
-          dummy_text, ret = self.ssh.exec_cmd(command,
-                                              as_user=as_user, user_password=user_password,
-                                              output_handler=handler, options = options)
+            if as_user != Users.CURRENT:
+                command = wrap_for_sudo(command, self.sudo_prefix, as_user)
+                dummy_text = self.ssh.executeSudoCommand(command)
+            else:
+                dummy_text = self.ssh.executeCommand(command)
+
         else:
             ret = 1
             if output_handler:
@@ -624,7 +575,7 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
                 print("No SSH connection is active")
                 log_info('No SSH connection is active\n')
         
-        return ret
+        return 0
 
 
     def list2cmdline(self, args):
@@ -787,10 +738,10 @@ class ProcessOpsWindowsRemoteSSH(ProcessOpsWindowsLocal):
             handler = None
 
         # output_handler taken by ssh.exec_cmd is different from the one used elsewhere
-        dummy_text, ret = self.ssh.exec_cmd(command,
+        dummy_text = self.ssh.executeSudoCommand(command,
                 as_user=as_user, user_password=user_password,
                 output_handler=handler, options=options)
-        return ret
+        return 0
 
 
     def spawn_process(self, command, as_user=Users.CURRENT, user_password=None, output_handler=None, options=None):
@@ -928,7 +879,7 @@ class FileOpsLinuxBase(object):
         if res != 0:
             self.raise_exception(output)
         
-        return output      
+        return output
     
     @useAbsPath("path")
     def create_directory(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
@@ -1618,7 +1569,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
     def delete_file(self, path, as_user = Users.CURRENT, user_password = None):
         if as_user == Users.CURRENT:
             try:
-                self.ssh.remove(path)
+                self.ssh.unlink(path)
             except (IOError, OSError), err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not delete file %s" % path)
@@ -1635,7 +1586,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
     def _create_file(self, path, content):
         
         try:
-            self.ssh.set_contents(path, content)
+            self.ssh.setContent(path, content)
         except (IOError, OSError), err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not open file %s for writing" % path)
@@ -1653,7 +1604,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
                 try:
                     # This uses file open mode as wx to make sure the temporary has been created
                     # on this open attempt to avoid writing to an existing file.
-                    self.ssh.set_contents(tmpfilename, content, "wx")
+                    self.ssh.setContent(tmpfilename, content)
                     log_debug2('Created temp file: "%s".\n' % tmpfilename)
                     done = True
                 except IOError, exc:
@@ -1705,9 +1656,10 @@ class FileOpsRemoteWindows(object):
     def file_exists(self, filename, as_user=Users.CURRENT, user_password=None):
         if self.ssh:
             try:
-                return self.ssh.file_exists(filename)
-            except IOError:
-                raise
+                return self.ssh.fileExists(filename)
+            except Exception, io:
+                log_debug2("Error on ssh.stat(%s), %s" % filename, io)
+                return False
         else:
             print "Attempt to read remote file with no ssh session"
             log_error('%s: Attempt to read remote file with no ssh session\n' % self.__class__.__name__)
@@ -1740,9 +1692,7 @@ class FileOpsRemoteWindows(object):
 
     def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
         if self.ssh:
-            out, ret = self.ssh.exec_cmd('if exist %s exit /b 0' % quote_path(path), as_user, user_password)
-            if ret != 0:
-                raise RuntimeError(out)
+            out = self.ssh.executeSudoCommand('if exist %s exit /b 0' % quote_path(path), as_user, user_password)
             return True
         else:
             log_error('%s: Attempt to read remote file with no ssh session\n' % self.__class__.__name__)
@@ -1762,7 +1712,7 @@ class FileOpsRemoteWindows(object):
                 raise err
         else:
             command = wrap_for_sudo('mkdir ' + quote_path_win(path), self.process_ops.sudo_prefix, as_user)
-            out, ret = self.ssh.exec_cmd(command, as_user, user_password)
+            out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
             if ret != 0:
                 raise RuntimeError(out)
 
@@ -1790,28 +1740,28 @@ class FileOpsRemoteWindows(object):
         else:
             command = wrap_for_sudo('rmdir ' + quote_path_win(path), self.process_ops.sudo_prefix, as_user)
 
-            out, ret = self.ssh.exec_cmd(command, as_user, user_password)
+            out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
             if ret != 0:
                 raise RuntimeError(out)
 
     def remove_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None):
         command = wrap_for_sudo('rmdir %s /s /q' % quote_path_win(path), self.process_ops.sudo_prefix, as_user)
 
-        out, ret = self.ssh.exec_cmd(command, as_user, user_password)
+        out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
         if ret != 0:
             raise RuntimeError(out)
 
     def delete_file(self, path, as_user = Users.CURRENT, user_password = None):
         if as_user == Users.CURRENT:
             try:
-                self.ssh.remove(path)
+                self.ssh.unlink(path)
             except OSError, err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not delete file %s" % path)
                 raise err
         else:
             command = wrap_for_sudo('del ' + quote_path_win(path), self.process_ops.sudo_prefix, as_user)
-            out, ret = self.ssh.exec_cmd(command, as_user, user_password)
+            out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
             if ret != 0:
                 raise RuntimeError(out)
 
@@ -1846,7 +1796,7 @@ class FileOpsRemoteWindows(object):
 
             log_debug('%s: Remotely writing contents to temporary file "%s"\n' % (self.__class__.__name__, tmpfilename) )
             log_debug3('%s: %s\n' % (self.__class__.__name__, content) )
-            self.ssh.set_contents(tmpfilename, content)
+            self.ssh.setContent(tmpfilename, content)
 
             if backup_extension:
                 log_debug('%s: Backing up "%s"\n' % (self.__class__.__name__, path) )
@@ -1878,7 +1828,7 @@ class FileOpsRemoteWindows(object):
         if self.ssh:
             # Supposedly in Windows, sshd account has admin privileges, so Users.ADMIN can be ignored
             try:
-                return self.ssh.get_contents(filename)
+                return self.ssh.getContent(filename)
             except IOError, exc:
                 if exc.errno == errno.EACCES:
                     raise PermissionDeniedError("Permission denied attempting to read file %s" % filename)
@@ -1901,11 +1851,13 @@ class FileOpsRemoteWindows(object):
 
     def listdir(self, path, as_user = Users.CURRENT, user_password = None, include_size=False): # base operation to build file_exists and remote file selector
         # TODO: user elevation
-        sftp = self.ssh.getftp()
-        (dirs, files) = sftp.ls(path, include_size=include_size)
+        entries = self.ssh.ls(curdir)
+        dirs = [d for d in entries if d['isDir'] == 1 and d['name'] != ".." and d['name'] != "."]
+        files = [f['name'] for f in entries if f['isDir'] == 0 and f['name'] != ".." and f['name'] != "."]
+        files.sort()
         ret = []
         for d in dirs:
-            ret.append((d[0] + "/", d[1]) if include_size else d + "/")
+            ret.append((d['name'] + "/", d['size']) if include_size else d['name'] + "/")
         return ret + list(files)
 
     def join_paths(self, path, *paths):
@@ -2093,22 +2045,16 @@ class LocalInputFile(object):
 class SFTPInputFile(object):
     def __init__(self, ctrl_be, path):
         self.ctrl_be = ctrl_be
-        self.ssh = WbAdminSSH()
-        self.path = path
-        while True:
-            try:  # Repeat get password while password is misspelled. Re-raise other exceptions
-                self.ssh.wrapped_connect(self.ctrl_be.server_profile, self.ctrl_be.password_handler)
-            except ConnectionError, error:
-                if not str(error).startswith('Could not establish SSH connection: Authentication failed'):
-                    raise
-            else:
-                break
-        if not self.ssh.is_connected():
-            raise RuntimeError('Could not connect to remote server')
 
-        self.sftp = self.ssh.client.open_sftp()
+        if self.ctrl_be.server_profile.uses_ssh:
+            if self.ctrl_be.editor.sshConnection.isConnected() == 0:
+                if self.ctrl_be.editor.sshConnection.connect() != 0:
+                    raise OperationCancelledError("Could not connect to SSH server")
+
+        self.path = path
+
         try:
-            self._f = self.sftp.open(path)
+            self._f =  self.ctrl_be.editor.sshConnection.open(path)
         except IOError:
             raise RuntimeError('Could not read file %s in remote server. Please verify path and permissions' % path)
 
@@ -2117,20 +2063,49 @@ class SFTPInputFile(object):
 
     @property
     def size(self):
-        return self.sftp.stat(self.path).st_size
+        try :
+            return self.ctrl_be.editor.sshConnection.stat(self.path)["size"]
+        except SystemError, e:
+            import traceback
+            log_error("Exception executing size: %s\n%s\n" % (e, traceback.format_exc()))
+            return -1;
 
     def get_range(self, start, end):
-        self._f.seek(start)
-        return self._f.read(end-start)
+        try:
+            self._f.seek(start)
+            return self._f.read(end-start)
+        except SystemError, e:
+            import traceback
+            log_error("Exception executing get_range: %s\n%s\n" % (e, traceback.format_exc()))
+            return -1;
 
     def start_read_from(self, offset):
-        self._f.seek(offset)
+        try:
+            self._f.seek(offset)
+        except SystemError, e:
+            import traceback
+            log_error("Exception executing read_from: %s\n%s\n" % (e, traceback.format_exc()))
+            return -1;
 
     def read(self, count):
-        return self._f.read(count)
+        try:
+            if count == -1:
+                log_error("Invalid read size.\n")
+                return -1
+
+            return self._f.read(count)
+        except SystemError, e:
+            import traceback
+            log_error("Exception executing read: %s\n%s\n" % (e, traceback.format_exc()))
+            return -1;
 
     def readline(self):
-        return self._f.readline()
+        try:
+            return self._f.readline()
+        except SystemError, e:
+            import traceback
+            log_error("Exception executing readline: %s\n%s\n" % (e, traceback.format_exc()))
+            return "";
 
 
 import multiprocessing

@@ -485,6 +485,12 @@
     <ClInclude Include="grtsqlparser\parser_services_common.h">
       <Filter>grtsqlparser Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="objimpl\db.mgmt\db_mgmt_SSHConnection.h">
+      <Filter>Generated Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="objimpl\db.mgmt\db_mgmt_SSHFile.h">
+      <Filter>Generated Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
@@ -913,6 +919,12 @@
     </ClCompile>
     <ClCompile Include="grtui\geom_draw_box.cpp">
       <Filter>grtui Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.mgmt\db_mgmt_SSHFile.cpp">
+      <Filter>Generated Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="objimpl\db.mgmt\db_mgmt_SSHConnection.cpp">
+      <Filter>Generated Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

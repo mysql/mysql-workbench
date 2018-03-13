@@ -51,6 +51,18 @@ db_mgmt_ConnectionRef db_query_Editor::connection() const {
   return db_mgmt_ConnectionRef();
 }
 
+grt::IntegerRef db_query_Editor::getSSHTunnelPort() const {
+  if (_data)
+    return _data->getSSHTunnelPort();
+  return -1;
+}
+
+db_mgmt_SSHConnectionRef db_query_Editor::sshConnection() const {
+  if (_data)
+    return _data->sshConnection();
+  return db_mgmt_SSHConnectionRef();
+}
+
 grt::IntegerRef db_query_Editor::isConnected() const {
   if (_data)
     return _data->isConnected();

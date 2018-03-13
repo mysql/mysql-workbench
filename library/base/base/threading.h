@@ -31,6 +31,15 @@
 #include <string.h>
 
 namespace base {
+  // Launches one of the tools of WB, which are command line applications which resided side by side
+  // to the WB executable or even as part of the application bundle (on OSX).
+  // The caller is responsible for providing the full path, no searching is done here.
+  BASELIBRARY_PUBLIC_FUNC void launchTool(const std::string &path, const std::vector<std::string> &params);
+
+  // Launches a separate application which can sit anywhere, especially outside of the application bundle (on OSX).
+  // The function uses a platform specific search strategy if no path is given (usually the current application
+  // or bundle folder, then the typical location for apps on that platform).
+  BASELIBRARY_PUBLIC_FUNC void launchApplication(const std::string &name, const std::vector<std::string> &params);
 
   typedef gint refcount_t;
 

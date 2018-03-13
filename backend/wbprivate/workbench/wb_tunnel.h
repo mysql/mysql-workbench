@@ -24,42 +24,33 @@
 #ifndef _WB_TUNNEL_H_
 #define _WB_TUNNEL_H_
 
-#include "python_context.h"
-#include "cppdbc.h"
+#include "SSHTunnelManager.h"
 #include "wb_backend_public_interface.h"
+#include "driver_manager.h"
+#include "base/threading.h"
 
 class SSHTunnel;
 
-namespace wb {
-  class WBContext;
-
-  class TunnelManager {
-    wb::WBContext *_wb;
-    grt::AutoPyObject _tunnel;
-
+namespace wb
+{
+  class TunnelManager
+  {
+    ssh::SSHTunnelManager *_manager;
     friend class ::SSHTunnel;
 
-    int lookup_tunnel(const char *server, const char *username, const char *target);
-    int open_tunnel(const char *server, const char *username, const char *password, const char *keyfile,
-                    const char *target);
-    void wait_tunnel(int port);
-    void set_keepalive(int port, int keepalive);
-
+    std::map<int, std::pair<ssh::SSHConnectionConfig, base::refcount_t>> _portUsage;
+    base::Mutex _usageMapMtx;
   public:
-    TunnelManager(wb::WBContext *wb);
+    TunnelManager();
     ~TunnelManager();
-
-    wb::WBContext *wb() {
-      return _wb;
-    }
 
     void start();
     void shutdown();
-
-    std::shared_ptr<sql::TunnelConnection> create_tunnel(db_mgmt_ConnectionRef connectionProperties);
-
-    bool get_message_for(int port, std::string &type, std::string &message);
+    void portUsageIncrement(const ssh::SSHConnectionConfig &config);
+    void portUsageDecrement(const ssh::SSHConnectionConfig &config);
+    std::shared_ptr<sql::TunnelConnection> createTunnel(db_mgmt_ConnectionRef connectionProperties);
   };
 };
+
 
 #endif

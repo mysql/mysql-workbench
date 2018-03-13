@@ -21,15 +21,9 @@
 
 from mforms import App, Utilities, newBox, newPanel, newButton, newLabel, newTabView, newTabSwitcher, newTextEntry, newSelector, Form, newTreeView, OpenFile, SaveFile
 import mforms
-import wb_admin_ssh
 import errno
-try:
-    from paramiko import SFTPError
-    paramiko_enabled = True
-except:
-    paramiko_enabled = False
-
 from wb_common import OperationCancelledError, InvalidPasswordError, dprint_ex, parentdir, joinpath
+from workbench.log import log_debug
 
 #===============================================================================
 #
@@ -62,33 +56,30 @@ class RemoteFileSelector(object):
     def try_cd(self, fname):
         success = False
         target_is_file = False
-        
-        if paramiko_enabled:
-            try:
-                success = self.cd(fname)
-            except SFTPError, e:
-                print e
-                if len(e.args) > 0 and e[0] == errno.ENOTDIR:
-                    success = False
-                    target_is_file = True
-                else:
-                    raise
-        else:
-            try:
-                success = self.cd(fname)
-            except Exception, e:
-                print e
-                if len(e.args) > 0 and e[0] == errno.ENOTDIR:
-                    success = False
-                    target_is_file = True
-                else:
-                    raise
+
+        try:
+            success = self.cd(fname)
+            if success == -1:
+                success = False
+                target_is_file = True
+            
+        except Exception, e:
+            print e
+            if len(e.args) > 0 and e[0] == errno.ENOTDIR:
+                success = False
+                target_is_file = True
+            else:
+                raise
 
         return (success, target_is_file)
 
     def chdir(self, fname, is_full_path):
+#         import traceback
+#         traceback.print_stack()
+        
         success = False
         if fname is not None and fname != "":
+            log_debug("Directory changed: "+ fname + " was full path: " + str(is_full_path) + "\n")
             path = fname if is_full_path else joinpath(self.curdir.get_string_value(), fname)
 
             (success, target_is_file) = self.try_cd(path)
@@ -124,47 +115,40 @@ class RemoteFileSelector(object):
                     self.selection = path
                     self.form.close()
                     return
-
+        else:
+            log_debug("Directory not changed\n")
 
         # Updates the file list only in case a cd has been done
         if success or fname is None:
-          curdir = self.cwd()
-          #if curdir:
-          #    if curdir[-1] != "/":
-          #        curdir += "/"
-          self.update_text(curdir)
-          self._invalid_text = False
+            curdir = self.cwd()
+            log_debug("chdir: Current dir is: " + curdir+"\n")
+            #if curdir:
+            #    if curdir[-1] != "/":
+            #        curdir += "/"
+            self.update_text(curdir)
+            self._invalid_text = False
+            
+            self.flist.clear()
+            
+            (disr, files) = ((),())
+            entries = self.ls(curdir)
+            dirs = [d['name'] for d in entries if d['isDir'] == 1 and d['name'] != ".." and d['name'] != "."]
+            files = [f['name'] for f in entries if f['isDir'] == 0 and f['name'] != ".." and f['name'] != "."]
+            dirs.sort()
+            files.sort()
+            
+            row_id = self.flist.add_node()
+            row_id.set_icon_path(0, 'folder')
+            row_id.set_string(0, '..')
 
-          self.flist.clear()
-
-          (disr, files) = ((),())
-          try:
-              (dirs, files) = self.ls('.')
-          except IOError, e:
-              # At least on osx paramiko is silent on attempts to chdir to a file
-              # so that leads to some unpleasant results
-              if e.errno == errno.ENOENT:
-                  path = self.curdir.get_string_value()
-                  if (type(path) is str or type(path) is unicode):
-                      path = path.rstrip("/ ")
-                  else:
-                      path = None
-                  self.selection = path
-                  self.form.close()
-                  return
-
-          row_id = self.flist.add_node()
-          row_id.set_icon_path(0, 'folder')
-          row_id.set_string(0, '..')
-
-          for d in dirs:
-              row_id = self.flist.add_node()
-              row_id.set_icon_path(0, 'folder')
-              row_id.set_string(0, d)
-
-          for f in files:
-              row_id = self.flist.add_node()
-              row_id.set_string(0, f)
+            for d in dirs:
+                row_id = self.flist.add_node()
+                row_id.set_icon_path(0, 'folder')
+                row_id.set_string(0, d)
+     
+            for f in files:
+                row_id = self.flist.add_node()
+                row_id.set_string(0, f)
 
     def cancel_action(self):
         self.selection = None
@@ -254,17 +238,13 @@ def remote_file_selector(profile, password_delegate, ssh=None, title=None, dlg_t
 
     file_names = []
 
-    if ssh is not None and ssh.is_connected():
-        ftp = ssh.getftp()
+    if ssh is not None and ssh.isConnected() == 1:
+        rfs = RemoteFileSelector(ls = ssh.ls, cwd = ssh.pwd, cd = ssh.cd, title = title, dlg_type = dlg_type)
+        rfs.run()
+        result = rfs.get_filenames()
+        if result is not None:
+            file_names = result
 
-        if ftp:
-            rfs = RemoteFileSelector(ls = ftp.ls, cwd = ftp.pwd, cd = ftp.cd, title = title, dlg_type = dlg_type)
-            rfs.run()
-            result = rfs.get_filenames()
-            if result is not None:
-                file_names = result
-
-            ftp.close()
         if close_ssh:
             ssh.close()
 

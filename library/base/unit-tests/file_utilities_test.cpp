@@ -780,12 +780,12 @@ TEST_FUNCTION(35) {
  */
 TEST_FUNCTION(40) {
   try {
-    // constructors & miscellaneous variables
+//     constructors & miscellaneous variables
     base::FileHandle c_tor_no_name;
     base::FileHandle c_tor_test_filename(TEST_FILE_NAME01, "w+");
     base::FileHandle c_tor_temp(TEST_FILE_NAME02, "w+");
     FILE *original_c_tor_temp_ptr = c_tor_temp.file();
-    base::FileHandle c_tor_FileHandle_ref(c_tor_temp);
+    base::FileHandle *c_tor_FileHandle_ref = new base::FileHandle(c_tor_temp);
 
     // test case for empty name string
     FILE *test_result = c_tor_no_name.file();
@@ -815,14 +815,14 @@ TEST_FUNCTION(40) {
     }
 
     // test case for FileHandle& value
-    test_result = c_tor_FileHandle_ref.file();
+    test_result = c_tor_FileHandle_ref->file();
     expected_result = original_c_tor_temp_ptr;
 
     ensure_equals("TEST 40.5: Unexpected result calling FileHandle constructor", test_result, expected_result);
 
     // test case for d-tor
-    c_tor_FileHandle_ref.~FileHandle();
-    test_result = c_tor_FileHandle_ref.file();
+    c_tor_FileHandle_ref->~FileHandle();
+    test_result = c_tor_FileHandle_ref->file();
     expected_result = NULL;
 
     ensure_equals("TEST 40.6: Unexpected result calling FileHandle destructor", test_result, expected_result);

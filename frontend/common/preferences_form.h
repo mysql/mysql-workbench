@@ -113,6 +113,8 @@ private:
 
   mforms::View *create_others_page();
 
+  mforms::View *createSSHPage();
+
   grt::DictRef get_options(bool global = false);
 
   void toggle_use_global();

@@ -56,6 +56,9 @@
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_names.h"
+#include "workbench/SSHSessionWrapper.h"
+#include "workbench/wb_context_ui.h"
+#include "workbench/wb_context.h"
 
 #include <mysql_connection.h>
 
@@ -114,6 +117,20 @@ static const char *EXCEPTION_MSG_FORMAT = _("Error: %s");
   catch (std::exception & e) {                                                                            \
     grt::GRT::get()->send_error(strfmt(EXCEPTION_MSG_FORMAT, e.what()), statement);                       \
   }
+
+db_mgmt_ServerInstanceRef getServerInstance(const db_mgmt_ConnectionRef &connection) {
+  grt::ValueRef ret = grt::GRT::get()->get("/wb/rdbmsMgmt/storedInstances");
+  if (grt::ListRef<db_mgmt_ServerInstance>::can_wrap(ret))
+  {
+    auto list = grt::ListRef<db_mgmt_ServerInstance>::cast_from(ret);
+    for (const auto &item: list) {
+      if (item->connection() == connection)
+        return item;
+    }
+  }
+
+  return db_mgmt_ServerInstanceRef();
+}
 
 class Timer {
 public:
@@ -613,6 +630,26 @@ void SqlEditorForm::close() {
 
 std::string SqlEditorForm::get_form_context_name() const {
   return WB_CONTEXT_QUERY;
+}
+
+db_mgmt_SSHConnectionRef SqlEditorForm::getSSHConnection() {
+  try {
+    if (!_sshConnection.is_valid()) {
+      if (_connection.is_valid()) {
+        auto val = getServerInstance(_connection);
+        if (val.is_valid()) {
+          db_mgmt_SSHConnectionRef object(grt::Initialized);
+          object->owner(wb::WBContextUI::get()->get_wb()->get_root());
+          object->name(_connection->name());
+          object->set_data(new ssh::SSHSessionWrapper(val));
+          _sshConnection = object;
+        }
+      }
+    }
+  } catch (std::runtime_error &re) {
+    logError("Unable to create db_mgmt_SSHConnectionRef object\n");
+  }
+  return _sshConnection;
 }
 
 bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::string &name, std::string &value) {
@@ -1242,6 +1279,8 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _serverIsOffline = false;
     cache_sql_mode();
 
+    // We need this so later we can get tunnel port
+    _tunnel = tunnel;
     try {
       {
         std::string value;
@@ -2842,6 +2881,12 @@ void SqlEditorForm::update_title() {
     _title = temp_title;
     title_changed();
   }
+}
+
+int SqlEditorForm::getTunnelPort() const {
+  if (_tunnel)
+    return _tunnel->get_port();
+  return -1;
 }
 
 //--------------------------------------------------------------------------------------------------

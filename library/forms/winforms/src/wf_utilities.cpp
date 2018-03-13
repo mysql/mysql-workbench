@@ -1110,8 +1110,9 @@ public:
   static void cancel(mforms::TimeoutHandle handle) {
     base::RecMutexLock lock(timeout_mutex);
     if (timeout_handles->ContainsKey(handle)) {
-      delete timeout_handles[handle];
+      auto timerHandle = timeout_handles[handle];
       timeout_handles->Remove(handle);
+      delete timerHandle;
     }
   }
 
@@ -1137,10 +1138,12 @@ private:
       else {
         {
           base::RecMutexLock lock(timeout_mutex);
-          if (timeout_handles->ContainsKey(_handle))
+          if (timeout_handles->ContainsKey(_handle)) {
+            auto timerHandle = timeout_handles[_handle];
             timeout_handles->Remove(_handle);
+            delete timerHandle;
+          }
         }
-        delete this;
       }
     }
   }

@@ -28,13 +28,12 @@ import StringIO
 import traceback
 
 from workbench.utils import Version
-from wb_admin_ssh import SSHDownException
 from workbench.db_utils import MySQLConnection, MySQLError, QueryError, strip_password, escape_sql_string
 
 from wb_common import OperationCancelledError, Users, PermissionDeniedError, InvalidPasswordError, SSHFingerprintNewError
 
 from wb_server_control import PasswordHandler, ServerControlShell, ServerControlWMI
-from wb_server_management import ServerManagementHelper, SSH, wbaOS
+from wb_server_management import ServerManagementHelper, wbaOS
 
 from workbench.notifications import nc
 
@@ -168,7 +167,6 @@ class WbAdminControl(object):
     server_helper = None # Instance of ServerManagementHelper for doing file and process operations on target server
     server_control = None # Instance of ServerControlBase to do start/stop/status of MySQL server
 
-    ssh = None
     sql = None
 
     worker_thread = None
@@ -217,11 +215,14 @@ class WbAdminControl(object):
 
         # Sets the default logging callback
         self.log_cb = self.raw_log
-
+        self.sshBridge = None
 
     def raw_log(self, data):
         log_info(data + "\n")
 
+    @property
+    def ssh(self):
+        return self.sshBridge
 
     @property
     def admin_access_available(self):
@@ -252,40 +253,27 @@ class WbAdminControl(object):
         """Make sure we have access to the instance for admin (for config file, start/stop etc)"""
         if self.server_control or not self.server_profile.admin_enabled:
             return
+        
         if self.server_profile.uses_ssh:
-            try:
-                while True:
-                    try:
-                        self.ssh = SSH(self.server_profile, self.password_handler)
-                        break
-                    except SSHFingerprintNewError, exc:
-                        if self._confirm_server_fingerprint(self.server_profile.ssh_hostname, self.server_profile.ssh_port, exc):
-                            continue;
-                        else:
-                            raise OperationCancelledError("user cancel")
-                    
-            except OperationCancelledError:
-                self.ssh = None
-                raise OperationCancelledError("SSH connection cancelled")
-
-            except SSHDownException, e:
-                log_error("SSHDownException: %s\n" % traceback.format_exc())
-                self.ssh = None
-                if self.sql_enabled:
-                    if mforms.Utilities.show_warning('SSH connection failed',
-                                                     "Check your SSH connection settings and whether the SSH server is up.\nYou may continue anyway, but some functionality will be unavailable.\nError: %s" % e,
-                                                     "Continue", "Cancel", "") != mforms.ResultOk:
+            if self.editor is not None:
+                if self.editor.sshConnection.isConnected() == 0:
+                    if self.editor.sshConnection.connect() != 0:
                         raise OperationCancelledError("Could not connect to SSH server")
-                else:
-                    mforms.Utilities.show_warning('SSH connection failed',
-                                                  "Check your SSH connection settings and whether the SSH server is up.\nError: %s" % e, "OK", "", "")
+                self.sshBridge = self.editor.sshConnection
+                self.server_helper = ServerManagementHelper(self.server_profile, self.sshBridge)
+            else:
+                ssh = grt.modules.Workbench.createSSHSession(self.server_profile.get_settings_object())
+                if ssh.connect() != 0:
+                    raise OperationCancelledError("Could not connect to SSH server")
+                self.sshBridge = ssh 
+                self.server_helper = ServerManagementHelper(self.server_profile, self.sshBridge)
         else:
-            self.ssh = None
-        # init server management helper (for doing remote file operations, process management etc)
-        self.server_helper = ServerManagementHelper(self.server_profile, self.ssh)
+            self.server_helper = ServerManagementHelper(self.server_profile, None)
+        
         if self.server_helper:
             self.server_profile.expanded_config_file_path = self.server_helper.shell.expand_path_variables(self.server_profile.config_file_path)
             self.query_server_installation_info()
+        
         # detect the exact type of OS we're managing
         os_info = self.detect_operating_system_version()
         if os_info:
@@ -346,10 +334,12 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
     def shutdown(self):
         self.events.event('shutdown')
         self.running = False
+        if self.worker_thread:
+            self.worker_thread.join()
+            
         self.disconnect_sql()
-        if self.ssh:
-            self.ssh.close()
-
+        if self.sshBridge and self.sshBridge.isConnected() == 1:
+            self.sshBridge.disconnect()
 
     #---------------------------------------------------------------------------
     def force_check_server_state(self, verbose = False):
@@ -576,6 +566,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         try:
             # runs in a separate thread to fetch status variables
             while self.running:
+                log_debug3("Poll server status\n")
                 variables = {}
                 result = self.poll_connection.executeQuery("SHOW GLOBAL STATUS")
                 while result and result.nextRow():
@@ -691,15 +682,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         return self.server_variables.get(variable, default)
 
     #---------------------------------------------------------------------------
-    def open_ssh_session_for_monitoring(self):
-        ssh = SSH(self.server_profile, self.password_handler)
-
-        return ssh
-
-    #---------------------------------------------------------------------------
     def is_ssh_connected(self):
-        return self.ssh is not None
-
+        return self.sshBridge and self.sshBridge.isConnected() == 1
 
     #---------------------------------------------------------------------------
     def query_server_info(self):
@@ -891,7 +875,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             os_variant: the variant of the OS, esp for Linux distributions (eg Ubuntu, Fedora etc)
             os_version: the version of the OS (eg 12.04, XP etc)
         """
-        if self.ssh or self.server_profile.is_local:
+        if self.is_ssh_connected() or self.server_profile.is_local:
             o = StringIO.StringIO()
             # check if windows
             rc = self.server_helper.execute_command('ver', output_handler=o.write)
