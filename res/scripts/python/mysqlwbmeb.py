@@ -311,6 +311,8 @@ class MEBBackup(MEBCommand):
         self.compress_method = profile.read_value('meb_manager', 'compress_method', False, 'lz4')
         self.compress_level = profile.read_value('meb_manager', 'compress_level', False, '1')
         self.skip_unused_pages = profile.read_value('meb_manager', 'skip_unused_pages', False, False) == 'True'
+        self.use_encryption_password = profile.read_value('meb_manager', 'use_encryption_password', False, False) == 'True'
+        self.encryption_password = profile.read_value('meb_manager', 'encryption_password', False, "")
 
     def set_backup_paths(self):
         target_folder = ''
@@ -396,6 +398,9 @@ class MEBBackup(MEBCommand):
             
         if self.report_progress:
             self.command_call += ' --show-progress=stdout'
+
+        if self.use_encryption_password:
+            self.command_call += " --encrypt-password=%s" % self.encryption_password
 
         self.command_call += ' %s > "%s" 2>&1' % (self.bkcommand, self.log_path)
 

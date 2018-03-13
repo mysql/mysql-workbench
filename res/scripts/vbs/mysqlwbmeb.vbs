@@ -380,6 +380,8 @@ class MEBBackup
     private command_call
     private use_tts
     private skip_unused_pages
+    private use_encryption_password
+    private encryption_password
     
     ' These are for internal use
     private shell
@@ -427,6 +429,12 @@ class MEBBackup
         if profile.get_value("meb_manager", "skip_unused_pages", "False") = "True" then
             skip_unused_pages = true
         end if
+
+        if profile.get_value("meb_manager", "use_encryption_password", "False") = "True" then
+            use_encryption_password = true
+        end if
+        encryption_password = profile.get_value("meb_manager", "encryption_password", "")
+        
     end sub
     
     ' Function used to create the target name in case it is a timestamp
@@ -666,6 +674,10 @@ class MEBBackup
         end if
             
         if report_progress then command_call = command_call & " --show-progress=stdout"
+
+        if use_encryption_password then
+            command_call = command_call & " --encrypt-password=" & encryption_password
+        end if
 
         command_call = command_call & " " & bkcommand & " > """ & log_path &  """  2>&1"
 
