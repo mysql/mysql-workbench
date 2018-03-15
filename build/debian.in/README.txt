@@ -1,4 +1,4 @@
-Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
+Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 
 This is a release of MySQL Workbench, a MySQL query, managment and EER design tool.
 
