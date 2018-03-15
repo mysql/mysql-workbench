@@ -2350,7 +2350,10 @@ public:
     _currentUser = grt::DictRef(true);
   }
 
-  virtual void exitGrantUser(MySQLParser::GrantUserContext *ctx) override {
+  /**
+   * Exclusively for pre-8.0 servers.
+   */
+  virtual void exitCreateOrAlterUser(MySQLParser::CreateOrAlterUserContext *ctx) override {
     if (ctx->BY_SYMBOL() != nullptr) {
       _currentUser.gset("id_method", "PASSWORD");
       _currentUser.gset("id_string", base::unquote(ctx->textString()->getText()));
@@ -2361,6 +2364,14 @@ public:
       if (ctx->textString() != nullptr)
         _currentUser.gset("id_string", base::unquote(ctx->textString()->getText()));
     }
+  }
+
+  /**
+   * For server 8 and newer. There's no password allowed anymore.
+   */
+  virtual void exitUserList(MySQLParser::UserListContext *ctx) override {
+    _currentUser.gset("id_method", "");
+    _currentUser.gset("id_string", "");
   }
 
   virtual void exitUser(MySQLParser::UserContext *ctx) override {

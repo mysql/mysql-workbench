@@ -24,14 +24,13 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [6389618] (7 December 2017).
+ * Merged in all changes up to mysql-trunk git revision [3179f4438b3] (13. March 2018).
  *
  * MySQL grammar for ANTLR 4.5+ with language features from MySQL 4.0.0 up to MySQL 8.0 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
  *
- * This grammar is a port of the ANTLR v3 version to v4 + some ehancements for newer server versions.
  * The coverage of the MySQL language should be 100%, but there might still be bugs or omissions.
  *
  * To use this grammar you will need a few support classes (which should be close to where you found this grammar).
@@ -1027,6 +1026,11 @@ MASTER_PUBLIC_KEY_PATH_SYMBOL:
 GET_MASTER_PUBLIC_KEY_SYM:
     G E T '_' M A S T E R '_' P U B L I C '_' K E Y '_' S Y M                {serverVersion >= 80000}?
 ;                                                                            // MYSQL
+RESTART_SYMBOL:                 R E S T A R T                                {serverVersion >= 80011}?;
+DEFINITION_SYMBOL:              D E F I N I T I O N                          {serverVersion >= 80011}?;
+DESCRIPTION_SYMBOL:             D E S C R I P T I O N                        {serverVersion >= 80011}?;
+ORGANIZATION_SYMBOL:            O R G A N I Z A T I O N                      {serverVersion >= 80011}?;
+REFERENCE_SYMBOL:               R E F E R E N C E                            {serverVersion >= 80011}?;
 
 // $antlr-format groupedAlignments on, alignTrailers off, alignLexerCommands on
 

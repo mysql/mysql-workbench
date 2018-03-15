@@ -141,8 +141,8 @@ namespace parsers {
 
     virtual void enterCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) override;
     virtual void exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx) override;
-    virtual void exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultContext *ctx) override;
-    virtual void exitCollationNameOrDefault(MySQLParser::CollationNameOrDefaultContext *ctx) override;
+    virtual void exitCharsetName(MySQLParser::CharsetNameContext *ctx) override;
+    virtual void exitCollationName(MySQLParser::CollationNameContext *ctx) override;
   };
 
   class TableListener : public ObjectListener {

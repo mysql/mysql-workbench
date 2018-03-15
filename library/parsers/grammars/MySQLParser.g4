@@ -24,14 +24,13 @@ parser grammar MySQLParser;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [6389618] (7 December 2017).
+ * Merged in all changes up to mysql-trunk git revision [3179f4438b3] (13. March 2018).
  *
  * MySQL grammar for ANTLR 4.5+ with language features from MySQL 4.0.0 up to MySQL 8.0 (except for
  * internal function names which were reduced significantly in 5.1, we only use the reduced set).
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
  *
- * This grammar is a port of the ANTLR v3 version to v4 + some ehancements for newer server versions.
  * The coverage of the MySQL language should be 100%, but there might still be bugs or omissions.
  *
  * To use this grammar you will need a few support classes (which should be close to where you found this grammar).
@@ -276,8 +275,8 @@ alterListItem:
     | {serverVersion >= 80000}? ALTER_SYMBOL INDEX_SYMBOL indexRef visibility
     | RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? tableName
     | {serverVersion >= 50700}? RENAME_SYMBOL keyOrIndex indexRef TO_SYMBOL indexName
-    | CONVERT_SYMBOL TO_SYMBOL charset charsetNameOrDefault (
-        COLLATE_SYMBOL collationNameOrDefault
+    | CONVERT_SYMBOL TO_SYMBOL charset charsetName (
+        COLLATE_SYMBOL collationName
     )?
     | FORCE_SYMBOL
     | ORDER_SYMBOL BY_SYMBOL alterOrderList
@@ -397,6 +396,7 @@ createStatement:
     | createTablespace
     | {serverVersion >= 50100}? createEvent
     | {serverVersion >= 80000}? createRole
+    | {serverVersion >= 80011}? createSpatialReference
 ;
 
 createDatabase:
@@ -626,6 +626,19 @@ createRole:
     CREATE_SYMBOL ROLE_SYMBOL ifNotExists? roleList
 ;
 
+createSpatialReference:
+    CREATE_SYMBOL OR_SYMBOL REPLACE_SYMBOL SPATIAL_SYMBOL REFERENCE_SYMBOL SYSTEM_SYMBOL real_ulonglong_number
+        srsAttribute*
+    | CREATE_SYMBOL SPATIAL_SYMBOL REFERENCE_SYMBOL SYSTEM_SYMBOL ifNotExists? real_ulonglong_number srsAttribute*
+;
+
+srsAttribute:
+    NAME_SYMBOL TEXT_SYMBOL textStringNoLinebreak
+    | DEFINITION_SYMBOL TEXT_SYMBOL textStringNoLinebreak
+    | ORGANIZATION_SYMBOL textStringNoLinebreak IDENTIFIED_SYMBOL BY_SYMBOL real_ulonglong_number
+    | DESCRIPTION_SYMBOL TEXT_SYMBOL textStringNoLinebreak
+;
+
 //--------------------------------------------------------------------------------------------------
 
 dropStatement:
@@ -641,6 +654,7 @@ dropStatement:
     | dropTrigger
     | dropView
     | {serverVersion >= 80000}? dropRole
+    | {serverVersion >= 80011}? dropSpatialReference
 ;
 
 dropDatabase:
@@ -704,6 +718,10 @@ dropView:
 
 dropRole:
     DROP_SYMBOL ROLE_SYMBOL ifExists? roleList
+;
+
+dropSpatialReference:
+    DROP_SYMBOL SPATIAL_SYMBOL REFERENCE_SYMBOL SYSTEM_SYMBOL ifExists? real_ulonglong_number
 ;
 
 //--------------------------------------------------------------------------------------------------
@@ -1578,7 +1596,7 @@ alterUser:
 ;
 
 alterUserTail:
-    grantList createUserTail
+    createOrAlterUserList createUserTail
     | {serverVersion >= 50706}? USER_SYMBOL parentheses IDENTIFIED_SYMBOL BY_SYMBOL textString
     | {serverVersion >= 80000}? user DEFAULT_SYMBOL ROLE_SYMBOL (
         ALL_SYMBOL
@@ -1591,7 +1609,7 @@ createUser:
     CREATE_SYMBOL USER_SYMBOL (
         {serverVersion >= 50706}? ifNotExists
         | /* empty */
-    ) grantList defaultRoleClause createUserTail
+    ) createOrAlterUserList defaultRoleClause createUserTail
 ;
 
 createUserTail:
@@ -1642,12 +1660,26 @@ grant:
         {serverVersion >= 80000}? roleOrPrivilegesList TO_SYMBOL userList (
             WITH_SYMBOL ADMIN_SYMBOL OPTION_SYMBOL
         )?
-        | (roleOrPrivilegesList | ALL_SYMBOL PRIVILEGES_SYMBOL?) ON_SYMBOL aclType? grantIdentifier TO_SYMBOL grantList
-            requireClause? (WITH_SYMBOL grantOption+)?
-        | {serverVersion >= 50500}? PROXY_SYMBOL ON_SYMBOL user TO_SYMBOL grantList (
+        | (roleOrPrivilegesList | ALL_SYMBOL PRIVILEGES_SYMBOL?) ON_SYMBOL aclType? grantIdentifier TO_SYMBOL
+            grantTargetList versionedRequireClause? grantOptions?
+        | {serverVersion >= 50500}? PROXY_SYMBOL ON_SYMBOL user TO_SYMBOL grantTargetList (
             WITH_SYMBOL GRANT_SYMBOL OPTION_SYMBOL
         )?
     )
+;
+
+grantTargetList:
+    {serverVersion < 80011}? createOrAlterUserList
+    | {serverVersion >= 80011}? userList
+;
+
+grantOptions:
+    {serverVersion < 80011}? WITH_SYMBOL grantOption+
+    | {serverVersion >= 80011}? WITH_SYMBOL GRANT_SYMBOL OPTION_SYMBOL
+;
+
+versionedRequireClause:
+    {serverVersion < 80011}? requireClause
 ;
 
 renameUser:
@@ -1791,7 +1823,7 @@ tableAdministrationStatement:
 ;
 
 histogram:
-    UPDATE_SYMBOL HISTOGRAM_SYMBOL ON_SYMBOL identifierList WITH_SYMBOL INT_NUMBER BUCKETS_SYMBOL
+    UPDATE_SYMBOL HISTOGRAM_SYMBOL ON_SYMBOL identifierList (WITH_SYMBOL INT_NUMBER BUCKETS_SYMBOL)?
     | DROP_SYMBOL HISTOGRAM_SYMBOL ON_SYMBOL identifierList
 ;
 
@@ -1848,7 +1880,8 @@ optionValueNoOptionType:
     | setSystemVariable equal setExprOrDefault
     | NAMES_SYMBOL (
         equal expr
-        | charsetNameOrDefault (COLLATE_SYMBOL collationNameOrDefault)?
+        | charsetName (COLLATE_SYMBOL collationName)?
+        | {serverVersion >= 80011}? DEFAULT_SYMBOL
     )
 ;
 
@@ -2134,20 +2167,24 @@ dropResourceGroup:
 
 utilityStatement:
     describeCommand
+    | explainCommand
     | helpCommand
     | useCommand
+    | {serverVersion >= 80011}? restartServer
 ;
 
 describeCommand:
+    (DESCRIBE_SYMBOL | DESC_SYMBOL) tableRef (textString | identifier)?
+;
+
+explainCommand:
     (DESCRIBE_SYMBOL | DESC_SYMBOL) (
-        tableRef (textString | identifier)?
-        | (
-            // Format must be "traditional" or "json".
-            EXTENDED_SYMBOL                               // deprecated since 5.7
-            | {serverVersion >= 50105}? PARTITIONS_SYMBOL // deprecated since 5.7
-            | {serverVersion >= 50605}? FORMAT_SYMBOL EQUAL_OPERATOR textOrIdentifier
-        )? explainableStatement
+        // Format must be "traditional" or "json".
+        {serverVersion < 80000}? EXTENDED_SYMBOL
+        | {serverVersion >= 50105 && serverVersion < 80000}? PARTITIONS_SYMBOL
+        | {serverVersion >= 50605}? FORMAT_SYMBOL EQUAL_OPERATOR textOrIdentifier
     )
+    explainableStatement
 ;
 
 // Before server version 5.6 only select statements were explainable.
@@ -2168,6 +2205,10 @@ helpCommand:
 
 useCommand:
     USE_SYMBOL identifier
+;
+
+restartServer:
+    RESTART_SYMBOL
 ;
 
 //----------------- Expression support -------------------------------------------------------------
@@ -2414,7 +2455,7 @@ runtimeFunctionCall:
     | name = MICROSECOND_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
     | name = MOD_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
     | {serverVersion < 50607}? name = OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL textLiteral CLOSE_PAR_SYMBOL
-    | name = PASSWORD_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
+    | {serverVersion < 80011}? name = PASSWORD_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
     | name = QUARTER_SYMBOL OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL
     | name = REPEAT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
     | name = REPLACE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL expr COMMA_SYMBOL expr CLOSE_PAR_SYMBOL
@@ -2713,9 +2754,7 @@ spDeclaration:
 ;
 
 variableDeclaration:
-    DECLARE_SYMBOL identifierList dataType (
-        COLLATE_SYMBOL collationNameOrDefault
-    )? (DEFAULT_SYMBOL expr)?
+    DECLARE_SYMBOL identifierList dataType (COLLATE_SYMBOL collationName)? (DEFAULT_SYMBOL expr)?
 ;
 
 conditionDeclaration:
@@ -3080,20 +3119,12 @@ typeDatetimePrecision:
 charsetName:
     textOrIdentifier
     | BINARY_SYMBOL
-;
-
-charsetNameOrDefault:
-    charsetName
-    | DEFAULT_SYMBOL
+    | {serverVersion < 80011}? DEFAULT_SYMBOL
 ;
 
 collationName:
     textOrIdentifier
-;
-
-collationNameOrDefault:
-    collationName
-    | DEFAULT_SYMBOL
+    | {serverVersion < 80011}? DEFAULT_SYMBOL
 ;
 
 createTableOptions:
@@ -3156,11 +3187,11 @@ ternaryOption:
 ;
 
 defaultCollation:
-    DEFAULT_SYMBOL? COLLATE_SYMBOL EQUAL_OPERATOR? collationNameOrDefault
+    DEFAULT_SYMBOL? COLLATE_SYMBOL EQUAL_OPERATOR? collationName
 ;
 
 defaultCharset:
-    DEFAULT_SYMBOL? charset EQUAL_OPERATOR? charsetNameOrDefault
+    DEFAULT_SYMBOL? charset EQUAL_OPERATOR? charsetName
 ;
 
 // Partition rules for CREATE/ALTER TABLE.
@@ -3258,7 +3289,7 @@ functionParameter:
 ;
 
 typeWithOptCollate:
-    dataType (COLLATE_SYMBOL collationNameOrDefault)?
+    dataType (COLLATE_SYMBOL collationName)?
 ;
 
 schemaIdentifierPair:
@@ -3278,7 +3309,7 @@ updateElement:
 ;
 
 charsetClause:
-    charset charsetNameOrDefault
+    charset charsetName
 ;
 
 fieldsClause:
@@ -3302,14 +3333,14 @@ userList:
     user (COMMA_SYMBOL user)*
 ;
 
-grantList:
-    grantUser (COMMA_SYMBOL grantUser)*
+createOrAlterUserList:
+    createOrAlterUser (COMMA_SYMBOL createOrAlterUser)*
 ;
 
-grantUser:
+createOrAlterUser:
     user (
         IDENTIFIED_SYMBOL (
-            BY_SYMBOL PASSWORD_SYMBOL? textString
+            BY_SYMBOL ({serverVersion < 80011}? PASSWORD_SYMBOL)? textString
             | {serverVersion >= 50600}? WITH_SYMBOL textOrIdentifier (
                 (AS_SYMBOL | {serverVersion >= 50706}? BY_SYMBOL) textString
             )?
@@ -3750,6 +3781,7 @@ identifierKeyword:
     | roleOrIdentifierKeyword
     | EXECUTE_SYMBOL
     | {serverVersion >= 50709}? SHUTDOWN_SYMBOL // Previously allowed as SP label as well.
+    | {serverVersion >= 80011}? RESTART_SYMBOL
 ;
 
 // Keywords that we allow for labels in SPs.
@@ -4209,7 +4241,8 @@ roleOrLabelKeyword:
 //    PROXY_SYM
 //    RELOAD
 //    REPLICATION
-//    RESOURCES
+//    RESOURCE_SYM
+//    RESTART_SYM
 //    SHUTDOWN
 //    SUPER_SYM
 roleKeyword:
