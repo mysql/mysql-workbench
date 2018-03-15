@@ -399,7 +399,7 @@ namespace ssh {
 
     hash.reset(hashPtr);
 
-    std::unique_ptr<char, void (*)(char*)> hexa(ssh_get_hexa(hash.get(), hlen), [](char*ptr) {free(ptr);});
+    std::unique_ptr<char, void (*)(char*)> hexa(ssh_get_hexa(hash.get(), hlen), [](char*ptr) { ssh_string_free_char(ptr); });
     fingerprint = hexa.get();
     int retVal = _session->isServerKnown();
     switch (retVal) {
