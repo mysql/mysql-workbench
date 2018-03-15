@@ -21,6 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#ifdef _WIN32
 #include <windows.h>
 #include <psapi.h>
 #include "base/mem_stat.h"
@@ -28,7 +29,7 @@
 
 DEFAULT_LOG_DOMAIN("base")
 
-#ifdef _WIN32
+
 
 using namespace base;
 MEMORYSTATUSEX memInfo;

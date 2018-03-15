@@ -92,7 +92,6 @@ private:
   std::string _user_index_name;
   Gtk::CheckButton *_indexVisibility;
   sigc::connection _visibilitySignal;
-  bool _supportIndexVisibility;
 };
 
 #endif
