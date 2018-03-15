@@ -119,8 +119,10 @@ namespace mforms {
 
       //  Check if a parent was found and only set transcient if it was. Passing
       //  a NULL parent would remove the transcient flag.
-      if (get_current_window() != NULL)
+      if (parent_window != NULL)
         gtk_window_set_transient_for(((Gtk::Window *)&dialog)->gobj(), parent_window);
+      else // If there's no parent window, then use main window as a parent.
+        gtk_window_set_transient_for(((Gtk::Window *)&dialog)->gobj(), get_mainwindow()->gobj());
     }
     //--------------------------------------------------------------------------------
 
