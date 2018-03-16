@@ -80,7 +80,6 @@
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;COMMERCIAL_CODE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
-      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

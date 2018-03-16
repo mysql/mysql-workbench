@@ -2028,7 +2028,7 @@ db_mgmt_SSHConnectionRef WorkbenchImpl::createSSHSession(const grt::ObjectRef &v
       object->set_data(new ssh::SSHSessionWrapper(db_mgmt_ServerInstanceRef::cast_from(val)));
 
     return object;
-  } catch (std::runtime_error &re) {
+  } catch (std::runtime_error &) {
     logError("Unable to create db_mgmt_SSHConnectionRef object.\n");
   }
   return db_mgmt_SSHConnectionRef();

@@ -52,7 +52,7 @@ static int MutexUnlock(void **lock) {
 
 static unsigned long getThreadId(void) {
   std::hash<std::thread::id> hasher;
-  return hasher(std::this_thread::get_id());
+  return static_cast<unsigned long>(hasher(std::this_thread::get_id()));
 }
 
 static struct ssh_threads_callbacks_struct stdThreads = { "threads_stdthread", &MutexInit, &MutexDestroy, &MutexLock,

@@ -603,5 +603,5 @@ Accessible* BaseSnippetList::getAccessibilityChild(size_t index) {
 //------------------------------------------------------------------------------------------------
 
 base::Accessible* BaseSnippetList::accessibilityHitTest(ssize_t x, ssize_t y) {
-  return snippet_from_point(x, y);
+  return snippet_from_point(static_cast<double>(x), static_cast<double>(y));
 }

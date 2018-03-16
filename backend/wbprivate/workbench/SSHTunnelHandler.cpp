@@ -155,7 +155,7 @@ namespace ssh {
     struct sockaddr_in client;
     socklen_t addrlen = sizeof(client);
     errno = 0;
-    int clientSock = accept(incomingSocket, (struct sockaddr*) &client, &addrlen);
+    int clientSock = static_cast<int>(accept(incomingSocket, reinterpret_cast<struct sockaddr *>(&client), &addrlen));
     if (clientSock < 0) {
       if (errno != EWOULDBLOCK || errno == EINTR)
         logError("accept() failed: %s\n.", getError().c_str());
@@ -174,7 +174,7 @@ namespace ssh {
     ssize_t readlen = 0;
     std::vector<char> buff(_session->getConfig().bufferSize, '\0');
 
-    while (!_stop && (readlen = recv(sock, buff.data(), buff.size(), 0)) > 0) {
+    while (!_stop && (readlen = recv(sock, buff.data(), static_cast<int>(buff.size()), 0)) > 0) {
       int bWritten = 0;
       for (char* buffPtr = buff.data(); readlen > 0 && !_stop; buffPtr += bWritten, readlen -= bWritten) {
         try {
@@ -211,7 +211,7 @@ namespace ssh {
 
       ssize_t bWritten = 0;
       for (char* buffPtr = buff.data(); readlen > 0 && !_stop; buffPtr += bWritten, readlen -= bWritten) {
-        bWritten = send(sock, buffPtr, readlen, MSG_NOSIGNAL);
+        bWritten = send(sock, buffPtr, static_cast<int>(readlen), MSG_NOSIGNAL);
         if (bWritten <= 0)
           throw SSHTunnelException("unable to write, client disconnected");
       }

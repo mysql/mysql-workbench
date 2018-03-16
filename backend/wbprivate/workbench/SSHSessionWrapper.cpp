@@ -172,7 +172,7 @@ namespace ssh {
           return _session->execCmdSudo(
               command, password, "EnterPasswordHere",
               wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("SSH:logSize", LOG_SIZE_1MB));
-        } catch (ssh::SSHAuthException &auth) {
+        } catch (ssh::SSHAuthException &) {
           logError("Invalid user password, retry\n");
           resetPw = true;
           continue;

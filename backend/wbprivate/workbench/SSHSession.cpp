@@ -57,8 +57,8 @@ namespace ssh {
     _credentials = credentials;
     _session->setOption(SSH_OPTIONS_USER, credentials.username.c_str());
     _session->setOption(SSH_OPTIONS_HOST, config.remoteSSHhost.c_str());
-    _session->setOption(SSH_OPTIONS_PORT, config.remoteSSHport);
-    _session->setOption(SSH_OPTIONS_TIMEOUT, config.connectTimeout);
+    _session->setOption(SSH_OPTIONS_PORT, static_cast<long>(config.remoteSSHport));
+    _session->setOption(SSH_OPTIONS_TIMEOUT, static_cast<long>(config.connectTimeout));
     _session->setOption(SSH_OPTIONS_STRICTHOSTKEYCHECK, config.strictHostKeyCheck ? 1 : 0);
     if (config.compressionLevel > 0) {
       _session->setOption(SSH_OPTIONS_COMPRESSION, "yes");
@@ -297,7 +297,7 @@ namespace ssh {
           } else
             throw SSHTunnelException("Unknown password prompt.\n");
 
-        } catch (SshException &exc) {
+        } catch (SshException &) {
           logError("Sudo password didn't came, could be it was cached, we continue and see what will happen\n");
           pwSkip = true;
         }
@@ -431,7 +431,7 @@ namespace ssh {
     try {
       if (_session->userauthNone() == SSH_AUTH_SUCCESS)
         return;
-    } catch (SshException &exc) {
+    } catch (SshException &) {
       throw SSHTunnelException(ssh_get_error(_session->getCSession()));
     }
 

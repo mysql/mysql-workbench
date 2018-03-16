@@ -646,7 +646,7 @@ db_mgmt_SSHConnectionRef SqlEditorForm::getSSHConnection() {
         }
       }
     }
-  } catch (std::runtime_error &re) {
+  } catch (std::runtime_error &) {
     logError("Unable to create db_mgmt_SSHConnectionRef object\n");
   }
   return _sshConnection;

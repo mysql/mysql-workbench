@@ -69,7 +69,7 @@ grt::StringRef ssh::SSHFileWrapper::readline() {
     else if (nBytes < 0) {
       throw SSHSftpException(ssh_get_error(_file->sftp->session));
     }
-    buff.append(buffer, nBytes);
+    buff.append(nBytes, buffer);
     bytesCount += nBytes;
     if (buffer == '\n')
       break;

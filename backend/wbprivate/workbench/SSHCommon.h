@@ -71,9 +71,9 @@ namespace ssh {
 
   inline int wbPoll(pollfd *data, size_t size) {
 #if _MSC_VER
-    return WSAPoll(data, size, -1);
+    return WSAPoll(data, static_cast<ULONG>(size), -1);
 #else
-    return poll(data, (nfds_t)size, -1);
+    return poll(data, static_cast<nfds_t>(size), -1);
 #endif
   }
 

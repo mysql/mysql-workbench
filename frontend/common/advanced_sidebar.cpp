@@ -582,7 +582,7 @@ base::Accessible* SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   else if (_toggle_mode_button && _toggle_mode_button->check_hit(x, y))
     accessible = _toggle_mode_button;
   else
-    accessible = entry_from_point(x, y);
+    accessible = entry_from_point(static_cast<double>(x), static_cast<double>(y));
 
   return accessible;
 }
