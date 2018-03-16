@@ -341,7 +341,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   }
 
   NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
-  [defaults setObject:fileName forKey: @"statements-file"];
+  [defaults setObject: fileName forKey: @"statements-file"];
+  [defaults setObject: singleQueryText.string forKey: @"single-query"];
+  [defaults setObject: versionText.stringValue forKey: @"version"];
+
 
   stopTests = NO;
   errorQueryText.string = @"";

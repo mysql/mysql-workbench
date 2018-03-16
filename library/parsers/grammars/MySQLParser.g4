@@ -1726,7 +1726,7 @@ roleOrPrivilegesList:
 roleOrPrivilege:
     {serverVersion > 80000}? (
         roleIdentifierOrText columnInternalRefList?
-        | roleIdentifierOrText AT_SYMBOL textOrIdentifier
+        | roleIdentifierOrText (AT_TEXT_SUFFIX | AT_SIGN_SYMBOL textOrIdentifier)
     )
     | (SELECT_SYMBOL | INSERT_SYMBOL | UPDATE_SYMBOL | REFERENCES_SYMBOL) columnInternalRefList?
     | (
@@ -2174,7 +2174,7 @@ utilityStatement:
 ;
 
 describeCommand:
-    (DESCRIBE_SYMBOL | DESC_SYMBOL) tableRef (textString | identifier)?
+    (DESCRIBE_SYMBOL | DESC_SYMBOL) tableRef (textString | columnRef)?
 ;
 
 explainCommand:
@@ -2183,7 +2183,7 @@ explainCommand:
         {serverVersion < 80000}? EXTENDED_SYMBOL
         | {serverVersion >= 50105 && serverVersion < 80000}? PARTITIONS_SYMBOL
         | {serverVersion >= 50605}? FORMAT_SYMBOL EQUAL_OPERATOR textOrIdentifier
-    )
+    )?
     explainableStatement
 ;
 
