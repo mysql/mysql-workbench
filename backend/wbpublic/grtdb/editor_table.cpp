@@ -1271,6 +1271,9 @@ bool IndexColumnsListBE::set_field(const NodeId &node, ColumnId column, ssize_t 
     return false;
 
   icolumn = get_index_column(_owner->get_owner()->get_table()->columns()[node[0]]);
+  if(!icolumn.is_valid())
+    return false;
+
   if (!_owner->index_editable(_owner->get_selected_index()) && column != OrderIndex &&
       !(icolumn->referencedColumn()->simpleType().is_valid() && column == Length &&
         icolumn->referencedColumn()->simpleType()->group()->name() == "string")) // index order can be changed for PKs
