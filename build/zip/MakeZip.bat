@@ -45,13 +45,6 @@ if not exist %TMP_DIR% mkdir %TMP_DIR%
 
 
 rem -------------------------------------------------------------------------------------
-echo Copy Editions specific files...
-echo .
-if "%1"=="commercial" copy ..\..\LICENSE.mysql %BIN_DIR%\. 1> nul
-if "%1"=="community" copy ..\res\COPYING %BIN_DIR%\. 1> nul
-
-
-rem -------------------------------------------------------------------------------------
 echo Make Zip script started...
 echo .
 
@@ -71,7 +64,6 @@ del /Q *.ilk
 del /Q *.metagen
 del /Q *vshost.exe
 del /Q *vshost.exe.manifest
-del /Q license.txt
 erase /S /Q Makefile.am
 erase /S /Q *.pyc
 rmdir /S /Q python\lib\sqlite3\test
