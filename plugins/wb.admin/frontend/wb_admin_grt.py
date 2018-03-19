@@ -619,7 +619,7 @@ class PasswordExpiredDialog(mforms.Form):
             old_multi_statements = con.parameterValues.get("CLIENT_MULTI_STATEMENTS")
             old_script = con.parameterValues.get("preInit")
             con.parameterValues["CLIENT_MULTI_STATEMENTS"] = 1
-            con.parameterValues["preInit"] = "SET PASSWORD = PASSWORD('%s')" % escape_sql_string(self.password.get_string_value())
+            con.parameterValues["preInit"] = "SET PASSWORD = '%s'" % escape_sql_string(self.password.get_string_value())
             #con.parameterValues["preInit"] = "ALTER USER '%s'@'%s' IDENTIFIED BY '%s'" % (con.parameterValues["userName"], con.hostIdentifier.replace("Mysql@", ""), escape_sql_string(self.password.get_string_value()))
             #change_pw = "ALTER USER '%s'@'%s' IDENTIFIED BY '%s'" % (con.parameterValues["userName"], con.hostIdentifier.replace("Mysql@", ""), escape_sql_string(self.password.get_string_value())) 
             retry = False
