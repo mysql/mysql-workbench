@@ -150,3 +150,7 @@ class CmdOutput(object):
 def to_unicode(text):
     # Convert to unicode if it's not unicode yet
     return text if isinstance(text, unicode) else text.decode('utf8')
+
+def to_encodedString(text):
+    # Convert to string if it's unicode
+    return text if isinstance(text, str) else text.encode('utf8')
