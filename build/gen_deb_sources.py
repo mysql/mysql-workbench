@@ -92,7 +92,7 @@ def generate_distro(source_dir, vars):
 
         # always copy this file, since the tar will come with the right README file
         if vars['edition'] == "commercial":
-                shutil.copyfile("../README-commercial.md", os.path.join(target_dir,"copyright"))
+                shutil.copyfile("debian.in/copyright.commercial.in", os.path.join(target_dir,"copyright"))
         else:
                 shutil.copyfile("../README.md", os.path.join(target_dir,"copyright"))
         shutil.copyfile(os.path.join(source_dir, "source/format"), os.path.join(target_source_dir,"format"))

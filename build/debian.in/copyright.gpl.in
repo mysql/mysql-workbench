@@ -1,11 +1,9 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: @DEB_COPYRIGHT_UPSTREAMNAME@
-Upstream-Contact: MySQL Release Engineering <mysql-build@oss.oracle.com>
 Source: http://dev.mysql.com/
 
 Copyright: 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 License:
- This is a release of MySQL Workbench, a MySQL query, managment and EER design tool.
+ This is a release of MySQL Workbench, a graphical tool for working with MySQL servers and databases.
  .
  License information can be found in the License.txt file.
  .
@@ -13,8 +11,8 @@ License:
  For license and attribution notices for these materials,
  please refer to the License.txt file.
  .
- For further information on MySQL Workbench or additional documentation, visit
- http://dev.mysql.com/doc/
+ For more information on MySQL Workbench, visit
+ http://dev.mysql.com/doc/workbench/en
  .
  For additional downloads and the source of MySQL Workbench, visit
  http://dev.mysql.com/downloads/
