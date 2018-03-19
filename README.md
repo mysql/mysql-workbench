@@ -4,7 +4,7 @@ Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
 
 This is a release of [MySQL Workbench](https://mysqlworkbench.org), a graphical tool for working with MySQL servers and databases.
 
-License information can be found in the [LICENSE](LICENSE) file.
+License information can be found in the [License](License.txt) file.
 
 This distribution may include materials developed by third parties. 
 For license and attribution notices for these materials, please refer to the [License](License.txt) file. 
