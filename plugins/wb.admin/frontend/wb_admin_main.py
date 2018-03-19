@@ -220,7 +220,7 @@ class AdministratorTab(mforms.AppView):
 
     #---------------------------------------------------------------------------
     def shutdown(self):
-        log_error("shutting down admin\n")
+        log_debug("shutting down admin\n")
         dprint_ex(2, " closing")
         self.closing = True
         for tab in self.tabs:
