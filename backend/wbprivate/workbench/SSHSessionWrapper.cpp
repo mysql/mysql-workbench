@@ -430,7 +430,7 @@ namespace ssh {
   bool SSHSessionWrapper::pollSession() {
     auto timeoutLock = lockTimeout();
     if (_sessionPoolHandle != 0) {
-      mforms::Utilities::cancel_timeout(_sessionPoolHandle);
+      ThreadedTimer::remove_task(_sessionPoolHandle);
       _sessionPoolHandle = 0;
     }
 
