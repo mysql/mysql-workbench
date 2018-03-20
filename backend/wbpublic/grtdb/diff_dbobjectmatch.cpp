@@ -218,17 +218,8 @@ bool sqlCompare(const ValueRef obj1, const ValueRef obj2, const std::string& nam
                                                         : GrtObjectRef::cast_from(obj1)->owner()->name();
     std::string schema2 = db_TriggerRef::can_wrap(obj2) ? GrtObjectRef::cast_from(obj2)->owner()->owner()->name()
                                                         : GrtObjectRef::cast_from(obj2)->owner()->name();
-    std::string create;
-    if (db_TriggerRef::can_wrap(obj1))
-      create = "CREATE ";
-    else if (db_RoutineRef::can_wrap(obj1))
-      create.append("CREATE ")
-        .append(db_RoutineRef::cast_from(obj1)->routineType())
-        .append(" ")
-        .append(db_RoutineRef::cast_from(obj1)->name())
-        .append(" ");
-    sql1 = parser->normalizeSqlStatement(create + sql1, schema1);
-    sql2 = parser->normalizeSqlStatement(create + sql2, schema2);
+    sql1 = parser->normalizeSqlStatement(sql1, schema1);
+    sql2 = parser->normalizeSqlStatement(sql2, schema2);
     return sql1 == sql2;
   } else
     return true; // consider it as always matching

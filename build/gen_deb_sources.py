@@ -94,7 +94,7 @@ def generate_distro(source_dir, vars):
         if vars['edition'] == "commercial":
                 shutil.copyfile("debian.in/copyright.commercial.in", os.path.join(target_dir,"copyright"))
         else:
-                shutil.copyfile("../README.md", os.path.join(target_dir,"copyright"))
+                shutil.copyfile("debian.in/copyright.gpl.in", os.path.join(target_dir,"copyright"))
         shutil.copyfile(os.path.join(source_dir, "source/format"), os.path.join(target_source_dir,"format"))
 
         print target_dir, "generated"
