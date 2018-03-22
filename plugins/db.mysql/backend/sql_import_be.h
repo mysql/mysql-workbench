@@ -49,13 +49,19 @@ private:
 
 public:
   virtual std::string sql_script() {
-    return _sql_script;
+    return _sqlScript;
   }
-  virtual void sql_script(const std::string &sql_script) {
-    _sql_script = sql_script;
+
+  virtual void sql_script(const std::string &sql) {
+    _sqlScript = sql;
   }
-  virtual void sql_script_codeset(const std::string &value) {
-    _sql_script_codeset = value;
+
+  virtual void encoding(const std::string &value) {
+    _encoding = value;
+  }
+
+  virtual void sqlMode(const std::string &mode) {
+    _sqlMode = mode;
   }
 
   grt::ListRef<GrtObject> get_created_objects();
@@ -66,7 +72,8 @@ protected:
   grt::DictRef _options;
 
   workbench_DocumentRef _doc;
-  std::string _sql_script;
-  std::string _sql_script_codeset;
+  std::string _sqlScript;
+  std::string _encoding;
+  std::string _sqlMode;
 };
 

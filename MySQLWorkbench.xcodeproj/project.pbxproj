@@ -147,6 +147,7 @@
 		271C7F9F1DE2FEF9006D6C88 /* mysql-code-completion.h in Headers */ = {isa = PBXBuildFile; fileRef = 271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */; };
 		2720518E111847920013E88B /* message_wb_lock.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720518D111847920013E88B /* message_wb_lock.png */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
+		2725786F2062B20900BC6E5E /* db_reverse_engineer_script.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */; };
 		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		272E57321FA0726E002541F5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2774A4C41C92D31200D1E037 /* Cocoa.framework */; };
 		27327BA1172FAFC800DE65D7 /* python_copy_data_source.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */; };
@@ -4404,6 +4405,7 @@
 		2722CB571E647FFA00BC573D /* help-5.6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.6.json"; path = "res/sqlidedata/context-help/help-5.6.json"; sourceTree = "<group>"; };
 		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
 		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
+		2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_reverse_engineer_script.h; path = plugins/db.mysql/frontend/db_reverse_engineer_script.h; sourceTree = "<group>"; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
 		27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_copy_data_source.h; path = plugins/migration/copytable/python_copy_data_source.h; sourceTree = "<group>"; };
 		27327BA2172FB2B300DE65D7 /* wb_tile_manage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_manage.png; path = images/home/wb_tile_manage.png; sourceTree = "<group>"; };
@@ -9463,6 +9465,7 @@
 				2B3D4FC50F40C73D009238A7 /* db_forward_engineer_script.cpp */,
 				2B3D49C40F3E7123009238A7 /* db_forward_engineer.cpp */,
 				2B3D49C60F3E7123009238A7 /* db_reverse_engineer_script.cpp */,
+				2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */,
 				2B3D49C50F3E7123009238A7 /* db_reverse_engineer.cpp */,
 			);
 			name = Frontend;
@@ -11978,6 +11981,7 @@
 				2B3D4FCD0F40C73D009238A7 /* synchronize_differences_page.h in Headers */,
 				2B91E04B131EAF4700AD708D /* db_alter_script_be.h in Headers */,
 				2B0F1C6E1501AA8E0087D62A /* schema_matching_page.h in Headers */,
+				2725786F2062B20900BC6E5E /* db_reverse_engineer_script.h in Headers */,
 				2BF049B11751A18E00A7EA35 /* data_source_selector_page.h in Headers */,
 				2B88345F176752580099D927 /* fetch_schema_contents_multi_page.h in Headers */,
 				2B883460176752580099D927 /* fetch_schema_names_multi_page.h in Headers */,

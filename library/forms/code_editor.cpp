@@ -637,7 +637,7 @@ const std::string CodeEditor::get_text_in_range(size_t start, size_t end) {
 
 std::pair<const char*, std::size_t> CodeEditor::get_text_ptr() {
   std::pair<const char*, std::size_t> result;
-  result.first = (const char*)_code_editor_impl->send_editor(this, SCI_GETCHARACTERPOINTER, 0, 0);
+  result.first = reinterpret_cast<const char *>(_code_editor_impl->send_editor(this, SCI_GETCHARACTERPOINTER, 0, 0));
   result.second = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
 
   return result;

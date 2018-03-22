@@ -139,7 +139,7 @@ TEST_FUNCTION(5) {
   test_time_point t1;
 #endif
 
-  std::vector<std::pair<size_t, size_t>> ranges;
+  std::vector<StatementRange> ranges;
   _services->determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
 
 #if VERBOSE_OUTPUT
@@ -153,13 +153,13 @@ TEST_FUNCTION(5) {
 
   ensure("Unexpected number of statements returned from splitter", ranges.size() == 57);
 
-  std::string s1(sql, ranges[0].first, ranges[0].second);
+  std::string s1(sql, ranges[0].start, ranges[0].length);
   ensure("Wrong statement", s1 == "SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0");
 
-  std::string s3(sql, ranges[56].first, ranges[56].second);
+  std::string s3(sql, ranges[56].start, ranges[56].length);
   ensure("Wrong statement", s3 == "SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS");
 
-  std::string s2(sql, ranges[30].first, ranges[30].second);
+  std::string s2(sql, ranges[30].start, ranges[30].length);
 
   stream.close();
   stream.open(statement_filename, std::ios::binary);
@@ -209,7 +209,7 @@ TEST_FUNCTION(10) {
     ensure("Error loading sql file: " + test_files[i].name, stream.good());
     std::string sql((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 
-    std::vector<std::pair<size_t, size_t>> ranges;
+    std::vector<StatementRange> ranges;
     _services->determineStatementRanges(sql.c_str(), sql.size(), test_files[i].initial_delmiter, ranges,
                                         test_files[i].line_break);
     count += ranges.size();
@@ -220,8 +220,8 @@ TEST_FUNCTION(10) {
       if (++j % 50 == 0)
         std::cout << std::endl;
 
-      if (parse(std::string(sql.c_str() + range.first, range.second), 50610, "ANSI_QUOTES") > 0U) {
-        std::string query(sql.c_str() + range.first, range.second);
+      if (parse(std::string(sql.c_str() + range.start, range.length), 50610, "ANSI_QUOTES") > 0U) {
+        std::string query(sql.c_str() + range.start, range.length);
         ensure("This query failed to parse:\n" + query, false);
       }
     }

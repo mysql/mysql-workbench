@@ -89,7 +89,7 @@ public:
   bec::GRTManager::Timer *_current_delay_timer;
   int _current_work_timer_id;
 
-  std::pair<const char *, size_t> _text_info; // Only valid during a parse run.
+  std::pair<const char *, size_t> _textInfo; // Only valid during a parse run.
 
   std::vector<ParserErrorInfo> _recognition_errors; // List of errors from the last sql check run.
   std::set<size_t> _error_marker_lines;
@@ -99,9 +99,7 @@ public:
   std::set<size_t> _statement_marker_lines;
   base::RecMutex _sql_statement_borders_mutex;
 
-  // Each entry is a pair of statement position (byte position) and statement
-  // length (also bytes).
-  std::vector<std::pair<size_t, size_t>> _statement_ranges;
+  std::vector<StatementRange> _statementRanges;
 
   bool _is_refresh_enabled;   // whether FE control is permitted to replace its
                               // contents from BE
@@ -154,13 +152,13 @@ public:
 
       base::RecMutexLock lock(_sql_statement_borders_mutex);
 
-      _statement_ranges.clear();
+      _statementRanges.clear();
       if (parseUnit == MySQLParseUnit::PuGeneric) {
         double start = timestamp();
-        services->determineStatementRanges(_text_info.first, _text_info.second, ";", _statement_ranges);
+        services->determineStatementRanges(_textInfo.first, _textInfo.second, ";", _statementRanges);
         logDebug3("Splitting ended after %f ticks\n", timestamp() - start);
       } else
-        _statement_ranges.push_back({0, _text_info.second});
+        _statementRanges.push_back({ 0, 0, _textInfo.second });
     }
   }
 
@@ -367,8 +365,8 @@ static void save_file(MySQLEditor *sql_editor) {
     std::pair<const char *, size_t> data = code_editor->get_text_ptr();
 
     if (!g_file_set_contents(file.c_str(), data.first, (gssize)data.second, &error) && error) {
-      mforms::Utilities::show_error("Save File",
-                                    base::strfmt("Could not save to file %s:\n%s", file.c_str(), error->message), "OK");
+      mforms::Utilities::show_error("Save File", base::strfmt("Could not save to file %s:\n%s", file.c_str(),
+        error->message), "OK");
       g_error_free(error);
     }
   }
@@ -724,7 +722,7 @@ void MySQLEditor::text_changed(int position, int length, int lines_changed, bool
   }
 
   d->_splitting_required = true;
-  d->_text_info = d->codeEditor->get_text_ptr();
+  d->_textInfo = d->codeEditor->get_text_ptr();
   if (d->_is_sql_check_enabled)
     d->_current_delay_timer =
       bec::GRTManager::get()->run_every(std::bind(&MySQLEditor::start_sql_processing, this), 0.001);
@@ -785,7 +783,7 @@ bool MySQLEditor::start_sql_processing() {
   d->_stop_processing = false;
 
   d->codeEditor->set_status_text("");
-  if (d->_text_info.first != nullptr && d->_text_info.second > 0)
+  if (d->_textInfo.first != nullptr && d->_textInfo.second > 0)
     d->_current_work_timer_id = ThreadedTimer::get()->add_task(
       TimerTimeSpan, 0.05, true, std::bind(&MySQLEditor::do_statement_split_and_check, this, std::placeholders::_1));
   return false; // Don't re-run this task, it's a single-shot.
@@ -806,14 +804,12 @@ bool MySQLEditor::do_statement_split_and_check(int id) {
 
   // Now do error checking for each of the statements, collecting error
   // positions for later markup.
-  for (std::vector<std::pair<size_t, size_t>>::const_iterator range_iterator = d->_statement_ranges.begin();
-       range_iterator != d->_statement_ranges.end(); ++range_iterator) {
+  for (auto &range : d->_statementRanges) {
     if (d->_stop_processing)
       return false;
 
-    if (d->services->checkSqlSyntax(d->parserContext, d->_text_info.first + range_iterator->first,
-                                    range_iterator->second, d->parseUnit) > 0) {
-      std::vector<ParserErrorInfo> errors = d->parserContext->errorsWithOffset(range_iterator->first);
+    if (d->services->checkSqlSyntax(d->parserContext, d->_textInfo.first + range.start, range.length, d->parseUnit) > 0) {
+      std::vector<ParserErrorInfo> errors = d->parserContext->errorsWithOffset(range.start);
       d->_recognition_errors.insert(d->_recognition_errors.end(), errors.begin(), errors.end());
     }
   }
@@ -842,9 +838,8 @@ void *MySQLEditor::splitting_done() {
   std::set<size_t> insert_candidates;
 
   std::set<size_t> lines;
-  for (std::vector<std::pair<size_t, size_t>>::const_iterator iterator = d->_statement_ranges.begin();
-       iterator != d->_statement_ranges.end(); ++iterator)
-    lines.insert(d->codeEditor->line_from_position(iterator->first));
+  for (auto &range : d->_statementRanges)
+    lines.insert(d->codeEditor->line_from_position(range.start));
 
   std::set_difference(lines.begin(), lines.end(), d->_statement_marker_lines.begin(), d->_statement_marker_lines.end(),
                       inserter(insert_candidates, insert_candidates.begin()));
@@ -1354,40 +1349,40 @@ bool MySQLEditor::get_current_statement_range(size_t &start, size_t &end, bool s
   RecMutexLock sql_statement_borders_mutex(d->_sql_statement_borders_mutex);
   d->split_statements_if_required();
 
-  if (d->_statement_ranges.empty())
+  if (d->_statementRanges.empty())
     return false;
 
-  typedef std::vector<std::pair<size_t, size_t>>::iterator RangeIterator;
+  typedef std::vector<StatementRange>::iterator RangeIterator;
 
   size_t caret_position = d->codeEditor->get_caret_pos();
-  RangeIterator low = d->_statement_ranges.begin();
-  RangeIterator high = d->_statement_ranges.end() - 1;
+  RangeIterator low = d->_statementRanges.begin();
+  RangeIterator high = d->_statementRanges.end() - 1;
   while (low < high) {
     RangeIterator middle = low + (high - low + 1) / 2;
-    if (middle->first > caret_position)
+    if (middle->start > caret_position)
       high = middle - 1;
     else {
-      size_t end = low->first + low->second;
+      size_t end = low->start + low->length;
       if (end >= caret_position)
         break;
       low = middle;
     }
   }
 
-  if (low == d->_statement_ranges.end())
+  if (low == d->_statementRanges.end())
     return false;
 
   // If we are between two statements (in white spaces) then the algorithm above
   // returns the lower one.
   if (strict) {
-    if (low->first + low->second < caret_position)
+    if (low->start + low->length < caret_position)
       ++low;
-    if (low == d->_statement_ranges.end())
+    if (low == d->_statementRanges.end())
       return false;
   }
 
-  start = low->first;
-  end = low->first + low->second;
+  start = low->start;
+  end = low->start + low->length;
   return true;
 }
 
