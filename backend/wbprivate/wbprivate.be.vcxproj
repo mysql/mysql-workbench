@@ -189,6 +189,7 @@
     <ClInclude Include="sqlide\wb_sql_editor_snippets.h" />
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h" />
     <ClInclude Include="workbench\about_box.h" />
+    <ClInclude Include="workbench\license_view.h" />
     <ClInclude Include="workbench\SSHCommon.h" />
     <ClInclude Include="workbench\SSHFileWrapper.h" />
     <ClInclude Include="workbench\SSHSession.h" />
@@ -269,6 +270,7 @@
     <ClCompile Include="sqlide\wb_sql_editor_snippets.cpp" />
     <ClCompile Include="sqlide\wb_sql_editor_tree_controller.cpp" />
     <ClCompile Include="workbench\about_box.cpp" />
+    <ClCompile Include="workbench\license_view.cpp" />
     <ClCompile Include="workbench\metaclasses.cpp" />
     <ClCompile Include="workbench\SSHCommon.cpp" />
     <ClCompile Include="workbench\SSHFileWrapper.cpp" />

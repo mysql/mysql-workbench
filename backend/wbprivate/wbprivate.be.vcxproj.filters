@@ -262,6 +262,9 @@
     <ClInclude Include="workbench\SSHTunnelManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="workbench\license_view.h">
+      <Filter>Header Files UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\frontend\common\advanced_sidebar.cpp">
@@ -492,6 +495,9 @@
     </ClCompile>
     <ClCompile Include="workbench\SSHTunnelManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workbench\license_view.cpp">
+      <Filter>Source Files UI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
