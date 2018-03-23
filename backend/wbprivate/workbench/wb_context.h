@@ -364,8 +364,6 @@ namespace wb {
 
     bec::PluginManager *_plugin_manager;
 
-    workbench_WorkbenchRef _wb_root;
-
     int _user_interaction_blocked;
     bool _send_messages_to_shell;
     bool _asked_for_saving;
