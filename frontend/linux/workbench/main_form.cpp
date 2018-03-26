@@ -1481,8 +1481,14 @@ static std::string get_resource_path(mforms::App *app, const std::string &file) 
 
   if (g_str_has_suffix(file.c_str(), ".png") || g_str_has_suffix(file.c_str(), ".xpm"))
     return bec::IconManager::get_instance()->get_icon_path(file);
-  else if (g_str_has_suffix(file.c_str(), ".vbs")) {
-    return bec::GRTManager::get()->get_data_file_path(file);
+  else if (g_str_has_suffix(file.c_str(), ".txt")) { // This is special handling for txt only on Linux.
+    auto parts = base::split(bec::GRTManager::get()->get_basedir(), "/");
+    std::string last = parts.back();
+    parts.pop_back();
+    parts.push_back("doc");
+    parts.push_back(last);
+    parts.push_back(file);
+    return base::join(parts, "/");
   }
 
   return bec::GRTManager::get()->get_data_file_path(file);

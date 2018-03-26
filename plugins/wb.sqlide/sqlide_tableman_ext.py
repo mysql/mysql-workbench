@@ -297,7 +297,6 @@ class TableInfoPanel(mforms.Box):
             else:
                 query = "SELECT @@datadir datadir,st.FILE_FORMAT,sd.path FROM information_schema.INNODB_SYS_TABLES st JOIN information_schema.innodb_sys_datafiles sd USING(space) WHERE st.name = '%s/%s'" % (self._schema, self._table)
             try:
-                print(query)
                 rset = self.editor.executeManagementQuery(query, 0)
             except grt.DBError, e:
                 log_error("%s': %s\n" % (query, e))
@@ -685,7 +684,7 @@ class TableIndexInfoPanel(mforms.Box):
     def do_create_index(self):
         cols = []
         for node in self.column_list.get_selection():
-            cols.append(node.get_string(1) if self.target_version.is_supported_mysql_version_at_least(8, 0, 0) else node.get_string(0))
+            cols.append(node.get_string(0))
         if cols:
             form = CreateIndexForm(self, self.editor, self._schema, self._table, cols, self.get_table_engine() if self.get_table_engine else None)
             if form.run():

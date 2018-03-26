@@ -110,6 +110,8 @@ Recordset::Recordset(GrtThreadedTask::Ref parent_task)
 }
 
 Recordset::~Recordset() {
+  // recordset can't be freed before all calls planned from this class in main thread are finished
+  bec::GRTManager::get()->get_dispatcher()->flush_pending_callbacks();
   delete _client_data;
   delete _context_menu;
 }

@@ -446,6 +446,8 @@
 		279EF97810D6B08D00C1ED1B /* mysql_system_status_rmt.vbs in Resources */ = {isa = PBXBuildFile; fileRef = 279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */; };
 		279EF97910D6B08D00C1ED1B /* mysql_system_status.vbs in Resources */ = {isa = PBXBuildFile; fileRef = 279EF97710D6B08D00C1ED1B /* mysql_system_status.vbs */; };
 		279F1A7B1C5110DC0093B452 /* stub_base.mm in Sources */ = {isa = PBXBuildFile; fileRef = 279F1A7A1C5110DC0093B452 /* stub_base.mm */; };
+		279F62B92065393B00ABDDBA /* license_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 279F62B72065393A00ABDDBA /* license_view.cpp */; };
+		279F62BA2065393B00ABDDBA /* license_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 279F62B82065393A00ABDDBA /* license_view.h */; };
 		27A00CDF1BF099E80087684B /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		27A00CE01BF09A0A0087684B /* libparsers.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* libparsers.dylib */; };
 		27A00CE11BF0A3780087684B /* libwbprivate.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCB31550E8845D0005C8ED2 /* libwbprivate.be.dylib */; };
@@ -4559,6 +4561,12 @@
 		279EF97610D6B08D00C1ED1B /* mysql_system_status_rmt.vbs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mysql_system_status_rmt.vbs; path = res/scripts/shell/mysql_system_status_rmt.vbs; sourceTree = "<group>"; };
 		279EF97710D6B08D00C1ED1B /* mysql_system_status.vbs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mysql_system_status.vbs; path = res/scripts/shell/mysql_system_status.vbs; sourceTree = "<group>"; };
 		279F1A7A1C5110DC0093B452 /* stub_base.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = stub_base.mm; path = library/forms/stub/src/stub_base.mm; sourceTree = "<group>"; };
+		279F62AC20650BA200ABDDBA /* License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = License.txt; sourceTree = "<group>"; };
+		279F62AE20650BAC00ABDDBA /* License-commercial.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "License-commercial.txt"; sourceTree = "<group>"; };
+		279F62B220650D3600ABDDBA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		279F62B420650D3F00ABDDBA /* README-commercial.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "README-commercial.md"; sourceTree = "<group>"; };
+		279F62B72065393A00ABDDBA /* license_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = license_view.cpp; sourceTree = "<group>"; };
+		279F62B82065393A00ABDDBA /* license_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = license_view.h; sourceTree = "<group>"; };
 		27A3E8891098CA7E0014F5B1 /* wba_monitor_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_monitor_be.py; path = plugins/wb.admin/backend/wba_monitor_be.py; sourceTree = "<group>"; };
 		27A3EC8D164BA997001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		27A3EC90164BA9AB001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/IconCollectionView.xib; sourceTree = "<group>"; };
@@ -10004,6 +10012,11 @@
 				2BD4208B198ACC2D0061895B /* Home */,
 				2B8147D50F6940C400A5489C /* Model File */,
 				2BFBEFF30F50BF7F0016F9D1 /* Overview */,
+				27CC86041741348D00AAA267 /* about_box.cpp */,
+				27CC86051741348D00AAA267 /* about_box.h */,
+				279F62B72065393A00ABDDBA /* license_view.cpp */,
+				279F62B82065393A00ABDDBA /* license_view.h */,
+				2B7510420E87966E0003120A /* metaclasses.cpp */,
 				449B5FC51FE2E88C00BE0F12 /* SSHCommon.cpp */,
 				449B5FBF1FE2E88900BE0F12 /* SSHCommon.h */,
 				449B5FC41FE2E88B00BE0F12 /* SSHFileWrapper.cpp */,
@@ -10018,11 +10031,6 @@
 				449B5FC81FE2E88D00BE0F12 /* SSHTunnelHandler.h */,
 				449B5FC21FE2E88A00BE0F12 /* SSHTunnelManager.cpp */,
 				449B5FCA1FE2E88E00BE0F12 /* SSHTunnelManager.h */,
-				2B7510770E87966E0003120A /* wb_overview.cpp */,
-				2B7510780E87966E0003120A /* wb_overview.h */,
-				27CC86041741348D00AAA267 /* about_box.cpp */,
-				27CC86051741348D00AAA267 /* about_box.h */,
-				2B7510420E87966E0003120A /* metaclasses.cpp */,
 				2B4BD6CE0ED202DE003E44F2 /* wb_command_ui.cpp */,
 				2B4BD6CF0ED202DE003E44F2 /* wb_command_ui.h */,
 				2B1765B614599853003EFCF7 /* wb_context_names.h */,
@@ -10034,6 +10042,8 @@
 				EDE7748A14C50BD3005AFF52 /* wb_db_schema.h */,
 				2B7510750E87966E0003120A /* wb_module.cpp */,
 				2B7510760E87966E0003120A /* wb_module.h */,
+				2B7510770E87966E0003120A /* wb_overview.cpp */,
+				2B7510780E87966E0003120A /* wb_overview.h */,
 				2BC08B321064836C0069AB9A /* wb_tunnel.cpp */,
 				2BC08B311064836C0069AB9A /* wb_tunnel.h */,
 				2BF049671742CCF400A7EA35 /* wb_version.h */,
@@ -10978,6 +10988,10 @@
 		2BCD493F15BDD51E00F88A38 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				279F62B220650D3600ABDDBA /* README.md */,
+				279F62B420650D3F00ABDDBA /* README-commercial.md */,
+				279F62AC20650BA200ABDDBA /* License.txt */,
+				279F62AE20650BAC00ABDDBA /* License-commercial.txt */,
 				2BCD494115BDD53C00F88A38 /* build_freetds.sh */,
 				2BCD494015BDD52F00F88A38 /* sakila_full.mwb */,
 			);
@@ -12427,6 +12441,7 @@
 				2BC9299A170BC99700D5BCAD /* wb_template_list.h in Headers */,
 				27751DE017422A0F0025DEAE /* about_box.h in Headers */,
 				2BE0A25E184D66630056AE11 /* wb_sql_editor_result_panel.h in Headers */,
+				279F62BA2065393B00ABDDBA /* license_view.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -14470,7 +14485,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\n# This file is created from a pre-build scheme script\n# It will identidy the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n# Create symlinks with only the major version number for any versioned lib.\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find * | grep \".*\\.[0-9]\\.[0-9]\\.dylib\"); do\n    linkname=$(echo $libpath | sed -E 's/(.[0-9])(.[0-9])+.dylib/\\1.dylib/')\n    ln -sf $libpath $linkname\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n  # check if all referenced libs by executable are copied\n  if ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n    echo \"Library $lib is referenced by executable but not copied into bundle\"\n    exit 1\n  fi\ndone\n\n# do a quick check\n# TODO: there can be other paths like /usr/local/lib.\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n  echo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n  for lib in \"${NEWLIBPATH}/*.dylib\"; do\n    if test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n      $fixer $lib\n    fi\n  done\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\n  if test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n    echo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n    exit 1\n  fi\nfi\n";
+			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH=${SRCROOT}/../mysql-mac-res\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n\tfrom=$1\n\tto=$2/`basename $from`\n\tif [ ! -f $to -o $from -nt $to ]; then\n\t\tcp $from $to\n\tfi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\n# This file is created from a pre-build scheme script\n# It will identify the build being run (commercial/gpl)\nexport `cat ${PROJECT_DIR}/scheme.prop`\n\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/lib/${SCHEME_BUILD_TYPE}/libmysqlclient.*.dylib ${NEWLIBPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysql ${EXEPATH}\n/bin/cp -f ${RES_SOURCE_PATH}/mysql/bin/${SCHEME_BUILD_TYPE}/mysqldump ${EXEPATH}\n\n# Use SQLCipher enabled sqlite if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying vsqlite libs for commercial version\"\n    copy ${RES_SOURCE_PATH}/lib-com/libsqlite3.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH}/lib-com/libvsqlitepp.0.dylib ${NEWLIBPATH}\n\n    echo \"Copying commercial version of readme and license\"\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying vsqlite libs for community version\"\n    copy ${RES_SOURCE_PATH}/lib/libvsqlitepp.0.dylib ${NEWLIBPATH}\n\n    echo \"Copying community version of readme and license\"\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n# Create symlinks with only the major version number for any versioned lib.\necho \"Creating symlinks for versioned dylibs\"\npushd $NEWLIBPATH\nfor libpath in $(find * | grep \".*\\.[0-9]\\.[0-9]\\.dylib\"); do\n    linkname=$(echo $libpath | sed -E 's/(.[0-9])(.[0-9])+.dylib/\\1.dylib/')\n    ln -sf $libpath $linkname\ndone\npopd\n\nliblist=$(otool -L $execfile|grep /usr/local|cut -f2|cut -f1 -d\\  )\nfor lib in $liblist; do\n  # check if all referenced libs by executable are copied\n  if ! [ -f $NEWLIBPATH/$(basename $lib) ]; then\n    echo \"Library $lib is referenced by executable but not copied into bundle\"\n    exit 1\n  fi\ndone\n\n# do a quick check\n# TODO: there can be other paths like /usr/local/lib.\nif test \"$(otool -L ${NEWLIBPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n  echo \"ERROR: Some embedded libraries in ${NEWLIBPATH} still point to /usr/local\"\n  for lib in \"${NEWLIBPATH}/*.dylib\"; do\n    if test \"$(otool -L $lib|grep /usr/local)\" != \"\"; then\n      $fixer $lib\n    fi\n  done\nfi\n\nif test \"$MODULEPATH\" != \"\"; then\n  if test \"$(otool -L ${MODULEPATH}/*.dylib|grep /usr/local)\" != \"\"; then\n    echo \"ERROR: Some modules in ${MODULEPATH} still point to /usr/local\"\n    exit 1\n  fi\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		27A00CF41BF0B3FA0087684B /* Copy some binaries */ = {
@@ -15386,6 +15401,7 @@
 				2BCB317F0E884601005C8ED2 /* wb_model_file_upgrade.cpp in Sources */,
 				2BCB31840E884601005C8ED2 /* wb_module.cpp in Sources */,
 				2BCB31860E884601005C8ED2 /* wb_overview.cpp in Sources */,
+				279F62B92065393B00ABDDBA /* license_view.cpp in Sources */,
 				2B4BD6D00ED202DE003E44F2 /* wb_command_ui.cpp in Sources */,
 				2B5B77050F781D6C007E54CF /* user_defined_type_editor.cpp in Sources */,
 				2B5B77070F781D6C007E54CF /* document_properties_form.cpp in Sources */,

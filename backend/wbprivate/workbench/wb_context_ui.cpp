@@ -53,6 +53,7 @@
 
 #include "grt_shell_window.h"
 #include "webbrowser_view.h"
+#include "license_view.h"
 
 #include "mforms/appview.h"
 
@@ -320,6 +321,7 @@ void WBContextUI::add_backend_builtin_commands() {
   _command_ui->add_builtin_command(
       "list_bugs", std::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
   _command_ui->add_builtin_command("help_index", std::bind(&WBContextUI::show_help_index, this));
+  _command_ui->add_builtin_command("show-license", std::bind(&WBContextUI::showLicense, this));
   _command_ui->add_builtin_command("locate_log_file", std::bind(&WBContextUI::locate_log_file, this));
   _command_ui->add_builtin_command("show_log_file", std::bind(&WBContextUI::show_log_file, this));
 }
@@ -351,11 +353,19 @@ void WBContextUI::show_web_page(const std::string &url, bool internal_browser) {
 
 //--------------------------------------------------------------------------------------------------
 
+void WBContextUI::showLicense() {
+  LicenseView *view = mforms::manage(new LicenseView(this));
+  mforms::App::get()->dock_view(view, "maintab");
+  view->set_title(_("License Info"));
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void WBContextUI::show_help_index() {
   GUILock lock(_wb, _("Starting Doc Lib"), _("The MySQL Doc Library is opening currently, "
                                              "which should be finished in a moment .\n\nPlease stand by..."));
 
-  mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/5.7/en/index.html");
+  mforms::Utilities::open_url("http://dev.mysql.com/doc/refman/8.0/en");
 }
 
 //--------------------------------------------------------------------------------------------------

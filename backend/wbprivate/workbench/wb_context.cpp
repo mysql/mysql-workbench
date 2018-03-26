@@ -1203,8 +1203,6 @@ void WBContext::init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal:
   grt::DictRef root(true);
   workbench_WorkbenchRef app(grt::Initialized);
 
-  _wb_root = app;
-
   root.set("wb", app);
 
   // setup application subtree

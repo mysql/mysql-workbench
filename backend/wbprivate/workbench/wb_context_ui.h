@@ -196,6 +196,7 @@ namespace wb {
     void show_home_screen();
     void show_web_page(const std::string &url, bool internal_browser);
     void show_help_index();
+    void showLicense();
     void locate_log_file();
     void show_log_file();
 
