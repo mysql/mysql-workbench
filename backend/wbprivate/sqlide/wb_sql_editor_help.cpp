@@ -214,7 +214,12 @@ std::string convertList(long version, JsonParser::JsonArray const &list) {
  * Creates the HTML formatted help text from the object that's passed in.
  */
 std::string DbSqlEditorContextHelp::createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
+#ifdef __linux__
+  std::string result = "<html><head></head><body>";
+#else
   std::string result = "<html><head>" + helpStyleSheet + "</head><body>";
+#endif
+
 
   std::string id = json.get("id");
   result += "<h3>" + id + " Syntax:</h3>";
