@@ -93,6 +93,7 @@ add_library(wbprivate
     workbench/SSHFileWrapper.cpp
     workbench/SSHTunnelHandler.cpp
     workbench/SSHTunnelManager.cpp
+    workbench/license_view.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/preferences_form.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/new_connection_wizard.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/document_properties_form.cpp

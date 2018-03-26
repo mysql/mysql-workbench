@@ -2192,6 +2192,7 @@
                     <value type="string" key="name">show-license</value>
                     <value type="string" key="command">builtin:show-license</value>
                     <value type="string" key="itemType">action</value>
+                    <value type="string" key="platform">windows,macosx</value>
                 </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_docs">
                     <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
