@@ -225,7 +225,7 @@ VarGridModel::ColumnType VarGridModel::get_real_column_type(ColumnId column) {
 bool VarGridModel::isGeometry(ColumnId column)
 {
   base::RecMutexLock data_mutex WB_UNUSED (_data_mutex);
-  return _dbColumnTypes[column] == "GEOMETRY";
+  return column < _dbColumnTypes.size() && _dbColumnTypes[column] == "GEOMETRY";
 }
 
 //--------------------------------------------------------------------------------------------------
