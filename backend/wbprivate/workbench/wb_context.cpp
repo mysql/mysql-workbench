@@ -440,7 +440,6 @@ WBContext::WBContext(bool verbose) : _frontendCallbacks(nullptr) {
   _save_point = nullptr;
   _tunnel_manager = nullptr;
   _model_import_file = nullptr;
-  _other_connections_loaded = false;
 
   g_log_set_handler(NULL, (GLogLevelFlags)0xfffff, log_func, this);
 
@@ -1786,7 +1785,6 @@ void WBContext::load_other_connections() {
           (*iter)->owner(mgmt);
       }
 
-      _other_connections_loaded = true;
       ++connection_count;
     } catch (std::exception &exc) {
       logError("Error loading %s: %s\n", conn_list_xml.c_str(), exc.what());
@@ -1851,7 +1849,7 @@ void WBContext::save_connections() {
     return;
   }
   // save other connections list
-  if (_other_connections_loaded) {
+  if (mgmt->otherStoredConns()->count()) {
     std::string conn_list_xml = base::makePath(get_user_datadir(), FILE_OTHER_CONNECTION_LIST);
     _grt->serialize(mgmt->otherStoredConns(), conn_list_xml);
     logDebug("Saved connection list (Non-MySQL: %u)\n", (unsigned int)mgmt->otherStoredConns()->count());
