@@ -560,10 +560,8 @@ std::size_t MySQLEditor::cursor_pos() {
 
 /**
  * Returns the caret position as column/row pair. The returned column (char
- * index) is utf-8 save and computes
- * the actual character index as displayed in the editor, not the byte index in
- * a std::string.
- * If @local is true then the line position is relative to the statement,
+ * index) is utf-8 safe and computes the actual character index as displayed in the editor, not the byte index in
+ * a std::string. If @local is true then the line position is relative to the statement,
  * otherwise that in the entire editor.
  */
 std::pair<std::size_t, std::size_t> MySQLEditor::cursor_pos_row_column(bool local) {
@@ -582,7 +580,7 @@ std::pair<std::size_t, std::size_t> MySQLEditor::cursor_pos_row_column(bool loca
       line -= d->codeEditor->line_from_position(min);
   }
 
-  return {offset, line};
+  return { offset, line };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1341,10 +1339,8 @@ bool MySQLEditor::make_keywords_uppercase() {
  * @returns true if a statement could be found at the caret position, otherwise false.
  */
 bool MySQLEditor::get_current_statement_range(size_t &start, size_t &end, bool strict) {
-  // In case the splitter is right now processing the text we wait here until
-  // its done.
-  // If the splitter wasn't triggered yet (e.g. when typing fast and then
-  // immediately running a statement)
+  // In case the splitter is right now processing the text we wait here until its done.
+  // If the splitter wasn't triggered yet (e.g. when typing fast and then immediately running a statement)
   // then we do the splitting here instead.
   RecMutexLock sql_statement_borders_mutex(d->_sql_statement_borders_mutex);
   d->split_statements_if_required();

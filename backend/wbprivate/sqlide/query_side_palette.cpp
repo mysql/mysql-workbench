@@ -358,17 +358,6 @@ void QuerySidePalette::cancel_timer() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static bool contains_editor(SqlEditorForm::Ref form, MySQLEditor *ed) {
-  for (int c = form->sql_editor_count(), i = 0; i < c; i++) {
-    SqlEditorPanel *panel = form->sql_editor_panel(i);
-    if (panel && panel->editor_be().get() == ed)
-      return true;
-  }
-  return false;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void QuerySidePalette::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
   // Selection and caret changes notification.
   // Only act if this side palette is actually visible.
@@ -380,13 +369,10 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
 
     MySQLEditor *editor = static_cast<MySQLEditor *>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid()) {
-      // See if this editor instance is actually from the IDE this palette sits in.
       SqlEditorForm::Ref form = _owner.lock();
-      if (form && contains_editor(form, editor)) {
-        cancel_timer();
-        _help_timer =
-          bec::GRTManager::get()->run_every(std::bind(&QuerySidePalette::find_context_help, this, editor), 0.5);
-      }
+      cancel_timer();
+      _help_timer = bec::GRTManager::get()->run_every(
+        std::bind(&QuerySidePalette::find_context_help, this, editor), 0.5);
     }
   }
 }
@@ -444,9 +430,13 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
       return false;
   }
 
-  // Caret position as <column, row>.
-  std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
-  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, editor->current_statement(), caret);
+  size_t caretPosition = editor->cursor_pos();
+
+  size_t start, stop;
+  editor->get_current_statement_range(start, stop); // To convert the caret position to a local statement position.
+
+  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext,
+    editor->current_statement(), caretPosition - start);
   update_help_history(topic);
   show_help_text_for_topic(topic);
 

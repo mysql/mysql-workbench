@@ -260,7 +260,7 @@ ParseTree *MySQLRecognizerCommon::getNext(ParseTree *tree) {
  * instead (which could also be EOF).
  * Note: the line is one-based.
  */
-ParseTree *MySQLRecognizerCommon::contextFromPosition(ParseTree *root, std::pair<size_t, size_t> position) {
+ParseTree* MySQLRecognizerCommon::terminalFromPosition(ParseTree *root, std::pair<size_t, size_t> position) {
   do {
     root = getNext(root);
     if (antlrcpp::is<TerminalNode *>(root)) {
@@ -282,6 +282,40 @@ ParseTree *MySQLRecognizerCommon::contextFromPosition(ParseTree *root, std::pair
   } while (root != nullptr);
 
   return nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool treeContainsPosition(ParseTree *node, size_t position) {
+  auto terminal = dynamic_cast<TerminalNode *>(node);
+  if (terminal != nullptr) {
+    return terminal->getSymbol()->getStartIndex() <= position && position <= terminal->getSymbol()->getStopIndex();
+  }
+
+  auto context = dynamic_cast<ParserRuleContext *>(node);
+  if (context == nullptr)
+    return false;
+
+  return context->start->getStartIndex() <= position && position <= context->stop->getStopIndex();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Returns the parser context at the given character index position or nullptr if there's none.
+ */
+ParseTree* MySQLRecognizerCommon::contextFromPosition(ParseTree *root, size_t position) {
+  if (!treeContainsPosition(root, position))
+    return nullptr;
+
+  for (auto child : root->children) {
+    auto result = contextFromPosition(child, position);
+    if (result != nullptr)
+      return result;
+  }
+
+  // No child contains the given position, so it must be in whitespaces between them. Return the root for that case.
+  return root;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

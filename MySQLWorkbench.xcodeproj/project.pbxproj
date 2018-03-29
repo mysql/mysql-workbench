@@ -13376,6 +13376,7 @@
 			targets = (
 				8D1107260486CEB800E47090 /* MySQLWorkbench */,
 				2B240383101BC6CC00079580 /* wbtests-com */,
+				8EF3D28A205823A400FCF385 /* wbtests-gpl */,
 				2B2E91C8158915DE0078D08A /* wbcopytables */,
 				2B825D280E0B59A100BE52DF /* base */,
 				2B750DAE0E877D030003120A /* cdbc */,
@@ -13411,7 +13412,6 @@
 				27D8079D1A3F262D00EDCA8F /* commercial.extensions */,
 				447271EF1C58F170005F840F /* utilities.grt */,
 				4401E1621D994DA50027AD13 /* mtemplate */,
-				8EF3D28A205823A400FCF385 /* wbtests-gpl */,
 			);
 		};
 /* End PBXProject section */
@@ -16825,7 +16825,6 @@
 					"$(SRCROOT)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/mysql/lib/commercial",
-					/usr/local/Cellar/glib/2.50.2/lib,
 				);
 				OTHER_LDFLAGS = (
 					"-headerpad_max_install_names",
@@ -16888,7 +16887,6 @@
 					"$(SRCROOT)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/mysql/lib/commercial",
-					/usr/local/Cellar/glib/2.50.2/lib,
 				);
 				OTHER_LDFLAGS = (
 					"-headerpad_max_install_names",
@@ -18773,7 +18771,6 @@
 					"$(SRCROOT)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/mysql/lib/commercial",
-					/usr/local/Cellar/glib/2.50.2/lib,
 				);
 				OTHER_LDFLAGS = (
 					"-headerpad_max_install_names",
@@ -18837,7 +18834,6 @@
 					"$(SRCROOT)",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 					"$(SRCROOT)/../mysql-mac-res/mysql/lib/commercial",
-					/usr/local/Cellar/glib/2.50.2/lib,
 				);
 				OTHER_LDFLAGS = (
 					"-headerpad_max_install_names",

@@ -55,8 +55,7 @@ namespace help {
     void waitForLoading();
 
     bool helpTextForTopic(HelpContext *helpContext, const std::string &topic, std::string &text);
-    std::string helpTopicFromPosition(HelpContext *helpContext, const std::string &query,
-                                      std::pair<size_t, size_t> caret);
+    std::string helpTopicFromPosition(HelpContext *helpContext, const std::string &query, size_t caretPosition);
 
   protected:
     std::thread loaderThread;

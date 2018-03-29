@@ -595,6 +595,7 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleLockStatement, "LOCK" },
   { MySQLParser::RuleLoopBlock, "LOOP" },
   { MySQLParser::RuleCursorOpen, "OPEN" },
+  { MySQLParser::RuleQuerySpecification, "SELECT" },
   { MySQLParser::RuleCursorClose, "CLOSE" },
   { MySQLParser::RuleCursorFetch, "FETCH" },
   { MySQLParser::RuleProcedureAnalyseClause, "PROCEDURE ANALYSE" },
@@ -620,8 +621,6 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleCursorDeclaration, "DECLARE CURSOR" },
   { MySQLParser::RuleGetDiagnostics, "GET DIAGNOSTICS" },
   { MySQLParser::RuleSignalStatement, "SIGNAL" },
-  { MySQLParser::RuleCursorFetch, "FETCH" },
-  { MySQLParser::RuleLeaveStatement, "LEAVE" },
   { MySQLParser::RuleAlterUser, "ALTER USER" },
   { MySQLParser::RuleCaseStatement, "CASE STATEMENT" },
   { MySQLParser::RuleChangeMaster, "CHANGE MASTER TO" },
@@ -654,7 +653,7 @@ static std::unordered_set<std::string> specialWords = {
  * Determines a help topic from the given query at the given position (given as column/row pair).
  */
 std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpContext, const std::string &query,
-                                                          std::pair<size_t, size_t> caret) {
+                                                          size_t caret) {
   logDebug2("Finding help topic\n");
 
   // We are not interested in validity here. We simply parse in default mode (LL) and examine the returned parse tree.
@@ -663,13 +662,12 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
   ParserRuleContext *parseTree = helpContext->_d->parse(query);
   //std::cout << "Parse tree: " << parseTree->toStringTree(&helpContext->_d->parser) << std::endl;
 
-  ++caret.second; // ANTLR lines are one-based.
   tree::ParseTree *tree = MySQLRecognizerCommon::contextFromPosition(parseTree, caret);
 
   if (tree == nullptr)
     return "";
 
-  if (antlrcpp::is<tree::TerminalNode *>(tree)) { // Should always be the case at this point.
+  if (antlrcpp::is<tree::TerminalNode *>(tree)) {
     tree::TerminalNode *node = dynamic_cast<tree::TerminalNode *>(tree);
     size_t token = node->getSymbol()->getType();
     if (token == MySQLLexer::SEMICOLON_SYMBOL) {

@@ -69,15 +69,16 @@ namespace parsers {
     static std::string sourceTextForRange(antlr4::tree::ParseTree *start, antlr4::tree::ParseTree *stop,
                                           bool keepQuotes = false);
 
-    static antlr4::tree::ParseTree *getPrevious(antlr4::tree::ParseTree *tree);
-    static antlr4::tree::ParseTree *getNext(antlr4::tree::ParseTree *tree);
-    static antlr4::tree::ParseTree *contextFromPosition(antlr4::tree::ParseTree *root,
+    static antlr4::tree::ParseTree* getPrevious(antlr4::tree::ParseTree *tree);
+    static antlr4::tree::ParseTree* getNext(antlr4::tree::ParseTree *tree);
+    static antlr4::tree::ParseTree* terminalFromPosition(antlr4::tree::ParseTree *root,
                                                         std::pair<size_t, size_t> position);
+    static antlr4::tree::ParseTree* contextFromPosition(antlr4::tree::ParseTree *root, size_t position);
   };
 
   class SymbolTable;
 
   // Returns a symbol table for all predefined system functions in MySQL. The parameter version must be given as short
   // major * 100 + minor value (e.g. 506, 507, 800 etc.).
-  PARSERS_PUBLIC_TYPE SymbolTable *functionSymbolsForVersion(size_t version);
+  PARSERS_PUBLIC_TYPE SymbolTable* functionSymbolsForVersion(size_t version);
 }
