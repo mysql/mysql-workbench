@@ -432,7 +432,7 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
   cancel_button.set_text(_("Cancel"));
   //  cancel_button.set_size(75, -1);
   Utilities::add_end_ok_cancel_buttons(&button_box, &ok_button, &cancel_button);
-  content.add(&button_box, 1, 3, 1, 2, HFillFlag);
+  content.add(&button_box, 1, 3, 1, 2, HFillFlag | VFillFlag);
 
   input_form.set_content(&content);
   input_form.center();
