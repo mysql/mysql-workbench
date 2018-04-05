@@ -1910,129 +1910,137 @@ class SecurityAccount(mforms.Box):
 
     def commit(self):
         self.current_action = "commit account"
-        if self._selected_user:
-            username = to_unicode(self.username.get_string_value())
-            host = to_unicode(self.hostlimithost.get_string_value())
-            if not self.valid_name:
-                Utilities.show_error('Invalid host specification',
-                    'The host specification "%s" is not valid. Please correct it and try again.' % host,
-                                    'OK', '', '' )
+        #if self._selected_user:
+        username = to_unicode(self.username.get_string_value())
+        host = to_unicode(self.hostlimithost.get_string_value())
+        
+        if not self.valid_name:
+            Utilities.show_error('Invalid host specification',
+                'The host specification "%s" is not valid. Please correct it and try again.' % host,
+                                'OK', '', '' )
+            self.current_action = ""
+            return
 
-            is_new_user = not self._selected_user.is_commited
+        is_new_user = not self._selected_user.is_commited
 
-            password_unneeded = False
-            self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
-            plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
-            if self.has_extra_plugins and not plugin_info.get("enable_password", True):
-                password_unneeded = True
-            if is_new_user and not self.password.get_string_value() and not password_unneeded:
-                if Utilities.show_warning("Save Account Changes",
-                        "It is a security hazard to create an account with no password.\nPlease confirm creation of '%s'@'%s' with no password."%(username, host),
-                        "Create", "Cancel", "") != mforms.ResultOk:
-                    self.current_action = ""
-                    return
-            
-            lcase_host = host.lower()
-            if lcase_host != host:
-                if Utilities.show_message_and_remember("Save Account Changes",
-                                          "MySQL only allows lowercase characters for hostnames, the account host will be updated accordingly.",
-                                          "Ok", "", "","wb.admin.warn_ucase_hostnames", "Don't show this message again"):
-                    self.hostlimithost.set_value(lcase_host)
-
-            username_to_rename = self._selected_user.username
-            host_to_rename = self._selected_user.host
-
-            self._selected_user.username = to_unicode(self.username.get_string_value())
-            self._selected_user.password = to_unicode(self.password.get_string_value())
-            self._selected_user.confirm_password = to_unicode(self.confirm.get_string_value())
-            #if self.hostlimit.get_active():
-            self._selected_user.host = to_unicode(self.hostlimithost.get_string_value())
-           # else:
-           #     self._selected_user.host = "%"
-
-            try:
-                self._selected_user.max_questions = int(self.max_questions.get_string_value())
-                if self._selected_user.max_questions < 0: raise ValueError
-            except ValueError:
-                Utilities.show_error('Wrong Value for Max. Queries',
-                        'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
-                        'OK', '', '')
+        password_unneeded = False
+        self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
+        plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
+        
+        if self.has_extra_plugins and not plugin_info.get("enable_password", True):
+            password_unneeded = True
+        
+        if is_new_user and not self.password.get_string_value() and not password_unneeded:
+            if Utilities.show_warning("Save Account Changes",
+                    "It is a security hazard to create an account with no password.\nPlease confirm creation of '%s'@'%s' with no password."%(username, host),
+                    "Create", "Cancel", "") != mforms.ResultOk:
                 self.current_action = ""
                 return
+        
+        lcase_host = host.lower()
+        
+        if lcase_host != host:
+            if Utilities.show_message_and_remember("Save Account Changes",
+                                        "MySQL only allows lowercase characters for hostnames, the account host will be updated accordingly.",
+                                        "Ok", "", "","wb.admin.warn_ucase_hostnames", "Don't show this message again"):
+                self.hostlimithost.set_value(lcase_host)
 
-            try:
-                self._selected_user.max_updates = int(self.max_updates.get_string_value())
-                if self._selected_user.max_updates < 0: raise ValueError
-            except ValueError:
-                Utilities.show_error('Wrong Value for Max. Updates',
-                        'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
-                        'OK', '', '')
-                self.current_action = ""
-                return
+        username_to_rename = self._selected_user.username
+        host_to_rename = self._selected_user.host
 
-            try:
-                self._selected_user.max_connections = int(self.max_connections.get_string_value())
-                if self._selected_user.max_connections < 0: raise ValueError
-            except ValueError:
-                Utilities.show_error('Wrong Value for Max. Connections',
-                        'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
-                        'OK', '', '')
-                self.current_action = ""
-                return
-            try:
-                self._selected_user.max_user_connections = int(self.max_uconnections.get_string_value())
-                if self._selected_user.max_user_connections < 0: raise ValueError
-            except ValueError:
-                Utilities.show_error('Wrong Value for Concurrent Connections',
-                        'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
-                        'OK', '', '')
-                self.current_action = ""
-                return
-            
-            
+        self._selected_user.username = to_unicode(self.username.get_string_value())
+        self._selected_user.password = to_unicode(self.password.get_string_value())
+        self._selected_user.confirm_password = to_unicode(self.confirm.get_string_value())
+        #if self.hostlimit.get_active():
+        self._selected_user.host = to_unicode(self.hostlimithost.get_string_value())
+        # else:
+        #     self._selected_user.host = "%"
 
-            if is_new_user and self.has_extra_plugins:
-                self._selected_user.auth_plugin = self.selected_plugin_type()
+        try:
+            self._selected_user.max_questions = int(self.max_questions.get_string_value())
+            if self._selected_user.max_questions < 0: raise ValueError
+        except ValueError:
+            Utilities.show_error('Wrong Value for Max. Queries',
+                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
+                    'OK', '', '')
+            self.current_action = ""
+            return
 
-            self._selected_user.auth_string = None
-            if self._selected_user.auth_plugin and ((self._selected_user.auth_plugin in AUTHENTICATION_PLUGIN_TYPES) or (self._selected_user.auth_plugin in self.active_plugins)):
-                self._selected_user.auth_string = self.auth_string_param.get_string_value()
+        try:
+            self._selected_user.max_updates = int(self.max_updates.get_string_value())
+            if self._selected_user.max_updates < 0: raise ValueError
+        except ValueError:
+            Utilities.show_error('Wrong Value for Max. Updates',
+                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
+                    'OK', '', '')
+            self.current_action = ""
+            return
 
-            try:
-                self._selected_user.save()
-            except WBSecurityValidationError, exc:
-                Utilities.show_error("Save Account Changes",
-                      exc.message, "OK", "", "")
-                self.current_action = ""
-                return
-            except PermissionDeniedError, exc:
-                Utilities.show_error("Permission Errors",
-                      exc.message, "OK", "", "")
-                self.current_action = ""
-                return
-            except Exception, exc:
-                import traceback
-                log_error("Exception while saving account: %s\n" % traceback.format_exc())
-                Utilities.show_error("Error Saving Account",
-                      exc.message, "OK", "", "")
-                self.current_action = ""
-                return
-            
-            try:
-                self.firewall_rules.save()
-            except Exception, exc:
-                import traceback
-                log_error("Exception while saving account: %s\n" % traceback.format_exc())
-                Utilities.show_error("Error Saving Account",
-                      exc.message, "OK", "", "")
-                self.current_action = ""
-                return
+        try:
+            self._selected_user.max_connections = int(self.max_connections.get_string_value())
+            if self._selected_user.max_connections < 0: raise ValueError
+        except ValueError:
+            Utilities.show_error('Wrong Value for Max. Connections',
+                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
+                    'OK', '', '')
+            self.current_action = ""
+            return
+        try:
+            self._selected_user.max_user_connections = int(self.max_uconnections.get_string_value())
+            if self._selected_user.max_user_connections < 0: raise ValueError
+        except ValueError:
+            Utilities.show_error('Wrong Value for Concurrent Connections',
+                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
+                    'OK', '', '')
+            self.current_action = ""
+            return
+        
+        
 
-            if is_new_user:
-                    self.owner.secman.account_names.remove((username_to_rename, host_to_rename))
-                    self.owner.secman.account_names.append((self._selected_user.username, self._selected_user.host))
+        if is_new_user and self.has_extra_plugins:
+            self._selected_user.auth_plugin = self.selected_plugin_type()
 
-            self.reload_user(is_new_user)
+        self._selected_user.auth_string = None
+        if self._selected_user.auth_plugin and ((self._selected_user.auth_plugin in AUTHENTICATION_PLUGIN_TYPES) or (self._selected_user.auth_plugin in self.active_plugins)):
+            self._selected_user.auth_string = self.auth_string_param.get_string_value()
+
+        try:
+            self._selected_user.save()
+        except WBSecurityValidationError, exc:
+            Utilities.show_error("Save Account Changes",
+                    exc.message, "OK", "", "")
+            self.current_action = ""
+            return
+        except PermissionDeniedError, exc:
+            Utilities.show_error("Permission Errors",
+                    exc.message, "OK", "", "")
+            self.current_action = ""
+            return
+        except Exception, exc:
+            import traceback
+            log_error("Exception while saving account: %s\n" % traceback.format_exc())
+            Utilities.show_error("Error Saving Account",
+                    exc.message, "OK", "", "")
+            self.current_action = ""
+            return
+        
+        try:
+            self.firewall_rules.save()
+        except Exception, exc:
+            import traceback
+            log_error("Exception while saving account: %s\n" % traceback.format_exc())
+            Utilities.show_error("Error Saving Account",
+                    exc.message, "OK", "", "")
+            self.current_action = ""
+            return
+
+        #if is_new_user:
+        self.owner.secman.account_names.remove((username_to_rename, host_to_rename))
+        self.owner.secman.account_names.append((self._selected_user.username, self._selected_user.host))
+
+        self.reload_user(is_new_user)
+        
+        self.refresh()
 
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
