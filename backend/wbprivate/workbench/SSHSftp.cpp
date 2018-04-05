@@ -62,10 +62,10 @@ namespace ssh {
   }
 
   static void cleanPath(std::vector<std::string> &path) {
-    for(auto it = path.begin(); it != path.end(); ++it) {
-      if (*it == "")
-        path.erase(it);
-    }
+    auto it = std::remove_if(path.begin(), path.end(), [] (const std::string& val) {
+      return val == "";
+    }); 
+    path.erase(it, path.end());
   }
 
   static std::string getHumanSftpError(int err) {
@@ -352,7 +352,7 @@ namespace ssh {
     auto tmpPath = base::split(createRemotePath(dirname), "/", -1);
     cleanPath(tmpPath);
     _path = tmpPath;
-    if (_path.front().empty())
+    if (!_path.empty() && _path.front().empty())
       _path.erase(_path.begin());
 
     if (sftp_closedir(dir))

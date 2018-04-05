@@ -39,6 +39,7 @@
 #endif
 #include <libssh/callbacks.h>
 #include "base/threading.h"
+#include "wb_backend_public_interface.h"
 
 #ifndef NOEXCEPT
 #if defined(_WIN32) || defined(__APPLE__)
@@ -84,7 +85,7 @@ namespace ssh {
   void setSocketNonBlocking(int sock);
   void initLibSSH();
 
-  class SSHConnectionConfig {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHConnectionConfig {
   public:
     SSHConnectionConfig();
     std::string localhost;
@@ -143,7 +144,7 @@ namespace ssh {
     SSHAuthtype auth;
   };
 
-  class SSHTunnelException : public std::exception {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHTunnelException : public std::exception {
   public:
     explicit SSHTunnelException(const std::string &message)
         : _msgText(message) {
@@ -160,7 +161,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class SSHSftpException : public std::exception {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHSftpException : public std::exception {
   public:
     explicit SSHSftpException(const std::string &message)
         : _msgText(message) {
@@ -177,7 +178,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class SSHAuthException : public std::exception {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHAuthException : public std::exception {
   public:
     explicit SSHAuthException(const std::string &message)
         : _msgText(message) {
@@ -194,7 +195,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class SSHThread {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHThread {
   public:
     SSHThread();
     virtual ~SSHThread();

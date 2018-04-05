@@ -39,7 +39,7 @@ namespace ssh {
     int socketHandle;
   } sockInfo;
 
-  class SSHTunnelManager : public SSHThread {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHTunnelManager : public SSHThread {
   public:
     SSHTunnelManager();
     std::tuple<SSHReturnType, base::any> createTunnel(std::shared_ptr<SSHSession> &session);

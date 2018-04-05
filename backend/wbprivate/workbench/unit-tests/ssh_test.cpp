@@ -57,7 +57,7 @@ TEST_FUNCTION(2) {
   config.connectTimeout = 10;
   config.optionsDir = test_params->getSSHOptionsDir();
 
-  auto file = base::makeTmpFile("/tmp/kown_hosts");
+  auto file = base::makeTmpFile("/tmp/known_hosts");
   std::string knownHosts = file.getPath();
   file.dispose();
 
@@ -69,12 +69,10 @@ TEST_FUNCTION(2) {
   credentials.auth = ssh::SSHAuthtype::PASSWORD;
 
   auto session = ssh::SSHSession::createSession();
-
-  base::FileHandle knownHostsFile(knownHosts, "w+");
   auto retVal = session->connect(config, credentials);
   ensure_true("fingerprint unknown", std::get<0>(retVal) == ssh::SSHReturnType::FINGERPRINT_UNKNOWN);
   session->disconnect();
-  //have to use tmp val to make clang happy
+  // have to use tmp val to make clang happy
   std::string tmp = std::get<1>(retVal);
   config.fingerprint = tmp;
   retVal = session->connect(config, credentials);
@@ -238,7 +236,7 @@ TEST_FUNCTION(5) {
   ensure_true("connection established", std::get<0>(retVal) == ssh::SSHReturnType::CONNECTED);
   ensure_true("connection status, is connected", session->isConnected());
 
-  usleep(1000000); //wait a sec
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   ensure_true("Tunnel Manager isn't running", manager->isRunning());
 
   try {

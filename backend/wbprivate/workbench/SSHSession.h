@@ -42,8 +42,9 @@
 #include "base/any.h"
 #include "base/threading.h"
 
+
 namespace ssh {
-  class SSHSession {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHSession {
     ssh::Session *_session;
     SSHConnectionConfig _config;
     SSHConnectionCredentials _credentials;

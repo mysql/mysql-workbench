@@ -409,7 +409,18 @@ namespace ssh {
           return retVal;
         else {
           if (config.fingerprint == hexa.get()) {
+#if _MSC_VER
+            std::string::size_type pos = 0;
+            auto knownHostsFile = _config.knownHostsFile;
+            while ((pos = knownHostsFile.find_first_of("\\", pos)) != std::string::npos)
+              knownHostsFile.replace(pos, 1, "/");
+            _session->setOption(SSH_OPTIONS_KNOWNHOSTS, knownHostsFile.c_str());
+            // writeKnownhost from libssh supports only linux like path e.g c:/temp/hosts
             _session->writeKnownhost();
+            _session->setOption(SSH_OPTIONS_KNOWNHOSTS, _config.knownHostsFile.c_str());
+#else
+            _session->writeKnownhost();
+#endif
             return SSH_SERVER_KNOWN_OK;
           } else
             return retVal;

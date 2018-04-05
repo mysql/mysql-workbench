@@ -30,7 +30,7 @@
 #include "objimpl/db.mgmt/db_mgmt_SSHConnection.h"
 
 namespace ssh {
-  class SSHSessionWrapper : public db_mgmt_SSHConnection::ImplData {
+  class MYSQLWBBACKEND_PUBLIC_FUNC SSHSessionWrapper : public db_mgmt_SSHConnection::ImplData {
     std::shared_ptr<SSHSession> _session;
     SSHConnectionConfig _config;
     SSHConnectionCredentials _credentials;
