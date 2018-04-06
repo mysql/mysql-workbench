@@ -35,7 +35,7 @@
 std::string ActionGenerateReport::object_name(const GrtNamedObjectRef obj) const {
   std::string obj_name;
   obj_name += "`";
-  if (!_use_short_names) {
+  if (!_omitSchemas) {
     obj_name += obj->owner()->name().c_str();
     obj_name += "`.`";
   }
@@ -47,7 +47,7 @@ std::string ActionGenerateReport::object_name(const GrtNamedObjectRef obj) const
 std::string ActionGenerateReport::trigger_name(const GrtNamedObjectRef obj) const {
   std::string obj_name;
   obj_name += "`";
-  if (!_use_short_names) {
+  if (!_omitSchemas) {
     obj_name += obj->owner()->owner()->name().c_str();
     obj_name += "`.`";
   }

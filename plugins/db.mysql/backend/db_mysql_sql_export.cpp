@@ -107,7 +107,7 @@ void DbMySQLSQLExport::set_option(const std::string &name, bool value) {
   else if (name.compare("UsersAreSelected") == 0)
     _users_are_selected = value;
   else if (name.compare("OmitSchemata") == 0)
-    _omit_schemata = value;
+    _omitSchemas = value;
   else if (name.compare("GenerateUse") == 0)
     _generate_use = value;
   else if (name.compare("SkipForeignKeys") == 0)
@@ -190,7 +190,7 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict() {
   options.set("GenerateInserts", grt::IntegerRef(_gen_inserts ? 1 : 0));
   options.set("NoFKForInserts", grt::IntegerRef(_no_FK_for_inserts ? 1 : 0));
   options.set("TriggersAfterInserts", grt::IntegerRef(_triggers_after_inserts ? 1 : 0));
-  options.set("UseShortNames", grt::IntegerRef(_omit_schemata ? 1 : 0));
+  options.set("OmitSchemas", grt::IntegerRef(_omitSchemas ? 1 : 0));
   options.set("GenerateUse", grt::IntegerRef(_generate_use ? 1 : 0));
   options.set("SkipForeignKeys", grt::IntegerRef(_skip_foreign_keys ? 1 : 0));
   options.set("SkipFKIndexes", grt::IntegerRef(_skip_fk_indexes ? 1 : 0));

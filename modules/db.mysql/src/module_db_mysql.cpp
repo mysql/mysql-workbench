@@ -414,7 +414,7 @@ namespace {
     void drop_user(db_UserRef);
 
     std::string get_name(GrtNamedObjectRef object) const {
-      return ::get_name(object, _use_short_names);
+      return ::get_name(object, _omitSchemas);
     };
     std::string generate_add_index(db_mysql_IndexRef index);
 
@@ -689,7 +689,7 @@ namespace {
       return;
 
     sql.append(",\n");
-    padding.pad(sql).append(global_generate_create(fk, padding, _use_short_names));
+    padding.pad(sql).append(global_generate_create(fk, padding, _omitSchemas));
   }
 
   void ActionGenerateSQL::create_table_fks_end(db_mysql_TableRef) {
@@ -873,7 +873,7 @@ namespace {
   void ActionGenerateSQL::alter_table_name(db_mysql_TableRef table, grt::StringRef str) {
     alter_table_property(
       sql, "RENAME TO ",
-      _use_short_names
+      _omitSchemas
         ? std::string(" `").append(str.c_str()).append("`")
         : std::string(" `").append(table->owner()->name().c_str()).append("`.`").append(str.c_str()).append("`"));
   }
@@ -915,7 +915,7 @@ namespace {
     if (!s.empty() && s[0] == '(')
       s = s.substr(1, s.size() - 2);
 
-    if (!_use_short_names)
+    if (!_omitSchemas)
       s = bec::TableHelper::normalize_table_name_list(table->owner()->name(), s);
 
     alter_table_property(sql, "UNION = (", std::string(s).append(") "));
@@ -1304,7 +1304,7 @@ namespace {
      [reference_definition]
      */
     fk_add_sql += "ADD ";
-    fk_add_sql += global_generate_create(fk, padding, _use_short_names);
+    fk_add_sql += global_generate_create(fk, padding, _omitSchemas);
   }
 
   void ActionGenerateSQL::alter_table_drop_fk(db_mysql_ForeignKeyRef fk) {
@@ -1384,7 +1384,7 @@ namespace {
   void ActionGenerateSQL::create_trigger(db_mysql_TriggerRef trigger, bool for_alter) {
     std::string trigger_sql;
     std::string schema_name = trigger->owner()->owner()->name().c_str();
-    if (!_use_short_names || _gen_use)
+    if (!_omitSchemas || _gen_use)
       trigger_sql.append("USE `").append(schema_name).append("`").append(_non_std_sql_delimiter).append("\n");
 
     std::string trigger_definition = trigger->sqlDefinition();
@@ -1419,7 +1419,7 @@ namespace {
               definer = definer + "`";
             trigger_definition.append(" ").append("DEFINER = ").append(definer);
           }
-          if (_use_short_names)
+          if (_omitSchemas)
             trigger_definition.append(" TRIGGER `").append(trigger->name()).append("`");
           else
             trigger_definition.append(" TRIGGER `")
@@ -1447,7 +1447,7 @@ namespace {
 
   void ActionGenerateSQL::drop_trigger(db_mysql_TriggerRef trigger, bool for_alter) {
     std::string trigger_sql;
-    if (!_use_short_names || _gen_use)
+    if (!_omitSchemas || _gen_use)
       trigger_sql.append("USE `")
         .append(trigger->owner()->owner()->name().c_str())
         .append("`")
@@ -1491,12 +1491,12 @@ namespace {
         pcre_free(patre);
     }
 
-    if (_use_short_names) {
+    if (_omitSchemas) {
       SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
       Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
       renamer->rename_schema_references(view_def, view->owner()->name(), "");
     }
-    if (!_use_short_names || _gen_use) {
+    if (!_omitSchemas || _gen_use) {
       std::string use_def;
       use_def.append("USE `").append(view->owner()->name()).append("`;\n");
       use_def.append(view_def);
@@ -1517,13 +1517,13 @@ namespace {
     routine_sql = "\nDELIMITER ";
     routine_sql.append(_non_std_sql_delimiter).append("\n");
 
-    if (!_use_short_names || _gen_use) {
+    if (!_omitSchemas || _gen_use) {
       routine_sql.append("USE `");
       routine_sql.append(routine->owner()->name()).append("`").append(_non_std_sql_delimiter).append("\n");
     }
     routine_sql.append(routine->sqlDefinition().c_str()).append(_non_std_sql_delimiter).append("\n");
 
-    if (_use_short_names) {
+    if (_omitSchemas) {
       SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
       Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
       renamer->rename_schema_references(routine_sql, routine->owner()->name(), "");
@@ -1541,7 +1541,7 @@ namespace {
   void ActionGenerateSQL::drop_routine(db_mysql_RoutineRef routine, bool for_alter) {
     std::string routine_sql;
 
-    if (!_use_short_names || _gen_use) {
+    if (!_omitSchemas || _gen_use) {
       routine_sql = "\nUSE `";
       routine_sql.append(routine->owner()->name()).append("`;\n");
     }
@@ -1569,7 +1569,7 @@ namespace {
     sql.append(";\n\n");
 
     std::list<std::string> grants;
-    gen_grant_sql(db_CatalogRef::cast_from(user->owner()), user, grants, _use_short_names);
+    gen_grant_sql(db_CatalogRef::cast_from(user->owner()), user, grants, _omitSchemas);
 
     std::list<std::string>::iterator iter = grants.begin();
     for (; iter != grants.end(); ++iter)
@@ -1777,7 +1777,7 @@ protected:
   std::string non_std_sql_delimiter;
   ;
   bool show_warnings;
-  bool use_short_names;
+  bool _omitSchemas;
   bool no_view_placeholder;
   bool _case_sensitive;
   grt::DictRef _decomposer_options;
@@ -1792,7 +1792,7 @@ protected:
     Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
     non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
     show_warnings = options.get_int("GenerateWarnings") != 0;
-    use_short_names = options.get_int("UseShortNames") != 0;
+    _omitSchemas = options.get_int("OmitSchemas") != 0;
     no_view_placeholder = options.get_int("NoViewPlaceholders") != 0;
 
     grt::ValueRef dboptsval = options.get("DBSettings");
@@ -1842,7 +1842,7 @@ protected:
 
   std::string generate_view_placeholder(const db_mysql_ViewRef view) {
     std::string sql;
-    std::string view_q_name(get_name(view, use_short_names));
+    std::string view_q_name(get_name(view, _omitSchemas));
 
     SelectStatement::Ref select_statement(new SelectStatement());
     SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
@@ -1893,7 +1893,7 @@ protected:
 
   std::string generate_view_ddl(const db_mysql_ViewRef view, std::string create_view, std::string drop_view = "") {
     std::string sql;
-    std::string view_q_name(get_name(view, use_short_names));
+    std::string view_q_name(get_name(view, _omitSchemas));
 
     // create view
     sql.append("\n");
@@ -2020,7 +2020,7 @@ protected:
       result.append("-- -----------------------------------------------------\n");
       result.append(comment);
 
-      if ((!use_short_names || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive)))) {
+      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive)))) {
         if (gen_schema_drops)
           result.append("DROP SCHEMA IF EXISTS `").append(schema->name().c_str()).append("` ;\n");
 
@@ -2047,7 +2047,7 @@ protected:
 
     result.append("\n");
     result.append("-- -----------------------------------------------------\n");
-    result.append("-- Table ").append(get_name(table, use_short_names)).append("\n");
+    result.append("-- Table ").append(get_name(table, _omitSchemas)).append("\n");
     result.append("-- -----------------------------------------------------\n");
 
     if (gen_drops)
@@ -2073,7 +2073,7 @@ protected:
   std::string table_inserts_sql(const db_mysql_TableRef table) const {
     std::string result;
     std::string use_code;
-    if (!use_short_names || gen_use)
+    if (!_omitSchemas || gen_use)
       use_code.append("USE `").append(table->owner()->name().c_str()).append("`;\n");
 
     std::string table_inserts_sql;
@@ -2090,7 +2090,7 @@ protected:
       output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(
         table->owner() /*schema*/->owner() /*catalog*/->owner() /*phys.model*/->get_member("rdbms")));
       output_storage->schema_name(table->owner()->name());
-      output_storage->omit_schema_qualifier(use_short_names);
+      output_storage->omit_schema_qualifier(_omitSchemas);
       output_storage->binding_blobs(false);
       output_storage->serialize(rs);
       table_inserts_sql = output_storage->sql_script();
@@ -2098,7 +2098,7 @@ protected:
     if (table_inserts_sql.empty())
       return table_inserts_sql;
     result.append("\n-- -----------------------------------------------------\n-- Data for table ")
-      .append(get_name(table, use_short_names))
+      .append(get_name(table, _omitSchemas))
       .append("\n-- -----------------------------------------------------\nSTART TRANSACTION;\n")
       .append(use_code)
       .append(table_inserts_sql)
@@ -2251,7 +2251,7 @@ public:
 
       send_output(std::string("Processing Schema ").append(schema->name()).append("\n"));
 
-      if ((!use_short_names || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))))
+      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))))
         out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
 
       // tables
@@ -2279,7 +2279,7 @@ public:
           schema_triggers_sql.append(trigger_sql(triggers.get(k)));
       }
       if (!schema_triggers_sql.empty()) {
-        if (!use_short_names || gen_use)
+        if (!_omitSchemas || gen_use)
           triggers_sql.append("USE `").append(schema->name().c_str()).append("`;\n");
         triggers_sql.append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n");
         triggers_sql.append(schema_triggers_sql);
@@ -2313,7 +2313,7 @@ public:
         objects_sql.append(view_sql(views.get(j)));
 
       if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))) {
-        if (!use_short_names || gen_use)
+        if (!_omitSchemas || gen_use)
           out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
         out_sql.append(objects_sql);
       }

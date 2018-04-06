@@ -46,7 +46,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSQLExport : public DbMySQLValidationP
   std::string _output_filename;
   std::string _output_header;
   bool _tables_are_selected, _triggers_are_selected, _routines_are_selected, _views_are_selected, _users_are_selected;
-  bool _omit_schemata;
+  bool _omitSchemas;
   bool _generate_use;
   bool _skip_foreign_keys;
   bool _skip_fk_indexes;

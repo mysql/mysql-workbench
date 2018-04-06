@@ -113,7 +113,7 @@ std::string DbMySQLDiffAlter::generate_alter() {
   options.set("KeepOrder", grt::IntegerRef(1));
   options.set("DBSettings", get_db_options());
   // enable this once the ALTER script generation code is able to properly generate USE statements
-  // options.set("UseShortNames", grt::IntegerRef(1));
+  // options.set("OmitSchemas", grt::IntegerRef(1));
 
   grt::StringListRef alter_list(grt::Initialized);
   grt::ListRef<GrtNamedObject> alter_object_list(true);

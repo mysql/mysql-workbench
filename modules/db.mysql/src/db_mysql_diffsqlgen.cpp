@@ -1427,7 +1427,7 @@ DiffSQLGeneratorBE::DiffSQLGeneratorBE(grt::DictRef options, grt::DictRef dbtrai
   _gen_create_index = (options.get_int("GenerateCreateIndex", _gen_create_index) != 0);
   _use_filtered_lists = options.get_int("UseFilteredLists", _use_filtered_lists) != 0;
   _separate_foreign_keys = options.get_int("SeparateForeignKeys", _separate_foreign_keys) != 0;
-  cb->set_short_names(options.get_int("UseShortNames", 0) != 0);
+  cb->setOmitSchemas(options.get_int("OmitSchemas", 0) != 0);
   cb->set_gen_use(options.get_int("GenerateUse", 0) != 0);
   fill_set_from_list(grt::StringListRef::cast_from(options.get("UserFilterList", empty_list)), _filtered_users);
   fill_set_from_list(grt::StringListRef::cast_from(options.get("SchemaFilterList", empty_list)), _filtered_schemata);

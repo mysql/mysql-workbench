@@ -134,7 +134,7 @@ TEST_FUNCTION(20) {
   options.set("OutputContainer", create_map);
   options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
   options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-  options.set("UseShortNames", grt::IntegerRef(1));
+  options.set("OmitSchemas", grt::IntegerRef(1));
   options.set("GenerateUse", grt::IntegerRef(1));
   options.set("GenerateDrops", grt::IntegerRef(1));
   diffsql_module->generateSQL(catalog, options, create_change);
@@ -170,7 +170,7 @@ TEST_FUNCTION(30) {
   options.set("OutputContainer", create_map);
   options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
   options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-  options.set("UseShortNames", grt::IntegerRef(1));
+  options.set("OmitSchemas", grt::IntegerRef(1));
   options.set("GenerateUse", grt::IntegerRef(1));
   options.set("GenerateDrops", grt::IntegerRef(1));
   diffsql_module->generateSQL(catalog, options, create_change);
@@ -380,7 +380,7 @@ TEST_FUNCTION(60) {
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(1));
     options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-    options.set("UseShortNames", grt::IntegerRef(1));
+    options.set("OmitSchemas", grt::IntegerRef(1));
     options.set("GenerateUse", grt::IntegerRef(1));
     options.set("GenerateDrops", grt::IntegerRef(1));
     options.set("GenerateDocumentProperties", grt::IntegerRef(0));
@@ -442,7 +442,7 @@ TEST_FUNCTION(60) {
     options.set("OutputContainer", create_map);
     options.set("CaseSensitive", grt::IntegerRef(1));
     options.set("GenerateSchemaDrops", grt::IntegerRef(1));
-    options.set("UseShortNames", grt::IntegerRef(1));
+    options.set("OmitSchemas", grt::IntegerRef(1));
     options.set("GenerateUse", grt::IntegerRef(1));
     options.set("GenerateDrops", grt::IntegerRef(1));
     options.set("GenerateDocumentProperties", grt::IntegerRef(0));

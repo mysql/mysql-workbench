@@ -1307,7 +1307,7 @@ TEST_FUNCTION(20) {
       options.set("UseFilteredLists", grt::IntegerRef(0));
       options.set("OutputContainer", alter_map);
       options.set("TemplateFile", grt::StringRef(TemplateFile));
-      options.set("UseShortNames", grt::IntegerRef(j));
+      options.set("OmitSchemas", grt::IntegerRef(j));
       options.set("SeparateForeignKeys", grt::IntegerRef(0));
 
       std::string report = diffsql_module->generateReport(org_cat, options, alter_change);
