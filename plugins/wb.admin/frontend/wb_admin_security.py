@@ -2034,13 +2034,9 @@ class SecurityAccount(mforms.Box):
             self.current_action = ""
             return
 
-        #if is_new_user:
-        self.owner.secman.account_names.remove((username_to_rename, host_to_rename))
-        self.owner.secman.account_names.append((self._selected_user.username, self._selected_user.host))
-
         self.reload_user(is_new_user)
         
-        self.refresh()
+        self.owner.secman.async_refresh(self.refresh)
 
         self.add_button.set_enabled(True)
         self.del_button.set_enabled(True)
