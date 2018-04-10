@@ -1962,7 +1962,7 @@ void Window::Destroy()
     if ([idWin isKindOfClass: [NSWindow class]])
     {
       NSWindow* win = static_cast<NSWindow*>(idWin);
-      [win release];
+      [win close];
     }
   }
   wid = 0;
