@@ -31,6 +31,7 @@
 #include <ctime>
 #include <base/string_utilities.h>
 #include <sstream>
+#include <iostream>
 
 namespace sqlide {
 
@@ -238,7 +239,7 @@ namespace sqlide {
 
   class WBPUBLICBACKEND_PUBLIC_FUNC QuoteVar : public VarConvBase {
   public:
-    QuoteVar() : quote("'"), store_unknown_as_string(true), allow_func_escaping(false) {
+    QuoteVar() : quote("'"), store_unknown_as_string(true), allow_func_escaping(false), bitMode(false), needQuote(true) {
     }
     typedef std::function<std::string(const std::string &)> Escape_sql_string;
     Escape_sql_string escape_string;
@@ -247,6 +248,8 @@ namespace sqlide {
     Blob_to_string blob_to_string;
     bool store_unknown_as_string;
     bool allow_func_escaping;
+    bool bitMode;
+    bool needQuote;
 
     static std::string escape_ansi_sql_string(const std::string &text) // used by sqlite
     {
@@ -312,10 +315,11 @@ namespace sqlide {
           if ((v.size() > func_call_seq.size()) && (v.compare(0, func_call_seq.size(), func_call_seq) == 0))
             return v.substr(func_call_seq.size());
           else if ((v.size() > func_call_exc.size()) && (v.compare(0, func_call_exc.size(), func_call_exc) == 0))
-            return quote + escape_string(v.substr(1)) + quote;
+            return (needQuote ? ((bitMode ? "b" : "" ) + quote) : "") + escape_string(v.substr(1)) + (needQuote ? quote : "");
         }
       }
-      return quote + escape_string(v) + quote;
+      std::cout << "testing " << std::endl;
+      return (needQuote ? ((bitMode ? "b" : "" ) + quote) : "") + escape_string(v) + (needQuote ? quote : "");
     }
     template <typename T>
     result_type operator()(const T &, const blob_ref_t &v) const {

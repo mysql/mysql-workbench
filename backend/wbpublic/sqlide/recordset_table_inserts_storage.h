@@ -56,7 +56,7 @@ private:
 
 protected:
   void generate_sql_script(const Recordset *recordset, sqlite::connection *data_swap_db, Sql_script &sql_script,
-                           bool is_update_script);
+                           bool is_update_script, bool binaryAsString = false);
 
 public:
   void table(const db_TableRef table) {
