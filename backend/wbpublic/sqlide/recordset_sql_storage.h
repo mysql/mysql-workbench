@@ -70,7 +70,7 @@ public:
 
 protected:
   virtual void generate_sql_script(const Recordset *recordset, sqlite::connection *data_swap_db, Sql_script &sql_script,
-                                   bool is_update_script);
+                                   bool is_update_script, bool binaryAsString = false);
   virtual void generate_inserts(const Recordset *recordset, sqlite::connection *data_swap_db, Sql_script &sql_script);
   virtual void run_sql_script(const Sql_script &sql_script, bool skip_commit) {
   }

@@ -59,17 +59,11 @@ namespace mforms {
   /** Multiline text editing control */
   class MFORMS_EXPORT TextBox : public View {
 #ifdef SWIG
-#if SWIG_VERSION < 0x030003 || \
-  SWIG_VERSION >=              \
-    0x030008 // starting with SWIG v3.0.3, this is no longer necessary (https://github.com/swig/swig/pull/201)
-    // workaround for problem with unicode strings and default args in swig
+// starting with SWIG v3.0.3, this is no longer necessary (https://github.com/swig/swig/pull/201)
+// workaround for problem with unicode strings and default args in swig
+#if SWIG_VERSION < 0x030003 || SWIG_VERSION >= 0x030008
     %rename(append_text_and_scroll) append_text(const std::string &text, bool scroll_to_end);
     %rename(append_text) append_text(const std::string &text, bool scroll_to_end);
-
-    %rename(append_text_with_encoding_and_scroll)
-        append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
-    %rename(append_text_with_encoding)
-        append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
 #endif
 #endif
   public:
@@ -98,7 +92,7 @@ namespace mforms {
     /** Appends text to the end of the text box, in the given character set encoding.
 
      If scroll_to_end is true, it will also scroll to make the end of the text box visible. */
-    void append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end = false);
+    void append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end);
 
     /** Sets padding */
     void set_padding(int pad);

@@ -164,6 +164,12 @@ static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const 
   col->setParseType("BLOB", rdbms->simpleDatatypes());
   table->columns().insert(col);
 
+  col = db_mysql_ColumnRef(grt::Initialized);
+  col->owner(table);
+  col->name("bitcol");
+  col->setParseType("BIT(1)", rdbms->simpleDatatypes());
+  table->columns().insert(col);
+
   return table;
 }
 
@@ -194,7 +200,6 @@ static std::string generate_sql_just_like_fwd_eng(db_TableRef table) {
 TEST_FUNCTION(5) {
   // test proper storage of values with trivial values
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
-
   {
     TestTableEditor editor(table, wbt->get_rdbms());
 
@@ -202,12 +207,13 @@ TEST_FUNCTION(5) {
 
     // starts with 1 row, which is the placeholder
     ensure_equals("rows", rs->count(), 1U);
-    ensure_equals("columns", rs->get_column_count(), 4U);
+    ensure_equals("columns", rs->get_column_count(), 5U);
 
     std::string s;
     rs->set_field(0, 0, std::string("1"));
     rs->set_field(0, 1, std::string("test"));
     rs->set_field(0, 2, std::string("2012-01-01"));
+    rs->set_field(0, 4, std::string("1"));
 
     std::string msg;
     bool ok = rs->apply_changes_and_gather_messages(msg);
@@ -220,7 +226,7 @@ TEST_FUNCTION(5) {
     RecordsetRef rs = editor.get_inserts_model();
 
     ensure_equals("rows", rs->count(), 2U);
-    ensure_equals("columns", rs->get_column_count(), 4U);
+    ensure_equals("columns", rs->get_column_count(), 5U);
 
     std::string s;
     rs->get_field(0, 0, s);
@@ -229,6 +235,8 @@ TEST_FUNCTION(5) {
     ensure_equals("get 1", s, std::string("test"));
     rs->get_field(0, 2, s);
     ensure_equals("get 2", s, std::string("2012-01-01"));
+    rs->get_field(0, 4, s);
+    ensure_equals("get 4", s, std::string("1"));
 
     rs->set_field(1, 0, std::string("42"));
     ensure_equals("added temporary", rs->count(), 3U);
@@ -242,11 +250,11 @@ TEST_FUNCTION(5) {
     // check generation of SQL
     std::string output = table->inserts();
     ensure_equals("generated sql", output,
-                  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
+                  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (1, 'test', '2012-01-01', NULL, 1);\n");
 
     output = generate_sql_just_like_fwd_eng(table);
     ensure_equals("fwd eng sql", output,
-                  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (1, 'test', '2012-01-01', NULL);\n");
+                  "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (1, 'test', '2012-01-01', NULL, 1);\n");
   }
 }
 
@@ -301,6 +309,7 @@ TEST_FUNCTION(6) {
   rs->set_field(0, 0, std::string("NULL"));
   rs->set_field(0, 1, std::string("NULL"));
   rs->set_field(0, 2, std::string("NULL"));
+  rs->set_field(0, 4, std::string("NULL"));
 
   // just setting a field to NULL doesn't make it NULL, just the string NULL
   std::string s;
@@ -313,13 +322,17 @@ TEST_FUNCTION(6) {
   rs->get_field(0, 2, s);
   ensure_equals("check null str store", s, "NULL");
   ensure("check null str store", !rs->is_field_null(0, 2));
+  rs->get_field(0, 4, s);
+  ensure_equals("check null str store", s, "NULL");
+  ensure("check null str store", !rs->is_field_null(0, 4));
+
   std::string msg;
   rs->apply_changes_and_gather_messages(msg);
 
   // XXX not sure if setting an int field to the NULL string should result in a real NULL, maybe yes
   std::string output = table->inserts();
   ensure_equals("output1", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (NULL, 'NULL', 'NULL', NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (NULL, 'NULL', 'NULL', NULL, NULL);\n");
 
   // now actually set the fields to NULL
   rs->set_field_null(0, 0);
@@ -340,7 +353,7 @@ TEST_FUNCTION(6) {
 
   output = table->inserts();
   ensure_equals("output2", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, NULL, NULL, NULL);\n");
 }
 
 TEST_FUNCTION(11) {
@@ -356,11 +369,11 @@ TEST_FUNCTION(11) {
   // check generation of SQL
   std::string output = table->inserts();
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, NULL, NULL, NULL);\n");
 
   output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, NULL, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, NULL, NULL, NULL);\n");
 }
 
 TEST_FUNCTION(12) {
@@ -377,11 +390,11 @@ TEST_FUNCTION(12) {
   // check generation of SQL
   std::string output = table->inserts();
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, DEFAULT, NULL, NULL, NULL);\n");
 
   output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NULL, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, DEFAULT, NULL, NULL, NULL);\n");
 }
 
 TEST_FUNCTION(13) {
@@ -398,11 +411,11 @@ TEST_FUNCTION(13) {
   // check generation of SQL
   std::string output = table->inserts();
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, DEFAULT, NULL, NULL);\n");
 
   output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, NULL, DEFAULT, NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, DEFAULT, NULL, NULL);\n");
 }
 
 TEST_FUNCTION(15) {
@@ -416,6 +429,7 @@ TEST_FUNCTION(15) {
   rs->set_field(0, 0, std::string("\\func DEFAULT"));
   rs->set_field(0, 1, std::string("\\func DEFAULT"));
   rs->set_field(0, 2, std::string("\\func NOW()"));
+  rs->set_field(0, 4, std::string("\\func DEFAULT"));
   std::string msg;
   rs->apply_changes_and_gather_messages(msg);
   ensure_equals("apply", msg, "Apply complete");
@@ -423,11 +437,11 @@ TEST_FUNCTION(15) {
   // check generation of SQL
   std::string output = table->inserts();
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, DEFAULT, NOW(), NULL, DEFAULT);\n");
 
   output = generate_sql_just_like_fwd_eng(table);
   ensure_equals("generated sql", output,
-                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`) VALUES (DEFAULT, DEFAULT, NOW(), NULL);\n");
+                "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, DEFAULT, NOW(), NULL, DEFAULT);\n");
 }
 
 // Due to the tut nature, this must be executed as a last test always,

@@ -329,7 +329,7 @@ void Recordset_sql_storage::get_pkey_predicate_for_data_cache_rowid(Recordset *r
 }
 
 void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqlite::connection *data_swap_db,
-                                                Sql_script &sql_script, bool is_update_script) {
+                                                Sql_script &sql_script, bool is_update_script, bool binaryAsString) {
   // this one is used mostly internally, for eg.: sqlite inserts storage
 
   if (_is_sql_script_substitute_enabled) {
@@ -341,6 +341,7 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
   const Recordset::Column_types &column_types = get_column_types(recordset);
   const Recordset::Column_types &real_column_types = get_real_column_types(recordset);
   const Recordset::Column_flags &column_flags = get_column_flags(recordset);
+  const Recordset::DBColumn_types &dbColumnTypes = getDbColumnTypes(recordset);
   const size_t partition_count = recordset->data_swap_db_partition_count();
   const sqlide::VarToStr var_to_str;
 
@@ -449,7 +450,12 @@ void Recordset_sql_storage::generate_sql_script(const Recordset *recordset, sqli
                 v = data_row_rs->get_variant((int)partition_column);
                 if (!qv.store_unknown_as_string && boost::apply_visitor(jsonTypeFinder, column_types[column], v))
                   qv.store_unknown_as_string = true;
+
+                if (!binaryAsString && !dbColumnTypes.empty() && dbColumnTypes[column] == "BIT")
+                  qv.bitMode = !dbColumnTypes.empty() && dbColumnTypes[column] == "BIT";
+
                 values += strfmt("%s, ", boost::apply_visitor(qv, column_types[column], v).c_str());
+
                 if (unknownAsStringOrginal != qv.store_unknown_as_string)
                   qv.store_unknown_as_string = unknownAsStringOrginal;
                 if (blob_columns[column])
@@ -570,12 +576,14 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
   const Recordset::Column_types &column_types = get_column_types(recordset);
   const Recordset::Column_types &real_column_types = get_real_column_types(recordset);
   const Recordset::Column_flags &column_flags = get_column_flags(recordset);
+  const Recordset::DBColumn_types &dbColumnTypes = getDbColumnTypes(recordset);
   const size_t partition_count = recordset->data_swap_db_partition_count();
 
   // RowId min_new_rowid= recordset->min_new_rowid();
   ColumnId editable_col_count = recordset->get_column_count();
   sqlide::QuoteVar qv;
   init_variant_quoter(qv);
+  qv.store_unknown_as_string = true;
   std::string full_table_name = this->full_table_name();
 
   if (0 == editable_col_count)
@@ -607,25 +615,19 @@ void Recordset_sql_storage::generate_inserts(const Recordset *recordset, sqlite:
              col < col_end; ++col) {
           ColumnId partition_column = col - col_begin;
           v = data_rs->get_variant((int)partition_column);
-          sqlide::VarToStr var_to_str;
 
           std::string value;
-          if (sqlide::is_var_null(v)) {
-            if ((column_flags[col] & Recordset::NotNullFlag) != 0)
+          if (sqlide::is_var_null(v) && (column_flags[col] & Recordset::NotNullFlag) != 0) {
               value = "DEFAULT";
-            else
-              value = boost::apply_visitor(qv, column_types[col], v);
-          } else if ((column_flags[col] & Recordset::NeedsQuoteFlag))
-            value = boost::apply_visitor(qv, column_types[col], v);
-          else {
-            value = boost::apply_visitor(var_to_str, v);
-            static std::string func_escape = "\\func ";
-            static std::string func_escape_ape = "\\\\func ";
-            if (value.substr(0, func_escape.size()) == func_escape ||
-                value.substr(0, func_escape_ape.size()) == func_escape_ape)
-              value = boost::apply_visitor(qv, column_types[col], v);
+          } else {
+
+            qv.bitMode = !dbColumnTypes.empty() && dbColumnTypes[col] == "BIT";
+            qv.needQuote = column_flags[col] & Recordset::NeedsQuoteFlag;
+
+            value = strfmt("%s", boost::apply_visitor(qv, column_types[col], v).c_str());
           }
-          values += strfmt("%s, ", value.c_str()); // boost::apply_visitor(var_to_str, v).c_str());
+
+          values += strfmt("%s, ", value.c_str());
         }
       }
       if (!values.empty())

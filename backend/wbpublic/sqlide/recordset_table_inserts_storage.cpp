@@ -48,6 +48,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
   Recordset::Column_types &column_types = get_column_types(recordset);
   Recordset::Column_types &real_column_types = get_real_column_types(recordset);
   Recordset::Column_flags &column_flags = get_column_flags(recordset);
+  Recordset::DBColumn_types &dbColumnTypes = getDbColumnTypes(recordset);
 
   reinit(_mapped_colnames);
   _mapped_table_name = _table->id();
@@ -127,6 +128,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
     else if (column->userType().is_valid())
       stype = column->userType()->actualType();
 
+    dbColumnTypes.push_back(stype->name());
     column_types.push_back(known_types.map_simple_datatype(stype, false));
     real_column_types.push_back(known_types.map_simple_datatype(stype, true));
     int flags = 0;
@@ -227,13 +229,13 @@ void Recordset_table_inserts_storage::do_serialize(const Recordset *recordset, s
 }
 
 void Recordset_table_inserts_storage::generate_sql_script(const Recordset *recordset, sqlite::connection *data_swap_db,
-                                                          Sql_script &sql_script, bool is_update_script) {
+                                                          Sql_script &sql_script, bool is_update_script, bool binaryAsString) {
   AutoSwap<std::string> table_name_mapper(_table_name, _mapped_table_name);
 
   Recordset::Column_names *colnames = const_cast<Recordset::Column_names *>(recordset->column_names());
   AutoSwap<Recordset::Column_names> columns_names_mapper(*colnames, _mapped_colnames);
 
-  Recordset_sqlite_storage::generate_sql_script(recordset, data_swap_db, sql_script, is_update_script);
+  Recordset_sqlite_storage::generate_sql_script(recordset, data_swap_db, sql_script, is_update_script, true);
 }
 
 void Recordset_table_inserts_storage::do_apply_changes(const Recordset *recordset, sqlite::connection *data_swap_db,
