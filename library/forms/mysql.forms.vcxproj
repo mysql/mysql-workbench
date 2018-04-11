@@ -75,7 +75,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>DECL_MFORMS_EXPORT;SCI_LEXER;SCI_NAMESPACE;TIXML_USE_STL;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\parsers;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(ProjectDir)..\..\..\mysql-win-res\include\include;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\parsers;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(ProjectDir)..\..\..\mysql-win-res\include\include;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include;../base/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -100,7 +100,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>DECL_MFORMS_EXPORT;SCI_LEXER;SCI_NAMESPACE;TIXML_USE_STL;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\parsers;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(ProjectDir)..\..\..\mysql-win-res\include\include;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\parsers;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(ProjectDir)..\..\..\mysql-win-res\include\include;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include;../base/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -122,7 +122,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PreprocessorDefinitions>DECL_MFORMS_EXPORT;SCI_LEXER;SCI_NAMESPACE;TIXML_USE_STL;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>.;..\parsers;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(ProjectDir)..\..\..\mysql-win-res\include\include;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\parsers;..\mysql.canvas\src;../base;../../ext/scintilla/include;$(ProjectDir)..\..\..\mysql-win-res\include\include;$(ProjectDir)..\..\..\mysql-win-res\include\libxml;$(ProjectDir)..\..\..\mysql-win-res\include\glib;$(ProjectDir)..\..\..\mysql-win-res\include;../base/base;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
