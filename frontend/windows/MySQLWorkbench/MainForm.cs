@@ -1805,12 +1805,15 @@ namespace MySQL.GUI.Workbench
 
     private void tabsContextMenuItemClick(object sender, EventArgs e)
     {
-      TabPage page = contentTabControl.SelectedTab;
+      ToolStripMenuItem item = sender as ToolStripMenuItem;
+      int clickedTab = (int)item.Owner.Tag;
+
+      if (contentTabControl.TabCount < clickedTab || clickedTab < 0)
+        return;
+      TabPage page = contentTabControl.TabPages[clickedTab];
       if (page == null)
         return;
 
-      ToolStripMenuItem item = sender as ToolStripMenuItem;
-      int clickedTab = (int)item.Owner.Tag;
       switch (item.Tag as string)
       {
         case "0": // Close page.
@@ -1818,14 +1821,14 @@ namespace MySQL.GUI.Workbench
           break;
         case "1": // Close all editors but the clicked one.
           TabControl.TabPageCollection pages = contentTabControl.TabPages;
-          for (int i = 0; i < pages.Count; i++)
+          for (int i = 1; i < pages.Count; i++)
           {
-            // Do not close the home screen.
-            if (i == 0 || pages[i] == page)
+            if (pages[i] == page)
               continue;
-
             contentTabControl.CloseTabPage(pages[i]);
+            i = 0;
           }
+          contentTabControl.SelectedIndex = contentTabControl.TabPages.Count - 1;
           break;
         case "2": // Close tabs of the same type.
           ITabDocument document = contentTabControl.DocumentFromIndex(clickedTab);
