@@ -206,6 +206,8 @@ namespace MySQL.Grt.Db
       {
         SortOrder newSortOrder;
 
+        gridView.EndEdit();
+
         // By holding the (left) Alt key we remove any sorting.
         if ((ModifierKeys & Keys.Alt) != 0)
           newSortOrder = SortOrder.None;
