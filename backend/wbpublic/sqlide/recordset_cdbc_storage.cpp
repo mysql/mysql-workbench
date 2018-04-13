@@ -179,10 +179,11 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
         std::string column = rs->getString("Column_name");
         std::string null = rs->getString("Null");
         std::string key = rs->getString("Key_name");
+        std::string nonUnique = rs->getString("Non_unique");
 
         if (key == "PRIMARY") {
           primary_columns.push_back(column);
-        } else {
+        } else if (nonUnique == "0") {
           // at least one of the columns must be NOT NULL in a UNIQUE key
           if (prev_key != key) {
             prev_key = key;
