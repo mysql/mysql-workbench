@@ -263,6 +263,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   : exec_sql_task(GrtThreadedTask::create()),
     _history(DbSqlEditorHistory::create()),
     _wbsql(wbsql),
+    _version(grt::Initialized),
     _live_tree(SqlEditorTreeController::create(this)),
     _aux_dbc_conn(new sql::Dbc_connection_handler()),
     _usr_dbc_conn(new sql::Dbc_connection_handler()),
