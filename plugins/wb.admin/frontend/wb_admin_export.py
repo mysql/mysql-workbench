@@ -1059,11 +1059,14 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             schema = None
             table = None
             is_view = False
+            has_default_schema = False
             for line in f:
                 if line.startswith("-- Host:"):
                     schema = line.partition("Database: ")[-1].strip()
                     if table:
                         break
+                elif line.startswith("USE "):
+                    has_default_schema = True
                 elif not table and line.startswith("-- Table structure for table"):
                     table = line.partition("-- Table structure for table")[-1].strip()
                     if table[0] == '`':
@@ -1081,13 +1084,14 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                     table = "Views, routines, events etc"
                     if schema:
                         break
-            return schema, table, is_view
+            return schema, table, is_view, has_default_schema
 
         self.folder_load_btn.set_enabled(False)
         tables_by_schema = {}
         # (schema, table) -> path
         self.tables_paths = {}
         self.views_paths = {}
+        self.needs_default_schema = {}
         self.schema_list.freeze_refresh()
         self.schema_list.clear()
         try:
@@ -1100,7 +1104,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                     fullname = os.path.join(path, fname)
                     if os.path.isfile(fullname) and os.path.splitext(fullname)[1] == ".sql":
                         # open the backup file and look for schema and table name in it
-                        schema, table, is_view = parse_name_from_single_table_dump(fullname)
+                        schema, table, is_view, has_default_schema = parse_name_from_single_table_dump(fullname)
                         if not schema or not table:
                             self.progress_tab.print_log_message("%s does not contain schema/table information" % fullname)
                             continue
@@ -1116,6 +1120,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                             self.table_list_model.set_routines_placeholder((schema, table))
                         else:
                             self.tables_paths[(schema, table)] = fullname
+                        self.needs_default_schema[(schema, table)] = not has_default_schema
 
                 if not tables_by_schema:
                     Utilities.show_message("Open Dump Folder", "There were no dump files in the selected folder.", "OK", "", "")
@@ -1185,6 +1190,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
         from_folder = not self.fileradio.get_active()
 
         operations = []
+        extra_args = ""
         if from_folder:
             self.path = self.folder_te.get_string_value()
         else:
@@ -1200,7 +1206,9 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             for schema, table in selection:
                 logmsg = "Restoring %s (%s)" % (schema, table)
                 path = self.tables_paths.get((schema, table))
-                extra_args = ["--database=%s" % schema]
+                
+                if self.needs_default_schema[(schema, table)]:
+                    extra_args = ["--database=%s" % schema]
                 # description, object_count, extra_args, objects, pipe_factory
                 if path != None:
                     task = DumpThread.TaskData(logmsg, 1, extra_args, [path], None, lambda:None)
