@@ -970,7 +970,7 @@ protected:
     if (meta) {
       try {
         return meta->get_member_type(_items[node[0]].key).base.type;
-      } catch (grt::bad_item) {
+      } catch (grt::bad_item &) {
       }
     }
     return UnknownType;
@@ -984,7 +984,7 @@ protected:
     if (meta) {
       try {
         return meta->get_member_type(_items[node[0]].key).base.type;
-      } catch (grt::bad_item) {
+      } catch (grt::bad_item &) {
       }
     }
     return UnknownType;

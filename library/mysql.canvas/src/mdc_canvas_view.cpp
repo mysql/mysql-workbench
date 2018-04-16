@@ -816,7 +816,7 @@ void CanvasView::export_png(const std::string &filename, bool crop) {
 
     if ((status = cairo_surface_write_to_png_stream(surface, &write_to_surface, fh.file())) != CAIRO_STATUS_SUCCESS)
       throw canvas_error(cairo_status_to_string(status));
-  } catch (std::exception) {
+  } catch (std::exception &) {
     cairo_surface_destroy(surface);
     throw;
   }
@@ -841,7 +841,7 @@ void CanvasView::export_pdf(const std::string &filename, const Size &size_in_pt)
     ctx.show_page();
 
     ctx.check_state();
-  } catch (std::exception) {
+  } catch (std::exception &) {
     cairo_surface_destroy(surface);
     throw;
   }
@@ -866,7 +866,7 @@ void CanvasView::export_ps(const std::string &filename, const Size &size_in_pt) 
     ctx.show_page();
 
     ctx.check_state();
-  } catch (std::exception) {
+  } catch (std::exception &) {
     cairo_surface_destroy(surface);
     throw;
   }
@@ -891,7 +891,7 @@ void CanvasView::export_svg(const std::string &filename, const Size &size_in_pt)
     ctx.show_page();
 
     ctx.check_state();
-  } catch (std::exception) {
+  } catch (std::exception &) {
     cairo_surface_destroy(surface);
     throw;
   }

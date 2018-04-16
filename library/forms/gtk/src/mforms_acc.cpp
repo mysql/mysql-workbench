@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,8 @@
 #include <gtk/gtk-a11y.h>
 #include <atk/atk.h>
 #include <atkmm.h>
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-function-type"
 namespace mforms {
   namespace gtk {
 
@@ -553,3 +554,5 @@ namespace mforms {
     }
   }
 }
+
+#pragma GCC diagnostic pop

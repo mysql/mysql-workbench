@@ -86,7 +86,7 @@ private:
   ~ThreadedTimer();
 
   static gpointer start(gpointer data);
-  static gpointer pool_function(gpointer data, gpointer user_data);
+  static void pool_function(gpointer data, gpointer user_data);
   void main_loop();
   void remove(int task_id);
 };

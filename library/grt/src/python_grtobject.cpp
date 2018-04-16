@@ -55,7 +55,7 @@ static PyObject *call_object_method(const grt::ObjectRef &object, const grt::Cla
     try {
       grt::ValueRef v = ctx->from_pyobject(argval, arg->type);
       grtargs.ginsert(v);
-    } catch (grt::type_error) {
+    } catch (grt::type_error &) {
       PyErr_SetString(PyExc_TypeError,
                       strfmt("argument %i must be a %s", (int)(a + 1), grt::fmt_type_spec(arg->type).c_str()).c_str());
       return NULL;
@@ -77,7 +77,7 @@ static PyObject *call_object_method(const grt::ObjectRef &object, const grt::Cla
   } catch (sql::SQLException &exc) {
     PythonContext::set_db_error(exc);
     return NULL;
-  } catch (grt::python_error) {
+  } catch (grt::python_error &) {
     return NULL;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);

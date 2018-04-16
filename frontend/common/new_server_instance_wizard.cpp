@@ -864,7 +864,7 @@ void WindowsManagementPage::enter(bool advancing) {
       }
 
       refresh_config_path();
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error &e) {
       _progress_label.set_text(base::strfmt(_("Could not set up connection: %s"), e.what()));
       wizard()->set_problem(e.what());
 
@@ -1285,7 +1285,7 @@ void PathsPage::test_path() {
       success = wizard()->test_setting("check_config_path/local", detail);
     else
       success = wizard()->test_setting("check_config_path", detail);
-  } catch (std::exception) {
+  } catch (std::exception &) {
     success = false;
   }
   if (success) {
@@ -1310,7 +1310,7 @@ void PathsPage::test_section() {
       success = wizard()->test_setting("check_config_section/local", detail);
     else
       success = wizard()->test_setting("check_config_section", detail);
-  } catch (std::exception) {
+  } catch (std::exception &) {
     success = false;
   }
 

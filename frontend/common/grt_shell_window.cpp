@@ -1852,7 +1852,7 @@ static void globals_rescan_list(mforms::TreeNodeRef &node, const std::string &pa
         try {
           if (o.has_member("name") && o.get_string_member("name") != "")
             s.append(" ").append(o.get_string_member("name"));
-        } catch (grt::type_error) {
+        } catch (grt::type_error &) {
           s.append(" ").append("?");
         }
         child->set_string(0, s);
@@ -1966,7 +1966,7 @@ void GRTShellWindow::refresh_globals_tree() {
       globals_rescan_value(root, path, value);
       //      root->expand();
     }
-  } catch (const grt::bad_item) {
+  } catch (const grt::bad_item &) {
     // ignore
   }
 }

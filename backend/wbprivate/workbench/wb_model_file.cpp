@@ -165,7 +165,7 @@ std::string ModelFile::create_document_dir(const std::string &dir, const std::st
     try {
       _temp_dir_lock = new base::LockFile(base::makePath(path, lock_filename.c_str()));
       break;
-    } catch (const base::file_locked_error) {
+    } catch (const base::file_locked_error &) {
       // continue
     }
     sprintf(s, "d%i", ++i);
@@ -257,7 +257,7 @@ void ModelFile::open(const std::string &path) {
     // so we don't do anything with this file.
     try {
       base::LockFile test_lock(base::makePath(auto_save_dir, lock_filename.c_str()));
-    } catch (const base::file_locked_error) {
+    } catch (const base::file_locked_error &) {
       mforms::Utilities::show_warning(
         _("Opening Document"),
         base::strfmt(_("Could not lock the document %s.\n"
@@ -415,7 +415,7 @@ retry:
       if (check_and_fix_duplicate_uuid_bug(xmldoc))
         goto retry;
     throw;
-  } catch (std::exception) {
+  } catch (std::exception &) {
     if (xmldoc)
       xmlFreeDoc(xmldoc);
     throw;

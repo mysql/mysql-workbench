@@ -176,7 +176,7 @@ gpointer ThreadedTimer::start(gpointer data) {
 /**
  * Entry point for all pool (worker) threads.
  */
-gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
+void ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
   ThreadedTimer *timer = static_cast<ThreadedTimer *>(user_data);
   TimerTask *task = static_cast<TimerTask *>(data);
 
@@ -200,8 +200,6 @@ gpointer ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
     task->scheduled = false;
     logWarning("Threaded timer: unknown exception in pool function\n");
   }
-
-  return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

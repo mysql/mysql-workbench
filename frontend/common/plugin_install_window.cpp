@@ -255,7 +255,7 @@ bool PluginInstallWindow::InstallItem::start() {
     }
     try {
       manifest = grt::DictRef::cast_from(grt::GRT::get()->unserialize(manifest_path));
-    } catch (const std::exception) {
+    } catch (const std::exception &) {
       mforms::Utilities::show_error("Invalid Plugin", "There was an error reading the manifest file from the plugin.",
                                     "OK", "", "");
       base_rmdir_recursively(unpacked_path.c_str());

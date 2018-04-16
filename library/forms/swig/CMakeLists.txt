@@ -87,7 +87,7 @@ swig_link_libraries(cairo ${CAIRO_LIBRARIES})
 
 set(SOURCE_FILE_COMPILE_FLAGS "-Wno-missing-field-initializers -Wno-parentheses")
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(SOURCE_FILE_COMPILE_FLAGS "${SOURCE_FILE_COMPILE_FLAGS} -Wno-maybe-uninitialized")
+  set(SOURCE_FILE_COMPILE_FLAGS "${SOURCE_FILE_COMPILE_FLAGS} -Wno-maybe-uninitialized -Wno-stringop-truncation -Wno-cast-function-type")
 endif()
 
 set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS ${SOURCE_FILE_COMPILE_FLAGS})

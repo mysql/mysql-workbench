@@ -230,9 +230,9 @@ namespace ssh {
           continue;
         } else { // This is a new connection, we need to handle it.
           auto sockLock = lockSocketList();
-          auto it = _socketList.find(static_cast<const int>(pollIt.fd));
+          auto it = _socketList.find(pollIt.fd);
           if (it != _socketList.end()) {
-            it->second->handleNewConnection(static_cast<const int>(pollIt.fd));
+            it->second->handleNewConnection(pollIt.fd);
           } else {
             // Let's check if this is something that wasn't removed from the sock list, then just close it.
             bool found = false;

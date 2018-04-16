@@ -43,6 +43,7 @@ target_compile_options(grt PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(grt wbbase ${GLIB_LIBRARIES} ${GMODULE_LIBRARIES} ${GRT_LIBRARIES} ${UUID_LIBRARIES})
 
+set_source_files_properties(python_grtlist.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 if(BUILD_FOR_TESTS)
   target_link_libraries(grt gcov)
 endif()
