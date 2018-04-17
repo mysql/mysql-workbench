@@ -605,7 +605,7 @@ TEST_FUNCTION(36) {
   try {
     base::reflow_text(content4, 20, "  ");
     fail("TEST 36.1: Didn't throw an exception");
-  } catch (std::invalid_argument) {
+  } catch (std::invalid_argument &) {
     // Exception was expected
   }
 

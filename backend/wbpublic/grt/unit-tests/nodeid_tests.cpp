@@ -95,7 +95,7 @@ TEST_FUNCTION(4) {
   bool exception_caught = false;
   try {
     bec::NodeId n1("1,2,3");
-  } catch (std::runtime_error) {
+  } catch (std::runtime_error &) {
     exception_caught = true;
   }
   ensure("Wrong args to ctors, test1", exception_caught);
@@ -103,7 +103,7 @@ TEST_FUNCTION(4) {
   exception_caught = false;
   try {
     bec::NodeId n1("aaaa");
-  } catch (std::runtime_error) {
+  } catch (std::runtime_error &) {
     exception_caught = true;
   }
   ensure("Wrong args to ctors, test2", exception_caught);
@@ -111,7 +111,7 @@ TEST_FUNCTION(4) {
   exception_caught = false;
   try {
     bec::NodeId n1("1.2.#.\0");
-  } catch (std::runtime_error) {
+  } catch (std::runtime_error &) {
     exception_caught = true;
   }
   ensure("Wrong args to ctors, test3", exception_caught);

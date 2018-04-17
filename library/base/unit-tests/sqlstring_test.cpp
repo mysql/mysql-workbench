@@ -377,7 +377,7 @@ TEST_FUNCTION(25) {
     test_result.clear();
     test_result.append(sqlstring("eleventh_test !", QuoteOnlyIfNeeded) << null_str);
     fail("TEST 25.11: Unexpected result quoting null string");
-  } catch (std::invalid_argument e) {
+  } catch (std::invalid_argument &e) {
     // Nothing to do, just catch the error and continue
   }
 
@@ -385,7 +385,7 @@ TEST_FUNCTION(25) {
     test_result.clear();
     test_result.append(sqlstring("twelfth_test !", UseAnsiQuotes) << null_str);
     fail("TEST 25.12: Unexpected result quoting null string");
-  } catch (std::invalid_argument e) {
+  } catch (std::invalid_argument &e) {
     // Nothing to do, just catch the error and continue
   }
 }

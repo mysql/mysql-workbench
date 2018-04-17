@@ -1808,7 +1808,7 @@ TEST_FUNCTION(60) {
     try {
       base::file_locked_error error("File Locked Error Message");
       throw(error);
-    } catch (const base::file_locked_error) {
+    } catch (const base::file_locked_error &) {
       // Nothing to do, just catch the error and continue.
     }
 
@@ -1816,7 +1816,7 @@ TEST_FUNCTION(60) {
       base::file_locked_error first_error("File Locked Error Message");
       base::file_locked_error second_error(first_error);
       throw(second_error);
-    } catch (const base::file_locked_error) {
+    } catch (const base::file_locked_error &) {
       // Nothing to do, just catch the error and continue.
     }
 

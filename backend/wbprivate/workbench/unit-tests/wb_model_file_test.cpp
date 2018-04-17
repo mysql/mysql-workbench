@@ -261,7 +261,7 @@ std::string test_loading_and_saving_a_model(const base::utf8string &base_path) {
     if (!base::remove(dst_path)) {
       return "model copy was not created";
     }
-  } catch (base::file_error) {
+  } catch (base::file_error &) {
     return "removing model copy failed";
   }
 
