@@ -311,6 +311,7 @@ class MEBBackup(MEBCommand):
         self.compress_method = profile.read_value('meb_manager', 'compress_method', False, 'lz4')
         self.compress_level = profile.read_value('meb_manager', 'compress_level', False, '1')
         self.skip_unused_pages = profile.read_value('meb_manager', 'skip_unused_pages', False, False) == 'True'
+        self.incremental_with_redo_log_only = profile.read_value('meb_manager', 'incremental_with_redo_log_only', False, False) == 'True'
         self.use_encryption_password = profile.read_value('meb_manager', 'use_encryption_password', False, False) == 'True'
         self.encryption_password = profile.read_value('meb_manager', 'encryption_password', False, "")
 
@@ -371,7 +372,10 @@ class MEBBackup(MEBCommand):
             base_folder = self.get_incremental_base_folder()
 
             if base_folder:
-                self.command_call += ' --incremental --incremental-base=dir:"%s"' % base_folder
+                if self.incremental_with_redo_log_only:
+                    self.command_call += ' --incremental-with-redo-log-only --incremental-base=dir:"%s"' % base_folder
+                else:
+                    self.command_call += ' --incremental --incremental-base=dir:"%s"' % base_folder
                 self.backup_dir = self.inc_backup_dir
                 path_param = '  --incremental-backup-dir'
             else:

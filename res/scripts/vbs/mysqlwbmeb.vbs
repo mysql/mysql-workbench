@@ -380,6 +380,7 @@ class MEBBackup
     private command_call
     private use_tts
     private skip_unused_pages
+    private incremental_with_redo_log_only
     private use_encryption_password
     private encryption_password
     
@@ -428,6 +429,10 @@ class MEBBackup
         
         if profile.get_value("meb_manager", "skip_unused_pages", "False") = "True" then
             skip_unused_pages = true
+        end if
+
+        if profile.get_value("meb_manager", "incremental_with_redo_log_only", "False") = "True" then
+            incremental_with_redo_log_only = true
         end if
 
         if profile.get_value("meb_manager", "use_encryption_password", "False") = "True" then
@@ -643,7 +648,11 @@ class MEBBackup
             base_folder = get_incremental_base_folder()
 
             if base_folder <> "" then
-                command_call = command_call & " --incremental --incremental-base=dir:" & """" & base_folder & """"
+                if incremental_with_redo_log_only then
+                    command_call = command_call & " --incremental-with-redo-log-only --incremental-base=dir:" & """" & base_folder & """"
+                else
+                    command_call = command_call & " --incremental --incremental-base=dir:" & """" & base_folder & """"
+                end if
                 backup_dir = inc_backup_dir
                 path_param = "  --incremental-backup-dir"
             else
