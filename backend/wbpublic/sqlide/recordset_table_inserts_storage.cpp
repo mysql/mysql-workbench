@@ -90,8 +90,8 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
       std::string datatype_group_name;
       if (simple_datatype.is_valid()) {
         db_DatatypeGroupRef datatype_group = simple_datatype->group();
-        if (("com.mysql.rdbms.common.typegroup.numeric" == datatype_group->id()) &&
-            (0 == simple_datatype->numericScale())) {
+        if (datatype_group.is_valid() && datatype_group->id() == "com.mysql.rdbms.common.typegroup.numeric"  &&
+            simple_datatype->numericScale() == 0) {
           if (real_type) {
             if (8 < simple_datatype->numericPrecision())
               mapped_type = int();
@@ -120,7 +120,7 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
   // some column types might be defined in derived class. don't redefine types for those columns.
   for (size_t n = column_types.size(); n < col_count; ++n) {
     db_ColumnRef column = columns.get(n);
-    db_SimpleDatatypeRef stype;
+    db_SimpleDatatypeRef stype(grt::Initialized);
 
     // handle user defined types
     if (column->simpleType().is_valid())
