@@ -1462,7 +1462,6 @@ class SecurityAccount(mforms.Box):
         self.validate_hostlimithost()
         self.set_dirty()
 
-
     def auth_type_changed(self):
         if not self.has_extra_plugins:
             return
@@ -1521,11 +1520,9 @@ class SecurityAccount(mforms.Box):
 
             self.refresh_priv_list()
 
-
     def host_limit_clicked(self):
         self.hostlimithost.set_enabled(self.hostlimit.get_active())
         self.set_dirty()
-
 
     def user_selected(self):
         sel = self.user_list.get_selected_node()
@@ -1573,7 +1570,6 @@ class SecurityAccount(mforms.Box):
         privs = self.owner.secman.get_zombie_privs(user, host)
 
         self.account_label.set_text("Account %s@%s does not exist but it still has privileges defined for the following objects:\n    %s\n\nClick the [Delete] button to completely remove the account." % (user, host, "\n    ".join(privs)))
-
 
     def show_user(self, user):
         self.inner_tabview.show(True)
@@ -1657,7 +1653,6 @@ class SecurityAccount(mforms.Box):
         
         self.setup_bottom_message_box(user)           
 
-
     def _find_user_position(self, user, host):
         users_count = len(self.owner.secman.account_names)
         for row in range(users_count):
@@ -1720,7 +1715,6 @@ class SecurityAccount(mforms.Box):
         
         self.reload_user(False)
 
-
     def dup_account(self):
         if self._selected_user:
             account = self.owner.secman.copy_account(self._selected_user)
@@ -1729,7 +1723,6 @@ class SecurityAccount(mforms.Box):
             if pos and pos >= 0:
                 self.user_list.select_node(self.user_list.node_at_row(pos))
             self.user_selected()
-
 
     def del_account(self):
         self.current_action = "delete account"
@@ -1862,13 +1855,11 @@ class SecurityAccount(mforms.Box):
         self.user_list.set_enabled(False)
         self.dirty = True
 
-
     def unset_dirty(self):
         self.save_button.set_enabled(False)
         self.revert_button.set_enabled(False)
         self.user_list.set_enabled(True)
         self.dirty = False
-
   
     def expire(self):
         if self._selected_user:
@@ -1878,7 +1869,6 @@ class SecurityAccount(mforms.Box):
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error(title, message, 'OK', '', '')
         self.refresh()
-
   
     def revoke_all(self):
         if self._selected_user:
@@ -1892,7 +1882,6 @@ class SecurityAccount(mforms.Box):
                 except Exception, e:
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error(title, message, 'OK', '', '')
-
 
     def revert(self):
         if self._selected_user_original:
@@ -2043,7 +2032,6 @@ class SecurityAccount(mforms.Box):
         self.refresh_button.set_enabled(True)
         self.current_action = ""
 
-
     def update(self):
         self.schema_privs.update()
 
@@ -2141,8 +2129,8 @@ class WbAdminSecurity(WbAdminTabBase):
         try:
             anon_accounts = [ (user, host) for user, host in self.secman.account_names if user=='']
             if anon_accounts and not self.__dict__.get('already_asked_for_anon_accounts', False):
-                logged_username = self.ctrl_be.instance_info.db_connection_params.parameterValues['userName']
-                logged_servername = self.ctrl_be.instance_info.db_connection_params.hostIdentifier
+                logged_username = self.instance_info.db_connection_params.parameterValues['userName']
+                logged_servername = self.instance_info.db_connection_params.hostIdentifier
                 privs = self.secman.get_valid_privileges()
         except:
             privs = []
