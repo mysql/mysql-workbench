@@ -148,7 +148,17 @@ class SybaseMigration(GenericMigration):
                         "Source column type %s was migrated to %s(%s)" % (source_datatype, target_datatype, target_column.length))
             # floating point datatypes:
             elif source_datatype in ['DECIMAL', 'NUMERIC']:
-                target_datatype = 'DECIMAL'
+                # In Sybase IDENTITY columns must be numeric with scale 0 or any integer type, so in MySQL should be handled as integer type.
+                if source_column.identity:
+                    if source_column.precision < 5:
+                        target_datatype = 'SMALLINT'
+                    elif source_column.precision < 10:
+                        target_datatype = 'INT'
+                    else:
+                        target_datatype = 'BIGINT'
+                    target_column.precision = -1
+                else:
+                    target_datatype = 'DECIMAL'
             elif source_datatype == 'REAL':
                 target_datatype = 'FLOAT'
                 target_column.precision = -1
@@ -226,6 +236,13 @@ class SybaseMigration(GenericMigration):
                             type_cast_expression = "CONVERT(VARCHAR(30), ?)"
                         elif source_datatype == 'LONGSYSNAME':
                             type_cast_expression = "CONVERT(VARCHAR(255), ?)"
+                        elif source_datatype in ['DECIMAL', 'NUMERIC'] and source_column.identity:
+                            if source_column.precision < 5:
+                                type_cast_expression = "CONVERT(SMALLINT, ?)"
+                            elif source_column.precision < 10:
+                                type_cast_expression = "CONVERT(INT, ?)"
+                            else:
+                                type_cast_expression = "CONVERT(BIGINT, ?)"
 
                         if type_cast_expression:
                             target_column.owner.customData["columnTypeCastExpression:%s" % target_column.name] = "%s as ?" % type_cast_expression
