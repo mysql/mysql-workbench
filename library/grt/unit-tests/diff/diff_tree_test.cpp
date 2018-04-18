@@ -198,6 +198,63 @@ TEST_FUNCTION(22) {
   }
 }
 
+// Test for bug index change no #27868813
+TEST_FUNCTION(23) {
+  ValueRef source_val(grt::GRT::get()->unserialize("data/diff/index_change/1_src.xml"));
+  ValueRef target_val(grt::GRT::get()->unserialize("data/diff/index_change/1_dst.xml"));
+
+  db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
+  db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
+  DbMySQLImpl *diffsql_module = grt::GRT::get()->get_native_module<DbMySQLImpl>();
+
+  grt::DictRef options(true);
+  options.set("CaseSensitive", grt::IntegerRef(true));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(0));
+
+  std::string script = diffsql_module->makeAlterScript(target_cat, source_cat, options);
+
+  std::string expected_sql = "data/diff/index_change/1_expected.sql";
+  std::ifstream ref(expected_sql.c_str());
+  std::stringstream ss(script);
+
+  std::string line, refline;
+  tut::ensure(expected_sql, ref.is_open());
+
+  while (ref.good() && ss.good()) {
+    getline(ref, refline);
+    getline(ss, line);
+    tut::ensure_equals("SQL compare failed", line, refline);
+  }
+}
+
+TEST_FUNCTION(24) {
+  ValueRef source_val(grt::GRT::get()->unserialize("data/diff/index_change/2_src.xml"));
+  ValueRef target_val(grt::GRT::get()->unserialize("data/diff/index_change/2_dst.xml"));
+
+  db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
+  db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
+  DbMySQLImpl *diffsql_module = grt::GRT::get()->get_native_module<DbMySQLImpl>();
+
+  grt::DictRef options(true);
+  options.set("CaseSensitive", grt::IntegerRef(true));
+  options.set("GenerateDocumentProperties", grt::IntegerRef(0));
+
+  std::string script = diffsql_module->makeAlterScript(target_cat, source_cat, options);
+
+  std::string expected_sql = "data/diff/index_change/2_expected.sql";
+  std::ifstream ref(expected_sql.c_str());
+  std::stringstream ss(script);
+
+  std::string line, refline;
+  tut::ensure(expected_sql, ref.is_open());
+
+  while (ref.good() && ss.good()) {
+    getline(ref, refline);
+    getline(ss, line);
+    tut::ensure_equals("SQL compare failed", line, refline);
+  }
+}
+
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99) {

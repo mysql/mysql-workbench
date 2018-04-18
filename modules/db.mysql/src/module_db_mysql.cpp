@@ -1239,7 +1239,7 @@ namespace {
     }
 
     for (size_t i = 0; i < orgColumns.count(); i++) {
-      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name()) {
+      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name() || orgColumns[i]->descend() != newColumns[i]->descend()) {
         alter_table_drop_index(newIndex);
         alter_table_add_index(newIndex);
         return;

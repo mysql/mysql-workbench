@@ -128,7 +128,8 @@ void Recordset_table_inserts_storage::do_unserialize(Recordset *recordset, sqlit
     else if (column->userType().is_valid())
       stype = column->userType()->actualType();
 
-    dbColumnTypes.push_back(stype->name());
+    if (stype.is_valid())
+      dbColumnTypes.push_back(stype->name());
     column_types.push_back(known_types.map_simple_datatype(stype, false));
     real_column_types.push_back(known_types.map_simple_datatype(stype, true));
     int flags = 0;
