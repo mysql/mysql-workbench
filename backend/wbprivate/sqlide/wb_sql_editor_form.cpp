@@ -1258,7 +1258,7 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _connection_info.append(create_html_line("Name: ", _connection->name()));
     // Host:
     if (_connection->driver()->name() == "MysqlNativeSocket") {
-#ifdef _WIN32
+#ifdef _MSC_VER
       std::string name = _connection->parameterValues().get_string("socket", "");
       if (name.empty())
         name = "pipe";

@@ -32,7 +32,7 @@
 #include "mdc_selection.h"
 #include "base/threading.h"
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <glib.h>
 #endif
 

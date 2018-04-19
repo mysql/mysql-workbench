@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
 #include <stdio.h>
 #include <strings.h>
 #endif
@@ -490,7 +490,7 @@ void Color::set_active_scheme(ColorScheme scheme) {
 
   // On Windows translate the default scheme to the correct one for the platform.
   if (scheme == ColorSchemeStandard) {
-#if defined(_WIN32)
+#if defined(_MSC_VER)
     if (IsWindows8OrGreater())
       active_scheme = ColorSchemeStandardWin8;
     else

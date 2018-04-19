@@ -24,7 +24,7 @@
 #ifndef __MySQLWorkbench__python__
 #define __MySQLWorkbench__python__
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #include <Python/Python.h>
 #else
 #include <Python.h>

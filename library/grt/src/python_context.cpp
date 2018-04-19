@@ -43,7 +43,7 @@
 
 #include "base/log.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include "base/event_log.h"
 #endif
 
@@ -72,7 +72,7 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   if (getenv("PYTHON_DEBUG"))
     Py_VerboseFlag = 5;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // Hack needed in Windows because Python lib uses C:\Python26 as default pythonhome
   // That will cause conflicts if there is some other Python installed in there (bug #52949)
 
@@ -346,7 +346,7 @@ static PyObject *grt_print(PyObject *self, PyObject *args) {
   } else if (!ctx->pystring_to_string(o, text, true))
     return NULL;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   OutputDebugStringA(text.c_str());
 #else
   g_print("%s", text.c_str()); // g_print is not routed to g_log
@@ -609,7 +609,7 @@ void PythonContext::printResult(std::map<std::string, std::string> &output) {
   }
 }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 static void printResultCallback(std::map<std::string, std::string> &output) {
   PythonContext *ctx;
 
@@ -631,7 +631,7 @@ static PyObject *getEventLogEntry(PyObject *self, PyObject *args) {
   if (!PyArg_ParseTuple(args, "ls", &seek, &query))
     return NULL;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   EventLogReader reader(query, printResultCallback);
   reader.SetPosition(seek);
   reader.ReadEvents();

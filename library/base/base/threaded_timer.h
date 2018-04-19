@@ -39,7 +39,7 @@
 // immediately be stopped. For one-shot tasks the return value has no meaning.
 typedef std::function<bool(int)> TimerFunction;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4251) // We don't want to DLL export TimerTask, and we don't need a warning for that.
 #endif
 

@@ -24,7 +24,7 @@
 #include "base/file_utilities.h"
 #include "base/threading.h"
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <cairo/cairo-pdf.h>
 #include <cairo/cairo-ps.h>
 #include <cairo/cairo-svg.h>

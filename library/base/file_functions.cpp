@@ -23,7 +23,7 @@
 
 #include "base/common.h"
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <errno.h>
 #include <sys/file.h>
 #endif
@@ -45,7 +45,7 @@ using namespace base;
  *           Otherwise, it returns NULL.
  */
 FILE *base_fopen(const char *filename, const char *mode) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   std::wstring wmode;
   while (*mode != '\0')
     wmode += *mode++;
@@ -79,7 +79,7 @@ FILE *base_fopen(const char *filename, const char *mode) {
 int base_open(const std::string &filename, int open_flag, int permissions) {
   int fd;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   int result = _wsopen_s(&fd, string_to_wstring(filename).c_str(), open_flag | O_BINARY, _SH_DENYWR, permissions);
   if (result != 0)
     return -1;
@@ -99,7 +99,7 @@ int base_open(const std::string &filename, int open_flag, int permissions) {
 //--------------------------------------------------------------------------------------------------
 
 int base_remove(const std::string &filename) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   return _wremove(string_to_wstring(filename).c_str());
 #else
   char *local_filename;
@@ -115,7 +115,7 @@ int base_remove(const std::string &filename) {
 //--------------------------------------------------------------------------------------------------
 
 int base_rename(const char *oldname, const char *newname) {
-#ifdef _WIN32
+#ifdef _MSC_VER
 
   int result;
   int required;
@@ -165,7 +165,7 @@ int base_rename(const char *oldname, const char *newname) {
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 int base_stat(const char *filename, struct _stat *stbuf) {
   // Convert filename from UTF-8 to UTF-16.
   int required;
@@ -227,7 +227,7 @@ int base_rmdir_recursively(const char *path) {
 long base_get_file_size(const char *filename) {
   long result = 0;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   struct _stat file_stat;
   if (base_stat(filename, &file_stat) == 0)
     result = file_stat.st_size;

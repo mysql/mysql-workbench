@@ -28,7 +28,7 @@
 
 using namespace base;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define FILE_SEPARATOR "\\"
 #define INVALID_NAME "__test_file01*?"
 #define RESERVED_NAME "com1"
@@ -244,7 +244,7 @@ TEST_FUNCTION(10) {
     throw grt::os_error(strfmt("Cannot create directory for document: %s", exc.what()));
   }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // Create a directory -- Reserved name. This will not fail in linux, returning false (already exists)
   try {
     base::create_directory(RESERVED_NAME, 0700);
@@ -268,7 +268,7 @@ TEST_FUNCTION(10) {
   } catch (base::file_error &exc) {
     throw grt::os_error(strfmt("Cannot create file for document: %s", exc.what()));
   }
-#ifdef _WIN32
+#ifdef _MSC_VER
   // Remove a file/directory -- Invalid name
   try {
     base::remove(INVALID_NAME);
@@ -686,7 +686,7 @@ TEST_FUNCTION(35) {
       fail(strfmt("TEST 35.3: File with too long name threw an unexpected error: %s", exc.what()));
     }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Unicode name (file doesn't exist)
     try {
@@ -881,7 +881,7 @@ TEST_FUNCTION(45) {
     } catch (std::exception &exc) {
       fail(strfmt("TEST 45.3: File with too long name threw an unexpected error: %s", exc.what()));
     }
-#ifdef _WIN32
+#ifdef _MSC_VER
     // test case for 'throw_on_fail' default value (i.e. TRUE)
     // -- Unicode name (file doesn't exist)
     try {
@@ -1178,7 +1178,7 @@ TEST_FUNCTION(53) {
       fail(strfmt("TEST 53.8: 'is_directory()' returned TRUE for a unicode name"));
     }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     // -- Reserved name
     if (base::is_directory(RESERVED_NAME)) {
       // return true means directory exists
@@ -1396,7 +1396,7 @@ TEST_FUNCTION(53) {
     } catch (std::exception &exc) {
       fail(strfmt("TEST 53.31: Non-existing file \"%s\" threw an unexpected error: %s", TEST_FILE_NAME03, exc.what()));
     }
-#ifdef _WIN32
+#ifdef _MSC_VER
     // -- Target File already exists
     try {
       // Create file
@@ -1457,7 +1457,7 @@ TEST_FUNCTION(53) {
     test_result = base::extension(file_unicode_name.c_str());
     ensure_equals("TEST 53.38: Unexpected result getting file extension", test_result, ".txt");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     // -- Reserved name
     test_result.clear();
     test_result = base::extension(RESERVED_NAME);
@@ -1508,7 +1508,7 @@ TEST_FUNCTION(53) {
     ensure_equals("TEST 53.47: Unexpected result calling strip_extension()", test_result,
                   file_unicode_basename.c_str());
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     // -- Reserved name
     test_result.clear();
     test_result = base::strip_extension(RESERVED_NAME);
@@ -1562,7 +1562,7 @@ TEST_FUNCTION(53) {
       // return false means dir does not exist
       fail("TEST 53.56: Directory with Unicode name does not exist");
     }
-#ifdef _WIN32
+#ifdef _MSC_VER
     // -- Reserved name
     if (base::remove_recursive(RESERVED_NAME)) {
       // return true means dir exists
@@ -1588,7 +1588,7 @@ TEST_FUNCTION(53) {
  * - remove_recursive(const std::string &path)
  * -- Read-only permissions --
  */
-#ifdef _WIN32
+#ifdef _MSC_VER
 TEST_FUNCTION(54) {
   std::string command_line;
 
@@ -1847,7 +1847,7 @@ TEST_FUNCTION(65) {
         if (LockFile::check(TEST_FILE_NAME01) != LockFile::LockedSelf)
           fail(strfmt("TEST 65.1: File \"%s\" not locked", TEST_FILE_NAME01));
 
-#ifndef _WIN32
+#ifndef _MSC_VER
         // Semantic issue with NotLocked for a plain file without content.
         // TODO: rework lock detection with other than base::LockFile instances.
         if (LockFile::check(TEST_FILE_NAME02) != LockFile::NotLocked)
@@ -1871,7 +1871,7 @@ TEST_FUNCTION(65) {
   remove(TEST_FILE_NAME02);
 }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /*
  * Child thread function
  */
@@ -2052,7 +2052,7 @@ TEST_FUNCTION(75) {
   ensure_equals("TEST 75.16", base::relativePath("🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ/last", "🍏🍎🍐"), "../../../");
 
 // Case sensitivity.
-#ifdef _WIN32
+#ifdef _MSC_VER
   ensure_equals("TEST 75.17", base::relativePath("/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\Last"), "../../../../Last");
   ensure_equals("TEST 75.18", base::relativePath("/XYZ/🍏🍎🍐/ЀЁЂ\\ᚋᚌᚍ\\last", "\\xyz\\Last"), "../../../../Last");
 #else

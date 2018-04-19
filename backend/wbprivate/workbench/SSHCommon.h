@@ -34,7 +34,7 @@
 #include <atomic>
 #include <mutex>
 #endif 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <poll.h>
 #endif
 #include <libssh/callbacks.h>
@@ -42,7 +42,7 @@
 #include "wb_backend_public_interface.h"
 
 #ifndef NOEXCEPT
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
 #define NOEXCEPT _NOEXCEPT
 #else
 #ifndef _GLIBCXX_USE_NOEXCEPT
@@ -53,7 +53,7 @@
 #endif
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 typedef int socklen_t;
 #endif
 

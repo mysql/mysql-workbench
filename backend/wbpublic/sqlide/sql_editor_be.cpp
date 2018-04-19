@@ -451,7 +451,7 @@ mforms::ToolBar *MySQLEditor::get_toolbar(bool include_file_actions) {
   if (!d->_toolbar) {
     d->_owns_toolbar = true;
     d->_toolbar = mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar));
-#ifdef _WIN32
+#ifdef _MSC_VER
     d->_toolbar->set_size(-1, 27);
 #endif
     if (include_file_actions) {

@@ -24,7 +24,7 @@
 #pragma once
 #include <errno.h>
 #include <fcntl.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <poll.h>
 #endif
 #include <string.h>

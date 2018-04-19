@@ -123,7 +123,7 @@ static struct SnippetNameMapping {
   const char *file;
   const char *name;
 } snippet_name_mapping[] = {
-#if (defined(_WIN32) || defined(__APPLE__))
+#if (defined(_MSC_VER) || defined(__APPLE__))
   {"DB Management", "DB Mgmt"},
   {"SQL DDL Statements", "SQL DDL"},
   {"SQL DML Statements", "SQL DML"},

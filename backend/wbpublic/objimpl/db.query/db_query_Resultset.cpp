@@ -30,7 +30,7 @@
 #include "sqlide/recordset_be.h"
 #include "db_query_Resultset.h"
 
-#if defined(_WIN64) || defined(__LP64__) || defined(__APPLE__) // For OSX we always built in 64bit.
+#if defined(_WIN64) || defined(__LP64__) || defined(__APPLE__) // TODO: we only support 64bit now.
 #define ENVIRONMENT_64
 #endif
 

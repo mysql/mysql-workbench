@@ -28,7 +28,7 @@
 
 #include "base/trackable.h"
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <memory>
 #include <set>
 

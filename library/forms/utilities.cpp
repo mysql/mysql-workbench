@@ -577,7 +577,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   content.add(&password_edit, 2, 3, 3, 4, HFillFlag | HExpandFlag);
 
   if (prompt_storage) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     save_password_box.set_text(_("Save password in vault"));
 #else
     save_password_box.set_text(_("Save password in keychain"));
@@ -695,7 +695,7 @@ bool Utilities::credentials_for_service(const std::string &title, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 static int modal_loops = 0;
 

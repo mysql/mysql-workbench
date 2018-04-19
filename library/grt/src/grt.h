@@ -39,7 +39,7 @@
 #include <string>
 
 #ifndef _NODLL_
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #pragma warning(disable : 4275)
 #pragma warning(disable : 4251)
 #ifdef MYSQLGRTLIBRARY_EXPORTS
@@ -394,11 +394,11 @@ namespace grt {
     }
 
     Ref(const Ref<Class> &ref) : ValueRef(ref) {
-#if defined(ENABLE_DEBUG) || defined(_DEBUG)
-#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) // this causes errors in mac, with gcc 4.2
+#if defined(WB_DEBUG)
+  #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 2) // this causes errors in mac, with gcc 4.2
       // just to give an error if Class is not an object
       Class::static_class_name();
-#endif
+  #endif
 #endif
     }
 

@@ -24,7 +24,7 @@
 #ifndef _BE_PARSE_UTILS_H_
 #define _BE_PARSE_UTILS_H_
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <glib.h>
 #include <string>
 #include <vector>

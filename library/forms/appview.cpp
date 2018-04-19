@@ -33,7 +33,7 @@ using namespace mforms;
 
 static int _serial = 0;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
   : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main) {

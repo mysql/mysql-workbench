@@ -119,7 +119,7 @@ namespace mforms {
     static const char* HOME_DETAILS_FONT;
     // Info font is only used on Mac.
     static const char* HOME_INFO_FONT;
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
     static const char* HOME_TITLE_FONT;
     static const char* HOME_NORMAL_FONT;
     static const char* HOME_DETAILS_FONT;

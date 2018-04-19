@@ -1311,7 +1311,7 @@ bool WBContextModel::delete_diagram(const model_DiagramRef &view) {
   view->owner()->diagrams().remove_value(view);
   undo.end(strfmt(_("Delete Diagram '%s'"), view->name().c_str()));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // in windows, a diagram is released as soon as the tab is closed. That means
   // if a user closes a diagram before deleting it, the diagram is released before
   // it's removed from the list of diagrams in the list. That will cause the overview

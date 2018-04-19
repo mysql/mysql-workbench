@@ -1105,7 +1105,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
 // On Windows we can select individual cells, so it is perfectly ok to allow acting on multiple
 // cells. The other platforms only select entire rows in the multi-selection case.
 // So we to have disallow acting on them to avoid changing unrelated entries.
-#ifdef _WIN32
+#ifdef _MSC_VER
     item->set_enabled(clicked_column >= 0 && !ro);
 #else
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
@@ -1114,7 +1114,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     item = _context_menu->add_item_with_title(
       "Mark Field Value as a Function/Literal",
       std::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column), "set_to_function");
-#ifdef _WIN32
+#ifdef _MSC_VER
     item->set_enabled(clicked_column >= 0 && !ro);
 #else
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);

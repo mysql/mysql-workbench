@@ -23,7 +23,7 @@
 
 #include <string.h>
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <sys/time.h>
 #include <time.h>
 #else
@@ -219,7 +219,7 @@ PSSurface::PSSurface(const std::string &path, double width, double height) {
   surface = cairo_ps_surface_create(path.c_str(), width, height);
 }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 Win32Surface::Win32Surface(HDC hdc, bool printing) {
   if (printing)
     surface = cairo_win32_printing_surface_create(hdc);
@@ -329,7 +329,7 @@ bool CairoCtx::get_font_extents(const FontSpec &font, cairo_font_extents_t &exte
 }
 
 Timestamp mdc::get_time() {
-#ifdef _WIN32
+#ifdef _MSC_VER
   unsigned __int64 t = 0;
 
   GetSystemTimeAsFileTime((FILETIME *)&t);

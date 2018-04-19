@@ -30,7 +30,7 @@
 #include "grts/structs.db.mgmt.h"
 #include "interfaces/plugin.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include "wmi.h"
 #endif
 
@@ -169,7 +169,7 @@ namespace wb {
     virtual void initialization_done() override {
 // Called after init_module (defined by DEFINE_INIT_MODULE above) is done.
 // Here we register platform dependent functions.
-#ifdef _WIN32
+#ifdef _MSC_VER
       register_functions(
         DECLARE_MODULE_FUNCTION(WorkbenchImpl::wmiOpenSession), DECLARE_MODULE_FUNCTION(WorkbenchImpl::wmiCloseSession),
         DECLARE_MODULE_FUNCTION(WorkbenchImpl::wmiQuery), DECLARE_MODULE_FUNCTION(WorkbenchImpl::wmiServiceControl),
@@ -182,7 +182,7 @@ namespace wb {
 
   private:
     WBContext *_wb;
-#ifdef _WIN32
+#ifdef _MSC_VER
     std::map<int, wmi::WmiServices *> _wmi_sessions;
 #ifdef DEBUG
     std::map<int, GThread *> _thread_for_wmi_session;
@@ -304,7 +304,7 @@ namespace wb {
     std::string requestFileSave(const std::string &caption, const std::string &extensions);
     bool _is_other_dbms_initialized;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     int wmiOpenSession(const std::string server, const std::string &user, const std::string &password);
     int wmiCloseSession(int session);
     grt::DictListRef wmiQuery(int session, const std::string &query);

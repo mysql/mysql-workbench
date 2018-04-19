@@ -33,7 +33,7 @@
 #include "grtdb/diff_dbobjectmatch.h"
 
 class Db_plugin;
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma make_public(Db_plugin)
 #endif
 
@@ -44,12 +44,12 @@ public:
   virtual ~Db_plugin() {
     delete _db_conn;
   }
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
   void grtm(bool reveng);
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif
 

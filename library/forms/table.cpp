@@ -56,15 +56,12 @@ void Table::add(View *subview, int row_left, int row_right, int col_top, int col
   cache_view(subview);
   _table_impl->add(this, subview, row_left, row_right, col_top, col_bottom, flags);
   subview->show();
-#ifdef _WIN32 // XXX this shouldn't be needed here, the plat specific code is supposed to do this
-// relayout();
-#endif
 }
 
 void Table::remove(View *sv) {
   _table_impl->remove(this, sv);
   View::remove_from_cache(sv);
-#ifdef _WIN32 // XXX this shouldn't be needed here, the plat specific code is supposed to do this
+#ifdef _MSC_VER // XXX this shouldn't be needed here, the plat specific code is supposed to do this
   relayout();
 #endif
 }

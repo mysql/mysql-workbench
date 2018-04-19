@@ -21,13 +21,12 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _DB_MYSQL_PUBLIC_INTERFACE_H_
-#define _DB_MYSQL_PUBLIC_INTERFACE_H_
+#pragma once
 
 // STATIC_MYSQLMODULEDBMYSQL is used for tut tests, which
 // links these classes statically
 
-#if defined(_WIN32) //&& !defined(STATIC_MYSQLMODULEDBMYSQL)
+#if defined(_MSC_VER)
 
 #ifdef MYSQLMODULEDBMYSQL_EXPORTS
 #define MYSQLMODULEDBMYSQL_PUBLIC_FUNC __declspec(dllexport)
@@ -38,5 +37,3 @@
 #else
 #define MYSQLMODULEDBMYSQL_PUBLIC_FUNC
 #endif
-
-#endif // _DB_MYSQL_PUBLIC_INTERFACE_H_

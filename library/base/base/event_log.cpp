@@ -25,7 +25,7 @@
 #include "string_utilities.h"
 #include "Objbase.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #pragma comment(lib, "wevtapi.lib")
 

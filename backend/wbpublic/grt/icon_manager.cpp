@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <glib.h>
 #include <algorithm>
 #endif
@@ -213,7 +213,7 @@ std::string IconManager::get_icon_path(IconId icon) {
 void IconManager::add_search_path(const std::string &path) {
   std::string npath;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   npath = base::replaceString(path, "/", G_DIR_SEPARATOR_S);
 #else
   npath = path;

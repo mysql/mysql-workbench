@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _DEBUGGING_H_
-#define _DEBUGGING_H_
+#pragma once
 
-#if defined(_WIN32) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG)
 
 #include "common.h"
 
@@ -54,6 +53,4 @@ public:
   void Clear();
 };
 
-#endif // _WIN32 && _DEBUG
-
-#endif // _DEBUGGING_H_
+#endif // _MSC_VER && _DEBUG

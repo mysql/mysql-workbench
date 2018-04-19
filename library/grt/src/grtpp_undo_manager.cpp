@@ -29,7 +29,7 @@
 #include <iostream>
 #include <time.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #undef max
 #endif
 
@@ -516,7 +516,7 @@ void UndoManager::enable_logging_to(std::ostream *stream) {
   _undo_log = stream;
 
   *_undo_log << "***** Starting Undo Log at " <<
-#ifdef _WIN32
+#ifdef _MSC_VER
     ctime_s(buf, sizeof(buf), &t)
 #else
     ctime_r(&t, buf)

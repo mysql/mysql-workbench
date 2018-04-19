@@ -26,7 +26,7 @@
 #include "mdc_canvas_view.h"
 #include "mdc_canvas_view_printing.h"
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <cairo/cairo.h>
 #include <cairo/cairo-pdf.h>
 #include <cairo/cairo-ps.h>
@@ -245,7 +245,7 @@ int CanvasViewExtras::print_to_ps(const std::string &path) {
   return count;
 }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 int CanvasViewExtras::print_native(HDC hdc, int paper_width, int paper_height, int page) {
   int count;
 

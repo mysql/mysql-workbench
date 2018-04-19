@@ -25,7 +25,7 @@
 
 #include "grt.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4355) // 'this' : used in base member initizalizer list
 #ifdef GRT_STRUCTS_TEST_EXPORT
 #define GRT_STRUCTS_TEST_PUBLIC __declspec(dllexport)

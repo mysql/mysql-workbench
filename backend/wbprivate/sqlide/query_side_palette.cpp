@@ -250,7 +250,7 @@ public:
 
 QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   :
-#ifdef _WIN32
+#ifdef _MSC_VER
     TabView(mforms::TabViewPalette),
 #else
     TabView(mforms::TabViewSelectorSecondary),
@@ -276,7 +276,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   scoped_connect(_help_text->signal_link_click(),
                  std::bind(&QuerySidePalette::click_link, this, std::placeholders::_1));
 
-#if _WIN32
+#if _MSC_VER
   std::string backgroundColor = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
   _help_text->set_font("Tahoma 8");
 #else
@@ -300,7 +300,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   content_border = manage(new Box(false));
   _snippet_list = manage(new SnippetListView("snippet_sql.png"));
   _snippet_list->set_name("Snippet list");
-#ifdef _WIN32
+#ifdef _MSC_VER
   content_border->set_padding(3, 3, 3, 3);
   _snippet_list->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
 #else

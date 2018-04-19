@@ -375,7 +375,7 @@ void WizardProgressPage::add_log_text(const std::string &text) {
 }
 
 std::string WizardProgressPage::extra_button_caption() {
-#ifdef _WIN32
+#ifdef _MSC_VER
   return _log_panel.is_shown() ? _("&Hide Logs") : _("&Show Logs");
 #else
   return _log_panel.is_shown() ? _("Hide Logs") : _("Show Logs");

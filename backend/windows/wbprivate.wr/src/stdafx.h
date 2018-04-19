@@ -56,7 +56,7 @@ using namespace System;
 
 #include <glib/glib.h>
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <sys/time.h>
 #include <time.h>
 #endif

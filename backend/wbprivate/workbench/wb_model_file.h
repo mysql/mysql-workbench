@@ -31,7 +31,7 @@
 #include "grts/structs.workbench.h"
 #include "base/trackable.h"
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <cairo/cairo.h>
 #endif
 

@@ -31,7 +31,7 @@
 #include "base/file_utilities.h"
 #include "base/utf8string.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define TMP_DIR "temp"
 #else
 #define TMP_DIR "/tmp"
@@ -51,7 +51,7 @@ TEST_MODULE(wb_model_file, "tests for WB model file");
 
 void copyFile(const base::utf8string &filename1,
               const base::utf8string &filename2) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   std::wifstream file1(base::string_to_wstring(filename1), std::ios::binary);
   std::wofstream file2(base::string_to_wstring(filename2), std::ios::binary);
 #else
@@ -109,7 +109,7 @@ TEST_FUNCTION(1) {
     copyFile(filename, BaseModelFile);
   }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   base::create_directory(TMP_DIR, 0666);
 #endif
 }
@@ -215,7 +215,7 @@ TEST_FUNCTION(20) {
 }
 
 std::string test_loading_and_saving_a_model(const base::utf8string &base_path) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   base::create_directory(TMP_DIR, 0666);
 #endif
   std::string temp_dir = TMP_DIR;
@@ -278,7 +278,7 @@ TEST_FUNCTION(25) {
   }
 }
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 // Test model loading and saving with ASCII path + Unicode file
 TEST_FUNCTION(26) {
   std::string result = test_loading_and_saving_a_model(UnicodeBaseModelFile);

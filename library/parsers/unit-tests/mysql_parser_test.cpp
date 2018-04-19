@@ -201,7 +201,7 @@ TEST_FUNCTION(10) {
   for (size_t i = 0; i < sizeof(test_files) / sizeof(test_files[0]); ++i) {
     std::cout << std::endl << "Test file: " << i << std::endl;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     std::ifstream stream(base::string_to_wstring(test_files[i].name), std::ios::binary);
 #else
     std::ifstream stream(test_files[i].name, std::ios::binary);

@@ -170,7 +170,7 @@ mforms::TreeNodeRef CatalogTreeView::create_new_node(const ObjectType &otype, mf
 
 CatalogTreeView::CatalogTreeView(ModelDiagramForm *owner)
   : mforms::TreeView(mforms::TreeNoBorder | mforms::TreeSizeSmall | mforms::TreeCanBeDragSource | mforms::TreeIndexOnTag
-#ifndef _WIN32
+#ifndef _MSC_VER
                      | mforms::TreeNoHeader
 #endif
                      ),
@@ -180,7 +180,7 @@ CatalogTreeView::CatalogTreeView(ModelDiagramForm *owner)
   _initialized = false;
   bool showHeaderText = true;
   set_selection_mode(mforms::TreeSelectMultiple);
-#ifdef _WIN32
+#ifdef _MSC_VER
   set_row_height(19);
   showHeaderText = false;
 #else

@@ -33,7 +33,7 @@ const char* HomeScreenSettings::HOME_NORMAL_FONT = "Helvetica Neue Light";
 const char* HomeScreenSettings::HOME_DETAILS_FONT = "Helvetica Neue Light";
 // Info font is only used on Mac.
 const char* HomeScreenSettings::HOME_INFO_FONT = "Baskerville";
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
 const char* HomeScreenSettings::HOME_TITLE_FONT = "Segoe UI";
 const char* HomeScreenSettings::HOME_NORMAL_FONT = "Segoe UI";
 const char* HomeScreenSettings::HOME_DETAILS_FONT = "Segoe UI";

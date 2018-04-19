@@ -112,7 +112,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
 
   _object_list.set_name("filterSourceList");
   _object_list.set_heading(_("Objects to Process"));
-#ifdef _WIN32
+#ifdef _MSC_VER
   _object_list.set_size(120, -1); // Need a minimum size for Windows, or layouting does not work properly.
 #endif
   _detailed_table.add(&_object_list, 0, 1, 1, 8, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
@@ -146,7 +146,7 @@ DBObjectFilterFrame::DBObjectFilterFrame()
 
   _mask_list.set_name("filterTargetList");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _mask_list.set_size(120, -1);
 #endif
 

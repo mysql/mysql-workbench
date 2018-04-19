@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _STDAFX_H_
-#define _STDAFX_H_
+#pragma once
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #pragma once
 
@@ -38,5 +37,3 @@
 #include <windows.h>
 
 #endif
-
-#endif // _STDAFX_H_

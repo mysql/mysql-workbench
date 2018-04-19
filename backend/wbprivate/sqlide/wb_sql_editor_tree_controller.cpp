@@ -229,7 +229,7 @@ void SqlEditorTreeController::finish_init() {
   _side_splitter = mforms::manage(new mforms::Splitter(false, true));
   _side_splitter->set_name("SQL IDE Live Schema Sidebar");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   mforms::Panel *panel;
   _side_splitter->set_back_color(base::Color::get_application_color_as_string(AppColorMainBackground, false));
   panel = mforms::manage(new mforms::Panel(mforms::StyledHeaderPanel));
@@ -245,7 +245,7 @@ void SqlEditorTreeController::finish_init() {
   _info_tabview = new mforms::TabView(mforms::TabViewSelectorSecondary);
   _info_tabview->set_name("Info View");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   panel = mforms::manage(new mforms::Panel(mforms::StyledHeaderPanel));
   panel->set_title(_("Information"));
   panel->add(_info_tabview);
@@ -256,7 +256,7 @@ void SqlEditorTreeController::finish_init() {
 
   _object_info = new mforms::HyperText();
   _session_info = new mforms::HyperText();
-#ifdef _WIN32
+#ifdef _MSC_VER
   _object_info->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
   _object_info->set_padding(3, 3, 3, 3);
   _session_info->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));

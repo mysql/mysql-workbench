@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib/gstdio.h>
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #else
 #include <errno.h>
@@ -44,7 +44,7 @@
 namespace base {
 
   std::string format_file_error(const std::string &text, int err) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     return strfmt("%s: error code %i", text.c_str(), err);
 #else
     return strfmt("%s: %s", text.c_str(), strerror(err));
@@ -56,7 +56,7 @@ namespace base {
   }
 
   error_code file_error::code() {
-#ifdef _WIN32
+#ifdef _MSC_VER
     switch (sys_error_code) {
       case 0:
         return success;
@@ -131,7 +131,7 @@ namespace base {
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   LockFile::LockFile(const std::string &path) throw(std::invalid_argument, std::runtime_error, file_locked_error)
     : path(path), handle(0) {
     std::wstring wpath(string_to_wstring(path));
@@ -276,7 +276,7 @@ namespace base {
 #endif
 
   bool create_directory(const std::string &path, int mode, bool with_parents) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     SetLastError(0);
     if (!CreateDirectoryW(path_from_utf8(path).c_str(), NULL)) {
       DWORD error = GetLastError();
@@ -365,7 +365,7 @@ namespace base {
   }
 
   void rename(const std::string &from, const std::string &to) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (!MoveFile(path_from_utf8(from).c_str(), path_from_utf8(to).c_str()))
       throw file_error(strfmt("Could not rename file %s to %s", from.c_str(), to.c_str()), GetLastError());
 #else
@@ -406,7 +406,7 @@ namespace base {
    * Returns false if the object doesn't exist and throws an exception on error.
    */
   bool remove(const std::string &path) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (is_directory(path)) {
       if (!RemoveDirectoryW(path_from_utf8(path).c_str())) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND)
@@ -437,7 +437,7 @@ namespace base {
    * No exception is thrown if that fails. Returns true on success, otherwise false.
    */
   bool tryRemove(const std::string &path) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (is_directory(path))
       return RemoveDirectory(path_from_utf8(path).c_str()) == TRUE;
     else
@@ -556,7 +556,7 @@ namespace base {
    * Returns the last modification time of the given file.
    */
   bool file_mtime(const std::string &path, time_t &mtime) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     struct _stat stbuf;
 #else
     struct stat stbuf;
@@ -584,7 +584,7 @@ namespace base {
 
   std::string joinPath(const char *prefix, ...) {
     std::string path = prefix;
-#ifdef _WIN32
+#ifdef _MSC_VER
     char wrong_path_separator = '\\';
 #else
     char wrong_path_separator = '/';
@@ -620,7 +620,7 @@ namespace base {
     std::vector<std::string> basePathList = split_by_set(basePath, "/\\");
     std::vector<std::string> otherPathList = split_by_set(pathToMakeRelative, "/\\");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     bool caseSensitive = false;
 #else
     bool caseSensitive = true;

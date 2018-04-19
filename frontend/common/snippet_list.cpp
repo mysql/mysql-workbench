@@ -40,7 +40,7 @@ using namespace base;
 #ifdef __APPLE__
 #define SNIPPET_DETAILS_FONT "Lucida Grande"
 #define SNIPPET_NORMAL_FONT "Tahoma"
-#elif _WIN32
+#elif _MSC_VER
 #define SNIPPET_DETAILS_FONT "Arial"
 #define SNIPPET_NORMAL_FONT "Tahoma"
 #else

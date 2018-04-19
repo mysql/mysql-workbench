@@ -18,17 +18,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
 
 #include "grtui/wizard_progress_page.h"
+#include "db_plugin_be.h"
 
-class FetchSchemaContentsProgressPage : public WizardProgressPage {
+class FetchSchemaContentsProgressPage : public grtui::WizardProgressPage {
 public:
-  FetchSchemaContentsProgressPage(WizardForm *form, const char *name = "fetchSchema")
-    : WizardProgressPage(form, name, true) {
+  FetchSchemaContentsProgressPage(grtui::WizardForm *form, const char *name = "fetchSchema")
+  : grtui::WizardProgressPage(form, name, true) {
     set_title(_("Retrieve and Reverse Engineer Schema Objects"));
     set_short_title(_("Retrieve Objects"));
 

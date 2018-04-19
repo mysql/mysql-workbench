@@ -44,7 +44,7 @@ static vector<BaseWidget*> animated_widgets;
 #define BK_RED 219 / 255.0
 #define BK_GREEN 217 / 255.0
 #define BK_BLUE 217 / 255.0
-#elif _WIN32
+#elif _MSC_VER
 #define WIDGET_FONT "Tahoma"
 #define WIDGET_SMALL_FONT "Arial"
 

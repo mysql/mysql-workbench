@@ -1066,12 +1066,12 @@ void CodeEditor::set_font(const std::string& fontDescription) {
 // NOTE: The original MONOSPACE font in windows was Bitstream Vera Sans Mono
 //       but in Windows 8 the code editors using this font were getting hung so
 //       we decided to use Lucida Console as the new MONOSPACE font in windows.
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (base::toupper(font) == "BITSTREAM VERA SANS MONO")
       font = DEFAULT_MONOSPACE_FONT_FAMILY;
 #endif
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
     // scintilla requires the ! in front of the font name to interpret it as a pango/fontconfig font
     // the non-pango version is totally unusable
     if (!font.empty() && font[0] != '!')

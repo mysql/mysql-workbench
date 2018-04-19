@@ -265,7 +265,7 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm *host)
 
   _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
   scoped_connect(_win_remote_admin.signal_clicked(), std::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
-#ifndef _WIN32
+#ifndef _MSC_VER
   _win_remote_admin.set_enabled(false);
 #endif
   _ssh_remote_admin.set_text(_("SSH login based management"));
@@ -274,7 +274,7 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm *host)
   _management_type_box.add(&_win_remote_admin, false, true);
   _management_type_box.add(&_ssh_remote_admin, false, true);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _win_remote_admin.set_active(true);
 #else
   _ssh_remote_admin.set_active(true);
@@ -375,7 +375,7 @@ void HostAndRemoteTypePage::enter(bool advancing) {
   if (wizard()->is_local()) {
     _management_type_panel.show(false);
     if (detected_os_type.empty()) {
-#ifdef _WIN32
+#ifdef _MSC_VER
       detected_os_type = "Windows";
 #elif defined(__APPLE__)
       detected_os_type = "MacOS X";
@@ -442,7 +442,7 @@ void HostAndRemoteTypePage::toggle_remote_admin() {
     _os_panel.show(true);
     _os_panel.relayout();
     if (detected_os_type.empty() && wizard()->is_local()) {
-#ifdef _WIN32
+#ifdef _MSC_VER
       detected_os_type = "Windows";
 #elif defined(__APPLE__)
       detected_os_type = "MacOS X";
@@ -476,7 +476,7 @@ bool HostAndRemoteTypePage::advance() {
   bool need_templates = false;
   if (wizard()->is_local()) {
     values().gset("remoteAdmin", 0);
-#ifdef _WIN32
+#ifdef _MSC_VER
     values().gset("windowsAdmin", 1);
 #else
     need_templates = true;
@@ -513,7 +513,7 @@ bool HostAndRemoteTypePage::advance() {
 
 bool HostAndRemoteTypePage::skip_page() {
 // Skip this page if this is a local Windows installation.
-#ifdef _WIN32
+#ifdef _MSC_VER
   if (wizard()->is_local()) {
     values().gset("remoteAdmin", 0);
     values().gset("windowsAdmin", 1);
@@ -579,7 +579,7 @@ SSHConfigurationPage::SSHConfigurationPage(WizardForm *host)
 
   _file_selector = mforms::manage(new FsObjectSelector(&_ssh_key_browse_button, &_ssh_key_path));
   std::string homedir =
-#ifdef _WIN32
+#ifdef _MSC_VER
     mforms::Utilities::get_special_folder(mforms::ApplicationData);
 #else
     "~";
@@ -902,7 +902,7 @@ bool WindowsManagementPage::skip_page() {
   // Remote Windows boxes which are managed via SSH use the SSH config page instead, though.
 
   bool local_wmi;
-#ifdef _WIN32
+#ifdef _MSC_VER
   local_wmi = true;
 #else
   local_wmi = false;

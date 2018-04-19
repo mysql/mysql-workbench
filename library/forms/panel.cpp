@@ -52,7 +52,7 @@ void Panel::add(View *subview) {
   _panel_impl->add(this, subview);
   subview->show();
 
-#ifdef _WIN32 // XXX this shouldn't be needed here, the plat specific code is supposed to do this
+#ifdef _MSC_VER // XXX this shouldn't be needed here, the plat specific code is supposed to do this
   relayout();
 #endif
 }
@@ -61,7 +61,7 @@ void Panel::remove(View *subview) {
   _panel_impl->remove(this, subview);
   remove_from_cache(subview);
 
-#ifdef _WIN32 // XXX this shouldn't be needed here, the plat specific code is supposed to do this
+#ifdef _MSC_VER // XXX this shouldn't be needed here, the plat specific code is supposed to do this
   relayout();
 #endif
 }

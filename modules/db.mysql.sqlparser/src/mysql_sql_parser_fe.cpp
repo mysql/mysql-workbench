@@ -24,7 +24,7 @@
 #include <glib.h>
 #include <cctype>
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 #include <windows.h>
 #endif
 

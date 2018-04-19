@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#pragma once
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 #define __LCC__
 
 #define WIN32_LEAN_AND_MEAN
@@ -45,7 +44,7 @@
 #define QUALIFIED_IDENTIFIER_PCRE "(?:(" IDENTIFIER_PCRE ")\\.)?(" IDENTIFIER_PCRE ")"
 #define QUALIFIED_IDENTIFIER_IGNORE_PCRE "(?:(?:" IDENTIFIER_PCRE ")\\.)?(?:" IDENTIFIER_PCRE ")"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #include <winsock2.h>
 #include <sys/types.h>
@@ -68,7 +67,7 @@
 #endif
 
 // Windows includes
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 #include <direct.h>
 #else
 // unix/linux includes
@@ -95,8 +94,6 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #include <mach/machine.h>
-#endif
-
 #endif
 
 #endif

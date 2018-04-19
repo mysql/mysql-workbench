@@ -33,7 +33,7 @@ using namespace wb;
 #ifdef __APPLE__
 #define ABOUT_NORMAL_FONT "Helvetica Neue"
 #define ABOUT_FONT_SIZE 11
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
 #define ABOUT_NORMAL_FONT "Tahoma"
 #define ABOUT_FONT_SIZE 10
 #else

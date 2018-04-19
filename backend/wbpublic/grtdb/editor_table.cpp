@@ -2567,7 +2567,7 @@ bool FKConstraintListBE::activate_popup_item_for_nodes(const std::string &name, 
 
 //----------------- TableEditorBE --------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   #pragma warning(push)
   #pragma warning(disable : 4355) // 'this' : used in base member initializer list
                                   // that's ok as we just store pointer for later use
@@ -2584,7 +2584,7 @@ TableEditorBE::TableEditorBE(const db_TableRef &table) : DBObjectEditorBE(table)
                  std::bind(&TableEditorBE::catalogChanged, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   #pragma warning(pop)
 #endif
 

@@ -207,7 +207,31 @@ type_error::type_error(const std::string &expected, const std::string &actual, T
 db_error::db_error(const sql::SQLException &exc) : std::runtime_error(exc.what()), _error(exc.getErrorCode()) {
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------- Value ----------------------------------------------------------------------------------------------
+
+internal::Value* internal::Value::retain() {
+  g_atomic_int_inc(&_refcount);
+  return this;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void internal::Value::release() {
+#ifdef WB_DEBUG
+  if (_refcount == 0)
+    logWarning("GRT: releasing invalid object");
+#endif
+  if (g_atomic_int_dec_and_test(&_refcount))
+    delete this;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+base::refcount_t internal::Value::refcount() const {
+  return g_atomic_int_get(&_refcount);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 StringRef StringRef::format(const char *format, ...) {
   va_list args;

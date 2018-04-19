@@ -191,7 +191,7 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
 
   const time_t t = time(NULL);
   struct tm tm;
-#ifdef _WIN32
+#ifdef _MSC_VER
   localtime_s(&tm, &t);
 #else
   localtime_r(&t, &tm);
@@ -210,7 +210,7 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
   // they get split over several lines and lose all their formatting.
   // Additionally for messages with implicit newline (which are most) we get many empty lines.
   if (_impl->_std_err_log) {
-#if defined(_WIN32)
+#if defined(_MSC_VER)
     HANDLE hConsole = 0;
     WORD wOldColorAttrs;
     CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
@@ -231,7 +231,7 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
       fprintf(stderr, "\e[1m");
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (_impl->_new_line_pending) {
       char* tmp = g_strdup_printf("%02u:%02u:%02u [%3s][%15s]: ", tm.tm_hour, tm.tm_min, tm.tm_sec,
                                   LevelText[enumIndex(level)], domain);
@@ -251,7 +251,7 @@ void Logger::logv(LogLevel level, const char* const domain, const char* format, 
     // and set condition to log_msg_serial==#
     fprintf(stderr, "%s", buffer.get());
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
     if ((level == LogLevel::Error) || (level == LogLevel::Warning))
       SetConsoleTextAttribute(hConsole, wOldColorAttrs);
 #elif !defined(__APPLE__)

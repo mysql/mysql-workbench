@@ -65,7 +65,7 @@ namespace grtui {
         _run_box = mforms::manage(new mforms::Box(true));
 
         _run_button = mforms::manage(new mforms::Button());
-#ifdef _WIN32
+#ifdef _MSC_VER
         _run_button->set_text(_("Run &Validations"));
 #else
         _run_button->set_text(_("_Run Validations"));

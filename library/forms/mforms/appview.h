@@ -56,7 +56,7 @@ namespace mforms {
    */
   class MFORMS_EXPORT AppView : public Box, public bec::UIForm {
   private:
-#ifdef _WIN32
+#ifdef _MSC_VER
     AppViewImplPtrs *_app_view_impl;
 #endif
     std::function<bool()> _on_close_slot;
@@ -71,7 +71,7 @@ namespace mforms {
     mforms::DockingPoint *_dpoint;
 
   public:
-#ifdef _WIN32
+#ifdef _MSC_VER
     /** Constructor.
 
      @param horiz - whether subviews are to be laid out horizontally instead of vertically

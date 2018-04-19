@@ -251,7 +251,7 @@ void CPPModuleLoader::refresh() {
 bool CPPModuleLoader::check_file_extension(const std::string &path) {
 #ifdef __APPLE__
   static const char *ext = ".dylib";
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
   static const char *ext = ".dll";
 #else
   static const char *ext = ".so";

@@ -52,7 +52,7 @@
 
 #include "grtpp_notifications.h"
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
 #define HAVE_BUNDLED_MYSQLDUMP
 #endif
 
@@ -78,7 +78,7 @@ static LangFontSet font_sets[] = {{
                                     "Default (Western)", DEFAULT_FONT_FAMILY " Bold 12", DEFAULT_FONT_FAMILY " Bold 11",
                                     DEFAULT_FONT_FAMILY " 11", DEFAULT_FONT_FAMILY " 11", DEFAULT_FONT_FAMILY " 11",
                                   },
-#ifdef _WIN32
+#ifdef _MSC_VER
                                   {"Japanese", "Arial Unicode MS Bold 12", "Arial Unicode MS Bold 11",
                                    "Arial Unicode MS 11", "Arial Unicode MS 11", "Arial Unicode MS 11"},
                                   {"Korean", "Arial Unicode MS Bold 12", "Arial Unicode MS Bold 11",
@@ -152,7 +152,7 @@ public:
   void add_option(mforms::View *control, const std::string &caption, const std::string &help) {
     _table.set_row_count(++_rows);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     bool right_aligned = false;
 #else
     bool right_aligned = true;
@@ -176,7 +176,7 @@ public:
     entry->set_tooltip(tooltip);
     entry->set_size(50, -1);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     bool right_aligned = false;
 #else
     bool right_aligned = true;
@@ -242,7 +242,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
   else
     set_title(_("Model Options"));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   set_back_color(base::Color::get_application_color_as_string(base::AppColorMainBackground, false));
 #endif
 
@@ -277,7 +277,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
 
   if (_model.is_valid()) {
     _use_global.set_text(_("Use defaults from global settings"));
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (base::Color::get_active_scheme() == ColorSchemeStandardWin7)
       _use_global.set_front_color("#FFFFFF");
     else
@@ -314,7 +314,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
   }
 
   if (!_model.is_valid()) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     add_page(NULL, _("Fonts & Colors"), create_fonts_and_colors_page());
 #else
     // Fonts only for now in Mac/Linux
@@ -525,7 +525,7 @@ void PreferencesForm::update_checkbox_option(const std::string &option_name, mfo
   wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value,
                                                grt::IntegerType);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // On Windows we have to write the following value also to the registry as our options are not
   // available yet when we need that value.
   if (option_name == "DisableSingleInstance")
@@ -1486,7 +1486,7 @@ mforms::View *PreferencesForm::create_others_page()
   content->add(frame, false);
 
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
   content->add(table, false, true);
   {
@@ -2045,7 +2045,7 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page() {
     content->add(table, true, true);
   }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Color Scheme"));

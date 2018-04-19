@@ -58,7 +58,7 @@ void WizardFinishedPage::set_summary(const std::string &text) {
 std::string WizardFinishedPage::next_button_caption() {
 #ifdef __APPLE__
   return _("Close");
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
   return _("Finish");
 #else
   return _("_Close");

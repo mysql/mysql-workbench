@@ -258,7 +258,7 @@ void GRTManager::initialize(bool init_python, const std::string &loader_module_p
 
   init_module_loaders(loader_module_path, init_python);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   add_python_module_dir(_basedir + "\\python");
   add_python_module_dir(_basedir + "\\modules");
 #elif __APPLE__
@@ -581,7 +581,7 @@ bool GRTManager::init_module_loaders(const std::string &loader_module_path, bool
 bool GRTManager::load_libraries() {
   gchar **paths = g_strsplit(_libraries_pathlist.c_str(), G_SEARCHPATH_SEPARATOR_S, 0);
   for (size_t i = 0; paths[i]; i++) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     GDir *dir = g_dir_open_utf8(paths[i], 0, NULL);
 #else
     GDir *dir = g_dir_open(paths[i], 0, NULL);
@@ -717,7 +717,7 @@ std::string GRTManager::get_tmp_dir() {
   if (base::hasSuffix(res, "/") || base::hasSuffix(res, "\\"))
     res.resize(res.size() - 1);
   res += "/" + std::string("mysql-workbench-");
-#ifdef _WIN32
+#ifdef _MSC_VER
   res += std::to_string(GetCurrentProcessId()) + "/";
 #else
   res += std::to_string(::getpid()) + "/";

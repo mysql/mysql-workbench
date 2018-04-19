@@ -886,14 +886,14 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
       g_free(path);
 
       fprintf(fhdr, "#pragma once\n\n");
-      fprintf(fhdr, "#ifndef _WIN32\n");
+      fprintf(fhdr, "#ifndef _MSC_VER\n");
       fprintf(fhdr, "  #pragma GCC diagnostic push\n");
       fprintf(fhdr, "  #pragma GCC diagnostic ignored \"-Woverloaded-virtual\"\n");
       fprintf(fhdr, "#endif\n\n");
 
       fprintf(fhdr, "#include \"grt.h\"\n\n");
 
-      fprintf(fhdr, "#ifdef _WIN32\n");
+      fprintf(fhdr, "#ifdef _MSC_VER\n");
       fprintf(fhdr, "  #pragma warning(disable: 4355) // 'this' : used in base member initializer list\n");
       fprintf(fhdr, "  #ifdef %s_EXPORT\n", generate_dll_export_name(outfile).c_str());
       fprintf(fhdr, "  #define %s_PUBLIC __declspec(dllexport)\n", generate_dll_export_name(outfile).c_str());
@@ -1009,7 +1009,7 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
               sname, sname, sname);
       fprintf(iter->second, "#endif\n\n");
 
-      fprintf(iter->second, "#ifndef _WIN32\n");
+      fprintf(iter->second, "#ifndef _MSC_VER\n");
       fprintf(iter->second, "  #pragma GCC diagnostic pop\n");
       fprintf(iter->second, "#endif\n\n");
 

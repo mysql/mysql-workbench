@@ -28,7 +28,7 @@
 
 #define MODULE_VERSION "1.0.0"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(windows_dll)
 #elif defined(__APPLE__)
 #define FRONTEND_LIBNAME(obj, windows_dll, linux_so, osx_dylib) obj->moduleName(osx_dylib)

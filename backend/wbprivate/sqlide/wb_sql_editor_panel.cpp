@@ -140,7 +140,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_revert.set_text("Revert");
   _tab_action_revert.signal_clicked()->connect(std::bind(&SqlEditorPanel::revert_clicked, this));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // 19 is the size of the tabs in the bottom tabview.
   _tab_action_apply.set_size(-1, 19);
   _tab_action_revert.set_size(-1, 19);
@@ -734,7 +734,7 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form) {
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar() {
   mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar)));
   tbar->set_name("Editor Toolbar");
-#ifdef _WIN32
+#ifdef _MSC_VER
   tbar->set_size(-1, 27);
 #endif
   mforms::ToolBarItem *item;
@@ -1085,7 +1085,7 @@ void SqlEditorPanel::lower_tab_switched() {
     _tab_action_revert.set_enabled(false);
   }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _editor->focus();
 #endif
 

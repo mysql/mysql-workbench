@@ -40,7 +40,7 @@ using namespace wb;
 using namespace grt;
 using namespace base;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #ifndef strcasecmp
 #define strcasecmp strcmpi
 #endif

@@ -41,7 +41,7 @@
 #include "SymbolTable.h"
 
 // Support for syntax highlighting in SQL output.
-#ifdef _WIN32
+#ifdef _MSC_VER
   #include "win32/ScintillaWR.h"
   #define SCI_WRAPPER_NS ScintillaWrapper::
 #else

@@ -122,7 +122,7 @@ namespace ssh {
   }
 
   void setSocketNonBlocking(int sock) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     u_long mode = 1;
     int result = ioctlsocket(sock, FIONBIO, &mode);
     if (result != NO_ERROR) {

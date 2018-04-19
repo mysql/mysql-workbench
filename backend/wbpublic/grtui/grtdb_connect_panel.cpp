@@ -1043,7 +1043,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     case ::ctKeychainPassword: {
       Button *btn = new Button();
 
-#ifdef _WIN32
+#ifdef _MSC_VER
       btn->set_text("Store in Vault ...");
       btn->set_tooltip(_("Store the password for this connection in a secured vault"));
 #else
@@ -1059,7 +1059,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       btn = new Button();
       btn->set_text("Clear");
       btn->set_size(100, -1);
-#ifdef _WIN32
+#ifdef _MSC_VER
       btn->set_tooltip(_("Remove the previously stored password from the secured vault"));
 #else
       btn->set_tooltip(_("Remove the previously stored password from the system's keychain"));

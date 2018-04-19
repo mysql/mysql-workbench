@@ -23,7 +23,7 @@
 
 #include "base/debugging.h"
 
-#if defined(_WIN32) && defined(_DEBUG)
+#if defined(_MSC_VER) && defined(_DEBUG)
 
 #include <windows.h>
 #include <stdexcept>

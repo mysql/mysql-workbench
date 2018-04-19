@@ -102,7 +102,7 @@ protected:
   mforms::Box _content;
   mforms::Box _padding_box;
   mforms::Splitter _hsplitter;
-#ifdef _WIN32
+#ifdef _MSC_VER
   mforms::Panel _side_header_panel;
 #endif
   mforms::TabView _side_tab;
@@ -146,7 +146,7 @@ protected:
   mforms::TextEntry _shell_entry;
 
   mforms::TabView _lower_tab;
-#ifdef _WIN32
+#ifdef _MSC_VER
   mforms::Panel _lower_header_panel;
 #endif
   mforms::TextBox _output_text;

@@ -43,7 +43,7 @@ namespace base {
 
   typedef gint refcount_t;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4275) // Exporting a class that is derived from a non-exportable class.
 #endif
@@ -54,7 +54,7 @@ namespace base {
     }
   };
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 

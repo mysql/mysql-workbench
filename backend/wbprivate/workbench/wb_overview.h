@@ -148,13 +148,13 @@ namespace wb {
     // for use by frontend
     std::function<void()> pre_refresh_groups;
     void refresh();
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
     // This is ok, as Overview contains children which also need to be refreshed.
     virtual void refresh_node(const bec::NodeId &node, bool children) = 0;
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif
 

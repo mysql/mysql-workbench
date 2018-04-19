@@ -408,7 +408,7 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
   if ((allowedOperations & mforms::DragOperationCopy) != mforms::DragOperationCopy)
     return mforms::DragOperationNone;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else
   bool case_sensitive = true;

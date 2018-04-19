@@ -589,7 +589,7 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
       } else {
         if (!add_directories) {
           zip_source *src = zip_source_file(z, tmp.c_str(), 0, 0);
-#ifdef _WIN32
+#ifdef _MSC_VER
           if (!src || zip_file_add(z, tmp.c_str(), src, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8) < 0) {
             zip_source_free(src);
             g_dir_close(dir);
@@ -653,7 +653,7 @@ void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir,
     zip_comment += comment;
   }
 
-#if defined(zip_uint16_t) || defined(_WIN32)
+#if defined(zip_uint16_t) || defined(_MSC_VER)
   zip_set_archive_comment(z, zip_comment.c_str(), (zip_uint16_t)zip_comment.size());
 #else
   zip_set_archive_comment(z, zip_comment.c_str(), (int)zip_comment.size());
@@ -726,7 +726,7 @@ workbench_DocumentRef ModelFile::unserialize_document(xmlDocPtr xmldoc, const st
  */
 bool ModelFile::save_to(const std::string &path, const std::string &comment) {
   RecMutexLock lock(_mutex);
-#ifdef _WIN32
+#ifdef _MSC_VER
   const int read_write = _S_IWRITE | _S_IREAD;
 #else
   const int read_write = S_IRUSR | S_IWUSR;
@@ -974,7 +974,7 @@ void ModelFile::check_and_fix_data_file_bug() {
 // is that some model files will have both data files, because they were opened
 // in a different platform and extra data was added since.
 
-#ifndef _WIN32
+#ifndef _MSC_VER
   // check if @db\data.db exists and is a file
   std::string data_filename_in_windows = _content_dir + "/" + DB_DIR + "\\" + DB_FILE;
   if (g_file_test(data_filename_in_windows.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))) {

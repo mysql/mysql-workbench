@@ -41,7 +41,7 @@
 #include "glib.h"
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define _br "\r\n"
 #define BASE_PATH_SEPARATOR '\\'
 #define BASE_PATH_SEPARATOR_STR "\\"
@@ -66,7 +66,7 @@ BASELIBRARY_PUBLIC_FUNC char *auto_line_break(const char *txt, unsigned int widt
 BASELIBRARY_PUBLIC_FUNC char *str_toupper(char *str);
 BASELIBRARY_PUBLIC_FUNC int str_is_numeric(const char *str);
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 BASELIBRARY_PUBLIC_FUNC int get_value_from_registry(HKEY root_key, const char *sub_key, const char *key,
                                                     const char *def, char *value, int target_size);
 BASELIBRARY_PUBLIC_FUNC int set_value_to_registry(HKEY root_key, const char *sub_key, const char *key,

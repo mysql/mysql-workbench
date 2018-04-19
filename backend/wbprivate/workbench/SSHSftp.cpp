@@ -25,7 +25,7 @@
 #include "base/file_utilities.h"
 #include "base/string_utilities.h"
 #include <fcntl.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <unistd.h>
 #endif
 #include <vector>

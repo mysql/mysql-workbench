@@ -29,7 +29,7 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 static void __stdcall ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg) {
   logError("gdal error: %d, %s\n", err_no, msg);
 }

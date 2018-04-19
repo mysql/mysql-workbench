@@ -28,7 +28,7 @@
 #endif
 
 namespace base {
-#ifndef _WIN32
+#ifndef _MSC_VER
   struct EnumHash {
     template <typename T>
     inline typename std::enable_if<std::is_enum<T>::value, std::size_t>::type operator()(T const value) const {

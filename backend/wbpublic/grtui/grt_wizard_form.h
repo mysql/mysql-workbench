@@ -48,12 +48,12 @@ namespace grtui {
   public:
     WizardForm();
     virtual ~WizardForm();
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
     virtual bool run_modal();
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif
 
@@ -195,7 +195,7 @@ namespace grtui {
     std::string finish_button_caption() const {
 #ifdef __APPLE__
       return _("Close");
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
       return _("Finish");
 #else
       return _("_Close");
@@ -216,7 +216,7 @@ namespace grtui {
     std::string execute_caption() const {
 #ifdef __APPLE__
       return _("Execute");
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
       return _("_Execute >");
 #else
       return _("_Execute");

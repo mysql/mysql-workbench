@@ -51,14 +51,14 @@ class TestTableEditor : public TableEditorBE {
   IndexListBE _indexes;
 
 public:
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4355)
 #endif
   TestTableEditor(db_TableRef table, db_mgmt_RdbmsRef rdbms)
     : TableEditorBE(table), _table(table), _columns(this), _indexes(this) {
   }
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 

@@ -23,7 +23,7 @@
 
 #pragma once
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
   #ifdef MYSQL_PARSER_EXPORTS
     #define MYSQL_PARSER_PUBLIC __declspec(dllexport)
   #else

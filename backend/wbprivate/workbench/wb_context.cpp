@@ -111,7 +111,7 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT)
 
 #define AUTO_SAVE_SQLEDITOR_INTERVAL 10
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
 #define HAVE_BUNDLED_MYSQLDUMP
 #endif
 
@@ -204,7 +204,7 @@ WBOptions::WBOptions(const std::string &appBinaryName)
   programOptions = new dataTypes::OptionsList();
   logDebug("Creating WBOptions\n");
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
   programOptions->addEntry(dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 'h', "help",
                                                   "Show help options",
                                                   [this](const dataTypes::OptionEntry &entry, int *retval) {
@@ -214,7 +214,7 @@ WBOptions::WBOptions(const std::string &appBinaryName)
                                                   }));
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   programOptions->addEntry(
     dataTypes::OptionEntry(dataTypes::OptionArgumentType::OptionArgumentLogical, 0, "swrendering",
                            "Force the diagram canvas to use software rendering instead of OpenGL",
@@ -773,7 +773,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   std::string path;
   static const char *dirs[] = {"images",      "images/icons", "images/grt",     "images/grt/structs",
                                "images/png",
-#ifdef _WIN32
+#ifdef _MSC_VER
                                "images/home",
 #endif
                                "images/ui",   "images/sql",   "images/sql/mac", "",
@@ -805,7 +805,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
 
     mforms::Utilities::add_driver_shutdown_callback(std::bind(&sql::DriverManager::thread_cleanup, dbc_driver_man));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     dbc_driver_man->set_driver_dir(options->basedir);
 #elif defined(__APPLE__)
     dbc_driver_man->set_driver_dir(options->cdbc_driver_search_path);
@@ -838,7 +838,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   user_libraries_path = base::makePath(options->user_data_dir, "libraries");
 
   modules_path = options->module_search_path;
-#ifdef _WIN32
+#ifdef _MSC_VER
   modules_path = base::pathlistPrepend(modules_path, ".");
 #endif
 
@@ -1315,7 +1315,7 @@ void WBContext::init_plugins_grt(WBOptions *options) {
   std::map<std::string, bool> scanned_dir_list;
   std::list<std::string> exts;
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
   exts.push_back(".wbp.be");
 #endif
   exts.push_back(".wbp");
@@ -1482,7 +1482,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "mysqlclient", "mysql");
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   std::string homedir = mforms::Utilities::get_special_folder(mforms::Documents);
   set_default(options, "dumpdirectory", homedir + "\\dumps");
 #else
@@ -1524,7 +1524,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "workbench.physical.Layer:TitleFont", DEFAULT_FONT_FAMILY " 11");
   set_default(options, "workbench.model.NoteFigure:TextFont", DEFAULT_FONT_FAMILY " 11");
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
   set_default(options, "workbench.general.Resultset:Font", DEFAULT_FONT_FAMILY " 8");
   if (get_local_os_name().find("Windows XP") != std::string::npos) {
     set_default(options, "workbench.general.Editor:Font", DEFAULT_MONOSPACE_FONT_FAMILY_ALT " 10");
@@ -1580,7 +1580,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SSH:commandTimeout", 1);
   set_default(options, "SSH:commandRetryCount", 3);
   
-#ifndef _WIN32
+#ifndef _MSC_VER
   set_default(options, "SSH:pathtosshconfig", base::expand_tilde("~/.ssh/config"));
 #endif
 
@@ -2142,7 +2142,7 @@ void WBContext::request_refresh(RefreshType type, const std::string &str, Native
   refresh.ptr = ptr;
   refresh.timestamp = now;
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
   // XXX: check this requirement. Probably already fixed since this hack was added.
 
   // Do not remove the following refresh! W/o it linux version hangs at times.

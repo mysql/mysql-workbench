@@ -28,7 +28,7 @@
 
 #include "base/threading.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #ifdef DECL_MFORMS_EXPORT
 #define MFORMS_EXPORT __declspec(dllexport)
 #else

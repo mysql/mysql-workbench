@@ -275,7 +275,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner) : mforms::Box(false), _
   _option_box->set_spacing(4);
   _option_box->set_padding(8);
 
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_MSC_VER)
   _option_box->set_back_color("#f0f0f0");
 #endif
 

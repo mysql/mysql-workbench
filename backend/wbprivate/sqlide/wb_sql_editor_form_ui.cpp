@@ -330,7 +330,7 @@ void SqlEditorForm::setup_side_palette() {
   // Right hand side (quick help, snippets).
   _side_palette = mforms::manage(new QuerySidePalette(shared_from_this()));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   mforms::Panel *panel;
   panel = mforms::manage(new mforms::Panel(mforms::StyledHeaderPanel));
   panel->set_title(_("SQL Additions"));

@@ -30,7 +30,7 @@ Button::Button(ButtonType btype) : _updating(false) {
 
   _button_impl->create(this, btype);
 
-#ifndef _WIN32
+#ifndef _MSC_VER
   // enable by default
   if (btype == PushButton)
     enable_internal_padding(true);

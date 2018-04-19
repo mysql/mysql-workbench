@@ -22,7 +22,8 @@
  */
 
 #pragma once
-#ifdef _WIN32
+
+#ifdef _MSC_VER
 #ifdef _WIN64
 typedef __int64 ssize_t;
 #else

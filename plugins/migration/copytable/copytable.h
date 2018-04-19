@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 
 #include <sql.h>
 #include <sqlext.h>

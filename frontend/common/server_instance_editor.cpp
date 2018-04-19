@@ -186,7 +186,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     scoped_connect(_no_remote_admin.signal_clicked(), std::bind(&ServerInstanceEditor::toggle_administration, this));
     _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
     scoped_connect(_win_remote_admin.signal_clicked(), std::bind(&ServerInstanceEditor::toggle_administration, this));
-#ifndef _WIN32
+#ifndef _MSC_VER
     _win_remote_admin.set_enabled(false);
 #endif
     _ssh_remote_admin.set_text(_("SSH login based management"));
@@ -220,7 +220,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     remote_param_table->add(manage(RLabel(_("Password:"))), 0, 1, 2, 3, HFillFlag);
     remote_param_table->add(&_password_box, 1, 2, 2, 3, HExpandFlag | HFillFlag | mforms::VFillFlag);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     _password_set.set_text(_("Store in Vault ..."));
     _password_set.set_tooltip(_("Store the password for this connection in the secured vault."));
     _password_clear.set_text(_("Remove from Vault"));
@@ -345,7 +345,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
 
     table = NewTable(3, 2);
     _details_panel.set_title(_("MySQL Management"));
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
     _details_panel.add(manage(table));
 #else
     // XXX tmp workaround for crash caused by changed destruction routine
@@ -360,7 +360,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     scoped_connect(_stop_cmd.signal_changed(), std::bind(&ServerInstanceEditor::entry_changed, this, &_stop_cmd));
 
     table->add(&_sudo_check, 1, 2, 2, 3, HFillFlag | HExpandFlag);
-#ifndef _WIN32
+#ifndef _MSC_VER
     _sudo_check.set_text(_("Elevate privileges to execute start/stop commands\nand write configuration data"));
 #else
     _sudo_check.set_text(
@@ -677,7 +677,7 @@ void ServerInstanceEditor::toggle_administration() {
       instance->serverInfo().remove("remoteAdmin");
 
 // Win admin and ssh admin are mutual exclusive. This semantic is enforced by radio buttons in the UI.
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (local_connection || win_administration)
 #else
     if (win_administration)
@@ -1028,7 +1028,7 @@ void ServerInstanceEditor::connection_changed()
     }
     else
     {
-#ifdef _WIN32
+#ifdef _MSC_VER
       _win_remote_admin.set_enabled(true);
 #else
       _win_remote_admin.set_enabled(false);
@@ -1174,7 +1174,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
   if (serverInfo.get_int("remoteAdmin") != 0)
     _ssh_remote_admin.set_active(true);
   else
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (serverInfo.get_int("windowsAdmin") != 0)
     _win_remote_admin.set_active(true);
   else
@@ -1232,7 +1232,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
     _win_remote_admin.set_enabled(false);
     _ssh_remote_admin.set_enabled(false);
   } else {
-#ifdef _WIN32
+#ifdef _MSC_VER
     _win_remote_admin.set_enabled(true);
 #else
     _win_remote_admin.set_enabled(false);

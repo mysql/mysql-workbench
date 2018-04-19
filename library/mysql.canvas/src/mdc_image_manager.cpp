@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <cairo.h>
 #endif
 
@@ -57,7 +57,7 @@ cairo_surface_t *ImageManager::find_file(const std::string &name) {
 
   for (std::list<std::string>::const_iterator iter = _search_paths.begin(); iter != _search_paths.end(); ++iter) {
     std::string path = *iter;
-#ifdef _WIN32
+#ifdef _MSC_VER
     path += "\\" + name;
 #else
     path += "/" + name;

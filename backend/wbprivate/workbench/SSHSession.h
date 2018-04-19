@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #else
@@ -32,7 +32,7 @@
 #endif
 #include <libssh/libsshpp.hpp>
 #include <libssh/sftp.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #else
 #pragma warning(pop)
