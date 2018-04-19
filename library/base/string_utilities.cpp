@@ -1131,7 +1131,6 @@ namespace base {
 #else
     std::ifstream stream(filename.c_str(), std::ifstream::binary);
 #endif
-    std::stringstream ss;
 
     if (!stream.is_open() || stream.eof())
       return "";
@@ -1150,12 +1149,17 @@ namespace base {
         stream.seekg(0);
     }
 
-    ss << stream.rdbuf() << '\0';
+    std::string tmp;
+    stream.seekg(0, std::ios::end);
+    tmp.reserve(stream.tellg());
+    stream.seekg(0, std::ios::beg);
+
+    tmp.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
     switch (encoding) {
       case UTF16LE:
-        return wstring_to_string(std::wstring((wchar_t *)ss.str().c_str()));
+        return wstring_to_string(std::wstring((const wchar_t *)tmp.data()));
       default:
-        return ss.str();
+        return tmp;
     }
   }
 
