@@ -964,8 +964,11 @@ void GRTShellWindow::run_snippet() {
 
       bool ret = execute_script(script, language);
       grt::GRT::get()->pop_message_handler();
-      if (!ret)
+      if (!ret) {
         handle_output("Snippet execution finished with an error\n");
+      } else {
+        handle_output("...execution finished\n");
+      }
     } catch (const std::exception &exc) {
       grt::GRT::get()->pop_message_handler();
 
