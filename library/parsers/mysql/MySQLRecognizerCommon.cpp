@@ -97,7 +97,6 @@ static std::string dumpTree(RuleContext *context, const Vocabulary &vocabulary, 
       // A terminal node.
       stream << indentation;
 
-      misc::Interval interval = context->getSourceInterval();
       TerminalNode *node = dynamic_cast<TerminalNode *>(child);
       if (antlrcpp::is<tree::ErrorNode *>(child))
         stream << "Syntax Error: ";

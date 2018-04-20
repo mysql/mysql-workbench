@@ -310,8 +310,10 @@ PyDoc_STRVAR(remove_doc, "L.remove(value) -- remove first occurrence of object")
 PyDoc_STRVAR(remove_all_doc, "L.remove_all() -- remove all elements from the list");
 PyDoc_STRVAR(extend_doc, "L.extend(list) -- add all elements from the list");
 
+#if !defined(_MSC_VER) && !defined(__APPLE__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 static PyMethodDef PyGRTListMethods[] = {
   //{"__getitem__", (PyCFunction)list_subscript, METH_O|METH_COEXIST, getitem_doc},
   {"append", (PyCFunction)list_append, METH_O, append_doc},
@@ -321,7 +323,9 @@ static PyMethodDef PyGRTListMethods[] = {
   {"remove", (PyCFunction)list_remove, METH_O, remove_doc},
   {"remove_all", (PyCFunction)list_remove_all, METH_NOARGS, remove_all_doc},
   {NULL, NULL, 0, NULL}};
+#if !defined(_MSC_VER) && !defined(__APPLE__)
 #pragma GCC diagnostic pop
+#endif
 
 static PyGetSetDef PyGRTListGetSetters[] = {
   {(char *)"__contenttype__", (getter)list_get_contenttype, NULL, (char *)"(content type, content object class|None)",

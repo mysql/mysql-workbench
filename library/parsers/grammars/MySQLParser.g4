@@ -1037,7 +1037,7 @@ windowSpec:
 ;
 
 windowSpecDetails:
-    windowName? (PARTITION_SYMBOL orderOrGroupList)? orderClause? windowFrameClause?
+    windowName? (PARTITION_SYMBOL BY_SYMBOL orderOrGroupList)? orderClause? windowFrameClause?
 ;
 
 windowFrameClause:
@@ -2269,31 +2269,31 @@ bitExpr:
 ;
 
 simpleExpr:
-    variable                                                                                            # simpleExprVariable
-    | columnRef jsonOperator?                                                                           # simpleExprColumnRef
-    | runtimeFunctionCall                                                                               # simpleExprRuntimeFunction
-    | functionCall                                                                                      # simpleExprFunction
-    | simpleExpr COLLATE_SYMBOL textOrIdentifier                                                        # simpleExprCollate
-    | literal                                                                                           # simpleExprLiteral
-    | PARAM_MARKER                                                                                      # simpleExprParamMarker
-    | sumExpr                                                                                           # simpleExprSum
-    | {serverVersion >= 80000}? groupingOperation                                                       # simpleExprGroupingOperation
-    | {serverVersion >= 80000}? windowFunctionCall                                                      # simpleExprWindowingFunction
-    | simpleExpr CONCAT_PIPES_SYMBOL simpleExpr                                                         # simpleExprConcat
-    | op = (PLUS_OPERATOR | MINUS_OPERATOR | BITWISE_NOT_OPERATOR) simpleExpr                           # simpleExprUnary
-    | not2Rule simpleExpr                                                                               # simpleExprNot
-    | ROW_SYMBOL? OPEN_PAR_SYMBOL exprList CLOSE_PAR_SYMBOL                                             # simpleExprList
-    | EXISTS_SYMBOL? subquery                                                                           # simpleExprSubQuery
-    | OPEN_CURLY_SYMBOL identifier expr CLOSE_CURLY_SYMBOL                                              # simpleExprOdbc
-    | MATCH_SYMBOL identListArg AGAINST_SYMBOL OPEN_PAR_SYMBOL bitExpr fulltextOptions CLOSE_PAR_SYMBOL # simpleExprMatch
-    | BINARY_SYMBOL simpleExpr                                                                          # simpleExprBinary
-    | CAST_SYMBOL OPEN_PAR_SYMBOL expr AS_SYMBOL castType CLOSE_PAR_SYMBOL                              # simpleExprCast
-    | CASE_SYMBOL expr? (whenExpression thenExpression)+ elseExpression? END_SYMBOL                     # simpleExprCase
-    | CONVERT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL castType CLOSE_PAR_SYMBOL                        # simpleExprConvert
-    | CONVERT_SYMBOL OPEN_PAR_SYMBOL expr USING_SYMBOL charsetName CLOSE_PAR_SYMBOL                     # simpleExprConvertUsing
-    | DEFAULT_SYMBOL OPEN_PAR_SYMBOL simpleIdentifier CLOSE_PAR_SYMBOL                                  # simpleExprDefault
-    | VALUES_SYMBOL OPEN_PAR_SYMBOL simpleIdentifier CLOSE_PAR_SYMBOL                                   # simpleExprValues
-    | INTERVAL_SYMBOL expr interval PLUS_OPERATOR expr                                                  # simpleExprInterval
+    variable                                                                                             # simpleExprVariable
+    | columnRef jsonOperator?                                                                            # simpleExprColumnRef
+    | runtimeFunctionCall                                                                                # simpleExprRuntimeFunction
+    | functionCall                                                                                       # simpleExprFunction
+    | simpleExpr COLLATE_SYMBOL textOrIdentifier                                                         # simpleExprCollate
+    | literal                                                                                            # simpleExprLiteral
+    | PARAM_MARKER                                                                                       # simpleExprParamMarker
+    | sumExpr                                                                                            # simpleExprSum
+    | {serverVersion >= 80000}? groupingOperation                                                        # simpleExprGroupingOperation
+    | {serverVersion >= 80000}? windowFunctionCall                                                       # simpleExprWindowingFunction
+    | simpleExpr CONCAT_PIPES_SYMBOL simpleExpr                                                          # simpleExprConcat
+    | op = (PLUS_OPERATOR | MINUS_OPERATOR | BITWISE_NOT_OPERATOR) simpleExpr                            # simpleExprUnary
+    | not2Rule simpleExpr                                                                                # simpleExprNot
+    | ROW_SYMBOL? OPEN_PAR_SYMBOL exprList CLOSE_PAR_SYMBOL                                              # simpleExprList
+    | EXISTS_SYMBOL? subquery                                                                            # simpleExprSubQuery
+    | OPEN_CURLY_SYMBOL identifier expr CLOSE_CURLY_SYMBOL                                               # simpleExprOdbc
+    | MATCH_SYMBOL identListArg AGAINST_SYMBOL OPEN_PAR_SYMBOL bitExpr fulltextOptions? CLOSE_PAR_SYMBOL # simpleExprMatch
+    | BINARY_SYMBOL simpleExpr                                                                           # simpleExprBinary
+    | CAST_SYMBOL OPEN_PAR_SYMBOL expr AS_SYMBOL castType CLOSE_PAR_SYMBOL                               # simpleExprCast
+    | CASE_SYMBOL expr? (whenExpression thenExpression)+ elseExpression? END_SYMBOL                      # simpleExprCase
+    | CONVERT_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL castType CLOSE_PAR_SYMBOL                         # simpleExprConvert
+    | CONVERT_SYMBOL OPEN_PAR_SYMBOL expr USING_SYMBOL charsetName CLOSE_PAR_SYMBOL                      # simpleExprConvertUsing
+    | DEFAULT_SYMBOL OPEN_PAR_SYMBOL simpleIdentifier CLOSE_PAR_SYMBOL                                   # simpleExprDefault
+    | VALUES_SYMBOL OPEN_PAR_SYMBOL simpleIdentifier CLOSE_PAR_SYMBOL                                    # simpleExprValues
+    | INTERVAL_SYMBOL expr interval PLUS_OPERATOR expr                                                   # simpleExprInterval
 ;
 
 jsonOperator:
@@ -2357,7 +2357,7 @@ windowFunctionCall:
     ) parentheses windowingClause
     | NTILE_SYMBOL OPEN_PAR_SYMBOL simpleExpr CLOSE_PAR_SYMBOL windowingClause
     | (LEAD_SYMBOL | LAG_SYMBOL) OPEN_PAR_SYMBOL expr leadLagInfo? CLOSE_PAR_SYMBOL nullTreatment? windowingClause
-    | (FIRST_VALUE_SYMBOL | LAST_SYMBOL) OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL nullTreatment? windowingClause
+    | (FIRST_VALUE_SYMBOL | LAST_VALUE_SYMBOL) OPEN_PAR_SYMBOL expr CLOSE_PAR_SYMBOL nullTreatment? windowingClause
     | NTH_VALUE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL simpleExpr CLOSE_PAR_SYMBOL (
         FROM_SYMBOL (FIRST_SYMBOL | LAST_SYMBOL)
     )? nullTreatment? windowingClause
@@ -2395,9 +2395,8 @@ identList:
 
 fulltextOptions:
     IN_SYMBOL BOOLEAN_SYMBOL MODE_SYMBOL
-    | (IN_SYMBOL NATURAL_SYMBOL LANGUAGE_SYMBOL MODE_SYMBOL)? (
-        WITH_SYMBOL QUERY_SYMBOL EXPANSION_SYMBOL
-    )?
+    | IN_SYMBOL NATURAL_SYMBOL LANGUAGE_SYMBOL MODE_SYMBOL (WITH_SYMBOL QUERY_SYMBOL EXPANSION_SYMBOL)?
+    | WITH_SYMBOL QUERY_SYMBOL EXPANSION_SYMBOL
 ;
 
 runtimeFunctionCall:

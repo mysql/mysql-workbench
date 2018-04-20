@@ -21,6 +21,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <regex>
+
 #include "wb_helpers.h"
 
 #include "mysql/MySQLLexer.h"
@@ -40,7 +42,7 @@ using namespace antlr4;
 using namespace antlr4::atn;
 using namespace antlr4::tree;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 BEGIN_TEST_DATA_CLASS(mysql_parser_tests)
 protected:
@@ -81,7 +83,7 @@ END_TEST_DATA_CLASS
 
 TEST_MODULE(mysql_parser_tests, "MySQL parser test suite (ANTLR)");
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Parses the given string and returns the number of errors found.
@@ -122,7 +124,7 @@ size_t Test_object_base<mysql_parser_tests>::parse(const std::string sql, long v
   return _lexer.getNumberOfSyntaxErrors() + _parser.getNumberOfSyntaxErrors();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  *  Statement splitter test.
@@ -169,6 +171,8 @@ TEST_FUNCTION(5) {
   ensure_equals("Wrong statement", s2, sql);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 struct TestFile {
   std::string name;
   const char *line_break;
@@ -176,7 +180,7 @@ struct TestFile {
 };
 
 static const TestFile test_files[] = {
-  // Large set of all possible query types in different combinations.
+  // Large set of all possible query types in different combinations and versions.
   {"data/db/statements.txt", "\n", "$$"},
 
   // A file with a number of create tables statements that stresses the use
@@ -187,7 +191,56 @@ static const TestFile test_files[] = {
   {"data/db/nasty_tables.sql", "\r\n", ";"},
 
   // Not so many, but some very long insert statements.
-  {"data/db/sakila-db/sakila-data.sql", "\n", ";"}};
+  {"data/db/sakila-db/sakila-data.sql", "\n", ";"}
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Determines if the version info in the statement matches the given version (if there version info at all).
+ * The version info is removed from the statement, if any.
+ */
+static bool versionMatches(std::string &statement, unsigned long serverVersion) {
+  static std::regex versionPattern("^\\[(<|<=|>|>=|=)(\\d{5})\\]");
+  static std::map<std::string, int> relationMap = {
+    { "<", 0 }, { "<=", 1 }, { "=", 2 }, { ">=", 3 }, { ">", 4 }
+  };
+
+  std::smatch matches;
+  if (std::regex_search(statement, matches, versionPattern)) {
+    auto relation = matches[1].str();
+    unsigned long targetVersion = std::stoul(matches[2].str());
+
+    switch (relationMap[relation]) {
+      case 0:
+        if (serverVersion >= targetVersion)
+          return false;
+        break;
+      case 1:
+        if (serverVersion > targetVersion)
+          return false;
+        break;
+      case 2:
+        if (serverVersion != targetVersion)
+          return false;
+        break;
+      case 3:
+        if (serverVersion < targetVersion)
+          return false;
+        break;
+      case 4:
+        if (serverVersion <= targetVersion)
+          return false;
+        break;
+    }
+
+    statement = std::regex_replace(statement, versionPattern, "");
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Parse a number of files with various statements.
@@ -214,19 +267,39 @@ TEST_FUNCTION(10) {
                                         test_files[i].line_break);
     count += ranges.size();
 
+    // Two loops here, one for an older server and one for the current release.
     size_t j = 0;
     for (auto &range : ranges) {
       std::cout << "." << std::flush; // Need a progress indicator or pb2 might kill our test process.
       if (++j % 50 == 0)
         std::cout << std::endl;
 
-      if (parse(std::string(sql.c_str() + range.start, range.length), 50610, "ANSI_QUOTES") > 0U) {
-        std::string query(sql.c_str() + range.start, range.length);
-        ensure("This query failed to parse:\n" + query, false);
+      std::string statement(sql.c_str() + range.start, range.length);
+      if (versionMatches(statement, 50610)) {
+        if (parse(statement, 50610, "ANSI_QUOTES") > 0U) {
+          std::string query(sql.c_str() + range.start, range.length);
+          ensure("This query failed to parse:\n" + query, false);
+        }
       }
     }
+    std::cout << std::endl;
+
+    j = 0;
+    for (auto &range : ranges) {
+      std::cout << "." << std::flush;
+      if (++j % 50 == 0)
+        std::cout << std::endl;
+
+      std::string statement(sql.c_str() + range.start, range.length);
+      if (versionMatches(statement, 80011)) {
+        if (parse(statement, 80011, "ANSI_QUOTES") > 0U) {
+          std::string query(sql.c_str() + range.start, range.length);
+          ensure("This query failed to parse:\n" + query, false);
+        }
+      }
+    }
+    std::cout << std::endl;
   }
-  std::cout << std::endl;
 
 #if VERBOSE_OUTPUT
   test_time_point t2;
@@ -235,7 +308,7 @@ TEST_FUNCTION(10) {
 #endif
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * This test generates queries with many (all?) MySQL function names used in foreign key creation
@@ -291,6 +364,8 @@ const char *query2 =
   "REFERENCES %s (col1, col2)\n"
   ") ENGINE InnoDB";
 
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_FUNCTION(20) {
   int count = sizeof(functions) / sizeof(functions[0]);
   for (int i = 0; i < count; i++) {
@@ -317,6 +392,8 @@ void collectTokenTypes(RuleContext *context, std::vector<size_t> &list) {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Parses the given string and checks the built AST. Returns true if no error occurred, otherwise false.
@@ -579,6 +656,8 @@ public:
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Operator precedence tests.
  */
@@ -679,6 +758,8 @@ TEST_FUNCTION(25) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * Tests for all relevant SQL modes (ANSI, DB2, MAXDB, MSSQL, ORACLE, POSTGRESQL, MYSQL323, MYSQL40
  * ANSI_QUOTES, PIPES_AS_CONCAT, NO_BACKSLASH_ESCAPES, IGNORE_SPACE, HIGH_NOT_PRECEDENCE and combinations of them).
@@ -747,6 +828,8 @@ static const std::vector<std::vector<size_t>> sqlModeTestResults = {
   {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::IDENTIFIER, Token::EOF},
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_FUNCTION(30) {
   for (size_t i = 0; i < sqlModeTestQueries.size(); i++)
     if (!parseAndCompare(sqlModeTestQueries[i].query, 50610, sqlModeTestQueries[i].sqlMode, sqlModeTestResults[i],
@@ -754,6 +837,8 @@ TEST_FUNCTION(30) {
       fail("30." + std::to_string(i) + ": SQL mode test - query failed: " + sqlModeTestQueries[i].query);
     }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Tests the parser's string concatenation feature.
@@ -773,6 +858,8 @@ TEST_FUNCTION(35) {
   tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree);
   ensure_equals("35.2 String concatenation", listener.text, "abcdefghi'\nz");
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 struct VersionTestData {
   long version;
@@ -811,6 +898,8 @@ const std::vector<VersionTestData> versionTestResults = {
 // TODO: create tests for all server version dependent features.
 // Will be obsolete if we support versions in the statements test file (or similar file).
 
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_FUNCTION(40) {
   // Version dependent parts of GRANT.
   for (size_t i = 0; i < versionTestResults.size(); ++i) {
@@ -819,6 +908,8 @@ TEST_FUNCTION(40) {
                   versionTestResults[i].errorCount);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // TODO: create tests for restricted content parsing (e.g. routines only, views only etc.).
 
@@ -892,6 +983,8 @@ static const std::vector<std::vector<size_t>> numbersTestResults = {
 
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_FUNCTION(45) {
   for (size_t i = 0; i < numbersTestQueries.size(); i++)
     if (!parseAndCompare(numbersTestQueries[i].query, 50610, numbersTestQueries[i].sqlMode, numbersTestResults[i],
@@ -899,6 +992,8 @@ TEST_FUNCTION(45) {
       fail("45." + std::to_string(i) + ": number test - query failed: " + numbersTestQueries[i].query);
     }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
