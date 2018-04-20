@@ -66,7 +66,10 @@ def initialize0():
     nc.add_observer(sqlide_power_import_wizard.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_power_export_wizard.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
 
-
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def launchPowerImport(editor):
+    sqlide_power_import_wizard.showPowerImport(editor, {'table': None, 'schema': editor.defaultSchema})
+    return 0
 
 @ModuleInfo.export(grt.INT, grt.classes.db_query_EditableResultset)
 def importRecordsetDataFromFile(resultset):
