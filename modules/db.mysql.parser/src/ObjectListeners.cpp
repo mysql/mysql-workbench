@@ -1424,7 +1424,10 @@ void RoutineListener::exitCreateUdf(MySQLParser::CreateUdfContext *ctx) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void RoutineListener::exitProcedureParameter(MySQLParser::ProcedureParameterContext *ctx) {
-  _currentParameter->paramType(ctx->type->getText());
+  if (ctx->type != nullptr)
+    _currentParameter->paramType(ctx->type->getText());
+  else
+    _currentParameter->paramType("IN");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
