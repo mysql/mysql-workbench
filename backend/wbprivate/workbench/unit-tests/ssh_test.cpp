@@ -190,42 +190,6 @@ TEST_FUNCTION(3) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-TEST_FUNCTION(4) {
-  ssh::SSHConnectionConfig config;
-  config.localhost = "127.0.0.1";
-  config.remoteSSHhost = test_params->getSSHHostName();
-  config.remoteSSHport = test_params->getSSHPort();
-  config.connectTimeout = 10;
-  config.optionsDir = test_params->getSSHOptionsDir();
-  config.strictHostKeyCheck = false;
-  ssh::SSHConnectionCredentials credentials;
-  credentials.username = test_params->getSSHUserName();
-  credentials.password = test_params->getSSHPassword();
-  credentials.auth = ssh::SSHAuthtype::PASSWORD;
-
-  auto session = ssh::SSHSession::createSession();
-
-  auto retVal = session->connect(config, credentials);
-  ensure_true("connection established", std::get<0>(retVal) == ssh::SSHReturnType::CONNECTED);
-  ensure_true("connection status, is connected", session->isConnected());
-
-  std::string output = session->execCmd("echo 'This is tut test'");
-  ensure_equals("command run succesfully ", output, "This is tut test\n");
-
-
-  try {
-    std::string output = session->execCmdSudo("sudo -k -S -p EnterPasswordHere echo 'This is tut test'", "invalidpw", "EnterPasswordHere");
-    fail("Missing exception");
-  } catch (ssh::SSHAuthException &) {
-    //pass it's fine
-  }
-
-  session->disconnect();
-  ensure_false("connection status, is disconnected", session->isConnected());
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 TEST_FUNCTION(5) {
   ssh::SSHConnectionConfig config;
   config.localhost = "127.0.0.1";
@@ -289,15 +253,14 @@ TEST_FUNCTION(5) {
     for(auto &it: wrapperList) {
       sql::Connection *conn = it.get();
       std::auto_ptr<sql::Statement> stmt(conn->createStatement());
-      ensure("stmt1 is NULL", stmt.get() != NULL);
+      ensure("Statement is invalid", stmt.get() != NULL);
       
       std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT CONNECTION_ID()"));
-      ensure("res1 is NULL", rset.get() != NULL);
+      ensure("Invalid connection ID result set", rset.get() != NULL);
       
-      ensure("res1 is empty", rset->next() != false);
+      ensure("Result set is empty", rset->next());
     }
-  } catch (std::exception &exc)
-  {
+  } catch (std::exception &exc) {
     manager->setStop();
     manager->pokeWakeupSocket();
     fail(std::string("Unable to make tunnel connection. ").append(exc.what()));
