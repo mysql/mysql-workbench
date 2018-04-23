@@ -161,7 +161,8 @@ namespace ssh {
 
 
   SSHConnectionConfig::SSHConnectionConfig() : localport(0), bufferSize(10240),
-      remoteSSHport(22), remoteport(3306), strictHostKeyCheck(true), compressionLevel(5), connectTimeout(10), readWriteTimeout(5), commandTimeout(1), commandRetryCount(3) {
+    remoteSSHport(22), remoteport(3306), strictHostKeyCheck(true), compressionLevel(5), connectTimeout(10),
+    readWriteTimeout(5), commandTimeout(1), commandRetryCount(3) {
 
   }
 

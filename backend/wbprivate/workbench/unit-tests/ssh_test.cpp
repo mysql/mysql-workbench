@@ -21,9 +21,6 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-// High-level testing for Workbench
-// This tests WBContext, which will test the integration of all components.
-
 #include "base/util_functions.h"
 #include "base/file_utilities.h"
 
@@ -33,6 +30,10 @@
 #include "workbench/SSHSessionWrapper.h"
 #include "workbench/SSHSftp.h"
 
+using namespace ssh;
+
+//----------------------------------------------------------------------------------------------------------------------
+
 BEGIN_TEST_DATA_CLASS(ssh_test)
 protected:
 WBTester *_tester;
@@ -40,16 +41,18 @@ db_mgmt_ConnectionRef connectionProperties;
 
 TEST_DATA_CONSTRUCTOR(ssh_test) {
   _tester = new WBTester;
-  // Init datatypes and RDBMS.
   populate_grt(*_tester);
 }
 
 END_TEST_DATA_CLASS;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_MODULE(ssh_test, "ssh testing");
 
-TEST_FUNCTION(2) {
+//----------------------------------------------------------------------------------------------------------------------
 
+TEST_FUNCTION(2) {
   ssh::SSHConnectionConfig config;
   config.localhost = "127.0.0.1";
   config.remoteSSHhost = test_params->getSSHHostName();
@@ -68,22 +71,33 @@ TEST_FUNCTION(2) {
   credentials.password = test_params->getSSHPassword();
   credentials.auth = ssh::SSHAuthtype::PASSWORD;
 
+  ensure_false("No SSH user name set", credentials.username.empty());
+
   auto session = ssh::SSHSession::createSession();
-  auto retVal = session->connect(config, credentials);
-  ensure_true("fingerprint unknown", std::get<0>(retVal) == ssh::SSHReturnType::FINGERPRINT_UNKNOWN);
-  session->disconnect();
+  std::tuple<SSHReturnType, base::any> retVal;
+  try {
+    retVal = session->connect(config, credentials);
+    ensure_true("fingerprint unknown", std::get<0>(retVal) == ssh::SSHReturnType::FINGERPRINT_UNKNOWN);
+    session->disconnect();
+  } catch (std::runtime_error &exc) {
+    session->disconnect();
+    throw;
+  }
+
   // have to use tmp val to make clang happy
   std::string tmp = std::get<1>(retVal);
   config.fingerprint = tmp;
   retVal = session->connect(config, credentials);
-  ensure_true("connection established", std::get<0>(retVal) == ssh::SSHReturnType::CONNECTED);
-  ensure_true("connection status, is connected", session->isConnected());
+  ensure_true("Connection failed", std::get<0>(retVal) == ssh::SSHReturnType::CONNECTED);
+  ensure_true("Connection status is wrong", session->isConnected());
   session->disconnect();
-  ensure_false("connection status, is disconnected", session->isConnected());
+  ensure_false("Connection is still valid", session->isConnected());
 
   if (base::file_exists(knownHosts))
     base::remove(knownHosts);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 TEST_FUNCTION(3) {
   ssh::SSHConnectionConfig config;
@@ -100,36 +114,33 @@ TEST_FUNCTION(3) {
   auto session = ssh::SSHSession::createSession();
 
   auto retVal = session->connect(config, credentials);
-  ensure_true("connection established", std::get<0>(retVal) == ssh::SSHReturnType::CONNECTED);
-  ensure_true("connection status, is connected", session->isConnected());
+  ensure_true("Connection failed", std::get<0>(retVal) == ssh::SSHReturnType::CONNECTED);
+  ensure_true("Connection status is wrong", session->isConnected());
 
   ssh::SSHSftp sftp(session, 65535);
-  std::cout << "Current dir is: " << sftp.pwd() << std::endl;
-
-
   std::string randomDir = "test_tut_" + randomString();
   try {
     sftp.mkdir(randomDir);
-  } catch (ssh::SSHSftpException &exc) {
+  } catch (ssh::SSHSftpException &) {
     fail("Unable to create remote directory");
   }
 
   try {
     auto info = sftp.stat(randomDir);
-  } catch (ssh::SSHSftpException &exc) {
+  } catch (ssh::SSHSftpException &) {
     fail("Unable to stat remote directory");
   }
 
   try {
     sftp.mkdir(randomDir);
     fail("Directory was created but it shouldn't: test_tut");
-  } catch (ssh::SSHSftpException &exc) {
+  } catch (ssh::SSHSftpException &) {
     // pass
   }
 
   try {
       sftp.rmdir(randomDir);
-  } catch (ssh::SSHSftpException &exc) {
+  } catch (ssh::SSHSftpException &) {
     fail("Unable to remove directory");
   }
 
@@ -137,14 +148,14 @@ TEST_FUNCTION(3) {
   std::string testFile = "tut_ssh_test_" + randomString();
   try {
     sftp.setContent(testFile, sampleText);
-  } catch (ssh::SSHSftpException &exc) {
+  } catch (ssh::SSHSftpException &) {
     fail("Unable to create file");
   }
 
   try {
     std::string content = sftp.getContent(testFile);
     ensure_equals("File content missmatch", content, sampleText);
-  } catch (ssh::SSHSftpException &exc) {
+  } catch (ssh::SSHSftpException &) {
     fail("Unable to get contents of file: " + testFile);
   }
 
@@ -160,8 +171,11 @@ TEST_FUNCTION(3) {
     msg.append(exc.what());
     fail(msg);
   }
+
+  sftp.unlink(testFile);
   base::remove(tmpFilePath);
   auto currentDir = sftp.pwd();
+
   ensure_true("Can't use /home directory, check ftp configuration", sftp.cd("/home"));
   ensure_equals("Invalid current directory information", "/home", sftp.pwd());
   ensure_true("Can't change to parent dir, check ftp configuration", sftp.cd(".."));
@@ -169,14 +183,14 @@ TEST_FUNCTION(3) {
   ensure_true("Unable to switch to initial directory", sftp.cd(currentDir));
 
   ensure_true("Existing directory /this_is_invalid", sftp.cd("/this_is_invalid") == -1);
-  ensure_true("Dir /etc/ssl/private should be restricted", sftp.cd("/etc/ssl/private") == -2);
+  // TODO: This is not portable. Need a better way to check for restricted folders.
+  // ensure_true("Dir /etc/ssl/private should be restricted", sftp.cd("/etc/ssl/private") == -2);
   ensure_equals("Invalid current directory information", currentDir, sftp.pwd());
-
-
 }
 
-TEST_FUNCTION(4) {
+//----------------------------------------------------------------------------------------------------------------------
 
+TEST_FUNCTION(4) {
   ssh::SSHConnectionConfig config;
   config.localhost = "127.0.0.1";
   config.remoteSSHhost = test_params->getSSHHostName();
@@ -202,13 +216,15 @@ TEST_FUNCTION(4) {
   try {
     std::string output = session->execCmdSudo("sudo -k -S -p EnterPasswordHere echo 'This is tut test'", "invalidpw", "EnterPasswordHere");
     fail("Missing exception");
-  } catch (ssh::SSHAuthException &exc) {
+  } catch (ssh::SSHAuthException &) {
     //pass it's fine
   }
 
   session->disconnect();
   ensure_false("connection status, is disconnected", session->isConnected());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 TEST_FUNCTION(5) {
   ssh::SSHConnectionConfig config;
@@ -227,7 +243,7 @@ TEST_FUNCTION(5) {
 
   auto manager = std::unique_ptr<ssh::SSHTunnelManager>(new ssh::SSHTunnelManager());
 
-  //this should start new worker thread
+  // This should start new worker thread.
   manager->start();
 
   auto session = ssh::SSHSession::createSession();
@@ -241,8 +257,8 @@ TEST_FUNCTION(5) {
 
   try {
     retVal = manager->createTunnel(session);
-  } catch (ssh::SSHTunnelException &se) {
-    fail(std::string("Unable to create tunnel: ").append(se.what()));
+  } catch (ssh::SSHTunnelException &exc) {
+    fail(std::string("Unable to create tunnel: ").append(exc.what()));
   }
 
   uint16_t port = std::get<1>(retVal);
@@ -264,7 +280,7 @@ TEST_FUNCTION(5) {
   try {
     std::vector<sql::ConnectionWrapper> wrapperList;
     
-    for (int i =0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
       sql::ConnectionWrapper wrapper = dm->getConnection(connectionProperties);
       ensure("conn is NULL", wrapper.get() != NULL);
       wrapperList.push_back(wrapper);
@@ -291,10 +307,12 @@ TEST_FUNCTION(5) {
   manager->pokeWakeupSocket();
 }
 
-// Due to the tut nature, this must be executed as a last test always,
-// we can't have this inside of the d-tor.
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_FUNCTION(99) {
   delete _tester;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 END_TESTS

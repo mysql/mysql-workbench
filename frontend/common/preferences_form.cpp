@@ -1346,7 +1346,7 @@ mforms::View* PreferencesForm::createSSHPage()
           "Determines how long the process waits for i/o"));
 
         timeouts_table->add_option(entry, _("SSH Read Write Timeout:"),
-          _("SSH Read Write Timeout in second."));
+          _("SSH Read/Write Timeout in seconds."));
       }
 
       // SSH commandtimeout
@@ -1355,7 +1355,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_max_length(5);
         entry->set_size(50, -1);
         entry->set_tooltip(_(
-          "Determines how long the process waits for a command output.\nThis is also affected by SSH Command Retry Count"));
+          "Determines how long the process waits for a command output.\nThis is also affected by SSH Command Retry Count."));
 
         timeouts_table->add_option(entry, _("SSH Command timeout:"),
           _("SSH Command Timeout in second."));

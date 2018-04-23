@@ -55,35 +55,91 @@ namespace ssh {
     auto lock = lockSession();
     _config = config;
     _credentials = credentials;
-    _session->setOption(SSH_OPTIONS_USER, credentials.username.c_str());
-    _session->setOption(SSH_OPTIONS_HOST, config.remoteSSHhost.c_str());
-    _session->setOption(SSH_OPTIONS_PORT, static_cast<long>(config.remoteSSHport));
-    _session->setOption(SSH_OPTIONS_TIMEOUT, static_cast<long>(config.connectTimeout));
-    _session->setOption(SSH_OPTIONS_STRICTHOSTKEYCHECK, config.strictHostKeyCheck ? 1 : 0);
+
+    // The option setter does't indicate what option failed to set, so we have to wrap each call
+    // individually to be able to report exactly what failed.
+    try {
+      _session->setOption(SSH_OPTIONS_USER, credentials.username.c_str());
+    } catch (SshException &exc) {
+      logError("Error setting user name in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_HOST, config.remoteSSHhost.c_str());
+    } catch (SshException &exc) {
+      logError("Error setting remote host in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_PORT, static_cast<long>(config.remoteSSHport));
+    } catch (SshException &exc) {
+      logError("Error setting remote port in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_TIMEOUT, static_cast<long>(config.connectTimeout));
+    } catch (SshException &exc) {
+      logError("Error setting connection timeout in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_STRICTHOSTKEYCHECK, config.strictHostKeyCheck ? 1 : 0);
+    } catch (SshException &exc) {
+      logError("Error setting strict host key check value in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
     if (config.compressionLevel > 0) {
-      _session->setOption(SSH_OPTIONS_COMPRESSION, "yes");
-      _session->setOption(SSH_OPTIONS_COMPRESSION_LEVEL, config.compressionLevel);
+      try {
+        _session->setOption(SSH_OPTIONS_COMPRESSION, "yes");
+      } catch (SshException &exc) {
+        logError("Error setting compression flag in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
+
+      try {
+        _session->setOption(SSH_OPTIONS_COMPRESSION_LEVEL, config.compressionLevel);
+      } catch (SshException &exc) {
+        logError("Error setting compression level in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
     }
 
     _config.dumpConfig();
 
-    if (!config.knownHostsFile.empty())
-      _session->setOption(SSH_OPTIONS_KNOWNHOSTS, config.knownHostsFile.c_str());
+    if (!config.knownHostsFile.empty()) {
+      try {
+        _session->setOption(SSH_OPTIONS_KNOWNHOSTS, config.knownHostsFile.c_str());
+      } catch (SshException &exc) {
+        logError("Error setting known hosts in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
+    }
 
-    if (!config.optionsDir.empty())
-      _session->setOption(SSH_OPTIONS_SSH_DIR, config.optionsDir.c_str());
+    if (!config.optionsDir.empty()) {
+      try {
+        _session->setOption(SSH_OPTIONS_SSH_DIR, config.optionsDir.c_str());
+      } catch (SshException &exc) {
+        logError("Error setting options folder in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
+    }
 
     try {
       if (!config.configFile.empty())
         _session->optionsParseConfig(config.configFile.c_str());
     } catch (ssh::SshException &exc) {
-      logError("Unable to parse config file: %s\nError was: %s", config.configFile.c_str(), exc.getError().c_str());
+      logError("Unable to parse config file: %s\nError was: %s\n", config.configFile.c_str(), exc.getError().c_str());
     }
 
     try {
       _session->connect();
     } catch (ssh::SshException &exc) {
-      logError("Unable to connect: %s:%lu\nError was: %s", config.remoteSSHhost.c_str(), config.remoteSSHport,
+      logError("Unable to connect: %s:%lu\nError was: %s\n", config.remoteSSHhost.c_str(), config.remoteSSHport,
                exc.getError().c_str());
       return std::make_tuple(SSHReturnType::CONNECTION_FAILURE, exc.getError());
     }

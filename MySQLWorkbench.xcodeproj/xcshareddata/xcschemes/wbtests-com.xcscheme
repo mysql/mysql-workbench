@@ -68,7 +68,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only wb_sql_editor_help_test"
+            argument = "only ssh_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -97,6 +97,11 @@
          <EnvironmentVariable
             key = "TEST_MODULES_DIR"
             value = "$BUILT_PRODUCTS_DIR/MySQLWorkbench.app/Contents/Plugins"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "SSH_CONNECTION_FILE"
+            value = "ssh_connection.cnf"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
