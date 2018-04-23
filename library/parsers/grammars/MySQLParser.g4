@@ -3675,7 +3675,7 @@ textLiteral: (UNDERSCORE_CHARSET? textStringLiteral | NCHAR_TEXT) textStringLite
 // A special variant of a text string that must not contain a linebreak (TEXT_STRING_sys_nonewline in sql_yacc.yy).
 // Check validity in semantic phase.
 textStringNoLinebreak:
-    textStringLiteral {!containsLinebreak($text)}?
+    textStringLiteral
 ;
 
 textStringLiteralList:
