@@ -432,7 +432,7 @@
         commit create clone cume_dist
       database databases datafile data datetime date_add date_add_interval date_sub date_sub_interval date dayofmonth
         day_hour day_microsecond day_minute day_second day dec decimal_num decimal declare default default_auth definer
-        delayed delay_key_write des_key_file deterministic diagnostics directory disable discard disk distinct
+        definition delayed delay_key_write description des_key_file deterministic diagnostics directory disable discard disk distinct
         distinctrow div double dual dumpfile duplicate dynamic deallocate delete desc describe do drop dense_rank
       each else elseif enable enclosed end ends end_of_input engines engine enum error errors escaped escape events
         event every except exchange exists exit expansion expire explain export extended extent_size extract execute
@@ -440,7 +440,7 @@
       false fast faults fetch fields file file_block_size filter first fixed float4 float8 float follows force foreign
         for format found frac_second from full fulltext function flush first_value following
       get general generated geometrycollection geometry get_format global grants group group_concat group_replication
-        grant grouping groups get_master_public_key
+        grant grouping groups get_master_public_key geomcollection
       hash having high_priority host hosts hour_microsecond hour_minute hour_second hour handler help histogram
         history
       identified if ignore ignore_server_ids import indexes index infile initial_size inner innodb inout insensitive
@@ -450,7 +450,7 @@
       keys key_block_size key kill
       language last leading leaves leave left less level like limit linear lines linestring list localtime
         localtimestamp local locator locks logfile logs longblob longtext long_num long loop low_priority load lock
-        locked lag last lead
+        locked lag last last_value lead
       master_auto_position master_bind master_connect_retry master_delay master_host master_log_file master_log_pos
         master_password master_port master_retry_count master_server_id master_ssl_capath master_ssl_ca master_ssl_cert
         master_ssl_cipher master_ssl_crl master_ssl_crlpath master_ssl_key master_ssl master_ssl_verify_server_cert
@@ -462,17 +462,17 @@
       names name national natural nchar_string nchar ndb ndbcluster neg never new next nodegroup none nonblocking not
         now no no_wait no_write_to_binlog null number numeric nvarchar nowait nth_value ntile nulls nested
       offline offset on one_shot one online only open optimizer_costs options option optionally order or outer outfile
-        out owner optimize of others over ordinality
+        out owner optimize of others over ordinality organization
       pack_keys page param_marker parser partial partitioning partitions password persist phase plugins plugin_dir
         plugin point polygon port position precedes precision preserve prev primary privileges procedure process
         processlist profile profiles proxy partition prepare purge persist_only percent_rank preceding path
       quarter query quick
-      range reads read_only read read_write real rebuild recover redofile redo_buffer_size redundant references regexp
+      range reads read_only read read_write real rebuild recover redofile redo_buffer_size redundant reference references regexp
         relay relaylog relay_log_file relay_log_pos relay_thread reload remove reorganize repeatable repeat replication
         replicate_do_db replicate_ignore_db replicate_do_table replicate_ignore_table replicate_wild_do_table
         replicate_wild_ignore_table replicate_rewrite_db require resignal restore restrict resume returned_sqlstate
         returns return reverse right rlike role rollup routine rows row_count row_format row rtree release rename repair
-        replace reset revoke rollback recursive remote rank respect row_number reuse resource
+        replace reset restart revoke rollback recursive remote rank respect row_number reuse resource
       schedule schema schema_name schemas second_microsecond second security sensitive separator serializable serial
         session server server_options session_user set_var share shutdown signal signed simple slave slow smallint
         snapshot socket soname sounds source spatial specific sqlexception sqlstate sqlwarning sql_after_gtids
