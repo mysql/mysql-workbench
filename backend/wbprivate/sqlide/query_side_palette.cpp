@@ -139,7 +139,7 @@ public:
     _user_snippets_active = false;
     _shared_snippets_active = false;
 
-    _snippet_popover = new wb::SnippetPopover();
+    _snippet_popover = new wb::SnippetPopover(this);
     _snippet_popover->set_size(376, 257);
     _snippet_popover->signal_closed()->connect(std::bind(&SnippetListView::popover_closed, this));
 

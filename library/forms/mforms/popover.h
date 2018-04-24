@@ -52,7 +52,7 @@ namespace mforms {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
   struct MFORMS_EXPORT PopoverImplPtrs {
-    bool (*create)(Popover *self, PopoverStyle style);
+    bool (*create)(Popover *self, mforms::View *owner, PopoverStyle style);
     void (*destroy)(Popover *self);
     void (*set_content)(Popover *self, View *content);
     void (*set_size)(Popover *self, int, int);
@@ -69,7 +69,7 @@ namespace mforms {
     PopoverImplPtrs *_popover_impl;
 
   public:
-    Popover(PopoverStyle style = PopoverStyleNormal);
+    Popover(mforms::View *owner, PopoverStyle style = PopoverStyleNormal);
     virtual ~Popover();
 
     void set_content(View *content);

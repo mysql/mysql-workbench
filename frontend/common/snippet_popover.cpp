@@ -40,7 +40,7 @@ using namespace wb;
 using namespace mforms;
 //----------------- SnippetPopover -----------------------------------------------------------------
 
-SnippetPopover::SnippetPopover() : Popover(mforms::PopoverStyleNormal) {
+SnippetPopover::SnippetPopover(mforms::View *owner) : Popover(owner, mforms::PopoverStyleNormal) {
   setName("Snippet Editor");
   _content = manage(new Box(false));
   _content->set_name("Snippet Content");

@@ -37,7 +37,7 @@ namespace MySQL {
     protected:
       PopoverWrapper(mforms::Popover *backend);
 
-      static bool create(mforms::Popover *backend, mforms::PopoverStyle style);
+      static bool create(mforms::Popover *backend, mforms::View *relative, mforms::PopoverStyle style);
       static void destroy(mforms::Popover *backend);
       static void set_content(mforms::Popover *backend, mforms::View *content);
       static void set_size(mforms::Popover *backend, int width, int height);
