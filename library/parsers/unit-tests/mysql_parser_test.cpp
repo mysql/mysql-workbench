@@ -190,7 +190,7 @@ static const TestFile test_files[] = {
   //       in object names.
   {"data/db/nasty_tables.sql", "\r\n", ";"},
 
-#if WITH_VALGRIND == 0
+#ifndef WITH_VALGRIND
   // Not so many, but some very long insert statements.
   {"data/db/sakila-db/sakila-data.sql", "\n", ";"}
 #endif
