@@ -1474,7 +1474,7 @@ namespace JsonParser {
     buffer >> number;
     double intpart = 0;
     if (modf(number, &intpart) == 0.0)
-      value = (int)number;
+      value = (ssize_t)number;
     else
       value = number;
     ++_tokenIterator;
