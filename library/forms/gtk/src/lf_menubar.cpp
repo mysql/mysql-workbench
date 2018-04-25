@@ -405,13 +405,14 @@ void mforms::gtk::MenuItemImpl::remove_item(mforms::MenuBase *menu, mforms::Menu
 
   Gtk::MenuItem *item_to_remove = item ? cast<Gtk::MenuItem *>(item->get_data_ptr()) : 0;
   if (menu_shell) {
-    if (item_to_remove)
+    if (item_to_remove) {
       menu_shell->remove(*item_to_remove); // May not work needs to be tested
-    else {
+      item->release();
+    } else {
       typedef Glib::ListHandle<Gtk::Widget *> WList;
       WList list = menu_shell->get_children();
       for (base::const_range<WList> it(list); it; ++it)
-        menu_shell->remove(*(*it));
+        delete *it;
     }
   }
 }
