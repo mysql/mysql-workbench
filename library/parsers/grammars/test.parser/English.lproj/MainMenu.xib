@@ -407,7 +407,7 @@ DQ
                                             <rect key="frame" x="12" y="17" width="824" height="180"/>
                                             <clipView key="contentView" id="QOp-SS-ldN">
                                                 <rect key="frame" x="1" y="1" width="822" height="178"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="586" userLabel="Error Query Text">
                                                         <rect key="frame" x="0.0" y="0.0" width="822" height="178"/>
@@ -457,7 +457,7 @@ DQ
                                             <rect key="frame" x="12" y="231" width="824" height="100"/>
                                             <clipView key="contentView" id="avP-LR-SWZ">
                                                 <rect key="frame" x="1" y="1" width="822" height="98"/>
-                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <autoresizingMask key="autoresizingMask"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" allowsNonContiguousLayout="YES" smartInsertDelete="YES" id="597">
                                                         <rect key="frame" x="0.0" y="0.0" width="822" height="98"/>

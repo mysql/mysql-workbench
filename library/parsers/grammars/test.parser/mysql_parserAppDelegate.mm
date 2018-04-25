@@ -471,11 +471,13 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
       if (query.length > 0) {
         // The progress label is updated in the worker thread, otherwise it would not show changes in realtime.
         ++count;
+
         dispatch_async(dispatch_get_main_queue(), ^{
           self->progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", count, self->queryCount];
           [self->progressLabel setNeedsDisplay];
         });
-        if ([self parseQuery: query version: serverVersion modes:sqlModes dumpToOutput: NO needTree: NO] > 0) {
+
+        if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO needTree: NO] > 0) {
           dispatch_async(dispatch_get_main_queue(), ^{
             self->statusText.stringValue = @"Error encountered, offending query below:";
             self->errorQueryText.string = query;
