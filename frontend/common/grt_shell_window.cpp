@@ -1280,6 +1280,9 @@ mforms::Button *GRTShellWindow::add_tool_button(const std::string &image, const 
   Button *b = manage(new Button(ToolButton));
   b->set_icon(app->get_resource_path(image));
   b->set_tooltip(tooltip);
+#ifdef __APPLE__
+  b->set_size(-1, 24);
+#endif
   scoped_connect(b->signal_clicked(), action);
   if (left)
     _toolbar.add(b, false, true);
