@@ -74,7 +74,7 @@ private:
   mforms::Menu _context_menu;
   std::vector<int> _selection;
   int _max_entry_count;       // For the internal list which is used in the UI.
-  std::string _log_file_name; // For the action log file.
+  std::string _logDir;
   unsigned _next_id;
 
   void handle_context_menu(const std::string &action);
