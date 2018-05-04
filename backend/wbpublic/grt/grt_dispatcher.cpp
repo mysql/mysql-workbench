@@ -256,8 +256,8 @@ void GRTTask::finished_m(const grt::ValueRef &result) {
 //--------------------------------------------------------------------------------------------------
 
 void GRTTask::failed_m(const std::exception &error) {
-  GRTTaskBase::failed_m(error);
-  _sigFailed(error);
+  GRTTaskBase::failed_m(*_exception);
+  _sigFailed(*_exception);
 }
 
 //--------------------------------------------------------------------------------------------------

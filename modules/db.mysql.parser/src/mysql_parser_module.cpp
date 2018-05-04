@@ -887,13 +887,13 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParseTree *context) {
   std::pair<std::string, std::string> result;
   if (routineTree->createProcedure() != nullptr) {
     result.second = "procedure";
-    result.first = routineTree->createProcedure()->procedureName()->getText();
+    result.first = base::unquote(routineTree->createProcedure()->procedureName()->getText());
   } else if (routineTree->createFunction() != nullptr) {
     result.second = "function";
-    result.first = routineTree->createFunction()->functionName()->getText();
+    result.first = base::unquote(routineTree->createFunction()->functionName()->getText());
   } else if (routineTree->createUdf() != nullptr) {
     result.second = "udf";
-    result.first = routineTree->createUdf()->udfName()->getText();
+    result.first = base::unquote(routineTree->createUdf()->udfName()->getText());
   }
   return result;
 }

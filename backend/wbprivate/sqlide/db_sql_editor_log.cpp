@@ -36,8 +36,6 @@
 #include "wb_sql_editor_panel.h"
 #include <boost/foreach.hpp>
 
-DEFAULT_LOG_DOMAIN("SqlEditorLog");
-
 using namespace bec;
 using namespace grt;
 using namespace base;
