@@ -116,6 +116,8 @@ static std::map<std::string, std::string> collationToCharset{
   {"euckr_bin", "euckr"},
   {"koi8u_general_ci", "koi8u"},
   {"koi8u_bin", "koi8u"},
+  {"gb18030_chinese_ci", "gb18030"},
+  {"gb18030_bin", "gb18030"},
   {"gb2312_chinese_ci", "gb2312"},
   {"gb2312_bin", "gb2312"},
   {"greek_general_ci", "greek"},
