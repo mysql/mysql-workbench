@@ -306,14 +306,14 @@ namespace sql {
     properties["CLIENT_MULTI_STATEMENTS"] = true;
     properties["metadataUseInfoSchema"] =
       false; // I_S is way too slow for many things as of MySQL 5.6.10, so disable it for now
-#if defined(__APPLE__) || defined(_MSC_VER)
+
     // set application name
     {
       std::map<sql::SQLString, sql::SQLString> attribs;
       attribs["program_name"] = "MySQLWorkbench";
       properties["OPT_CONNECT_ATTR_ADD"] = attribs;
     }
-#endif
+    
     // If SSL is enabled but there's no certificate or anything, create the sslKey option to force enabling SSL without
     // a key
     // (equivalent to starting cmdline client with mysql --ssl-key=)
