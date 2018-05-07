@@ -4,6 +4,9 @@ include_directories(
     SYSTEM ${MySQL_INCLUDE_DIRS} 
     ${PROJECT_SOURCE_DIR}/backend/wbprivate
     SYSTEM ${Boost_INCLUDE_DIRS}
+    SYSTEM ${LibSSH_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/library/ssh
+    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
 )
 
 add_definitions(${ODBC_DEFINITIONS})
@@ -27,7 +30,17 @@ if (UNIX)
     target_compile_options(wbcopytables-bin PUBLIC -fPIE -pie)
   endif()
 
-  target_link_libraries(wbcopytables-bin wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
+  target_link_libraries(
+      wbcopytables-bin 
+      wbbase 
+      wbssh
+      ${MySQL_LIBRARIES} 
+      ${ODBC_LIBRARIES} 
+      ${PCRE_LIBRARIES} 
+      ${PYTHON_LIBRARIES} 
+      ${LibSSH_LIBRARIES}
+  )
+
   if(BUILD_FOR_TESTS)
     target_link_libraries(wbcopytables-bin gcov)
   endif()

@@ -32,6 +32,7 @@ from workbench.utils import replace_string_parameters
 from workbench.exceptions import NotConnectedError
 from workbench import db_utils
 from migration_source_selection import request_password
+from grt import modules
 
 
 class HelperExited(Exception):
@@ -40,10 +41,14 @@ class HelperExited(Exception):
         self.returncode = returncode
 
 
-def mysql_conn_string(conn):
+def mysql_conn_string(conn, noSSH = False):
     param = conn.parameterValues
-    if conn.driver.name == "MysqlNative":
+    if conn.driver.name == "MysqlNative" or noSSH:
         return "%(userName)s@%(hostName)s:%(port)s" % param
+    elif conn.driver.name == "MysqlNativeSSH":
+        tunnelPort = modules.DbMySQLQuery.getTunnelPort(modules.DbMySQLQuery.openTunnel(conn))
+        param.update({'tunnelPort': tunnelPort})
+        return "%(userName)s@%(hostName)s:%(tunnelPort)s" % param
     elif conn.driver.name == "MysqlNativeSocket":
         if not param.get('socket', False):
             try:
@@ -325,7 +330,6 @@ class DataMigrator(object):
             args.append("--force-utf8-for-source")
 
         args.append("--thread-count=" + str(num_processes));
-        args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
         if 'stimeout' in task:
             args.append('--source-timeout=%s' % task['stimeout'])
         if 'ttimeout' in task:
@@ -352,10 +356,10 @@ class DataMigrator(object):
         return results
 
 
-    def helper_basic_arglist(self, include_target_conn):
+    def helper_basic_arglist(self, include_target_conn, noSSH = False):
         args = []
         if self._src_conn_object.driver.owner.name == "Mysql":
-            args.append('--mysql-source="%s"' % mysql_conn_string(self._src_conn_object))
+            args.append('--mysql-source="%s"' % mysql_conn_string(self._src_conn_object, noSSH))
             if self._src_conn_object.parameterValues.get("OPT_ENABLE_CLEARTEXT_PLUGIN", False):
                 args.append("--source-use-cleartext")
         elif (isinstance(self._src_conn_object.driver, grt.classes.db_mgmt_PythonDBAPIDriver) and
@@ -364,21 +368,60 @@ class DataMigrator(object):
         else:
             args.append('--odbc-source="%s"' % odbc_conn_string(self._src_conn_object, True))
 
+        args.append('--source-rdbms-type=%s' % self._src_conn_object.driver.owner.name)
+
         if include_target_conn:
-            args.append('--target="%s"' % mysql_conn_string(self._tgt_conn_object))
+            args.append('--target="%s"' % mysql_conn_string(self._tgt_conn_object, noSSH))
             if self._tgt_conn_object.parameterValues.get("OPT_ENABLE_CLEARTEXT_PLUGIN", False):
                 args.append("--target-use-cleartext")
 
         return args
 
 
+    def helper_ssh_arglist(self, include_target_conn):
+        args = []
+        if self._src_conn_object.driver.owner.name == "Mysql":
+            parts = self._src_conn_object.parameterValues.get("sshHost", '').split(":")
+            sshHost = parts[0]
+            sshPort = int(parts[1]) if len(parts) > 1 else 22
+            args.append('--source-ssh-port="%d"' % sshPort)
+            args.append('--source-ssh-host="%s"' % sshHost)
+            args.append('--source-ssh-user="%s"' % self._src_conn_object.parameterValues.get("sshUserName", ''))
+
+        if include_target_conn:
+            parts = self._tgt_conn_object.parameterValues.get("sshHost", '').split(":")
+            sshHost = parts[0]
+            sshPort = int(parts[1]) if len(parts) > 1 else 22
+            args.append('--target-ssh-port="%d"' % sshPort)
+            args.append('--target-ssh-host="%s"' % sshHost)
+            args.append('--target-ssh-user="%s"' % self._tgt_conn_object.parameterValues.get("sshUserName", ''))
+
+
+        return args
+
+
     def helper_connections_arglist(self):
+        sourceParts = self._src_conn_object.parameterValues.get("sshHost", '').split(":")
+        sourceSSHHost = sourceParts[0]
+        sourceSSHPort = int(sourceParts[1]) if len(sourceParts) > 1 else 22
+        targetParts = self._tgt_conn_object.parameterValues.get("sshHost", '').split(":")
+        targetSSHHost = targetParts[0]
+        targetSSHPort = int(targetParts[1]) if len(targetParts) > 1 else 22
         conn_args = { 'source_user': self._src_conn_object.parameterValues.get("userName", 'root'),
                       'source_instance': '',
                       'source_port': self._src_conn_object.parameterValues.get("port", 3306),
                       'target_port': self._tgt_conn_object.parameterValues.get("port", 3306),
                       'target_user': self._tgt_conn_object.parameterValues.get("userName", 'root'),
-                      'source_rdbms':self._src_conn_object.driver.owner.name.lower()}
+                      'source_rdbms':self._src_conn_object.driver.owner.name.lower(),
+                      'source-ssh-port': sourceSSHPort,
+                      'source-ssh-host': sourceSSHHost,
+                      'source-ssh-user': self._src_conn_object.parameterValues.get("sshUserName", ''),
+                      'source-ssh-password': self._src_conn_object.parameterValues.get("sshPassword", ''),
+                      'target-ssh-port': targetSSHPort,
+                      'target-ssh-host': targetSSHHost,
+                      'target-ssh-user': self._tgt_conn_object.parameterValues.get("sshUserName", ''),
+                      'target-ssh-password': self._tgt_conn_object.parameterValues.get("sshPassword", ''),
+}
 
         return conn_args
 

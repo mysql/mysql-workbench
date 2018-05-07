@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifdef _MSC_VER
@@ -33,11 +33,11 @@
 #include "python_copy_data_source.h" // python stuff need to be 1st #include
 #include "copytable.h"
 
-#include <cstdlib>
 #include <cstdio>
-#include <iostream>
-#include <fstream>
+#include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 
 #include "base/log.h"
 #include "base/sqlstring.h"
@@ -45,25 +45,31 @@
 #undef tolower
 #undef toupper
 
-#include "base/string_utilities.h"
 #include "base/file_utilities.h"
+#include "base/string_utilities.h"
 
 #include "workbench/wb_version.h"
 
+#include "SSHTunnelManager.h"
+
 class input_error : public std::runtime_error {
 public:
-  input_error(const std::string &what) : std::runtime_error(what) {
-  }
+  input_error(const std::string &what) : std::runtime_error(what) {}
 };
 
 DEFAULT_LOG_DOMAIN("copytable");
 
-static void count_rows(std::unique_ptr<CopyDataSource> &source, const std::string &source_schema,
-                       const std::string &source_table, const std::vector<std::string> &pk_columns,
-                       const CopySpec &spec, const std::vector<std::string> &last_pkeys) {
-  unsigned long long total = source->count_rows(source_schema, source_table, pk_columns, spec, last_pkeys);
+static void count_rows(std::unique_ptr<CopyDataSource> &source,
+                       const std::string &source_schema,
+                       const std::string &source_table,
+                       const std::vector<std::string> &pk_columns,
+                       const CopySpec &spec,
+                       const std::vector<std::string> &last_pkeys) {
+  unsigned long long total = source->count_rows(source_schema, source_table,
+                                                pk_columns, spec, last_pkeys);
 
-  printf("ROW_COUNT:%s:%s: %llu\n", source_schema.c_str(), source_table.c_str(), total);
+  printf("ROW_COUNT:%s:%s: %llu\n", source_schema.c_str(), source_table.c_str(),
+         total);
   fflush(stdout);
 }
 
@@ -72,13 +78,16 @@ static void count_rows(std::unique_ptr<CopyDataSource> &source, const std::strin
 static bool set_log_level(const std::string &value) {
   std::string level = base::tolower(value);
   bool ret = base::Logger::active_level(level);
-  if (ret) // TODO: if the logger is set to error or warning the following log call won't do anything.
-    logInfo("Logger set to level '%s'. '%s'\n", level.c_str(), base::Logger::get_state().c_str());
+  if (ret) // TODO: if the logger is set to error or warning the following log
+           // call won't do anything.
+    logInfo("Logger set to level '%s'. '%s'\n", level.c_str(),
+            base::Logger::get_state().c_str());
 
   return ret;
 }
 
-static bool check_arg_with_value(char **argv, int &argi, const char *arg, char *&value, bool arg_required) {
+static bool check_arg_with_value(char **argv, int &argi, const char *arg,
+                                 char *&value, bool arg_required) {
   char *a = argv[argi];
 
   if (strcmp(a, arg) == 0) {
@@ -102,9 +111,12 @@ static bool check_arg_with_value(char **argv, int &argi, const char *arg, char *
   return false;
 }
 
-static bool parse_mysql_connstring(const std::string &connstring, std::string &user, std::string &password,
-                                   std::string &host, int &port, std::string &sock) {
-  // format is user[:pass]@host:port or user[:pass]@::socket, like what cmdline utilities use
+static bool parse_mysql_connstring(const std::string &connstring,
+                                   std::string &user, std::string &password,
+                                   std::string &host, int &port,
+                                   std::string &sock) {
+  // Format is user[:pass]@host:port or user[:pass]@::socket,
+  // like what cmdline utilities use.
   std::string::size_type p = connstring.rfind('@');
   if (p == std::string::npos)
     return false;
@@ -133,13 +145,26 @@ static bool parse_mysql_connstring(const std::string &connstring, std::string &u
 }
 
 static void show_help() {
-  printf("copytable --*-source=<source db> --target=<target db> <options> <table spec> [<table spec> ...]\n");
+  printf("copytable --*-source=<source db> --target=<target db> <options> "
+         "<table spec> [<table spec> ...]\n");
   printf("--odbc-source=<odbc connstring>\n");
   printf("--pythondbapi-source=<python connstring>\n");
   printf("--mysql-source=<mysql connstring>\n");
   printf("--source-password=<password>\n");
+  printf("--source-ssh-port=<ssh port>\n");
+  printf("--source-ssh-host=<ssh host>\n");
+  printf("--source-ssh-user=<ssh user>\n");
+  printf("--source-ssh-password=<ssh password>\n");
+  printf("--source-ssh-key=<path to ssh key>\n");
   printf("--target=<mysql connstring>\n");
   printf("--target-password=<password>\n");
+  printf("--target-ssh-port=<ssh port>\n");
+  printf("--target-ssh-host=<ssh host>\n");
+  printf("--target-ssh-user=<ssh user>\n");
+  printf("--target-ssh-password=<ssh password>\n");
+  printf("--target-ssh-key=<path to ssh key>\n");
+  printf("--ssh-known-hosts-file=<path to ssh known hosts file>\n");
+  printf("--ssh-config-file=<path to ssh config file>\n");
   printf("--force-utf8-for-source\n");
   printf("--truncate-target\n");
   printf("--progress\n");
@@ -150,16 +175,16 @@ static void show_help() {
   printf("--resume\n");
   printf("Table Specification from file:\n");
   printf("--table-file=<filename>\n");
-  printf(
-    "<source schema><TAB><source table><TAB><target schema><TAB><target table><TAB><source pk columns><TAB><target pk "
-    "columns><TAB>*|<select expression>\n");
+  printf("<source schema><TAB><source table><TAB><target schema><TAB><target "
+         "table><TAB><source pk columns><TAB><target pk "
+         "columns><TAB>*|<select expression>\n");
   printf("Table Specification from command line:\n");
-  printf(
-    "--table <source schema> <source table> <target schema> <target table> <source pk columns> <target pk columns> "
-    "*|<select expression>\n");
-  printf(
-    "--table-where <source schema> <source table> <target schema> <target table> <source pk columns> <target pk "
-    "columns> *|<select expression> <where expression>\n");
+  printf("--table <source schema> <source table> <target schema> <target "
+         "table> <source pk columns> <target pk columns> "
+         "*|<select expression>\n");
+  printf("--table-where <source schema> <source table> <target schema> <target "
+         "table> <source pk columns> <target pk "
+         "columns> *|<select expression> <where expression>\n");
   printf("\n");
   printf("--log-file=<file_path>\n");
   printf("--log-level=<level>\n");
@@ -178,20 +203,26 @@ static void show_help() {
 * - file_name : the file containing the table definitions
 * - count_only : indicates if the file contains information to count the records
 *                from the source DB or to actually trasmit the data
-* - tasks : output parameter that will contain a task for each table definition loaded
+* - tasks : output parameter that will contain a task for each table definition
+loaded
 *           from the file
-  - resume : indicates if the file contains information to resume copying data from
+  - resume : indicates if the file contains information to resume copying data
+from
              last PK
 * - max_count : limit copied rows count to max_count
 *
-* Remarks : Each table is defined in a single line with the next format for count_only = true and resume = false
+* Remarks : Each table is defined in a single line with the next format for
+count_only = true and resume = false
 *           <src_schema>\t<src_table>\n
 *
 *           and in the next format for a count_only = false or resume = true
-* <src_schema>\t<src_table>\t<tgt_schema>\t<tgt_table>\t<source_pk_columns>\t<target_pk_columns>\t<select_expression>
+*
+<src_schema>\t<src_table>\t<tgt_schema>\t<tgt_table>\t<source_pk_columns>\t<target_pk_columns>\t<select_expression>
 */
-bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueue &tasks,
-                          std::set<std::string> &trigger_schemas, bool resume, long long int max_count) {
+bool read_tasks_from_file(const std::string file_name, bool count_only,
+                          TaskQueue &tasks,
+                          std::set<std::string> &trigger_schemas, bool resume,
+                          long long int max_count) {
   std::ifstream ifs(file_name.data(), std::ifstream::in);
   unsigned int field_count = count_only && !resume ? 2 : 7;
   bool error = false;
@@ -238,6 +269,84 @@ bool read_tasks_from_file(const std::string file_name, bool count_only, TaskQueu
   return !error;
 }
 
+uint16_t createTunnel(ssh::SSHConnectionConfig &config,
+                      const ssh::SSHConnectionCredentials &credentials,
+                      ssh::SSHTunnelManager *manager) {
+  uint16_t tunnel_port = manager->lookupTunnel(config);
+  if (tunnel_port > 0) {
+    logInfo("Existing SSH tunnel found, connecting...\n");
+    return tunnel_port;
+  }
+
+  auto session = ssh::SSHSession::createSession();
+  std::tuple<ssh::SSHReturnType, base::any> retVal;
+  bool connected = false;
+
+  while (!connected) {
+    try {
+      retVal = session->connect(config, credentials);
+    } catch (std::exception &e) {
+      throw std::runtime_error(e.what());
+    }
+
+    std::string errorMsg = "";
+    switch (std::get<0>(retVal)) {
+      case ssh::SSHReturnType::CONNECTED: {
+        connected = true;
+        break;
+      }
+      case ssh::SSHReturnType::FINGERPRINT_CHANGED:
+      case ssh::SSHReturnType::FINGERPRINT_MISMATCH: {
+        std::string fingerprint = std::get<1>(retVal);
+        errorMsg = "WARNING: Server public key has changed. It means either "
+                  "you're under attack or the administrator has changed the "
+                  "key. New public fingerprint is: " +
+                  fingerprint;
+        throw std::runtime_error(errorMsg);
+        break;
+      }
+      case ssh::SSHReturnType::FINGERPRINT_UNKNOWN:
+      case ssh::SSHReturnType::FINGERPRINT_UNKNOWN_AUTH_FILE_MISSING: {
+        std::string fingerprint = std::get<1>(retVal);
+        std::string msg = "The authenticity of host '" + config.remoteSSHhost +
+                          "' can't be established.\n Server key fingerprint is " +
+                          fingerprint +
+                          "\nAre you sure you want to continue connecting? [y/N]";
+        std::cout << msg;
+        char retChar = 'N';
+        std::cin >> retChar;
+        if (toupper(retChar) == 'Y') {
+          config.fingerprint = fingerprint;
+          session->disconnect();
+        } else {
+          errorMsg = "The authenticity of host '" + config.remoteSSHhost +
+                    "' can't be established.";
+          throw std::runtime_error(errorMsg);
+        }
+        break;
+      }
+      default: {
+        std::string errorMsg = std::get<1>(retVal);
+        throw std::runtime_error(errorMsg);
+      }
+    }
+  }
+
+  try {
+    retVal = manager->createTunnel(session);
+  } catch (ssh::SSHTunnelException &se) {
+    std::string errMsg =
+        std::string("Unable to create tunnel: ").append(se.what());
+    throw std::runtime_error(errMsg);
+  }
+  if (std::get<0>(retVal) != ssh::SSHReturnType::CONNECTED) {
+    std::string errorMsg = std::get<1>(retVal);
+    throw std::runtime_error(errorMsg);
+  }
+
+  return (uint16_t)std::get<1>(retVal);
+}
+
 int main(int argc, char **argv) {
   std::string app_name = base::basename(argv[0]);
 
@@ -276,6 +385,44 @@ int main(int argc, char **argv) {
   std::string source_rdbms_type = "unknown";
   unsigned int target_connection_timeout = 60;
   unsigned int source_connection_timeout = 60;
+
+  ssh::SSHConnectionConfig sourceConfig;
+  sourceConfig.localhost = "127.0.0.1";
+  sourceConfig.remotehost = "127.0.0.1";
+  sourceConfig.remoteport = 0;
+  sourceConfig.remoteSSHhost = "";
+  sourceConfig.remoteSSHport = 22;
+  sourceConfig.connectTimeout = 10;
+  sourceConfig.bufferSize = 10240;
+  sourceConfig.connectTimeout = 10;
+  sourceConfig.readWriteTimeout = 5;
+  sourceConfig.commandTimeout = 1;
+  sourceConfig.commandRetryCount = 3;
+  sourceConfig.compressionLevel = 0;
+
+  ssh::SSHConnectionCredentials sourceCredentials;
+  sourceCredentials.username = "";
+  sourceCredentials.password = "";
+  sourceCredentials.auth = ssh::SSHAuthtype::PASSWORD;
+
+  ssh::SSHConnectionConfig targetConfig;
+  targetConfig.localhost = "127.0.0.1";
+  targetConfig.remotehost = "127.0.0.1";
+  targetConfig.remoteport = 0;
+  targetConfig.remoteSSHhost = "";
+  targetConfig.remoteSSHport = 22;
+  targetConfig.connectTimeout = 10;
+  targetConfig.bufferSize = 10240;
+  targetConfig.connectTimeout = 10;
+  targetConfig.readWriteTimeout = 5;
+  targetConfig.commandTimeout = 1;
+  targetConfig.commandRetryCount = 3;
+  targetConfig.compressionLevel = 0;
+
+  ssh::SSHConnectionCredentials targetCredentials;
+  targetCredentials.username = "";
+  targetCredentials.password = "";
+  targetCredentials.auth = ssh::SSHAuthtype::PASSWORD;
 
   bool log_level_set = false;
   int i = 1;
@@ -323,14 +470,16 @@ int main(int argc, char **argv) {
     else if (strcmp(argv[i], "--resume") == 0)
       resume = true;
     else if (check_arg_with_value(argv, i, "--disable-triggers-on", argval, true)) {
-      // disabling/enabling triggers are standalone operations and mutually exclusive
+      // disabling/enabling triggers are standalone operations and mutually
+      // exclusive
       // so here it ensures a request for trigger enabling was not found first
       if (!reenable_triggers && !count_only) {
         disable_triggers = true;
         trigger_schemas.insert(argval);
       }
     } else if (check_arg_with_value(argv, i, "--reenable-triggers-on", argval, true)) {
-      // disabling/enabling triggers are standalone operations and mutually exclusive
+      // disabling/enabling triggers are standalone operations and mutually
+      // exclusive
       // so here it ensures a request for trigger enabling was not found first
       if (!disable_triggers && !count_only) {
         reenable_triggers = true;
@@ -344,13 +493,44 @@ int main(int argc, char **argv) {
       bulk_insert_batch = base::atoi<int>(argval, 0);
       if (bulk_insert_batch < 1)
         bulk_insert_batch = 100;
+    } else if (check_arg_with_value(argv, i, "--source-ssh-port", argval, true))
+      sourceConfig.remoteSSHport = base::atoi<int>(argval, 0);
+    else if (check_arg_with_value(argv, i, "--source-ssh-host", argval, true))
+      sourceConfig.remoteSSHhost = argval;
+    else if (check_arg_with_value(argv, i, "--source-ssh-user", argval, true))
+      sourceCredentials.username = argval;
+    else if (check_arg_with_value(argv, i, "--source-ssh-password", argval, true)) {
+      sourceCredentials.password = argval;
+      sourceCredentials.auth = ssh::SSHAuthtype::PASSWORD;
+    } else if (check_arg_with_value(argv, i, "--source-ssh-key", argval, true)) {
+      sourceCredentials.keyfile = argval;
+      sourceCredentials.auth = ssh::SSHAuthtype::KEYFILE;
+    } else if (check_arg_with_value(argv, i, "--target-ssh-port", argval, true))
+      targetConfig.remoteSSHport = base::atoi<int>(argval, 0);
+    else if (check_arg_with_value(argv, i, "--target-ssh-host", argval, true))
+      targetConfig.remoteSSHhost = argval;
+    else if (check_arg_with_value(argv, i, "--target-ssh-user", argval, true))
+      targetCredentials.username = argval;
+    else if (check_arg_with_value(argv, i, "--target-ssh-password", argval, true)) {
+      targetCredentials.password = argval;
+      targetCredentials.auth = ssh::SSHAuthtype::PASSWORD;
+    } else if (check_arg_with_value(argv, i, "--target-ssh-key", argval, true)) {
+      targetCredentials.keyfile = argval;
+      targetCredentials.auth = ssh::SSHAuthtype::KEYFILE;
+    } else if (check_arg_with_value(argv, i, "--ssh-known-hosts-file", argval, true)) {
+      sourceConfig.knownHostsFile = targetConfig.knownHostsFile = argval;
+    } else if (check_arg_with_value(argv, i, "--ssh-config-file", argval, true)) {
+      sourceConfig.configFile = targetConfig.configFile = argval;
     } else if (strcmp(argv[i], "--version") == 0) {
       const char *type = APP_EDITION_NAME;
-      if (strcmp(APP_EDITION_NAME, "Community") == (0)) // Extra parens to silence warning.
+      if (strcmp(APP_EDITION_NAME, "Community") ==
+          (0)) // Extra parens to silence warning.
         type = "CE";
 
-      printf("%s %s (%s) %i.%i.%i %s build %i\n", base::basename(argv[0]).c_str(), type, APP_LICENSE_TYPE,
-             APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER, APP_RELEASE_TYPE, APP_BUILD_NUMBER);
+      printf("%s %s (%s) %i.%i.%i %s build %i\n",
+             base::basename(argv[0]).c_str(), type, APP_LICENSE_TYPE,
+             APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER,
+             APP_RELEASE_TYPE, APP_BUILD_NUMBER);
       exit(0);
     } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
       show_help();
@@ -363,7 +543,8 @@ int main(int argc, char **argv) {
       TableParam param;
 
       if ((!count_only && i + 7 >= argc) || (count_only && i + 2 >= argc)) {
-        fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
+        fprintf(stderr, "%s: Missing value for table copy specification\n",
+                argv[0]);
         exit(1);
       }
 
@@ -391,7 +572,8 @@ int main(int argc, char **argv) {
       TableParam param;
 
       if ((!count_only && i + 10 >= argc) || (count_only && i + 5 >= argc)) {
-        fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
+        fprintf(stderr, "%s: Missing value for table copy specification\n",
+                argv[0]);
         exit(1);
       }
       param.source_schema = argv[++i];
@@ -417,7 +599,8 @@ int main(int argc, char **argv) {
       TableParam param;
 
       if ((!count_only && i + 8 >= argc) || (count_only && i + 3 >= argc)) {
-        fprintf(stderr, "%s: Missing value for table copy specification\n", argv[0]);
+        fprintf(stderr, "%s: Missing value for table copy specification\n",
+                argv[0]);
         exit(1);
       }
       param.source_schema = argv[++i];
@@ -436,7 +619,8 @@ int main(int argc, char **argv) {
       param.copy_spec.type = CopyCount;
 
       tables.add_task(param);
-    } else if (check_arg_with_value(argv, i, "--source-rdbms-type", argval, false))
+    } else if (check_arg_with_value(argv, i, "--source-rdbms-type", argval,
+                                    false))
       source_rdbms_type = argval;
     else if (strcmp(argv[i], "--table-where") == 0) {
       TableParam param;
@@ -495,7 +679,8 @@ int main(int argc, char **argv) {
       log_level_set = true;
   }
 
-  // Set the log level from environment var WB_LOG_LEVEL if specified or set a default log level.
+  // Set the log level from environment var WB_LOG_LEVEL if specified or set a
+  // default log level.
   if (!log_level_set) {
     const char *log_setting = getenv("WB_LOG_LEVEL");
     if (log_setting == NULL)
@@ -543,13 +728,16 @@ int main(int argc, char **argv) {
   // Source connection is parsed only when NOT executing the
   // Standalone operatios on triggers
   if (source_type == ST_MYSQL && !reenable_triggers && !disable_triggers) {
-    if (!parse_mysql_connstring(source_connstring, source_user, source_password, source_host, source_port,
-                                source_socket)) {
-      fprintf(stderr,
-              "Invalid MySQL connection string %s for source database. Must be in format user[:pass]@host:port or "
-              "user[:pass]@::socket\n",
-              target_connstring.c_str());
+    if (!parse_mysql_connstring(source_connstring, source_user, source_password, 
+                                source_host, source_port, source_socket)) {
+      fprintf(stderr, "Invalid MySQL connection string %s for source database. "
+                      "Must be in format user[:pass]@host:port or "
+                      "user[:pass]@::socket\n",
+              source_connstring.c_str());
       exit(1);
+    } else {
+      sourceConfig.remotehost = source_host;
+      sourceConfig.remoteport = source_port;
     }
   }
 
@@ -558,13 +746,16 @@ int main(int argc, char **argv) {
   int target_port = -1;
   std::string target_socket;
   if (!(count_only && !resume) &&
-      !parse_mysql_connstring(target_connstring, target_user, target_password, target_host, target_port,
-                              target_socket)) {
-    fprintf(stderr,
-            "Invalid MySQL connection string %s for target database. Must be in format user[:pass]@host:port or "
-            "user[:pass]@::socket\n",
+      !parse_mysql_connstring(target_connstring, target_user, target_password,
+                              target_host, target_port, target_socket)) {
+    fprintf(stderr, "Invalid MySQL connection string %s for target database. "
+                    "Must be in format user[:pass]@host:port or "
+                    "user[:pass]@::socket\n",
             target_connstring.c_str());
     exit(1);
+  } else {
+    targetConfig.remotehost = target_host;
+    targetConfig.remoteport = target_port;
   }
 
   if (passwords_from_stdin) {
@@ -596,6 +787,20 @@ int main(int argc, char **argv) {
   }
 
   static SQLHENV odbc_env;
+  ssh::SSHTunnelManager *manager = nullptr;
+
+  if (!sourceConfig.remoteSSHhost.empty() || !targetConfig.remoteSSHhost.empty()) {
+    manager = new ssh::SSHTunnelManager();
+    manager->start();
+    if (!sourceConfig.remoteSSHhost.empty()) {
+      source_port = createTunnel(sourceConfig, sourceCredentials, manager);
+      source_host = "127.0.0.1";
+    }
+    if (!targetConfig.remoteSSHhost.empty()) {
+      target_port = createTunnel(targetConfig, targetCredentials, manager);
+      target_host = "127.0.0.1";
+    }
+  }
 
   PyThreadState *state = NULL;
   if (source_type == ST_PYTHON) {
@@ -611,13 +816,17 @@ int main(int argc, char **argv) {
         SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &odbc_env);
         SQLSetEnvAttr(odbc_env, SQL_ATTR_ODBC_VERSION, (void *)SQL_OV_ODBC3, 0);
 
-        psource.reset(
-          new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type));
+        psource.reset(new ODBCCopyDataSource(odbc_env, source_connstring,
+                                             source_password, source_is_utf8,
+                                             source_rdbms_type));
       } else if (source_type == ST_MYSQL)
-        psource.reset(new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket,
-                                              source_use_cleartext_plugin, source_connection_timeout));
+        psource.reset(new MySQLCopyDataSource(
+            source_host, source_port, source_user, source_password,
+            source_socket, source_use_cleartext_plugin,
+            source_connection_timeout));
       else
-        psource.reset(new PythonCopyDataSource(source_connstring, source_password));
+        psource.reset(
+            new PythonCopyDataSource(source_connstring, source_password));
 
       std::unique_ptr<MySQLCopyDataTarget> ptarget;
       TableParam task;
@@ -625,18 +834,20 @@ int main(int argc, char **argv) {
         std::vector<std::string> last_pkeys;
         if (task.copy_spec.resume) {
           if (!ptarget.get())
-            ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket,
-                                                  target_use_cleartext_plugin, app_name, source_charset,
-                                                  source_rdbms_type, target_connection_timeout));
+            ptarget.reset(new MySQLCopyDataTarget(
+                target_host, target_port, target_user, target_password,
+                target_socket, target_use_cleartext_plugin, app_name,
+                source_charset, source_rdbms_type, target_connection_timeout));
           last_pkeys = ptarget->get_last_pkeys(task.target_pk_columns, task.target_schema, task.target_table);
         }
         count_rows(psource, task.source_schema, task.source_table, task.source_pk_columns, task.copy_spec, last_pkeys);
       }
     } else if (reenable_triggers || disable_triggers) {
       std::unique_ptr<MySQLCopyDataTarget> ptarget;
-      ptarget.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket,
-                                            target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type,
-                                            target_connection_timeout));
+      ptarget.reset(new MySQLCopyDataTarget(
+          target_host, target_port, target_user, target_password, target_socket,
+          target_use_cleartext_plugin, app_name, source_charset,
+          source_rdbms_type, target_connection_timeout));
 
       if (disable_triggers)
         ptarget->backup_triggers(trigger_schemas);
@@ -650,9 +861,10 @@ int main(int argc, char **argv) {
       CopyDataSource *psource = NULL;
 
       if (disable_triggers_on_copy) {
-        ptarget_conn.reset(new MySQLCopyDataTarget(target_host, target_port, target_user, target_password,
-                                                   target_socket, target_use_cleartext_plugin, app_name, source_charset,
-                                                   source_rdbms_type, target_connection_timeout));
+        ptarget_conn.reset(new MySQLCopyDataTarget(
+            target_host, target_port, target_user, target_password,
+            target_socket, target_use_cleartext_plugin, app_name,
+            source_charset, source_rdbms_type, target_connection_timeout));
         ptarget_conn->backup_triggers(trigger_schemas);
       }
 
@@ -661,17 +873,21 @@ int main(int argc, char **argv) {
           SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &odbc_env);
           SQLSetEnvAttr(odbc_env, SQL_ATTR_ODBC_VERSION, (void *)SQL_OV_ODBC3, 0);
 
-          psource =
-            new ODBCCopyDataSource(odbc_env, source_connstring, source_password, source_is_utf8, source_rdbms_type);
+          psource = new ODBCCopyDataSource(odbc_env, source_connstring,
+                                           source_password, source_is_utf8,
+                                           source_rdbms_type);
         } else if (source_type == ST_MYSQL)
-          psource = new MySQLCopyDataSource(source_host, source_port, source_user, source_password, source_socket,
-                                            source_use_cleartext_plugin, source_connection_timeout);
+          psource = new MySQLCopyDataSource(
+              source_host, source_port, source_user, source_password,
+              source_socket, source_use_cleartext_plugin,
+              source_connection_timeout);
         else
           psource = new PythonCopyDataSource(source_connstring, source_password);
 
-        ptarget = new MySQLCopyDataTarget(target_host, target_port, target_user, target_password, target_socket,
-                                          target_use_cleartext_plugin, app_name, source_charset, source_rdbms_type,
-                                          target_connection_timeout);
+        ptarget = new MySQLCopyDataTarget(
+            target_host, target_port, target_user, target_password,
+            target_socket, target_use_cleartext_plugin, app_name,
+            source_charset, source_rdbms_type, target_connection_timeout);
 
         psource->set_max_blob_chunk_size(ptarget->get_max_allowed_packet());
         psource->set_max_parameter_size((unsigned long)ptarget->get_max_long_data_size());
@@ -685,8 +901,9 @@ int main(int argc, char **argv) {
           // XXXX
           delete psource;
         } else {
-          threads.push_back(
-            new CopyDataTask(base::strfmt("Task %d", index + 1), psource, ptarget, &tables, show_progress));
+          threads.push_back(new CopyDataTask(base::strfmt("Task %d", index + 1),
+                                             psource, ptarget, &tables,
+                                             show_progress));
         }
       }
 
@@ -714,6 +931,15 @@ int main(int argc, char **argv) {
   if (source_type == ST_PYTHON) {
     PyEval_RestoreThread(state);
     Py_Finalize();
+  }
+
+  if (manager) {
+    manager->setStop();
+    manager->pokeWakeupSocket();
+    if (manager->isRunning())
+      manager->join();
+    delete manager;
+    manager = nullptr;
   }
 
   printf("FINISHED\n");

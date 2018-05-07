@@ -23,48 +23,46 @@
 
 #pragma once
 #include <errno.h>
-#include <fcntl.h>
-#ifndef _MSC_VER
-#include <poll.h>
-#endif
 #include <string.h>
 #include <thread>
+#include <atomic>
+#include <deque>
 #include <map>
-#include <mutex>
-#include <vector>
 #include "SSHCommon.h"
 #include "SSHSession.h"
+#include "SSHTunnelHandler.h"
+#include "base/any.h"
 
 namespace ssh {
+  typedef struct {
+    uint16_t port;
+    int socketHandle;
+  } sockInfo;
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHTunnelHandler : public SSHThread {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHTunnelManager : public SSHThread {
   public:
-    SSHTunnelHandler(uint16_t localPort, int localSocket, std::shared_ptr<ssh::SSHSession> session);
-    ~SSHTunnelHandler();
-    int getLocalSocket() const;
-    int getLocalPort() const;
-    SSHConnectionConfig getConfig() const;
+    SSHTunnelManager();
+    std::tuple<SSHReturnType, base::any> createTunnel(std::shared_ptr<SSHSession> &session);
+    int lookupTunnel(const SSHConnectionConfig &config);
+    virtual ~SSHTunnelManager();
+    void pokeWakeupSocket();
+    void setStop() {
+      _stop = true;
+    }
 
-    void handleConnection();
-    void handleNewConnection(int incomingSocket);
-    void transferDataFromClient(int sock, std::shared_ptr<ssh::Channel> &chan);
-    void transferDataToClient(int sock, std::shared_ptr<ssh::Channel> &chan);
-
-    std::shared_ptr<ssh::Channel> openTunnel();
-    void prepareTunnel(int clientSocket);
+    void disconnect(const SSHConnectionConfig &config);
 
   protected:
+    mutable base::RecMutex _socketMutex;
+    base::RecMutexLock lockSocketList();
     virtual void run() override;
+    sockInfo createSocket();
+    void localSocketHandler();
 
-    std::shared_ptr<SSHSession> _session;
-    uint16_t _localPort;
-    int _localSocket;
-    std::map<int, std::shared_ptr<ssh::Channel>> _clientSocketList;
-    int _pollTimeout;
-    ssh_event _event;
-    std::vector<int> _sockRemovalList;
-    std::recursive_mutex _newConnMtx;
-    std::vector<int> _newConnection;
+    uint16_t _wakeupSocketPort;
+    int _wakeupSocket;
+    std::map<int, std::unique_ptr<SSHTunnelHandler>> _socketList;
+
   };
 
 } /* namespace ssh */

@@ -39,7 +39,8 @@
 DEFAULT_LOG_DOMAIN("SSHTunnelManager")
 namespace ssh {
 
-  SSHTunnelManager::SSHTunnelManager(): _wakeupSocketPort(0), _wakeupSocket(-1) {
+  SSHTunnelManager::SSHTunnelManager()
+      : _wakeupSocketPort(0), _wakeupSocket(-1) {
 #if _MSC_VER
     WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -47,7 +48,6 @@ namespace ssh {
       throw SSHTunnelException("Error at WSAStartup()\n");
     }
 #endif
-
     initLibSSH();
     auto retVal = createSocket();
     logInfo("Wakeup socket port created: %d\n", retVal.port);
@@ -87,7 +87,7 @@ namespace ssh {
   sockInfo SSHTunnelManager::createSocket() {
     sockInfo returnVal;
     errno = 0;
-    returnVal.socketHandle = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0));
+    returnVal.socketHandle = socket(AF_INET, SOCK_STREAM, 0);
     if (returnVal.socketHandle == -1) {
       throw SSHTunnelException("unable to create socket: " + getError());
     }
@@ -159,15 +159,13 @@ namespace ssh {
     struct sockaddr_in client;
     socklen_t addrlen = sizeof(client);
     errno = 0;
-    int clientSock = static_cast<int>(accept(socket, (struct sockaddr*) &client, &addrlen));
+    int clientSock = accept(socket, (struct sockaddr*) &client, &addrlen);
     wbCloseSocket(clientSock);
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
 
   void SSHTunnelManager::localSocketHandler() {
     std::vector<pollfd> socketList;
-
     {
       auto sockLock = lockSocketList();
       for (auto &it : _socketList) {
@@ -177,15 +175,15 @@ namespace ssh {
         socketList.push_back(p);
       }
     }
-
-    pollfd p;
-    p.fd = _wakeupSocket;
-    p.events = POLLIN;
-    socketList.push_back(p);
-
+    {
+      pollfd p;
+      p.fd = _wakeupSocket;
+      p.events = POLLIN;
+      socketList.push_back(p);
+    }
     int rc = 0;
     do {
-      auto pollSocketList = socketList;  // We need to duplicate this as we will be changing it later, so we could lose other socket data.
+      auto pollSocketList = socketList;  // We need to duplicate this as we will be changing it later, so we could loose other socket data.
       rc = wbPoll(pollSocketList.data(), pollSocketList.size());
       if (rc < 0) {
         logError("poll() error: %s.\n", getError().c_str());
@@ -206,19 +204,22 @@ namespace ssh {
           break;
         }
 
-        if (pollIt.fd == _wakeupSocket) { // This is special case we reload fds and continue.
+        if (pollIt.fd == _wakeupSocket)  // This is special case we reload fds and continue.
+            {
           logDebug2("Wakeup socket got connection, reloading socketList.\n");
           socketList.clear();
-          acceptAndClose(static_cast<int>(pollIt.fd));
+          acceptAndClose(pollIt.fd);
           if (_stop)
             break;
 
-          auto sockLock = lockSocketList();
-          for (auto &it : _socketList) {
-            pollfd p;
-            p.fd = it.second->getLocalSocket();
-            p.events = POLLIN;
-            socketList.push_back(p);
+          {
+            auto sockLock = lockSocketList();
+            for (auto &it : _socketList) {
+              pollfd p;
+              p.fd = it.second->getLocalSocket();
+              p.events = POLLIN;
+              socketList.push_back(p);
+            }
           }
 
           {
@@ -254,12 +255,10 @@ namespace ssh {
       }
     } while (!_stop);
 
-    {
-      auto sockLock = lockSocketList();
-      for (auto &sIt : _socketList) {
-        sIt.second.release();
-        shutdown(sIt.first, SHUT_RDWR);
-      }
+    auto sockLock = lockSocketList();
+    for (auto &sIt : _socketList) {
+      sIt.second.release();
+      shutdown(sIt.first, SHUT_RDWR);
     }
 
     // This means wakeup socket is also cleared.
@@ -276,7 +275,7 @@ namespace ssh {
     struct sockaddr_in server;
     struct sockaddr *serverptr = (struct sockaddr*) &server;
     int sock;
-    if ((sock = static_cast<int>(socket(AF_INET, SOCK_STREAM, 0))) < 0) {
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
       logError("Error occured opening wakeup socket");
       return;
     }
@@ -289,7 +288,7 @@ namespace ssh {
       ssize_t readlen = 0;
       std::vector<char> buff(1, '\0');
       errno = 0;
-      readlen = recv(sock, buff.data(), static_cast<int>(buff.size()), 0);
+      readlen = recv(sock, buff.data(), buff.size(), 0);
       if (readlen == 0)
         logDebug2("Wakeup socket received info.\n");
       else

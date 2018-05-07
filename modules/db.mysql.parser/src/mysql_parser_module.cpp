@@ -446,7 +446,142 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     expected.remove(tokenType);
   }
 
-  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
+  // Try to find the expected input by examining the current parser context and
+  // the expected interval set. The latter often lists useless keywords, especially if they are allowed
+  // as identifiers.
+  std::string expectedText;
+
+  static std::set<size_t> simpleRules = {
+    MySQLParser::RuleIdentifier,
+    MySQLParser::RuleQualifiedIdentifier,
+  };
+
+  static std::map<size_t, std::string> objectNames = {
+    { MySQLParser::RuleColumnName, "column" },
+    { MySQLParser::RuleColumnRef, "column" },
+    { MySQLParser::RuleColumnInternalRef, "column" },
+    { MySQLParser::RuleIndexName, "index" },
+    { MySQLParser::RuleIndexRef, "index" },
+    { MySQLParser::RuleSchemaName, "schema" },
+    { MySQLParser::RuleSchemaRef, "schema" },
+    { MySQLParser::RuleProcedureName, "procedure" },
+    { MySQLParser::RuleProcedureRef, "procedure" },
+    { MySQLParser::RuleFunctionName, "function" },
+    { MySQLParser::RuleFunctionRef, "function" },
+    { MySQLParser::RuleTriggerName, "trigger" },
+    { MySQLParser::RuleTriggerRef, "trigger" },
+    { MySQLParser::RuleViewName, "view" },
+    { MySQLParser::RuleViewRef, "view" },
+    { MySQLParser::RuleTablespaceName, "tablespace" },
+    { MySQLParser::RuleTablespaceRef, "tablespace" },
+    { MySQLParser::RuleLogfileGroupName, "logfile group" },
+    { MySQLParser::RuleLogfileGroupRef, "logfile group" },
+    { MySQLParser::RuleEventName, "event" },
+    { MySQLParser::RuleEventRef, "event" },
+    { MySQLParser::RuleUdfName, "udf" },
+    { MySQLParser::RuleServerName, "server" },
+    { MySQLParser::RuleServerRef, "server" },
+    { MySQLParser::RuleEngineRef, "engine" },
+    { MySQLParser::RuleTableName, "table" },
+    { MySQLParser::RuleTableRef, "table" },
+    { MySQLParser::RuleFilterTableRef, "table" },
+    { MySQLParser::RuleTableRefWithWildcard, "table" },
+    { MySQLParser::RuleParameterName, "parameter" },
+    { MySQLParser::RuleLabelIdentifier, "label" },
+    { MySQLParser::RuleLabelRef, "label" },
+    { MySQLParser::RuleRoleIdentifier, "role" },
+    { MySQLParser::RuleRoleRef, "role" },
+    { MySQLParser::RulePluginRef, "plugin" },
+    { MySQLParser::RuleComponentRef, "component" },
+    { MySQLParser::RuleResourceGroupRef, "resource group" },
+    { MySQLParser::RuleWindowName, "window" },
+  };
+
+  // Walk up from generic rules to reach something that gives us more context, if needed.
+  ParserRuleContext *context = parser->getRuleContext();
+  while (simpleRules.find(context->getRuleIndex()) != simpleRules.end())
+    context = dynamic_cast<ParserRuleContext *>(context->parent);
+
+  switch (context->getRuleIndex()) {
+    case MySQLParser::RuleFunctionCall:
+      expectedText =  "a complete function call or other expression";
+      break;
+
+    case MySQLParser::RuleExpr:
+      expectedText = " an expression";
+      break;
+
+    case MySQLParser::RuleColumnName:
+    case MySQLParser::RuleIndexName:
+    case MySQLParser::RuleSchemaName:
+    case MySQLParser::RuleProcedureName:
+    case MySQLParser::RuleFunctionName:
+    case MySQLParser::RuleTriggerName:
+    case MySQLParser::RuleViewName:
+    case MySQLParser::RuleTablespaceName:
+    case MySQLParser::RuleLogfileGroupName:
+    case MySQLParser::RuleEventName:
+    case MySQLParser::RuleUdfName:
+    case MySQLParser::RuleServerName:
+    case MySQLParser::RuleTableName:
+    case MySQLParser::RuleParameterName:
+    case MySQLParser::RuleLabelIdentifier:
+    case MySQLParser::RuleRoleIdentifier:
+    case MySQLParser::RuleWindowName: {
+      auto iterator = objectNames.find(context->getRuleIndex());
+      if (iterator == objectNames.end())
+        expectedText = " a new object name";
+      else
+        expectedText = std::string(" a new ") + iterator->second + " name";
+      break;
+    }
+
+    case MySQLParser::RuleColumnRef:
+    case MySQLParser::RuleIndexRef:
+    case MySQLParser::RuleSchemaRef:
+    case MySQLParser::RuleProcedureRef:
+    case MySQLParser::RuleFunctionRef:
+    case MySQLParser::RuleTriggerRef:
+    case MySQLParser::RuleViewRef:
+    case MySQLParser::RuleTablespaceRef:
+    case MySQLParser::RuleLogfileGroupRef:
+    case MySQLParser::RuleEventRef:
+    case MySQLParser::RuleServerRef:
+    case MySQLParser::RuleEngineRef:
+    case MySQLParser::RuleTableRef:
+    case MySQLParser::RuleFilterTableRef:
+    case MySQLParser::RuleTableRefWithWildcard:
+    case MySQLParser::RuleLabelRef:
+    case MySQLParser::RuleRoleRef:
+    case MySQLParser::RulePluginRef:
+    case MySQLParser::RuleComponentRef:
+    case MySQLParser::RuleResourceGroupRef: {
+      auto iterator = objectNames.find(context->getRuleIndex());
+      if (iterator == objectNames.end())
+        expectedText = " the name of an existing object";
+      else
+        expectedText = std::string(" the name of an existing ") + iterator->second;
+      break;
+    }
+
+    case MySQLParser::RuleColumnInternalRef:
+      expectedText = " a column name from this table";
+      break;
+
+    default: {
+      // If the expected set contains the IDENTIFIER token we likely want an identifier at this position.
+      // Due to the fact that MySQL defines a number of keywords as possible identifiers, we get all those
+      // whenever an identifier is actually required, bloating so the expected set with irrelevant elements.
+      // Hence we check for the identifier entry and assume we *only* want an identifier. This gives an unprecise
+      // result if both certain keywords *and* an identifier are expected.
+      if (expected.contains(static_cast<ssize_t>(MySQLLexer::IDENTIFIER)))
+        expectedText = " an identifier";
+      else
+        expectedText = ": " + intervalToString(expected, 6, parser->getVocabulary());
+      break;
+    }
+  }
+
   if (wrongText[0] != '"' && wrongText[0] != '\'' && wrongText[0] != '`')
     wrongText = "\"" + wrongText + "\"";
 
@@ -454,35 +589,35 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     // Missing or unwanted tokens.
     if (msg.find("missing") != std::string::npos) {
       if (expected.size() == 1) {
-        message = std::string("Expected ") + expectedText + ", but found " + wrongText + " instead";
+        message = std::string("Expected") + expectedText + ", but found " + wrongText + " instead";
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting: " + expectedText;
+      message = std::string("Extraneous input ") + wrongText + " found, expecting" + expectedText;
     }
   } else {
     try {
       std::rethrow_exception(ep);
     } catch (InputMismatchException &) {
       if (isEof)
-        message = "Unexpected end of input found";
+        message = "Statement is incomplete";
       else
-        message = wrongText + " is no valid input at this position";
+        message = wrongText + " is not valid at this position";
 
       if (!expectedText.empty())
-        message += ", expecting: " + expectedText;
+        message += ", expecting" + expectedText;
     } catch (FailedPredicateException &) {
       message = "FailedPredicateException"; // TODO: find a case that throws this.
     } catch (NoViableAltException &) {
       if (isEof)
-        message = "Unexpected end of input found";
+        message = "Statement is incomplete";
       else {
-        message = wrongText + " is no valid input at this position";
+        message = wrongText + " is not valid at this position";
         if (invalidForVersion)
           message += " for this server version";
       }
 
       if (!expectedText.empty())
-        message += ", expecting: " + expectedText;
+        message += ", expecting" + expectedText;
     }
   }
 
@@ -887,13 +1022,13 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParseTree *context) {
   std::pair<std::string, std::string> result;
   if (routineTree->createProcedure() != nullptr) {
     result.second = "procedure";
-    result.first = routineTree->createProcedure()->procedureName()->getText();
+    result.first = base::unquote(routineTree->createProcedure()->procedureName()->getText());
   } else if (routineTree->createFunction() != nullptr) {
     result.second = "function";
-    result.first = routineTree->createFunction()->functionName()->getText();
+    result.first = base::unquote(routineTree->createFunction()->functionName()->getText());
   } else if (routineTree->createUdf() != nullptr) {
     result.second = "udf";
-    result.first = routineTree->createUdf()->udfName()->getText();
+    result.first = base::unquote(routineTree->createUdf()->udfName()->getText());
   }
   return result;
 }

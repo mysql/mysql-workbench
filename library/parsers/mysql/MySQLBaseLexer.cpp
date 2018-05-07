@@ -928,7 +928,7 @@ size_t MySQLBaseLexer::keywordFromText(std::string const& name) {
   });
 
   if (symbol == _symbols.end())
-    return INVALID_INDEX;
+    return INVALID_INDEX - 1; // INVALID_INDEX alone can be interpreted as EOF.
   return symbol->second;
 }
 

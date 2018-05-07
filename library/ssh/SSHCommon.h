@@ -24,6 +24,17 @@
 
 #pragma once
 
+#ifdef _WIN32
+#pragma warning(disable : 4251) // class needs to have dll-interface
+#pragma warning(disable : 4275) // non dll-interface class used as base dll-interface class.
+#ifdef WBSSHLIBRARY_EXPORTS
+#define WBSSHLIBRARY_PUBLIC_FUNC __declspec(dllexport)
+#else
+#define WBSSHLIBRARY_PUBLIC_FUNC __declspec(dllimport)
+#endif
+#else
+#define WBSSHLIBRARY_PUBLIC_FUNC
+#endif
 
 #include <errno.h>
 #ifndef HAVE_PRECOMPILED_HEADERS
@@ -39,7 +50,6 @@
 #endif
 #include <libssh/callbacks.h>
 #include "base/threading.h"
-#include "wb_backend_public_interface.h"
 
 #ifndef NOEXCEPT
 #if defined(_MSC_VER) || defined(__APPLE__)
@@ -85,7 +95,7 @@ namespace ssh {
   void setSocketNonBlocking(int sock);
   void initLibSSH();
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHConnectionConfig {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHConnectionConfig {
   public:
     SSHConnectionConfig();
     std::string localhost;
@@ -144,7 +154,7 @@ namespace ssh {
     SSHAuthtype auth;
   };
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHTunnelException : public std::exception {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHTunnelException : public std::exception {
   public:
     explicit SSHTunnelException(const std::string &message)
         : _msgText(message) {
@@ -161,7 +171,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHSftpException : public std::exception {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHSftpException : public std::exception {
   public:
     explicit SSHSftpException(const std::string &message)
         : _msgText(message) {
@@ -178,7 +188,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHAuthException : public std::exception {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHAuthException : public std::exception {
   public:
     explicit SSHAuthException(const std::string &message)
         : _msgText(message) {
@@ -195,7 +205,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHThread {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHThread {
   public:
     SSHThread();
     virtual ~SSHThread();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,39 +23,26 @@
 
 #pragma once
 
-#ifdef _MSC_VER
 #ifdef _WIN64
 typedef __int64 ssize_t;
 #else
 typedef int ssize_t;
 #endif
 
+#define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
-#include <winsock2.h>
-#include <Windows.h>
 
-#include <sql.h>
-#include <sqlext.h>
-#include <mysql.h>
+#include <windows.h>
+#include <shellapi.h>
 
-#include <errno.h>
-#include <stdlib.h>
-
-#include <vector>
-#include <set>
-#include <map>
-#include <string>
-#include <stdexcept>
-#include <list>
-#include <vector>
-#include <sstream>
-#include <typeinfo>
+#include <atomic>
+#include <condition_variable>
 #include <memory>
-#include <mutex>
+#include <vector>
 
-#include <glib.h>
 
+//#include <boost/locale/encoding_utf.hpp>
 #include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
 
-#endif
+#include <glib/glib.h>
+#include <glib/gstdio.h>

@@ -25,10 +25,10 @@
 #include "base/file_utilities.h"
 
 #include "wb_helpers.h"
-#include "workbench/SSHCommon.h"
-#include "workbench/SSHTunnelManager.h"
+#include "SSHCommon.h"
+#include "SSHTunnelManager.h"
 #include "workbench/SSHSessionWrapper.h"
-#include "workbench/SSHSftp.h"
+#include "SSHSftp.h"
 
 using namespace ssh;
 

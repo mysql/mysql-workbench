@@ -18,44 +18,38 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#pragma once
-
-#ifdef _MSC_VER
-#ifdef _WIN64
-typedef __int64 ssize_t;
-#else
-typedef int ssize_t;
+#ifdef __OBJC__
+  #import <Cocoa/Cocoa.h>
 #endif
 
-#define NOMINMAX
-#include <winsock2.h>
-#include <Windows.h>
-
-#include <sql.h>
-#include <sqlext.h>
-#include <mysql.h>
-
+#ifdef __cplusplus
 #include <errno.h>
-#include <stdlib.h>
-
-#include <vector>
-#include <set>
-#include <map>
 #include <string>
-#include <stdexcept>
-#include <list>
-#include <vector>
-#include <sstream>
-#include <typeinfo>
-#include <memory>
+#include <cstring>
+#include <exception>
+#include <thread>
+#include <atomic>
 #include <mutex>
+#include <libssh/callbacks.h>
+#include <libssh/libsshpp.hpp>
+#include <libssh/sftp.h>
+#include <vector>
+#include <thread>
+#include <map>
+#include <mutex>
+#include <fcntl.h>
+#include <deque>
+#include <locale>
+#include <iomanip>
+#include <sstream>
 
-#include <glib.h>
-
+#include <boost/bind.hpp>
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/function.hpp>
+#include <boost/locale/encoding_utf.hpp>
 
 #endif

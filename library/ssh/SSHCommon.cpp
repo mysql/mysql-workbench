@@ -52,7 +52,7 @@ static int MutexUnlock(void **lock) {
 
 static unsigned long getThreadId(void) {
   std::hash<std::thread::id> hasher;
-  return static_cast<unsigned long>(hasher(std::this_thread::get_id()));
+  return hasher(std::this_thread::get_id());
 }
 
 static struct ssh_threads_callbacks_struct stdThreads = { "threads_stdthread", &MutexInit, &MutexDestroy, &MutexLock,
@@ -126,7 +126,7 @@ namespace ssh {
     u_long mode = 1;
     int result = ioctlsocket(sock, FIONBIO, &mode);
     if (result != NO_ERROR) {
-      close(sock);
+      wbCloseSocket(sock);
       throw SSHTunnelException("unable to set socket nonblock: "+ getError());
     }
 #else
@@ -175,6 +175,12 @@ namespace ssh {
     logDebug2("SSH commandRetryCount: %lu\n", commandRetryCount);
     logDebug2("SSH optionsDir: %s\n", optionsDir.c_str());
     logDebug2("SSH known hosts file: %s\n", knownHostsFile.c_str());
+    logDebug2("SSH local host: %s\n", localhost.c_str());
+    logDebug2("SSH local port: %d\n", localport);
+    logDebug2("SSH remote host: %s\n", remotehost.c_str());
+    logDebug2("SSH remote port: %d\n", remoteport);
+    logDebug2("SSH remote ssh host: %s\n", remoteSSHhost.c_str());
+    logDebug2("SSH remote ssh port: %lu\n", remoteSSHport);
     logDebug2("SSH strict host key check: %s\n", strictHostKeyCheck ? "yes" : "no");
   }
 
