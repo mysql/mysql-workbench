@@ -2667,20 +2667,10 @@
 		447272041C58F991005F840F /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		447272051C59014A005F840F /* utilities.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 447271FA1C58F170005F840F /* utilities.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		447A471B202CA0EC0039D629 /* my_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 447A471A202CA0E70039D629 /* my_config.h */; };
-		449B5FD41FE2E89500BE0F12 /* SSHCommon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC51FE2E88C00BE0F12 /* SSHCommon.cpp */; };
-		449B5FD51FE2E89500BE0F12 /* SSHCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FBF1FE2E88900BE0F12 /* SSHCommon.h */; };
 		449B5FD61FE2E89500BE0F12 /* SSHFileWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC41FE2E88B00BE0F12 /* SSHFileWrapper.cpp */; };
 		449B5FD71FE2E89500BE0F12 /* SSHFileWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FC71FE2E88C00BE0F12 /* SSHFileWrapper.h */; };
-		449B5FD81FE2E89500BE0F12 /* SSHSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC01FE2E88900BE0F12 /* SSHSession.cpp */; };
-		449B5FD91FE2E89500BE0F12 /* SSHSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FCB1FE2E88E00BE0F12 /* SSHSession.h */; };
 		449B5FDA1FE2E89500BE0F12 /* SSHSessionWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC91FE2E88D00BE0F12 /* SSHSessionWrapper.cpp */; };
 		449B5FDB1FE2E89500BE0F12 /* SSHSessionWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FC61FE2E88C00BE0F12 /* SSHSessionWrapper.h */; };
-		449B5FDC1FE2E89500BE0F12 /* SSHSftp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC11FE2E88A00BE0F12 /* SSHSftp.cpp */; };
-		449B5FDD1FE2E89500BE0F12 /* SSHSftp.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FCC1FE2E88F00BE0F12 /* SSHSftp.h */; };
-		449B5FDE1FE2E89500BE0F12 /* SSHTunnelHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC31FE2E88B00BE0F12 /* SSHTunnelHandler.cpp */; };
-		449B5FDF1FE2E89500BE0F12 /* SSHTunnelHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FC81FE2E88D00BE0F12 /* SSHTunnelHandler.h */; };
-		449B5FE01FE2E89500BE0F12 /* SSHTunnelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FC21FE2E88A00BE0F12 /* SSHTunnelManager.cpp */; };
-		449B5FE11FE2E89500BE0F12 /* SSHTunnelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FCA1FE2E88E00BE0F12 /* SSHTunnelManager.h */; };
 		449B5FE91FE2E96500BE0F12 /* db_mgmt_SSHFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FE71FE2E96400BE0F12 /* db_mgmt_SSHFile.cpp */; };
 		449B5FEA1FE2E96500BE0F12 /* db_mgmt_SSHConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FE81FE2E96400BE0F12 /* db_mgmt_SSHConnection.cpp */; };
 		449B5FEB1FE2E96900BE0F12 /* db_mgmt_SSHConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FE81FE2E96400BE0F12 /* db_mgmt_SSHConnection.cpp */; };
@@ -2698,9 +2688,9 @@
 		44B7DCA01C0C7A72000D608D /* admin_info_offline@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC9B1C0C7A72000D608D /* admin_info_offline@2x.png */; };
 		44B7DCA31C0C7A97000D608D /* firewall-header.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA11C0C7A97000D608D /* firewall-header.png */; };
 		44B7DCA41C0C7A97000D608D /* firewall-header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DCA21C0C7A97000D608D /* firewall-header@2x.png */; };
+		44E63D0C20760BDD002E775B /* libssh.4.4.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44FF367920342CDB00B1E14C /* libssh.4.4.1.dylib */; };
 		44F15629202E01FF00E8C648 /* ssh_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44F15627202E01F700E8C648 /* ssh_test.cpp */; };
 		44FF367A20342CDB00B1E14C /* libssh.4.4.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44FF367920342CDB00B1E14C /* libssh.4.4.1.dylib */; };
-		44FF367B20342CE600B1E14C /* libssh.4.4.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44FF367920342CDB00B1E14C /* libssh.4.4.1.dylib */; };
 		44FF367C20342CF600B1E14C /* libssh.4.4.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44FF367920342CDB00B1E14C /* libssh.4.4.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44FF3682203B0A9D00B1E14C /* libmysqlcppconn.7.1.1.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44FF3681203B0A9C00B1E14C /* libmysqlcppconn.7.1.1.11.dylib */; };
 		44FF3683203B0AAA00B1E14C /* libmysqlcppconn.7.1.1.11.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44FF3681203B0A9C00B1E14C /* libmysqlcppconn.7.1.1.11.dylib */; };
@@ -2714,6 +2704,23 @@
 		44FFC3DA1AA0BC3A00950A48 /* sqlide_power_import_wizard.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
 		75C847F51067E9C70067947D /* opts.py in Resources */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
+		8E3232C8207510C700D74C4F /* libwbssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E62224720750ECB000E496C /* libwbssh.dylib */; };
+		8E3232CB2075110900D74C4F /* libwbssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E62224720750ECB000E496C /* libwbssh.dylib */; };
+		8E3232CC2075114A00D74C4F /* libwbssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E62224720750ECB000E496C /* libwbssh.dylib */; };
+		8E3232CD2075115900D74C4F /* libwbssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E62224720750ECB000E496C /* libwbssh.dylib */; };
+		8E3232DA207512A700D74C4F /* SSHTunnelHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E3232D0207512A500D74C4F /* SSHTunnelHandler.h */; };
+		8E3232DB207512A700D74C4F /* SSHTunnelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E3232D1207512A500D74C4F /* SSHTunnelManager.h */; };
+		8E3232DC207512A700D74C4F /* SSHSftp.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E3232D2207512A500D74C4F /* SSHSftp.h */; };
+		8E3232DD207512A700D74C4F /* SSHCommon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3232D3207512A500D74C4F /* SSHCommon.cpp */; };
+		8E3232DE207512A700D74C4F /* SSHCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E3232D4207512A600D74C4F /* SSHCommon.h */; };
+		8E3232DF207512A700D74C4F /* SSHSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E3232D5207512A600D74C4F /* SSHSession.h */; };
+		8E3232E0207512A700D74C4F /* SSHSftp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3232D6207512A600D74C4F /* SSHSftp.cpp */; };
+		8E3232E1207512A700D74C4F /* SSHTunnelHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3232D7207512A600D74C4F /* SSHTunnelHandler.cpp */; };
+		8E3232E2207512A700D74C4F /* SSHSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3232D8207512A700D74C4F /* SSHSession.cpp */; };
+		8E3232E3207512A700D74C4F /* SSHTunnelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3232D9207512A700D74C4F /* SSHTunnelManager.cpp */; };
+		8E3232E4207513A000D74C4F /* libssh.4.4.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44FF367920342CDB00B1E14C /* libssh.4.4.1.dylib */; };
+		8E3232E5207513D600D74C4F /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
+		8E3232E82075E6ED00D74C4F /* libwbssh.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 8E62224720750ECB000E496C /* libwbssh.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		8EAD85C41E08135B00FA7D0C /* mtemplate_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C31E08135B00FA7D0C /* mtemplate_tests.cpp */; };
 		8EAD85C71E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C61E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp */; };
 		8EAD85CA1E08152E00FA7D0C /* test_wbmodulevalidation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85C91E08152E00FA7D0C /* test_wbmodulevalidation.cpp */; };
@@ -3746,6 +3753,27 @@
 			remoteGlobalIDString = 447271EF1C58F170005F840F;
 			remoteInfo = utilities.grt;
 		};
+		8E3232C6207510BC00D74C4F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8E62224620750ECB000E496C;
+			remoteInfo = wbssh;
+		};
+		8E3232C92075110000D74C4F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8E62224620750ECB000E496C;
+			remoteInfo = wbssh;
+		};
+		8E3232E6207513DC00D74C4F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B825D280E0B59A100BE52DF;
+			remoteInfo = base;
+		};
 		8EF3D28C205823A400FCF385 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -4036,6 +4064,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8E3232E82075E6ED00D74C4F /* libwbssh.dylib in Copy Files (dylibs) */,
 				275B07FA1D464AAC00DDC958 /* libantlr4-runtime.dylib in Copy Files (dylibs) */,
 				447194632018E4960091E742 /* libssl.1.0.0.dylib in Copy Files (dylibs) */,
 				447194642018E4980091E742 /* libcrypto.1.0.0.dylib in Copy Files (dylibs) */,
@@ -6859,20 +6888,10 @@
 		447271FB1C58F1CC005F840F /* utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utilities.cpp; path = modules/utilities/src/utilities.cpp; sourceTree = "<group>"; };
 		447271FE1C58F2BA005F840F /* utilities.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utilities.grt_prefix.h; path = prefix/utilities.grt_prefix.h; sourceTree = "<group>"; };
 		447A471A202CA0E70039D629 /* my_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = my_config.h; path = library/sql.parser/source/my_config.h; sourceTree = "<group>"; };
-		449B5FBF1FE2E88900BE0F12 /* SSHCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHCommon.h; sourceTree = "<group>"; };
-		449B5FC01FE2E88900BE0F12 /* SSHSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHSession.cpp; sourceTree = "<group>"; };
-		449B5FC11FE2E88A00BE0F12 /* SSHSftp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHSftp.cpp; sourceTree = "<group>"; };
-		449B5FC21FE2E88A00BE0F12 /* SSHTunnelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHTunnelManager.cpp; sourceTree = "<group>"; };
-		449B5FC31FE2E88B00BE0F12 /* SSHTunnelHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHTunnelHandler.cpp; sourceTree = "<group>"; };
 		449B5FC41FE2E88B00BE0F12 /* SSHFileWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHFileWrapper.cpp; sourceTree = "<group>"; };
-		449B5FC51FE2E88C00BE0F12 /* SSHCommon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHCommon.cpp; sourceTree = "<group>"; };
 		449B5FC61FE2E88C00BE0F12 /* SSHSessionWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHSessionWrapper.h; sourceTree = "<group>"; };
 		449B5FC71FE2E88C00BE0F12 /* SSHFileWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHFileWrapper.h; sourceTree = "<group>"; };
-		449B5FC81FE2E88D00BE0F12 /* SSHTunnelHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHTunnelHandler.h; sourceTree = "<group>"; };
 		449B5FC91FE2E88D00BE0F12 /* SSHSessionWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHSessionWrapper.cpp; sourceTree = "<group>"; };
-		449B5FCA1FE2E88E00BE0F12 /* SSHTunnelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHTunnelManager.h; sourceTree = "<group>"; };
-		449B5FCB1FE2E88E00BE0F12 /* SSHSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHSession.h; sourceTree = "<group>"; };
-		449B5FCC1FE2E88F00BE0F12 /* SSHSftp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHSftp.h; sourceTree = "<group>"; };
 		449B5FE51FE2E96400BE0F12 /* db_mgmt_SSHConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_mgmt_SSHConnection.h; path = backend/wbpublic/objimpl/db.mgmt/db_mgmt_SSHConnection.h; sourceTree = "<group>"; };
 		449B5FE61FE2E96400BE0F12 /* db_mgmt_SSHFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_mgmt_SSHFile.h; path = backend/wbpublic/objimpl/db.mgmt/db_mgmt_SSHFile.h; sourceTree = "<group>"; };
 		449B5FE71FE2E96400BE0F12 /* db_mgmt_SSHFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = db_mgmt_SSHFile.cpp; path = backend/wbpublic/objimpl/db.mgmt/db_mgmt_SSHFile.cpp; sourceTree = "<group>"; };
@@ -6899,6 +6918,17 @@
 		75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_config_file_ui.py; path = plugins/wb.admin/frontend/wb_admin_config_file_ui.py; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MySQLWorkbench.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MySQLWorkbench.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E3232D0207512A500D74C4F /* SSHTunnelHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHTunnelHandler.h; path = library/ssh/SSHTunnelHandler.h; sourceTree = "<group>"; };
+		8E3232D1207512A500D74C4F /* SSHTunnelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHTunnelManager.h; path = library/ssh/SSHTunnelManager.h; sourceTree = "<group>"; };
+		8E3232D2207512A500D74C4F /* SSHSftp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHSftp.h; path = library/ssh/SSHSftp.h; sourceTree = "<group>"; };
+		8E3232D3207512A500D74C4F /* SSHCommon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSHCommon.cpp; path = library/ssh/SSHCommon.cpp; sourceTree = "<group>"; };
+		8E3232D4207512A600D74C4F /* SSHCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHCommon.h; path = library/ssh/SSHCommon.h; sourceTree = "<group>"; };
+		8E3232D5207512A600D74C4F /* SSHSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHSession.h; path = library/ssh/SSHSession.h; sourceTree = "<group>"; };
+		8E3232D6207512A600D74C4F /* SSHSftp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSHSftp.cpp; path = library/ssh/SSHSftp.cpp; sourceTree = "<group>"; };
+		8E3232D7207512A600D74C4F /* SSHTunnelHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSHTunnelHandler.cpp; path = library/ssh/SSHTunnelHandler.cpp; sourceTree = "<group>"; };
+		8E3232D8207512A700D74C4F /* SSHSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSHSession.cpp; path = library/ssh/SSHSession.cpp; sourceTree = "<group>"; };
+		8E3232D9207512A700D74C4F /* SSHTunnelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSHTunnelManager.cpp; path = library/ssh/SSHTunnelManager.cpp; sourceTree = "<group>"; };
+		8E62224720750ECB000E496C /* libwbssh.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwbssh.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EAD85C31E08135B00FA7D0C /* mtemplate_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mtemplate_tests.cpp; path = "library/mtemplate/unit-tests/mtemplate_tests.cpp"; sourceTree = "<group>"; };
 		8EAD85C61E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_wbmodulevalidationmysql.cpp; path = "internal/wb.mysql.validation/unit-tests/test_wbmodulevalidationmysql.cpp"; sourceTree = "<group>"; };
 		8EAD85C91E08152E00FA7D0C /* test_wbmodulevalidation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_wbmodulevalidation.cpp; path = "internal/wb.validation/unit-tests/test_wbmodulevalidation.cpp"; sourceTree = "<group>"; };
@@ -6974,6 +7004,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E3232CD2075115900D74C4F /* libwbssh.dylib in Frameworks */,
 				8EAD85CE1E081F3700FA7D0C /* wb.mysql.validation.grt.dylib in Frameworks */,
 				8EAD85CD1E081F1B00FA7D0C /* wb.validation.grt.dylib in Frameworks */,
 				8EAD85CB1E081EB500FA7D0C /* libmtemplate.dylib in Frameworks */,
@@ -7013,6 +7044,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E3232C8207510C700D74C4F /* libwbssh.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 				27BF78F81CD34B4100FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
 				27BF78F71CD34B2700FBB3F3 /* libgthread-2.0.0.dylib in Frameworks */,
@@ -7282,6 +7314,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44E63D0C20760BDD002E775B /* libssh.4.4.1.dylib in Frameworks */,
+				8E3232CB2075110900D74C4F /* libwbssh.dylib in Frameworks */,
 				2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */,
 				275256481D950CEF0028ACAB /* libantlr4-runtime.dylib in Frameworks */,
 				2BCB31990E884615005C8ED2 /* libmysql.canvas.dylib in Frameworks */,
@@ -7292,7 +7326,6 @@
 				2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */,
 				2B6A60C00EB0BBF1008E6D11 /* libcdbc.dylib in Frameworks */,
 				2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */,
-				44FF367B20342CE600B1E14C /* libssh.4.4.1.dylib in Frameworks */,
 				27BF79221CD34F9F00FBB3F3 /* libcairo.2.dylib in Frameworks */,
 				27BF79231CD34FA500FBB3F3 /* libpcrecpp.0.dylib in Frameworks */,
 				27BF79241CD34FBC00FBB3F3 /* libglib-2.0.0.dylib in Frameworks */,
@@ -7421,10 +7454,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8E62224420750ECB000E496C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E3232E5207513D600D74C4F /* libwbbase.dylib in Frameworks */,
+				8E3232E4207513A000D74C4F /* libssh.4.4.1.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8EF3D2F6205823A400FCF385 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E3232CC2075114A00D74C4F /* libwbssh.dylib in Frameworks */,
 				8EF3D2F9205823A400FCF385 /* libmtemplate.dylib in Frameworks */,
 				8EF3D2FA205823A400FCF385 /* db.mysql.editors.wbp.dylib in Frameworks */,
 				8EF3D2FB205823A400FCF385 /* libcdbc.dylib in Frameworks */,
@@ -7667,6 +7710,7 @@
 				447271FA1C58F170005F840F /* utilities.grt.dylib */,
 				4401E1971D994DA50027AD13 /* libmtemplate.dylib */,
 				8EF3D31C205823A400FCF385 /* wbtests */,
+				8E62224720750ECB000E496C /* libwbssh.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -10017,20 +10061,10 @@
 				279F62B72065393A00ABDDBA /* license_view.cpp */,
 				279F62B82065393A00ABDDBA /* license_view.h */,
 				2B7510420E87966E0003120A /* metaclasses.cpp */,
-				449B5FC51FE2E88C00BE0F12 /* SSHCommon.cpp */,
-				449B5FBF1FE2E88900BE0F12 /* SSHCommon.h */,
 				449B5FC41FE2E88B00BE0F12 /* SSHFileWrapper.cpp */,
 				449B5FC71FE2E88C00BE0F12 /* SSHFileWrapper.h */,
-				449B5FC01FE2E88900BE0F12 /* SSHSession.cpp */,
-				449B5FCB1FE2E88E00BE0F12 /* SSHSession.h */,
 				449B5FC91FE2E88D00BE0F12 /* SSHSessionWrapper.cpp */,
 				449B5FC61FE2E88C00BE0F12 /* SSHSessionWrapper.h */,
-				449B5FC11FE2E88A00BE0F12 /* SSHSftp.cpp */,
-				449B5FCC1FE2E88F00BE0F12 /* SSHSftp.h */,
-				449B5FC31FE2E88B00BE0F12 /* SSHTunnelHandler.cpp */,
-				449B5FC81FE2E88D00BE0F12 /* SSHTunnelHandler.h */,
-				449B5FC21FE2E88A00BE0F12 /* SSHTunnelManager.cpp */,
-				449B5FCA1FE2E88E00BE0F12 /* SSHTunnelManager.h */,
 				2B4BD6CE0ED202DE003E44F2 /* wb_command_ui.cpp */,
 				2B4BD6CF0ED202DE003E44F2 /* wb_command_ui.h */,
 				2B1765B614599853003EFCF7 /* wb_context_names.h */,
@@ -10212,6 +10246,7 @@
 		2B825D2E0E0B59BB00BE52DF /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				8E3232CF2075127A00D74C4F /* ssh */,
 				2B825D2F0E0B59CC00BE52DF /* base */,
 				2B750DB40E877D7E0003120A /* cdbc */,
 				2B825D6A0E0B600000BE52DF /* grt */,
@@ -11895,6 +11930,23 @@
 			name = Frontend;
 			sourceTree = "<group>";
 		};
+		8E3232CF2075127A00D74C4F /* ssh */ = {
+			isa = PBXGroup;
+			children = (
+				8E3232D3207512A500D74C4F /* SSHCommon.cpp */,
+				8E3232D4207512A600D74C4F /* SSHCommon.h */,
+				8E3232D8207512A700D74C4F /* SSHSession.cpp */,
+				8E3232D5207512A600D74C4F /* SSHSession.h */,
+				8E3232D6207512A600D74C4F /* SSHSftp.cpp */,
+				8E3232D2207512A500D74C4F /* SSHSftp.h */,
+				8E3232D7207512A600D74C4F /* SSHTunnelHandler.cpp */,
+				8E3232D0207512A500D74C4F /* SSHTunnelHandler.h */,
+				8E3232D9207512A700D74C4F /* SSHTunnelManager.cpp */,
+				8E3232D1207512A500D74C4F /* SSHTunnelManager.h */,
+			);
+			name = ssh;
+			sourceTree = "<group>";
+		};
 		8EAD85C21E08133700FA7D0C /* mtemplate */ = {
 			isa = PBXGroup;
 			children = (
@@ -12387,12 +12439,10 @@
 				2BF87A530FA7CEFB0012EADA /* mini_view.h in Headers */,
 				2BF87A550FA7CEFB0012EADA /* relationship_canvas_floater.h in Headers */,
 				2BF87A590FA7CEFB0012EADA /* wb_component.h in Headers */,
-				449B5FDF1FE2E89500BE0F12 /* SSHTunnelHandler.h in Headers */,
 				2BF87A5B0FA7CEFB0012EADA /* wb_component_basic.h in Headers */,
 				2BF87A5D0FA7CEFB0012EADA /* wb_component_logical.h in Headers */,
 				2BF87A5F0FA7CEFB0012EADA /* wb_component_physical.h in Headers */,
 				2BF87A620FA7CEFB0012EADA /* wb_diagram_options.h in Headers */,
-				449B5FE11FE2E89500BE0F12 /* SSHTunnelManager.h in Headers */,
 				2BF87A640FA7CEFB0012EADA /* wb_layer_tree.h in Headers */,
 				2BF87A660FA7CEFB0012EADA /* wb_model_diagram_form.h in Headers */,
 				2BF87A680FA7CEFB0012EADA /* wb_overview_diagram.h in Headers */,
@@ -12411,14 +12461,12 @@
 				2B39A3AC10AD98D200AD3447 /* new_connection_wizard.h in Headers */,
 				27C6888010B58C9B00B8D810 /* new_server_instance_wizard.h in Headers */,
 				2BB376C21104898800DA4577 /* grt_shell_window.h in Headers */,
-				449B5FDD1FE2E89500BE0F12 /* SSHSftp.h in Headers */,
 				278874981189DEAC00E477EF /* webbrowser_view.h in Headers */,
 				2B3DBD0A1212ECAB001837A5 /* plugin_manager_window.h in Headers */,
 				2B6483DE122725ED00207149 /* grt_code_editor.h in Headers */,
 				2B648419122741FB00207149 /* grt_plugin_wizard.h in Headers */,
 				2B83E5C81992B54B00781432 /* spatial_data_view.h in Headers */,
 				2B83E5CA1992B54B00781432 /* spatial_draw_box.h in Headers */,
-				449B5FD51FE2E89500BE0F12 /* SSHCommon.h in Headers */,
 				2B4D197A124030D8004E6309 /* wb_context_ui_home.h in Headers */,
 				2B84DEAF124A89A7009136B7 /* grt_python_debugger.h in Headers */,
 				27BFE4611924BC290070B8FB /* wbprivate.be_prefix.h in Headers */,
@@ -12429,7 +12477,6 @@
 				2B4973D413CA7D5600F6AF47 /* query_side_palette.h in Headers */,
 				2BF249EB1404B07D003B3C0F /* wb_sql_editor_tree_controller.h in Headers */,
 				27694817142A4FAA009DE637 /* snippet_popover.h in Headers */,
-				449B5FD91FE2E89500BE0F12 /* SSHSession.h in Headers */,
 				2B1FB7FE142C00070017A064 /* wb_sql_editor_form_ui.h in Headers */,
 				2B1FB818142C02780017A064 /* wb_sql_editor_buffer.h in Headers */,
 				2BF2CBB71911C702007B0BB9 /* result_form_view.h in Headers */,
@@ -12562,6 +12609,18 @@
 				4401E1BA1D994E530027AD13 /* output.h in Headers */,
 				4401E1BC1D994E530027AD13 /* template.h in Headers */,
 				4401E1C21D9950F50027AD13 /* mtemplate_prefix.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E62224520750ECB000E496C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E3232DE207512A700D74C4F /* SSHCommon.h in Headers */,
+				8E3232DC207512A700D74C4F /* SSHSftp.h in Headers */,
+				8E3232DA207512A700D74C4F /* SSHTunnelHandler.h in Headers */,
+				8E3232DB207512A700D74C4F /* SSHTunnelManager.h in Headers */,
+				8E3232DF207512A700D74C4F /* SSHSession.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -12700,6 +12759,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				8E3232C7207510BC00D74C4F /* PBXTargetDependency */,
 				2B2E92F1158999130078D08A /* PBXTargetDependency */,
 			);
 			name = wbcopytables;
@@ -13096,6 +13156,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				8E3232CA2075110000D74C4F /* PBXTargetDependency */,
 				2BCB319C0E884621005C8ED2 /* PBXTargetDependency */,
 				2BCB319E0E884625005C8ED2 /* PBXTargetDependency */,
 				2BCB31A60E884634005C8ED2 /* PBXTargetDependency */,
@@ -13321,6 +13382,24 @@
 			productReference = 8D1107320486CEB800E47090 /* MySQLWorkbench.app */;
 			productType = "com.apple.product-type.application";
 		};
+		8E62224620750ECB000E496C /* wbssh */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8E62225120750ECF000E496C /* Build configuration list for PBXNativeTarget "wbssh" */;
+			buildPhases = (
+				8E62224320750ECB000E496C /* Sources */,
+				8E62224420750ECB000E496C /* Frameworks */,
+				8E62224520750ECB000E496C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8E3232E7207513DC00D74C4F /* PBXTargetDependency */,
+			);
+			name = wbssh;
+			productName = wbssh;
+			productReference = 8E62224720750ECB000E496C /* libwbssh.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		8EF3D28A205823A400FCF385 /* wbtests-gpl */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8EF3D319205823A400FCF385 /* Build configuration list for PBXNativeTarget "wbtests-gpl" */;
@@ -13353,6 +13432,10 @@
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
 						CreatedOnToolsVersion = 6.1.1;
+					};
+					8E62224620750ECB000E496C = {
+						CreatedOnToolsVersion = 9.3;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -13412,6 +13495,7 @@
 				27D8079D1A3F262D00EDCA8F /* commercial.extensions */,
 				447271EF1C58F170005F840F /* utilities.grt */,
 				4401E1621D994DA50027AD13 /* mtemplate */,
+				8E62224620750ECB000E496C /* wbssh */,
 			);
 		};
 /* End PBXProject section */
@@ -15405,9 +15489,6 @@
 				2B4BD6D00ED202DE003E44F2 /* wb_command_ui.cpp in Sources */,
 				2B5B77050F781D6C007E54CF /* user_defined_type_editor.cpp in Sources */,
 				2B5B77070F781D6C007E54CF /* document_properties_form.cpp in Sources */,
-				449B5FDC1FE2E89500BE0F12 /* SSHSftp.cpp in Sources */,
-				449B5FD41FE2E89500BE0F12 /* SSHCommon.cpp in Sources */,
-				449B5FD81FE2E89500BE0F12 /* SSHSession.cpp in Sources */,
 				2B5B77090F781D6C007E54CF /* preferences_form.cpp in Sources */,
 				2BF879C40FA7BE730012EADA /* db_sql_editor_history_be.cpp in Sources */,
 				2BF879C60FA7BE730012EADA /* db_sql_editor_log.cpp in Sources */,
@@ -15440,11 +15521,9 @@
 				2BC08B341064836C0069AB9A /* wb_tunnel.cpp in Sources */,
 				2B83E5C71992B54B00781432 /* spatial_data_view.cpp in Sources */,
 				2BF2CBB61911C702007B0BB9 /* result_form_view.cpp in Sources */,
-				449B5FE01FE2E89500BE0F12 /* SSHTunnelManager.cpp in Sources */,
 				2B39A3AD10AD98D200AD3447 /* new_connection_wizard.cpp in Sources */,
 				27C6887F10B58C9B00B8D810 /* new_server_instance_wizard.cpp in Sources */,
 				2BB376C11104898700DA4577 /* grt_shell_window.cpp in Sources */,
-				449B5FDE1FE2E89500BE0F12 /* SSHTunnelHandler.cpp in Sources */,
 				278874961189DEA500E477EF /* webbrowser_view.cpp in Sources */,
 				2B3DBD0B1212ECAB001837A5 /* plugin_manager_window.cpp in Sources */,
 				2B6483DD122725ED00207149 /* grt_code_editor.cpp in Sources */,
@@ -15667,6 +15746,18 @@
 				449B5FEA1FE2E96500BE0F12 /* db_mgmt_SSHConnection.cpp in Sources */,
 				ED69F9E615DEC9DB00FF2FE3 /* profiling.cpp in Sources */,
 				2B83E5B31992B1F600781432 /* canvas.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E62224320750ECB000E496C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E3232DD207512A700D74C4F /* SSHCommon.cpp in Sources */,
+				8E3232E2207512A700D74C4F /* SSHSession.cpp in Sources */,
+				8E3232E0207512A700D74C4F /* SSHSftp.cpp in Sources */,
+				8E3232E3207512A700D74C4F /* SSHTunnelManager.cpp in Sources */,
+				8E3232E1207512A700D74C4F /* SSHTunnelHandler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -16392,6 +16483,21 @@
 			target = 447271EF1C58F170005F840F /* utilities.grt */;
 			targetProxy = 447271FF1C58F857005F840F /* PBXContainerItemProxy */;
 		};
+		8E3232C7207510BC00D74C4F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8E62224620750ECB000E496C /* wbssh */;
+			targetProxy = 8E3232C6207510BC00D74C4F /* PBXContainerItemProxy */;
+		};
+		8E3232CA2075110000D74C4F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8E62224620750ECB000E496C /* wbssh */;
+			targetProxy = 8E3232C92075110000D74C4F /* PBXContainerItemProxy */;
+		};
+		8E3232E7207513DC00D74C4F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B825D280E0B59A100BE52DF /* base */;
+			targetProxy = 8E3232E6207513DC00D74C4F /* PBXContainerItemProxy */;
+		};
 		8EF3D28B205823A400FCF385 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 8D1107260486CEB800E47090 /* MySQLWorkbench */;
@@ -16795,6 +16901,7 @@
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/base",
+					"$(SRCROOT)/library/ssh",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/library/sql.parser/include",
@@ -16802,6 +16909,7 @@
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/modules/wb.model/src",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/../mysql-mac-res/include",
@@ -16857,6 +16965,7 @@
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/base",
+					"$(SRCROOT)/library/ssh",
 					"$(SRCROOT)/library/forms",
 					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/library/sql.parser/include",
@@ -16864,6 +16973,7 @@
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/modules/wb.model/src",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/../mysql-mac-res/include",
@@ -16956,6 +17066,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
 					"$(SRCROOT)/../mysql-mac-res/include/iodbc",
+					"$(SRCROOT)/library/ssh",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					/opt/local/include,
 				);
@@ -16978,6 +17090,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/../mysql-mac-res/mysql/include",
 					"$(SRCROOT)/../mysql-mac-res/include/iodbc",
+					"$(SRCROOT)/library/ssh",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					/opt/local/include,
 				);
@@ -18150,6 +18264,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/backend/wbpublic",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/frontend/common",
@@ -18157,6 +18272,7 @@
 					"$(SRCROOT)/library/dbc/src",
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/ssh",
 					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
@@ -18188,6 +18304,7 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/backend/wbpublic",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					"$(SRCROOT)/ext/scintilla/include",
 					"$(SRCROOT)/frontend/common",
@@ -18195,6 +18312,7 @@
 					"$(SRCROOT)/library/dbc/src",
 					"$(SRCROOT)/library/grt/src",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/ssh",
 					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
@@ -18717,6 +18835,111 @@
 			};
 			name = Release;
 		};
+		8E62224F20750ECF000E496C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = NO;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = NO;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(SRCROOT)/ext",
+					"$(SRCROOT)/library/base",
+					"$(SRCROOT)/../mysql-mac-res/include",
+					"$(SRCROOT)/../mysql-mac-res/lib/glib-2.0/include",
+					"$(SRCROOT)/../mysql-mac-res/include/glib-2.0",
+					"$(SRCROOT)/../mysql-mac-res/include/cairo",
+					/usr/include/python2.7,
+					/usr/include/libxml2,
+					"$(SRCROOT)/backend/wbprivate/workbench",
+				);
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				MACH_O_TYPE = mh_dylib;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		8E62225020750ECF000E496C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = NO;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = NO;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"$(SRCROOT)/ext",
+					"$(SRCROOT)/library/base",
+					"$(SRCROOT)/../mysql-mac-res/include",
+					"$(SRCROOT)/../mysql-mac-res/lib/glib-2.0/include",
+					"$(SRCROOT)/../mysql-mac-res/include/glib-2.0",
+					"$(SRCROOT)/../mysql-mac-res/include/cairo",
+					/usr/include/python2.7,
+					/usr/include/libxml2,
+					"$(SRCROOT)/backend/wbprivate/workbench",
+				);
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				MACH_O_TYPE = mh_dylib;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
 		8EF3D31A205823A400FCF385 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -18742,12 +18965,14 @@
 					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/base",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/ssh",
 					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/library/sql.parser/include",
 					"$(SRCROOT)/library/sql.parser/source",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/modules/wb.model/src",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/../mysql-mac-res/include",
@@ -18805,12 +19030,14 @@
 					"$(SRCROOT)/library",
 					"$(SRCROOT)/library/base",
 					"$(SRCROOT)/library/forms",
+					"$(SRCROOT)/library/ssh",
 					"$(SRCROOT)/library/parsers",
 					"$(SRCROOT)/library/sql.parser/include",
 					"$(SRCROOT)/library/sql.parser/source",
 					"$(SRCROOT)/generated",
 					"$(SRCROOT)/modules",
 					"$(SRCROOT)/modules/wb.model/src",
+					"$(SRCROOT)/backend/wbprivate/workbench",
 					"$(SRCROOT)/backend/wbprivate",
 					"$(SRCROOT)/backend/wbpublic",
 					"$(SRCROOT)/../mysql-mac-res/include",
@@ -19415,6 +19642,15 @@
 			buildConfigurations = (
 				447271F81C58F170005F840F /* Debug */,
 				447271F91C58F170005F840F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8E62225120750ECF000E496C /* Build configuration list for PBXNativeTarget "wbssh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E62224F20750ECF000E496C /* Debug */,
+				8E62225020750ECF000E496C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -44,7 +44,7 @@
 
 
 namespace ssh {
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHSession {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHSession {
     ssh::Session *_session;
     SSHConnectionConfig _config;
     SSHConnectionCredentials _credentials;

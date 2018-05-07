@@ -241,29 +241,11 @@
     <ClInclude Include="sqlide\execute_routine_wizard.h">
       <Filter>Header Files SQL IDE</Filter>
     </ClInclude>
-    <ClInclude Include="workbench\SSHCommon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="workbench\SSHFileWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="workbench\SSHSession.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="workbench\SSHSessionWrapper.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="workbench\SSHSftp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="workbench\SSHTunnelHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="workbench\SSHTunnelManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="workbench\license_view.h">
-      <Filter>Header Files UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -475,29 +457,11 @@
       <Filter>Source Files UI</Filter>
     </ClCompile>
     <ClCompile Include="workbench\stdafx.cpp" />
-    <ClCompile Include="workbench\SSHCommon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="workbench\SSHFileWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="workbench\SSHSession.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="workbench\SSHSessionWrapper.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="workbench\SSHSftp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="workbench\SSHTunnelHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="workbench\SSHTunnelManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="workbench\license_view.cpp">
-      <Filter>Source Files UI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -353,7 +353,7 @@ namespace ssh {
           } else
             throw SSHTunnelException("Unknown password prompt.\n");
 
-        } catch (SshException &) {
+        } catch (SshException &exc) {
           logError("Sudo password didn't came, could be it was cached, we continue and see what will happen\n");
           pwSkip = true;
         }
@@ -455,7 +455,7 @@ namespace ssh {
 
     hash.reset(hashPtr);
 
-    std::unique_ptr<char, void (*)(char*)> hexa(ssh_get_hexa(hash.get(), hlen), [](char*ptr) { ssh_string_free_char(ptr); });
+    std::unique_ptr<char, void (*)(char*)> hexa(ssh_get_hexa(hash.get(), hlen), [](char*ptr) {free(ptr);});
     fingerprint = hexa.get();
     int retVal = _session->isServerKnown();
     switch (retVal) {
@@ -498,7 +498,7 @@ namespace ssh {
     try {
       if (_session->userauthNone() == SSH_AUTH_SUCCESS)
         return;
-    } catch (SshException &) {
+    } catch (SshException &exc) {
       throw SSHTunnelException(ssh_get_error(_session->getCSession()));
     }
 

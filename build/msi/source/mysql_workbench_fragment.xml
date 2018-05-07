@@ -117,6 +117,7 @@
                 <File Id="file1029" Name="cdbc.dll"/>
                 <File Id="file1072" Name="base.dll"/>
                 <File Id="file1073" Name="base.wr.dll"/>
+                <File Id="wbssh.dll" Name="wbssh.dll"/>
                 <File Id="mtemplate.dll" Name="mtemplate.dll"/>
                 <File Id="file1052" Name="MySQLCsUtilities.dll"/>
                 <File Id="file1053" Name="WBControls.dll"/>

@@ -544,10 +544,16 @@ class TransferMainView(WizardProgressPage):
             f.write("REM Source and target DB passwords\n")
             f.write("set arg_source_password=\n")
             f.write("set arg_target_password=\n")
+            f.write("set arg_source_ssh_password=\n")
+            f.write("set arg_target_ssh_password=\n")
             f.write("""
 IF [%arg_source_password%] == [] (
     IF [%arg_target_password%] == [] (
-        ECHO WARNING: Both source and target RDBMSes passwords are empty. You should edit this file to set them.
+        IF [%arg_source_ssh_password%] == [] (
+            IF [%arg_target_ssh_password%] == [] (
+                ECHO WARNING: All source and target passwords are empty. You should edit this file to set them.
+            )
+        )
     )
 )
 """)
@@ -584,9 +590,12 @@ IF [%arg_source_password%] == [] (
             f.write("\n\n")
             f.write(self.main.plan.wbcopytables_path)
             f.write(" ^\n")
-            for arg in self._transferer.helper_basic_arglist(True):
+            for arg in self._transferer.helper_basic_arglist(True, True):
                 f.write(' %s ^\n' % arg)
             f.write(' --source-password="%arg_source_password%" ^\n --target-password="%arg_target_password%" ^\n --table-file="%table_file%"')
+            for arg in self._transferer.helper_ssh_arglist(True):
+                f.write(' %s ^\n' % arg)
+            f.write(' --source-ssh-password="%arg_source_ssh_password%" ^\n --target-ssh-password="%arg_target_ssh_password%"')
             f.write(' --thread-count=%arg_worker_count% ^\n %arg_truncate_target% ^\n %arg_debug_output%')
             f.write("\n\n")
             f.write("REM Removes the file with the table definitions\n")
@@ -595,9 +604,11 @@ IF [%arg_source_password%] == [] (
             f.write("# Source and target DB passwords\n")
             f.write("arg_source_password=\n")
             f.write("arg_target_password=\n")
+            f.write("arg_source_ssh_password=\n")
+            f.write("arg_target_ssh_password=\n")
             f.write("""
-if [ -z "$arg_source_password" ] && [ -z "$arg_target_password" ] ; then
-    echo WARNING: Both source and target RDBMSes passwords are empty. You should edit this file to set them.
+if [ -z "$arg_source_password" ] && [ -z "$arg_target_password" ] && [ -z "$arg_source_ssh_password" ] && [ -z "$arg_target_ssh_password" ] ; then
+    echo WARNING: All source and target passwords are empty. You should edit this file to set them.
 fi
 """)
             f.write("arg_worker_count=%d\n" % worker_count)
@@ -611,10 +622,14 @@ fi
             f.write( ("" if debug_table_copy else "# ") + "arg_debug_output=--log-level=debug3\n")
             f.write("\n")
             f.write(self.main.plan.wbcopytables_path)
-            f.write(" \\\n")
-            for arg in self._transferer.helper_basic_arglist(True):
+            f.write(" \\\n")           
+            for arg in self._transferer.helper_basic_arglist(True, True):
                 f.write(' %s \\\n' % arg)
             f.write(' --source-password="$arg_source_password" \\\n --target-password="$arg_target_password" \\\n')
+            for arg in self._transferer.helper_ssh_arglist(True):
+                f.write(' %s \\\n' % arg)
+            f.write(' --source-ssh-password="$arg_source_ssh_password" \\\n --target-ssh-password="$arg_target_ssh_password" \\\n')
+
             f.write(' --thread-count=$arg_worker_count \\\n $arg_truncate_target \\\n $arg_debug_output \\\n')
 
             for table in self._working_set.values():

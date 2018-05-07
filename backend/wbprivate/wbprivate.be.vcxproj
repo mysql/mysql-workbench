@@ -76,7 +76,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;COMMERCIAL_CODE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -99,7 +99,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -121,7 +121,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -188,14 +188,8 @@
     <ClInclude Include="sqlide\wb_sql_editor_snippets.h" />
     <ClInclude Include="sqlide\wb_sql_editor_tree_controller.h" />
     <ClInclude Include="workbench\about_box.h" />
-    <ClInclude Include="workbench\license_view.h" />
-    <ClInclude Include="workbench\SSHCommon.h" />
     <ClInclude Include="workbench\SSHFileWrapper.h" />
-    <ClInclude Include="workbench\SSHSession.h" />
     <ClInclude Include="workbench\SSHSessionWrapper.h" />
-    <ClInclude Include="workbench\SSHSftp.h" />
-    <ClInclude Include="workbench\SSHTunnelHandler.h" />
-    <ClInclude Include="workbench\SSHTunnelManager.h" />
     <ClInclude Include="workbench\stdafx.h" />
     <ClInclude Include="workbench\upgrade_helper.h" />
     <ClInclude Include="workbench\wb_backend_public_interface.h" />
@@ -271,13 +265,8 @@
     <ClCompile Include="workbench\about_box.cpp" />
     <ClCompile Include="workbench\license_view.cpp" />
     <ClCompile Include="workbench\metaclasses.cpp" />
-    <ClCompile Include="workbench\SSHCommon.cpp" />
     <ClCompile Include="workbench\SSHFileWrapper.cpp" />
-    <ClCompile Include="workbench\SSHSession.cpp" />
     <ClCompile Include="workbench\SSHSessionWrapper.cpp" />
-    <ClCompile Include="workbench\SSHSftp.cpp" />
-    <ClCompile Include="workbench\SSHTunnelHandler.cpp" />
-    <ClCompile Include="workbench\SSHTunnelManager.cpp" />
     <ClCompile Include="workbench\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -315,6 +304,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\library\parsers\parsers.vcxproj">
       <Project>{f563e3de-39ba-4a9d-a6c2-9e9222e8f518}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\ssh\wbssh.vcxproj">
+      <Project>{f678c48f-46ba-4e15-8be2-0d0bd441a23c}</Project>
     </ProjectReference>
     <ProjectReference Include="..\wbpublic\wbpublic.be.vcxproj">
       <Project>{55ee797d-2b76-474b-82d6-1f96f7788af8}</Project>

@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -220,9 +220,9 @@ class ODBCCopyDataSource : public CopyDataSource {
   SQLHSTMT _stmt;
   std::shared_ptr<std::vector<ColumnInfo> > _columns;
   std::vector<SQLSMALLINT> _column_types;
-  int _column_count;
 
   bool _stmt_ok;
+  int _column_count;
   bool _force_utf8_input;
 
   std::string _source_rdbms_type;

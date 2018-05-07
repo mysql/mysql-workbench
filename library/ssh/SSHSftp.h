@@ -80,7 +80,7 @@ namespace ssh {
     bool isDir;
   };
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHSftp {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHSftp {
     std::shared_ptr<SSHSession> _session;
     sftp_session _sftp;
     std::size_t _maxFileLimit;

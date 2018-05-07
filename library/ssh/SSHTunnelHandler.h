@@ -23,46 +23,48 @@
 
 #pragma once
 #include <errno.h>
+#include <fcntl.h>
+#ifndef _MSC_VER
+#include <poll.h>
+#endif
 #include <string.h>
 #include <thread>
-#include <atomic>
-#include <deque>
 #include <map>
+#include <mutex>
+#include <vector>
 #include "SSHCommon.h"
 #include "SSHSession.h"
-#include "SSHTunnelHandler.h"
-#include "base/any.h"
 
 namespace ssh {
-  typedef struct {
-    uint16_t port;
-    int socketHandle;
-  } sockInfo;
 
-  class MYSQLWBBACKEND_PUBLIC_FUNC SSHTunnelManager : public SSHThread {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHTunnelHandler : public SSHThread {
   public:
-    SSHTunnelManager();
-    std::tuple<SSHReturnType, base::any> createTunnel(std::shared_ptr<SSHSession> &session);
-    int lookupTunnel(const SSHConnectionConfig &config);
-    virtual ~SSHTunnelManager();
-    void pokeWakeupSocket();
-    void setStop() {
-      _stop = true;
-    }
+    SSHTunnelHandler(uint16_t localPort, int localSocket, std::shared_ptr<ssh::SSHSession> session);
+    ~SSHTunnelHandler();
+    int getLocalSocket() const;
+    int getLocalPort() const;
+    SSHConnectionConfig getConfig() const;
 
-    void disconnect(const SSHConnectionConfig &config);
+    void handleConnection();
+    void handleNewConnection(int incomingSocket);
+    void transferDataFromClient(int sock, std::shared_ptr<ssh::Channel> &chan);
+    void transferDataToClient(int sock, std::shared_ptr<ssh::Channel> &chan);
+
+    std::shared_ptr<ssh::Channel> openTunnel();
+    void prepareTunnel(int clientSocket);
 
   protected:
-    mutable base::RecMutex _socketMutex;
-    base::RecMutexLock lockSocketList();
     virtual void run() override;
-    sockInfo createSocket();
-    void localSocketHandler();
 
-    uint16_t _wakeupSocketPort;
-    int _wakeupSocket;
-    std::map<int, std::unique_ptr<SSHTunnelHandler>> _socketList;
-
+    std::shared_ptr<SSHSession> _session;
+    uint16_t _localPort;
+    int _localSocket;
+    std::map<int, std::shared_ptr<ssh::Channel>> _clientSocketList;
+    int _pollTimeout;
+    ssh_event _event;
+    std::vector<int> _sockRemovalList;
+    std::recursive_mutex _newConnMtx;
+    std::vector<int> _newConnection;
   };
 
 } /* namespace ssh */
