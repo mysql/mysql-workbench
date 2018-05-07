@@ -230,12 +230,12 @@ public:
 
   virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override {
     // For servers < 8 the column name can be qualified. With 8+ this changed to a simple identifier.
-    if (ctx->fieldIdentifier()) {
-      IdentifierListener listener(ctx->fieldIdentifier());
+    if (ctx->columnName()->fieldIdentifier()) {
+      IdentifierListener listener(ctx->columnName()->fieldIdentifier());
       column->name(listener.parts.back());
       column->oldName(listener.parts.back());
     } else {
-      IdentifierListener listener(ctx->identifier());
+      IdentifierListener listener(ctx->columnName()->identifier());
       column->name(listener.parts.back());
       column->oldName(listener.parts.back());
     }

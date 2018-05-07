@@ -2818,11 +2818,7 @@ schedule:
 ;
 
 columnDefinition:
-    (
-        // With server 8.0 this became a simple identifier.
-        {serverVersion >= 80000}? identifier
-        | {serverVersion < 80000}? fieldIdentifier
-    ) fieldDefinition checkOrReferences?
+    columnName fieldDefinition checkOrReferences?
 ;
 
 checkOrReferences:
@@ -3314,10 +3310,16 @@ usePartition:
 //
 // Sometimes we need additional reference rules with different form, depending on the place such a reference is used.
 
-// A name for a field (column). Can be qualified with the current schema + table (although it's not a reference).
+// A name for a field (column/index). Can be qualified with the current schema + table (although it's not a reference).
 fieldIdentifier:
     dotIdentifier
     | qualifiedIdentifier dotIdentifier?
+;
+
+columnName:
+    // With server 8.0 this became a simple identifier.
+    {serverVersion >= 80000}? identifier
+    | {serverVersion < 80000}? fieldIdentifier
 ;
 
 // A reference to a column of the object we are working on.
