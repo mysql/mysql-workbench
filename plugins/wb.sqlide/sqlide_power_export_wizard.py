@@ -383,6 +383,10 @@ class SelectFilePage(WizardPage):
         self.load_module_options()
         
     def validate(self):
+        if not self.is_valid_path():
+            mforms.Utilities.show_error(self.main.title, "The supplied path is invalid or missing.", "Ok", "", "")
+            return False
+        
         if not self.check_is_supported_format():
             mforms.Utilities.show_error(self.main.title, "This file format is not supported, please select CSV or JSON.", "Ok", "", "")
             return False            
@@ -406,6 +410,34 @@ class SelectFilePage(WizardPage):
         last_location = file_path
         return True
     
+    
+    def is_valid_path(self):
+        import os, errno
+        
+        userpath = self.exportfile_path.get_string_value()
+        try:
+            if not isinstance(userpath, str) or not userpath:
+                return False
+            
+            _, path = os.path.splitdrive(userpath)
+            rootname = os.environ.get("HOMEDRIVE", "C:") if sys.platform == 'win32' else os.path.sep
+            if not os.path.isdir(rootname):
+                raise Exception("Fatal, root drive doesn't exists: %s" % rootname)
+            
+            for part in userpath.split(os.path.sep):
+                try:
+                    os.lstat(rootname + part)
+                except OSError as exc:
+                    if hasattr(exc, 'winerror'):
+                        if exc.winerror == 123: #Windows error code for invalid path name
+                            return False
+                    elif exc.errno in {errno.ENAMETOOLONG, errno.ERANGE}:
+                        return False
+        except TypeError as exc:
+            return False
+
+        return True
+    
     def check_is_supported_format(self):
         file_name, file_ext = os.path.splitext(os.path.basename(self.exportfile_path.get_string_value()))
         self.input_file_type = file_ext[1:]
@@ -423,7 +455,10 @@ class SelectFilePage(WizardPage):
             self.unsupported_output_format = True
             self.active_module = self.main.formats[0] # we use first format as default one
             if not silent:
-                mforms.Utilities.show_error(self.main.title, "This file format is not supported. Please select CSV or JSON.", "Ok", "", "")
+                if not self.is_valid_path():
+                    mforms.Utilities.show_error(self.main.title, "The supplied path is invalid or missing.", "Ok", "", "")
+                else:
+                    mforms.Utilities.show_error(self.main.title, "This file format is not supported. Please select CSV or JSON.", "Ok", "", "")
     
     def load_module_options(self):
         self.suspend_layout()
