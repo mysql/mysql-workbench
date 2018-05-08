@@ -78,6 +78,7 @@ private:
       if (_selected_snippet)
         set_snippet_info(_selected_snippet, title, sub_title);
       model()->save();
+      refresh_snippets();
 
       set_needs_repaint();
     }
@@ -166,8 +167,8 @@ public:
 
   void edit_new_snippet() {
     if (!_snippets.empty()) {
-      _selected_index = (int)_snippets.size() - 1;
-      _selected_snippet = _snippets.back();
+      _selected_index = 0;
+      _selected_snippet = _snippets.front();
       edit_snippet(_selected_snippet);
       _snippet_popover->set_read_only(false);
     }
