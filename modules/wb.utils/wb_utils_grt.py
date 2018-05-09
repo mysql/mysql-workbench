@@ -600,6 +600,7 @@ class CheckForUpdateThread(threading.Thread):
         try:
             import urllib2
             import json
+            urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler()))
             self.json = json.load(urllib2.urlopen("http://workbench.mysql.com/current-release")) 
         except Exception, error:
 
