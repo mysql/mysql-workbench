@@ -51,7 +51,7 @@ static grt::StringRef getGeoRepresentation(grt::StringRef data, bool outputAsJso
     OGRGeometryFactory::createFromWkb((unsigned char *)const_cast<char *>(&(*((*data).begin() + 4))), NULL, &geometry);
   if (ret_val != OGRERR_NONE) {
     if (geometry)
-      OGRFree(geometry);
+      CPLFree(geometry);
     throw std::exception();
   }
 
@@ -65,8 +65,8 @@ static grt::StringRef getGeoRepresentation(grt::StringRef data, bool outputAsJso
 
     if (err == OGRERR_NONE && data != NULL) {
       grt::StringRef tmp(data);
-      OGRFree(data);
-      OGRFree(geometry);
+      CPLFree(data);
+      CPLFree(geometry);
       return tmp;
     } else
       throw std::runtime_error("Conversion of OGR geometry data failed");
