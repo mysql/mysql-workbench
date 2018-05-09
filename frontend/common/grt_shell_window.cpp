@@ -140,7 +140,11 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     item = menu->add_item_with_title("Find...", std::bind(&GRTShellWindow::show_find_panel, this));
     item->set_shortcut("Modifier+F");
     item = menu->add_item_with_title("Replace...", std::bind(&GRTShellWindow::show_replace_panel, this));
+#if defined(__APPLE__)
+    item->set_shortcut("Command+Option+F");
+#else
     item->set_shortcut("Modifier+H");
+#endif
 
     menu = mforms::manage(new mforms::MenuItem("Script"));
     _menu.add_submenu(menu);
