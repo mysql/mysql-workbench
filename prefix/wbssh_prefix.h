@@ -34,7 +34,10 @@
 #include <atomic>
 #include <mutex>
 #include <libssh/callbacks.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <libssh/libsshpp.hpp>
+#pragma clang diagnostic pop
 #include <libssh/sftp.h>
 #include <vector>
 #include <thread>
