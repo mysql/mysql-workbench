@@ -434,6 +434,9 @@ class MigrationPlan(object):
     def close(self):
         if self.migrationSource:
             self.migrationSource.cleanup()
+            self.migrationSource.disconnect()
+        if self.migrationTarget:
+            self.migrationTarget.disconnect()
         self.state.owner = None
         grt.root.wb.migration = None
         self.state = None
