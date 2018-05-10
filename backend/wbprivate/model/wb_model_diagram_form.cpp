@@ -869,6 +869,11 @@ bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::Even
                      // (even though only the first appearance, but if we don't it is as if
                      // we hadn't consumed it at all).
     }
+    
+    if (key.keycode == mdc::KDelete) {
+        delete_selection();
+        return true;
+    }
   } else {
     // Key release.
     if (_space_panning) {
