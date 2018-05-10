@@ -460,13 +460,7 @@ def startCommandLineClientForConnection(conn):
         command = """\\"%s\\" \\"-u%s\\" \\"-h%s\\" -P%i %s -p %s""" % (bundled_client_path, user, host, port, socket, schema)
 
         # call mysql client in a loop until either: 1. it exits with no error, or 2. user exits with Ctrl+C.
-        # This is necessary because if the user enters wrong password, the window closes too quick for the user to see what's going on.
-        subprocess.call([ "/bin/sh", "-c",  # <--- having extra /bin/sh wrapper allows GUI terminal to be launched in background (thus run parallel with workbench)
-            get_linux_terminal_program() + " -e '" +
-                "sh -c \"while :; do %s && break || read -p \\\"Press Enter to retry or Ctrl+C to quit\\\" DUMMY_VAR; done\" " % command
-            + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking)
-        ])
-        
+        # This is necessary because if the user enters wrong password, the window closes too quick for the user to see what's going on.        
         my_env = os.environ.copy()
         if (("XDG_SESSION_TYPE" in my_env and my_env["XDG_SESSION_TYPE"] == "wayland") 
           or "WAYLAND_DISPLAY" in my_env) and my_env["GDK_BACKEND"]:
