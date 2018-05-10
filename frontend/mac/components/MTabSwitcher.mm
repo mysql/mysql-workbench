@@ -1494,7 +1494,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
     case 1001: // close other tabs
       for (NSTabViewItem *item in [self.mTabView.tabViewItems reverseObjectEnumerator]) {
         if (item != mClickedItem) {
-          if ([self allowClosingItem: mClickedItem])
+          if ([self allowClosingItem: item])
             [self closeTabViewItem: item];
         }
       }
