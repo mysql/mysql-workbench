@@ -169,7 +169,7 @@ bool TestDatabaseSettingsPage::get_server_version() {
     current_task()->label.set_text("Get Server Version: Unsupported Server Version");
     std::string msg = strfmt(
       "Unknown/unsupported server version or connection protocol detected (%s).\nMySQL Workbench is developed and "
-      "tested for MySQL Server versions 5.1 and newer.\nA connection can be established but some MySQL Workbench "
+      "tested for MySQL Server versions 5.5 and newer.\nA connection can be established but some MySQL Workbench "
       "features may not work properly.",
       version.c_str());
     add_log_text(msg);
