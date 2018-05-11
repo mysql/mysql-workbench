@@ -257,6 +257,8 @@ TEST_FUNCTION(50) {
 
   // before 5.5.3, column comments <= 255, table <= 60
   {
+    grt::DictRef dbsett(diffsql_module->getTraitsForServerVersion(5, 5, 2));
+    dbsett.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
     table->comment(comment_60);
     table->columns()[1]->comment(comment_255);
     std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
@@ -269,6 +271,7 @@ TEST_FUNCTION(50) {
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
     options.set("GenerateSchemaDrops", grt::IntegerRef(1));
     options.set("GenerateDrops", grt::IntegerRef(1));
+    options.set("DBSettings", dbsett);
     diffsql_module->generateSQL(catalog, options, create_change);
 
     std::string s = create_map.get_string("db.mysql.Table::`test_schema`.`t1`::t1");
@@ -279,6 +282,8 @@ TEST_FUNCTION(50) {
   }
 
   {
+    grt::DictRef dbsett(diffsql_module->getTraitsForServerVersion(5, 5, 2));
+    dbsett.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
     table->comment(comment_60 + "###");
     table->columns()[1]->comment(comment_255 + "###");
     std::shared_ptr<DiffChange> create_change = diff_make(e, catalog, &omf);
@@ -291,6 +296,7 @@ TEST_FUNCTION(50) {
     options.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
     options.set("GenerateSchemaDrops", grt::IntegerRef(1));
     options.set("GenerateDrops", grt::IntegerRef(1));
+    options.set("DBSettings", dbsett);
     diffsql_module->generateSQL(catalog, options, create_change);
 
     std::string s = create_map.get_string("db.mysql.Table::`test_schema`.`t1`::t1");
@@ -513,6 +519,9 @@ TEST_FUNCTION(70) {
 
   create_map = diffsql_module->generateSQLForDifferences(GrtNamedObjectRef(), catalog, options);
 
+  grt::DictRef dbsett(diffsql_module->getTraitsForServerVersion(5, 6, 0));
+  dbsett.set("CaseSensitive", grt::IntegerRef(omf.case_sensitive));
+  options.set("DBSettings", dbsett);
   diffsql_module->makeSQLExportScript(catalog, options, create_map, drop_map);
 
   std::string export_sql_script = options.get_string("OutputScriptHeader") + options.get_string("OutputScript");

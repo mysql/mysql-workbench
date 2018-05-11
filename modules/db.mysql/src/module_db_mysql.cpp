@@ -1638,9 +1638,9 @@ namespace {
 DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader* ldr) : grt::ModuleImplBase(ldr), _default_traits(true) {
   _default_traits.set("version", grt::StringRef("8.0.5"));
   _default_traits.set("CaseSensitive", grt::IntegerRef(1));
-  _default_traits.set("maxTableCommentLength", grt::IntegerRef(60));
-  _default_traits.set("maxIndexCommentLength", grt::IntegerRef(0));
-  _default_traits.set("maxColumnCommentLength", grt::IntegerRef(255));
+  _default_traits.set("maxTableCommentLength", grt::IntegerRef(2048));
+  _default_traits.set("maxIndexCommentLength", grt::IntegerRef(1024));
+  _default_traits.set("maxColumnCommentLength", grt::IntegerRef(1024));
 }
 
 ssize_t DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object, const grt::DictRef& options,
