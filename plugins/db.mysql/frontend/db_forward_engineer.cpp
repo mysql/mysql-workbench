@@ -541,7 +541,7 @@ namespace DBExport {
     add_page(mforms::manage(_progress_page));
 
     set_title(_("Forward Engineer to Database"));
-    set_size(-1, 700);
+    set_size(900, 700);
   }
 };
 

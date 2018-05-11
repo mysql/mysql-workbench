@@ -263,6 +263,7 @@ namespace DBImport {
     add_page(mforms::manage(_finish_page));
 
     set_title("Reverse Engineer Database");
+    set_size(900, 700);
   }
 
   //--------------------------------------------------------------------------------
