@@ -43,7 +43,7 @@ void drop_eol(const int column, Glib::ValueBase* vbase) {
     GValue* vb = vbase->gobj();
     char* str = g_value_dup_string(vb);
     char* tstr = str;
-    while (*tstr++) {
+    while (tstr && *tstr++) {
       if (*tstr == '\n')
         *tstr = ' ';
     }
