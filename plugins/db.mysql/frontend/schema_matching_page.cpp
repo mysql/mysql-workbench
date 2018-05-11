@@ -93,11 +93,7 @@ SchemaMatchingPage::SchemaMatchingPage(grtui::WizardForm *form, const char *name
   _menu.add_item_with_title("Select All", std::bind(select_all, &_tree, this));
   _menu.add_item_with_title("Unselect All", std::bind(unselect_all, &_tree, this));
 
-#ifdef _MSC_VER
-  _tree.add_column(mforms::CheckColumnType, "", 27, true);
-#else
-    _tree.add_column(mforms::CheckColumnType, "", 20, true);
-#endif
+  _tree.add_column(mforms::CheckColumnType, "", 30, true);
   _tree.add_column(mforms::IconStringColumnType, left_name, 150, false);
   _tree.add_column(mforms::StringColumnType, right_name, 150, false);
   _tree.add_column(mforms::IconStringColumnType, "", 300, false);
