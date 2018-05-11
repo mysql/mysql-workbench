@@ -434,7 +434,7 @@ void ModelDiagramPanel::init(const std::string &view_id) {
 
   // restore widths of sidebars when shown
   _sig_restore_sidebar =
-    Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
+    Glib::signal_idle().connect(sigc::bind_return(sigc::bind(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), 275, 200), false));
 
   //  Set the sidebar pane sizes
   _sidebar->set_position(
