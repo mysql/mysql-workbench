@@ -159,7 +159,7 @@ def pick_value(opt, version, platform):
                         tmp = opt['values'][i+1].get('outversion')
                     if not tmp:
                         log_debug2("Option %s has invalid version range for defaults\n" % opt['caption'])
-                    else:
+                    elif tmp > inversion:
                         outversion = tmp
 
             if version >= inversion and version <= outversion:
