@@ -1291,6 +1291,11 @@ bool MainForm::close_tab(Gtk::Notebook *note, Gtk::Widget *page) {
         }
       }
     } else {
+      for (int index = 0; index < note->get_n_pages(); ++index) {
+        Gtk::Widget *page =  note->get_nth_page(index);
+        if (page->is_visible())
+            page->child_focus(Gtk::DIR_DOWN);
+      }
       return false;
     }
   } else
