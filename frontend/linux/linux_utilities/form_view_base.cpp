@@ -137,9 +137,9 @@ bool FormViewBase::close_focused_tab() {
   return false;
 }
 
-void FormViewBase::restore_sidebar_layout() {
+void FormViewBase::restore_sidebar_layout(const int firstSidebarDefaultWidth, const int secondSidebarDefaultWidt) {
   if (_sidebar1_pane) {
-    int w = bec::GRTManager::get()->get_app_option_int(_panel_savename + ":SidebarWidth", 200);
+    int w = bec::GRTManager::get()->get_app_option_int(_panel_savename + ":SidebarWidth", firstSidebarDefaultWidth);
     _sidebar1_pane->set_position(w);
     if (bec::GRTManager::get()->get_app_option_int(_panel_savename + ":SidebarHidden", 0)) {
       _toolbar->set_item_checked("wb.toggleSidebar", false);
@@ -152,7 +152,7 @@ void FormViewBase::restore_sidebar_layout() {
   }
 
   if (_sidebar2_pane) {
-    int w = bec::GRTManager::get()->get_app_option_int(_panel_savename + ":SecondarySidebarWidth", 200);
+    int w = bec::GRTManager::get()->get_app_option_int(_panel_savename + ":SecondarySidebarWidth", secondSidebarDefaultWidt);
     _sidebar2_pane->set_position(_sidebar2_pane->get_width() - w);
     if (bec::GRTManager::get()->get_app_option_int(_panel_savename + ":SecondarySidebarHidden", 0)) {
       _toolbar->set_item_checked("wb.toggleSecondarySidebar", false);

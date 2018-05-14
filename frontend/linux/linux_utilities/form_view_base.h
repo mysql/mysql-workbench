@@ -105,7 +105,7 @@ public:
   PluginEditorBase *get_focused_plugin_tab();
 
   void sidebar_resized(bool primary);
-  virtual void restore_sidebar_layout();
+  virtual void restore_sidebar_layout(const int firstSidebarDefaultWidth = 200, const int secondSidebarDefaultWidt = 200);
 };
 
 #endif

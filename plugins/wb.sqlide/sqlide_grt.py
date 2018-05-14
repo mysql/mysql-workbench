@@ -565,7 +565,7 @@ def commentText(editor):
         if lines[0].startswith(commentType):
             new_text = "\n".join((line[commentTypeLength:] if line.startswith(commentType) else line) for line in lines)
         else:
-            new_text = "\n".join(commentType + line for line in lines)
+            new_text = "\n".join(commentType + line if line != "" else line for line in lines)
         editor.replaceSelection(new_text)
     else:
         pos = editor.insertionPoint

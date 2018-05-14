@@ -150,7 +150,7 @@ void ModelPanel::post_construct(wb::OverviewBE *overview) {
 }
 
 void ModelPanel::restore_sidebar_layout() {
-  FormViewBase::restore_sidebar_layout();
+  FormViewBase::restore_sidebar_layout(275);
   do_resize_overview();
 }
 
