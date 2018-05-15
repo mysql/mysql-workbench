@@ -1,0 +1,2 @@
+mysql-workbench-@edition@ source: changelog-should-mention-nmu
+mysql-workbench-@edition@ source: source-nmu-has-incorrect-version-number

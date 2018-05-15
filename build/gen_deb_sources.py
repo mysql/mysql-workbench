@@ -66,7 +66,7 @@ def preprocess(inpath, inf, outf, vars):
                         outf.write(line)
                         
 
-edition_specific_file_exts = [".menu", ".mime", ".sharedmimeinfo"]
+edition_specific_file_exts = [".menu", ".mime", ".sharedmimeinfo",".lintian-overrides"]
 
 def generate_distro(source_dir, vars):
         target_dir = '%s.deb-%s' % (vars['edition'], vars['distro'])
@@ -96,6 +96,10 @@ def generate_distro(source_dir, vars):
         else:
                 shutil.copyfile("debian.in/copyright.gpl.in", os.path.join(target_dir,"copyright"))
         shutil.copyfile(os.path.join(source_dir, "source/format"), os.path.join(target_source_dir,"format"))
+
+        outf = open(os.path.join(target_source_dir,"lintian-override"), "w+")
+        inpath = os.path.join(source_dir, "source/lintian-override")
+        preprocess(inpath, open(inpath), outf, vars)
 
         print target_dir, "generated"
 

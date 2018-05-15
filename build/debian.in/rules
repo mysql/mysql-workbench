@@ -110,7 +110,11 @@ configure-stamp:
 	touch configure-stamp
 
 
-build: build-stamp
+build: build-arch build-indep
+
+build-arch: build-stamp
+
+build-indep: build-stamp
 
 build-stamp: configure-stamp 
 	dh_testdir
@@ -125,9 +129,6 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-
-	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
 
 	dh_clean 
 
@@ -176,7 +177,7 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 #	dh_install
-	dh_installmenu
+#	dh_installmenu
 #	dh_installdebconf	
 #	dh_installlogrotate
 #	dh_installemacsen
@@ -186,6 +187,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
+	dh_lintian
 	dh_installman
 	dh_link
 	#dh_strip --dbg-package=mysql-workbench-@edition@

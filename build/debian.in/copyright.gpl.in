@@ -1,6 +1,7 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: http://dev.mysql.com/
 
+Files: *
 Copyright: 2008, 2018, Oracle and/or its affiliates. All rights reserved.
 License:
  This is a release of MySQL Workbench, a graphical tool for working with MySQL servers and databases.
