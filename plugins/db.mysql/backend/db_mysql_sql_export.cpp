@@ -56,6 +56,7 @@ DbMySQLSQLExport::DbMySQLSQLExport(db_mysql_CatalogRef catalog) : DbMySQLValidat
   _case_sensitive = true;
   _gen_doc_props = false;
   _gen_attached_scripts = false;
+  _sortTablesAlphabetically = false;
 
   if (!_catalog.is_valid())
     _catalog = get_model_catalog(); // call own version
@@ -118,6 +119,8 @@ void DbMySQLSQLExport::set_option(const std::string &name, bool value) {
     _gen_doc_props = value;
   else if (name.compare("GenerateAttachedScripts") == 0)
     _gen_attached_scripts = value;
+  else if (name.compare("SortTablesAlphabetically") == 0)
+    _sortTablesAlphabetically = value;
 }
 
 void DbMySQLSQLExport::set_option(const std::string &name, const std::string &value) {
@@ -196,6 +199,7 @@ grt::DictRef DbMySQLSQLExport::get_options_as_dict() {
   options.set("SkipFKIndexes", grt::IntegerRef(_skip_fk_indexes ? 1 : 0));
   options.set("GenerateDocumentProperties", grt::IntegerRef(_gen_doc_props ? 1 : 0));
   options.set("GenerateAttachedScripts", grt::IntegerRef(_gen_attached_scripts ? 1 : 0));
+  options.set("SortTablesAlphabetically", grt::IntegerRef(_sortTablesAlphabetically ? 1 : 0));
 
   options.set("OutputScriptHeader", grt::StringRef(_output_header));
 
@@ -311,6 +315,8 @@ ValueRef DbMySQLSQLExport::export_task(grt::StringRef) {
     options.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
     if (_db_options.is_valid())
       _db_options.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
+
+    options.set("SortTablesAlphabetically", grt::IntegerRef(_sortTablesAlphabetically ? 1 : 0));
 
     if (diffsql_module->makeSQLExportScript(_catalog, options, create_map, drop_map)) {
       return grt::StringRef("\nSQL Script Export Error: SQL Script Export Module Returned Error");

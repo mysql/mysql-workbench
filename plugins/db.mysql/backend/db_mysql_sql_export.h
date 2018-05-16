@@ -53,6 +53,7 @@ class WBPLUGINDBMYSQLBE_PUBLIC_FUNC DbMySQLSQLExport : public DbMySQLValidationP
   bool _case_sensitive;
   bool _gen_doc_props;
   bool _gen_attached_scripts;
+  bool _sortTablesAlphabetically;
 
   std::shared_ptr<bec::GrtStringListModel> _users_model;
   std::shared_ptr<bec::GrtStringListModel> _users_exc_model;

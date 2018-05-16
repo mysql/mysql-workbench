@@ -1984,10 +1984,11 @@ class SQLExportComposer : public SQLComposer {
   bool gen_schema_drops;
   bool no_user_just_privileges;
   bool gen_inserts;
-  bool case_sensitive;
+  bool caseSensitive;
   bool no_view_placeholders;
   bool no_FK_for_inserts;
   bool triggers_after_inserts;
+  bool sortTablesAlphabetically;
   grt::DictRef create_map;
   grt::DictRef drop_map;
 
@@ -2001,9 +2002,10 @@ public:
     no_user_just_privileges = options.get_int("NoUsersJustPrivileges") != 0;
     no_view_placeholders = options.get_int("NoViewPlaceholders") != 0;
     gen_inserts = options.get_int("GenerateInserts") != 0;
-    case_sensitive = options.get_int("CaseSensitive") != 0;
+    caseSensitive = options.get_int("CaseSensitive") != 0;
     no_FK_for_inserts = options.get_int("NoFKForInserts") != 0;
     triggers_after_inserts = options.get_int("TriggersAfterInserts") != 0;
+    sortTablesAlphabetically = options.get_int("SortTablesAlphabetically") != 0;
   }
 
 protected:
@@ -2020,7 +2022,7 @@ protected:
       result.append("-- -----------------------------------------------------\n");
       result.append(comment);
 
-      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive)))) {
+      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, caseSensitive)))) {
         if (gen_schema_drops)
           result.append("DROP SCHEMA IF EXISTS `").append(schema->name().c_str()).append("` ;\n");
 
@@ -2034,7 +2036,7 @@ protected:
           result.append("-- ").append(comment).append("\n");
         }
         result.append("-- -----------------------------------------------------\n");
-        result.append(string_from_map(schema, create_map, case_sensitive)).append(";\n");
+        result.append(string_from_map(schema, create_map, caseSensitive)).append(";\n");
       }
       result.append(show_warnings_sql());
     }
@@ -2043,7 +2045,7 @@ protected:
 
   std::string table_sql(const db_mysql_TableRef table) const {
     std::string result;
-    std::string create_table_sql = string_from_map(table, create_map, case_sensitive);
+    std::string create_table_sql = string_from_map(table, create_map, caseSensitive);
 
     result.append("\n");
     result.append("-- -----------------------------------------------------\n");
@@ -2051,7 +2053,7 @@ protected:
     result.append("-- -----------------------------------------------------\n");
 
     if (gen_drops)
-      result.append(string_from_map(table, drop_map, case_sensitive)).append(";\n\n").append(show_warnings_sql());
+      result.append(string_from_map(table, drop_map, caseSensitive)).append(";\n\n").append(show_warnings_sql());
 
     result.append(create_table_sql).append(";\n\n");
     result.append(show_warnings_sql());
@@ -2062,7 +2064,7 @@ protected:
     if (gen_create_index) {
       grt::ListRef<db_mysql_Index> indices = table->indices();
       for (size_t c3 = indices.count(), k = 0; k < c3; k++) {
-        std::string index_sql = string_from_map(indices.get(k), create_map, case_sensitive);
+        std::string index_sql = string_from_map(indices.get(k), create_map, caseSensitive);
         if (!index_sql.empty())
           result.append(index_sql).append(";\n\n").append(show_warnings_sql());
       }
@@ -2109,7 +2111,7 @@ protected:
   std::string view_placeholder(const db_mysql_ViewRef view) {
     if (view->modelOnly())
       return "";
-    if (exists_in_map(view, create_map, case_sensitive))
+    if (exists_in_map(view, create_map, caseSensitive))
       return generate_view_placeholder(view);
     return "";
   }
@@ -2124,7 +2126,7 @@ protected:
 
     if (routine->modelOnly())
       return "";
-    std::string create_routine_sql = string_from_map(routine, create_map, case_sensitive);
+    std::string create_routine_sql = string_from_map(routine, create_map, caseSensitive);
     if (create_routine_sql.empty())
       return "";
 
@@ -2137,11 +2139,11 @@ protected:
       .append("\n");
     result.append("-- -----------------------------------------------------\n");
 
-    std::string drop_string = string_from_map(routine, drop_map, case_sensitive);
+    std::string drop_string = string_from_map(routine, drop_map, caseSensitive);
     if (!drop_string.empty())
       result.append(drop_string).append(show_warnings_sql());
 
-    std::string create_string = string_from_map(routine, create_map, case_sensitive);
+    std::string create_string = string_from_map(routine, create_map, caseSensitive);
     if (!create_string.empty())
       result.append(create_string).append(show_warnings_sql());
 
@@ -2152,11 +2154,11 @@ protected:
     send_output(
       std::string("Processing View ").append(view->owner()->name()).append(".").append(view->name()).append("\n"));
 
-    if (view->modelOnly() || !exists_in_map(view, create_map, case_sensitive))
+    if (view->modelOnly() || !exists_in_map(view, create_map, caseSensitive))
       return "";
 
-    return generate_view_ddl(view, string_from_map(view, create_map, case_sensitive),
-                             string_from_map(view, drop_map, case_sensitive));
+    return generate_view_ddl(view, string_from_map(view, create_map, caseSensitive),
+                             string_from_map(view, drop_map, caseSensitive));
   }
 
   std::string trigger_sql(const db_mysql_TriggerRef trigger) const {
@@ -2170,18 +2172,18 @@ protected:
                   .append(trigger->name())
                   .append("\n"));
 
-    if (trigger->modelOnly() || !exists_in_map(trigger, create_map, case_sensitive))
+    if (trigger->modelOnly() || !exists_in_map(trigger, create_map, caseSensitive))
       return "";
 
     // if(gen_drops)
     {
-      std::string drop_trigger(string_from_map(trigger, drop_map, case_sensitive));
+      std::string drop_trigger(string_from_map(trigger, drop_map, caseSensitive));
       if (!drop_trigger.empty())
         result.append("\n").append(drop_trigger).append(non_std_sql_delimiter).append("\n");
       if (show_warnings)
         result.append("SHOW WARNINGS").append(non_std_sql_delimiter).append("\n");
     }
-    result.append(string_from_map(trigger, create_map, case_sensitive)).append(non_std_sql_delimiter).append("\n\n");
+    result.append(string_from_map(trigger, create_map, caseSensitive)).append(non_std_sql_delimiter).append("\n\n");
     if (show_warnings)
       result.append("SHOW WARNINGS").append(non_std_sql_delimiter).append("\n");
 
@@ -2190,20 +2192,20 @@ protected:
 
   std::string user_sql(const db_UserRef user) const {
     std::string result;
-    if (user->modelOnly() || !exists_in_map(user, create_map, case_sensitive))
+    if (user->modelOnly() || !exists_in_map(user, create_map, caseSensitive))
       return "";
 
-    std::string create_user_sql = string_from_map(user, create_map, case_sensitive);
+    std::string create_user_sql = string_from_map(user, create_map, caseSensitive);
 
     // if(gen_drops)
-    if (exists_in_map(user, drop_map, case_sensitive)) {
+    if (exists_in_map(user, drop_map, caseSensitive)) {
       // There is no DROP USER IF EXISTS clause so we create one with
       // GRANT which will fail in traditional mode due to NO_AUTO_CREATE_USER
       result.append("SET SQL_MODE = '';\n");
-      result.append(string_from_map(user, drop_map, case_sensitive)).append(";\n");
+      result.append(string_from_map(user, drop_map, caseSensitive)).append(";\n");
       result.append(base::sqlstring("SET SQL_MODE=?;\n", 0) << sql_mode).append(show_warnings_sql());
     }
-    result.append(string_from_map(user, create_map, case_sensitive)).append(show_warnings_sql());
+    result.append(string_from_map(user, create_map, caseSensitive)).append(show_warnings_sql());
     send_output(std::string("Processing User ").append(user->name()).append("\n"));
     return result;
   }
@@ -2251,19 +2253,31 @@ public:
 
       send_output(std::string("Processing Schema ").append(schema->name()).append("\n"));
 
-      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))))
+      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, caseSensitive))))
         out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
 
       // tables
       grt::ListRef<db_mysql_Table> tables = schema->tables();
-      std::vector<db_mysql_TableRef> sorted_tables;
-      for (size_t c2 = tables.count(), j = 0; j < c2; j++)
-        sorter.perform(tables.get(j), sorted_tables);
-      for (std::vector<db_mysql_TableRef>::iterator It = sorted_tables.begin(); It != sorted_tables.end(); ++It) {
+      std::vector<db_mysql_TableRef> sortedTables;
+      if (sortTablesAlphabetically) {
+        sortedTables.reserve(tables.count());
+        for(const auto &it: tables) {
+          sortedTables.push_back(it);
+        }
+
+        std::sort(sortedTables.begin(), sortedTables.end(), [&](db_mysql_TableRef &first, db_mysql_TableRef &second) {
+          return base::string_compare(first->name(), second->name(), caseSensitive) < 0 ? true : false;
+        });
+      } else {
+        for (size_t c2 = tables.count(), j = 0; j < c2; j++)
+          sorter.perform(tables.get(j), sortedTables);
+      }
+
+      for (std::vector<db_mysql_TableRef>::iterator It = sortedTables.begin(); It != sortedTables.end(); ++It) {
         db_mysql_TableRef table = *It;
         if (table->modelOnly() || table->isStub())
           continue;
-        if (exists_in_map(table, create_map, case_sensitive)) {
+        if (exists_in_map(table, create_map, caseSensitive)) {
           out_sql.append(table_sql(table));
           if (gen_inserts) {
             std::string tmp = table_inserts_sql(table);
@@ -2312,7 +2326,7 @@ public:
       for (size_t c2 = views.count(), j = 0; j < c2; j++)
         objects_sql.append(view_sql(views.get(j)));
 
-      if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))) {
+      if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, caseSensitive))) {
         if (!_omitSchemas || gen_use)
           out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
         out_sql.append(objects_sql);
@@ -2373,6 +2387,7 @@ public:
           out_sql.append(user_script(*script));
       }
     }
+
     return out_sql;
   }
 };
