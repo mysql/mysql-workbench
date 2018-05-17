@@ -2112,7 +2112,7 @@ public:
   }
 
   virtual void exitTableWild(MySQLParser::TableWildContext *ctx) override {
-    checkIdentifierContext(ctx->identifier());
+    checkIdentifierContext(ctx->identifier()[0]);
   }
 
   virtual void exitQualifiedIdentifier(MySQLParser::QualifiedIdentifierContext *ctx) override {

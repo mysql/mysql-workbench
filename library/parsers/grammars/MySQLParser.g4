@@ -1150,14 +1150,17 @@ whereClause:
     WHERE_SYMBOL expr
 ;
 
-tableReference: // Note: we have also a tableRef rule for identifiers that reference a table anywhere.
-    (
+tableReference: ( // Note: we have also a tableRef rule for identifiers that reference a table anywhere.
         tableFactor
-        | OPEN_CURLY_SYMBOL identifier tableReference CLOSE_CURLY_SYMBOL // ODBC syntax
+        | OPEN_CURLY_SYMBOL identifier escapedTableReference CLOSE_CURLY_SYMBOL // ODBC syntax
     ) joinedTable*
 ;
 
-joinedTable: // Same joined_table in sql_yacc.yy, but with removed left recursion.
+escapedTableReference:
+    tableFactor joinedTable*
+;
+
+joinedTable: // Same as joined_table in sql_yacc.yy, but with removed left recursion.
     innerJoinType tableReference (
         ON_SYMBOL expr
         | USING_SYMBOL identifierListWithParentheses
@@ -1199,9 +1202,8 @@ tableFactor:
     singleTable
     | singleTableParens
     | derivedTable
-    | joinedTableParens
     | tableReferenceListParens
-    | {serverVersion >= 80000}? tableFunction
+    | {serverVersion >= 80004}? tableFunction
 ;
 
 singleTable:
@@ -1213,19 +1215,17 @@ singleTableParens:
 ;
 
 derivedTable:
-    subquery tableAlias ({serverVersion >= 80000}? columnInternalRefList)?
+    subquery tableAlias? ({serverVersion >= 80000}? columnInternalRefList)?
 ;
 
-joinedTableParens:
-    OPEN_PAR_SYMBOL (references joinedTable | joinedTableParens) CLOSE_PAR_SYMBOL
-;
-
+// This rule covers both: joined_table_parens and table_reference_list_parens from sql_yacc.yy.
+// We can simplify that because we have unrolled the indirect left recursion in joined_table <-> table_reference.
 tableReferenceListParens:
     OPEN_PAR_SYMBOL (tableReferenceList | tableReferenceListParens) CLOSE_PAR_SYMBOL
 ;
 
 tableFunction:
-    JSON_TABLE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL textStringLiteral columnsClause CLOSE_PAR_SYMBOL tableAlias
+    JSON_TABLE_SYMBOL OPEN_PAR_SYMBOL expr COMMA_SYMBOL textStringLiteral columnsClause CLOSE_PAR_SYMBOL tableAlias?
 ;
 
 columnsClause:
@@ -3294,7 +3294,7 @@ onlineOption:
 ;
 
 noWriteToBinLog:
-    LOCAL_SYMBOL // Predicate needed to direct the parser (as LOCAL can also be an identifier).
+    LOCAL_SYMBOL
     | NO_WRITE_TO_BINLOG_SYMBOL
 ;
 
@@ -3349,7 +3349,7 @@ indexRef: // Always internal reference. Still all qualification variations are a
 ;
 
 tableWild:
-    identifier (DOT_SYMBOL MULT_OPERATOR | dotIdentifier DOT_SYMBOL MULT_OPERATOR)
+    identifier DOT_SYMBOL (identifier DOT_SYMBOL)? MULT_OPERATOR
 ;
 
 schemaName:

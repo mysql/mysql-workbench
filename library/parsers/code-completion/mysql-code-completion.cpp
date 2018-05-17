@@ -279,7 +279,9 @@ private:
       if (_done)
         return;
 
-      if (_level == 0) {
+      // TODO: derived tables aren't handled yet. Need extra stack checks for that here, to avoid a crash.
+      // Once handled we can remove everything but the level check.
+      if (_level == 0 && !_context.referencesStack.empty() && !_context.referencesStack.front().empty()) {
         // Appears after a single table or subquery.
         _context.referencesStack.front().back().alias = base::unquote(ctx->identifier()->getText());
       }
