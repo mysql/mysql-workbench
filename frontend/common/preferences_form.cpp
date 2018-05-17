@@ -1746,7 +1746,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
     frame->add(tbox);
     tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), true), false, false);
     tbox->add(entry = new_entry_option("SqlGenerator.Mysql:SQL_MODE", false), true, true);
-    entry->set_tooltip(_("The default value of TRADITIONAL is recommended."));
+    entry->set_tooltip(_("The default value of ONLY_FULL_GROUP_BY, STRICT_TRANS_TABLES, NO_ZERO_IN_DATE, NO_ZERO_DATE, ERROR_FOR_DIVISION_BY_ZERO, NO_ENGINE_SUBSTITUTION is recommended."));
 
     box->add(frame, false);
   }

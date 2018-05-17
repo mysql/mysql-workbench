@@ -3863,6 +3863,7 @@ roleOrLabelKeyword:
         | DEFINER_SYMBOL
         | DELAY_KEY_WRITE_SYMBOL
         | DES_KEY_FILE_SYMBOL           // Conditionally set in the lexer.
+        | DESCRIPTION_SYMBOL            // Conditionally set in the lexer.
         | DIAGNOSTICS_SYMBOL
         | DIRECTORY_SYMBOL
         | DISABLE_SYMBOL

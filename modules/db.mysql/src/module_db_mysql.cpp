@@ -1265,11 +1265,23 @@ namespace {
       indexAlter.append(";\n");
     }
 
+    if (!newIndex->oldName().empty() && newIndex->name() != newIndex->oldName()) {
+      if (newIndex->isPrimary())
+        return;
+
+      indexAlter.append(strfmt("ALTER TABLE `%s`.`%s` RENAME INDEX `%s` TO `%s`;\n",
+                        db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+                        db_TableRef::cast_from(newIndex->owner())->name().c_str(),
+                        newIndex->oldName().c_str(),
+                        newIndex->name().c_str()));
+    }
+
     indexAlter.append(
-        strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
-               db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
-               db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
-               newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
+      strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
+             db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+             db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
+             newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
+
   }
 
   void ActionGenerateSQL::alter_table_indexes_end(db_mysql_TableRef) {
@@ -1787,7 +1799,7 @@ protected:
   alias_map_t alias_map;
 
   SQLComposer(const grt::DictRef options) : _case_sensitive(false) {
-    sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
+    sql_mode = options.get_string("SQL_MODE", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION");
     SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
     non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");

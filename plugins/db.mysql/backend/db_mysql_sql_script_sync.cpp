@@ -629,7 +629,6 @@ std::string DbMySQLScriptSync::generate_diff_tree_script() {
 
   std::vector<grt::ValueRef> vec;
   _diff_tree->get_object_list_for_script(vec);
-
   std::vector<std::string> schemata;
   std::vector<std::string> tables;
   std::vector<std::string> triggers;

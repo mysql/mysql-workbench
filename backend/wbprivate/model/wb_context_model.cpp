@@ -323,7 +323,7 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc) {
 
   std::string target_version = bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
-    target_version = "5.6.1";
+    target_version = "8.0.11";
 
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentLogical>()->setup_logical_model(_doc);
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>()->setup_physical_model(_doc, "Mysql",
@@ -1117,7 +1117,7 @@ GrtVersionRef WBContextModel::get_target_version() {
     else {
       std::string target_version = bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion");
       if (target_version.empty())
-        target_version = "5.5";
+        target_version = "8.0";
 
       return bec::parse_version(target_version);
     }
