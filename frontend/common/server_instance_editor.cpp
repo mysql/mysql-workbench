@@ -469,23 +469,22 @@ ServerInstanceEditor::~ServerInstanceEditor() {
 void ServerInstanceEditor::set_password(bool clear) {
   std::string port = _ssh_port.get_string_value();
 
-  std::string storage_key;
+  std::string storageKey;
   if (_ssh_remote_admin.get_active()) {
-    // WBA stores password with key ssh@host, without port
-    // storage_key = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
-    storage_key = strfmt("ssh@%s", _remote_host.get_string_value().c_str());
+    // WBA stores password with key ssh@host:port
+    storageKey = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
   } else
-    storage_key = "wmi@" + _remote_host.get_string_value();
-  std::string username = _remote_user.get_string_value();
+    storageKey = "wmi@" + _remote_host.get_string_value();
+  std::string userName = _remote_user.get_string_value();
 
-  if (username.empty()) {
+  if (userName.empty()) {
     mforms::Utilities::show_warning("Cannot Set Password", "Please fill the username to be used.", "OK");
     return;
   }
 
   if (clear) {
     try {
-      mforms::Utilities::forget_password(storage_key, username);
+      mforms::Utilities::forget_password(storageKey, userName);
     } catch (std::exception &exc) {
       mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
     }
@@ -493,8 +492,8 @@ void ServerInstanceEditor::set_password(bool clear) {
     std::string password;
 
     try {
-      if (mforms::Utilities::ask_for_password(_("Store Password For Server"), storage_key, username, password))
-        mforms::Utilities::store_password(storage_key, username, password);
+      if (mforms::Utilities::ask_for_password(_("Store Password For Server"), storageKey, userName, password))
+        mforms::Utilities::store_password(storageKey, userName, password);
     } catch (std::exception &exc) {
       mforms::Utilities::show_error("Store Password", base::strfmt("Could not store password: %s", exc.what()), "OK");
     }
@@ -1183,21 +1182,20 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 
   grt::DictRef loginInfo(instance.is_valid() ? instance->loginInfo() : grt::DictRef(true));
 
-  std::string storage_key;
+  std::string storageKey;
   std::string port = _ssh_port.get_string_value();
-  std::string username;
+  std::string userName;
   if (_ssh_remote_admin.get_active()) {
     _remote_host.set_value(loginInfo.get_string("ssh.hostName"));
     _remote_user.set_value(loginInfo.get_string("ssh.userName"));
-    username = _remote_user.get_string_value();
-    // WBA stores password key as "ssh@<host>"
-    // storage_key = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
-    storage_key = strfmt("ssh@%s", _remote_host.get_string_value().c_str());
+    userName = _remote_user.get_string_value();
+    // WBA stores password key as "ssh@<host>:<port>"
+    storageKey = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
   } else {
     _remote_host.set_value(loginInfo.get_string("wmi.hostName"));
     _remote_user.set_value(loginInfo.get_string("wmi.userName"));
-    username = _remote_user.get_string_value();
-    storage_key = "wmi@" + _remote_host.get_string_value();
+    userName = _remote_user.get_string_value();
+    storageKey = "wmi@" + _remote_host.get_string_value();
   }
   _ssh_port.set_value(loginInfo.get_string("ssh.port"));
   _ssh_usekey.set_active(loginInfo.get_int("ssh.useKey") != 0);
@@ -1205,7 +1203,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 
   std::string dummy;
 
-  if (instance.is_valid() && !username.empty() && mforms::Utilities::find_password(storage_key, username, dummy))
+  if (instance.is_valid() && !userName.empty() && mforms::Utilities::find_password(storageKey, userName, dummy))
     _password_clear.set_enabled(true);
   else
     _password_clear.set_enabled(false);

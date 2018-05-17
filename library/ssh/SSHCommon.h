@@ -116,7 +116,7 @@ namespace ssh {
     std::size_t commandTimeout;
     std::size_t commandRetryCount;
     std::string getServer() {
-      return remotehost + ":" + std::to_string(remoteport);
+      return remoteSSHhost + ":" + std::to_string(remoteSSHport);
     }
 
     void dumpConfig() const;
