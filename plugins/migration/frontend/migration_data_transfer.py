@@ -546,7 +546,19 @@ class TransferMainView(WizardProgressPage):
             f.write("set arg_target_password=\n")
             f.write("set arg_source_ssh_password=\n")
             f.write("set arg_target_ssh_password=\n")
+            f.write("\n")
             f.write("""
+REM Set the location for wbcopytables.exe in this variable
+set wbcopytables_path=""" + os.getcwd() + """
+
+if not [%wbcopytables_path%] == [] set wbcopytables_path=%wbcopytables_path%\\
+set wbcopytables=%wbcopytables_path%wbcopytables.exe
+
+if not exist %wbcopytables% (
+	echo "wbcopytables.exe doesn't exist in the supplied path. Please set 'wbcopytables_path' with the proper path(e.g. to Workbench binaries)"
+	exit 1
+)
+
 IF [%arg_source_password%] == [] (
     IF [%arg_target_password%] == [] (
         IF [%arg_source_ssh_password%] == [] (
@@ -570,7 +582,7 @@ IF [%arg_source_password%] == [] (
             f.write("REM Creation of file with table definitions for copytable\n\n")
 
             # Creates a temporary file name with the tables to be migrated
-            filename = '"%TMP%\wb_tables_to_migrate.txt"'
+            filename = '%TMP%\wb_tables_to_migrate.txt'
             f.write("set table_file=%s\n" % filename)
             f.write("TYPE NUL > %s\n" % filename)
 
@@ -588,11 +600,11 @@ IF [%arg_source_password%] == [] (
                 f.write(line + "\n")
 
             f.write("\n\n")
-            f.write(self.main.plan.wbcopytables_path)
+            f.write("%wbcopytables%")
             f.write(" ^\n")
             for arg in self._transferer.helper_basic_arglist(True, True):
                 f.write(' %s ^\n' % arg)
-            f.write(' --source-password="%arg_source_password%" ^\n --target-password="%arg_target_password%" ^\n --table-file="%table_file%"')
+            f.write(' --source-password="%arg_source_password%" ^\n --target-password="%arg_target_password%" ^\n --table-file="%table_file%" ^\n')
             for arg in self._transferer.helper_ssh_arglist(True):
                 f.write(' %s ^\n' % arg)
             f.write(' --source-ssh-password="%arg_source_ssh_password%" ^\n --target-ssh-password="%arg_target_ssh_password%"')
