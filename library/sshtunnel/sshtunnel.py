@@ -300,7 +300,8 @@ class Tunnel(threading.Thread):
             has_key = bool(self._keyfile)
             self._client.connect(self._server[0], self._server[1], username=self._username,
                                  key_filename=self._keyfile, password=self._password,
-                                 look_for_keys=has_key, allow_agent=has_key, timeout=SSH_CONNECTION_TIMEOUT)
+                                 look_for_keys=has_key, allow_agent=has_key, timeout=SSH_CONNECTION_TIMEOUT, 
+                                 sock=paramiko.ProxyCommand(opts['proxycommand']) if 'proxycommand' in opts else None)
         except paramiko.BadHostKeyException, exc:
             self.notify_exception_error('ERROR',format_bad_host_exception(exc, '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder() if platform.system().lower() == "windows" else "~/.ssh/known_hosts file"))
             return False
