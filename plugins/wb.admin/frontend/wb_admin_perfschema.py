@@ -374,15 +374,17 @@ class WbAdminValidationNeedsInstallation(WbAdminValidationBase):
                 # major number is incremented on backwards incompatible changes
                 # minor number is incremented when new things are added
                 # release number is incremented on any other kind of change
+                version_ok = False
+                if ix > x:
+                    version_ok = True
+                elif ix == x:
+                    if iy > y:
+                        version_ok = True
+                    elif iy == y and iz >= z:
+                        version_ok = True
                 
-                if ix == x and (iy > y or (iy == y and iz >= z)):
-                    pass # ok
-                elif x < ix:
-                    self.set_error_message("Installed Performance Schema helper (sys) version is newer than supported", "MySQL Workbench needs to downgrade it.\n(current version is %s, server has %s).%s" % (curversion, installed_version, install_text))
-                    self.add_install_button()
-                    return False
-                else:
-                    self.set_error_message("Performance Schema helper schema (sys) is outdated", "MySQL Workbench needs to upgrade it.\n(current version is %s, server has %s%s)." % (curversion, installed_version, install_text))
+                if not version_ok:
+                    self.set_error_message("Performance Schema helper schema (sys) is outdated\n\nMySQL Workbench needs to upgrade it.\n(current version is %s, server has %s%s)." % (curversion, installed_version, install_text))
                     self.add_install_button()
                     return False
         except grt.DBError, e:
