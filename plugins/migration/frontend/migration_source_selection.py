@@ -30,16 +30,6 @@ from workbench.utils import replace_string_parameters
 from workbench.db_driver import get_connection_parameters, get_odbc_connection_string, is_odbc_connection
 from workbench.log import log_error
 
-def get_user_and_storage_string(message):
-    regex = r"'([^@]+)'\@'([^@]+)'"
-    match = re.search(regex, message)
-    if match:
-        username = match.group(1)
-        storage_string = "'%s'@'%s'" % (match.group(1), match.group(2))
-        return username, storage_string
-
-    return '', ''
-
 def ping_host(hostname):
     import sys
     import subprocess
@@ -262,7 +252,8 @@ class SourceWizardPage(WizardPage):
                         return
 
                 attempt += 1
-                username, storage_string = get_user_and_storage_string(e.message)
+                username = source.connection.parameterValues.userName
+                storage_string = source.connection.hostIdentifier
                 source.password = request_password(source.connection, username, storage_string, force_password)
                 
                 # Avoid asking the password a second time when the user cancels the password request
@@ -460,7 +451,8 @@ class FetchProgressView(WizardProgressPage):
                         #if mforms.Utilities.show_error("Connect to Source RDBMS", str(e), "Retry", "Cancel", "") != mforms.ResultOk:
                         raise e
                 attempt += 1
-                username, storage_string = get_user_and_storage_string(e.message)
+                username = self.main.plan.migrationSource.connection.parameterValues.userName
+                storage_string = self.main.plan.migrationSource.connection.hostIdentifier
                 self.main.plan.migrationSource.password = request_password(self.main.plan.migrationSource.connection, username, storage_string, force_password)
 
     def go_back(self):
@@ -498,5 +490,6 @@ class FetchProgressView(WizardProgressPage):
                     else:
                         raise e
                 attempt += 1
-                username, storage_string = get_user_and_storage_string(e.message)
+                username = self.main.plan.migrationTarget.connection.parameterValues.userName
+                storage_string = self.main.plan.migrationTarget.connection.hostIdentifier
                 self.main.plan.migrationTarget.password = request_password(self.main.plan.migrationTarget.connection, username, storage_string)

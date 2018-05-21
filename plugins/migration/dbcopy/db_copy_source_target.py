@@ -27,7 +27,7 @@ import mforms
 from grt import DBLoginError
 from workbench.ui import WizardPage
 
-from migration_source_selection import request_password, test_connectivity, get_user_and_storage_string
+from migration_source_selection import request_password, test_connectivity
 
 
 class SourceTargetMainView(WizardPage):
@@ -160,7 +160,8 @@ and the destination server where they should be copied to.'''), False, True)
                         self.connections_ok = False
                         return
                 attempt += 1
-                username, storage_string = get_user_and_storage_string(e.message)
+                username = source.connection.parameterValues.userName
+                storage_string = source.connection.hostIdentifier
                 source.password = request_password(source.connection, username, storage_string, force_password)
             except Exception, e:
                 etext = str(e)
