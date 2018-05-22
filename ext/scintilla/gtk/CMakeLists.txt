@@ -157,6 +157,15 @@ set(SCINTILLA_SOURCES
 add_library(wbscintilla
   ${SCINTILLA_SOURCES})
 
+set(SCI_VERSION_FILE ../win32/ScintRes.rc)
+file(STRINGS ${SCI_VERSION_FILE} SCI_VERSION_LINE REGEX "#define VERSION_SCINTILLA \"[0-9.]+\"")
+if (SCI_VERSION_LINE)
+  string(REGEX MATCH "([0-9.]+)" SCI_VERSION "${SCI_VERSION_LINE}")
+  message("Found Scintilla Version: " ${SCI_VERSION})
+else()
+  message(ERROR " Unable to detect Scintilla version")
+endif()
+
 set(NEW_WB_CFLAGS ${WB_CFLAGS})
 list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
 list(APPEND NEW_WB_CFLAGS -DGTK -DSCI_LEXER -DSCI_NAMESPACE -Wno-deprecated-register -Wno-implicit-fallthrough)
@@ -169,6 +178,11 @@ target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
 if(BUILD_FOR_TESTS)
   target_link_libraries(wbscintilla gcov)
 endif()
+
+set_target_properties(wbscintilla
+                      PROPERTIES VERSION   ${SCI_VERSION}
+                      SOVERSION ${SCI_VERSION})
+
 
 if(COMMAND cotire)
     set_target_properties(wbscintilla PROPERTIES

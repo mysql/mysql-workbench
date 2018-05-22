@@ -135,7 +135,7 @@ endif()
 
 target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${LIBSECRET_LIBRARIES})
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla wbbase ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${LIBSECRET_LIBRARIES})
 
 set_source_files_properties(gtk/src/mforms_acc.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 

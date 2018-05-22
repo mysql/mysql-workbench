@@ -19,7 +19,7 @@ add_library(db.mysql.query.grt
 
 target_compile_options(db.mysql.query.grt PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(db.mysql.query.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${MySQLCppConn_LIBRARIES})
+target_link_libraries(db.mysql.query.grt grt cdbc ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${MySQLCppConn_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(db.mysql.query.grt gcov)

@@ -20,7 +20,7 @@ add_library(cdbc
 
 target_compile_options(cdbc PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(cdbc ${MySQLCppConn_LIBRARIES})
+target_link_libraries(cdbc ${MySQLCppConn_LIBRARIES} ${GMODULE_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(cdbc gcov)

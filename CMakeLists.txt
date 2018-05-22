@@ -307,7 +307,9 @@ install(FILES build/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHA
 
 
 install(FILES build/build_freetds.sh
-              samples/models/sakila_full.mwb
-        DESTINATION ${WB_PACKAGE_SHARED_DIR}/extras
-       )
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+        DESTINATION ${WB_PACKAGE_SHARED_DIR}/extras)
+
+install(FILES samples/models/sakila_full.mwb
+        DESTINATION ${WB_PACKAGE_SHARED_DIR}/extras)
        

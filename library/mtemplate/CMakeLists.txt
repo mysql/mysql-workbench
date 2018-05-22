@@ -13,6 +13,7 @@ add_library(mtemplate
 
 target_compile_options(mtemplate PUBLIC ${WB_CXXFLAGS})
 
+target_link_libraries(mtemplate wbbase)
 if(BUILD_FOR_TESTS)
   target_link_libraries(mtemplate gcov)
 endif()

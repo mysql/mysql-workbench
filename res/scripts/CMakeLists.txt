@@ -42,10 +42,13 @@ set(SYS_FILES
     sys/sys_56.sql
     sys/sys_57.sql
     sys/sys_reports.js
-    sys/generate_sql_file.sh
 )
 
 install(FILES ${SYS_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys)
+
+install(FILES sys/generate_sql_file.sh
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+        DESTINATION ${WB_PACKAGE_SHARED_DIR}/sys)
 
 set(SYS_FUNCTIONS_FILES
     sys/functions/extract_schema_from_file_name.sql

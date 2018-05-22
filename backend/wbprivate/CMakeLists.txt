@@ -110,6 +110,7 @@ target_link_libraries(wbprivate
     mdcanvas
     wbbase
     wbssh
+    mforms
     ${CAIRO_LIBRARIES}
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}
