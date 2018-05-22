@@ -470,6 +470,7 @@ class WbAdminSchemaListTab(mforms.Box):
             self.savefile_path = os.path.join(self.savefolder_path, "export.sql")
 
         self.schema_list = newTreeView(mforms.TreeFlatList)
+        self.schema_list.set_min_size(-1, 150)
         self.schema_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.schema_list.add_column(mforms.IconColumnType, "Schema", 300, False)
 
@@ -478,6 +479,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.schema_list.set_allow_sorting(True)
 
         self.table_list = newTreeView(mforms.TreeFlatList)
+        self.table_list.set_min_size(-1, 150)
         self.table_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.table_list.add_column(mforms.IconColumnType, "Schema Objects", 300, False)
         self.table_list.end_columns()
