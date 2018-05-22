@@ -173,7 +173,7 @@ static db_TableRef make_inserts_test_table(const db_mgmt_RdbmsRef &rdbms, const 
   return table;
 }
 
-TEST_FUNCTION(1) {
+TEST_FUNCTION(10) {
   wbt->create_new_document();
 }
 
@@ -197,7 +197,7 @@ static std::string generate_sql_just_like_fwd_eng(db_TableRef table) {
   return output_storage->sql_script();
 }
 
-TEST_FUNCTION(5) {
+TEST_FUNCTION(20) {
   // test proper storage of values with trivial values
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
   {
@@ -298,7 +298,7 @@ static void test_rs_storage(RecordsetRef rs, int row, int column, const std::str
   ensure_equals("get value back 3", s, value);
 }
 
-TEST_FUNCTION(6) {
+TEST_FUNCTION(30) {
   // check storage of NULL value
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
@@ -356,7 +356,7 @@ TEST_FUNCTION(6) {
                 "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, NULL, NULL, NULL);\n");
 }
 
-TEST_FUNCTION(11) {
+TEST_FUNCTION(40) {
   // test storage of \\func with int column
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 
@@ -376,7 +376,7 @@ TEST_FUNCTION(11) {
                 "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, NULL, NULL, NULL);\n");
 }
 
-TEST_FUNCTION(12) {
+TEST_FUNCTION(50) {
   // test storage of \\func with string column
 
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
@@ -397,7 +397,7 @@ TEST_FUNCTION(12) {
                 "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, DEFAULT, NULL, NULL, NULL);\n");
 }
 
-TEST_FUNCTION(13) {
+TEST_FUNCTION(60) {
   // test storage of \\func with timestamp column
 
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
@@ -418,7 +418,7 @@ TEST_FUNCTION(13) {
                 "INSERT INTO `table` (`id`, `name`, `ts`, `pic`, `bitcol`) VALUES (DEFAULT, NULL, DEFAULT, NULL, NULL);\n");
 }
 
-TEST_FUNCTION(15) {
+TEST_FUNCTION(70) {
   // all at once
   db_TableRef table(make_inserts_test_table(wbt->get_rdbms(), wbt->get_catalog()));
 

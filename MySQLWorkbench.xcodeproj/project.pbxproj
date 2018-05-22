@@ -14622,13 +14622,16 @@
 			files = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/library/forms/swig/cairo.i",
 			);
 			name = "Generate swig wrapper";
 			outputPaths = (
+				"$(SRCROOT)/library/forms/swig/cairo_wrap.cxx",
+				"$(SRCROOT)/library/forms/swig/cairo.py",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\n  header_path_string+=\"-I$arg \"\ndone\n\ncd library/forms/swig\n\n# Remove the file or it won't get regenerated.\nrm -f cairo_wrap.cxx\n\n/usr/local/bin/swig ${header_path_string} -DCAIRO_HAS_PNG_FUNCTIONS=1 -w312 -fvirtual -fcompact -c++ -DSWIG_PYTHON_LEGACY_BOOL -python cairo.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' cairo_wrap.cxx > cairo_wrap.tmp\nmv -f cairo_wrap.tmp cairo_wrap.cxx\n";
+			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\n  header_path_string+=\"-I$arg \"\ndone\n\ncd library/forms/swig\n\n/usr/local/bin/swig ${header_path_string} -DCAIRO_HAS_PNG_FUNCTIONS=1 -w312 -fvirtual -fcompact -c++ -DSWIG_PYTHON_LEGACY_BOOL -python cairo.i\n";
 			showEnvVarsInLog = 0;
 		};
 		2B4B52EB122F102000F1EA6B /* Copy Other Resource Data Folders */ = {
@@ -14655,6 +14658,62 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/library/forms/swig/mforms.i",
+				"$(SRCROOT)/library/forms/mforms/app.h",
+				"$(SRCROOT)/library/forms/mforms/appview.h",
+				"$(SRCROOT)/library/forms/mforms/base.h",
+				"$(SRCROOT)/library/forms/mforms/box.h",
+				"$(SRCROOT)/library/forms/mforms/button.h",
+				"$(SRCROOT)/library/forms/mforms/canvas.h",
+				"$(SRCROOT)/library/forms/mforms/checkbox.h",
+				"$(SRCROOT)/library/forms/mforms/code_editor.h",
+				"$(SRCROOT)/library/forms/mforms/container.h",
+				"$(SRCROOT)/library/forms/mforms/dockingpoint.h",
+				"$(SRCROOT)/library/forms/mforms/drawbox.h",
+				"$(SRCROOT)/library/forms/mforms/filechooser.h",
+				"$(SRCROOT)/library/forms/mforms/find_panel.h",
+				"$(SRCROOT)/library/forms/mforms/form.h",
+				"$(SRCROOT)/library/forms/mforms/fs_object_selector.h",
+				"$(SRCROOT)/library/forms/mforms/gridview.h",
+				"$(SRCROOT)/library/forms/mforms/home_screen.h",
+				"$(SRCROOT)/library/forms/mforms/home_screen_connections.h",
+				"$(SRCROOT)/library/forms/mforms/home_screen_documents.h",
+				"$(SRCROOT)/library/forms/mforms/home_screen_helpers.h",
+				"$(SRCROOT)/library/forms/mforms/home_screen_launchers.h",
+				"$(SRCROOT)/library/forms/mforms/hypertext.h",
+				"$(SRCROOT)/library/forms/mforms/imagebox.h",
+				"$(SRCROOT)/library/forms/mforms/jsonview.h",
+				"$(SRCROOT)/library/forms/mforms/label.h",
+				"$(SRCROOT)/library/forms/mforms/listbox.h",
+				"$(SRCROOT)/library/forms/mforms/menu.h",
+				"$(SRCROOT)/library/forms/mforms/menubar.h",
+				"$(SRCROOT)/library/forms/mforms/mforms.h",
+				"$(SRCROOT)/library/forms/mforms/native.h",
+				"$(SRCROOT)/library/forms/mforms/panel.h",
+				"$(SRCROOT)/library/forms/mforms/password_cache.h",
+				"$(SRCROOT)/library/forms/mforms/popover.h",
+				"$(SRCROOT)/library/forms/mforms/popup.h",
+				"$(SRCROOT)/library/forms/mforms/progressbar.h",
+				"$(SRCROOT)/library/forms/mforms/radiobutton.h",
+				"$(SRCROOT)/library/forms/mforms/scrollpanel.h",
+				"$(SRCROOT)/library/forms/mforms/sectionbox.h",
+				"$(SRCROOT)/library/forms/mforms/selector.h",
+				"$(SRCROOT)/library/forms/mforms/simpleform.h",
+				"$(SRCROOT)/library/forms/mforms/splitter.h",
+				"$(SRCROOT)/library/forms/mforms/table.h",
+				"$(SRCROOT)/library/forms/mforms/tabswitcher.h",
+				"$(SRCROOT)/library/forms/mforms/tabview.h",
+				"$(SRCROOT)/library/forms/mforms/tabview_dock.h",
+				"$(SRCROOT)/library/forms/mforms/task_sidebar.h",
+				"$(SRCROOT)/library/forms/mforms/textbox.h",
+				"$(SRCROOT)/library/forms/mforms/textentry.h",
+				"$(SRCROOT)/library/forms/mforms/toolbar.h",
+				"$(SRCROOT)/library/forms/mforms/treeview.h",
+				"$(SRCROOT)/library/forms/mforms/uistyle.h",
+				"$(SRCROOT)/library/forms/mforms/utilities.h",
+				"$(SRCROOT)/library/forms/mforms/view.h",
+				"$(SRCROOT)/library/forms/mforms/webbrowser.h",
+				"$(SRCROOT)/library/forms/mforms/widgets.h",
+				"$(SRCROOT)/library/forms/mforms/wizard.h",
 			);
 			name = "Generate swig wrapper";
 			outputPaths = (
@@ -14663,7 +14722,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n\n# Remove the file or it won't get regenerated.\nrm -f mforms_wrap.cxx\n\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -DSWIG_PYTHON_LEGACY_BOOL -python mforms.i\n\n# hack the generated file to fix some warnings\nsed -e 's/PyErr_Format(PyExc_RuntimeError, mesg);/PyErr_Format(PyExc_RuntimeError, \"%s\", mesg);/' mforms_wrap.cxx > mforms_wrap.tmp\nmv -f mforms_wrap.tmp mforms_wrap.cxx\n";
+			shellScript = "echo \"Generating swig wrapper...\"\n\nIFS=' ' read -ra header_paths_arr <<< \"$HEADER_SEARCH_PATHS\"\nheader_path_string=\"\"\nfor arg in ${header_paths_arr[@]}; do\nheader_path_string+=\"-I$arg \"\ndone\n\ncd \"${SRCROOT}/library/forms/swig\"\n\n/usr/local/bin/swig -I../../../../mysql-mac-res/include -w401,402,509 -fvirtual -fcompact -c++ -DSWIG_PYTHON_LEGACY_BOOL -python mforms.i\n";
 			showEnvVarsInLog = 0;
 		};
 		2BB58A730F45AEF100089423 /* Copy Module Data Files */ = {

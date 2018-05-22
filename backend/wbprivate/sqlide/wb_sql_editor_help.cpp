@@ -395,9 +395,9 @@ bool isParentContext(tree::ParseTree *tree, size_t type) {
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::map<std::string, std::string> functionSynonyms = {
-  { "ST_ASWKB", "ASBINARY" },
+  { "ST_ASWKB", "ST_ASBINARY" },
   { "ASWKB", "ASBINARY" },
-  { "ST_ASWKT", "ASTEXT" },
+  { "ST_ASWKT", "ST_ASTEXT" },
   { "ASWKT", "ASTEXT" },
   { "ST_CROSSES", "CROSSES" },
   { "GEOMETRYFROMTEXT", "GEOMFROMTEXT" },

@@ -318,7 +318,6 @@ namespace sqlide {
             return (needQuote ? ((bitMode ? "b" : "" ) + quote) : "") + escape_string(v.substr(1)) + (needQuote ? quote : "");
         }
       }
-      std::cout << "testing " << std::endl;
       return (needQuote ? ((bitMode ? "b" : "" ) + quote) : "") + escape_string(v) + (needQuote ? quote : "");
     }
     template <typename T>

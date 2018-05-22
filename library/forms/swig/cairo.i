@@ -9,33 +9,6 @@
 #include <cairo/cairo-svg.h>
 
 
-/*
-static cairo_status_t py_read_func(void *closure, unsigned char *data, unsigned int length)
-{
-  PyObject *arg = Py_BuildValue("i", length); 
-  PyObject *res = PyObject_Call((PyObject*)closure, arg, NULL);
-  Py_DECREF(arg);
-  if (!res)
-  {
-    PyErr_Print();
-    PyErr_Clear();
-    return CAIRO_STATUS_READ_ERROR;
-  }
-  if (PyString_Check(res))
-  {
-    long l = PyString_Size(res);
-    char *s = PyString_AsString(res);
-    if (l > (long)length)
-      l = length;
-    memcpy(s, data, l);
-    Py_DECREF(res);
-    return CAIRO_STATUS_SUCCESS;
-  }
-  Py_DECREF(res);
-  return CAIRO_STATUS_READ_ERROR;
-}*/
-
-
 %}
 
 %ignore _cairo;
