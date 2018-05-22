@@ -2065,7 +2065,10 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page() {
     mforms::Selector *selector = new_selector_option("ColorScheme", "", true);
     selector->set_size(250, -1);
     hbox->add(selector, true, false);
-    hbox->add(new_label(_("The scheme that determines the core colors."), false, true), true, false);
+
+    mforms::Label *help = new_label(_("The scheme that determines the core colors."), false, true);
+    hbox->add(help, true, false);
+    help->set_size(200, -1);
 
     frame->add(hbox);
     content->add(frame, false, true);
