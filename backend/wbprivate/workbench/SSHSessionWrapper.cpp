@@ -72,7 +72,7 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::disconnect() {
-    auto lock = _session->lockSession();
+    auto timeoutLock = lockTimeout();
     if (_sessionPoolHandle != 0) {
       ThreadedTimer::remove_task(_sessionPoolHandle);
       _sessionPoolHandle = 0;
@@ -152,26 +152,43 @@ namespace ssh {
     }
   }
 
-  grt::StringRef SSHSessionWrapper::executeCommand(const std::string &command) {
+  grt::DictRef SSHSessionWrapper::executeCommand(const std::string &command) {
     if (!_session->isConnected())
       return "";
 
-    return _session->execCmd(command,
-                             wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("SSH:logSize", LOG_SIZE_1MB));
+    auto ret = _session->execCmd(command,
+                             wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("SSH:logSize", LOG_SIZE_100MB));
+    grt::DictRef dict(true);
+    dict.gset("stdout", std::get<0>(ret));
+    dict.gset("stderr", std::get<1>(ret));
+    dict.gset("status", std::get<2>(ret));
+    return dict;
   }
 
-  grt::StringRef SSHSessionWrapper::executeSudoCommand(const std::string &command) {
+  grt::DictRef SSHSessionWrapper::executeSudoCommand(const std::string &command, const std::string &user) {
     if (!_session->isConnected())
       return "";
+
+    std::string sudoUser = user;
+    if (sudoUser.empty()) {
+      logWarning("Sudo user not specified, using connection user.\n");
+      sudoUser = _credentials.username;
+    }
+
     bool resetPw = false;
     while (true) {
       std::string password;
       if (mforms::Utilities::find_or_ask_for_password(_("Execute privileged command"), "sudo@localhost",
-                                                      _credentials.username, resetPw, password)) {
+                                                      sudoUser, resetPw, password)) {
         try {
-          return _session->execCmdSudo(
+          auto ret = _session->execCmdSudo(
               command, password, "EnterPasswordHere",
-              wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("SSH:logSize", LOG_SIZE_1MB));
+              wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("SSH:logSize", LOG_SIZE_100MB));
+          grt::DictRef dict(true);
+          dict.gset("stdout", std::get<0>(ret));
+          dict.gset("stderr", std::get<1>(ret));
+          dict.gset("status", std::get<2>(ret));
+          return dict;
         } catch (ssh::SSHAuthException &) {
           logError("Invalid user password, retry\n");
           resetPw = true;
@@ -179,7 +196,11 @@ namespace ssh {
         }
       } else {
         logDebug2("User cancel password dialog");
-        return "";
+        grt::DictRef dict(true);
+        dict.gset("stdout", "");
+        dict.gset("stderr", "");
+        dict.gset("status", -1);
+        return dict;
       }
     }
   }
@@ -296,7 +317,6 @@ namespace ssh {
 
 
   grt::IntegerRef SSHSessionWrapper::cd(const std::string &directory) {
-    auto lock = _session->lockSession();
     if (_sftp)
       return _sftp->cd(directory);
     throw std::runtime_error("Not connected");
@@ -304,7 +324,6 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::get(const std::string &src, const std::string &dest) {
-    auto lock = _session->lockSession();
     if (_sftp)
       _sftp->get(src, dest);
     else
@@ -312,7 +331,6 @@ namespace ssh {
   }
 
   grt::StringRef SSHSessionWrapper::getContent(const std::string &src) {
-    auto lock = _session->lockSession();
     if (_sftp)
       return _sftp->getContent(src);
     throw std::runtime_error("Not connected");
@@ -332,7 +350,6 @@ namespace ssh {
   }
 
   grt::DictListRef SSHSessionWrapper::ls(const std::string &path) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -349,7 +366,6 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::mkdir(const std::string &directory) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -367,7 +383,6 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::put(const std::string &src, const std::string &dest) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -375,7 +390,6 @@ namespace ssh {
   }
 
   grt::StringRef SSHSessionWrapper::pwd() {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -383,7 +397,6 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::rmdir(const std::string &directory) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -391,7 +404,6 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::setContent(const std::string &path, const std::string &content) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -399,7 +411,6 @@ namespace ssh {
   }
 
   grt::DictRef SSHSessionWrapper::stat(const std::string &path) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -407,7 +418,6 @@ namespace ssh {
   }
 
   void SSHSessionWrapper::unlink(const std::string &file) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -415,7 +425,6 @@ namespace ssh {
   }
 
   grt::IntegerRef SSHSessionWrapper::fileExists(const std::string &path) {
-    auto lock = _session->lockSession();
     if (!_sftp)
       throw std::runtime_error("Not connected");
 
@@ -437,7 +446,7 @@ namespace ssh {
     if (_session != nullptr)
       _session->pollEvent();
 
-    _sessionPoolHandle = ThreadedTimer::add_task(TimerTimeSpan, 1.0,
+    _sessionPoolHandle = ThreadedTimer::add_task(TimerTimeSpan, 2.0,
       false, std::bind(&SSHSessionWrapper::pollSession, this));
     return false;
   }

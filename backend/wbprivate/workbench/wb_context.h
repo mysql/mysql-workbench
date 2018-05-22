@@ -50,6 +50,8 @@
 #define WB_DBOBJECT_DRAG_TYPE "com.mysql.workbench.DatabaseObject"
 #define WB_CONTROL_DRAG_TYPE "com.mysql.workbench.control"
 
+const int ONE_MB = 1024*1024;
+
 namespace mdc {
   class CanvasView;
   class CanvasItem;

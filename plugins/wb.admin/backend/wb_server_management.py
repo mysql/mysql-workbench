@@ -53,6 +53,22 @@ from workbench.log import log_info, log_warning, log_error, log_debug, log_debug
 from workbench.tcp_utils import CustomCommandListener
 from workbench.os_utils import FileUtils, OSUtils, FunctionType
 
+def handle_ssh_command_output(return_value, merge_output = False):
+    if return_value['stderr']:
+        log_error("An error occured during command exec: %s\n" % return_value['stderr'])
+    log_debug3("Exit status was: %d\n" % return_value['status'])
+#     if return_value['status'] == 127:
+#         raise OSError(127, "Command not found")
+
+    if return_value['status'] == 1:
+        if "No such file or directory" in return_value['stderr']:
+            raise OSError(2, "No such file or directory")
+        
+    if merge_output:
+        return return_value['stdout'] + return_value['stderr']
+    else:
+        return return_value['stdout']
+
 class wbaOS(object):
     unknown = "unknown"
     windows = "windows"
@@ -91,9 +107,9 @@ def wrap_for_sudo(command, sudo_prefix, as_user = Users.ADMIN, to_spawn = False)
             sudo_user = "sudo -k -u %s" % as_user
             sudo_prefix = sudo_prefix.replace('sudo', sudo_user)
         if '/bin/sh' in sudo_prefix or '/bin/bash' in sudo_prefix:
-            command = sudo_prefix + " \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
+            command = "LANG=C " + sudo_prefix + " \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
         else:
-            command = sudo_prefix + " /bin/bash -c \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
+            command = "LANG=C " + sudo_prefix + " /bin/bash -c \"" + command.replace('\\', '\\\\').replace('"', r'\"').replace('$','\\$') + "\""
 
     return command
 
@@ -508,22 +524,23 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
         self.ssh = kwargs["ssh"]
 
     def exec_cmd(self, command, as_user=Users.CURRENT, user_password=None, output_handler=None, options=None):
-        #if not self.ssh:
-        #    raise Exception("No SSH session active")
-
+        ret = 0
         if self.ssh:
             # output_handler taken by ssh.exec_cmd is different from the one used elsewhere
             dummy_text = None
             try:
                 if as_user != Users.CURRENT:
                     command = wrap_for_sudo(command, self.sudo_prefix, as_user)
-                    dummy_text = self.ssh.executeSudoCommand(command)
+                    dummy_text = self.ssh.executeSudoCommand(command, as_user)
                 else:
                     dummy_text = self.ssh.executeCommand(command)
+
+                ret = dummy_text['status']
+                dummy_text = handle_ssh_command_output(dummy_text, True)
             except Exception, ex:
                 # executeCommand can throw Exception when command doesn't exists or there's an error
                 ret = 1
-                log_error("Unable to execute: %s, error was: %s" % (command, str(ex)))
+                log_error("Unable to execute: %s, error was: %s\n" % (command, str(ex)))
 
             if output_handler:
                 output_handler(dummy_text)
@@ -532,10 +549,9 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
             if output_handler:
                 output_handler("No SSH connection is active")
             else:
-                print("No SSH connection is active")
                 log_info('No SSH connection is active\n')
 
-        return 0
+        return ret
 
     def spawn_process(self, command, as_user=Users.CURRENT, user_password=None, output_handler=None, options=None):
         if as_user != Users.CURRENT:
@@ -546,33 +562,21 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
             sudo_prefix = self.sudo_prefix
             if options and options.has_key(CmdOptions.CMD_HOME):
                 sudo_prefix = "%s HOME=%s" % (sudo_prefix, options[CmdOptions.CMD_HOME])
-            
+
             command = wrap_for_sudo(command, sudo_prefix, as_user, True)
-        
-        def ssh_output_handler(chunk, handler):
-            if "EnterPasswordHere" in chunk and as_user != Users.CURRENT:
-              raise InvalidPasswordError("Invalid password for sudo")
-            if chunk is not None and chunk != "":
-              handler(chunk)
-        
-        if output_handler:
-          handler = lambda chunk, h=output_handler: ssh_output_handler(chunk, h)
-        else:
-          handler = None
-        
+
         if self.ssh:
             if as_user != Users.CURRENT:
                 command = wrap_for_sudo(command, self.sudo_prefix, as_user)
-                dummy_text = self.ssh.executeSudoCommand(command)
+                handle_ssh_command_output(self.ssh.executeSudoCommand(command, as_user))
             else:
-                dummy_text = self.ssh.executeCommand(command)
+                handle_ssh_command_output(self.ssh.executeCommand(command))
 
         else:
             ret = 1
             if output_handler:
                 output_handler("No SSH connection is active")
             else:
-                print("No SSH connection is active")
                 log_info('No SSH connection is active\n')
         
         return 0
@@ -725,23 +729,24 @@ class ProcessOpsWindowsRemoteSSH(ProcessOpsWindowsLocal):
 
         if not self.ssh:
             raise Exception("No SSH session active")
+        
+        ret = 0
+        dummy_text = None
+        try:
+            dummy_text = self.ssh.executeCommand(command)
 
-        def ssh_output_handler(chunk, handler):
-            if chunk is not None and chunk != "":
-                handler(chunk)
-            #else:
-            #    loop = False
+            ret = dummy_text['status']
+            dummy_text = handle_ssh_command_output(dummy_text, True)
+
+        except Exception, ex:
+            # executeCommand can throw Exception when command doesn't exists or there's an error
+            ret = 1
+            log_error("Unable to execute: %s, error was: %s\n" % (command, str(ex)))
 
         if output_handler:
-            handler = lambda chunk, h=output_handler: ssh_output_handler(chunk, h)
-        else:
-            handler = None
+            output_handler(dummy_text)
 
-        # output_handler taken by ssh.exec_cmd is different from the one used elsewhere
-        dummy_text = self.ssh.executeSudoCommand(command,
-                as_user=as_user, user_password=user_password,
-                output_handler=handler, options=options)
-        return 0
+        return ret
 
 
     def spawn_process(self, command, as_user=Users.CURRENT, user_password=None, output_handler=None, options=None):
@@ -1692,7 +1697,7 @@ class FileOpsRemoteWindows(object):
 
     def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
         if self.ssh:
-            out = self.ssh.executeSudoCommand('if exist %s exit /b 0' % quote_path(path), as_user, user_password)
+            out = self.ssh.executeCommand('if exist %s exit /b 0' % quote_path(path), as_user, user_password)
             return True
         else:
             log_error('%s: Attempt to read remote file with no ssh session\n' % self.__class__.__name__)
@@ -1712,8 +1717,8 @@ class FileOpsRemoteWindows(object):
                 raise err
         else:
             command = wrap_for_sudo('mkdir ' + quote_path_win(path), self.process_ops.sudo_prefix, as_user)
-            out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
-            if ret != 0:
+            output = self.ssh.executeCommand(command)
+            if output['status'] != 0:
                 raise RuntimeError(out)
 
     def create_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
@@ -1738,17 +1743,11 @@ class FileOpsRemoteWindows(object):
                     raise PermissionDeniedError("Could not remove directory %s" % path)
                 raise err
         else:
-            command = wrap_for_sudo('rmdir ' + quote_path_win(path), self.process_ops.sudo_prefix, as_user)
-
-            out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
-            if ret != 0:
-                raise RuntimeError(out)
+            raise PermissionDeniedError("Unable to remove directory %s owned by different user" % path)
 
     def remove_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None):
-        command = wrap_for_sudo('rmdir %s /s /q' % quote_path_win(path), self.process_ops.sudo_prefix, as_user)
-
-        out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
-        if ret != 0:
+        output = self.ssh.executeCommand('rmdir %s /s /q' % quote_path_win(path))
+        if output['status'] != 0:
             raise RuntimeError(out)
 
     def delete_file(self, path, as_user = Users.CURRENT, user_password = None):
@@ -1760,10 +1759,7 @@ class FileOpsRemoteWindows(object):
                     raise PermissionDeniedError("Could not delete file %s" % path)
                 raise err
         else:
-            command = wrap_for_sudo('del ' + quote_path_win(path), self.process_ops.sudo_prefix, as_user)
-            out, ret = self.ssh.executeSudoCommand(command, as_user, user_password)
-            if ret != 0:
-                raise RuntimeError(out)
+            raise PermissionDeniedError("Unable to remove file %s owned by different user" % path)
 
     def save_file_content_and_backup(self, path, content, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
         # Check if dir, where config file will be stored is writable

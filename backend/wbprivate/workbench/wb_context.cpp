@@ -1574,7 +1574,8 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SSH:keepalive", 60);
   set_default(options, "SSH:connectTimeout", 10);
   set_default(options, "SSH:BufferSize", 10240);
-  set_default(options, "SSH:maxFileSize", 2*1024*1024*8); //set limit to 2GB by default
+  set_default(options, "SSH:maxFileSize", 100*ONE_MB);  // Set limit to 100MB by default.
+  set_default(options, "SSH:logSize", 100*ONE_MB);  // Set limit to 100MB by default.
 
   set_default(options, "SSH:readWriteTimeout", 5);
   set_default(options, "SSH:commandTimeout", 1);

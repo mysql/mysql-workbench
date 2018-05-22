@@ -1375,7 +1375,7 @@ mforms::View* PreferencesForm::createSSHPage()
 
       // SSH buffer
       {
-        mforms::TextEntry *entry = new_numeric_entry_option("SSH:BufferSize", 0, 500);
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:BufferSize", 0, 10240);
         entry->set_max_length(5);
         entry->set_size(50, -1);
         entry->set_tooltip(_("Buffer size used for tunnel data transfer"));
@@ -1384,15 +1384,26 @@ mforms::View* PreferencesForm::createSSHPage()
           _("SSH buffer size in bytes."));
       }
 
-      // SSH buffer
+      // SSH maxFileSize
       {
-        mforms::TextEntry *entry = new_numeric_entry_option("SSH:maxFileSize", 0, 500);
-        entry->set_max_length(5);
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:maxFileSize", 0, 1024*ONE_MB);
+        entry->set_max_length(10);
         entry->set_size(50, -1);
         entry->set_tooltip(_("Size used to limit transfering of big files"));
 
         timeouts_table->add_option(entry, _("SSH Maximum File Size:"),
           _("The maximum file that is allowed to be transfered by SSH."));
+      }
+
+      // SSH logsize
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:logSize", 0, 1024*ONE_MB);
+        entry->set_max_length(10);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_("Size used to limit transfering of big command output log."));
+
+        timeouts_table->add_option(entry, _("SSH Command Execution log:"),
+          _("The maximum log size that is allowed to be transfered by SSH."));
       }
 
     }

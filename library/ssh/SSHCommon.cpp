@@ -187,8 +187,7 @@ namespace ssh {
   bool operator==(const SSHConnectionConfig &tun1, const SSHConnectionConfig &tun2) {
     return (tun1.localhost == tun2.localhost && tun1.remoteSSHhost == tun2.remoteSSHhost
         && tun1.remoteSSHport == tun2.remoteSSHport && tun1.remotehost == tun2.remotehost
-        && tun1.configFile == tun2.configFile && tun1.knownHostsFile == tun2.knownHostsFile
-        && tun1.connectTimeout == tun2.connectTimeout);
+        && tun1.remoteport == tun2.remoteport);
   }
 
   bool operator!=(const SSHConnectionConfig &tun1, const SSHConnectionConfig &tun2) {

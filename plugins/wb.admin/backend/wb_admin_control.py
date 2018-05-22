@@ -336,10 +336,12 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         self.running = False
         if self.worker_thread:
             self.worker_thread.join()
-            
+
+        self.server_helper = None
         self.disconnect_sql()
         if self.sshBridge and self.sshBridge.isConnected() == 1:
             self.sshBridge.disconnect()
+            self.sshBridge = None
 
     #---------------------------------------------------------------------------
     def force_check_server_state(self, verbose = False):

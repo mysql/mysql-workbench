@@ -91,6 +91,7 @@ namespace base {
   struct BASELIBRARY_PUBLIC_FUNC MutexLock {
   public:
     MutexLock(Mutex const &mutex);
+    MutexLock(MutexLock &&o);
     MutexLock(MutexLock const &o) = delete;
     MutexLock &operator=(MutexLock &o) = delete;
 

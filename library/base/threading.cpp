@@ -78,6 +78,14 @@ MutexLock::MutexLock(Mutex const &mutex) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+MutexLock::MutexLock(MutexLock &&o) {
+  // Move ownership of the underlying guard.
+  _d = o._d;
+  o._d = nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 MutexLock::~MutexLock() {
   delete _d;
 }

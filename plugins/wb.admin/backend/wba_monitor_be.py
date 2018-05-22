@@ -25,7 +25,7 @@ import threading
 import time
 
 from mforms import App
-from wb_server_management import wbaOS
+from wb_server_management import wbaOS, handle_ssh_command_output
 from wb_common import Users
 
 from workbench.log import log_info, log_error, log_debug, log_debug2, log_debug3
@@ -205,8 +205,10 @@ class WinRemoteStats(object):
                 
         
         if self.ssh is not None:
-            dirpath = self.ssh.executeCommand("cmd /C echo %USERPROFILE%") # %APPDATA% is n/a for LocalService
-                                                                         # which is a user sshd can be run
+            # %APPDATA% is n/a for LocalService
+            # which is a user sshd can be run
+            dirpath = handle_ssh_command_output(self.ssh.executeCommand("cmd /C echo %USERPROFILE%"))
+
         dirpath = dirpath.strip(" \r\t\n")
 
         if dirpath is not None and dirpath != "%USERPROFILE%":
@@ -217,7 +219,7 @@ class WinRemoteStats(object):
                 #print "Uploading file to ", filename
                 try:
                     f = open(script_path)
-                    self.ssh.executeCommand("cmd /C echo. > " + filename)
+                    handle_ssh_command_output(self.ssh.executeCommand("cmd /C echo. > " + filename))
                     maxsize = 1800
                     cmd = ""
                     for line in f:
@@ -226,15 +228,15 @@ class WinRemoteStats(object):
                         if len(tline) > 0:
                             if tline[0] != "'":
                                 if len(cmd) > maxsize:
-                                    self.ssh.executeCommand("cmd /C " + cmd.strip(" &"))
-                                    self.ssh.executeCommand("cmd /C echo " + line + " >> " + filename)
+                                    handle_ssh_command_output(self.ssh.executeCommand("cmd /C " + cmd.strip(" &")))
+                                    handle_ssh_command_output(self.ssh.executeCommand("cmd /C echo " + line + " >> " + filename))
                                     cmd = ""
                                 else:
                                     cmd += "echo " + line + " >> " + filename
                                     cmd += " && "
 
                     if len(cmd) > 0:
-                        self.ssh.executeCommand("cmd /C " + cmd.strip(" &"))
+                        handle_ssh_command_output(self.ssh.executeCommand("cmd /C " + cmd.strip(" &")))
                         cmd = ""
 
                     self.script = "cscript //NoLogo " + filename + " /DoStdIn"

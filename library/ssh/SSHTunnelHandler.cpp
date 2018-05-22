@@ -91,7 +91,7 @@ namespace ssh {
         _newConnection.pop_back();
       }
       lock.unlock();
-      rc = ssh_event_dopoll(_event, 500);
+      rc = ssh_event_dopoll(_event, 100);
 
       if (rc == SSH_ERROR) {
         logError("There was an error handling connection poll, retrying: %s\n", _session->getSession()->getError());
@@ -170,7 +170,6 @@ namespace ssh {
   }
 
   void SSHTunnelHandler::transferDataFromClient(int sock, std::shared_ptr<ssh::Channel> &chan) {
-    logDebug3("Data from client.\n");
     ssize_t readlen = 0;
     std::vector<char> buff(_session->getConfig().bufferSize, '\0');
 
@@ -190,7 +189,6 @@ namespace ssh {
   }
 
   void SSHTunnelHandler::transferDataToClient(int sock, std::shared_ptr<ssh::Channel> &chan) {
-    logDebug3("Data to client.\n");
     ssize_t readlen = 0;
     std::vector<char> buff(_session->getConfig().bufferSize, '\0');
     do {

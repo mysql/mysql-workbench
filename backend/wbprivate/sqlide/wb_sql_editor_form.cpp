@@ -337,6 +337,7 @@ SqlEditorForm::~SqlEditorForm() {
   delete _menu;
 
   reset_keep_alive_thread();
+  _sshConnection.release();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -253,6 +253,7 @@ namespace ssh {
   }
 
   void SSHSftp::setContent(const std::string &path, const std::string &data) const {
+    logDebug3("Set file content: %s\n", path.c_str());
     auto lock = _session->lockSession();
     auto file = createPtr(sftp_open(_sftp, createRemotePath(path).c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU));
     if (!file)
@@ -262,6 +263,7 @@ namespace ssh {
     if (nWritten > 0 && (std::size_t) nWritten != data.size()) {
       throw SSHSftpException("Error writing file");
     }
+    logDebug3("File content succesfully saved: %s\n", path.c_str());
   }
 
   void SSHSftp::put(const std::string &src, const std::string &dest) const {
@@ -339,7 +341,7 @@ namespace ssh {
     sftp_dir dir = sftp_opendir(_sftp, createRemotePath(dirname).c_str());
     if (dir == nullptr) {
       int err = sftp_get_error(_sftp);
-      logError("Can't change directory: %s. Error was: %s", createRemotePath(dirname).c_str(), getHumanSftpError(err).c_str());
+      logError("Can't change directory: %s. Error was: %s\n", createRemotePath(dirname).c_str(), getHumanSftpError(err).c_str());
       if (err == SSH_FX_NO_SUCH_FILE)
         return -1;
 
@@ -382,8 +384,10 @@ namespace ssh {
       sftp_attributes_free(file);
     }
 
-    if (!sftp_dir_eof(dirHandle))
+    if (!sftp_dir_eof(dirHandle)) {
+      sftp_closedir(dirHandle);
       throw SSHSftpException(_session->getSession()->getError());
+    }
 
     if (sftp_closedir(dirHandle))
       throw SSHSftpException(_session->getSession()->getError());

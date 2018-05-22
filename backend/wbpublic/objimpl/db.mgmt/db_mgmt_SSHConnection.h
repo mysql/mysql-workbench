@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@ public:
   virtual void disconnect() = 0;
   virtual grt::IntegerRef isConnected() = 0;
   virtual grt::IntegerRef connect() = 0;
-  virtual grt::StringRef executeCommand(const std::string &text) = 0;
-  virtual grt::StringRef executeSudoCommand(const std::string &text) = 0;
+  virtual grt::DictRef executeCommand(const std::string &text) = 0;
+  virtual grt::DictRef executeSudoCommand(const std::string &text, const std::string &user) = 0;
   virtual grt::IntegerRef cd(const std::string &directory) = 0;
   virtual void get(const std::string &src, const std::string &dest) = 0;
   virtual grt::StringRef getContent(const std::string &src) = 0;

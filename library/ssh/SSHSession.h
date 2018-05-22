@@ -50,7 +50,7 @@ namespace ssh {
     SSHConnectionCredentials _credentials;
     bool _isConnected;
     ssh_event _event;
-    mutable base::RecMutex _sessionMutex;
+    mutable base::Mutex _sessionMutex;
   public:
     static std::shared_ptr<SSHSession> createSession();
     virtual ~SSHSession();
@@ -62,11 +62,12 @@ namespace ssh {
     bool isConnected() const;
     SSHConnectionConfig getConfig() const;
     ssh::Session* getSession() const;
-    std::string execCmd(std::string command, std::size_t logSize = LOG_SIZE_1MB);
-    std::string execCmdSudo(std::string command, std::string password, std::string passwordQuery = "EnterPasswordHere",
-                            std::size_t logSize = LOG_SIZE_1MB);
+    std::tuple<std::string, std::string, int> execCmd(std::string command, std::size_t logSize = LOG_SIZE_100MB);
+    std::tuple<std::string, std::string, int> execCmdSudo(std::string command, std::string password,
+                                                          std::string passwordQuery = "EnterPasswordHere",
+                                                          std::size_t logSize = LOG_SIZE_100MB);
 
-    base::RecMutexLock lockSession();
+    base::MutexLock lockSession();
     void reconnect();
   protected:
     SSHSession();
@@ -78,6 +79,7 @@ namespace ssh {
     void authPassword(const std::string &password);
     void authAutoPubkey();
     void handleAuthReturn(int auth);
+    bool openChannel(ssh::Channel *chann);
   };
 
 } /* namespace ssh */

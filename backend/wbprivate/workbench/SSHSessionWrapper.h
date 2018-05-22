@@ -44,8 +44,8 @@ namespace ssh {
     virtual void disconnect() override;
     virtual grt::IntegerRef isConnected() override;
     virtual grt::IntegerRef connect() override;
-    virtual grt::StringRef executeCommand(const std::string &command) override;
-    virtual grt::StringRef executeSudoCommand(const std::string &command) override;
+    virtual grt::DictRef executeCommand(const std::string &command) override;
+    virtual grt::DictRef executeSudoCommand(const std::string &command, const std::string &user) override;
     static std::tuple<ssh::SSHConnectionConfig, ssh::SSHConnectionCredentials> getConnectionInfo(
         db_mgmt_ConnectionRef connectionProperties);
     static std::tuple<ssh::SSHConnectionConfig, ssh::SSHConnectionCredentials> getConnectionInfo(

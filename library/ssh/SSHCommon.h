@@ -88,7 +88,7 @@ namespace ssh {
 #endif
   }
 
-  const std::size_t LOG_SIZE_1MB = 1048576;
+  const std::size_t LOG_SIZE_100MB = 104857600;
   static std::once_flag sshInitOnce;
   std::string getError();
   std::string getSftpErrorDescription(int rc);
