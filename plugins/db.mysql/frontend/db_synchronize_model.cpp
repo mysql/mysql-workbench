@@ -402,6 +402,7 @@ namespace DBSynchronize {
     add_page(mforms::manage(new DBSynchronizeProgressPage(this)));
 
     set_title("Synchronize Model with Database");
+    set_size(920, 700);
   }
 
 }; // namespace DBSynchronize

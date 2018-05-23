@@ -297,6 +297,7 @@ public:
     _apply_page->set_db_plugin(&_right_db);
 
     set_title(_("Synchronize With Any Source"));
+    set_size(920, 700);
   }
 
   virtual ~WbSynchronizeAnyWizard() {
