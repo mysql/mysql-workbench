@@ -322,6 +322,7 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner) : mforms::Box(false), _
               -42)); // unused dummy value... should just not conflict with possibly valid values
 
   _layer_tree->set_row_overlay_handler(std::bind(&SpatialDataView::layer_overlay_handler, this, std::placeholders::_1));
+  _layer_tree->set_size(-1, 150);
   _option_box->add(_layer_tree, true, true);
 
   _mouse_pos_label = mforms::manage(new mforms::Label("Lat:\nLon:"));
