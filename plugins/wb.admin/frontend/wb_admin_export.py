@@ -2267,6 +2267,8 @@ class WbAdminExport(WbAdminTabBase):
         self.options_tab = WbAdminExportOptionsTab(self.ctrl_be.target_version, self.export_tab.mysqldump_defaults)
         self.ui_box.add(self.options_tab, True, True)
         self.options_tab.show(False)
+        
+        self.options_tab.add_clicked_callback_to_checkbox("$internal$show-internal-schemas", self.show_internal_schemas_changed)
 
         self.tabview.add_page(self.progress_tab, "Export Progress")
 
