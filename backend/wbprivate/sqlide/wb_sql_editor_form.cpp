@@ -1013,8 +1013,13 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext().copy(db_mgmt_conn));
 
   int read_timeout = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ReadTimeOut");
-  if (read_timeout > 0)
-    temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
+
+  if (read_timeout < 0) {
+      bec::GRTManager::get()->set_app_option("DbSqlEditor:ReadTimeOut", grt::IntegerRef((int)0));
+      read_timeout = 0;
+  }
+
+  temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
 
   int connect_timeout = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
   if (connect_timeout > 0)

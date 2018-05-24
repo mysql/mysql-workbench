@@ -819,10 +819,11 @@ mforms::View *PreferencesForm::create_sqlide_page() {
                                  "Set to 0 to not send keep-alive messages."));
     entry->set_size(100, -1);
 
-    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut", _("DBMS connection read time out (in seconds):"),
-                                     _("Max time the a query can take to return data from the DBMS"));
+    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut", _("DBMS connection read timeout interval (in seconds):"),
+                                     _("The maximum amount of time the query can take to return data from the DBMS."
+                                       "Set 0 to not check the read timeout."));
 
-    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut", _("DBMS connection time out (in seconds):"),
+    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut", _("DBMS connection timeout interval (in seconds):"),
                                      _("Maximum time to wait before a connection attempt is aborted."));
     box->add(otable, false, true);
   }
