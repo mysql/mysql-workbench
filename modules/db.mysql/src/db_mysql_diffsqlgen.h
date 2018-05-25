@@ -67,11 +67,6 @@ typedef std::map<std::string, std::string> SchemaObjectNameDDLMap;
 /**
 * class DiffSQLGeneratorBE together with text generation call-back (see DiffSQLGeneratorBEActionInterface)
 * generates SQL (or plain text) for individual objects based on GRT objects and diff information.
-*
-* The entities marked as "to be removed" can be probably safely removed,
-* unless I did something wrong. Their implmenetations were moved to the generator call-back.
-* I think implementations for at least some of them are already removed, (compiler doesn't
-* complain as they are not used anywhere).
 */
 class DiffSQLGeneratorBE {
   /**
@@ -104,13 +99,6 @@ class DiffSQLGeneratorBE {
   std::set<std::string> _filtered_schemata, _filtered_tables, _filtered_views, _filtered_routines, _filtered_triggers,
     _filtered_users;
 
-  // to be removed
-  std::string generate_create(db_mysql_ColumnRef column);
-  // to be removed
-  std::string generate_create(db_mysql_IndexRef index, std::string table_q_name, bool separate_index);
-  // to be removed
-  std::string generate_create(db_mysql_ForeignKeyRef fk);
-
   /**
    * generate_create_stmt() functions are used to generate create SQL stmt based on GRT object definitions.
    * They don't use a diff object. The for_alter parameter controls whether thr result will be stored into
@@ -137,21 +125,9 @@ class DiffSQLGeneratorBE {
   void generate_drop_stmt(db_UserRef user);
 
   // table columns
-  // to be removed
-  std::string generate_add_column(db_mysql_TableRef table, db_mysql_ColumnRef column, db_mysql_ColumnRef after,
-                                  Column_rename_map);
-  // to be removed
-  std::string generate_drop_column(db_mysql_ColumnRef column);
-  // to be removed
-  std::string generate_change_column(db_mysql_TableRef table, db_mysql_ColumnRef org_col, db_mysql_ColumnRef mod_col,
-                                     db_mysql_ColumnRef after, bool modified, Column_rename_map);
   void generate_alter(grt::ListRef<db_mysql_Column> columns, const grt::MultiChange *);
 
   // table indices
-  // to be removed
-  std::string generate_add_index(db_mysql_IndexRef index);
-  // to be removed
-  std::string generate_drop_index(db_mysql_IndexRef index);
   void generate_alter(grt::ListRef<db_mysql_Index> indices, const grt::MultiChange *diffchange);
 
   /**
@@ -179,22 +155,6 @@ class DiffSQLGeneratorBE {
    */
   void generate_set_partitioning(db_mysql_TableRef table, const grt::DiffChange *diffchange);
 
-  // to be removed
-  std::string generate_drop_partitioning(db_mysql_Table);
-  // to be removed
-  std::string generate_partitioning(db_mysql_TableRef table, const std::string &part_type, const std::string &part_expr,
-                                    int part_count, const std::string &subpart_type, const std::string &subpart_expr,
-                                    grt::ListRef<db_mysql_PartitionDefinition> part_defs);
-  // to be removed
-  std::string generate_change_partition_count(db_mysql_TableRef table, int newcount);
-  // to be removed
-  std::string generate_add_partition(db_mysql_PartitionDefinitionRef part, bool is_range);
-  // to be removed
-  std::string generate_drop_partitions(const std::list<std::string> &part_names_list);
-  // to be removed
-  std::string generate_reorganize_partition(db_mysql_PartitionDefinitionRef old_part,
-                                            db_mysql_PartitionDefinitionRef new_part, bool is_range);
-
   /**
    * generate_alter_stmt() functions are used to generate create SQL stmt based on GRT object definition.
    * They don't use a diff object. The for_alter parameter controls whether thr result will be stored into
@@ -216,23 +176,6 @@ class DiffSQLGeneratorBE {
                                    const grt::DiffChange *diffchange);
 
   void process_trigger_alter_stmts(db_mysql_TableRef table, const grt::DiffChange *triggers_cs);
-
-  /**
-   * The 2 routines below - remember() and remember_alter() are used to store the gerneated SQL.
-   * remember() just adds SQL strings to a list and remember_alter() can store to both a list or a map
-   * so that later one can access object's SQL by object GRT value. remember_alter() also allows storing
-   * several SQL strings per object, which is needed in some cases.
-   *
-   * Historically the remember() function appeared earlier than remember_alter() and the later one is
-   * more general so theoretially remember() can be removed at all, and all code refactored to use remember_alter()
-   * only.
-   */
-  void remember(const GrtNamedObjectRef &obj, const std::string &sql);
-  /**
-   * in case of ALTERs there could be > 1 statement to remember
-   * so we use grt::StringListRefs as needed
-   */
-  void remember_alter(const GrtNamedObjectRef &obj, const std::string &sql);
 
   void do_process_diff_change(grt::ValueRef org_object, grt::DiffChange *);
 
