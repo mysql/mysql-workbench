@@ -30,6 +30,7 @@
 #include "grt/clipboard.h"
 #include "grt/validation_manager.h"
 #include "grtdb/db_object_helpers.h"
+#include "grts/structs.workbench.physical.h"
 
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
@@ -76,6 +77,13 @@ DEFAULT_LOG_DOMAIN("TableEditorBE")
  - So, to distinguish between real UDTs and corrupt-UDTs you should check if the object id.
  */
 
+static std::string getTemplate(workbench_physical_ModelRef model, const std::string &name, bool isEditingLiveObject) {
+  if (isEditingLiveObject)
+    return bec::GRTManager::get()->get_app_option_string(name);
+  else
+    return grt::StringRef::cast_from(bec::getModelOption(model, name));
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 TableColumnsListBE::TableColumnsListBE(TableEditorBE *owner) : _owner(owner) {
@@ -103,7 +111,7 @@ std::vector<std::string> TableColumnsListBE::get_datatype_names() {
   types.push_back("DATETIME");
   types.push_back("BLOB");
 
-  GrtVersionRef target_version(_owner->get_catalog()->version());
+  GrtVersionRef target_version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(_owner->get_catalog()->owner()), "CatalogVersion"));
   std::vector<db_SimpleDatatypeRef> sorted_types;
   grt::ListRef<db_SimpleDatatype> stypes(_owner->get_catalog()->simpleDatatypes());
   for (grt::ListRef<db_SimpleDatatype>::const_iterator iter = stypes.begin(); iter != stypes.end(); ++iter) {
@@ -486,14 +494,17 @@ bool TableColumnsListBE::set_field(const NodeId &node, ColumnId column, const st
 
       db_ColumnRef col(_owner->get_table()->columns()[node[0]]);
 
+      auto model = workbench_physical_ModelRef::cast_from(_owner->get_catalog()->owner());
       if (node[0] == 0) {
         _owner->get_table()->addPrimaryKeyColumn(col);
-
+        set_column_type_from_string(col,
+                                    getTemplate(model,
+                                                "DefaultPkColumnType", _owner->is_editing_live_object()));
+      } else {
         set_column_type_from_string(
-          col, grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultPkColumnType")));
-      } else
-        set_column_type_from_string(
-          col, grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultColumnType")));
+          col, getTemplate(model, "DefaultColumnType",
+                           _owner->is_editing_live_object()));
+      }
     } else {
       std::string name;
 
@@ -795,22 +806,26 @@ bool TableColumnsListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
         return false;
     }
   } else if (node[0] == count() - 1) {
+    auto model = workbench_physical_ModelRef::cast_from(_owner->get_catalog()->owner());
     if (column == Name && _editing_placeholder_row == node[0]) {
       if (node[0] == 0) {
-        value =
-          grt::StringRef(base::replaceVariable(bec::GRTManager::get()->get_app_option_string("PkColumnNameTemplate"),
-                                               "%table%", _owner->get_name().c_str()));
+        value = grt::StringRef(
+          base::replaceVariable(getTemplate(model, "PkColumnNameTemplate", _owner->is_editing_live_object()),
+                                "%table%", _owner->get_name().c_str()));
       } else {
-        std::string templ = base::replaceVariable(bec::GRTManager::get()->get_app_option_string("ColumnNameTemplate"),
-                                                  "%table%", _owner->get_name().c_str());
+        std::string templ =
+          base::replaceVariable(getTemplate(model, "ColumnNameTemplate", _owner->is_editing_live_object()),
+                                "%table%", _owner->get_name().c_str());
 
         value = grt::StringRef(grt::get_name_suggestion_for_list_object(_owner->get_table()->columns(), templ, false));
       }
     } else if (column == Type && _editing_placeholder_row == node[0]) {
       if (node[0] == 0)
-        value = grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultPkColumnType"));
+        value = grt::StringRef(getTemplate(model, "DefaultPkColumnType",
+                                           _owner->is_editing_live_object()));
       else
-        value = grt::StringRef::cast_from(bec::GRTManager::get()->get_app_option("DefaultColumnType"));
+        value = grt::StringRef(getTemplate(model, "DefaultColumnType",
+                                           _owner->is_editing_live_object()));
 
     } else {
       value = grt::StringRef("");
@@ -2461,8 +2476,10 @@ bool FKConstraintListBE::get_field_grt(const NodeId &node, ColumnId column, grt:
       if (fk.is_valid())
         value = fk->name();
       else if (_editing_placeholder_row == node[0]) {
-        std::string temp = base::replaceString(bec::GRTManager::get()->get_app_option_string("FKNameTemplate"),
-                                               "%stable%", _owner->get_name().c_str());
+        std::string temp =
+          base::replaceString(getTemplate(workbench_physical_ModelRef::cast_from(_owner->get_catalog()->owner()),
+                                          "FKNameTemplate", _owner->is_editing_live_object()),
+                              "%stable%", _owner->get_name().c_str());
 
         value = grt::StringRef(get_name_suggestion_for_list_object(_owner->get_table()->foreignKeys(),
                                                                    base::replaceString(temp, "%dtable%", ""), true));
@@ -2711,8 +2728,12 @@ NodeId TableEditorBE::add_fk(const std::string &name) {
 
   fk = TableHelper::create_empty_foreign_key(get_table(), name);
 
-  fk->updateRule(StringRef::cast_from(bec::GRTManager::get()->get_app_option("db.ForeignKey:updateRule")));
-  fk->deleteRule(StringRef::cast_from(bec::GRTManager::get()->get_app_option("db.ForeignKey:deleteRule")));
+  auto model = workbench_physical_ModelRef::cast_from(get_catalog()->owner());
+  fk->updateRule(StringRef(getTemplate(model, "db.ForeignKey:updateRule",
+                                       is_editing_live_object())));
+
+  fk->deleteRule(StringRef(getTemplate(model, "db.ForeignKey:deleteRule",
+                                       is_editing_live_object())));
 
   update_change_date();
 
@@ -2875,7 +2896,7 @@ bool TableEditorBE::showErrorMessage(const std::string &type) {
   bool ret = false;
   std::string key = base::tolower(type);
   if (key == "json") {
-    GrtVersionRef version = get_catalog()->version();
+    GrtVersionRef version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(get_catalog()->owner()), "CatalogVersion"));
     bool versionCheck = bec::is_supported_mysql_version_at_least(version, 5, 7, 8);
     if (!versionCheck) {
       mforms::Utilities::show_message(

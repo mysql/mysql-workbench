@@ -321,10 +321,11 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
     add_page(NULL, _("Fonts"), create_fonts_and_colors_page());
 #endif
   }
+  if (!_model.is_valid()) {
+    add_page(NULL, _("SSH"), createSSHPage());
 
-  add_page(NULL, _("SSH"), createSSHPage());
-
-  add_page(NULL, _("Others"), create_others_page());
+    add_page(NULL, _("Others"), create_others_page());
+  }
 
   _hbox.add(&_top_box, true, true);
   set_content(&_hbox);
@@ -390,13 +391,13 @@ bool PreferencesForm::versionIsValid(const std::string &text) {
   return true;
 }
 
-void PreferencesForm::version_changed() {
-  if (versionIsValid(version_entry->get_string_value())) {
-    version_entry->set_back_color("#FFFFFF");
-    version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
+void PreferencesForm::version_changed(mforms::TextEntry *entry) {
+  if (versionIsValid(entry->get_string_value())) {
+    entry->set_back_color("#FFFFFF");
+    entry->set_tooltip(VALID_VERSION_TOOLTIP);
   } else {
-    version_entry->set_back_color("#FF5E5E");
-    version_entry->set_tooltip(INVALID_VERSION_TOOLTIP);
+    entry->set_back_color("#FF5E5E");
+    entry->set_tooltip(INVALID_VERSION_TOOLTIP);
   }
 }
 
@@ -1698,16 +1699,14 @@ mforms::View *PreferencesForm::create_mysql_page() {
       table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
       version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
       version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
-      version_entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this));
+      version_entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this, version_entry));
       table->add(version_entry, 1, 2, 0, 1, mforms::HExpandFlag | mforms::HFillFlag);
     } else {
       // if editing model options, display the catalog version
       Option *option = new Option();
-      mforms::TextEntry *entry = new mforms::TextEntry();
-
-      option->view = mforms::manage(entry);
-      option->show_value = std::bind(show_target_version, _model, entry);
-      option->update_value = std::bind(update_target_version, _model, entry);
+      mforms::TextEntry *entry = mforms::manage(new mforms::TextEntry());
+      entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this, entry));
+      entry->set_tooltip(VALID_VERSION_TOOLTIP);
 
       option->view = mforms::manage(entry);
       option->show_value = std::bind(show_target_version, _model, entry);

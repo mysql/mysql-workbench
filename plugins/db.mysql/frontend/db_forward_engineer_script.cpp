@@ -36,6 +36,7 @@
 #include "mforms/fs_object_selector.h"
 #include "mforms/app.h"
 #include "grts/structs.workbench.h"
+#include "grtdb/db_object_helpers.h"
 
 using namespace grtui;
 using namespace mforms;
@@ -332,7 +333,9 @@ protected:
     _export_be->set_option("OutputScriptHeader", header);
 
     // take target version from the version in the model
-    _export_be->set_db_options_for_version(_export_be->get_catalog()->version());
+
+    _export_be->set_db_options_for_version(
+        GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(_export_be->get_catalog()->owner()), "CatalogVersion")));
 
     return true;
   }

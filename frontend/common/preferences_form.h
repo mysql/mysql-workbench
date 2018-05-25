@@ -31,6 +31,7 @@
 #include "mforms/box.h"
 #include "mforms/button.h"
 #include "mforms/checkbox.h"
+#include "mforms/textentry.h"
 #include "mforms/treeview.h"
 #include "mforms/selector.h"
 #include "mforms/fs_object_selector.h"
@@ -138,7 +139,7 @@ private:
   void switch_page();
   mforms::TreeNodeRef add_page(mforms::TreeNodeRef parent, const std::string &title, mforms::View *view);
   bool versionIsValid(const std::string &text);
-  void version_changed();
+  void version_changed(mforms::TextEntry *entry);
 
 public:
   PreferencesForm(const workbench_physical_ModelRef &model = workbench_physical_ModelRef());

@@ -1111,16 +1111,7 @@ void WBContextModel::selection_changed() {
 
 GrtVersionRef WBContextModel::get_target_version() {
   if (get_active_model(true).is_valid()) {
-    db_CatalogRef catalog(workbench_physical_ModelRef::cast_from(get_active_model(true))->catalog());
-    if (catalog->version().is_valid())
-      return catalog->version();
-    else {
-      std::string target_version = bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion");
-      if (target_version.empty())
-        target_version = "8.0";
-
-      return bec::parse_version(target_version);
-    }
+    return GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(get_active_model(true)), "CatalogVersion"));
   }
   return GrtVersionRef();
 }

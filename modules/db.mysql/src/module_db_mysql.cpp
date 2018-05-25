@@ -661,7 +661,14 @@ namespace {
 
     auto catalog = db_CatalogRef::cast_from(index->owner()->owner()->owner());
 
-    if (bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+
+    GrtVersionRef version;
+    if (catalog->owner().is_valid())
+      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
+    else
+      version = catalog->version();
+
+    if (bec::is_supported_mysql_version_at_least(version, 8, 0, 0)) {
       auto table = db_mysql_TableRef::cast_from(index->owner());
 
       if (index->isPrimary() == 0 && (index->unique() == 0 || table->indices().count() > 1)) {
@@ -1223,7 +1230,13 @@ namespace {
 
     auto catalog = db_CatalogRef::cast_from(orgIndex->owner()->owner()->owner());
 
-    if (!bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+    GrtVersionRef version;
+    if (catalog->owner().is_valid())
+      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
+    else
+      version = catalog->version();
+
+    if (!bec::is_supported_mysql_version_at_least(version, 8, 0, 0)) {
       alter_table_drop_index(newIndex);
       alter_table_add_index(newIndex);
       return;
@@ -1592,7 +1605,14 @@ namespace {
 
   void ActionGenerateSQL::drop_user(db_UserRef user) {
     auto catalog = db_CatalogRef::cast_from(user->owner());
-    if (bec::is_supported_mysql_version_at_least(catalog->version(), 5, 7, 0)) {
+
+    GrtVersionRef version;
+    if (catalog->owner().is_valid())
+      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion", true));
+    else
+      version = catalog->version();
+
+    if (bec::is_supported_mysql_version_at_least(version, 5, 7, 0)) {
       sql = "DROP USER IF EXISTS " + *user->name();
     } else {
       // Before 5.7 there was no IF EXISTS clause. So we use the implicit user creation with grant here.

@@ -343,7 +343,7 @@ namespace DBExport {
   public:
     PreviewScriptPage(WizardForm *form)
       : ViewTextPage(form, "preview", (ViewTextPage::Buttons)(ViewTextPage::CopyButton | ViewTextPage::SaveButton),
-                     "SQL Scripts (*.sql)|*.sql") {
+                     "SQL Scripts (*.sql)|*.sql"), script_ready(false) {
       set_short_title(_("Review SQL Script"));
       set_title(_("Review the SQL Script to be Executed"));
 
