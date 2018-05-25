@@ -821,7 +821,7 @@ mforms::View *PreferencesForm::create_sqlide_page() {
 
     entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut", _("DBMS connection read timeout interval (in seconds):"),
                                      _("The maximum amount of time the query can take to return data from the DBMS."
-                                       "Set 0 to not check the read timeout."));
+                                       "Set 0 to skip the read timeout."));
 
     entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut", _("DBMS connection timeout interval (in seconds):"),
                                      _("Maximum time to wait before a connection attempt is aborted."));
