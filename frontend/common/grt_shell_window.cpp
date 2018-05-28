@@ -1270,6 +1270,7 @@ void GRTShellWindow::delete_selected_file() {
             base::strfmt(_("Really delete '%s' from disk? This operation cannot be undone."), fn.c_str()), _("Delete"),
             _("Cancel")) == mforms::ResultOk) {
         ::g_remove(fn.c_str());
+        ::g_remove((fn + 'c').c_str());
         refresh_files();
       }
     }
