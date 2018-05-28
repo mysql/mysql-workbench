@@ -98,8 +98,6 @@ namespace MySQL.GUI.Workbench
         return;
       }
 
-      wbOptions.analyzeCommandLineArguments();
-
       PrintInitialLogInfo();
 
       Application.EnableVisualStyles();
