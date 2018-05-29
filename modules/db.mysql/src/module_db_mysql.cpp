@@ -905,9 +905,9 @@ namespace {
   void ActionGenerateSQL::alter_table_comment(db_mysql_TableRef table, grt::StringRef str) {
     std::string comment = bec::TableHelper::generate_comment_text(str, _maxTableCommentLength);
     if (comment.empty())
-      alter_table_property(sql, "\nCOMMENT = ", "''");
+      alter_table_property(sql, "COMMENT = ", "''");
     else
-      alter_table_property(sql, "\nCOMMENT = ", comment);
+      alter_table_property(sql, "COMMENT = ", comment);
   }
 
   void ActionGenerateSQL::alter_table_merge_union(db_mysql_TableRef table, grt::StringRef str) {
