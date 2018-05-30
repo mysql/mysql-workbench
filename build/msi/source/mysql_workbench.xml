@@ -149,7 +149,6 @@
             <ComponentRef Id="MySQLWorkbench.exe" />
 <!--            <ComponentRef Id="GRT_Shell_GUI" /> -->
             <ComponentRef Id="data" />
-            <ComponentRef Id="images_curors" />
             <ComponentRef Id="images_grt" />
             <ComponentRef Id="images_grt_structs" />
             <ComponentRef Id="images_icons" />
