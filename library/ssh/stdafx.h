@@ -44,5 +44,5 @@ typedef int ssize_t;
 //#include <boost/locale/encoding_utf.hpp>
 #include <boost/optional.hpp>
 
-#include <glib/glib.h>
+#include <glib.h>
 #include <glib/gstdio.h>

@@ -707,7 +707,7 @@
 {
   NSAssert((mMouseDownLayer == nil), @"mMouseDownLayer was not nil.");
 
-  if ((event.modifierFlags & NSControlKeyMask) != 0) {
+  if ((event.modifierFlags & NSEventModifierFlagControl) != 0) {
     [self rightMouseDown: event];
   } else {
     NSPoint loc = [mTabRowView convertPoint: event.locationInWindow fromView: nil];
@@ -815,7 +815,7 @@
                                     modifierFlags: theEvent.modifierFlags
                                         timestamp: theEvent.timestamp
                                      windowNumber: theEvent.windowNumber
-                                          context: theEvent.context
+                                          context: nil
                                       eventNumber: theEvent.eventNumber
                                        clickCount: theEvent.clickCount
                                          pressure: theEvent.pressure];

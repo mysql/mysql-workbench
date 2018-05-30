@@ -44,12 +44,24 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -74,7 +86,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CPPDBC_EXPORTS;MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -83,7 +95,8 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glib-2.0.lib;gmodule-2.0.lib;libxml2.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Debug\lib</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -98,7 +111,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CPPDBC_EXPORTS;MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -107,7 +120,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glib-2.0.lib;gmodule-2.0.lib;libxml2.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -119,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CPPDBC_EXPORTS;MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -128,7 +142,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\gmodule-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glib-2.0.lib;gmodule-2.0.lib;libxml2.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

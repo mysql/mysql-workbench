@@ -97,9 +97,9 @@
 
 - (instancetype)initWithObject: (mforms::Popup*)popup style: (mforms::PopupStyle)aStyle
 {
-  NSUInteger mask = NSBorderlessWindowMask;
+  NSUInteger mask = NSWindowStyleMaskBorderless;
   if (aStyle == mforms::PopupBezel)
-    mask |= NSHUDWindowMask;
+    mask |= NSWindowStyleMaskHUDWindow;
   self = [super initWithContentRect: NSMakeRect(0, 0, 800, 300)
                           styleMask: mask
                             backing: NSBackingStoreBuffered
@@ -203,11 +203,11 @@
   mforms::MouseButton mouseButton;
   switch (event.buttonNumber)
   {
-    case NSRightMouseDown:
+    case NSEventTypeRightMouseDown:
       mouseButton = mforms::MouseButtonRight;
       break;
 
-    case NSOtherMouseDown:
+    case NSEventTypeOtherMouseDown:
       mouseButton = mforms::MouseButtonOther;
       break;
 
@@ -242,11 +242,11 @@
   mforms::MouseButton mouseButton;
   switch (event.buttonNumber)
   {
-    case NSRightMouseDown:
+    case NSEventTypeRightMouseDown:
       mouseButton = mforms::MouseButtonRight;
       break;
 
-    case NSOtherMouseDown:
+    case NSEventTypeOtherMouseDown:
       mouseButton = mforms::MouseButtonOther;
       break;
 
@@ -372,10 +372,20 @@
   // Local loop to simulate a modal window.
   while (!mDone) 
   {
-    NSEvent *theEvent = [self nextEventMatchingMask:NSMouseMovedMask|NSMouseEnteredMask|NSMouseExitedMask|
-                         NSLeftMouseDownMask|NSLeftMouseUpMask|NSRightMouseDownMask|NSRightMouseUpMask|
-                         NSOtherMouseDownMask|NSOtherMouseUpMask|NSKeyDownMask|NSKeyUpMask];
-    if (theEvent.type == NSLeftMouseUp &&
+    NSEvent *theEvent = [self nextEventMatchingMask:
+                         NSEventMaskMouseMoved
+                         | NSEventMaskMouseEntered
+                         | NSEventMaskMouseExited
+                         | NSEventMaskLeftMouseDown
+                         | NSEventMaskLeftMouseUp
+                         | NSEventMaskRightMouseDown
+                         | NSEventMaskRightMouseUp
+                         | NSEventMaskOtherMouseDown
+                         | NSEventMaskOtherMouseUp
+                         | NSEventMaskKeyDown
+                         | NSEventMaskKeyUp
+                         ];
+    if (theEvent.type == NSEventTypeLeftMouseUp &&
         ![self.contentView mouse: theEvent.locationInWindow inRect:self.contentView.bounds])
     {
       [self hidePopup];

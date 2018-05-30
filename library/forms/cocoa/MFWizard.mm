@@ -284,7 +284,7 @@ static void wizard_run_modal(mforms::Wizard *self)
         alert.messageText = @"Unhandled Exception";
         alert.informativeText = [NSString stringWithFormat: @"An unhandled exception has occurred while executing the wizard. "
                                  "Please restart Workbench at the first opportunity.\nException: %s", exc.what()];
-        alert.alertStyle = NSCriticalAlertStyle;
+        alert.alertStyle = NSAlertStyleCritical;
         [alert addButtonWithTitle: @"Close"];
         [alert runModal];
       }

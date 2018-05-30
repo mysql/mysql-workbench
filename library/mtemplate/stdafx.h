@@ -57,7 +57,7 @@
 #include <boost/optional.hpp>
 #include <boost/cstdint.hpp>
 
-#include <glib/glib.h>
+#include <glib.h>
 #include <glib/gstdio.h>
 
 #include <iosfwd>

@@ -54,7 +54,7 @@ static void DrawTiledImage(NSImage *image, NSRect rect, BOOL composite)
     {
       [image drawInRect: targetRect
                fromRect: imageRect
-              operation: composite ? NSCompositeSourceOver : NSCompositeCopy
+              operation: composite ? NSCompositingOperationSourceOver : NSCompositingOperationCopy
                fraction: 1
          respectFlipped: YES
                   hints: nil];

@@ -44,12 +44,21 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml_inc.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml_inc.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml_inc.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -78,13 +87,12 @@
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -101,14 +109,13 @@
       <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_NAMESPACE;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -122,14 +129,13 @@
       <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_NAMESPACE;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;$(SolutionDir)\..\mysql-win-res\include;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

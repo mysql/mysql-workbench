@@ -23,8 +23,7 @@
 
 #pragma once
 
-#define HAVE_ROUND
-#include <Python/Python.h>
+#include <Python.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

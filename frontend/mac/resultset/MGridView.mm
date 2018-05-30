@@ -71,7 +71,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
                                  fromView: nil];
   NSInteger column= [self columnAtPoint: localPoint];
   
-  if (column <= 0 || (event.modifierFlags & (NSShiftKeyMask | NSCommandKeyMask)))
+  if (column <= 0 || (event.modifierFlags & (NSEventModifierFlagShift | NSEventModifierFlagCommand)))
     // if dragging from indicator, multi-row selection is OK
     [self setAllowsMultipleSelection: YES];
   else
@@ -216,7 +216,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     case 48: // Tab (only called when there's no editing going on)
     {
       NSUInteger modifiers = event.modifierFlags;
-      bool shift = (modifiers & NSShiftKeyMask) != 0;
+      bool shift = (modifiers & NSEventModifierFlagShift) != 0;
 
       if (shift)
       {

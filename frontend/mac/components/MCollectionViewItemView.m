@@ -116,9 +116,9 @@
 
   // Handle selection depending on modifier keys.
   NSUInteger modifiers = theEvent.modifierFlags;
-  BOOL control = (modifiers & NSControlKeyMask) != 0;
-  BOOL shift = (modifiers & NSShiftKeyMask) != 0;
-  BOOL command = (modifiers & NSCommandKeyMask) != 0;
+  BOOL control = (modifiers & NSEventModifierFlagControl) != 0;
+  BOOL shift = (modifiers & NSEventModifierFlagShift) != 0;
+  BOOL command = (modifiers & NSEventModifierFlagCommand) != 0;
 
   if (!owner.collectionView.allowsMultipleSelection || (!control && !shift && !command)) {
     if ([self.delegate respondsToSelector: @selector(clearSelection)])
@@ -217,9 +217,9 @@
     mBecameFirstResponder = NO;
   else {
     NSUInteger modifiers = theEvent.modifierFlags;
-    BOOL control = (modifiers & NSControlKeyMask) != 0;
-    BOOL shift = (modifiers & NSShiftKeyMask) != 0;
-    BOOL command = (modifiers & NSCommandKeyMask) != 0;
+    BOOL control = (modifiers & NSEventModifierFlagControl) != 0;
+    BOOL shift = (modifiers & NSEventModifierFlagShift) != 0;
+    BOOL command = (modifiers & NSEventModifierFlagCommand) != 0;
 
     if (!control && !shift && !command && theEvent.clickCount == 1)
       [self performSelector: @selector(beginInlineEditing)

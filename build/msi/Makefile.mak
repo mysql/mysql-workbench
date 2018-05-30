@@ -11,8 +11,8 @@
 # Set BIN_DIR="..\..\bin\x86\release"
 ###############################################################
 
-CANDLE= ..\..\..\mysql-win-res\bin\wix\candle -nologo -ext WiXNetFxExtension -ext WixUtilExtension
-LIGHT= ..\..\..\mysql-win-res\bin\wix\light -nologo -ext WiXNetFxExtension -ext WixUtilExtension
+CANDLE=candle -nologo -ext WiXNetFxExtension -ext WixUtilExtension
+LIGHT=light -nologo -ext WiXNetFxExtension -ext WixUtilExtension
 COMMON_GUI=source
 
 all: mysql_workbench.msi

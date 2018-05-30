@@ -52,7 +52,6 @@
 
 #include <fstream>
 #include <sstream>
-#include <boost/lexical_cast.hpp>
 
 // 20 MB max file size for auto-restoring
 #define MAX_FILE_SIZE_FOR_AUTO_RESTORE 20000000

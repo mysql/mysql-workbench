@@ -477,7 +477,7 @@ static NSImage *PinnedImage = nil;
       style.lineBreakMode = NSLineBreakByTruncatingTail;
 
       mLabelAttributes = [[NSMutableDictionary alloc]
-        initWithObjectsAndKeys: [NSFont boldSystemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]],
+        initWithObjectsAndKeys: [NSFont boldSystemFontOfSize: [NSFont systemFontSizeForControlSize: NSControlSizeSmall]],
                                NSFontAttributeName, [NSColor colorWithDeviceWhite: 53 / 255.0 alpha: 1.0],
                                NSForegroundColorAttributeName, style, NSParagraphStyleAttributeName, nil];
       mLabelShadowAttributes = [mLabelAttributes mutableCopy];
@@ -495,7 +495,7 @@ static NSImage *PinnedImage = nil;
       style.lineBreakMode = NSLineBreakByTruncatingTail;
 
       mLabelAttributes = [[NSMutableDictionary alloc]
-        initWithObjectsAndKeys: [NSFont boldSystemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]],
+        initWithObjectsAndKeys: [NSFont boldSystemFontOfSize: [NSFont systemFontSizeForControlSize: NSControlSizeSmall]],
                                NSFontAttributeName, [NSColor colorWithDeviceWhite: 1 alpha: 1.0],
                                NSForegroundColorAttributeName, style, NSParagraphStyleAttributeName, nil];
       mLabelDisabledAttributes = [mLabelAttributes mutableCopy];
@@ -508,7 +508,7 @@ static NSImage *PinnedImage = nil;
 
     case MEditorBottomTabSwitcher:
       mLabelAttributes = [[NSMutableDictionary alloc]
-        initWithObjectsAndKeys: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]],
+        initWithObjectsAndKeys: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSControlSizeSmall]],
                                NSFontAttributeName, [NSColor blackColor], NSForegroundColorAttributeName, nil];
       minTabWidth = 70;
       mDefaultMinTabWidth = minTabWidth;
@@ -516,7 +516,7 @@ static NSImage *PinnedImage = nil;
 
     case MEditorBottomTabSwitcherPinnable:
       mLabelAttributes = [[NSMutableDictionary alloc]
-        initWithObjectsAndKeys: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]],
+        initWithObjectsAndKeys: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSControlSizeSmall]],
                                NSFontAttributeName, [NSColor blackColor], NSForegroundColorAttributeName, nil];
       minTabWidth = 70;
       mDefaultMinTabWidth = minTabWidth;
@@ -646,12 +646,12 @@ static void tile_image(NSImage *tile, float y, float minX, float maxX) {
   for (; x + isize.width < maxX; x += isize.width)
     [tile drawInRect: NSMakeRect(x, y, isize.width, isize.height)
             fromRect: NSMakeRect(0, 0, isize.width, isize.height)
-           operation: NSCompositeSourceOver
+           operation: NSCompositingOperationSourceOver
             fraction: 1.0];
   if (x < maxX)
     [tile drawInRect: NSMakeRect(x, y, (maxX - x), isize.height)
             fromRect: NSMakeRect(0, 0, (maxX - x), isize.height)
-           operation: NSCompositeSourceOver
+           operation: NSCompositingOperationSourceOver
             fraction: 1.0];
 }
 
@@ -662,14 +662,14 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
   rsize = right.size;
   [left drawInRect: NSMakeRect(minX - lsize.width, 0, lsize.width, lsize.height)
           fromRect: NSMakeRect(0, 0, lsize.width, lsize.height)
-         operation: NSCompositeSourceOver
+         operation: NSCompositingOperationSourceOver
           fraction: 1.0];
 
   tile_image(middle, 0, minX, maxX - rsize.width);
 
   [right drawInRect: NSMakeRect(maxX - rsize.width, 0, rsize.width, rsize.height)
            fromRect: NSMakeRect(0, 0, rsize.width, rsize.height)
-          operation: NSCompositeSourceOver
+          operation: NSCompositingOperationSourceOver
            fraction: 1.0];
 }
 
@@ -686,7 +686,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
     NSImage *icon = images[item.tabState == NSBackgroundTab ? @"home" : @"home_home"];
     [icon drawInRect: NSMakeRect(x, 0, icon.size.width, icon.size.height)
             fromRect: NSMakeRect(0, 0, icon.size.width, icon.size.height)
-           operation: NSCompositeSourceOver
+           operation: NSCompositingOperationSourceOver
             fraction: 1.0];
   } else {
     if (item.tabState != NSBackgroundTab) {
@@ -722,7 +722,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
                              floor((height - image.size.height) / 2), image.size.width, image.size.height);
       [image drawInRect:closeRect
                fromRect: NSMakeRect(0, 0, image.size.width, image.size.height)
-              operation: NSCompositeSourceOver
+              operation: NSCompositingOperationSourceOver
                fraction: 1.0];
       mCloseButtonRects[item.identifier] = [NSValue valueWithRect: NSInsetRect(closeRect, -4, -4)];
     }
@@ -848,14 +848,14 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
     r.origin.x = NSMaxX(tabRect) - NSWidth(r) - (EditorTabImages[@"right"]).size.width - 4;
     r.origin.y = floor((NSHeight(tabRect) - NSHeight(r)) / 2 - 2);
     if (item != mBusyTab)
-      [closePart drawAtPoint:r.origin fromRect: NSZeroRect operation: NSCompositeSourceOver fraction: 1.0];
+      [closePart drawAtPoint:r.origin fromRect: NSZeroRect operation: NSCompositingOperationSourceOver fraction: 1.0];
     mCloseButtonRects[item.identifier] = [NSValue valueWithRect: NSInsetRect(r, -4, -4)];
   }
 
   [icon drawAtPoint: NSMakePoint(NSMinX(tabRect) + 5,
                                 NSMinY(tabRect) + floor((NSHeight(tabRect) - 4 - icon.size.height) / 2))
            fromRect: NSZeroRect
-          operation: NSCompositeSourceOver
+          operation: NSCompositingOperationSourceOver
            fraction: item.tabState == NSSelectedTab ? 1.0 : 0.5];
 
   if (item.tabState == NSSelectedTab)
@@ -908,14 +908,14 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
     r.origin.x = NSMaxX(tabRect) - NSWidth(r) - 10;
     r.origin.y = floor((NSHeight(tabRect) - NSHeight(r)) / 2);
     if (item != mBusyTab)
-      [closePart drawAtPoint:r.origin fromRect: NSZeroRect operation: NSCompositeSourceOver fraction: 1.0];
+      [closePart drawAtPoint:r.origin fromRect: NSZeroRect operation: NSCompositingOperationSourceOver fraction: 1.0];
     mCloseButtonRects[item.identifier] = [NSValue valueWithRect: NSInsetRect(r, -4, -4)];
   }
 
   [icon drawAtPoint: NSMakePoint(NSMinX(tabRect) + 5,
                                 NSMinY(tabRect) + floor((NSHeight(tabRect) - 4 - icon.size.height) / 2))
            fromRect: NSZeroRect
-          operation: NSCompositeSourceOver
+          operation: NSCompositingOperationSourceOver
            fraction: item.tabState == NSSelectedTab ? 1.0 : 0.5];
 
   NSSize labelSize = [label sizeWithAttributes:mLabelAttributes];
@@ -1003,7 +1003,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
     if (mHoverItem == item || image == PinnedImage)
       [image drawInRect:pinRect
                fromRect: NSMakeRect(0, 0, image.size.width, image.size.height)
-              operation: NSCompositeSourceOver
+              operation: NSCompositingOperationSourceOver
                fraction: 1.0];
   }
 
@@ -1019,7 +1019,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
     if (mHoverItem == item)
       [image drawInRect:closeRect
                fromRect: NSMakeRect(0, 0, image.size.width, image.size.height)
-              operation: NSCompositeSourceOver
+              operation: NSCompositingOperationSourceOver
                fraction: 1.0];
     mCloseButtonRects[item.identifier] = [NSValue valueWithRect: NSInsetRect(closeRect, -4, -4)];
   }
@@ -1029,7 +1029,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
 
 - (void)drawExtenderInRect: (NSRect)rect {
   NSPoint point = NSMakePoint(NSMinX(rect) + 4, (NSHeight(rect) - TabExtender.size.height) / 2.0 - 2);
-  [TabExtender drawAtPoint:point fromRect: NSZeroRect operation: NSCompositeSourceOver fraction: 1];
+  [TabExtender drawAtPoint:point fromRect: NSZeroRect operation: NSCompositingOperationSourceOver fraction: 1];
   mExternderButtonRect = NSMakeRect(point.x, point.y, TabExtender.size.width, TabExtender.size.height);
 }
 
@@ -1103,7 +1103,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
         NSRect r = rect;
         r.size = image.size;
         for (r.origin.x = 0.0; r.origin.x < NSWidth(rect); r.origin.x += image.size.width)
-          [image drawInRect:r fromRect: NSZeroRect operation: NSCompositeSourceOver fraction: 1.0];
+          [image drawInRect:r fromRect: NSZeroRect operation: NSCompositingOperationSourceOver fraction: 1.0];
       } else {
         [NSColor.whiteColor set];
         NSRectFill(rect);
@@ -1668,7 +1668,7 @@ static void draw_tab_images(NSImage *left, NSImage *middle, NSImage *right, int 
           [mBusyTabIndicator setFrameOrigin: NSMakePoint(NSMaxX(rect) - 23, 2)];
         else {
           mBusyTabIndicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(NSMaxX(rect) - 23, 2, 16, 16)];
-          mBusyTabIndicator.controlSize = NSSmallControlSize;
+          mBusyTabIndicator.controlSize = NSControlSizeSmall;
           mBusyTabIndicator.style = NSProgressIndicatorSpinningStyle;
           [mBusyTabIndicator setIndeterminate: YES];
           [mBusyTabIndicator startAnimation: nil];

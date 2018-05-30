@@ -54,7 +54,7 @@ using namespace System;
 #include <gl/gl.h>
 #include <float.h>
 
-#include <glib/glib.h>
+#include <glib.h>
 
 #ifndef _MSC_VER
 #include <sys/time.h>

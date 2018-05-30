@@ -23,13 +23,14 @@
 
 #import "MCPPUtilities.h"
 
-void MShowCPPException(const std::exception &exc)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+void MShowCPPException(const std::exception &exc) {
   NSAlert *alert = [NSAlert new];
   alert.messageText = @"Unhandled Backend Exception";
-  alert.informativeText = [NSString stringWithFormat: @"It is advisable to save your work in a backup file and restart Workbench.\n"
-                           "Exception Details:\n%s", exc.what()];
-  alert.alertStyle = NSCriticalAlertStyle;
+  alert.informativeText = [NSString stringWithFormat: @"It is advisable to save your work in a backup file and "
+                           "restart Workbench.\nException Details:\n%s", exc.what()];
+  alert.alertStyle = NSAlertStyleCritical;
   [alert addButtonWithTitle: @"Ignore"];
   [alert addButtonWithTitle: @"Close Workbench"];
 
@@ -37,11 +38,12 @@ void MShowCPPException(const std::exception &exc)
     [NSApp terminate: nil];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-/** Fills a NSPopUpButton with the contents of the given vector of strings
+/**
+ * Fills a NSPopUpButton with the contents of the given vector of strings
  */
-void MFillPopupButtonWithStrings(NSPopUpButton *popup, const std::vector<std::string> &items)
-{
+void MFillPopupButtonWithStrings(NSPopUpButton *popup, const std::vector<std::string> &items) {
   [popup removeAllItems];
   NSMutableArray *array= [NSMutableArray arrayWithCapacity: items.size()];
   for (std::vector<std::string>::const_iterator iter= items.begin(); iter != items.end(); ++iter)
@@ -49,9 +51,9 @@ void MFillPopupButtonWithStrings(NSPopUpButton *popup, const std::vector<std::st
   [popup addItemsWithTitles: array];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-NSArray<NSString *> *MArrayFromStringVector(const std::vector<std::string> &items)
-{
+NSArray<NSString *> *MArrayFromStringVector(const std::vector<std::string> &items) {
   NSMutableArray<NSString*> *result = [NSMutableArray arrayWithCapacity: items.size()];
   
   int j= 0;
@@ -61,9 +63,9 @@ NSArray<NSString *> *MArrayFromStringVector(const std::vector<std::string> &item
   return result;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-NSArray<NSString *> *MArrayFromStringList(const std::list<std::string> &items)
-{
+NSArray<NSString *> *MArrayFromStringList(const std::list<std::string> &items) {
   NSMutableArray<NSString*> *result = [NSMutableArray arrayWithCapacity: items.size()];
 
   int j= 0;
@@ -72,3 +74,5 @@ NSArray<NSString *> *MArrayFromStringList(const std::list<std::string> &items)
 
   return result;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

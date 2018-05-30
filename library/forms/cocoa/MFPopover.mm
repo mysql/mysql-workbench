@@ -412,7 +412,7 @@ using namespace mforms;
 
 static bool popover_create(Popover* popover, mforms::View *owner, mforms::PopoverStyle style) {
   MFPopover* popoverWindow = [[MFPopover alloc] initWithContentRect: NSMakeRect(0, 0, 100, 100)
-                                                          styleMask: NSBorderlessWindowMask
+                                                          styleMask: NSWindowStyleMaskBorderless
                                                             backing: NSBackingStoreBuffered
                                                               defer: NO
                                                               style: style];

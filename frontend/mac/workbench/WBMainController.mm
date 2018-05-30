@@ -166,7 +166,7 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
       NSAlert *alert = [NSAlert new];
       alert.messageText = @"Missing Plugin";
       alert.informativeText = [NSString stringWithFormat: @"The plugin %s could not be found.", shlib.c_str()];
-      alert.alertStyle = NSCriticalAlertStyle;
+      alert.alertStyle = NSAlertStyleCritical;
       [alert addButtonWithTitle: @"Close"];
       [alert runModal];
 
@@ -183,7 +183,7 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
         NSAlert *alert = [NSAlert new];
         alert.messageText = @"Error Loading Plugin";
         alert.informativeText = [NSString stringWithFormat: @"The plugin %s could not be loaded. See log file for details", shlib.c_str()];
-        alert.alertStyle = NSCriticalAlertStyle;
+        alert.alertStyle = NSAlertStyleCritical;
         [alert addButtonWithTitle: @"Close"];
         [alert runModal];
 
@@ -199,7 +199,7 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
       alert.messageText = @"Error Opening Plugin";
       alert.informativeText = [NSString
         stringWithFormat: @"The plugin %s does not contain the published object %s", shlib.c_str(), class_name.c_str()];
-      alert.alertStyle = NSCriticalAlertStyle;
+      alert.alertStyle = NSAlertStyleCritical;
       [alert addButtonWithTitle: @"Close"];
       [alert runModal];
 
@@ -982,7 +982,7 @@ static void init_mforms() {
       NSAlert *alert = [NSAlert new];
       alert.messageText = @"Unhandled Exception";
       alert.informativeText = [NSString stringWithFormat:@"An unhandled exception has occurred: %s", exc.what()];
-      alert.alertStyle = NSCriticalAlertStyle;
+      alert.alertStyle = NSAlertStyleCritical;
       [alert addButtonWithTitle:@"Close"];
       [alert runModal];
     }

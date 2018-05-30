@@ -115,8 +115,8 @@ static void util_open_url(const std::string &url)
   if (g_file_test(url.c_str(), G_FILE_TEST_EXISTS) || (!url.empty() && url[0] == '/'))
     [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath: @(url.c_str())]];
   else
-    if (![[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString: [@(url.c_str())
-                                                                       stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]]])
+    if (![[NSWorkspace sharedWorkspace] openURL:
+          [NSURL URLWithString: [@(url.c_str()) stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLPathAllowedCharacterSet]]]])
       logError("Could not open URL %s\n", url.c_str());
 }
 

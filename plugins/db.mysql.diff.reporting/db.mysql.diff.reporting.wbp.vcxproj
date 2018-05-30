@@ -44,12 +44,24 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml_inc.props" />
+    <Import Project="..\..\vsprops\wb_cppconn_inc.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml_inc.props" />
+    <Import Project="..\..\vsprops\wb_cppconn_inc.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_libxml_inc.props" />
+    <Import Project="..\..\vsprops\wb_cppconn_inc.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -77,13 +89,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>backend;frontend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\plugins\db.mysql;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>backend;frontend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\plugins\db.mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -97,7 +108,7 @@
       <PreprocessorDefinitions>DBMYSQLDIFFREPORTINGWBPBE_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>backend;frontend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\plugins\db.mysql;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>backend;frontend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\plugins\db.mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
@@ -105,7 +116,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -119,7 +129,7 @@
       <PreprocessorDefinitions>DBMYSQLDIFFREPORTINGWBPBE_EXPORTS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>backend;frontend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\plugins\db.mysql;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>backend;frontend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\modules;$(SolutionDir)\plugins\db.mysql;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
@@ -127,7 +137,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

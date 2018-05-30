@@ -44,12 +44,24 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\..\vsprops\wb_libxml_inc.props" />
+    <Import Project="..\..\..\vsprops\wb_python.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\..\vsprops\wb_libxml_inc.props" />
+    <Import Project="..\..\..\vsprops\wb_python.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\..\vsprops\wb_libxml_inc.props" />
+    <Import Project="..\..\..\vsprops\wb_python.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -75,7 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <DisableSpecificWarnings>4244;4190</DisableSpecificWarnings>
@@ -84,7 +96,6 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -98,7 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <DisableSpecificWarnings>4244;4190</DisableSpecificWarnings>
@@ -108,7 +119,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -119,7 +129,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <DisableSpecificWarnings>4244;4190</DisableSpecificWarnings>
@@ -129,7 +139,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -143,9 +152,9 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">false</DeploymentContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\..\mysql-win-res\bin\swig  -I$(SolutionDir)\..\mysql-win-res\SwigLib\python -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\include -I../../base -I.. -fvirtual -fcompact -c++ -python mforms.i</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">$(SolutionDir)\..\mysql-win-res\bin\swig  -I$(SolutionDir)\..\mysql-win-res\SwigLib\python -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\include -I../../base -I.. -fvirtual -fcompact -c++ -python -DSWIG_PYTHON_LEGACY_BOOL mforms.i</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\..\mysql-win-res\bin\swig  -I$(SolutionDir)\..\mysql-win-res\SwigLib\python -I$(SolutionDir)\..\mysql-win-res\SwigLib -I$(SolutionDir)\..\mysql-win-res\include -I../../base -I.. -fvirtual -fcompact -c++ -python -DSWIG_PYTHON_LEGACY_BOOL mforms.i</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">swig  -ILib\python -ILib -I$(WB_3DPARTY_PATH)\Include -I$(WB_3DPARTY_PATH)\include\glib-2.0 -I$(WB_3DPARTY_PATH)\lib\glib-2.0\include -I../../base -I.. -fvirtual -fcompact -c++ -python mforms.i</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">swig  -ILib\python -ILib -I$(WB_3DPARTY_PATH)\Include -I$(WB_3DPARTY_PATH)\include\glib-2.0 -I$(WB_3DPARTY_PATH)\lib\glib-2.0\include -I../../base -I.. -fvirtual -fcompact -c++ -python -DSWIG_PYTHON_LEGACY_BOOL mforms.i</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">swig  -ILib\python -ILib -I$(WB_3DPARTY_PATH)\Include -I$(WB_3DPARTY_PATH)\include\glib-2.0 -I$(WB_3DPARTY_PATH)\lib\glib-2.0\include -I../../base -I.. -fvirtual -fcompact -c++ -python -DSWIG_PYTHON_LEGACY_BOOL mforms.i</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Regenerating mforms SWIG wrapper...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mforms_wrap.cxx</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Regenerating mforms SWIG wrapper...</Message>

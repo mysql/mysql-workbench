@@ -170,7 +170,7 @@ class RenderBox(mforms.PyDrawBox):
         if fig and getattr(fig, 'hover_text_template', None):
             text = self.make_tooltip_text(fig, fig.hover_text_template)
             if text:
-                self.tooltip = mforms.newPopover(mforms.PopoverStyleTooltip)
+                self.tooltip = mforms.newPopover(None, mforms.PopoverStyleTooltip)
 
                 fx = fig.x + self.offset[0] + 2 * fig.width / 3
                 fy = fig.y + self.offset[1] + 2 * fig.height / 3

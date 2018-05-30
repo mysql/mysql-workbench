@@ -97,7 +97,7 @@
   [text setEditable: NO];
   [text setDrawsBackground: NO];
   [text setBordered: NO];
-  text.alignment = NSRightTextAlignment;
+  text.alignment = NSTextAlignmentRight;
   [mOptionsView addSubview: text];
   text.autoresizingMask = NSMinXEdge|NSMaxYEdge;
   [mOptionsView addSubview: pop];

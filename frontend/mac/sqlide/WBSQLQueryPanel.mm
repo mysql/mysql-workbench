@@ -970,7 +970,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       mResultsAreaOpen = YES;
 
       NSProgressIndicator *indicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
-      indicator.controlSize = NSSmallControlSize;
+      indicator.controlSize = NSControlSizeSmall;
       indicator.style = NSProgressIndicatorSpinningStyle;
       [indicator setIndeterminate: YES];
       ((MSpinProgressCell*)[mMessagesTable tableColumnWithIdentifier: @"0"].dataCell).progressIndicator = indicator;

@@ -25,7 +25,16 @@
 #include "base/string_utilities.h"
 #include "wb_helpers.h"
 
+#ifdef __APPLE__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcomma"
+#endif
+
 #include <boost/lexical_cast.hpp>
+
+#ifdef __APPLE__
+#pragma GCC diagnostic pop
+#endif
 
 using namespace base;
 

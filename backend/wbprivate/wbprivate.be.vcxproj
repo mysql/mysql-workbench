@@ -44,12 +44,48 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_libzip.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\vsprops\wb_gettext.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_gdal.props" />
+    <Import Project="..\..\vsprops\wb_antlr4.props" />
+    <Import Project="..\..\vsprops\wb_cairo.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\vsprops\wb_zlib.props" />
+    <Import Project="..\..\vsprops\wb_python.props" />
+    <Import Project="..\..\vsprops\wb_libssh.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_libzip.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\vsprops\wb_gettext.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_gdal.props" />
+    <Import Project="..\..\vsprops\wb_antlr4.props" />
+    <Import Project="..\..\vsprops\wb_cairo.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\vsprops\wb_zlib.props" />
+    <Import Project="..\..\vsprops\wb_python.props" />
+    <Import Project="..\..\vsprops\wb_libssh.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_libzip.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\vsprops\wb_gettext.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\vsprops\wb_gdal.props" />
+    <Import Project="..\..\vsprops\wb_antlr4.props" />
+    <Import Project="..\..\vsprops\wb_cairo.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\vsprops\wb_zlib.props" />
+    <Import Project="..\..\vsprops\wb_python.props" />
+    <Import Project="..\..\vsprops\wb_libssh.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -76,14 +112,14 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;COMMERCIAL_CODE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libzip\$(Configuration)\libzip.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\zlib\$(Configuration)\zlib.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\antlr4-runtime\$(Configuration)\antlr4-runtime.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libssh\$(Configuration)\ssh.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -99,7 +135,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;ENABLE_DEBUG;COMMERCIAL_CODE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -108,7 +144,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libzip\$(Configuration)\libzip.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\zlib\$(Configuration)\zlib.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\antlr4-runtime\$(Configuration)\antlr4-runtime.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libssh\$(Configuration)\ssh.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -121,7 +157,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;$(PROJECTDIR)..\..\..\mysql-win-res\include\;$(PROJECTDIR)..\..\..\mysql-win-res\include\antlr4-runtime;$(PROJECTDIR)..\..\..\mysql-win-res\include\glib;$(PROJECTDIR)..\..\..\mysql-win-res\include\cairo;$(PROJECTDIR)..\..\..\mysql-win-res\include\pcre;$(PROJECTDIR)..\..\..\mysql-win-res\include\libxml;$(PROJECTDIR)..\..\..\mysql-win-res\include\sqlite;$(PROJECTDIR)..\..\..\mysql-win-res\include\vsqlite++;$(PROJECTDIR)..\..\..\mysql-win-res\include\cppconn;$(PROJECTDIR)..\..\..\mysql-win-res\include\libzip;$(PROJECTDIR)..\..\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PROJECTDIR);$(PROJECTDIR)..\wbpublic;$(PROJECTDIR)..\..\ext\scintilla\include;$(PROJECTDIR)..\..\frontend\common;$(PROJECTDIR)..\..\generated;$(PROJECTDIR)..\..\library\cdbc\src;$(PROJECTDIR)..\..\library\forms;$(PROJECTDIR)..\..\library\grt\src;$(PROJECTDIR)..\..\library\mysql.canvas\src;$(PROJECTDIR)..\..\library\parsers;$(PROJECTDIR)..\..\library\ssh;$(PROJECTDIR)..\..\library\base;$(PROJECTDIR)..\..\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MYSQLWBBACKEND_EXPORTS;ENABLE_PYTHON_MODULES;PCRE_DEFINITION;WB_USE_INTERNAL_BROWSER;TIXML_USE_STL;SCI_NAMESPACE;CPL_DISABLE_DLL;ZIP_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4503;4251</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -130,7 +166,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libiconv.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libzip\$(Configuration)\libzip.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\zlib\$(Configuration)\zlib.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\antlr4-runtime\$(Configuration)\antlr4-runtime.lib;$(ProjectDir)..\..\..\mysql-win-res\lib\$(PlatformTarget)\libssh\$(Configuration)\ssh.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -33,7 +33,7 @@
   self= [super initWithFrame:frame];
   if (self)
   {
-    CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+    CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular
                                                       scrollerStyle: NSScrollerStyleOverlay];
 
     _hScroller= [[NSScroller alloc] initWithFrame:NSMakeRect(0, 0, NSWidth(frame) - scrollerWidth, scrollerWidth)];
@@ -67,7 +67,7 @@
   NSRect frame= self.bounds;
   NSRect contentFrame;
 
-  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular
                                                     scrollerStyle: NSScrollerStyleOverlay];
   contentFrame= NSMakeRect(0, scrollerWidth, NSWidth(frame) - scrollerWidth, NSHeight(frame) - scrollerWidth);
   _contentView.frame = contentFrame;
@@ -178,7 +178,7 @@ static void canvas_view_viewport_changed(void *self)
 {
   NSSize size= self.frame.size;
   
-  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular
                                                     scrollerStyle: NSScrollerStyleOverlay];
   size.width -= scrollerWidth;
   size.height -= scrollerWidth;

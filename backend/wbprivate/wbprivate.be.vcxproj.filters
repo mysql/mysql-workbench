@@ -463,5 +463,8 @@
     <ClCompile Include="workbench\SSHSessionWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="workbench\license_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -89,8 +89,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     [self setAutohidesScrollers: YES];
     if (scrolls & mforms::SmallScrollBars)
     {
-      self.verticalScroller.controlSize = NSSmallControlSize;
-      self.horizontalScroller.controlSize = NSSmallControlSize;
+      self.verticalScroller.controlSize = NSControlSizeSmall;
+      self.horizontalScroller.controlSize = NSControlSizeSmall;
     }
 
     frame.size = self.minimumSize;
@@ -134,9 +134,9 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 - (NSSize)minimumSize
 {
   NSSize size;
-  size.width = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+  size.width = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular
                                         scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding * 2;
-  size.height = [NSScroller scrollerWidthForControlSize: NSRegularControlSize
+  size.height = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular
                                          scrollerStyle: NSScrollerStyleOverlay] + 50 + mPadding * 2;
   NSSize minSize = super.minimumSize;
   return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) };

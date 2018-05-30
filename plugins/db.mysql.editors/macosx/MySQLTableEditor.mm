@@ -368,8 +368,8 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [sv setDocumentView:mEditorOptions];
   [sv setHasHorizontalScroller: YES];
   [sv setHasVerticalScroller: YES];
-  [[sv horizontalScroller] setControlSize:NSSmallControlSize];
-  [[sv verticalScroller] setControlSize:NSSmallControlSize];
+  [[sv horizontalScroller] setControlSize:NSControlSizeSmall];
+  [[sv verticalScroller] setControlSize:NSControlSizeSmall];
   [sv setAutohidesScrollers: YES];
   [mEditorOptions scrollRectToVisible:NSMakeRect(0, [mEditorOptions frame].size.height, 1, 1)];
   [item setView:sv];
@@ -1058,7 +1058,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
       // select and edit first column of next row
       NSEvent* currentEvent = [NSApp currentEvent];
-      if ([currentEvent type] == NSKeyDown && [[currentEvent characters] characterAtIndex:0] == '\t' &&
+      if ([currentEvent type] == NSEventTypeKeyDown && [[currentEvent characters] characterAtIndex:0] == '\t' &&
           [mColumnsTable numberOfRows] > rowIndex) {
         [mColumnsTable selectRowIndexes: [NSIndexSet indexSetWithIndex: rowIndex + 1] byExtendingSelection: NO];
         [mColumnsTable editColumn:0 row: rowIndex + 1 withEvent: nil select: YES];

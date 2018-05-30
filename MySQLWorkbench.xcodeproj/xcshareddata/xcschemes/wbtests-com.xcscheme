@@ -68,7 +68,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only table_inserts"
+            argument = "only file_utilities_test"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

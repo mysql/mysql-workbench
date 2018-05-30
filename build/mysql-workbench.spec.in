@@ -14,14 +14,6 @@
 
 # Enable use of "--with" and "--without" options to "rpmbuld"
 #
-#
-# NOTE: Currently 'mysql_static' just means we don't copy
-# "libmysqlclient.so*", a newer version of FindMySQL is needed to
-# actually force the use of the "libmysqlclient.a" library.
-# I.e. the -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE below has currently
-# no effect (instead you need to remove the shared libraries from the
-# MySQL install)
-%bcond_without mysql_static
 
 # Allow to continue when a binary with no build-id was found
 %undefine _missing_build_ids_terminate_build
@@ -36,12 +28,6 @@
 # whether at least Python 2.6 is available
 %define have_python26   1
 %include %{_rpmconfigdir}/macros.python
-
-# FIXME change so that if not defined, this is a build building
-# against RPM installed libraries
-%if !%{defined linuxres_binaries}
-%define linuxres_binaries %{linuxres_home}/builds
-%endif
 
 %if "%{edition}" == "commercial"
 %define commercial       1
@@ -58,21 +44,10 @@
 %define readme_file      README.md
 %endif
 
-%define odbc_home        %{linuxres_binaries}/odbc
-%define sqlite_dir       %{linuxres_binaries}/sqlite-%{lictag}
-%define pysqlite_dir     %{linuxres_binaries}/pysqlite2-%{lictag}
-%define pyodbc_dir       %{linuxres_binaries}/pyodbc
-%define mysqlcppconn_dir %{linuxres_binaries}/cppconn-%{lictag}
-%define gdal_dir         %{linuxres_binaries}/gdal-%{lictag}
-%define vsqlite_dir      %{linuxres_binaries}/vsqlite-%{lictag}
-%define antlr_dir        %{linuxres_binaries}/antlr
-%define libssh_dir       %{linuxres_binaries}/libssh-%{lictag}
-%define libgpg_dir       %{linuxres_binaries}/libgpg-libs
-%define python_dir       %{linuxres_home}/python
-%define antlr_jar_path   %{linuxres_home}/bin/antlr-4.7.1-complete.jar
-%if !%{defined boost_root}
-%define boost_root       %{linuxres_home}
-%endif
+
+# FIXME change so that if not defined, this is a build building
+# against RPM installed libraries
+# %if %{defined bundles_path}
 
 Summary: A MySQL visual database modeling, administration, development and migration tool
 Name   : mysql-workbench-%{edition}
@@ -104,10 +79,12 @@ BuildRequires: libsecret-devel
 BuildRequires: mysql-devel >= 5.7
 %endif
 
-%if !%{defined linuxres_binaries}
+%if !%{defined bundles_path}
 BuildRequires: boost-devel
 BuildRequires: sqlite-devel
 BuildRequires: vsqlite++-devel
+BuildRequires: unixODBC-devel
+BuildRequires: gdal-devel
 %endif
 
 %if 0%{?fedora} >= 18
@@ -162,8 +139,8 @@ Windows, Linux and Mac OS X.
 
 %prep
 
-if [ -z "%{?linuxres_home}" ] ; then
-  echo "ERROR: You need to run like: rpmbuild --define 'linuxres_home <path-to-res-repo>' ..."
+if [ -z "%{?bundles_path}" ] ; then
+  echo "ERROR: You need to run like: rpmbuild --define 'bundles_path <path-to-bundles-repo>' ..."
   exit 1
 fi
 
@@ -172,7 +149,6 @@ fi
 
 
 %build
-export BOOST_ROOT=%{boost_root}
 %undefine _hardened_build #need to undefine because of some memory problems
 # CMAKE_INSTALL_PREFIX etc is handled by the cmake macro
 %cmake -DCMAKE_BUILD_TYPE=Release \
@@ -181,24 +157,21 @@ export BOOST_ROOT=%{boost_root}
        -DMySQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
        -DUSE_BUNDLED_MYSQLDUMP=1 \
 %endif
-%if %{with mysql_static}
-       -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
-%endif
-       -DMySQLCppConn_LIBRARIES="-L%{mysqlcppconn_dir}/lib -lmysqlcppconn" \
-       -DMySQLCppConn_INCLUDE_DIR=%{mysqlcppconn_dir}/include \
-       -DIODBC_CONFIG_PATH=%{odbc_home}/bin/iodbc-config \
-       -DIODBC_INCLUDE_PATH=%{odbc_home}/include \
-       -DIODBC_LIBRARIES_PATH=%{odbc_home}/lib \
-       -DGDAL_INCLUDE_DIR=%{gdal_dir}/include \
-       -DGDAL_LIBRARY=%{gdal_dir}/lib/libgdal.so \
-       -DVSQLITE_INCLUDE_DIR=%{vsqlite_dir}/include \
-       -DVSQLITE_LIBRARIES="-L%{vsqlite_dir}/lib -lvsqlitepp" \
-       -DANTLR4_INCLUDE_DIR=%{antlr_dir}/include \
-       -DANTLR4_LIBRARIES="-L%{antlr_dir}/lib -lantlr4-runtime" \
-       -DWITH_ANTLR_JAR=%{antlr_jar_path} \
-       -DLibSSH_INCLUDE_DIR=%{libssh_dir}/include \
-       -DLibSSH_LIBRARIES="-L%{libssh_dir}/lib -lssh" \
-
+       -DMySQLCppConn_LIBRARIES="-L%{bundles_path}/lib -lmysqlcppconn" \
+       -DMySQLCppConn_INCLUDE_DIR=%{bundles_path}/include/cppconn \
+       -DIODBC_CONFIG_PATH=%{bundles_path}/bin/iodbc-config \
+       -DIODBC_INCLUDE_PATH=%{bundles_path}/include \
+       -DIODBC_LIBRARIES_PATH=%{bundles_path}/lib \
+       -DGDAL_INCLUDE_DIR=%{bundles_path}/include \
+       -DGDAL_LIBRARY=%{bundles_path}/lib/libgdal.so \
+       -DVSQLITE_INCLUDE_DIR=%{bundles_path}/include \
+       -DVSQLITE_LIBRARIES="-L%{bundles_path}/lib -lvsqlitepp" \
+       -DANTLR4_INCLUDE_DIR=%{bundles_path}/include \
+       -DANTLR4_LIBRARIES="-L%{bundles_path}/lib -lantlr4-runtime" \
+       -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.7.1-complete.jar \
+       -DLibSSH_INCLUDE_DIR=%{bundles_path}/include \
+       -DLibSSH_LIBRARIES="-L%{bundles_path}/lib -lssh" \
+       -DBOOST_ROOT=%{bundles_path}/include \
 
 make %{?_smp_mflags}
 
@@ -209,9 +182,6 @@ rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 
 # Bundle client programs and lib
 %if %{defined mysql_home}
-%if %{without mysql_static}
-  cp -a %{mysql_home}/lib/libmysqlclient.so.* %{buildroot}%{_libdir}/mysql-workbench/
-%endif
   cp -a %{mysql_home}/bin/mysql %{buildroot}%{_libexecdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
@@ -226,23 +196,23 @@ rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.a  -exec rm {} \; -print
 find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
 
-%if %{defined linuxres_binaries}
+%if %{defined bundles_path}
   mkdir -p %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
   # Bundle pre-built libs
-  cp -a %{pyodbc_dir}/*.so                            %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{pysqlite_dir}/*                             %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
-  cp -a %{sqlite_dir}/lib/*.so*                       %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{gdal_dir}/lib/*.so*                         %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{mysqlcppconn_dir}/lib/libmysqlcppconn.so*   %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/Python/pyodbc/pyodbc.so         %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/Python/pysqlite2/*              %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
+  cp -a %{bundles_path}/lib/libsqlite*.so*              %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/libgdal.so*                 %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/libmysqlcppconn.so*         %{buildroot}%{_libdir}/mysql-workbench/
 # Note that MySQL Shell only provide static libraries at the moment,
 # i.e. is linked into the WB binaries
 # cp -a %%{mysqlshell_dir}/lib/*.so*                  %%{buildroot}%%{_libdir}/mysql-workbench/
-  cp -a %{vsqlite_dir}/lib/libvsqlitepp.so*           %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{antlr_dir}/lib/libantlr4-runtime.so*         %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{odbc_home}/lib/libiodbc{,inst,adm}.so*      %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{odbc_home}/bin/iodbcadm-gtk                 %{buildroot}%{_libexecdir}/mysql-workbench/
-  cp -a %{libssh_dir}/lib/libssh.so*                  %{buildroot}%{_libdir}/mysql-workbench/
-  cp -a %{libgpg_dir}/lib/lib*.so*                    %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/libvsqlitepp.so*            %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/libantlr4-runtime.so*       %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/libiodbc{,inst,adm}.so*     %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/bin/iodbcadm-gtk                %{buildroot}%{_libexecdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/libssh.so*                  %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/mysql/libmysqlclient.so.*   %{buildroot}%{_libdir}/mysql-workbench/
 %endif
 
 

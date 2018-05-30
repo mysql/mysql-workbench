@@ -92,7 +92,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
                                         horizontalScrollerClass: [NSScroller class]
                                           verticalScrollerClass: [NSScroller class]
                                                      borderType: NSBezelBorder
-                                                    controlSize: NSRegularControlSize
+                                                    controlSize: NSControlSizeRegular
                                                   scrollerStyle: NSScrollerStyleOverlay];
   return { MAX(minSize.width, contentMinSize.width), MAX(minSize.height, contentMinSize.height) };
 }

@@ -251,13 +251,13 @@ static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
            iter != parts.end(); ++iter)
       {
         if (*iter == "Command" || *iter == "Modifier")
-          mask|= NSCommandKeyMask;
+          mask|= NSEventModifierFlagCommand;
         else if (*iter == "Alt" || *iter == "Alternate" || *iter == "Option")
-          mask|= NSAlternateKeyMask;
+          mask|= NSEventModifierFlagOption;
         else if (*iter == "Control")
-          mask|= NSControlKeyMask;
+          mask|= NSEventModifierFlagControl;
         else if (*iter == "Shift")
-          mask|= NSShiftKeyMask;
+          mask|= NSEventModifierFlagShift;
       }
       if (mask != 0)
         item.keyEquivalentModifierMask = mask;

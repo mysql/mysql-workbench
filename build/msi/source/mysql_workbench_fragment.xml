@@ -55,21 +55,21 @@
               </Component>
 
               <Component DiskId="1" Guid="F7B89C4E-BAA9-44e6-9FB1-F6DB8148790F" Id="Third_Party_Libraries" Location="either">
-                <File Id="file1023" Name="libiconv.dll"/>
-                <File Id="file1085" Name="libintl-8.dll"/>
+                <File Id="file1023" Name="iconv.dll"/>
+                <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
                 <File Id="ssleay32.dll" Name="ssleay32.dll"/>
                 <File Id="libeay32.dll" Name="libeay32.dll"/>
                 <File Id="file1034" Name="libmysql.dll"/>
-                <File Id="file1035" Name="libpng.dll"/>
+                <File Id="file1035" Name="libpng16.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>
                 <File Id="file1030" Name="glib.dll"/>
                 <File Id="file1031" Name="gmodule.dll"/>
                 <File Id="file1032" Name="gobject.dll"/>
                 <File Id="file1033" Name="gthread.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
-                <File Id="file1065" Name="libzip.dll"/>
-                <File Id="file1083" Name="zlib.dll"/>
+                <File Id="file1065" Name="zip.dll"/>
+                <File Id="file1083" Name="zlib1.dll"/>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
                   <File Id="file1099d" Name="python27_d.dll"/>
@@ -84,6 +84,7 @@
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
                 <File Id="pcre.dll" Name="pcre.dll"/>
+                <File Id="pcrecpp.dll" Name="pcrecpp.dll"/>
                 <File Id="file68725" Name="sqlite3.dll"/>
                 <File Id="gdal.dll" Name="gdal.dll"/>
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
@@ -106,7 +107,7 @@
                 <File Id="file113" Name="db.mysql.wbp.dll"/>
                 <File Id="file115" Name="grt.db.fe.dll"/>
                 <File Id="file116" Name="mysql.forms.dll"/>
-                <File Id="file117" Name="mysqlcppconn.dll"/>
+                <File Id="file117" Name="mysqlcppconn-7-vs14.dll"/>
                 <File Id="file118" Name="sqlide.fe.dll"/>
                 <File Id="file122" Name="WbPlugins.dll"/>
                 <File Id="file123" Name="wbprivate.be.dll"/>
@@ -1431,223 +1432,6 @@
                       <File Id="file68021" Name="pyodbc.pyd"/>
                     <?endif ?>
                   </Component>
-                  <Directory Id="python_site_packages_crypto" Name="Crypto">
-                    <Component DiskId="1" Guid="e9a2f630-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto" Location="either">
-                      <File Id="file68503" Name="__init__.py"/>
-                      <File Id="file68505" Name="pct_warnings.py"/>
-                    </Component>
-                    <Directory Id="python_site_packages_crypto_cipher" Name="Cipher">
-                      <Component DiskId="1" Guid="e9a2fd4c-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_cipher" Location="either">
-                        <File Id="file68507" Name="__init__.py"/>
-                        <File Id="file68508" Name="blockalgo.py"/>
-                        <File Id="file685091" Name="AES.py"/>
-                        <File Id="file685111" Name="ARC2.py"/>
-                        <File Id="file685131" Name="ARC4.py"/>
-                        <File Id="file685151" Name="Blowfish.py"/>
-                        <File Id="file685171" Name="CAST.py"/>
-                        <File Id="file685191" Name="DES.py"/>
-                        <File Id="file685201" Name="DES3.py"/>
-                        <File Id="file685231" Name="XOR.py"/>
-                        <File Id="file685251" Name="pkcs1_oaep.py"/>
-                        <File Id="file685271" Name="pkcs1_v1_5.py"/>
-                        <?if $(var.LICENSE_TYPE) = "debug"?>
-                          <File Id="file68510" Name="_AES_d.pyd"/>
-                          <File Id="file68512" Name="_ARC2_d.pyd"/>
-                          <File Id="file68514" Name="_ARC4_d.pyd"/>
-                          <File Id="file68516" Name="_Blowfish_d.pyd"/>
-                          <File Id="file68518" Name="_CAST_d.pyd"/>
-                          <File Id="file68521" Name="_DES3_d.pyd"/>
-                          <File Id="file68522" Name="_DES_d.pyd"/>
-                          <File Id="file68524" Name="_XOR_d.pyd"/>
-                        <?else ?>
-                          <File Id="file68509" Name="_AES.pyd"/>
-                          <File Id="file68511" Name="_ARC2.pyd"/>
-                          <File Id="file68513" Name="_ARC4.pyd"/>
-                          <File Id="file68515" Name="_Blowfish.pyd"/>
-                          <File Id="file68517" Name="_CAST.pyd"/>
-                          <File Id="file68519" Name="_DES.pyd"/>
-                          <File Id="file68520" Name="_DES3.pyd"/>
-                          <File Id="file68523" Name="_XOR.pyd"/>
-                        <?endif ?>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_site_packages_crypto_hash" Name="Hash">
-                      <Component DiskId="1" Guid="e9a31854-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_hash" Location="either">
-                        <File Id="file68525" Name="__init__.py"/>
-                        <File Id="file68526" Name="hashalgo.py"/>
-                        <File Id="file68527" Name="HMAC.py"/>
-                        <File Id="file685291" Name="MD2.py"/>
-                        <File Id="file685311" Name="MD4.py"/>
-                        <File Id="file68533" Name="MD5.py"/>
-                        <File Id="file68535" Name="RIPEMD.py"/>
-                        <File Id="file68538" Name="SHA.py"/>
-                        <File Id="file68539" Name="SHA256.py"/>
-                        <File Id="file685381" Name="SHA224.py"/>
-                        <File Id="file685382" Name="SHA384.py"/>
-                        <File Id="file685383" Name="SHA512.py"/>
-                        <?if $(var.LICENSE_TYPE) = "debug"?>
-                          <File Id="file68530" Name="_MD2_d.pyd"/>
-                          <File Id="file68532" Name="_MD4_d.pyd"/>
-                          <File Id="file68537" Name="_RIPEMD160_d.pyd"/>
-                          <File Id="file68541" Name="_SHA256_d.pyd"/>
-                          <File Id="file685411" Name="_SHA224_d.pyd"/>
-                          <File Id="file685412" Name="_SHA384_d.pyd"/>
-                          <File Id="file685413" Name="_SHA512_d.pyd"/>
-                        <?else ?>
-                          <File Id="file68529" Name="_MD2.pyd"/>
-                          <File Id="file68531" Name="_MD4.pyd"/>
-                          <File Id="file68536" Name="_RIPEMD160.pyd"/>
-                          <File Id="file68540" Name="_SHA256.pyd"/>
-                          <File Id="file685401" Name="_SHA224.pyd"/>
-                          <File Id="file685402" Name="_SHA384.pyd"/>
-                          <File Id="file685403" Name="_SHA512.pyd"/>
-                        <?endif ?>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_site_packages_crypto_protocol" Name="Protocol">
-                      <Component DiskId="1" Guid="e9a32254-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_protocol" Location="either">
-                        <File Id="file68542" Name="__init__.py"/>
-                        <File Id="file685421" Name="KDF.py"/>
-                        <File Id="file68543" Name="AllOrNothing.py"/>
-                        <File Id="file68544" Name="Chaffing.py"/>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_site_packages_crypto_publickey" Name="PublicKey">
-                      <Component DiskId="1" Guid="e9a3277c-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_publickey" Location="either">
-                        <File Id="file68545" Name="__init__.py"/>
-                        <File Id="file68547" Name="_DSA.py"/>
-                        <File Id="file68549" Name="_RSA.py"/>
-                        <File Id="file68551" Name="_slowmath.py"/>
-                        <File Id="file68553" Name="DSA.py"/>
-                        <File Id="file68555" Name="ElGamal.py"/>
-                        <File Id="file68556" Name="pubkey.py"/>
-                        <File Id="file68559" Name="RSA.py"/>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_site_packages_crypto_random" Name="Random">
-                      <Component DiskId="1" Guid="e9a33dd4-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_random" Location="either">
-                        <File Id="file68561" Name="__init__.py"/>
-                        <File Id="file68563" Name="_UserFriendlyRNG.py"/>
-                        <File Id="file68565" Name="random.py"/>
-                      </Component>
-                      <Directory Id="python_site_packages_crypto_random_fortuna" Name="Fortuna">
-                        <Component DiskId="1" Guid="e9a343c4-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_random_fortuna" Location="either">
-                          <File Id="file68566" Name="__init__.py"/>
-                          <File Id="file68568" Name="FortunaAccumulator.py"/>
-                          <File Id="file68570" Name="FortunaGenerator.py"/>
-                          <File Id="file68572" Name="SHAd256.py"/>
-                        </Component>
-                      </Directory>
-                      <Directory Id="python_site_packages_crypto_random_osrng" Name="OSRNG">
-                        <Component DiskId="1" Guid="e9a35652-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_random_osrng" Location="either">
-                          <File Id="file68574" Name="__init__.py"/>
-                          <File Id="file68576" Name="fallback.py"/>
-                          <File Id="file68577" Name="nt.py"/>
-                          <File Id="file68579" Name="posix.py"/>
-                          <File Id="file68580" Name="rng_base.py"/>
-                        <?if $(var.SETUP_TYPE) = "debug" ?>
-                          <File Id="file68584" Name="winrandom_d.pyd"/>
-                        <?else ?>
-                          <File Id="file68582" Name="winrandom.pyd"/>
-                        <?endif ?>
-                        </Component>
-                      </Directory>
-                    </Directory>
-                    <Directory Id="python_site_packages_crypto_signature" Name="Signature">
-                      <Component DiskId="1" Guid="ad0dc412-57cc-4794-a313-8134d9ea33bb" Id="python_site_packages_crypto_signature" Location="either">
-                        <File Id="file68573" Name="__init__.py"/>
-                        <File Id="file685831" Name="PKCS1_PSS.py"/>
-                        <File Id="file685832" Name="PKCS1_v1_5.py"/>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_site_packages_crypto_util" Name="Util">
-                      <Component DiskId="1" Guid="e9a69ef2-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_crypto_util" Location="either">
-                        <File Id="file68631" Name="__init__.py"/>
-                        <?if $(var.SETUP_TYPE) = "debug" ?>
-                          <File Id="file68634" Name="_counter_d.pyd"/>
-                        <?else ?>
-                           <File Id="file68633" Name="_counter.pyd"/>
-                        <?endif ?>
-                        <File Id="file68635" Name="_number_new.py"/>
-                        <File Id="file68637" Name="asn1.py"/>
-                        <File Id="file68639" Name="Counter.py"/>
-                        <File Id="file68641" Name="number.py"/>
-                        <File Id="file68642" Name="py21compat.py"/>
-                        <File Id="file68643" Name="py3compat.py"/>
-                        <File Id="file68645" Name="randpool.py"/>
-                        <File Id="file68647" Name="RFC1751.py"/>
-                        <?if $(var.SETUP_TYPE) = "debug" ?>
-                          <File Id="file68649" Name="strxor_d.pyd"/>
-                        <?else ?>
-                          <File Id="file68648" Name="strxor.pyd"/>
-                        <?endif ?>
-
-                        <File Id="file68650" Name="winrandom.py"/>
-                      </Component>
-                    </Directory>
-                  </Directory>
-                  <Directory Id="python_site_packages_paramiko" Name="paramiko">
-                    <Component DiskId="1" Guid="e9a7924e-605a-11e0-a9ed-34159e1d64e6" Id="python_site_packages_paramiko" Location="either">
-                      <File Id="file68652" Name="__init__.py"/>
-                      <File Id="file68654" Name="agent.py"/>
-                      <File Id="file68656" Name="auth_handler.py"/>
-                      <File Id="file68658" Name="ber.py"/>
-                      <File Id="file68660" Name="buffered_pipe.py"/>
-                      <File Id="file68662" Name="channel.py"/>
-                      <File Id="file68664" Name="client.py"/>
-                      <File Id="file68666" Name="common.py"/>
-                      <File Id="file68668" Name="compress.py"/>
-                      <File Id="file68670" Name="config.py"/>
-                      <File Id="file68672" Name="dsskey.py"/>
-                      <File Id="file68674" Name="file.py"/>
-                      <File Id="file68676" Name="hostkeys.py"/>
-                      <File Id="file68678" Name="kex_gex.py"/>
-                      <File Id="file68680" Name="kex_group1.py"/>
-                      <File Id="file68683" Name="message.py"/>
-                      <File Id="file68685" Name="packet.py"/>
-                      <File Id="file68687" Name="pipe.py"/>
-                      <File Id="file68689" Name="pkey.py"/>
-                      <File Id="file68691" Name="primes.py"/>
-                      <File Id="file68693" Name="resource.py"/>
-                      <File Id="file68700" Name="rsakey.py"/>
-                      <File Id="file68702" Name="server.py"/>
-                      <File Id="file68704" Name="sftp.py"/>
-                      <File Id="file68706" Name="sftp_attr.py"/>
-                      <File Id="file68708" Name="sftp_client.py"/>
-                      <File Id="file68710" Name="sftp_file.py"/>
-                      <File Id="file68712" Name="sftp_handle.py"/>
-                      <File Id="file68714" Name="sftp_server.py"/>
-                      <File Id="file68716" Name="sftp_si.py"/>
-                      <File Id="file68718" Name="ssh_exception.py"/>
-                      <File Id="file68720" Name="transport.py"/>
-                      <File Id="file68722" Name="util.py"/>
-                      <File Id="file68724" Name="win_pageant.py"/>
-                      <File Id="file68729" Name="ssh_gss.py"/>
-                      <File Id="file68730" Name="py3compat.py"/>
-                      <File Id="file68731" Name="proxy.py"/>
-                      <File Id="file68732" Name="kex_gss.py"/>
-                      <File Id="file68733" Name="kex_group14.py"/>
-                      <File Id="file68734" Name="ecdsakey.py"/>
-                      <File Id="file68735" Name="_winapi.py"/>
-                      <File Id="file68736" Name="_version.py"/>
-                    </Component>
-                  </Directory>
-                  <Directory Id="python_site_packages_ecdsa" Name="ecdsa">
-                    <Component DiskId="1" Guid="2baa2da0-0d38-41e6-9f51-ee88b5d1efe8" Id="python_site_packages_ecdsa" Location="either">
-                      <File Id="file68737" Name="util.py"/>
-                      <File Id="file68738" Name="six.py"/>
-                      <File Id="file68739" Name="test_pyecdsa.py"/>
-                      <File Id="file68740" Name="rfc6979.py"/>
-                      <File Id="file68741" Name="keys.py"/>
-                      <File Id="file68742" Name="numbertheory.py"/>
-                      <File Id="file68743" Name="ellipticcurve.py"/>
-                      <File Id="file68744" Name="der.py"/>
-                      <File Id="file68745" Name="ecdsa.py"/>
-                      <File Id="file68746" Name="curves.py"/>
-                      <File Id="file68747" Name="__init__.py"/>
-                      <File Id="file68748" Name="_version.py"/>
-                    </Component>
-                  </Directory>
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
                   <Directory Id="python_site_packages_pysqlite2" Name="pysqlite2">
                     <Component DiskId="1" Guid="1144fb0c-9b34-4d3d-bf0d-7c7811c09677" Id="python_site_packages_pysqlite2" Location="either">

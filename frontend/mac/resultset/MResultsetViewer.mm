@@ -163,7 +163,7 @@ static const char *viewFlagsKey = "viewFlagsKey";
     alert.messageText = @"Too Many Columns";
     alert.informativeText = @"The resultset for your query contains too many columns, which may be very slow to display."
       "\nHowever, as a workaround, manual resizing of columns can be disabled to speed up display and scrolling.";
-    alert.alertStyle = NSWarningAlertStyle;
+    alert.alertStyle = NSAlertStyleWarning;
     [alert addButtonWithTitle: @"Disable Column Resizing"];
     [alert addButtonWithTitle: @"Ignore"];
 

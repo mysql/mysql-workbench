@@ -25,33 +25,34 @@
 
 @implementation MQResultSetCell
 
-- (instancetype)init
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (instancetype)init {
   self= [super init];
-  if (self)
-  {
+  if (self)   {
     _blobIcon = [NSImage imageNamed: @"field_overlay_blob"];
     _nullIcon = [NSImage imageNamed: @"field_overlay_null"];
   }
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (id)copyWithZone:(NSZone*)zone 
-{
+- (id)copyWithZone:(NSZone*)zone {
   MQResultSetCell *copy = (MQResultSetCell*)[super copyWithZone:zone];
   copy->_blobIcon = _blobIcon;
   copy->_nullIcon = _nullIcon;
   return copy;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-
-
-- (void)editWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject event:(NSEvent *)theEvent
-{
-  if (!_blob)
-  {
+- (void)editWithFrame: (NSRect)aRect
+               inView: (NSView *)controlView
+               editor: (NSText *)textObj
+             delegate: (id)anObject
+                event: (NSEvent *)theEvent {
+  if (!_blob) {
     self.textColor = [NSColor blackColor];
     aRect.size.height-= 3.0;
     aRect.size.width-= 3.0;
@@ -59,56 +60,59 @@
   }
 }
 
-- (void)setPlaceholder:(BOOL)flag
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setPlaceholder:(BOOL)flag {
   _placeholder= flag;
 }
 
-- (void)setIsBlob:(BOOL)flag
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setIsBlob:(BOOL)flag {
   _blob= flag;
 }
 
-- (void)setIsNull:(BOOL)flag
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setIsNull:(BOOL)flag {
   _null= flag;
 }
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
   NSRect imageFrame = cellFrame;
   imageFrame.origin.x += 4;
 
   [super drawWithFrame: cellFrame inView: controlView];
 
-  if (!_placeholder)
-  {
-    if (_blob && !_null)
-    {
-      if (self.objectValue)
-      {
+  if (!_placeholder) {
+    if (_blob && !_null) {
+      if (self.objectValue) {
         imageFrame.size = _blobIcon.size;
         imageFrame.origin.y += floor((NSHeight(cellFrame) - _blobIcon.size.height) / 2);
         [_blobIcon drawInRect: imageFrame
                      fromRect: NSZeroRect
-                    operation: NSCompositeSourceOver
+                    operation: NSCompositingOperationSourceOver
                      fraction: 1
                respectFlipped: YES
                         hints: nil];
       }
     }
-    if (_null)
-    {
+
+    if (_null) {
       imageFrame.size = _nullIcon.size;
       imageFrame.origin.y += floor((NSHeight(cellFrame) - _nullIcon.size.height) / 2);
       [_nullIcon drawInRect: imageFrame
                 fromRect: NSZeroRect
-               operation: NSCompositeSourceOver
+               operation: NSCompositingOperationSourceOver
                 fraction: 1
           respectFlipped: YES
                    hints: nil];
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @end

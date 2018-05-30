@@ -649,7 +649,10 @@ void GRT::add_module_loader(ModuleLoader *loader) {
 }
 
 bool GRT::load_module(const std::string &path, const std::string &basePath, bool refresh) {
-  std::string shortendPath = "<base dir>/" + base::relativePath(basePath, path);
+  std::string shortendPath = base::relativePath(basePath, path);
+  if (shortendPath != path)
+    shortendPath = "<base dir>/" + shortendPath;
+
   for (std::list<ModuleLoader *>::iterator loader = _loaders.begin(); loader != _loaders.end(); ++loader) {
     if ((*loader)->check_file_extension(path)) {
       logDebug2("Trying to load module '%s' (%s)\n", shortendPath.c_str(), (*loader)->get_loader_name().c_str());

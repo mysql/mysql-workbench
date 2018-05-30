@@ -34,41 +34,26 @@
 
 INSTALL_PREFIX=/usr
 
-ifndef LINUXRES_HOME
-LINUXRES_HOME=$(HOME)/linux-res
+
+ifndef BUNDLES_PATH
+ $(error "BUNDLES_PATH variable is missing")
+ exit 1
 endif
 
-LINUXRES_BINARIES=$(LINUXRES_HOME)/builds
-
 ifndef ANTLR_JAR_PATH
-ANTLR_JAR_PATH=$(LINUXRES_HOME)/bin/antlr-4.7.1-complete.jar
+ANTLR_JAR_PATH=$(BUNDLES_PATH)/bin/antlr-4.7.1-complete.jar
 endif
 
 ifndef BOOST_ROOT
-BOOST_ROOT=$(LINUXRES_HOME)
+BOOST_ROOT=$(BUNDLES_PATH)/include
 endif
 
-ODBC_HOME=$(LINUXRES_BINARIES)/odbc
-PYODBC_HOME=$(LINUXRES_BINARIES)/pyodbc
-ANTLR_HOME=$(LINUXRES_BINARIES)/antlr
 
 @ifdef community
-SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-gpl
-PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-gpl
-CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-gpl
-GDAL_HOME=$(LINUXRES_BINARIES)/gdal-gpl
-VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-gpl
-LIBSSH_HOME=$(LINUXRES_BINARIES)/libssh-gpl
 ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server/
 endif
 @else
-SQLITE_HOME=$(LINUXRES_BINARIES)/sqlite-com
-PYSQLITE2_HOME=$(LINUXRES_BINARIES)/pysqlite2-com
-CPPCONN_HOME=$(LINUXRES_BINARIES)/cppconn-com
-GDAL_HOME=$(LINUXRES_BINARIES)/gdal-com
-VSQLITE_HOME=$(LINUXRES_BINARIES)/vsqlite-com
-LIBSSH_HOME=$(LINUXRES_BINARIES)/libssh-com
 ifndef MYSQL_HOME
 MYSQL_HOME=$(HOME)/mysql-server-advanced/
 endif
@@ -84,28 +69,26 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	ANTLR_JAR_PATH=$(ANTLR_JAR_PATH) \
-	BOOST_ROOT=$(BOOST_ROOT) \
 	cmake . \
 	  -DCMAKE_INSTALL_PREFIX=$(INSTALL_PREFIX) \
 	  -DCMAKE_BUILD_TYPE=Release \
 	  -DMySQL_CONFIG_PATH=$(MYSQL_HOME)/bin/mysql_config \
 	  -DUSE_BUNDLED_MYSQLDUMP=1 \
-	  -DMYSQLCLIENT_STATIC_LINKING:BOOL=TRUE \
-	  -DMySQLCppConn_LIBRARIES="-L$(CPPCONN_HOME)/lib -lmysqlcppconn" \
-	  -DMySQLCppConn_INCLUDE_DIR=$(CPPCONN_HOME)/include \
-	  -DGDAL_INCLUDE_DIR=$(GDAL_HOME)/include \
-	  -DGDAL_LIBRARY=$(GDAL_HOME)/lib/libgdal.so \
-	  -DIODBC_CONFIG_PATH=$(ODBC_HOME)/bin/iodbc-config \
-	  -DIODBC_INCLUDE_PATH=$(ODBC_HOME)/include \
-	  -DIODBC_LIBRARIES_PATH=$(ODBC_HOME)/lib \
-	  -DVSQLITE_INCLUDE_DIR=$(VSQLITE_HOME)/include \
-	  -DVSQLITE_LIBRARIES="-L$(VSQLITE_HOME)/lib -lvsqlitepp" \
-	  -DLibSSH_INCLUDE_DIR=$(LIBSSH_HOME)/include \
-	  -DLibSSH_LIBRARIES="-L$(LIBSSH_HOME)/lib -lssh" \
-	  -DANTLR4_INCLUDE_DIR=$(ANTLR_HOME)/include \
-	  -DANTLR4_LIBRARIES="-L$(ANTLR_HOME)/lib -lantlr4-runtime" \
-	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH}
+	  -DMySQLCppConn_LIBRARIES="-L$(BUNDLES_PATH)/lib -lmysqlcppconn" \
+	  -DMySQLCppConn_INCLUDE_DIR=$(BUNDLES_PATH)/include/cppconn \
+	  -DGDAL_INCLUDE_DIR=$(BUNDLES_PATH)/include \
+	  -DGDAL_LIBRARY=$(BUNDLES_PATH)/lib/libgdal.so \
+	  -DIODBC_CONFIG_PATH=$(BUNDLES_PATH)/bin/iodbc-config \
+	  -DIODBC_INCLUDE_PATH=$(BUNDLES_PATH)/include \
+	  -DIODBC_LIBRARIES_PATH=$(BUNDLES_PATH)/lib \
+	  -DVSQLITE_INCLUDE_DIR=$(BUNDLES_PATH)/include \
+	  -DVSQLITE_LIBRARIES="-L$(BUNDLES_PATH)/lib -lvsqlitepp" \
+	  -DLibSSH_INCLUDE_DIR=$(BUNDLES_PATH)/include \
+	  -DLibSSH_LIBRARIES="-L$(BUNDLES_PATH)/lib -lssh" \
+	  -DANTLR4_INCLUDE_DIR=$(BUNDLES_PATH)/include \
+	  -DANTLR4_LIBRARIES="-L$(BUNDLES_PATH)/lib -lantlr4-runtime" \
+	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH} \
+	  -DBOOST_ROOT=$(BOOST_ROOT)
 
 	touch configure-stamp
 
@@ -143,21 +126,21 @@ install: build
 	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
 	mkdir -p $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
 	# Bundle libaries 
-	cp -a $(ODBC_HOME)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(ODBC_HOME)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(PYODBC_HOME)/pyodbc.so              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(VSQLITE_HOME)/lib/libvsqlitepp.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(ANTLR_HOME)/lib/libantlr4-runtime.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(CPPCONN_HOME)/lib/libmysqlcppconn.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(GDAL_HOME)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(SQLITE_HOME)/lib/libsqlite3.so*     $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(LIBSSH_HOME)/lib/libssh.so*         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(PYSQLITE2_HOME)/*                   $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
+	cp -a $(BUNDLES_PATH)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/Python/pyodbc/pyodbc.so  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libvsqlitepp.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libantlr4-runtime.*  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libmysqlcppconn.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libsqlite3.so*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/libssh.so*           $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/Python/pysqlite2/*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
 
 	# Bundle client programs and lib
-#	cp -a $(MYSQL_HOME)/lib/libmysqlclient.so.* $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(MYSQL_HOME)/bin/mysql               $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(MYSQL_HOME)/bin/mysqldump           $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/mysql/libmysqlclient.so.*  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(MYSQL_HOME)/bin/mysql                  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(MYSQL_HOME)/bin/mysqldump              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 
 	# Remove these files:
 	# - The file /etc/ld.so.conf.d/mysql-workbench.conf is a non.conformance in debian based distros

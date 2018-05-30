@@ -29,7 +29,6 @@
 #include "wb_sql_editor_tree_controller.h"
 
 #include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <fstream>
 #include <errno.h>

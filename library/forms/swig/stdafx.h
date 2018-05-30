@@ -19,8 +19,6 @@
 
 #pragma once
 
-#define HAVE_ROUND
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 

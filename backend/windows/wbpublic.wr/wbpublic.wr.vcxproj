@@ -47,12 +47,30 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\..\vsprops\wb_sqlite.props" />
+    <Import Project="..\..\..\vsprops\wb_vsqlite++.props" />
+    <Import Project="..\..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\..\vsprops\wb_glib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\..\vsprops\wb_sqlite.props" />
+    <Import Project="..\..\..\vsprops\wb_vsqlite++.props" />
+    <Import Project="..\..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\..\vsprops\wb_glib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\..\vsprops\wb_sqlite.props" />
+    <Import Project="..\..\..\vsprops\wb_vsqlite++.props" />
+    <Import Project="..\..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\..\vsprops\wb_glib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -81,7 +99,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\parsers;$(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
@@ -102,7 +120,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -119,7 +137,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\sqlite;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\glib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\wbpublic\sqlide;$(SolutionDir)\backend\wbpublic\wbcanvas;$(SolutionDir)\backend\windows\sqlide.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\mysql.canvas\src;$(SolutionDir)\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

@@ -47,12 +47,21 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\..\..\vsprops\wb_libxml_inc.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\..\..\vsprops\wb_libxml_inc.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\..\..\vsprops\wb_glib.props" />
+    <Import Project="..\..\..\..\vsprops\wb_libxml_inc.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -83,7 +92,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <DisableSpecificWarnings>4996;4793</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 /w34296 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -98,7 +107,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4793</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -115,7 +124,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\backend;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\backend\windows\wbpublic.wr\src;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\base.wr\src;$(SolutionDir)\library\forms;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4793</DisableSpecificWarnings>
       <AdditionalOptions>/Zm130 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

@@ -92,7 +92,7 @@
       <CustomAction Id="SetAdditionalCleanupDir3"
               Property="LEFTOVERDIR3"
               Value="[INSTALLDIR]workbench\graphics" />
-      <Binary Id="MySQLCA" SourceFile="..\..\..\mysql-win-res\bin\MySQLCA.CA.dll" />
+      <Binary Id="MySQLCA" SourceFile="$(env.WB_3DPARTY_PATH)\bin\MySQLCA.CA.dll" />
 
       <CustomAction Id="PrecompilePythonFiles" BinaryKey="MySQLCA" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" />
       <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]"/>
@@ -126,11 +126,9 @@
             <?if $(var.SETUP_TYPE) = "commercial" ?>
               <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
             <?endif?>
-			<RemoveFile Id="pyc_cleanup41" Name="*.pyc" On="both" Directory="python_site_packages_ecdsa" />
-            <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />
+              <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />
             <RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />
             <RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
-            <RemoveFile Id="pyc_cleanup28" Name="*.pyc" On="both" Directory="python_site_packages_crypto_signature" />
             <RemoveFile Id="pyc_cleanup29" Name="*.pyc" On="both" Directory="python_lib_ctypes" />
             <RemoveFile Id="pyc_cleanup30" Name="*.pyc" On="both" Directory="library_workbench" />
             <?if $(var.LICENSE_TYPE) = "commercial"?>
@@ -185,27 +183,16 @@
 			<ComponentRef Id="python_lib_xml_etree" />
 <!--			<ComponentRef Id="python_libs" /> -->
 			<ComponentRef Id="python_site_packages_pyodbc" />
-			<ComponentRef Id="python_site_packages_crypto" />
-			<ComponentRef Id="python_site_packages_crypto_cipher" />
-			<ComponentRef Id="python_site_packages_crypto_hash" />
-			<ComponentRef Id="python_site_packages_crypto_protocol" />
-			<ComponentRef Id="python_site_packages_crypto_publickey" />
-			<ComponentRef Id="python_site_packages_crypto_random" />
-			<ComponentRef Id="python_site_packages_crypto_random_fortuna" />
-			<ComponentRef Id="python_site_packages_crypto_random_osrng" />
-			<ComponentRef Id="python_site_packages_crypto_signature" />
-			<ComponentRef Id="python_site_packages_crypto_util" />
-			<ComponentRef Id="python_site_packages_paramiko" />
-			<ComponentRef Id="python_site_packages_ecdsa" />
-          <?if $(var.SETUP_TYPE) = "commercial" ?>
-            <ComponentRef Id="python_site_packages_pysqlite2" />
-            <ComponentRef Id="reporting_HTML_Basic_Frames" />
-            <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
-		    <ComponentRef Id="reporting_HTML_Detailed_Frames" />
-		    <ComponentRef Id="reporting_HTML_Detailed_Frames_images" />
-            <ComponentRef Id="reporting_Text_Basic" />
-          <?endif?>
-			<ComponentRef Id="catalog_reporting_TEXT_Basic" />
+  
+      <?if $(var.SETUP_TYPE) = "commercial" ?>
+        <ComponentRef Id="python_site_packages_pysqlite2" />
+        <ComponentRef Id="reporting_HTML_Basic_Frames" />
+        <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
+        <ComponentRef Id="reporting_HTML_Detailed_Frames" />
+        <ComponentRef Id="reporting_HTML_Detailed_Frames_images" />
+        <ComponentRef Id="reporting_Text_Basic" />
+      <?endif?>
+        <ComponentRef Id="catalog_reporting_TEXT_Basic" />
             <ComponentRef Id="mysql_canvas" />
             <ComponentRef Id="structs" />
             <ComponentRef Id="mysql.profiles" />

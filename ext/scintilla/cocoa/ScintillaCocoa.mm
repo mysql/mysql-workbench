@@ -1181,7 +1181,7 @@ void ScintillaCocoa::CreateCallTipWindow(PRectangle rc) {
     if (!ct.wCallTip.Created()) {
         NSRect ctRect = NSMakeRect(rc.top,rc.bottom, rc.Width(), rc.Height());
         NSWindow *callTip = [[NSWindow alloc] initWithContentRect: ctRect
-                                                        styleMask: NSBorderlessWindowMask
+                                                        styleMask: NSWindowStyleMaskBorderless
                                                           backing: NSBackingStoreBuffered
                                                             defer: NO];
         [callTip setLevel:NSFloatingWindowLevel];
@@ -1480,7 +1480,7 @@ void ScintillaCocoa::StartDrag()
   NSImage* dragImage = [[[NSImage alloc] initWithSize: selectionRectangle.size] autorelease];
   [dragImage setBackgroundColor: [NSColor clearColor]];
   [dragImage lockFocus];
-  [image drawAtPoint: NSZeroPoint fromRect: NSZeroRect operation: NSCompositeSourceOver fraction: 0.5];
+  [image drawAtPoint: NSZeroPoint fromRect: NSZeroRect operation: NSCompositingOperationSourceOver fraction: 0.5];
   [dragImage unlockFocus];
 
   NSPoint startPoint;
@@ -2247,10 +2247,10 @@ static int TranslateModifierFlags(NSUInteger modifiers)
 {
   // Signal Control as SCI_META
   return
-    (((modifiers & NSShiftKeyMask) != 0) ? SCI_SHIFT : 0) |
-    (((modifiers & NSCommandKeyMask) != 0) ? SCI_CTRL : 0) |
-    (((modifiers & NSAlternateKeyMask) != 0) ? SCI_ALT : 0) |
-    (((modifiers & NSControlKeyMask) != 0) ? SCI_META : 0);
+    (((modifiers & NSEventModifierFlagShift) != 0) ? SCI_SHIFT : 0) |
+    (((modifiers & NSEventModifierFlagCommand) != 0) ? SCI_CTRL : 0) |
+    (((modifiers & NSEventModifierFlagOption) != 0) ? SCI_ALT : 0) |
+    (((modifiers & NSEventModifierFlagControl) != 0) ? SCI_META : 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2450,9 +2450,9 @@ void ScintillaCocoa::MouseDown(NSEvent* event)
 {
   Point location = ConvertPoint([event locationInWindow]);
   NSTimeInterval time = [event timestamp];
-  bool command = ([event modifierFlags] & NSCommandKeyMask) != 0;
-  bool shift = ([event modifierFlags] & NSShiftKeyMask) != 0;
-  bool alt = ([event modifierFlags] & NSAlternateKeyMask) != 0;
+  bool command = ([event modifierFlags] & NSEventModifierFlagCommand) != 0;
+  bool shift = ([event modifierFlags] & NSEventModifierFlagShift) != 0;
+  bool alt = ([event modifierFlags] & NSEventModifierFlagOption) != 0;
 
   ButtonDown(Point(location.x, location.y), (int) (time * 1000), shift, command, alt);
 }
@@ -2461,9 +2461,9 @@ void ScintillaCocoa::RightMouseDown(NSEvent *event)
 {
   Point location = ConvertPoint([event locationInWindow]);
   NSTimeInterval time = [event timestamp];
-  bool command = ([event modifierFlags] & NSCommandKeyMask) != 0;
-  bool shift = ([event modifierFlags] & NSShiftKeyMask) != 0;
-  bool alt = ([event modifierFlags] & NSAlternateKeyMask) != 0;
+  bool command = ([event modifierFlags] & NSEventModifierFlagCommand) != 0;
+  bool shift = ([event modifierFlags] & NSEventModifierFlagShift) != 0;
+  bool alt = ([event modifierFlags] & NSEventModifierFlagOption) != 0;
 
   RightButtonDownWithModifiers(Point(location.x, location.y), (int) (time * 1000), ModifierFlags(shift, command, alt));
 }
@@ -2482,7 +2482,7 @@ void ScintillaCocoa::MouseMove(NSEvent* event)
 void ScintillaCocoa::MouseUp(NSEvent* event)
 {
   NSTimeInterval time = [event timestamp];
-  bool control = ([event modifierFlags] & NSControlKeyMask) != 0;
+  bool control = ([event modifierFlags] & NSEventModifierFlagControl) != 0;
 
   ButtonUp(ConvertPoint([event locationInWindow]), (int) (time * 1000), control);
 }
@@ -2491,7 +2491,7 @@ void ScintillaCocoa::MouseUp(NSEvent* event)
 
 void ScintillaCocoa::MouseWheel(NSEvent* event)
 {
-  bool command = ([event modifierFlags] & NSCommandKeyMask) != 0;
+  bool command = ([event modifierFlags] & NSEventModifierFlagCommand) != 0;
   int dY = 0;
 
     // In order to make scrolling with larger offset smoother we scroll less lines the larger the

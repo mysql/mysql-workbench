@@ -24,11 +24,7 @@
 #ifndef __MySQLWorkbench__python__
 #define __MySQLWorkbench__python__
 
-#if defined(_MSC_VER)
-#include <Python/Python.h>
-#else
 #include <Python.h>
-#endif
 
 // Undefine some python macros which conflict with C++ functions.
 #undef isspace
