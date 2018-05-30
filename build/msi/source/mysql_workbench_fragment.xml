@@ -168,7 +168,6 @@
                 <File Id="file1056" KeyPath="yes" Name="MySQLWorkbench.exe"/>
                 <File Id="MySQLWorkbench.exe.config" Name="MySQLWorkbench.exe.config"/>
                 <File Id="MySQLWorkbenchDoc.ico" Name="MySQLWorkbenchDoc.ico"/>
-                <File Id="MySQLWBPlugin.ico" Name="MySQLWBPlugin.ico"/>
 
                 <RegistryValue Action="write" Id="Reg.Extn.MWB" Key=".mwb" Root="HKCR" Type="string" Value="MWBfile"/>
 
@@ -228,25 +227,6 @@
 
 
               <Directory Id="images" Name="images">
-                <Directory Id="cursors" Name="cursors">
-                  <Component DiskId="1" Guid="73BA1D6A-CF3F-4429-A010-46FBD1BD55A8" Id="images_curors" Location="either">
-                    <File Id="file3001" Name="hand.cur"/>
-                    <File Id="file3002" Name="image.cur"/>
-                    <File Id="file3003" Name="layer.cur"/>
-                    <File Id="file3004" Name="magnify_region.cur"/>
-                    <File Id="file3005" Name="note.cur"/>
-                    <File Id="file3006" Name="rel11.cur"/>
-                    <File Id="file3007" Name="rel1n.cur"/>
-                    <File Id="file3008" Name="relnm.cur"/>
-                    <File Id="file3009" Name="routine.cur"/>
-                    <File Id="file3010" Name="rubber.cur"/>
-                    <File Id="file3011" Name="table.cur"/>
-                    <File Id="file3012" Name="view.cur"/>
-                    <File Id="file3013" Name="zoom_in.cur"/>
-                    <File Id="file3014" Name="zoom_out.cur"/>
-                  </Component>
-                </Directory>
-
                 <Directory Id="grt" Name="grt">
                   <Component DiskId="1" Guid="DC53C7B9-FFD8-4290-9423-7C5EFAE8EA16" Id="images_grt" Location="either">
                     <File Id="file4001" Name="grt_list.png"/>
@@ -487,7 +467,6 @@
                     <File Id="file60015" Name="admin_meb_backup.png"/>
                     <File Id="file60016" Name="admin_meb_restore.png"/>
                     <File Id="file60018" Name="admin_info_unknown.png"/>
-                    <File Id="file60019" Name="MySQLWorkbench.ico"/>
                     <File Id="file60020" Name="MySQLWorkbench-256.png"/>
                     <File Id="file60021" Name="MySQLWorkbench-512.png"/>
                     <File Id="file60029" Name="tiny_new.png"/>

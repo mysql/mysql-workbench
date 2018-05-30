@@ -68,10 +68,8 @@ xcopy /i /s /y /d %IMAGES_DIR%\toolbar\*.png %TARGET_DIR%\images\icons\. 1> nul 
 xcopy /i /s /y /d %IMAGES_DIR%\changeset\*.png %TARGET_DIR%\images\icons\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\admin\*.png %TARGET_DIR%\images\icons\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\migration\*.png %TARGET_DIR%\images\icons\. 1> nul 2> nul
-xcopy /i /s /y /d %IMAGES_DIR%\cursors\*.cur %TARGET_DIR%\images\cursors\. 1> nul 2> nul
-xcopy /i /s /y /d %IMAGES_DIR%\icons\MySQLWorkbench.ico %TARGET_DIR%\images\icons\. 1> nul 2> nul
+xcopy /i /s /y /d %IMAGES_DIR%\cursors\*.png %TARGET_DIR%\images\cursors\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\icons\MySQLWorkbenchDoc.ico %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %IMAGES_DIR%\icons\MySQLWBPlugin.ico %TARGET_DIR%\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\ui\*.png %TARGET_DIR%\images\ui\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\ui\*.xpm %TARGET_DIR%\images\ui\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\home\*.png %TARGET_DIR%\images\home\. 1> nul 2> nul
