@@ -549,12 +549,12 @@ class TransferMainView(WizardProgressPage):
             f.write("\n")
             f.write("""
 REM Set the location for wbcopytables.exe in this variable
-set wbcopytables_path=""" + os.getcwd() + """
+set "wbcopytables_path=""" + os.getcwd() + """"
 
-if not [%wbcopytables_path%] == [] set wbcopytables_path=%wbcopytables_path%\\
-set wbcopytables=%wbcopytables_path%wbcopytables.exe
+if not ["%wbcopytables_path%"] == [] set "wbcopytables_path=%wbcopytables_path%\"\
+set "wbcopytables=%wbcopytables_path%wbcopytables.exe"
 
-if not exist %wbcopytables% (
+if not exist "%wbcopytables%" (
 	echo "wbcopytables.exe doesn't exist in the supplied path. Please set 'wbcopytables_path' with the proper path(e.g. to Workbench binaries)"
 	exit 1
 )
@@ -600,7 +600,7 @@ IF [%arg_source_password%] == [] (
                 f.write(line + "\n")
 
             f.write("\n\n")
-            f.write("%wbcopytables%")
+            f.write("\"%wbcopytables%\"")
             f.write(" ^\n")
             for arg in self._transferer.helper_basic_arglist(True, True):
                 f.write(' %s ^\n' % arg)
