@@ -448,9 +448,6 @@ class TableListModel(object):
 
 class WbAdminSchemaListTab(mforms.Box):
     def __init__(self, owner, server_profile, progress_tab, is_importing = False):
-        self.savefile_path = None
-        self.savefolder_path = None
-
         super(WbAdminSchemaListTab, self).__init__(False)
 
         self.skip_data_check = False
@@ -465,11 +462,6 @@ class WbAdminSchemaListTab(mforms.Box):
         self.bad_password_detected = False
         self.server_profile = server_profile
         self.out_pipe = None
-
-        if self.savefolder_path is None:
-            self.savefolder_path = self.get_default_dump_folder()
-        if self.savefile_path is None:
-            self.savefile_path = os.path.join(self.savefolder_path, "export.sql")
 
         self.schema_list = newTreeView(mforms.TreeFlatList)
         self.schema_list.set_min_size(-1, 150)
@@ -554,7 +546,6 @@ class WbAdminSchemaListTab(mforms.Box):
         file_path = newBox(True)
         file_path.set_spacing(4)
         self.file_te = newTextEntry()
-        self.file_te.set_value(self.savefile_path)
         file_path.add(self.fileradio,False,True)
         file_path.add(self.file_te, True, True)
         file_path.add(self.file_btn, False, True)
@@ -567,7 +558,6 @@ class WbAdminSchemaListTab(mforms.Box):
         folder_path = newBox(True)
         folder_path.set_spacing(4)
         self.folder_te = newTextEntry()
-        self.folder_te.set_value(self.savefolder_path)
         self.folder_btn = newButton()
         self.folder_btn.set_text("...")
         self.folder_btn.enable_internal_padding(False)
@@ -735,10 +725,8 @@ class WbAdminSchemaListTab(mforms.Box):
 
         self.resume_layout()
 
-
     def print_log_message(self, msg):
         self.progress_tab.print_log_message(msg)
-
 
     def get_default_dump_folder(self):
         try:
@@ -905,8 +893,7 @@ class WbAdminSchemaListTab(mforms.Box):
         filechooser = FileChooser(mforms.OpenDirectory)
         filechooser.set_directory(self.folder_te.get_string_value())
         if filechooser.run_modal():
-            self.savefolder_path = filechooser.get_path()
-            self.folder_te.set_value(self.savefolder_path)
+            self.folder_te.set_value(filechooser.get_path())
             if self.is_importing:
                 self.refresh_table_list()
 
@@ -914,14 +901,16 @@ class WbAdminSchemaListTab(mforms.Box):
         filechooser = FileChooser(chooser_type)
         filechooser.set_directory(os.path.dirname(self.file_te.get_string_value()))
         filechooser.set_extensions("SQL Files (*.sql)|*.sql","sql");
+        
         if filechooser.run_modal():
-            self.savefile_path = filechooser.get_path()
-            self.file_te.set_value(self.savefile_path)
+            filepath = filechooser.get_path()
+            self.file_te.set_value(filepath)
+        
             if self.is_importing:
                 self.refresh_table_list()
             else:
-                if len(os.path.splitext(self.savefile_path)[1][1:]) == 0:
-                    self.file_te.set_value("%s.sql" % self.savefile_path)
+                if len(os.path.splitext(filepath)[1][1:]) == 0:
+                    self.file_te.set_value("%s.sql" % filepath)
 
     def get_mysql_password(self, reset_password=False):
         parameterValues = self.server_profile.db_connection_params.parameterValues
@@ -967,10 +956,9 @@ class WbAdminImportTab(WbAdminSchemaListTab):
         self.views_paths = {}
         self._update_schema_list_tm = None
         self._update_progress_tm = None
-
-    def folder_path_changed(self):
-        self.folder_load_btn.set_enabled(True)
-        self.savefolder_path = self.folder_te.get_string_value()
+        
+        self.folder_te.set_value(self.get_default_dump_folder())
+        self.file_te.set_value(os.path.join(self.get_default_dump_folder(), "export.sql"))
 
     def new_target_schema(self):
         ret, name = Utilities.request_input("Create Schema", "Name of schema to create:", "newschema")
@@ -1101,7 +1089,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             save_to_folder = not self.fileradio.get_active()
             if save_to_folder:
                 self.progress_tab.set_start_enabled(False)
-                path = self.savefolder_path
+                path = self.folder_te.get_string_value()
                 dirList=os.listdir(path)
                 for fname in dirList:
                     fullname = os.path.join(path, fname)
@@ -1143,10 +1131,11 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             self.schema_list.thaw_refresh()
             traceback.print_exc()
             Utilities.show_error("Error Opening Dump", str(exc), "OK", "", "")
-            self.folder_load_btn.set_enabled(True)
             self.export_button.set_enabled(False)
             self.failed(str(exc))
         self.table_list_model.set_tables_by_schema(tables_by_schema)
+
+        self.folder_load_btn.set_enabled(True)
 
         for schema in tables_by_schema.keys():
               self.table_list_model.set_schema_selected(schema, True)
@@ -1400,12 +1389,11 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         self._update_refresh_tm = None
         self._update_progress_tm = None
 
-        self.savefolder_path = os.path.join(self.get_default_dump_folder(), time.strftime("Dump%Y%m%d"))
-        self.savefile_path = self.savefolder_path + ".sql"
-        self.basepath = self.savefolder_path
-        self.update_paths()
-        self.file_te.set_value(self.savefile_path)
-        self.folder_te.set_value(self.savefolder_path)
+        defaultPath = os.path.join(self.get_default_dump_folder(), time.strftime("Dump%Y%m%d"))
+        # updates self.savefolder_path
+        self.folder_te.set_value(self.find_available_path(defaultPath))
+        # updates self.savefile_path
+        self.file_te.set_value(self.find_available_path(defaultPath + '.sql'))
 
         self.table_list_model.load_schema_data = self.load_schema_tables
 #        self.filefolder_label.set_text("Save to")
@@ -1529,15 +1517,29 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         self._update_refresh_tm = None
         return False
 
-    def update_paths(self):
-        pathcntr = 1
-        while os.path.exists(self.savefolder_path):
-            self.savefolder_path = self.basepath + "-" + str(pathcntr)
-            pathcntr += 1
-        pathcntr = 1
-        while os.path.exists(self.savefile_path):
-            self.savefile_path = self.basepath + "-" + str(pathcntr) + ".sql"
-            pathcntr += 1
+    def find_available_path(self, currentPath, ext = None):
+        # remove the extension if exists
+        ext = os.path.splitext(currentPath)[1]
+        if len(ext) > 1:
+            currentPath = currentPath[:-len(ext)]
+            
+        # remove old path resolution, if exists
+        suffixBegin = currentPath.find(' (')
+        if suffixBegin > 0:
+            suffixEnd = currentPath.find(')', suffixBegin)
+            if suffixEnd == -1:
+                suffixEnd = len(currentPath)
+            else:
+                suffixEnd += 1
+            currentPath = currentPath[:suffixBegin] + currentPath[suffixEnd:]
+        
+        result = currentPath
+        counter = 0
+        while os.path.exists(result + ext):
+            counter += 1
+            result = "%s (%d)" % (currentPath, counter)
+            
+        return result + ext
 
     def check_mysqldump_version(self, about_to_run=False):
         mysqldump_version = get_mysqldump_version()
@@ -1915,9 +1917,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         self.cancelled(time.strftime('%X ') + "Aborted by User")
 
     def tasks_completed(self):
-        self.update_paths()
-        self.file_te.set_value(self.savefile_path)
-        self.folder_te.set_value(self.savefolder_path)
+        self.folder_te.set_value(self.find_available_path(self.folder_te.get_string_value()))
+        self.file_te.set_value(self.find_available_path(self.file_te.get_string_value()))
         logmsg = time.strftime(u'%X ') + "Export of %s has finished" % self.path.encode('utf-8')
         if self.dump_thread.error_count > 0:
             self.progress_tab.set_status("Export Completed With %i Errors" % self.dump_thread.error_count)
