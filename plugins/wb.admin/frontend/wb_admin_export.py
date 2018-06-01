@@ -579,7 +579,6 @@ class WbAdminSchemaListTab(mforms.Box):
         optionsbox.add(folder_path, False, True)
         optionsbox.add(self.folderlabel, False, True)
         if is_importing:
-            self.folder_te.add_changed_callback(self.folder_path_changed)
             self.folder_load_btn = newButton()
             self.folder_load_btn.set_text("Load Folder Contents")
             self.folder_load_btn.add_clicked_callback(self.refresh_table_list)
@@ -1959,6 +1958,7 @@ class WbAdminExportOptionsTab(mforms.Box):
                 self.checkbox.set_active(value == "TRUE")
             else:
                 self.checkbox.set_active(value)
+            self.checkbox.call_clicked_callback()
 
     class Text_option_model:
         def __init__(self, optname, textentry, default):
