@@ -398,7 +398,9 @@ class TableListModel(object):
             return "db.Table.16x16.png"
 
     def get_selection(self, schema):
-        tables, selection = self.tables_by_schema[schema]
+        selection = []
+        if schema in self.tables_by_schema.keys():
+            tables, selection = self.tables_by_schema[schema]
         return selection
 
     def count_selected_tables(self):
@@ -1375,7 +1377,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 schema,schematables,viewlist,dbsql = self.load_schema_data(schema)
                 self.set_schema_data(schema,schematables,viewlist,dbsql)
                 self.schemas_to_load.remove(schema)
-            tables, selection = self.tables_by_schema[schema]
+            tables = []
+            if schema in self.tables_by_schema.keys():
+                tables, selection = self.tables_by_schema[schema]
             return tables
 
 
@@ -1830,8 +1834,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             if not params["host"]:
                 del params["host"]
         options = {}
+        excludes = ['Show Internal Schemas']
         for key, value in self.owner.get_export_options(self.mysqldump_defaults).items():
-            if not key.upper().startswith('$INTERNAL$'):
+            if not key in excludes:
                 options[key] = value
         params.update(options)
         cmd = get_path_to_mysqldump()
@@ -2268,7 +2273,7 @@ class WbAdminExport(WbAdminTabBase):
         self.ui_box.add(self.options_tab, True, True)
         self.options_tab.show(False)
         
-        self.options_tab.add_clicked_callback_to_checkbox("$internal$show-internal-schemas", self.show_internal_schemas_changed)
+        self.options_tab.add_clicked_callback_to_checkbox("Show Internal Schemas", self.show_internal_schemas_changed)
 
         self.tabview.add_page(self.progress_tab, "Export Progress")
 
@@ -2336,7 +2341,7 @@ class WbAdminExport(WbAdminTabBase):
         self.options_tab.set_options(values)
 
     def show_internal_schemas_changed(self):
-        self.export_tab.set_show_internal_schemas(self.get_export_options({})['$internal$show-internal-schemas'] == 'TRUE')
+        self.export_tab.set_show_internal_schemas(self.get_export_options({})['Show Internal Schemas'] == 'TRUE')
         self.export_tab.refresh_table_list()
 
 
