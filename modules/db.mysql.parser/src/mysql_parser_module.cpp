@@ -144,6 +144,7 @@ struct MySQLParserContextImpl : public MySQLParserContext {
         lexer.charsets.erase("_utf32");
       } else {
         // Duplicates are automatically ignored.
+        lexer.charsets.insert("_utf8mb3");
         lexer.charsets.insert("_utf8mb4");
         lexer.charsets.insert("_utf16");
         lexer.charsets.insert("_utf32");
