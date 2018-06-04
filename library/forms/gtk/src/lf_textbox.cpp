@@ -84,10 +84,8 @@ namespace mforms {
           Glib::RefPtr<Gtk::TextBuffer> buf = tv->get_buffer();
           buf->insert(buf->end(), text);
 
-          if (scroll_to_end) {
-            Gtk::TextIter it = buf->end();
-            tv->scroll_to(it, 0.3);
-          }
+          if (scroll_to_end)
+            gtk_text_view_scroll_to_mark(tv->gobj(), tv->get_buffer()->get_insert()->gobj(), 0.3, false, 0, 0);
         }
       }
     }
