@@ -1,4 +1,6 @@
-<?xml version="1.0" ?><Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+<?xml version="1.0" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+  xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <?if $(var.SETUP_TYPE) = "commercial" ?>
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN)"?>
   <?elseif $(var.SETUP_TYPE) = "community" ?>
@@ -8,11 +10,11 @@
   <?endif ?>
 
   <?if $(sys.BUILDARCH)="x86"?>
-      <?define Program_Files="ProgramFilesFolder"?>
+  <?define Program_Files="ProgramFilesFolder"?>
   <?elseif $(sys.BUILDARCH)="x64"?>
-      <?define Program_Files="ProgramFiles64Folder"?>
+  <?define Program_Files="ProgramFiles64Folder"?>
   <?else ?>
-      <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
+  <?error Unsupported value of sys.BUILDARCH=$(sys.BUILDARCH)?>
   <?endif ?>
 
   <Fragment>
@@ -46,9 +48,9 @@
                 <File Id="README" Name="README-commercial.md"/>
                 <?endif ?>
                 <?if $(var.LICENSE_TYPE) = "community"?>
-                  <File Id="License.txt" Name="License.txt"/>
+                <File Id="License.txt" Name="License.txt"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-                  <File Id="License_commercial.txt" Name="License-commercial.txt"/>
+                <File Id="License_commercial.txt" Name="License-commercial.txt"/>
                 <?endif ?>
                 <RemoveFolder Directory="Mysql_WB_Dir" Id="RemoveWbDirFolder" On="uninstall"/>
                 <RemoveFolder Directory="MysqlProgramMenuFolder" Id="RemoveProgramMenuFolder" On="uninstall"/>
@@ -72,11 +74,11 @@
                 <File Id="file1083" Name="zlib1.dll"/>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-                  <File Id="file1099d" Name="python27_d.dll"/>
-                  <File Id="python_d.exe" Name="python_d.exe"/>
+                <File Id="file1099d" Name="python27_d.dll"/>
+                <File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
-                  <File Id="file1099" Name="python27.dll"/>
-                  <File Id="python.exe" Name="python.exe"/>
+                <File Id="file1099" Name="python27.dll"/>
+                <File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
                 <File Id="file1102" Name="mysql.exe"/>
@@ -224,7 +226,6 @@
                   <File Id="file2024" Name="table_templates.xml"/>
                 </Component>
               </Directory>
-
 
               <Directory Id="images" Name="images">
                 <Directory Id="grt" Name="grt">
@@ -763,7 +764,7 @@
                     <File Id="folder" Name="folder.png"/>
                     <File Id="session_switch" Name="session-switch.png"/>
 
-                    </Component>
+                  </Component>
                 </Directory>
 
                 <Directory Id="home" Name="home">
@@ -919,49 +920,49 @@
                 <Directory Id="python_dlls" Name="DLLs">
                   <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68002d" Name="_ctypes_d.pyd"/>
+                    <File Id="file68002d" Name="_ctypes_d.pyd"/>
                     <?else ?>
-                      <File Id="file68002" Name="_ctypes.pyd"/>
+                    <File Id="file68002" Name="_ctypes.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68004d" Name="_elementtree_d.pyd"/>
+                    <File Id="file68004d" Name="_elementtree_d.pyd"/>
                     <?else ?>
-                      <File Id="file68004" Name="_elementtree.pyd"/>
+                    <File Id="file68004" Name="_elementtree.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68007d" Name="_multiprocessing_d.pyd"/>
+                    <File Id="file68007d" Name="_multiprocessing_d.pyd"/>
                     <?else ?>
-                      <File Id="file68007" Name="_multiprocessing.pyd"/>
+                    <File Id="file68007" Name="_multiprocessing.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68008d" Name="_socket_d.pyd"/>
+                    <File Id="file68008d" Name="_socket_d.pyd"/>
                     <?else ?>
-                      <File Id="file68008" Name="_socket.pyd"/>
+                    <File Id="file68008" Name="_socket.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68009d" Name="_sqlite3_d.pyd"/>
+                    <File Id="file68009d" Name="_sqlite3_d.pyd"/>
                     <?else ?>
-                      <File Id="file68009" Name="_sqlite3.pyd"/>
+                    <File Id="file68009" Name="_sqlite3.pyd"/>
                     <?endif ?>
-<!--                    <File Id="file68010" Name="_ssl.pyd"/> -->
+                    <!--                    <File Id="file68010" Name="_ssl.pyd"/> -->
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68013d" Name="pyexpat_d.pyd"/>
+                    <File Id="file68013d" Name="pyexpat_d.pyd"/>
                     <?else ?>
-                      <File Id="file68013" Name="pyexpat.pyd"/>
+                    <File Id="file68013" Name="pyexpat.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68014d" Name="select_d.pyd"/>
+                    <File Id="file68014d" Name="select_d.pyd"/>
                     <?else ?>
-                      <File Id="file68014" Name="select.pyd"/>
+                    <File Id="file68014" Name="select.pyd"/>
                     <?endif ?>
 
-<!--                    <File Id="file68015" Name="unicodedata.pyd"/> -->
+                    <!--                    <File Id="file68015" Name="unicodedata.pyd"/> -->
                   </Component>
                 </Directory>
                 <Directory Id="python_lib" Name="lib">
@@ -1401,14 +1402,19 @@
                       </Component>
                     </Directory>
                   </Directory>
+                  <Directory Id="python_lib_importlib" Name="importlib">
+                    <Component DiskId="1" Guid="bfe6ad13-0fd7-4218-865c-fe45d9c41e01" Id="python_lib_importlib" Location="either">
+                      <File Id="file88480" Name="__init__.py"/>
+                    </Component>
+                  </Directory>
                 </Directory>
 
                 <Directory Id="python_site_packages" Name="site-packages">
                   <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                      <File Id="file68021d" Name="pyodbc_d.pyd"/>
+                    <File Id="file68021d" Name="pyodbc_d.pyd"/>
                     <?else ?>
-                      <File Id="file68021" Name="pyodbc.pyd"/>
+                    <File Id="file68021" Name="pyodbc.pyd"/>
                     <?endif ?>
                   </Component>
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
@@ -1417,11 +1423,11 @@
                       <File Id="file68800" Name="__init__.py"/>
                       <File Id="file68801" Name="dbapi2.py"/>
                       <File Id="file68802" Name="dump.py"/>
-                        <?if $(var.LICENSE_TYPE) = "debug"?>
-                            <File Id="file68803" Name="_sqlite_d.pyd"/>
-                        <?else ?>
-                            <File Id="file68804" Name="_sqlite.pyd"/>
-                        <?endif ?>
+                      <?if $(var.LICENSE_TYPE) = "debug"?>
+                      <File Id="file68803" Name="_sqlite_d.pyd"/>
+                      <?else ?>
+                      <File Id="file68804" Name="_sqlite.pyd"/>
+                      <?endif ?>
                     </Component>
                   </Directory>
                   <?endif ?>
@@ -1615,7 +1621,7 @@
                 </Directory>
                 <?endif ?>
 
-                 <Directory Id="data" Name="data">
+                <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
                     <File Id="file7001" Name="mysql_reserved.xml"/>
                     <File Id="file7002" Name="mysql_rdbms_info.xml"/>
@@ -1665,11 +1671,11 @@
                       <File Id="file8031" Name="JSON.pre.tpl"/>
                       <File Id="file8032" Name="JSON.tpl"/>
                       <File Id="file8033" Name="JSON.tpli"/>
-					  
-					  <File Id="help55" Name="help-5.5.json"/>
-					  <File Id="help56" Name="help-5.6.json"/>
-					  <File Id="help57" Name="help-5.7.json"/>
-					  <File Id="help80" Name="help-8.0.json"/>
+
+                      <File Id="help55" Name="help-5.5.json"/>
+                      <File Id="help56" Name="help-5.6.json"/>
+                      <File Id="help57" Name="help-5.7.json"/>
+                      <File Id="help80" Name="help-8.0.json"/>
                     </Component>
                   </Directory>
 
@@ -1769,7 +1775,7 @@
                   <File Id="file12122" Name="Windows_x64_(MySQL_x86_zip_Package).xml"/>
                   <File Id="file12123" Name="Windows_(MySQL_5.5_Installer_Package).xml"/>
                   <File Id="file12126" Name="Windows_(MySQL_5.6_Installer_Package).xml"/>
-				          <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
+                  <File Id="file12127" Name="Windows_(MySQL_5.7_Installer_Package).xml"/>
                   <File Id="file12128" Name="Windows_(MySQL_8.0_Installer_Package).xml"/>
                   <File Id="file12129" Name="Oracle_Linux_6_(MySQL_Package).xml"/>
                   <File Id="file12130" Name="Oracle_Linux_7_(MySQL_Package).xml"/>

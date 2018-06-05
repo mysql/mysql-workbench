@@ -176,6 +176,7 @@ rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\unittest %TARGET_DIR%\python\lib\unitt
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\ctypes %TARGET_DIR%\python\lib\ctypes 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\sqlite3 %TARGET_DIR%\python\lib\sqlite3 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xml %TARGET_DIR%\python\lib\xml 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\importlib %TARGET_DIR%\python\lib\importlib 1> nul 2> nul
 
 rem xcopy /i /y /d %PYTHON_DLLS_DIR%\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nul
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
