@@ -25,7 +25,8 @@ To build MySQL Workbench on Ubuntu and other Debian based distros:
                           mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev libpixman-1-dev libpcre3-dev \
                           libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev \
                           libboost-dev libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev \
-                          swig libvsqlitepp-dev libgdal-dev libprojX
+                          swig libvsqlitepp-dev libgdal-dev libgtk-3-dev libgtkmm-3.0-dev libssl-dev \
+                          libsecret-1-dev libprojX
 
 * X - put the proper value for your system
 
