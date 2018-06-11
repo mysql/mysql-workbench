@@ -1651,6 +1651,20 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         return self.out_pipe
 
     def start(self):
+        
+        save_to_folder = not self.fileradio.get_active()
+
+        if save_to_folder:
+            self.path = self.folder_te.get_string_value()
+            if os.path.exists(self.path):
+                if not mforms.Utilities.show_warning("Folder already exists", "You are about to overwrite the specified folder. Do you want to continue overwrite?", "Overwrite", "Cancel", ""):
+                    return False
+        else:
+            self.path = self.file_te.get_string_value()
+            if os.path.exists(self.path):
+                if not mforms.Utilities.show_warning("File already exists", "You are about to overwrite the specified file. Do you want to continue overwrite?", "Overwrite", "Cancel", ""):
+                    return False
+        
         self.progress_tab.set_start_enabled(False)
 
         if not self.check_mysqldump_version(True):
