@@ -247,11 +247,13 @@ namespace DBExport {
       if (advancing)
         setup_filters();
       std::vector<std::string> schemata;
+      connected = true;
       try {
         _export_be->load_schemata(schemata);
       } catch (const std::exception &exc) {
         mforms::Utilities::show_error("Connect to Database",
                                       "Error connecting to database:\n" + std::string(exc.what()), "OK", "", "");
+        connected = false;
         return;
       }
 
@@ -320,6 +322,10 @@ namespace DBExport {
 
       return true;
     }
+    
+    virtual bool allow_next() {
+      return connected;
+    };
 
   protected:
     Db_frw_eng *_export_be;
@@ -328,6 +334,7 @@ namespace DBExport {
     DBObjectFilterFrame *_routine_filter;
     DBObjectFilterFrame *_trigger_filter;
     DBObjectFilterFrame *_user_filter;
+    bool connected;
   };
 
   //--------------------------------------------------------------------------------
