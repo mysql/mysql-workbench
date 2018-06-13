@@ -31,12 +31,6 @@
 #include "base/common.h"
 #include "base/string_utilities.h"
 
-// Log calls only used on Linux atm (causing a warning on Win + Mac).
-#if !defined(_MSC_VER) && !defined(__APPLE__)
-#include "base/log.h"
-DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
-#endif
-
 // Windows includes
 #ifdef _MSC_VER
 #include <windows.h>
