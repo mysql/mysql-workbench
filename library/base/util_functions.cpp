@@ -27,6 +27,7 @@
 #include <fstream>
 #include <vector>
 
+#include "base/log.h"
 #include "base/common.h"
 #include "base/string_utilities.h"
 
@@ -79,6 +80,8 @@ DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
 
 #include "base/file_functions.h"
 #include "base/util_functions.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
 
 struct hardware_info {
   std::string _cpu;
@@ -722,8 +725,6 @@ std::int64_t get_physical_memory_size() {
       }
     }
     fclose(proc);
-  } else {
-    g_warning("Memory stats retrieval not implemented for this system");
   }
   return mem64;
 
@@ -892,7 +893,7 @@ int copy_folder(const char *source_folder, const char *target_folder) {
       char *source = g_build_filename(source_folder, entry, NULL);
       char *target = g_build_filename(target_folder, entry, NULL);
       if (!copy_file(source, target)) {
-        g_warning("Could not copy file %s to %s: %s", source, target, g_strerror(errno));
+        logWarning("Could not copy file %s to %s: %s\n", source, target, g_strerror(errno));
         g_free(source);
         g_free(target);
         g_dir_close(dir);
@@ -903,7 +904,7 @@ int copy_folder(const char *source_folder, const char *target_folder) {
     }
     g_dir_close(dir);
   } else {
-    g_warning("Could not open directory %s", source_folder);
+    logWarning("Could not open directory %s\n", source_folder);
     return 0;
   }
   return 1;

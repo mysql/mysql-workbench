@@ -142,7 +142,7 @@ void WBComponentPhysical::load_app_options(bool update) {
                                                   conn->parameterValues().get_string("userName"),
                                                   conn->parameterValues().get_string("password"));
               } catch (std::exception &exc) {
-                g_warning("Could not store password for %s: %s", conn->hostIdentifier().c_str(), exc.what());
+                logWarning("Could not store password for %s: %s\n", conn->hostIdentifier().c_str(), exc.what());
               }
               conn->parameterValues().gset("password", "");
               changed = true;
@@ -156,7 +156,7 @@ void WBComponentPhysical::load_app_options(bool update) {
                   mforms::Utilities::store_password(service, conn->parameterValues().get_string("sshUserName"),
                                                     conn->parameterValues().get_string("sshPassword"));
                 } catch (std::exception &exc) {
-                  g_warning("Could not store password for %s: %s", service.c_str(), exc.what());
+                  logWarning("Could not store password for %s: %s\n", service.c_str(), exc.what());
                 }
               }
               conn->parameterValues().gset("sshPassword", "");

@@ -279,7 +279,7 @@ void GRTManager::initialize(bool init_python, const std::string &loader_module_p
 
 bool GRTManager::initialize_shell(const std::string &shell_type) {
   if (!_shell->setup(shell_type.empty() ? grt::LanguagePython : shell_type)) {
-    g_warning("Could not initialize GRT shell of type '%s'", shell_type.c_str());
+    logWarning("Could not initialize GRT shell of type '%s'\n", shell_type.c_str());
     return false;
   }
   return true;

@@ -659,9 +659,6 @@ void CanvasItem::repaint_gl(const Rect &clipArea) {
     regenerate_cache(texture_size);
 
     if (!_content_cache) {
-#ifndef WIN32
-      g_warning("failed to paint canvas item into a memory buffer");
-#endif
       return;
     }
 

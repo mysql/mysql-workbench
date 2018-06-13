@@ -158,9 +158,6 @@ grt::StringRef db_Column::formattedType() const {
 void db_Column::formattedType(const grt::StringRef &value) {
   if (formattedType() == value.c_str())
     return;
-  // add code here
-  g_warning("got a request to change %s.formattedType() from '%s' to '%s'",
-            owner().is_valid() ? owner()->name().c_str() : "<null>", formattedType().c_str(), value.c_str());
 }
 
 /** Sets the datatype defined by a string to the column.

@@ -2000,7 +2000,7 @@ int WorkbenchImpl::initializeOtherRDBMS() {
     }
   }
   if (failed)
-    logWarning("Support for one or more RDBMS sources have failed.");
+    logWarning("Support for one or more RDBMS sources have failed.\n");
 
   _wb->load_other_connections();
 

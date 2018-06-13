@@ -219,7 +219,7 @@ internal::Value* internal::Value::retain() {
 void internal::Value::release() {
 #ifdef WB_DEBUG
   if (_refcount == 0)
-    logWarning("GRT: releasing invalid object");
+    logWarning("GRT: releasing invalid object\n");
 #endif
   if (g_atomic_int_dec_and_test(&_refcount))
     delete this;
@@ -338,7 +338,7 @@ UndoGroup *GRT::begin_undoable_action(UndoGroup *group) {
 void GRT::end_undoable_action(const std::string &group_description) {
   if (!get_undo_manager()->end_undo_group(group_description, true)) {
     if (getenv("DEBUG_UNDO"))
-      g_warning("'%s' was empty", group_description.c_str());
+      logWarning("'%s' was empty\n", group_description.c_str());
   }
   stop_tracking_changes();
 }
@@ -491,8 +491,7 @@ void GRT::end_loading_metaclasses(bool check_class_binding) {
     // check if there are any metaclasses with unbound members
     for (std::map<std::string, MetaClass *>::iterator iter = _metaclasses.begin(); iter != _metaclasses.end(); ++iter) {
       if (!iter->second->is_bound())
-        g_warning(
-          "Allocation function of '%s' is unbound, which probably means the implementing C++ class was not "
+        logWarning("Allocation function of '%s' is unbound, which probably means the implementing C++ class was not"
           "registered\n",
           iter->second->name().c_str());
     }

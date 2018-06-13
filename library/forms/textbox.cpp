@@ -22,7 +22,10 @@
  */
 
 #include "string_utilities.h"
+#include "base/log.h"
 #include "mforms/mforms.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
 using namespace mforms;
 
@@ -57,7 +60,7 @@ void TextBox::append_text_with_encoding(const std::string &text, const std::stri
 
     if (temp == NULL) {
       converted_text = text;
-      g_warning("Cannot convert '%s' from %s to UTF-8", text.c_str(), encoding.c_str());
+      logWarning("Cannot convert '%s' from %s to UTF-8\n", text.c_str(), encoding.c_str());
     } else {
       converted_text = temp;
       g_free(temp);

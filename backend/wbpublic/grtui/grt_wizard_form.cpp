@@ -126,7 +126,6 @@ void WizardForm::switch_to_page(WizardPage *page, bool advancing) {
     // since skip_page() can depend on the actions performed by the previous page's leave()
     page = get_next_page(_active_page);
     if (!page) {
-      // g_warning("Trying to turn past the last page of the wizard");
       // finish(); don't need to call finish as leave() was already called early
       close();
       return;

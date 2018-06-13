@@ -22,6 +22,9 @@
  */
 
 #include "mforms/mforms.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
 using namespace std;
 
@@ -112,7 +115,7 @@ static void stop_animation_timer_for(BaseWidget* widget) {
     }
 
   if (animation_timer_refcount <= 0)
-    g_warning("Unbalanced feedback timer deactivation in LineDiagramWidget.");
+    logWarning("Unbalanced feedback timer deactivation in LineDiagramWidget.");
   animation_timer_refcount--;
   if (animation_timer_refcount <= 0)
     ThreadedTimer::remove_task(animation_timer_id);

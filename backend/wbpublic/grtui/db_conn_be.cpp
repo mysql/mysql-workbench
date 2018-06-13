@@ -81,7 +81,7 @@ DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name,
   else if (0 == type_name.compare("button"))
     result = ptButton;
   else
-    g_warning("Unknown DB driver parameter type '%s'", type_name.c_str());
+    logWarning("Unknown DB driver parameter type '%s'\n", type_name.c_str());
 
   return result;
 }
@@ -202,10 +202,10 @@ std::vector<std::pair<std::string, std::string> > DbDriverParam::get_enum_option
             options.push_back(std::make_pair(s, s));
         }
       } else
-        logWarning("Error calling enum value lookup method %s.%s for DriverParameter %s",
+        logWarning("Error calling enum value lookup method %s.%s for DriverParameter %s\n",
                    _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(), _inner->name().c_str());
     } else
-      logWarning("Error searching module for enum value lookup method %s.%s for DriverParameter %s",
+      logWarning("Error searching module for enum value lookup method %s.%s for DriverParameter %s\n",
                  _inner->lookupValueModule().c_str(), _inner->lookupValueMethod().c_str(), _inner->name().c_str());
   }
   return options;

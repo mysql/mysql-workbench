@@ -2845,10 +2845,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     db_SimpleDatatypeRef simpletype(
       parsers::MySQLParserServices::findDataType(rdbms->simpleDatatypes(), GrtVersionRef(), type));
 
-    if (!simpletype.is_valid()) // unlikely
-    {
-      g_warning("Could not define built-in userdatatype <%s> %s (%s)", type_init_data[i].oid, type_init_data[i].name,
-                type_init_data[i].sql_def);
+    if (!simpletype.is_valid()) {
       continue;
     }
     db_UserDatatypeRef udata(grt::Initialized);

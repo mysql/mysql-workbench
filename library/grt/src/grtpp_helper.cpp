@@ -27,11 +27,14 @@
 #include "base/file_functions.h"
 #include "base/file_utilities.h"
 #include "base/string_utilities.h"
+#include "base/log.h"
 
 #include <stdio.h>
 #include <errno.h>
 
 #include <glib/gstdio.h>
+
+DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 
@@ -1135,7 +1138,7 @@ static void export_module_function(FILE *f, const Module::Function &function) {
       case ObjectType:
         break;
       default:
-        g_warning("invalid parameter type found in module function %s", function.name.c_str());
+        logWarning("invalid parameter type found in module function %s\n", function.name.c_str());
     }
 
     if (param->name.empty()) {

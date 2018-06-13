@@ -23,8 +23,11 @@
 
 #include "grt.h"
 #include "grtpp_util.h"
+#include "base/log.h"
 #include <glib.h>
 #include <algorithm>
+
+DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 
@@ -45,7 +48,7 @@ inline bool get_type_spec(xmlNodePtr node, TypeSpec &type, bool allow_void = fal
 
   type.base.type = str_to_type(s);
   if (type.base.type == UnknownType) {
-    g_warning("[XML parser] Unknown type '%s'.", s.c_str());
+    logWarning("[XML parser] Unknown type '%s'.", s.c_str());
     return false;
   }
 
@@ -57,7 +60,7 @@ inline bool get_type_spec(xmlNodePtr node, TypeSpec &type, bool allow_void = fal
     if (!content_type.empty()) {
       type.content.type = str_to_type(content_type);
       if (type.content.type == UnknownType) {
-        g_warning("[XML parser] Unknown content-type '%s'.", content_type.c_str());
+        logWarning("[XML parser] Unknown content-type '%s'.\n", content_type.c_str());
         return false;
       }
     }
@@ -69,7 +72,7 @@ inline bool get_type_spec(xmlNodePtr node, TypeSpec &type, bool allow_void = fal
     if (!class_name.empty())
       type.base.object_class = class_name;
     else {
-      g_warning("[XML parser] object member without struct-name.");
+      logWarning("[XML parser] object member without struct-name.\n");
       return false;
     }
   }
@@ -292,12 +295,12 @@ void MetaClass::load_xml(xmlNodePtr node) {
   xmlNodePtr child_node;
 
   if (xmlStrcmp(node->name, (xmlChar *)"gstruct") != 0) {
-    g_warning("[XML parser] Node '%s': 'gstruct' expected.", node->name);
+    logWarning("[XML parser] Node '%s': 'gstruct' expected.\n", node->name);
     throw std::runtime_error("missing 'metaclass' loading grt xml");
   }
 
   if (node_property.empty()) {
-    g_warning("[XML parser] Node '%s' does not have a name property.", node->name);
+    logWarning("[XML parser] Node '%s' does not have a name property.\n", node->name);
     throw std::runtime_error("missing 'name' loading grt xml");
   }
 
@@ -361,7 +364,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
           member.default_value = get_prop(member_node, "default");
 
           if (!get_prop(member_node, "dontfollow").empty())
-            g_warning("[XML parser] Node '%s' contains 'attr:dontfollow' prop which was replaced with 'owned'.",
+            logWarning("[XML parser] Node '%s' contains 'attr:dontfollow' prop which was replaced with 'owned'\n.",
                       _name.c_str());
 
           if (get_prop(member_node, "read-only") == "1")
@@ -402,24 +405,24 @@ void MetaClass::load_xml(xmlNodePtr node) {
           // don't override the whole member, only the attributes
           if (get_prop(member_node, "override-attributes-only") != "1") {
             if (!get_type_spec(member_node, member.type))
-              g_warning("[XML parser] Node '%s'::'%s' contains invalid type specification.", _name.c_str(),
+              logWarning("[XML parser] Node '%s'::'%s' contains invalid type specification.\n", _name.c_str(),
                         member.name.c_str());
 
             // do some validation
             if (!is_container_type(member.type.base.type) && member.owned_object)
-              g_warning("[XML parser] Node '%s'::'%s' marked as 'owned', but is not an object.", _name.c_str(),
+              logWarning("[XML parser] Node '%s'::'%s' marked as 'owned', but is not an object.\n", _name.c_str(),
                         member.name.c_str());
 
             if (member.calculated && (!member.delegate_get || (!member.read_only && !member.delegate_set)))
-              g_warning("[XML parser] Node '%s'::'%s' marked as 'calculated', but accessors are not delegated.",
+              logWarning("[XML parser] Node '%s'::'%s' marked as 'calculated', but accessors are not delegated.\n",
                         _name.c_str(), member.name.c_str());
 
             if (member.calculated && member.private_)
-              g_warning("[XML parser] Node '%s'::'%s' marked as 'private' and 'calculated', which is not allowed.",
+              logWarning("[XML parser] Node '%s'::'%s' marked as 'private' and 'calculated', which is not allowed.\n",
                         _name.c_str(), member.name.c_str());
 
             if (member.calculated && member.owned_object)
-              g_warning("[XML parser] Node '%s'::'%s' marked as 'owned' and 'calculated', which is not allowed.",
+              logWarning("[XML parser] Node '%s'::'%s' marked as 'owned' and 'calculated', which is not allowed.\n",
                         _name.c_str(), member.name.c_str());
 
             // can't replace lists/dicts members in objects
@@ -443,7 +446,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
             method.abstract = true;
 
           if (method.constructor && method.abstract)
-            g_warning("[XML parser] Node '%s'::'%s' cannot be both abstract and constructor.", _name.c_str(),
+            logWarning("[XML parser] Node '%s'::'%s' cannot be both abstract and constructor.\n", _name.c_str(),
                       method.name.c_str());
 
           int return_node_count = 0;
@@ -454,7 +457,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
 
               arg.name = get_prop(arg_node, "name");
               if (!get_type_spec(arg_node, arg.type))
-                g_warning("[XML parser] Node '%s'::'%s'::'%s' contains invalid argument type specification",
+                logWarning("[XML parser] Node '%s'::'%s'::'%s' contains invalid argument type specification\n",
                           _name.c_str(), method.name.c_str(), arg.name.c_str());
 
               method.arg_types.push_back(arg);
@@ -464,7 +467,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
               return_node_count++;
 
               if (method.constructor || !get_type_spec(arg_node, method.ret_type, true))
-                g_warning("[XML parser] Node '%s'::'%s' contains invalid type specification.", _name.c_str(),
+                logWarning("[XML parser] Node '%s'::'%s' contains invalid type specification.\n", _name.c_str(),
                           method.name.c_str());
 
               load_attribute_list(arg_node, method.name + ":return");
@@ -472,7 +475,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
             arg_node = arg_node->next;
           }
           if (return_node_count != 1 && !method.constructor)
-            g_warning("[XML parser] Node '%s'::'%s' has %i return value specifications", _name.c_str(),
+            logWarning("[XML parser] Node '%s'::'%s' has %i return value specifications\n", _name.c_str(),
                       method.name.c_str(), return_node_count);
 
           load_attribute_list(member_node, method.name);
@@ -501,7 +504,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
                 arg.type = ObjectSArg;
                 arg.object_class = get_prop(arg_node, "struct-name");
               } else
-                g_warning("Signal '%s'::'%s' contains invalid argument type '%s'", _name.c_str(), sig.name.c_str(),
+                logWarning("Signal '%s'::'%s' contains invalid argument type '%s'\n", _name.c_str(), sig.name.c_str(),
                           type.c_str());
 
               sig.arg_types.push_back(arg);
@@ -535,7 +538,7 @@ bool MetaClass::validate() {
     // check if the member is overriding another one
     if (_parent && (member = _parent->get_member_info(mem->second.name))) {
       if (member->type.base.type != mem->second.type.base.type) {
-        g_warning("Member %s::%s overrides a member with a different base type", _name.c_str(),
+        logWarning("Member %s::%s overrides a member with a different base type\n", _name.c_str(),
                   mem->second.name.c_str());
         ok = false;
       } else {
@@ -544,7 +547,7 @@ bool MetaClass::validate() {
           case ListType:
           case DictType:
             if (member->type.content.type != mem->second.type.content.type) {
-              g_warning("Member %s::%s overrides a member with a different content type", _name.c_str(),
+              logWarning("Member %s::%s overrides a member with a different content type\n", _name.c_str(),
                         mem->second.name.c_str());
               ok = false;
             }
@@ -553,7 +556,7 @@ bool MetaClass::validate() {
               MetaClass *member_content_class2;
 
               if (!(member_content_class1 = grt::GRT::get()->get_metaclass(mem->second.type.content.object_class))) {
-                g_warning("Member %s::%s has invalid content object class '%s'", _name.c_str(),
+                logWarning("Member %s::%s has invalid content object class '%s'\n", _name.c_str(),
                           mem->second.name.c_str(), mem->second.type.content.object_class.c_str());
                 ok = false;
               }
@@ -561,7 +564,7 @@ bool MetaClass::validate() {
               member_content_class2 = grt::GRT::get()->get_metaclass(member->type.content.object_class);
               if (member_content_class1 && member_content_class2) {
                 if (!member_content_class1->is_a(member_content_class2)) {
-                  g_warning("Member %s::%s overrides a member with an incompatible content object class", _name.c_str(),
+                  logWarning("Member %s::%s overrides a member with an incompatible content object class\n", _name.c_str(),
                             mem->second.name.c_str());
                   ok = false;
                 }
@@ -570,7 +573,7 @@ bool MetaClass::validate() {
             break;
           case ObjectType:
             if (member->type.content.object_class != mem->second.type.content.object_class) {
-              g_warning("Member %s::%s overrides a member with a different class", _name.c_str(),
+              logWarning("Member %s::%s overrides a member with a different class\n", _name.c_str(),
                         mem->second.name.c_str());
               ok = false;
             }
@@ -586,7 +589,7 @@ bool MetaClass::validate() {
     }
 
     if (seen.find(mem->second.name) != seen.end() && !mem->second.overrides) {
-      g_warning("Member %s::%s is duplicate", _name.c_str(), mem->second.name.c_str());
+      logWarning("Member %s::%s is duplicate\n", _name.c_str(), mem->second.name.c_str());
       ok = false;
     }
     seen[mem->second.name] = _name;

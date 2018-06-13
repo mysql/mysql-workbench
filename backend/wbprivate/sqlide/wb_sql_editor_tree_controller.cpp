@@ -698,7 +698,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string &schema_name, 
         if (node)
           pdata = dynamic_cast<LiveSchemaTree::ViewData *>(node->get_data());
         else
-          logWarning("Error fetching column information for '%s'.'%s'", schema_name.c_str(), obj_name.c_str());
+          logWarning("Error fetching column information for '%s'.'%s'\n", schema_name.c_str(), obj_name.c_str());
       }
 
       if (pdata) {
@@ -729,7 +729,7 @@ void SqlEditorTreeController::fetch_column_data(const std::string &schema_name, 
       }
     }
   } catch (const sql::SQLException &exc) {
-    logWarning("Error fetching column information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(),
+    logWarning("Error fetching column information for '%s'.'%s': %s\n", schema_name.c_str(), obj_name.c_str(),
                exc.what());
 
     // Sets flag indicating error loading columns ( Used for broken views )
@@ -796,7 +796,7 @@ void SqlEditorTreeController::fetch_trigger_data(const std::string &schema_name,
     pdata->set_loaded_data(LiveSchemaTree::TRIGGER_DATA);
     _schema_tree->notify_on_reload(target_parent);
   } catch (const sql::SQLException &exc) {
-    g_warning("Error fetching trigger information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(),
+    logWarning("Error fetching trigger information for '%s'.'%s': %s\n", schema_name.c_str(), obj_name.c_str(),
               exc.what());
   }
 }
@@ -863,7 +863,7 @@ void SqlEditorTreeController::fetch_index_data(const std::string &schema_name, c
     pdata->set_loaded_data(LiveSchemaTree::INDEX_DATA);
     _schema_tree->notify_on_reload(target_parent);
   } catch (const sql::SQLException &exc) {
-    g_warning("Error fetching index information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(), exc.what());
+    logWarning("Error fetching index information for '%s'.'%s': %s\n", schema_name.c_str(), obj_name.c_str(), exc.what());
   }
 }
 
@@ -1018,7 +1018,7 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string &schema_n
     pdata->set_loaded_data(LiveSchemaTree::FK_DATA);
     _schema_tree->notify_on_reload(target_parent);
   } catch (const sql::SQLException &exc) {
-    g_warning("Error fetching foreign key information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(),
+    logWarning("Error fetching foreign key information for '%s'.'%s': %s\n", schema_name.c_str(), obj_name.c_str(),
               exc.what());
   }
 }
@@ -1115,7 +1115,7 @@ bool SqlEditorTreeController::fetch_routine_details(const std::string &schema_na
       }
     }
   } catch (const sql::SQLException &exc) {
-    g_warning("Error fetching routine information for '%s'.'%s': %s", schema_name.c_str(), obj_name.c_str(),
+    logWarning("Error fetching routine information for '%s'.'%s': %s\n", schema_name.c_str(), obj_name.c_str(),
               exc.what());
   }
 
@@ -1375,7 +1375,7 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
       // parse selected object DDL into auxiliary catalog
       ddl_script = get_object_ddl_script(type, used_schema_name, obj_name);
       if (ddl_script.empty()) {
-        logWarning("Unable to get DDL for %s.%s", used_schema_name.c_str(), obj_name.c_str());
+        logWarning("Unable to get DDL for %s.%s\n", used_schema_name.c_str(), obj_name.c_str());
         return;
       }
       {
@@ -1394,13 +1394,13 @@ void SqlEditorTreeController::do_alter_live_object(wb::LiveSchemaTree::ObjectTyp
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         } catch (std::exception &exc) {
-          logWarning("Error reformatting view code: %s", exc.what());
+          logWarning("Error reformatting view code: %s\n", exc.what());
         }
       }
 
       if (!parse_ddl_into_catalog(client_state_catalog, strfmt("`%s`.`%s`", schema_name.c_str(), obj_name.c_str()),
                                   ddl_script, sql_mode, schema_name)) {
-        logWarning("Error parsing DDL for %s.%s: %s", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
+        logWarning("Error parsing DDL for %s.%s: %s\n", schema_name.c_str(), obj_name.c_str(), ddl_script.c_str());
         return;
       }
     }
@@ -1956,7 +1956,7 @@ void SqlEditorTreeController::refresh_live_object_in_editor(bec::DBObjectEditorB
           args.ginsert(grt::StringRef(ddl_script));
           ddl_script = grt::StringRef::cast_from(module->call_function("reformatSQLStatement", args));
         } catch (std::exception &exc) {
-          logWarning("Error reformatting view code: %s", exc.what());
+          logWarning("Error reformatting view code: %s\n", exc.what());
         }
       }
 
@@ -2337,7 +2337,7 @@ bool SqlEditorTreeController::expand_live_table_stub(bec::DBObjectEditorBE *tabl
       if (conn && _owner->get_session_variable(conn->ref.get(), "sql_mode", sql_mode))
         options.gset("sql_mode", sql_mode);
       else
-        logWarning("Unable to get sql_mode for connection");
+        logWarning("Unable to get sql_mode for connection\n");
     }
     db_SchemaRef old_default_schema = catalog->defaultSchema();
     if (!schema.is_valid()) {

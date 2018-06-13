@@ -276,8 +276,6 @@ void ModelFile::open(const std::string &path) {
       base::file_mtime(auto_save_dir, autosave_ts);
 
     // document dir already exists, ask if it should be recovered or deleted
-    g_warning("Temporary document folder found: %s (ts=%lu, saved=%lu)", auto_save_dir.c_str(), autosave_ts, file_ts);
-
     if (mforms::Utilities::show_warning(
           _("Document Recovery"),
           base::strfmt(_("The document %s was not properly closed in a previous session on %s.\n"
@@ -292,19 +290,15 @@ void ModelFile::open(const std::string &path) {
       _content_dir = auto_save_dir;
 
       if (g_file_test((auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(), G_FILE_TEST_EXISTS)) {
-        g_warning("Committing autosaved document XML file: %s",
-                  (auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str());
         g_remove((auto_save_dir + "/" + MAIN_DOCUMENT_NAME).c_str());
         int rc = g_rename((auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(),
                           (auto_save_dir + "/" + MAIN_DOCUMENT_NAME).c_str());
         if (rc < 0) {
-          // rename failed, try copy
-          g_warning("Failed renaming autosaved XML file: %s", g_strerror(errno));
+          // Rename failed, so try copying the file.
           try {
             copy_file((auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(),
                       (auto_save_dir + "/" + MAIN_DOCUMENT_NAME).c_str());
           } catch (const std::exception &exc) {
-            g_warning("Failed copying autosaved XML file: %s", exc.what());
             mforms::Utilities::show_error("Error recovering file",
                                           base::strfmt("There was an error recovering the document: %s\n", exc.what()),
                                           "OK", "", "");

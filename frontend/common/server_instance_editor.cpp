@@ -443,7 +443,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
         try {
           dict = grt::DictRef::cast_from(grt::GRT::get()->unserialize(path + "/" + file));
         } catch (std::exception &exc) {
-          g_warning("Profile %s contains invalid data: %s", path.c_str(), exc.what());
+          logWarning("Profile %s contains invalid data: %s\n", path.c_str(), exc.what());
           continue;
         }
         _presets[dict.get_string("sys.system")].push_back(std::make_pair(label, dict));
@@ -800,9 +800,7 @@ void ServerInstanceEditor::add_instance() {
     }
     _connections.insert(connection);
     _connect_panel->set_connection(connection);
-  } else
-    g_warning("add_row returned -1");
-
+  }
   show_connection();
 }
 
@@ -863,9 +861,7 @@ void ServerInstanceEditor::duplicate_instance() {
   if (node) {
     node->set_string(0, name);
     _stored_connection_list.select_node(node);
-  } else
-    g_warning("add_row returned -1");
-
+  }
   show_connection();
 }
 

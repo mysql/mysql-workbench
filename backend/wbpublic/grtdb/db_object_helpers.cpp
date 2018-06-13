@@ -814,8 +814,6 @@ bool TableHelper::rename_foreign_key(const db_TableRef &table, db_ForeignKeyRef 
   if (fk->index().is_valid()) {
     if (old_name == *fk->index()->name())
       fk->index()->name(new_name);
-    //  else
-    //    g_warning("ForeignKey %s has no attached index", fk->name().c_str());
   }
   undo.end(_("Rename Foreign Key"));
 

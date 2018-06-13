@@ -29,15 +29,16 @@
 #include "base/file_functions.h"
 #include "base/file_utilities.h"
 #include "base/config_file.h"
+#include "base/log.h"
 
 #include <fstream>
 #include <memory>
 #include <errno.h>
 
-#define WIN32 // required by ctemplate to compile on win
-
 #include "mtemplate/template.h"
 #include <iostream>
+
+DEFAULT_LOG_DOMAIN(DOMAIN_WQE_BE)
 
 using namespace bec;
 using namespace grt;
@@ -171,13 +172,11 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
       pre_tpl_path = name + ".pre.tpl";
       pre_template = mtemplate::GetTemplate(pre_tpl_path);
       if (!pre_template)
-        g_warning("Failed to open template file: `%s`", pre_tpl_path.c_str());
+        logWarning("Failed to open template file: `%s`\n", pre_tpl_path.c_str());
     }
     if (g_file_test((name + ".post.tpl").c_str(), G_FILE_TEST_EXISTS)) {
       post_tpl_path = name + ".post.tpl";
       post_template = mtemplate::GetTemplate(post_tpl_path);
-      if (!post_template)
-        g_warning("Failed to open template file: `%s`", post_tpl_path.c_str());
     }
   }
 

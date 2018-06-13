@@ -139,8 +139,9 @@ static void log_func(const gchar *log_domain, GLogLevelFlags log_level, const gc
   else if (log_level & (G_LOG_LEVEL_DEBUG))
     level = base::Logger::LogLevel::Debug;
   base::Logger::log(level, log_domain ? log_domain : "", "%s", std::string(message).append("\n").c_str());
-
+#ifndef _MSC_VER
   g_log_default_handler(log_domain, log_level, message, user_data);
+#endif
 }
 
 static grt::ValueRef get_app_option(const std::string &option, WBContext *wb) {

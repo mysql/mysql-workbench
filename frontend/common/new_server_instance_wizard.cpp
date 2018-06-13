@@ -355,15 +355,16 @@ void HostAndRemoteTypePage::enter(bool advancing) {
         try {
           dict = grt::DictRef::cast_from(grt::GRT::get()->unserialize(path + "/" + file));
         } catch (std::exception &exc) {
-          g_warning("Profile %s contains invalid data: %s", path.c_str(), exc.what());
+          logWarning("Profile %s contains invalid data: %s\n", path.c_str(), exc.what());
           continue;
         }
         _presets[dict.get_string("sys.system")].push_back(std::make_pair(label, path + "/" + file));
       }
     }
     g_dir_close(dir);
-  } else
-    g_warning("Opening profiles folder failed.");
+  } else {
+    logError("Opening profiles folder failed.");
+  }
 
   // we need to sort the preset list
   for (std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it = _presets.begin();
@@ -780,7 +781,7 @@ void WindowsManagementPage::enter(bool advancing) {
       try {
         result = Utilities::credentials_for_service(title, "wmi@" + host, user, false, password);
       } catch (std::exception &exc) {
-        logWarning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s\n", exc.what());
         mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
       }
 
@@ -873,7 +874,7 @@ void WindowsManagementPage::enter(bool advancing) {
       try {
         Utilities::forget_password("wmi@" + host, user);
       } catch (std::exception &exc) {
-        logWarning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s\n", exc.what());
         mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
       }
 
@@ -1598,7 +1599,7 @@ void NewServerInstanceWizard::load_defaults() {
     try {
       dict = grt::DictRef::cast_from(grt::GRT::get()->unserialize(template_file));
     } catch (std::exception &exc) {
-      g_warning("Instance %s contains invalid data: %s", template_file.c_str(), exc.what());
+      logWarning("Instance %s contains invalid data: %s\n", template_file.c_str(), exc.what());
       return;
     }
     grt::merge_contents(_instance->serverInfo(), dict, true);

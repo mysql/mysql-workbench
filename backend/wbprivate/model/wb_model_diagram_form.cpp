@@ -1001,7 +1001,7 @@ bool ModelDiagramForm::can_paste() {
 
   for (std::list<grt::ObjectRef>::iterator iter = data.begin(); iter != data.end(); ++iter) {
     if (!(*iter).is_valid()) {
-      logWarning("copy buffer has null value");
+      logWarning("copy buffer has null value\n");
       return false;
     }
     bool result = false;
