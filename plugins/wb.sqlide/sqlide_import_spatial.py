@@ -288,14 +288,14 @@ class SelectFileWizardPage(WizardPage):
         self.shapefile_browse_btn = newButton()
         self.shapefile_browse_btn.set_text("Browse...")
         self.shapefile_browse_btn.add_clicked_callback(self.shapefile_browse)
-        entry_box.add(self.shapefile_browse_btn, False, False)
+        entry_box.add(self.shapefile_browse_btn, False, True)
 
         self.content.add(entry_box, False, True)
 
         label = mforms.newLabel("""Select a shapefile containing spatial data to load into MySQL.
 A new table with the imported fields will be created in the selected schema,
 unless the append or update options are specified.""")
-        self.content.add(label, False, False)
+        self.content.add(label, False, True)
 
         self.ogrinfo_box = mforms.newBox(True)
         self.ogrinfo_box.set_spacing(8)
@@ -481,18 +481,18 @@ class ContentPreviewPage(WizardPage):
         layer_box = mforms.newBox(True)
         layer_box.set_spacing(8)
         layer_heading = mforms.newLabel("Layer name:")
-        layer_box.add(layer_heading, False, False)
+        layer_box.add(layer_heading, False, True)
         self.layer_name_lbl = mforms.newLabel("")
-        layer_box.add(self.layer_name_lbl, False, False)
-        self.content.add(layer_box, False, False)
+        layer_box.add(self.layer_name_lbl, False, True)
+        self.content.add(layer_box, False, True)
 
         epsg_box = mforms.newBox(True)
         epsg_box.set_spacing(8)
         epsg_box_heading = mforms.newLabel("EPSG:")
-        epsg_box.add(epsg_box_heading, False, False)
+        epsg_box.add(epsg_box_heading, False, True)
         self.epsg_lbl = mforms.newLabel("")
-        epsg_box.add(self.epsg_lbl, False, False)
-        self.content.add(epsg_box, False, False)
+        epsg_box.add(self.epsg_lbl, False, True)
+        self.content.add(epsg_box, False, True)
         
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(12)
@@ -532,18 +532,18 @@ class ContentPreviewPage(WizardPage):
         self.skipfailures_chb.set_text("Skip failures");
         self.skipfailures_chb.set_active(False)
         
-        boxfailures.add(self.skipfailures_chb, False, False)
-        boxfailures.add(small_label("If an error occurs ignore it and continue processing data."), False, False)
-        options_box.add(boxfailures, False, False)
+        boxfailures.add(self.skipfailures_chb, False, True)
+        boxfailures.add(small_label("If an error occurs ignore it and continue processing data."), False, True)
+        options_box.add(boxfailures, False, True)
         
         boxappend = mforms.newBox(False)
         
         self.append_chb = newCheckBox()
         self.append_chb.set_text("Append to existing data");
         self.append_chb.set_active(False)
-        boxappend.add(self.append_chb, False, False)
-        boxappend.add(small_label("Append to existing table instead of creating a new one."), False, False)
-        options_box.add(boxappend, False, False)
+        boxappend.add(self.append_chb, False, True)
+        boxappend.add(small_label("Append to existing table instead of creating a new one."), False, True)
+        options_box.add(boxappend, False, True)
         
         boxoverwrite = mforms.newBox(False)
         
@@ -553,30 +553,30 @@ class ContentPreviewPage(WizardPage):
         
         self.append_chb.add_clicked_callback(lambda checkbox1 = self.append_chb, checkbox2 = self.overwrite_chb: self.one_check_only(checkbox1, checkbox2))
         self.overwrite_chb.add_clicked_callback(lambda checkbox2 = self.append_chb, checkbox1 = self.overwrite_chb: self.one_check_only(checkbox1, checkbox2))
-        boxoverwrite.add(self.overwrite_chb, False, False)
-        boxoverwrite.add(small_label("Drop the selected table and recreate it."), False, False)
-        options_box.add(boxoverwrite, False, False)
+        boxoverwrite.add(self.overwrite_chb, False, True)
+        boxoverwrite.add(small_label("Drop the selected table and recreate it."), False, True)
+        options_box.add(boxoverwrite, False, True)
         
         if self.support_spatial_index:
             boxspatial = mforms.newBox(False)
             self.spatial_index_chb = newCheckBox()
             self.spatial_index_chb.set_text("Create spatial index")
             self.spatial_index_chb.set_active(False)
-            boxspatial.add(self.spatial_index_chb, False, False)
-            boxspatial.add(small_label("import will make spatial index around geometry column"), False, False)
-            options_box.add(boxspatial, False, False)
+            boxspatial.add(self.spatial_index_chb, False, True)
+            boxspatial.add(small_label("import will make spatial index around geometry column"), False, True)
+            options_box.add(boxspatial, False, True)
         
         options_layer.add(options_box)
         options_layer.show(True)
         
-        self.content.add(options_layer, False, False)
+        self.content.add(options_layer, False, True)
 
         boxconvert = mforms.newBox(False)
         entry_box = mforms.newBox(True)
         entry_box.set_spacing(8)
         entry_box.add(mforms.newLabel("Convert data to the following EPSG:"), False, True)
         self.convert_to_epsg = mforms.newTextEntry()
-        entry_box.add(self.convert_to_epsg, False, False)
+        entry_box.add(self.convert_to_epsg, False, True)
         boxconvert.add(entry_box, True, True)
         boxconvert.add(small_label("leave empty to import the data with no conversion"), False, False)
         
