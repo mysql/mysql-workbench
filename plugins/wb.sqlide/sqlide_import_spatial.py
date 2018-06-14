@@ -98,7 +98,7 @@ def cmd_executor(cmd):
             else:
                 cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
                 log_debug("Executing command: %s\n" % cmd)
-            p1 = subprocess.Popen(str(cmd), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p1 = subprocess.Popen(str(cmd), stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell = True)
         except OSError, exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc))
             import traceback
