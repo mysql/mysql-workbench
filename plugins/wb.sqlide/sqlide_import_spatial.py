@@ -98,7 +98,7 @@ def cmd_executor(cmd):
             else:
                 cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
                 log_debug("Executing command: %s\n" % cmd)
-            p1 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell = True)
+            p1 = subprocess.Popen(str(cmd), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except OSError, exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc))
             import traceback
@@ -197,7 +197,6 @@ class SpatialImporter:
                      
     def run(self, progress_notify):
         cmd_args = {}
-        cmd_args['ogr2ogr'] = get_exe_path("ogr2ogr")
         cmd_args['host'] = self.my_host
         cmd_args['schema'] = self.my_schema
         cmd_args['user'] = self.my_user
@@ -205,8 +204,9 @@ class SpatialImporter:
         cmd_args['port'] = self.my_port
         
         cmd = []
-        cmd.append("exec")
-        cmd.append(get_exe_path("ogr2ogr"))
+        if sys.platform.lower() != "win32":
+            cmd.append("exec")
+        cmd.append("ogr2ogr.exe" if sys.platform.lower() == "win32" else "ogr2ogr")
         cmd.append("-f")
         cmd.append('"MySQL"')
         cmd.append('MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d"' % cmd_args)
@@ -353,14 +353,13 @@ unless the append or update options are specified.""")
         self.main.cancel()
 
     def check_ogr_executables(self):
-        if get_exe_path("ogrinfo"):
+        if get_exe_path("ogrinfo.exe" if sys.platform.lower() == "win32" else "ogrinfo"):
             self.ogrinfo_missing = False
             self.ogrinfo_icon.set_image("task_checked%s.png" % os_icon_suffix)
         else:
             self.ogrinfo_icon.set_image("task_warning%s.png" % os_icon_suffix)
             self.ogrinfo_missing_lbl.show(True)
-
-        if get_exe_path("ogr2ogr"):
+        if get_exe_path("ogr2ogr.exe" if sys.platform.lower() == "win32" else "ogr2ogr"):
             self.ogr2ogr_missing = False
             self.ogr2ogr_icon.set_image("task_checked%s.png" % os_icon_suffix)
         else:
@@ -415,9 +414,9 @@ class ContentPreviewPage(WizardPage):
         return self.main.select_file_page.shapefile_path.get_string_value()
     
     def get_info(self):
-        cmd = "%s -al -so %s" % (get_exe_path("ogrinfo"), self.get_path())
+        cmd = "%s -al -so %s" % (get_exe_path("ogrinfo.exe" if sys.platform.lower() == "win32" else "ogrinfo"), self.get_path())
         p1 = cmd_executor(cmd)
-        sout, serr = p1.communicate(input)
+        sout, serr = p1.communicate()
         if serr:
             log_error("There was an error getting file information: %s" % serr)
         import re
