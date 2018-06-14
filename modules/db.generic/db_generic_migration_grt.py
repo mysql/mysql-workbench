@@ -41,7 +41,7 @@ class GenericMigration(object):
             if type(log.logObject) == type(sourceObject)\
                and type(log.logObject.owner) == type(sourceObject.owner)\
                and log.logObject.owner.name == sourceObject.owner.name\
-               and log.logObject.name == sourceObject.name:
+               and log.logObject.name.lower() == sourceObject.name.lower():
                 return log.refObject
         return None
         
@@ -53,14 +53,6 @@ class GenericMigration(object):
                         continue
                     if typemap.lengthConditionTo > 0 and column.length > 0 and not (typemap.lengthConditionTo >= column.length):
                         continue
-                    #if typemap.precisionConditionFrom > 0 and column.precision > 0 and not (typemap.precisionConditionFrom <= column.precision):
-                    #    continue
-                    #if typemap.precisionConditionTo > 0 and column.precision > 0 and not (typemap.precisionConditionTo >= column.precision):
-                    #    continue
-                    #if typemap.scaleConditionFrom > 0 and column.scale > 0 and not (typemap.scaleConditionFrom <= column.scale):
-                    #    continue
-                    #if typemap.scaleConditionTo > 0 and column.scale > 0 and not (typemap.scaleConditionTo >= column.scale):
-                    #    continue
                     return typemap        
         return None
 
@@ -174,8 +166,8 @@ class GenericMigration(object):
         else:
             targetVersion = grt.classes.GrtVersion()
             targetVersion.owner = target_catalog
-            targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber, targetVersion.buildNumber = (5, 5, 0, 0)
-            targetVersion.name = "5.5.0"
+            targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber, targetVersion.buildNumber = (8, 0, 11, 0)
+            targetVersion.name = "8.0.11"
             target_catalog.version = targetVersion
 
         if True:
@@ -421,8 +413,7 @@ class GenericMigration(object):
             if not referenced_index_col:
                 state.addMigrationLogEntry(2, source_index, target_index,
                       'The column "%s" is part of source table "%s" index "%s" but there is no such column in the target table' % (source_index_column.name, sourceTable.name, source_index.name) )
-                #return None
-                ##XXXXX
+
             target_index_column = grt.classes.db_mysql_IndexColumn()
             target_index_column.owner = target_index
             target_index_column.referencedColumn = referenced_index_col
@@ -652,10 +643,5 @@ def migrateUpdateForChanges(state, target_catalog):
 @ModuleInfo.export((grt.LIST, grt.classes.db_migration_MigrationParameter), grt.classes.db_migration_Migration)
 def getMigrationOptions(state):
     list = grt.List(grt.OBJECT, grt.classes.db_migration_MigrationParameter.__grtclassname__)
-
-    #param = grt.classes.db_migration_MigrationParameter()
-    #param.name = "generic:mergeSchemaNameToTableName"
-    #param.caption = "Treat source catalogs as schemas in MySQL and merge schema and table names\nex.: MyCatalog.MySchema.MyTable -> MyCatalog.MySchema_MyTable"
-    #list.append(param)
 
     return list
