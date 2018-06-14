@@ -335,6 +335,7 @@ namespace sql {
     {
       case 0:
          sslMode = sql::SSL_MODE_DISABLED;
+         properties["OPT_GET_SERVER_PUBLIC_KEY"] = true;
         break;
       case 1:
         sslMode = sql::SSL_MODE_PREFERRED;
