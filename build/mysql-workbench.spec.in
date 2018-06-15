@@ -266,6 +266,8 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/iodbcadm-gtk
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysql
 %attr(0755,root,root) %{_libexecdir}/mysql-workbench/mysqldump
+%attr(0755,root,root) %{_libexecdir}/mysql-workbench/ogr2ogr
+%attr(0755,root,root) %{_libexecdir}/mysql-workbench/ogrinfo
 
 %{_libdir}/mysql-workbench
 
