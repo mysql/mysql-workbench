@@ -206,7 +206,7 @@ class SpatialImporter:
         cmd = []
         if sys.platform.lower() != "win32":
             cmd.append("exec")
-        cmd.append("ogr2ogr.exe" if sys.platform.lower() == "win32" else "ogr2ogr")
+        cmd.append(get_exe_path("ogr2ogr.exe" if sys.platform.lower() == "win32" else "ogr2ogr"))
         cmd.append("-f")
         cmd.append('"MySQL"')
         cmd.append('MySQL:"%(schema)s,host=%(host)s,user=%(user)s,password=%(pwd)s,port=%(port)d"' % cmd_args)
