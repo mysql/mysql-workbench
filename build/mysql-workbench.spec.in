@@ -184,6 +184,8 @@ rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 %if %{defined mysql_home}
   cp -a %{mysql_home}/bin/mysql %{buildroot}%{_libexecdir}/mysql-workbench/
   cp -a %{mysql_home}/bin/mysqldump %{buildroot}%{_libexecdir}/mysql-workbench/
+  cp -a %{bundles_path}/bin/ogr2ogr %{buildroot}%{_libexecdir}/mysql-workbench/
+  cp -a %{bundles_path}/bin/ogrinfo %{buildroot}%{_libexecdir}/mysql-workbench/
 %endif
 
 #
