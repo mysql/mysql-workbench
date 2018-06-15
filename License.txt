@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Workbench 8.0.
 
-   Last updated: May 2018.
+   Last updated: June 2018.
 
 Licensing Information
 
@@ -2716,27 +2716,27 @@ may delete the Paramiko folder and all its contents.
    This component is licensed under GNU Lesser General Public License
    Version 2.1, February 1999.
 
-PCRE2
+PCRE
 
    The following software may be included in this product:
 
-   PCRE2 (Perl Compatible Regular Expressions) Library
-PCRE2 LICENSE
--------------
+   PCRE (Perl Compatible Regular Expressions) Library
+PCRE LICENSE
+------------
 
-PCRE2 is a library of functions to support regular expressions whose syntax
+PCRE is a library of functions to support regular expressions whose syntax
 and semantics are as close as possible to those of the Perl 5 language.
 
-Release 10 of PCRE2 is distributed under the terms of the "BSD" license, as
-specified below, with one exemption for certain binary redistributions. The
-documentation for PCRE2, supplied in the "doc" directory, is distributed
-under the same terms as the software itself. The data in the testdata
-directory is not copyrighted and is in the public domain.
+Release 8 of PCRE is distributed under the terms of the "BSD" license, as
+specified below. The documentation for PCRE, supplied in the "doc"
+directory, is distributed under the same terms as the software itself. The
+data
+in the testdata directory is not copyrighted and is in the public domain.
 
 The basic library functions are written in C and are freestanding. Also
-included in the distribution is a just-in-time compiler that can be used to
-optimize pattern matching. This is an optional feature that can be omitted
-when the library is built.
+included in the distribution is a set of C++ wrapper functions, and a
+just-in-time compiler that can be used to optimize pattern matching. These
+are both optional features that can be omitted when the library is built.
 
 THE BASIC LIBRARY FUNCTIONS
 ---------------------------
@@ -2748,17 +2748,17 @@ Email domain:     cam.ac.uk
 University of Cambridge Computing Service,
 Cambridge, England.
 
-Copyright (c) 1997-2017 University of Cambridge
+Copyright (c) 1997-2018 University of Cambridge
 All rights reserved.
 
-PCRE2 JUST-IN-TIME COMPILATION SUPPORT
---------------------------------------
+PCRE JUST-IN-TIME COMPILATION SUPPORT
+-------------------------------------
 
 Written by:       Zoltan Herczeg
 Email local part: hzmester
 Emain domain:     freemail.hu
 
-Copyright(c) 2010-2017 Zoltan Herczeg
+Copyright(c) 2010-2018 Zoltan Herczeg
 All rights reserved.
 
 STACK-LESS JUST-IN-TIME COMPILER
@@ -2768,7 +2768,15 @@ Written by:       Zoltan Herczeg
 Email local part: hzmester
 Emain domain:     freemail.hu
 
-Copyright(c) 2009-2017 Zoltan Herczeg
+Copyright(c) 2009-2018 Zoltan Herczeg
+All rights reserved.
+
+THE C++ WRAPPER FUNCTIONS
+-------------------------
+
+Contributed by:   Google Inc.
+
+Copyright (c) 2007-2012, Google Inc.
 All rights reserved.
 
 THE "BSD" LICENSE
@@ -2778,18 +2786,19 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
 
-    * Redistributions of source code must retain the above copyright notices,
+    * Redistributions of source code must retain the above copyright notice,
       this list of conditions and the following disclaimer.
 
 
     * Redistributions in binary form must reproduce the above copyright
-      notices, this list of conditions and the following disclaimer in the
+      notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
 
 
-    * Neither the name of the University of Cambridge nor the names of any
-      contributors may be used to endorse or promote products derived from
-      this software without specific prior written permission.
+    * Neither the name of the University of Cambridge nor the name of Google
+      Inc. nor the names of their contributors may be used to endorse or
+      promote products derived from this software without specific prior
+      written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -2802,15 +2811,6 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-
-EXEMPTION FOR BINARY LIBRARY-LIKE PACKAGES
-------------------------------------------
-
-The second condition in the BSD license (covering binary redistributions)
-does not apply all the way down a chain of software. If binary package A
-includes PCRE2, it must respect the condition, but if package B is
-software that includes package A, the condition is not imposed on package
-B unless it uses PCRE2 independently.
 
 End
 

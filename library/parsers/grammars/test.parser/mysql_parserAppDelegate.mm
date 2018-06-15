@@ -79,7 +79,7 @@ NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1
 NSString *sql12 = @"select * from (select 1 from dual)";
 NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 'test';";
 
-static std::set<std::string> charsets = { "_utf8", "_ucs2",   "_big5",   "_latin2",
+static std::set<std::string> charsets = { "_utf8", "_utf8mb3", "_utf8mb4", "_ucs2",   "_big5",   "_latin2",
                                           "_ujis", "_binary", "_cp1250", "_latin1" };
 
 @interface mysql_parserAppDelegate () {
