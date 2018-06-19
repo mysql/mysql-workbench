@@ -60,7 +60,7 @@ DocumentPropertiesForm::DocumentPropertiesForm()
   _entry5.set_enabled(false);
   _entry6.set_enabled(false);
 
-  _table.add(&_bottom_box, 0, 2, 7, 8, mforms::HFillFlag);
+  _table.add(&_bottom_box, 0, 2, 7, 8, mforms::HFillFlag | mforms::VFillFlag);
   _bottom_box.set_spacing(8);
 
   scoped_connect(_ok_button.signal_clicked(), std::bind(&DocumentPropertiesForm::ok_clicked, this));
@@ -75,7 +75,7 @@ DocumentPropertiesForm::DocumentPropertiesForm()
   _bottom_box.add_end(&_cancel_button, false, true);
   _cancel_button.set_text(_("Cancel"));
 
-  set_size(400, 400);
+  set_size(400, 420);
 
   center();
 
