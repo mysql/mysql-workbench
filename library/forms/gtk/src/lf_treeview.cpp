@@ -1336,8 +1336,15 @@ namespace mforms {
 
     void TreeViewImpl::set_back_color(const std::string &color) {
       if (!force_sys_colors) {
-        if (!color.empty())
-          _tree.override_background_color(color_to_rgba(Gdk::Color(color)), Gtk::STATE_FLAG_NORMAL);
+        if (!color.empty()) {
+          Gdk::RGBA gtk_color(color);
+          Gdk::RGBA gtk_selected_color;
+          
+          gtk_selected_color.set_rgba(gtk_color.get_red() / 2, gtk_color.get_green() / 2, gtk_color.get_blue() / 2);
+          
+          _tree.override_background_color(gtk_color, Gtk::STATE_FLAG_NORMAL);
+          _tree.override_background_color(gtk_selected_color, Gtk::STATE_FLAG_SELECTED);
+        }
       }
     }
 
