@@ -24,10 +24,16 @@
 
 #include "SSHSession.h"
 #include "base/log.h"
+#include "base/file_functions.h"
+#include "base/string_utilities.h"
 #include <fcntl.h>
 #include <vector>
 #include <functional>
 #include <sstream>
+#ifdef _MSC_VER
+#include "Shlobj.h"
+#endif // _MSC_VER
+
 
 DEFAULT_LOG_DOMAIN("SSHSession")
 
@@ -506,6 +512,21 @@ namespace ssh {
 #if _MSC_VER
             std::string::size_type pos = 0;
             auto knownHostsFile = _config.knownHostsFile;
+            if (knownHostsFile.empty()) {
+              std::string userFolder = "";
+              PWSTR outFolder = nullptr;
+              if (SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &outFolder) == S_OK) {
+                userFolder = base::wstring_to_string(outFolder);
+                userFolder += "\\.ssh\\known_hosts";
+                CoTaskMemFree(outFolder);
+              }
+              if (base_get_file_size(userFolder.c_str()) == 0) {
+                std::ofstream outfile(userFolder);
+                outfile.close();
+              }
+              knownHostsFile = userFolder;
+              _config.knownHostsFile = userFolder;
+            }
             while ((pos = knownHostsFile.find_first_of("\\", pos)) != std::string::npos)
               knownHostsFile.replace(pos, 1, "/");
             _session->setOption(SSH_OPTIONS_KNOWNHOSTS, knownHostsFile.c_str());

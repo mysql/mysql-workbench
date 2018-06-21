@@ -86,7 +86,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CPPDBC_EXPORTS;MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -95,8 +95,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glib-2.0.lib;gmodule-2.0.lib;libxml2.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Debug\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gmodule-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -111,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CPPDBC_EXPORTS;MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -120,8 +119,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glib-2.0.lib;gmodule-2.0.lib;libxml2.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gmodule-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -133,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CPPDBC_EXPORTS;MYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include\libxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\base;..\grt\src;..\..\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -142,8 +140,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glib-2.0.lib;gmodule-2.0.lib;libxml2.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gmodule-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -50,6 +50,7 @@
     <Import Project="..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\vsprops\wb_python.props" />
     <Import Project="..\..\vsprops\wb_gettext.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -59,6 +60,7 @@
     <Import Project="..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\vsprops\wb_python.props" />
     <Import Project="..\..\vsprops\wb_gettext.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -68,6 +70,7 @@
     <Import Project="..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\vsprops\wb_python.props" />
     <Import Project="..\..\vsprops\wb_gettext.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -90,7 +93,7 @@
       <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\libxml2;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\Python\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\base;..\..\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -99,8 +102,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>python27_d.lib;glib-2.0.lib;gmodule-2.0.lib;gthread-2.0.lib;iconv.lib;libxml2.lib;mysqlcppconn.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Debug\lib;$(WB_3DPARTY_PATH)\Python\libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gmodule-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -115,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\libxml2;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\Python\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\base;..\..\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -124,8 +126,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>python27.lib;glib-2.0.lib;gmodule-2.0.lib;gthread-2.0.lib;iconv.lib;libxml2.lib;mysqlcppconn.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\lib;$(WB_3DPARTY_PATH)\Python\libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gmodule-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -137,7 +138,7 @@
       <SDLCheck>true</SDLCheck>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>src;..\base;..\..\generated;$(WB_3DPARTY_PATH)\include;$(WB_3DPARTY_PATH)\include\glib-2.0;$(WB_3DPARTY_PATH)\lib\glib-2.0\include;$(WB_3DPARTY_PATH)\include\libxml2;$(WB_3DPARTY_PATH)\include\cppconn;$(WB_3DPARTY_PATH)\Python\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\base;..\..\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;ENABLE_PYTHON_MODULES;MYSQLGRTLIBRARY_EXPORTS;ENABLE_GRT_STATS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
@@ -146,8 +147,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>python27.lib;glib-2.0.lib;gmodule-2.0.lib;gthread-2.0.lib;  iconv.lib;libxml2.lib;mysqlcppconn.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\lib;$(WB_3DPARTY_PATH)\Python\libs</AdditionalLibraryDirectories>
+      <AdditionalDependencies>gmodule-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
