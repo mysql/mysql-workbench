@@ -39,6 +39,9 @@ typedef int ssize_t;
 #include <condition_variable>
 #include <memory>
 #include <vector>
+#include <list>
+#include <iostream>
+#include <fstream>  
 
 
 //#include <boost/locale/encoding_utf.hpp>

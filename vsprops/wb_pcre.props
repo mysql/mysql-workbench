@@ -8,7 +8,7 @@
       <AdditionalIncludeDirectories>$(WB_3DPARTY_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>pcre.lib;pcrecpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pcred.lib;pcrecppd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
