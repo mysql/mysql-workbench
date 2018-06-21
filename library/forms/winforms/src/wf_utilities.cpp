@@ -791,9 +791,7 @@ bool UtilitiesWrapper::move_to_trash(const std::string &file_name) {
   shf.wFunc = FO_DELETE;
   shf.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION;
 
-  // Paths must be double 0 terminated.
   std::wstring converted_filename = base::string_to_wstring(file_name);
-  converted_filename.append('\0');
   shf.pFrom = converted_filename.c_str();
   int result = SHFileOperation(&shf);
 
