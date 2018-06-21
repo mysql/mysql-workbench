@@ -26,7 +26,9 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #pragma GCC diagnostic ignored "-Wparentheses"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 #include <gtkmm.h>
 #pragma GCC diagnostic pop
 

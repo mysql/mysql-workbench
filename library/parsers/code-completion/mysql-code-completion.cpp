@@ -201,9 +201,6 @@ struct AutoCompletionContext {
     c3.showDebugOutput = false;
     referencesStack.emplace_back(); // For the root level of table references.
 
-    size_t startTokenIndex = 0;
-    size_t ruleIndex = 0;
-
     parser->reset();
     ParserRuleContext *context = parser->query();
     /*

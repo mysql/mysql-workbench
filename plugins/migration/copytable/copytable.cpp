@@ -2455,8 +2455,6 @@ void MySQLCopyDataTarget::restore_triggers(std::set<std::string> &schemas) {
 
       mysql_free_result(result);
 
-      std::vector<std::string>::const_iterator trigger_index;
-
       // Restores the triggers
       logDebug("Configuring active schema\n");
       std::string select_database = base::sqlstring("USE !", 0) << a_schema;

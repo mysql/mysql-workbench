@@ -146,7 +146,7 @@ void ModelPanel::post_construct(wb::OverviewBE *overview) {
   _sig_restore_layout.disconnect();
   // restore widths of sidebars when shown
   _sig_restore_layout =
-    Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &ModelPanel::restore_sidebar_layout), false));
+    Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun<void, ModelPanel, ModelPanel>(this, &ModelPanel::restore_sidebar_layout), false));
 }
 
 void ModelPanel::restore_sidebar_layout() {

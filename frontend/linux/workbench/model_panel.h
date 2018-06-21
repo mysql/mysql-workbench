@@ -50,15 +50,15 @@ public:
   static ModelPanel *create(wb::OverviewBE *overview);
   ~ModelPanel();
 
-  virtual bool on_close();
-  virtual void on_activate();
+  virtual bool on_close() override;
+  virtual void on_activate() override;
 
-  virtual Gtk::Widget *get_panel() {
+  virtual Gtk::Widget *get_panel() override {
     return this;
   }
-  virtual bec::UIForm *get_form() const;
+  virtual bec::UIForm *get_form() const override;
 
-  virtual void reset_layout() {
+  virtual void reset_layout() override {
     _editor_paned->set_position(_editor_paned->get_height() - 300);
   }
   OverviewPanel *get_overview() {
@@ -67,7 +67,8 @@ public:
 
   void selection_changed();
 
-  virtual void find_text(const std::string &text);
+  virtual void find_text(const std::string &text) override;
+  using FormViewBase::restore_sidebar_layout;
   virtual void restore_sidebar_layout();
 
 private:

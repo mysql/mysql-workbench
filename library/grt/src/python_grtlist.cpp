@@ -311,8 +311,12 @@ PyDoc_STRVAR(remove_all_doc, "L.remove_all() -- remove all elements from the lis
 PyDoc_STRVAR(extend_doc, "L.extend(list) -- add all elements from the list");
 
 #if !defined(_MSC_VER) && !defined(__APPLE__)
+
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
+
 #endif
 static PyMethodDef PyGRTListMethods[] = {
   //{"__getitem__", (PyCFunction)list_subscript, METH_O|METH_COEXIST, getitem_doc},

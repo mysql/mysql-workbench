@@ -31,6 +31,8 @@ using namespace parsers;
 
 Symbol::Symbol(std::string const &aName) : name(aName){};
 
+Symbol::~Symbol() {};
+
 void Symbol::clear() {
 }
 

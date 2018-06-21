@@ -63,6 +63,7 @@ namespace parsers {
     antlr4::ParserRuleContext *context = nullptr; // Reference to the parse tree which defines this symbol.
 
     Symbol(std::string const &aName = "");
+    virtual ~Symbol();
 
     virtual void clear();
     void setParent(Symbol *parent);

@@ -22,7 +22,9 @@
 #include <atk/atk.h>
 #include <atkmm.h>
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 namespace mforms {
   namespace gtk {
 

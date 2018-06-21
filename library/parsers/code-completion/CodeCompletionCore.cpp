@@ -347,9 +347,6 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
     }
   }
 
-  bool isLeftRecursive = ((RuleStartState *)startState)->isLeftRecursiveRule;
-  bool forceLoopEnd = false;
-
   // The current state execution pipeline contains all yet-to-be-processed ATN states in this rule.
   // For each such state we store the token index + a list of rules that lead to it.
   std::vector<PipelineEntry> statePipeline;
@@ -363,7 +360,6 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
     statePipeline.pop_back();
     ++_statesProcessed;
 
-    size_t currentSymbol = _tokens[tokenIndex];
     bool atCaret = currentEntry.tokenIndex >= _tokens.size() - 1;
     if (showDebugOutput) {
       printDescription(indentation, currentEntry.state, generateBaseDescription(currentEntry.state), currentEntry.tokenIndex);
