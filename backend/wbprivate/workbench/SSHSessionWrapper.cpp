@@ -39,11 +39,11 @@ DEFAULT_LOG_DOMAIN("SSHSessionWrapper")
 namespace ssh {
 
   SSHSessionWrapper::SSHSessionWrapper(const SSHConnectionConfig &config, const SSHConnectionCredentials &credentials)
-      : _session(SSHSession::createSession()), _config(config), _credentials(credentials), _sessionPoolHandle(0) {
+  : _session(SSHSession::createSession()), _config(config), _credentials(credentials), _sessionPoolHandle(0), _isClosing(false), _canClose(0) {
   }
 
   SSHSessionWrapper::SSHSessionWrapper(const db_mgmt_ConnectionRef connectionProperties)
-      : _session(SSHSession::createSession()), _sessionPoolHandle(0) {
+      : _session(SSHSession::createSession()), _sessionPoolHandle(0), _isClosing(false), _canClose(0) {
     grt::DictRef parameter_values = connectionProperties->parameterValues();
     if (connectionProperties->driver()->name() == "MysqlNativeSSH") {
       auto connection = getConnectionInfo(connectionProperties);
@@ -54,7 +54,7 @@ namespace ssh {
   }
 
   SSHSessionWrapper::SSHSessionWrapper(const db_mgmt_ServerInstanceRef serverInstanceProperties)
-      : _session(SSHSession::createSession()), _sftp(nullptr), _sessionPoolHandle(0) {
+      : _session(SSHSession::createSession()), _sftp(nullptr), _sessionPoolHandle(0), _isClosing(false), _canClose(0) {
 
     if (serverInstanceProperties->serverInfo().get_int("remoteAdmin", 0) == 1 && !serverInstanceProperties->loginInfo().get_string("ssh.hostName").empty())
     {
@@ -68,15 +68,19 @@ namespace ssh {
 
   SSHSessionWrapper::~SSHSessionWrapper() {
     logDebug2("destroyed\n");
+    _isClosing = true;
     disconnect();
   }
 
   void SSHSessionWrapper::disconnect() {
-    auto timeoutLock = lockTimeout();
     if (_sessionPoolHandle != 0) {
-      ThreadedTimer::remove_task(_sessionPoolHandle);
+      if (!ThreadedTimer::remove_task(_sessionPoolHandle)) {
+        _canClose.wait();
+      }
       _sessionPoolHandle = 0;
     }
+    
+    auto timeoutLock = lockTimeout();
     // before we continue, we should close all opened files
     _sftp.reset();
     _session->disconnect();
@@ -102,7 +106,7 @@ namespace ssh {
         }
         case ssh::SSHReturnType::CONNECTED: {
           logInfo("Succesfully made SSH connection\n");
-          pollSession();
+          makeSessionPoll();
           _sftp = std::shared_ptr<ssh::SSHSftp>(new ssh::SSHSftp(_session, wb::WBContextUI::get()->get_wb()->get_wb_options().get_int("SSH:maxFileSize", 65535)));
           return 0;
         }
@@ -436,18 +440,27 @@ namespace ssh {
     return mutexLock;
   }
 
-  bool SSHSessionWrapper::pollSession() {
+  void SSHSessionWrapper::makeSessionPoll() {
     auto timeoutLock = lockTimeout();
     if (_sessionPoolHandle != 0) {
       ThreadedTimer::remove_task(_sessionPoolHandle);
       _sessionPoolHandle = 0;
     }
-
+    
+    _sessionPoolHandle = ThreadedTimer::add_task(TimerTimeSpan, 2.0,
+                                                 false, std::bind(&SSHSessionWrapper::pollSession, this));
+  }
+  
+  bool SSHSessionWrapper::pollSession() {
+    auto timeoutLock = lockTimeout();
     if (_session != nullptr)
       _session->pollEvent();
-
-    _sessionPoolHandle = ThreadedTimer::add_task(TimerTimeSpan, 2.0,
-      false, std::bind(&SSHSessionWrapper::pollSession, this));
+    
+    if (_isClosing) {
+      _canClose.post();
+      return true;
+    }
+    
     return false;
   }
 

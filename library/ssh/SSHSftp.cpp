@@ -154,7 +154,6 @@ namespace ssh {
   }
 
   sftp_file SSHSftp::open(const std::string &path) const {
-    auto lock = _session->lockSession();
     sftp_file file = sftp_open(_sftp, createRemotePath(path).c_str(), O_RDONLY, 0);
     if (file == nullptr)
       throw SSHSftpException(_session->getSession()->getError());

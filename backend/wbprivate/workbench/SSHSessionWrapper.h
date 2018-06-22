@@ -36,6 +36,8 @@ namespace ssh {
     SSHConnectionCredentials _credentials;
     std::shared_ptr<SSHSftp> _sftp;
     int _sessionPoolHandle;
+    bool _isClosing;
+    base::Semaphore _canClose;
   public:
     SSHSessionWrapper(const SSHConnectionConfig &config, const SSHConnectionCredentials &credentials);
     SSHSessionWrapper(const db_mgmt_ConnectionRef connectionProperties);
@@ -69,6 +71,7 @@ namespace ssh {
   protected:
     mutable base::RecMutex _timeoutMutex;
     base::RecMutexLock lockTimeout();
+    void makeSessionPoll();
     bool pollSession();
 
   };
