@@ -412,11 +412,11 @@ class SelectFilePage(WizardPage):
     
     
     def is_valid_path(self):
-        import os, errno
+        import os, errno, sys
         
         userpath = self.exportfile_path.get_string_value()
         try:
-            if not isinstance(userpath, str) or not userpath:
+            if (not isinstance(userpath, str) and not isinstance(userpath, unicode)) or not userpath:
                 return False
             
             _, path = os.path.splitdrive(userpath)
