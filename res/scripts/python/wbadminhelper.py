@@ -1,4 +1,4 @@
-# Copyright (c) 2013, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,6 +19,7 @@ import os
 import sys
 import time
 import stat
+import shlex
 
 from workbench.tcp_utils import SocketClient
 from workbench.os_utils import FileUtils, OSUtils
@@ -33,12 +34,22 @@ import subprocess
 # and also a way to tell the listener that the command has completed
 
 # Retrieves the parameters
-params = ' '.join(sys.argv[1:])
-port, handshake, done_key, command = params.split(' ', 3)
+parsedArgs = []
+
+for arg in sys.argv:
+    if arg.find(' ') > -1:
+        arg = '"' + arg + '"'
+    parsedArgs.append(arg)
+
+port = parsedArgs[1]
+handshake = parsedArgs[2]
+done_key = parsedArgs[3]
+command = parsedArgs[4:]
 
 class CommandProcessor:
     def __init__(self, command, client):
-        self._command, self._args = command.split(' ', 1)
+        self._command = command[0]
+        self._args = ' '.join(command[1:])
         self._client = client
         self._result_code = 0
         self._result_message = ""

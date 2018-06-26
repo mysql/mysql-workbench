@@ -86,6 +86,8 @@ def quote_path(path):
         return '"%s"' % path.replace('"', r'\"')
 
 def quote_path_win(path):
+    if path.endswith('\\'):
+        path = path[:-1]
     return '"%s"' % path.replace("/", "\\").replace('"', r'\"')
 
 
