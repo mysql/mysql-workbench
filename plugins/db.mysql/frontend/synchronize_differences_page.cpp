@@ -351,7 +351,11 @@ bool SynchronizeDifferencesPage::pre_load() {
       }
     }
   }
+#ifdef __linux__
+  _splitter.set_divider_position(_splitter.get_height() == 1 ? 200 : _splitter.get_height() * 2 / 3);
+#else
   _splitter.set_divider_position(_splitter.get_height() * 2 / 3);
+#endif
 
   select_row();
 
