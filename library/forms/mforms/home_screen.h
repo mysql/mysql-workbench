@@ -65,6 +65,7 @@ namespace mforms {
     virtual base::Accessible::Role getAccessibilityRole() override;
     virtual base::Rect getAccessibilityBounds() override;
     virtual void accessibilityDoDefaultAction() override;
+    std::string getAccessibilityDefaultAction() override;
   };
 
   class SidebarSection : public mforms::DrawBox {

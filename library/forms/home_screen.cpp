@@ -51,7 +51,7 @@ SidebarEntry::SidebarEntry() : owner(nullptr), canSelect(false), icon(nullptr) {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string SidebarEntry::getAccessibilityName() {
-  return "";
+  return title;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -85,6 +85,12 @@ void SidebarEntry::accessibilityDoDefaultAction() {
     owner->mouse_move(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
     owner->mouse_click(MouseButtonLeft, (int)acc_bounds.center().x, (int)acc_bounds.center().y);
   }
+}
+
+//----------------- SidebarSection -------------------------------------------------------------------------------------
+
+std::string SidebarEntry::getAccessibilityDefaultAction() {
+  return "click";
 }
 
 //----------------- SidebarSection -------------------------------------------------------------------------------------

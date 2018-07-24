@@ -97,8 +97,17 @@ namespace mforms {
       GtkWidget *widget = gtk_accessible_get_widget(GTK_ACCESSIBLE(accessible));
       if (widget == NULL)
         atk_state_set_add_state(state_set, ATK_STATE_DEFUNCT);
-      else
+      else {
+
         atk_state_set_add_state(state_set, ATK_STATE_DEFAULT);
+        atk_state_set_add_state(state_set, ATK_STATE_VISIBLE);
+        // This is special situation, we paint our widgets inside drawbox
+        // hence if parent widget to the drawbox is mapped, then drawbox
+        // should be in the same state.
+        auto parent = gtk_widget_get_parent(widget);
+        if (parent != nullptr && gtk_widget_get_mapped(parent))
+          atk_state_set_add_state(state_set, ATK_STATE_SHOWING);
+      }
 
       return state_set;
     }

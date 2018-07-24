@@ -76,6 +76,10 @@ void mforms::gtk::ButtonImpl::set_text(const std::string &text) {
     _button->set_label(text);
     _button->set_use_underline(true);
   }
+
+  auto acc = _button->get_accessible();
+  if (acc)
+    acc->set_name(text);
 }
 
 void mforms::gtk::ButtonImpl::set_icon(::mforms::Button *self, const std::string &path) {

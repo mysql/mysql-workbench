@@ -383,10 +383,12 @@ void mforms::gtk::MenuItemImpl::insert_item(mforms::MenuBase *menub, int index, 
     if (menub->get_parent() && get_accel_group(menub))
       propagate_accel_group(menub, get_accel_group(menub));
   }
-  if (menu_shell && item_to_insert)
+  if (menu_shell && item_to_insert) {
     menu_shell->insert(*item_to_insert, index);
-  else
+    item_to_insert->show();
+  } else {
     logError("Internal error in MenuBase::insert_item()\n");
+  }
 }
 
 //------------------------------------------------------------------------------

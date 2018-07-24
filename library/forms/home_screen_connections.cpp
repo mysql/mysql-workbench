@@ -493,7 +493,7 @@ protected:
   //------ Accesibility Methods -----
 
   virtual std::string getAccessibilityName() override {
-    return "";
+    return title;
   }
 
   virtual std::string getAccessibilityTitle() override {
@@ -524,6 +524,10 @@ protected:
   virtual void accessibilityDoDefaultAction() override {
     activate();
   };
+
+  virtual std::string getAccessibilityDefaultAction() override {
+    return "click";
+  }
 
   virtual void accessibilityShowMenu() override {
     if (owner->_connection_context_menu != nullptr) {
