@@ -1772,7 +1772,7 @@ roleList:
 ;
 
 role:
-    roleIdentifierOrText (AT_SYMBOL textOrIdentifier)?
+    roleIdentifierOrText (AT_SIGN_SYMBOL textOrIdentifier)?
 ;
 
 //--------------------------------------------------------------------------------------------------
