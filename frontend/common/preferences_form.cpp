@@ -668,6 +668,7 @@ void PreferencesForm::cancel_clicked() {
 mforms::View *PreferencesForm::create_admin_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Administration");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -731,6 +732,7 @@ mforms::View *PreferencesForm::create_sqlide_page() {
 
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Sqlide");
 
   {
     OptionTable *table = mforms::manage(new OptionTable(this, _("SQL Editor"), true));
@@ -861,6 +863,7 @@ mforms::View *PreferencesForm::create_sqlide_page() {
 
 mforms::View *PreferencesForm::create_general_editor_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
+  box->set_name("General Editor");
   box->set_spacing(8);
 
   {
@@ -880,6 +883,7 @@ mforms::View *PreferencesForm::create_general_editor_page() {
 
       tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), true), false, false);
       mforms::TextEntry *entry = new_entry_option("SqlMode", false);
+      entry->set_name("SQL mode syntax");
       entry->set_tooltip(
         _("Value of SQL_MODE DBMS session variable customizes the rules and restrictions for SQL syntax and semantics. "
           "See MySQL Server reference for details.\n"
@@ -908,6 +912,7 @@ mforms::View *PreferencesForm::create_general_editor_page() {
 
       tbox->add(new_label(_("Non-Standard SQL Delimiter:"), true), false, false);
       mforms::TextEntry *entry = new_entry_option("SqlDelimiter", false);
+      entry->set_name("Sql Delimiter");
       entry->set_size(50, -1);
       entry->set_tooltip(
         _("Delimiter used for statements that use the semicolon as part of their syntax (e.g. stored routines)"));
@@ -935,6 +940,7 @@ mforms::View *PreferencesForm::create_general_editor_page() {
 mforms::View *PreferencesForm::create_editor_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Editor");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1045,6 +1051,7 @@ mforms::View *PreferencesForm::create_editor_page() {
 mforms::View *PreferencesForm::create_object_editor_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Object Editor");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1122,6 +1129,7 @@ mforms::View *PreferencesForm::create_query_page() {
 
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Query");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1279,6 +1287,7 @@ void PreferencesForm::code_completion_changed(mforms::CheckBox *cc_box, mforms::
 mforms::View *PreferencesForm::create_model_page() {
   mforms::Box *top_box = mforms::manage(new mforms::Box(false));
   top_box->set_spacing(8);
+  top_box->set_name("Model");
 
   OptionTable *table;
 
@@ -1319,8 +1328,9 @@ mforms::View *PreferencesForm::create_model_page() {
 
 mforms::View* PreferencesForm::createSSHPage()
 {
-  Box* content = manage(new Box(false));
+    Box* content = manage(new Box(false));
     content->set_spacing(8);
+    content->set_name("SSH");
 
     OptionTable *timeouts_table;
 
@@ -1446,6 +1456,7 @@ mforms::View *PreferencesForm::create_others_page()
 {
   Box* content = manage(new Box(false));
   content->set_spacing(8);
+  content->set_name("Others");
 
   {
     mforms::Panel *frame= mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1555,6 +1566,7 @@ void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content) {
 mforms::View *PreferencesForm::create_model_defaults_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Model Defaults");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1682,6 +1694,7 @@ static void update_target_version(workbench_physical_ModelRef model, mforms::Tex
 mforms::View *PreferencesForm::create_mysql_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("MySQL");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1747,6 +1760,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
     tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), true), false, false);
     tbox->add(entry = new_entry_option("SqlGenerator.Mysql:SQL_MODE", false), true, true);
     entry->set_tooltip(_("The default value of ONLY_FULL_GROUP_BY, STRICT_TRANS_TABLES, NO_ZERO_IN_DATE, NO_ZERO_DATE, ERROR_FOR_DIVISION_BY_ZERO, NO_ENGINE_SUBSTITUTION is recommended."));
+    entry->set_name("SQL Mode Scripts");
 
     box->add(frame, false);
   }
@@ -1757,6 +1771,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
 mforms::View *PreferencesForm::create_diagram_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Diagram");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -1947,6 +1962,7 @@ void PreferencesForm::font_preset_changed() {
 mforms::View *PreferencesForm::create_appearance_page() {
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
+  box->set_name("Appearance");
 
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
@@ -2037,6 +2053,7 @@ mforms::View *PreferencesForm::create_appearance_page() {
 mforms::View *PreferencesForm::create_fonts_and_colors_page() {
   Box *content = manage(new Box(false));
   content->set_spacing(8);
+  content->set_name("Fonts and Colors");
 
   {
     OptionTable *table = new OptionTable(this, _("Fonts"), true);
