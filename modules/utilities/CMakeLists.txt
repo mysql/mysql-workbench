@@ -21,7 +21,7 @@ set_target_properties(utilities.grt PROPERTIES
 	PREFIX ""
 )
 
-target_link_libraries(utilities.grt ${GRT_LIBRARIES} ${GDAL_LIBRARIES})
+target_link_libraries(utilities.grt grt ${GRT_LIBRARIES} ${GDAL_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(utilities.grt gcov)

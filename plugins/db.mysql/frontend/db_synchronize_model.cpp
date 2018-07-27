@@ -23,10 +23,13 @@
 
 #include <stdio.h>
 
+#include "base/log.h"
+
 #include "mforms/textbox.h"
 #include "mforms/checkbox.h"
 #include "mforms/label.h"
 #include "mforms/splitter.h"
+#include "mforms/checkbox.h"
 
 #include "grtui/grt_wizard_plugin.h"
 #include "grtui/wizard_progress_page.h"
@@ -35,15 +38,16 @@
 #include "grtui/wizard_finished_page.h"
 #include "grtui/wizard_view_text_page.h"
 #include "grtui/grtdb_connect_panel.h"
+#include "grtui/connection_page.h"
 
-#include "base/log.h"
-
-#include "diff_tree.h"
+#include "fetch_schema_names_page.h"
+#include "schema_matching_page.h"
+#include "fetch_schema_contents_page.h"
+#include "synchronize_differences_page.h"
 #include "db_mysql_sql_script_sync.h"
-
 #include "db_mysql_sql_sync.h"
 
-#include "mforms/checkbox.h"
+#include "diff_tree.h"
 
 using namespace grtui;
 using namespace mforms;
@@ -56,8 +60,6 @@ class ObjectSelectionPage;
 class ReviewScriptPage;
 class DBSynchronizeProgressPage;
 class FinishPage;
-
-#include "grtui/connection_page.h"
 
 //--------------------------------------------------------------------------------
 
@@ -151,12 +153,6 @@ protected:
 
 //--------------------------------------------------------------------------------
 
-#include "fetch_schema_names_page.h"
-
-//--------------------------------------------------------------------------------
-
-#include "schema_matching_page.h"
-
 class ModelSchemaMatchingPage : public SchemaMatchingPage {
   DbMySQLSync *_db_be;
 
@@ -215,14 +211,6 @@ public:
     }
   }
 };
-
-//--------------------------------------------------------------------------------
-
-#include "fetch_schema_contents_page.h"
-
-//--------------------------------------------------------------------------------
-
-#include "synchronize_differences_page.h"
 
 //--------------------------------------------------------------------------------
 
@@ -414,19 +402,15 @@ namespace DBSynchronize {
     add_page(mforms::manage(new DBSynchronizeProgressPage(this)));
 
     set_title("Synchronize Model with Database");
+    set_size(920, 700);
   }
 
 }; // namespace DBSynchronize
 
 grtui::WizardPlugin *createDbSynchronizeWizard(grt::Module *module, db_CatalogRef catalog) {
-  grt::LeakDetector::reset();
-  grt::LeakDetector::enable();
   return new DBSynchronize::WbPluginDbSynchronize(module);
 }
 
 void deleteDbSynchronizeWizard(grtui::WizardPlugin *plugin) {
   delete plugin;
-  // grt::LeakDetector::disable();
-  grt::LeakDetector::update_objects_data();
-  grt::LeakDetector::print_leaks();
 }

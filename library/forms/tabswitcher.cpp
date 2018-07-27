@@ -32,7 +32,7 @@ DEFAULT_LOG_DOMAIN("mforms");
 
 #ifdef __APPLE__
 #define TAB_FONT "Lucida Grande"
-#elif _WIN32
+#elif _MSC_VER
 #define TAB_FONT "Tahoma"
 #else
 #define TAB_FONT "Helvetica"
@@ -46,7 +46,7 @@ DEFAULT_LOG_DOMAIN("mforms");
 
 #define INITIAL_TAB_HEIGHT 58
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define VERTICAL_STYLE_WIDTH 58
 #define VERTICAL_STYLE_HEIGHT 68
 #else
@@ -54,7 +54,7 @@ DEFAULT_LOG_DOMAIN("mforms");
 #define VERTICAL_STYLE_HEIGHT 70
 #endif
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 using std::max;
 #endif
 
@@ -237,7 +237,7 @@ class VerticalTabSwitcher : public mforms::TabSwitcherPimpl {
 public:
   VerticalTabSwitcher(TabSwitcher *owner)
     : TabSwitcherPimpl(owner), _up_arrow_y(0), _down_arrow_y(0), _first_visible(0), _last_visible(0), _collapsed(false) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (base::Color::get_active_scheme() != base::ColorSchemeStandardWin7) {
       _colors[TabInactiveBackground] = base::Color::get_application_color(base::AppColorPanelHeader, false);
       _colors[TabInactiveForeground] = base::Color::get_application_color(base::AppColorPanelHeader, true);

@@ -44,12 +44,42 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_python.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\vsprops\wb_sqlite.props" />
+    <Import Project="..\..\vsprops\wb_vsqlite++.props" />
+    <Import Project="..\..\vsprops\wb_cairo.props" />
+    <Import Project="..\..\vsprops\wb_gdal.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_python.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\vsprops\wb_sqlite.props" />
+    <Import Project="..\..\vsprops\wb_vsqlite++.props" />
+    <Import Project="..\..\vsprops\wb_cairo.props" />
+    <Import Project="..\..\vsprops\wb_gdal.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\wb_boost.props" />
+    <Import Project="..\..\vsprops\wb_python.props" />
+    <Import Project="..\..\vsprops\wb_cppconn.props" />
+    <Import Project="..\..\vsprops\wb_pcre.props" />
+    <Import Project="..\..\vsprops\wb_sqlite.props" />
+    <Import Project="..\..\vsprops\wb_vsqlite++.props" />
+    <Import Project="..\..\vsprops\wb_cairo.props" />
+    <Import Project="..\..\vsprops\wb_gdal.props" />
+    <Import Project="..\..\vsprops\wb_libxml.props" />
+    <Import Project="..\..\vsprops\wb_glib.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -77,14 +107,14 @@
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>grtsqlparser;.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>grtsqlparser;.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4345;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27_d.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;OpenGL32.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\libxml\libxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -101,13 +131,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>grtsqlparser;.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>grtsqlparser;.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4345;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -121,13 +151,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>grtsqlparser;.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;$(SolutionDir)\..\mysql-win-res\include\;$(SolutionDir)\..\mysql-win-res\include\libxml;$(SolutionDir)\..\mysql-win-res\include\glib;$(SolutionDir)\..\mysql-win-res\include\pcre;$(SolutionDir)\..\mysql-win-res\include\vsqlite++;$(SolutionDir)\..\mysql-win-res\include\cppconn;$(SolutionDir)\..\mysql-win-res\include\Python;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>grtsqlparser;.;..\..\modules;..\..\generated;..\..\library;..\..\library\mysql.canvas\src;..\..\library\forms;..\..\library\base;..\..\library\cdbc\src;..\..\library\grt\src;..\..\ext\scintilla\include;..\..\library\parsers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4345;4503;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/Zm120 /w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\python\$(Configuration)\python27.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\glib\glib-2.0.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\mysqlcppconn\$(Configuration)\mysqlcppconn.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\pcre\$(Configuration)\pcre.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\sqlite\$(Configuration)\sqlite3.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\vsqlite++\$(Configuration)\vsqlite++.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\cairo\libcairo.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\ctemplate\$(Configuration)\libctemplate.lib;$(SolutionDir)\..\mysql-win-res\lib\$(PlatformTarget)\gdal\$(Configuration)\gdal.lib;OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

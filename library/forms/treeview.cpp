@@ -176,7 +176,7 @@ int TreeView::add_column(TreeColumnType type, const std::string &name, int initi
   if (_end_column_called)
     throw std::logic_error("Add column called, after end_columns has been called");
   _column_types.push_back(type);
-#if defined(_WIN32)
+#if defined(_MSC_VER)
   return _treeview_impl->add_column(this, type, name, initial_width, editable);
 #else
   return _treeview_impl->add_column(this, type, name, initial_width, editable, attributed);

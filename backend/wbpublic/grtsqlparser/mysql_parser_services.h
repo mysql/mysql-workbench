@@ -37,6 +37,13 @@ namespace parsers {
   class MySQLParser;
   class SymbolTable;
 
+  // Describes a single statement out of a list in a string.
+  struct WBPUBLICBACKEND_PUBLIC_FUNC StatementRange {
+    size_t line;   // The line number of the statement.
+    size_t start;  // The byte start offset of the statement.
+    size_t length; // The length of the statements in bytes.
+  };
+
   struct WBPUBLICBACKEND_PUBLIC_FUNC MySQLParserContext {
     typedef std::shared_ptr<MySQLParserContext> Ref;
 
@@ -101,9 +108,10 @@ namespace parsers {
     virtual size_t renameSchemaReferences(MySQLParserContext::Ref context, db_mysql_CatalogRef catalog,
                                           const std::string old_name, const std::string new_name) = 0;
 
-    virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
-                                            std::vector<std::pair<size_t, size_t>> &ranges,
-                                            const std::string &line_break = "\n") = 0;
+    virtual size_t determineStatementRanges(const char *sql, size_t length,
+                                            const std::string &initialDelimiter,
+                                            std::vector<StatementRange> &ranges,
+                                            const std::string &lineBreak = "\n") = 0;
 
     virtual grt::DictRef parseStatement(MySQLParserContext::Ref context, const std::string &sql) = 0;
 

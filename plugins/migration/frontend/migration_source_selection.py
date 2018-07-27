@@ -22,6 +22,7 @@
 import grt
 import mforms
 import migration
+import re
 
 from grt import DBLoginError
 from workbench.ui import WizardPage, WizardProgressPage
@@ -42,14 +43,15 @@ def ping_host(hostname):
     except:
         return False
 
-def request_password(connection, forget_old = False):
+def request_password(connection, username = '', storage_string = '', forget_old = False):
     # Get the password:
     for param in connection.driver.parameters:
         if param.paramType in ('keychain', 'password'):
             if param.paramType == 'keychain':
-                connection_params = get_connection_parameters(connection, do_not_transform=True)
-                storage_key_format = param.paramTypeDetails['storageKeyFormat']
-                username, storage_string = replace_string_parameters(storage_key_format, connection_params).split('::', 1)
+                if not username or not storage_string:
+                    connection_params = get_connection_parameters(connection, do_not_transform=True)
+                    storage_key_format = param.paramTypeDetails['storageKeyFormat']
+                    username, storage_string = replace_string_parameters(storage_key_format, connection_params).split('::', 1)
                 accepted, passwd = mforms.Utilities.find_or_ask_for_password('Enter password for user ' + username, storage_string, username, forget_old)
                 if accepted:
                     return passwd
@@ -250,7 +252,9 @@ class SourceWizardPage(WizardPage):
                         return
 
                 attempt += 1
-                source.password = request_password(source.connection, force_password)
+                username = source.connection.parameterValues.userName
+                storage_string = source.connection.hostIdentifier
+                source.password = request_password(source.connection, username, storage_string, force_password)
                 
                 # Avoid asking the password a second time when the user cancels the password request
                 if source.password == None:
@@ -447,7 +451,9 @@ class FetchProgressView(WizardProgressPage):
                         #if mforms.Utilities.show_error("Connect to Source RDBMS", str(e), "Retry", "Cancel", "") != mforms.ResultOk:
                         raise e
                 attempt += 1
-                self.main.plan.migrationSource.password = request_password(self.main.plan.migrationSource.connection, force_password)
+                username = self.main.plan.migrationSource.connection.parameterValues.userName
+                storage_string = self.main.plan.migrationSource.connection.hostIdentifier
+                self.main.plan.migrationSource.password = request_password(self.main.plan.migrationSource.connection, username, storage_string, force_password)
 
     def go_back(self):
         self.reset(True)
@@ -484,4 +490,6 @@ class FetchProgressView(WizardProgressPage):
                     else:
                         raise e
                 attempt += 1
-                self.main.plan.migrationTarget.password = request_password(self.main.plan.migrationTarget.connection)
+                username = self.main.plan.migrationTarget.connection.parameterValues.userName
+                storage_string = self.main.plan.migrationTarget.connection.hostIdentifier
+                self.main.plan.migrationTarget.password = request_password(self.main.plan.migrationTarget.connection, username, storage_string)

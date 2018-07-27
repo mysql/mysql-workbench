@@ -415,7 +415,7 @@ def getOS(connection):
                 return 'linux'
             elif 'win' in compile_os:
                 return 'windows'
-            elif 'osx' in compile_os:
+            elif any(os in compile_os for os in ['osx', 'macos']):
                 return 'darwin'
 
     return None

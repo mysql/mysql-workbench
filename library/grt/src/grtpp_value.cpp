@@ -30,20 +30,6 @@
 
 #include <glib.h>
 
-#ifdef GRT_LEAK_DETECTOR_ENABLED
-#include <iostream>
-#endif
-
-#ifdef GRT_LEAK_DETECTOR_RECORD_CALL_STACK
-#ifdef _WIN32
-#include "stacktrace/win_stack_trace.h"
-#else
-std::string get_call_stack() {
-  return "No call stack recording impemented for current platform";
-}
-#endif
-#endif
-
 using namespace grt;
 using namespace grt::internal;
 using namespace base;
@@ -663,134 +649,19 @@ void OwnedDict::reset_entries() {
   }
   Dict::reset_entries();
 }
-//--------------------------------------------------------------------------------------------------
-#ifdef GRT_LEAK_DETECTOR_ENABLED
-class MYSQLGRT_PUBLIC ObjectLeakDetector {
-protected:
-  struct ObjectData {
-    std::string ClassName;
-    std::string Name;
-    int refcount;
-    std::string callstack;
-  };
-
-  bool enabled;
-  std::map<const Object*, ObjectData> obj_map;
-
-public:
-  ObjectLeakDetector() : enabled(false){};
-  ~ObjectLeakDetector();
-  static ObjectLeakDetector* get_detector();
-  void register_obj(const Object* obj) {
-    if (!enabled)
-      return;
-    ObjectData data;
-    data.ClassName = obj->class_name();
-// Will need to update that later
-// data.Name = obj->get_string_member("name");
-// Doesn't make sense here object is just created
-// data.refcount
-#ifdef GRT_LEAK_DETECTOR_RECORD_CALL_STACK
-    data.callstack = get_call_stack();
-#endif
-    obj_map[obj] = data;
-  };
-  void unregister_obj(const Object* obj) {
-    obj_map.erase(obj);
-  };
-
-  void print_leaks() const;
-  void update_data();
-
-  void reset() {
-    obj_map.clear();
-  };
-
-  void enable() {
-    enabled = true;
-  };
-  void disable() {
-    enabled = false;
-  };
-};
-
-static ObjectLeakDetector leak_detector;
-
-ObjectLeakDetector* ObjectLeakDetector::get_detector() {
-  return &leak_detector;
-}
-
-void ObjectLeakDetector::update_data() {
-  size_t objcounter = 0;
-  for (std::map<const Object *, ObjectData>::iterator It = obj_map.begin(); It != obj_map.end(); ++It, ++objcounter) {
-    It->second.Name = It->first->get_string_member("name");
-    It->second.refcount = It->first->refcount();
-  }
-  std::cout << "Total " << objcounter << " objects leaked" << std::endl;
-};
-
-void ObjectLeakDetector::print_leaks() const {
-  size_t objcounter = 0;
-  for (std::map<const Object *, ObjectData>::const_iterator It = obj_map.begin(); It != obj_map.end();
-       ++It, ++objcounter) {
-    std::cout << It->second.ClassName << ":" << It->second.Name << " Refcount is " << It->second.refcount << std::endl;
-#ifdef GRT_LEAK_DETECTOR_RECORD_CALL_STACK
-    std::cout << "Call Stack is :" << std::endl;
-    std::cout << It->second.callstack << std::endl;
-#endif
-  }
-  std::cout << "Total " << objcounter << " objects leaked" << std::endl;
-};
-
-ObjectLeakDetector::~ObjectLeakDetector() {
-  get_detector()->print_leaks();
-};
-
-namespace grt {
-  namespace LeakDetector {
-    void print_leaks() {
-      ObjectLeakDetector::get_detector()->print_leaks();
-    };
-
-    void enable() {
-      ObjectLeakDetector::get_detector()->enable();
-    };
-
-    void disable() {
-      ObjectLeakDetector::get_detector()->disable();
-    };
-
-    void reset() {
-      ObjectLeakDetector::get_detector()->reset();
-    };
-
-    void update_objects_data() {
-      ObjectLeakDetector::get_detector()->update_data();
-    };
-  };
-}
-#endif
 
 //--------------------------------------------------------------------------------------------------
 
-Object::Object(MetaClass* metaclass)
-  : _metaclass(metaclass) //, _valid_flag(true)
-{
+Object::Object(MetaClass* metaclass) : _metaclass(metaclass) {
   if (!_metaclass)
     throw std::runtime_error("GRT object allocated without a metaclass (make sure metaclass data was loaded)");
 
   _id = get_guid();
   _is_global = 0;
-#ifdef GRT_LEAK_DETECTOR_ENABLED
-  ObjectLeakDetector::get_detector()->register_obj(this);
-#endif
 }
 
-#ifdef GRT_LEAK_DETECTOR_ENABLED
 Object::~Object() {
-  ObjectLeakDetector::get_detector()->unregister_obj(this);
 }
-#endif
 
 const std::string& Object::id() const {
   return _id;

@@ -38,45 +38,6 @@
 #include "module_db_mysql.h"
 #include "module_db_mysql_shared_code.h"
 
-void DiffSQLGeneratorBE::remember(const GrtNamedObjectRef &obj, const std::string &sql) {
-  if (target_list.is_valid()) {
-    target_list.insert(grt::StringRef(sql));
-    if (target_object_list.is_valid())
-      target_object_list.insert(obj);
-  } else {
-    target_map.set(_use_oid_as_dict_key ? obj.id() : get_full_object_name_for_key(obj, _case_sensitive),
-                   grt::StringRef(sql));
-  }
-}
-
-void DiffSQLGeneratorBE::remember_alter(const GrtNamedObjectRef &obj, const std::string &sql) {
-  if (target_list.is_valid()) {
-    target_list.insert(grt::StringRef(sql));
-    if (target_object_list.is_valid())
-      target_object_list.insert(obj);
-    return;
-  }
-
-  std::string key = _use_oid_as_dict_key ? obj.id() : get_full_object_name_for_key(obj, _case_sensitive);
-
-  if (target_map.has_key(key)) {
-    grt::ValueRef value = target_map.get(key);
-    if (grt::StringRef::can_wrap(value)) {
-      grt::StringListRef list_value(grt::Initialized);
-      list_value.insert(grt::StringRef::cast_from(value));
-      list_value.insert(grt::StringRef(sql));
-      target_map.set(key, list_value);
-    } else if (grt::StringListRef::can_wrap(value)) {
-      grt::StringListRef::cast_from(value).insert(grt::StringRef(sql));
-    } else {
-      // a bug
-      assert(0);
-    }
-  } else {
-    target_map.set(key, grt::StringRef(sql));
-  }
-}
-
 void DiffSQLGeneratorBE::generate_set_partitioning(db_mysql_TableRef table, const grt::DiffChange *table_diffchange) {
   bool part_type_set = false, part_expr_set = false, subpart_type_set = false, subpart_expr_set = false,
        part_count_set = false, part_defs_set = false;
@@ -513,16 +474,16 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
   // build a map of column renames
   // process CHANGE COLUMN (handles content change only)
   for (grt::ChangeSet::const_iterator e = columns_cs->end(), it = columns_cs->begin(); it != e; it++) {
-    const std::shared_ptr<grt::DiffChange> column_change = *it;
+    const grt::DiffChange* column_change = &(*it->get());
 
     if (column_change->get_change_type() == grt::ListItemModified) {
       const grt::ListItemModifiedChange *modified_change =
-        static_cast<const grt::ListItemModifiedChange *>(column_change.get());
+        static_cast<const grt::ListItemModifiedChange *>(column_change);
       db_mysql_ColumnRef column = db_mysql_ColumnRef::cast_from(grt::ValueRef(modified_change->get_old_value()));
       if (strcmp(column->name().c_str(), column->oldName().c_str()) != 0)
         column_rename_map[std::string(column->oldName().c_str())] = std::string(column->name().c_str());
     } else if (column_change->get_change_type() == grt::ListItemOrderChanged) {
-      const grt::ListItemOrderChange *order_change = static_cast<const grt::ListItemOrderChange *>(column_change.get());
+      const grt::ListItemOrderChange *order_change = static_cast<const grt::ListItemOrderChange *>(column_change);
       db_mysql_ColumnRef org_col = db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_old_value()));
       db_mysql_ColumnRef mod_col = db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_new_value()));
       if (strcmp(org_col->name().c_str(), mod_col->oldName().c_str()) != 0)
@@ -532,25 +493,36 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
 
   // process DROP COLUMN
   for (grt::ChangeSet::const_iterator e = columns_cs->end(), it = columns_cs->begin(); it != e; it++) {
-    const std::shared_ptr<grt::DiffChange> column_change = *it;
+    const grt::DiffChange* column_change = &(*it->get());
     if (column_change->get_change_type() != grt::ListItemRemoved)
       continue;
 
     const grt::ListItemRemovedChange *removed_change =
-      static_cast<const grt::ListItemRemovedChange *>(column_change.get());
+      static_cast<const grt::ListItemRemovedChange *>(column_change);
     callback->alter_table_drop_column(table, db_mysql_ColumnRef::cast_from(removed_change->get_value()));
   }
-
-  std::set<grt::ValueRef> processed_items;
+    
+  // process ADD COLUMN
+  for (grt::ChangeSet::const_iterator e = columns_cs->end(), it = columns_cs->begin(); it != e; it++) {
+    const grt::DiffChange* column_change = &(*it->get());
+    if (column_change->get_change_type() != grt::ListItemAdded)
+      continue;
+    
+    const grt::ListItemAddedChange *added_change = static_cast<const grt::ListItemAddedChange *>(column_change);
+    
+    callback->alter_table_add_column(table, column_rename_map,
+                                     db_mysql_ColumnRef::cast_from(grt::ValueRef(added_change->get_value())),
+                                     db_mysql_ColumnRef::cast_from(added_change->get_prev_item()));
+  }
 
   // process CHANGE COLUMN (handles both position and content change)
   for (grt::ChangeSet::const_iterator e = columns_cs->end(), it = columns_cs->begin(); it != e; it++) {
-    const std::shared_ptr<grt::DiffChange> column_change = *it;
+    const grt::DiffChange* column_change = &(*it->get());
 
     if (column_change->get_change_type() != grt::ListItemOrderChanged)
       continue;
 
-    const grt::ListItemOrderChange *order_change = static_cast<const grt::ListItemOrderChange *>(column_change.get());
+    const grt::ListItemOrderChange *order_change = static_cast<const grt::ListItemOrderChange *>(column_change);
     // index_pair.second is the new position
     callback->alter_table_change_column(
       table, db_mysql_ColumnRef::cast_from(grt::ValueRef(order_change->get_old_value())),
@@ -561,30 +533,17 @@ void DiffSQLGeneratorBE::generate_alter(grt::ListRef<db_mysql_Column> columns, c
 
   // process CHANGE COLUMN (handles content change only)
   for (grt::ChangeSet::const_iterator e = columns_cs->end(), it = columns_cs->begin(); it != e; it++) {
-    const std::shared_ptr<grt::DiffChange> column_change = *it;
+    const grt::DiffChange* column_change = &(*it->get());
 
     if (column_change->get_change_type() != grt::ListItemModified)
       continue;
 
     const grt::ListItemModifiedChange *modified_change =
-      static_cast<const grt::ListItemModifiedChange *>(column_change.get());
+      static_cast<const grt::ListItemModifiedChange *>(column_change);
 
     callback->alter_table_change_column(table,
                                         db_mysql_ColumnRef::cast_from(grt::ValueRef(modified_change->get_new_value())),
                                         db_mysql_ColumnRef(), db_mysql_ColumnRef(), true, column_rename_map);
-  }
-
-  // process ADD COLUMN
-  for (grt::ChangeSet::const_iterator e = columns_cs->end(), it = columns_cs->begin(); it != e; it++) {
-    const std::shared_ptr<grt::DiffChange> column_change = *it;
-    if (column_change->get_change_type() != grt::ListItemAdded)
-      continue;
-
-    const grt::ListItemAddedChange *added_change = static_cast<const grt::ListItemAddedChange *>(column_change.get());
-
-    callback->alter_table_add_column(table, column_rename_map,
-                                     db_mysql_ColumnRef::cast_from(grt::ValueRef(added_change->get_value())),
-                                     db_mysql_ColumnRef::cast_from(added_change->get_prev_item()));
   }
 
   callback->alter_table_columns_end(table);
@@ -1427,7 +1386,7 @@ DiffSQLGeneratorBE::DiffSQLGeneratorBE(grt::DictRef options, grt::DictRef dbtrai
   _gen_create_index = (options.get_int("GenerateCreateIndex", _gen_create_index) != 0);
   _use_filtered_lists = options.get_int("UseFilteredLists", _use_filtered_lists) != 0;
   _separate_foreign_keys = options.get_int("SeparateForeignKeys", _separate_foreign_keys) != 0;
-  cb->set_short_names(options.get_int("UseShortNames", 0) != 0);
+  cb->setOmitSchemas(options.get_int("OmitSchemas", 0) != 0);
   cb->set_gen_use(options.get_int("GenerateUse", 0) != 0);
   fill_set_from_list(grt::StringListRef::cast_from(options.get("UserFilterList", empty_list)), _filtered_users);
   fill_set_from_list(grt::StringListRef::cast_from(options.get("SchemaFilterList", empty_list)), _filtered_schemata);

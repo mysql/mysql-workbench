@@ -116,35 +116,35 @@ TEST_FUNCTION(6) {
   flag = false;
   try {
     obj.set_member("title", IntegerRef(1234));
-  } catch (type_error exc) {
+  } catch (type_error &exc ) {
     flag = true;
   };
   ensure("set bad type1", flag == true);
   flag = false;
   try {
     obj.set_member("title", DoubleRef(1234.123));
-  } catch (type_error exc) {
+  } catch (type_error &exc) {
     flag = true;
   };
   ensure("set bad type2", flag == true);
   flag = false;
   try {
     obj.set_member("price", StringRef("hello"));
-  } catch (type_error exc) {
+  } catch (type_error &exc) {
     flag = true;
   };
   ensure("set bad type3", flag == true);
   flag = false;
   try {
     obj.set_member("authors", StringRef("joe"));
-  } catch (read_only_item exc) {
+  } catch (read_only_item &exc) {
     flag = true;
   };
   ensure("set read-only", flag == true);
   flag = false;
   try {
     obj.set_member("pages", DoubleRef(1234.456));
-  } catch (type_error exc) {
+  } catch (type_error &exc) {
     flag = true;
   };
   ensure("set bad type6", flag == true);

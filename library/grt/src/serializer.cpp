@@ -223,7 +223,6 @@ xmlNodePtr internal::Serializer::serialize_value(const ValueRef &value, xmlNodeP
       DictRef dict(DictRef::cast_from(value));
 
       if (seen(value)) {
-        g_warning("found duplicate dict value");
         g_snprintf(buffer, sizeof(buffer), "%p", value.valueptr());
         node = new_node(parent, "link", buffer);
         set_prop(node, "type", "dict");

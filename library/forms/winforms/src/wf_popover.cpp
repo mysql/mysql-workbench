@@ -448,7 +448,7 @@ PopoverWrapper::PopoverWrapper(mforms::Popover *backend) : ObjectWrapper(backend
 
 //--------------------------------------------------------------------------------------------------
 
-bool PopoverWrapper::create(mforms::Popover *backend, mforms::PopoverStyle style) {
+bool PopoverWrapper::create(mforms::Popover *backend, mforms::View *owner, mforms::PopoverStyle style) {
   PopoverWrapper *wrapper = new PopoverWrapper(backend);
   PopoverControl ^ control = PopoverWrapper::Create<PopoverControl>(backend, wrapper);
   control->Style = style;

@@ -21,12 +21,11 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WB_PRINTING_H_
-#define _WB_PRINTING_H_
+#pragma once
 
 #include "grts/structs.model.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 
 #ifdef WBPLUGINPRINTINGBE_EXPORTS
@@ -35,14 +34,14 @@
 #define WBPRINTINGBE_PUBLIC_FUNC __declspec(dllimport)
 #endif
 
-#else // !_WIN32
+#else // !_MSC_VER
 
 #define WBPRINTINGBE_PUBLIC_FUNC
 #endif
 
 namespace wbprint {
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
   int WBPRINTINGBE_PUBLIC_FUNC printPageHDC(model_DiagramRef view, int page, HDC hdc, int width, int height);
 
@@ -53,5 +52,3 @@ namespace wbprint {
 
   app_PageSettingsRef WBPRINTINGBE_PUBLIC_FUNC getPageSettings(model_DiagramRef diagram);
 };
-
-#endif

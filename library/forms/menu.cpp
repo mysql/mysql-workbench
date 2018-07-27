@@ -109,7 +109,7 @@ void Menu::set_handler(const std::function<void(const std::string &)> &action_ha
 }
 
 void Menu::popup_at(Object *control, int x, int y) {
-#ifndef _WIN32
+#ifndef _MSC_VER
   _on_will_show(); // Popping up the menu will trigger the on_show event on Win.
 #endif
 
@@ -117,7 +117,7 @@ void Menu::popup_at(Object *control, int x, int y) {
 }
 
 void Menu::popup() {
-#ifndef _WIN32
+#ifndef _MSC_VER
   _on_will_show(); // Popping up the menu will trigger the on_show event on Win.
 #endif
 

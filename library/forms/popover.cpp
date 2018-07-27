@@ -27,9 +27,9 @@ using namespace mforms;
 
 //--------------------------------------------------------------------------------------------------
 
-Popover::Popover(PopoverStyle style) {
+Popover::Popover(mforms::View *owner, PopoverStyle style) {
   _popover_impl = &ControlFactory::get_instance()->_popover_impl;
-  _popover_impl->create(this, style);
+  _popover_impl->create(this, owner, style);
 }
 
 //--------------------------------------------------------------------------------------------------

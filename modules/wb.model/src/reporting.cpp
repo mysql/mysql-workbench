@@ -41,7 +41,7 @@
 #include "SymbolTable.h"
 
 // Support for syntax highlighting in SQL output.
-#ifdef _WIN32
+#ifdef _MSC_VER
   #include "win32/ScintillaWR.h"
   #define SCI_WRAPPER_NS ScintillaWrapper::
 #else
@@ -652,13 +652,13 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
 
     // There are no predefined constants for the indices below, but the occupancy of the list array
     // can be seen in LexMySQL.cxx.
-    parsers::SymbolTable *functions = parsers::functionSymbolsForVersion(507);
+    parsers::SymbolTable *functions = parsers::functionSymbolsForVersion(800);
     std::set<std::string> functionNames = functions->getAllSymbolNames();
     std::string functionList;
     for (auto &name : functionNames)
       functionList += name + " ";
 
-    ((SCI_WRAPPER_NS WordList *)keywordLists[0])->Set(keywords["Major Keywords"].c_str());
+    ((SCI_WRAPPER_NS WordList *)keywordLists[1])->Set(keywords["Keywords"].c_str());
     ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(functionList.c_str());
     ((SCI_WRAPPER_NS WordList *)keywordLists[5])->Set(keywords["Procedure keywords"].c_str());
     ((SCI_WRAPPER_NS WordList *)keywordLists[6])->Set(keywords["User Keywords 1"].c_str());

@@ -464,7 +464,7 @@ int myx_process_sql_statements_from_file(const char *filename, CHARSET_INFO *cs,
 {
   std::ifstream is;
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
   std::ios_base::open_mode om= std::ios::in | std::ios::binary;
   {
     wchar_t filename_[MAX_PATH+1]= {0};

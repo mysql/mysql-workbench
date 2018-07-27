@@ -114,7 +114,7 @@ bool model_Connection::ImplData::is_realizable() {
     try {
       if (is_canvas_view_valid() && get_start_canvas_item() && get_end_canvas_item())
         return true;
-    } catch (std::exception) {
+    } catch (std::exception &) {
       return false;
     }
   }

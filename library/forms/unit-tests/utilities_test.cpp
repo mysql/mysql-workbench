@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-source-encoding"
@@ -56,7 +56,7 @@ TEST_FUNCTION(1) {
 }
 
 END_TESTS
-#ifndef _WIN32
+#ifndef _MSC_VER
 #if __GNUC__ < 5
 #pragma GCC diagnostic pop
 #endif

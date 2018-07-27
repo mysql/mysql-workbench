@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <stdexcept>
 #endif
 
@@ -659,9 +659,6 @@ void CanvasItem::repaint_gl(const Rect &clipArea) {
     regenerate_cache(texture_size);
 
     if (!_content_cache) {
-#ifndef WIN32
-      g_warning("failed to paint canvas item into a memory buffer");
-#endif
       return;
     }
 

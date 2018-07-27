@@ -26,6 +26,9 @@
 #include "model_layer_impl.h"
 #include "model_model_impl.h"
 #include "model_diagram_impl.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_CANVAS_BE)
 
 using namespace base;
 
@@ -54,18 +57,17 @@ std::string workbench_model_ImageFigure::ImplData::set_filename(const std::strin
 
     if (_figure) {
       cairo_surface_t *img = self()->owner()->owner()->get_data()->get_delegate()->fetch_image(internal_name);
+      if (img) {
+        _figure->set_image(img);
 
-      if (!img)
         g_warning("Could not load image '%s' for '%s'", fn.c_str(), self()->name().c_str());
+        cairo_surface_destroy(img);
 
-      _figure->set_image(img);
+        shrink_if_needed();
 
-      cairo_surface_destroy(img);
-
-      shrink_if_needed();
-
-      self()->_width = _figure->get_size().width;
-      self()->_height = _figure->get_size().height;
+        self()->_width = _figure->get_size().width;
+        self()->_height = _figure->get_size().height;
+      }
     }
 
     self()->_filename = internal_name;
@@ -173,11 +175,11 @@ bool workbench_model_ImageFigure::ImplData::realize() {
       path = *self()->_filename;
     if (!path.empty()) {
       cairo_surface_t *img = self()->owner()->owner()->get_data()->get_delegate()->fetch_image(path);
-      if (!img)
-        g_warning("Could not load image '%s' for '%s'", path.c_str(), self()->name().c_str());
-
-      _figure->set_image(img);
-      cairo_surface_destroy(img);
+        logWarning("Could not load image '%s' for '%s'\n", path.c_str(), self()->name().c_str());
+      if (!img) {
+        _figure->set_image(img);
+        cairo_surface_destroy(img);
+      }
     }
 
     if (shrink_if_needed()) {

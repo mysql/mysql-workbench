@@ -84,7 +84,7 @@ UserDefinedTypeEditor::UserDefinedTypeEditor(const workbench_physical_ModelRef &
   _argsl.set_text(_("Arguments:"));
   _argsl.set_text_align(mforms::MiddleRight);
   _table.add(&_argsl, 0, 1, 2, 3, mforms::HFillFlag);
-  _table.add(&_args_box, 1, 2, 2, 3, mforms::HFillFlag | mforms::HExpandFlag);
+  _table.add(&_args_box, 1, 2, 2, 3, mforms::HFillFlag | mforms::VFillFlag | mforms::HExpandFlag);
   _args_box.set_spacing(4);
   _args_box.add(&_args, true, true);
   _args_box.add(&_args_edit, false, true);

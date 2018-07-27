@@ -29,7 +29,7 @@
 
 DEFAULT_LOG_DOMAIN("spatial");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 static void __stdcall ogr_error_handler(CPLErr eErrClass, int err_no, const char *msg) {
   logError("gdal error: %d, %s\n", err_no, msg);
 }
@@ -481,7 +481,7 @@ spatial::Importer::Importer() : _geometry(NULL), _interrupt(false), _srid(0) {
 
 spatial::Importer::~Importer() {
   if (_geometry != NULL)
-    OGRFree(_geometry);
+    CPLFree(_geometry);
 }
 
 OGRGeometry *spatial::Importer::steal_data() {
@@ -533,7 +533,7 @@ std::string spatial::Importer::as_wkt() {
       logError("Error exporting data to WKT (%i)\n", err);
     } else {
       std::string tmp(data);
-      OGRFree(data);
+      CPLFree(data);
       return tmp;
     }
   }

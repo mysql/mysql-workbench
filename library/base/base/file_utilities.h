@@ -31,7 +31,7 @@
 namespace base {
   enum error_code { success = 0, file_not_found = -1, already_exists = -2, access_denied = -3, other_error = -1000 };
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4275) // non dll-interface class used as base dll-interface class.
 #endif
 
@@ -55,7 +55,7 @@ namespace base {
   };
 
   struct BASELIBRARY_PUBLIC_FUNC LockFile {
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4251) // DLL interface required for std::string member.
 #pragma warning(disable : 4290) // C++ exception specification ignored.
     HANDLE handle;

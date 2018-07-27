@@ -28,7 +28,7 @@ add_library(sqlide
 
 target_compile_options(sqlide PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(sqlide ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(sqlide mforms ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(sqlide gcov)

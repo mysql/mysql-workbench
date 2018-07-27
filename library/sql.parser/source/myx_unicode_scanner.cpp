@@ -16,7 +16,8 @@
 
 /* A lexical scanner on a temporary buffer with a yacc interface */
 
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
 #if defined(__APPLE__) || defined (_WIN32)
 #include <unordered_map>
 #else
@@ -111,7 +112,7 @@ namespace mysql_parser
 
 static inline SYMBOL *get_hash_symbol(const char *s, unsigned int len, bool function)
 {
-#if defined(__APPLE__) || defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(__APPLE__) || defined(_MSC_VER)
   typedef std::unordered_multimap<size_t, SYMBOL *> Hash_ind;
 #else
   typedef std::tr1::unordered_multimap<size_t, SYMBOL *> Hash_ind;
@@ -1535,4 +1536,4 @@ bool st_lex::need_correct_ident()
 }
 
 } // namespace mysql_parser
-
+#pragma GCC diagnostic pop

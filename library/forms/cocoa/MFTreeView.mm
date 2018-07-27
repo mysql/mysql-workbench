@@ -819,7 +819,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
          drawInRect:NSMakeRect(floorf(x), floorf(NSMinY(rowRect) + (NSHeight(rowRect) - size.height) / 2),
                                size.width, size.height)
          fromRect:NSZeroRect
-         operation:NSCompositeSourceOver
+         operation:NSCompositingOperationSourceOver
          fraction:mOverOverlay == i ? 1.0 : 0.4f
          respectFlipped: YES
          hints: nil];
@@ -884,7 +884,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
                               horizontalScrollerClass: [NSScroller class]
                                 verticalScrollerClass: [NSScroller class]
                                            borderType:NSBezelBorder
-                                          controlSize:NSRegularControlSize
+                                          controlSize:NSControlSizeRegular
                                         scrollerStyle:NSScrollerStyleOverlay];
 
     mOutline = [[TreeViewOutlineView alloc] initWithFrame:rect owner:mOwner];
@@ -988,7 +988,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
     case mforms::StringLTColumnType:
       break;
     case mforms::NumberWithUnitColumnType:
-      [column.dataCell setAlignment:NSRightTextAlignment];
+      [column.dataCell setAlignment: NSTextAlignmentRight];
       break;
     case mforms::IconColumnType: {
       MTextImageCell *cell = [[MTextImageCell alloc] init];
@@ -998,7 +998,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
     case mforms::FloatColumnType: {
       NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
       nf.numberStyle = (NSNumberFormatterStyle)kCFNumberFormatterDecimalStyle;
-      [column.dataCell setAlignment:NSRightTextAlignment];
+      [column.dataCell setAlignment: NSTextAlignmentRight];
       [column.dataCell setFormatter:nf];
       break;
     }
@@ -1006,7 +1006,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
     case mforms::LongIntegerColumnType: {
       NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
       nf.numberStyle = NSNumberFormatterNoStyle;
-      [column.dataCell setAlignment:NSRightTextAlignment];
+      [column.dataCell setAlignment: NSTextAlignmentRight];
       [column.dataCell setFormatter:nf];
       break;
     }
@@ -1074,7 +1074,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
 
     NSSortDescriptor *sd;
 
-    if ([tableColumn.dataCell alignment] == NSRightTextAlignment) {
+    if ([tableColumn.dataCell alignment] == NSTextAlignmentRight) {
       if ([tableColumn.dataCell formatter])
         sd = [NSSortDescriptor sortDescriptorWithKey:tableColumn.identifier
                                            ascending:ascending

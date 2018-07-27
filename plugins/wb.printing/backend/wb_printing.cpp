@@ -56,7 +56,7 @@ app_PageSettingsRef wbprint::getPageSettings(model_DiagramRef diagram) {
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 int wbprint::printPageHDC(model_DiagramRef view, int pagenum, HDC hdc, int width, int height) {
   mdc::CanvasViewExtras extras(view->get_data()->get_canvas_view());

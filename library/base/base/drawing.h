@@ -33,7 +33,7 @@
 
 #include <map>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define DEFAULT_FONT_FAMILY "Tahoma"
 #define DEFAULT_FONT_SIZE 11
 

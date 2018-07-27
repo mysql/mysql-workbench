@@ -122,11 +122,11 @@ namespace ssh {
   }
 
   void setSocketNonBlocking(int sock) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     u_long mode = 1;
     int result = ioctlsocket(sock, FIONBIO, &mode);
     if (result != NO_ERROR) {
-      close(sock);
+      wbCloseSocket(sock);
       throw SSHTunnelException("unable to set socket nonblock: "+ getError());
     }
 #else
@@ -161,7 +161,8 @@ namespace ssh {
 
 
   SSHConnectionConfig::SSHConnectionConfig() : localport(0), bufferSize(10240),
-      remoteSSHport(22), remoteport(3306), strictHostKeyCheck(true), compressionLevel(5), connectTimeout(10), readWriteTimeout(5), commandTimeout(1), commandRetryCount(3) {
+    remoteSSHport(22), remoteport(3306), strictHostKeyCheck(true), compressionLevel(5), connectTimeout(10),
+    readWriteTimeout(5), commandTimeout(1), commandRetryCount(3) {
 
   }
 
@@ -174,14 +175,19 @@ namespace ssh {
     logDebug2("SSH commandRetryCount: %lu\n", commandRetryCount);
     logDebug2("SSH optionsDir: %s\n", optionsDir.c_str());
     logDebug2("SSH known hosts file: %s\n", knownHostsFile.c_str());
+    logDebug2("SSH local host: %s\n", localhost.c_str());
+    logDebug2("SSH local port: %d\n", localport);
+    logDebug2("SSH remote host: %s\n", remotehost.c_str());
+    logDebug2("SSH remote port: %d\n", remoteport);
+    logDebug2("SSH remote ssh host: %s\n", remoteSSHhost.c_str());
+    logDebug2("SSH remote ssh port: %lu\n", remoteSSHport);
     logDebug2("SSH strict host key check: %s\n", strictHostKeyCheck ? "yes" : "no");
   }
 
   bool operator==(const SSHConnectionConfig &tun1, const SSHConnectionConfig &tun2) {
     return (tun1.localhost == tun2.localhost && tun1.remoteSSHhost == tun2.remoteSSHhost
         && tun1.remoteSSHport == tun2.remoteSSHport && tun1.remotehost == tun2.remotehost
-        && tun1.configFile == tun2.configFile && tun1.knownHostsFile == tun2.knownHostsFile
-        && tun1.connectTimeout == tun2.connectTimeout);
+        && tun1.remoteport == tun2.remoteport);
   }
 
   bool operator!=(const SSHConnectionConfig &tun1, const SSHConnectionConfig &tun2) {

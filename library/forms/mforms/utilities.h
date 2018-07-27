@@ -333,7 +333,7 @@ namespace mforms {
 
 #ifndef SWIG
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#ifdef _WIN32
+#ifdef _MSC_VER
   public:
     static void enter_modal_loop();
     static void leave_modal_loop();

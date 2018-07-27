@@ -234,6 +234,16 @@
                 <value type="string" key="name">koi8u</value>
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
             </value>
+            <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.gb18030">
+                <value type="list" content-type="string" key="collations">
+                    <value type="string">gb18030_bin</value>
+                    <value type="string">gb18030_chinese_ci</value>
+                </value>
+                <value type="string" key="defaultCollation">gb18030_bin</value>
+                <value type="string" key="description">Chinese National Standard</value>
+                <value type="string" key="name">gb18030</value>
+                <link type="object" key="owner">com.mysql.rdbms.mysql</link>
+            </value>
             <value type="object" struct-name="db.CharacterSet" id="com.mysql.rdbms.mysql.charset.gb2312">
                 <value type="list" content-type="string" key="collations">
                     <value type="string">gb2312_chinese_ci</value>

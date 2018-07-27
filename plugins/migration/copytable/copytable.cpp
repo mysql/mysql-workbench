@@ -506,7 +506,10 @@ CopyDataSource::CopyDataSource()
     _max_blob_chunk_size(64 * 1024),
     _max_parameter_size(0),
     _abort_on_oversized_blobs(false),
-    _get_field_lengths_from_target(false) {
+    _use_bulk_inserts(false),
+    _get_field_lengths_from_target(false),
+    _connection_timeout(0)
+{
 }
 
 void CopyDataSource::set_max_blob_chunk_size(size_t size) {
@@ -629,7 +632,7 @@ SQLSMALLINT ODBCCopyDataSource::odbc_type_to_c_type(SQLSMALLINT type, bool is_un
 
 ODBCCopyDataSource::ODBCCopyDataSource(SQLHENV env, const std::string &connstring, const std::string &password,
                                        bool force_utf8_input, const std::string &source_rdbms_type)
-  : _connstring(connstring), _stmt_ok(false), _source_rdbms_type(source_rdbms_type) {
+  : _connstring(connstring), _stmt(nullptr), _stmt_ok(false), _column_count(0), _source_rdbms_type(source_rdbms_type) {
   _blob_buffer = std::vector<char>(_max_blob_chunk_size);
 
   _force_utf8_input = force_utf8_input;
@@ -1730,7 +1733,7 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
       ftype = MYSQL_TYPE_STRING;
       break;
     case MYSQL_TYPE_GEOMETRY:
-      if (_source_rdbms_type == "Mysql")
+      if (base::tolower(_source_rdbms_type) == "mysql")
         ftype = MYSQL_TYPE_BLOB;
       else
         ftype = MYSQL_TYPE_GEOMETRY;
@@ -1816,7 +1819,7 @@ MySQLCopyDataTarget::MySQLCopyDataTarget(const std::string &hostname, int port, 
 
 #endif
 
-  if (!mysql_real_connect(&_mysql, hostname.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
+  if (!mysql_real_connect(&_mysql, host.c_str(), username.c_str(), password.c_str(), NULL, port, socket.c_str(),
                           CLIENT_COMPRESS)) {
     logError("Failed opening connection to MySQL: %s\n", mysql_error(&_mysql));
     throw ConnectionError("mysql_real_connect", &_mysql);

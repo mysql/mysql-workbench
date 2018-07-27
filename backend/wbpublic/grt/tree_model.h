@@ -171,9 +171,9 @@ namespace bec {
 
   //------------------------------------------------------------------------------
   inline NodeId::uid NodeIds::map_node_id(const std::string &path_from_nodeid) {
-    const Map::const_iterator it = _map.find(path_from_nodeid);
+    Map::const_iterator it = _map.find(path_from_nodeid);
     if (_map.end() != it)
-      return (const NodeId::uid) & (*it);
+      return (NodeId::uid) & (*it);
     else {
       // TODO: make a faster way. Probably we can use item from insert
       _map.insert(path_from_nodeid);

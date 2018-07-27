@@ -79,8 +79,7 @@ bool PluginManagerImpl::check_plugin_validity(const app_PluginRef &plugin, grt::
   } else if (plugin->pluginType() == STANDALONE_GUI_PLUGIN_TYPE || plugin->pluginType() == NORMAL_PLUGIN_TYPE) {
     // check if the module matches and the function exists
     if (plugin->moduleName() != module->name()) {
-      g_warning(
-        "Plugin '%s' from module %s declares moduleName() as '%s', which doesn't match the module it belongs to",
+      logWarning("Plugin '%s' from module %s declares moduleName() as '%s', which doesn't match the module it belongs to.\n",
         plugin->name().c_str(), module->name().c_str(), plugin->moduleName().c_str());
       return false;
     }
@@ -88,8 +87,9 @@ bool PluginManagerImpl::check_plugin_validity(const app_PluginRef &plugin, grt::
     {
       std::string f = plugin->moduleFunctionName();
       if (!module->has_function(f)) {
-        g_warning("Plugin '%s' from module %s has invalid moduleFunctionName '%s'", plugin->name().c_str(),
-                  module->name().c_str(), f.c_str());
+        logWarning("Plugin '%s' from module %s has invalid moduleFunctionName '%s'.\n",
+          plugin->name().c_str(),
+          module->name().c_str(), f.c_str());
         return false;
       }
     }
@@ -99,8 +99,9 @@ bool PluginManagerImpl::check_plugin_validity(const app_PluginRef &plugin, grt::
   } else if (0 == (*plugin->pluginType()).find(CUSTOM_PLUGIN_TYPE)) {
     return true;
   } else {
-    g_warning("Plugin '%s' from module %s has invalid type '%s'", plugin->name().c_str(), module->name().c_str(),
-              plugin->pluginType().c_str());
+    logWarning("Plugin '%s' from module %s has invalid type '%s'.\n",
+      plugin->name().c_str(), module->name().c_str(),
+      plugin->pluginType().c_str());
   }
   return false;
 }
@@ -272,9 +273,6 @@ void PluginManagerImpl::add_plugin_to_group(const app_PluginRef &plugin, const s
 
   if (group.is_valid())
     group->plugins().insert(plugin);
-  // TODO: warning for now disabled, fix group loading
-  // else
-  //  g_warning("Plugin %s could not be added to unknown group %s", plugin->name().c_str(), group_name.c_str());
 }
 
 /**
@@ -1010,8 +1008,8 @@ grt::BaseListRef ArgumentPool::build_argument_list(const app_PluginRef &plugin) 
     std::string searched_key;
     grt::ValueRef argument = find_match(pdef, searched_key);
     if (!argument.is_valid()) {
-      logWarning("Cannot satisfy plugin input for %s: %s", plugin->name().c_str(), searched_key.c_str());
-      logWarning("Missing input: %s", pdef.debugDescription().c_str());
+      logWarning("Cannot satisfy plugin input for %s: %s\n", plugin->name().c_str(), searched_key.c_str());
+      logWarning("Missing input: %s\n", pdef.debugDescription().c_str());
 
       throw grt::grt_runtime_error("Cannot execute " + *plugin->name(), "Plugin requires unavailable argument value.");
     }

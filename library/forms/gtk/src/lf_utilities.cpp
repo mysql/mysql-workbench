@@ -22,17 +22,9 @@
  */
 
 //#include "config.h"
-#if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
-extern "C" {
-// gnome-keyring has been deprecated in favor of libsecret
-// More informations can be found here  https://mail.gnome.org/archives/commits-list/2013-October/msg08876.html
-// Below defines will turn off deprecations and allow build with never Gnome until we will not move to libsecret.
-#define GNOME_KEYRING_DEPRECATED
-#define GNOME_KEYRING_DEPRECATED_FOR(x)
-#include <gnome-keyring.h>
-};
-#include <string.h>
-#define USE_KEYRING 1
+#if defined(HAVE_LIBSECRET_KEYRING)
+#include <libsecret/secret.h>
+#include <giomm.h>
 #endif
 
 #include <glib/gstdio.h>
@@ -119,8 +111,10 @@ namespace mforms {
 
       //  Check if a parent was found and only set transcient if it was. Passing
       //  a NULL parent would remove the transcient flag.
-      if (get_current_window() != NULL)
+      if (parent_window != NULL)
         gtk_window_set_transient_for(((Gtk::Window *)&dialog)->gobj(), parent_window);
+      else // If there's no parent window, then use main window as a parent.
+        gtk_window_set_transient_for(((Gtk::Window *)&dialog)->gobj(), get_mainwindow()->gobj());
     }
     //--------------------------------------------------------------------------------
 
@@ -308,217 +302,103 @@ namespace mforms {
       }
     }
 
-//------------------------------------------------------------------------------
-// GNOME KEYRING passwords section
-#ifdef HAVE_GNOME_KEYRING
-    //------------------------------------------------------------------------------
-    void UtilitiesImpl::store_password(const std::string &service, const std::string &account,
-                                       const std::string &password) {
-      if (getenv("WB_NO_GNOME_KEYRING")) {
-        return;
-      }
+//-----------------------------------------------------------------------------------------------------------------------
 
-      GnomeKeyringPasswordSchema wb_pwd_schema;
-      memset(&wb_pwd_schema, 0, sizeof(wb_pwd_schema));
+#ifdef HAVE_LIBSECRET_KEYRING
 
-      wb_pwd_schema.item_type = GNOME_KEYRING_ITEM_GENERIC_SECRET;
-      wb_pwd_schema.attributes[0].name = "service";
-      wb_pwd_schema.attributes[0].type = GNOME_KEYRING_ATTRIBUTE_TYPE_STRING;
-      wb_pwd_schema.attributes[1].name = "account";
-      wb_pwd_schema.attributes[1].type = GNOME_KEYRING_ATTRIBUTE_TYPE_STRING;
-      // attributes list must be terminated by a pair {0,0}, since we zeroed the whole struct we're safe here
-
-      GnomeKeyringResult res = gnome_keyring_store_password_sync(&wb_pwd_schema,
-                                                                 NULL, // using default keyring
-                                                                 account.c_str(), password.c_str(), "service",
-                                                                 service.c_str(), "account", account.c_str(), NULL);
-
-      if (res != GNOME_KEYRING_RESULT_OK)
-        throw std::runtime_error(gnome_keyring_result_to_message(res));
-    }
-
-    //------------------------------------------------------------------------------
-    bool UtilitiesImpl::find_password(const std::string &service, const std::string &account, std::string &password) {
-      if (getenv("WB_NO_GNOME_KEYRING")) {
-        return false;
-      }
-
-      bool ret = false;
-
-      GnomeKeyringPasswordSchema wb_pwd_schema;
-      memset(&wb_pwd_schema, 0, sizeof(wb_pwd_schema));
-
-      wb_pwd_schema.item_type = GNOME_KEYRING_ITEM_GENERIC_SECRET;
-      wb_pwd_schema.attributes[0].name = "service";
-      wb_pwd_schema.attributes[0].type = GNOME_KEYRING_ATTRIBUTE_TYPE_STRING;
-      wb_pwd_schema.attributes[1].name = "account";
-      wb_pwd_schema.attributes[1].type = GNOME_KEYRING_ATTRIBUTE_TYPE_STRING;
-      // attributes list must be terminated by a pair {0,0}, since we zeroed the whole struct we're safe here
-
-      gchar *kpwd = 0;
-
-      GnomeKeyringResult res = gnome_keyring_find_password_sync(&wb_pwd_schema, &kpwd, "service", service.c_str(),
-                                                                "account", account.c_str(), NULL);
-
-      if (res == GNOME_KEYRING_RESULT_CANCELLED) {
-        if (kpwd)
-          gnome_keyring_free_password(kpwd);
-        kpwd = 0;
-        throw grt::user_cancelled("User cancelled password lookup.");
-      }
-
-      if (res != GNOME_KEYRING_RESULT_OK && res != GNOME_KEYRING_RESULT_NO_MATCH) {
-        if (kpwd)
-          gnome_keyring_free_password(kpwd);
-        kpwd = 0;
-        throw std::runtime_error(gnome_keyring_result_to_message(res));
-      }
-
-      if (kpwd && res == GNOME_KEYRING_RESULT_OK) {
-        ret = true;
-        password = kpwd;
-        gnome_keyring_free_password(kpwd);
-        kpwd = 0;
+    static std::string convertAndFreeString(gchar *txt) {
+      std::string ret;
+      if (txt) {
+        ret = txt;
+        g_free(txt);
       }
 
       return ret;
     }
 
-    //------------------------------------------------------------------------------
-    void UtilitiesImpl::forget_password(const std::string &service, const std::string &account) {
-      if (getenv("WB_NO_GNOME_KEYRING")) {
-        return;
-      }
+    //-----------------------------------------------------------------------------------------------------------------------
 
-      GnomeKeyringPasswordSchema wb_pwd_schema;
-      memset(&wb_pwd_schema, 0, sizeof(wb_pwd_schema));
+    const SecretSchema* getWbSecretSchema() {
+      static const SecretSchema wbSchema = {
+          .name = "org.mysql.Workbench.Password",
+          .flags = SECRET_SCHEMA_NONE,
+          .attributes = {
+              { "service", SECRET_SCHEMA_ATTRIBUTE_STRING },
+              { "account", SECRET_SCHEMA_ATTRIBUTE_STRING },
+              { nullptr, SECRET_SCHEMA_ATTRIBUTE_STRING }
+          },
+          .reserved = 0,
+          .reserved1 = 0,
+          .reserved2 = 0,
+          .reserved3 = 0,
+          .reserved4 = 0,
+          .reserved5 = 0,
+          .reserved6 = 0,
+          .reserved7 = 0,
+      };
+      return &wbSchema;
+    };
 
-      wb_pwd_schema.item_type = GNOME_KEYRING_ITEM_GENERIC_SECRET;
-      wb_pwd_schema.attributes[0].name = "service";
-      wb_pwd_schema.attributes[0].type = GNOME_KEYRING_ATTRIBUTE_TYPE_STRING;
-      wb_pwd_schema.attributes[1].name = "account";
-      wb_pwd_schema.attributes[1].type = GNOME_KEYRING_ATTRIBUTE_TYPE_STRING;
-      // attributes list must be terminated by a pair {0,0}, since we zeroed the whole struct we're safe here
+    //-----------------------------------------------------------------------------------------------------------------------
 
-      GnomeKeyringResult res = gnome_keyring_delete_password_sync(&wb_pwd_schema, "service", service.c_str(), "account",
-                                                                  account.c_str(), NULL);
-
-      if (res == GNOME_KEYRING_RESULT_CANCELLED)
-        throw grt::user_cancelled("User cancelled password lookup.");
-
-      if (res != GNOME_KEYRING_RESULT_OK && res != GNOME_KEYRING_RESULT_NO_MATCH)
-        throw std::runtime_error(std::string("forget_password ") + gnome_keyring_result_to_message(res));
-    }
-
-#elif defined(HAVE_OLD_GNOME_KEYRING)
-
-    //------------------------------------------------------------------------------
-    enum { Gnome_keyring_results_size = 10 };
-    static const char *gnome_keyring_results[Gnome_keyring_results_size] = {"OK",
-                                                                            "GNOME_KEYRING_RESULT_DENIED",
-                                                                            "GNOME_KEYRING_RESULT_NO_KEYRING_DAEMON",
-                                                                            "GNOME_KEYRING_RESULT_ALREADY_UNLOCKED",
-                                                                            "GNOME_KEYRING_RESULT_NO_SUCH_KEYRING",
-                                                                            "GNOME_KEYRING_RESULT_BAD_ARGUMENTS",
-                                                                            "GNOME_KEYRING_RESULT_IO_ERROR",
-                                                                            "GNOME_KEYRING_RESULT_CANCELLED",
-                                                                            "GNOME_KEYRING_RESULT_ALREADY_EXISTS",
-                                                                            ""};
-
-    //------------------------------------------------------------------------------
-    static const char *gnome_keyring_result_to_message(const GnomeKeyringResult result) {
-      const char *message = gnome_keyring_results[Gnome_keyring_results_size - 1];
-
-      if (result >= 0 && result < (GnomeKeyringResult)Gnome_keyring_results_size)
-        message = gnome_keyring_results[result];
-
-      return message;
-    }
-
-    //------------------------------------------------------------------------------
     void UtilitiesImpl::store_password(const std::string &service, const std::string &account,
                                        const std::string &password) {
-      if (getenv("WB_NO_GNOME_KEYRING")) {
+      if (getenv("WB_NO_KEYRING")) {
         return;
       }
 
-      GnomeKeyringAttributeList *attrs = gnome_keyring_attribute_list_new();
-      guint32 item_id = 0;
+      GError *error = nullptr;
 
-      gnome_keyring_attribute_list_append_string(attrs, "service", service.c_str());
-      gnome_keyring_attribute_list_append_string(attrs, "account", account.c_str());
+      if (!secret_password_store_sync(getWbSecretSchema(), SECRET_COLLECTION_DEFAULT, service.c_str(), password.c_str(),
+                                      nullptr, &error, "service", service.c_str(), "account", account.c_str(), nullptr))
+        throw std::runtime_error(error->message);
 
-      const GnomeKeyringResult result = gnome_keyring_item_create_sync(
-        NULL, GNOME_KEYRING_ITEM_GENERIC_SECRET, account.c_str(), attrs, password.c_str(), true, &item_id);
-
-      gnome_keyring_attribute_list_free(attrs);
-
-      if (result != GNOME_KEYRING_RESULT_OK)
-        throw std::runtime_error(gnome_keyring_result_to_message(result));
     }
 
-    //------------------------------------------------------------------------------
-    static guint32 find_password_and_id(const std::string &service, const std::string &account, std::string &password) {
-      guint32 ret = 0;
+    //-----------------------------------------------------------------------------------------------------------------------
 
-      GnomeKeyringAttributeList *attrs = gnome_keyring_attribute_list_new();
-
-      gnome_keyring_attribute_list_append_string(attrs, "service", service.c_str());
-      gnome_keyring_attribute_list_append_string(attrs, "account", account.c_str());
-
-      GList *found_items = 0;
-
-      const GnomeKeyringResult result =
-        gnome_keyring_find_items_sync(GNOME_KEYRING_ITEM_GENERIC_SECRET, attrs, &found_items);
-
-      if (result == GNOME_KEYRING_RESULT_CANCELLED) {
-        if (found_items)
-          gnome_keyring_found_list_free(found_items);
-        throw grt::user_cancelled("User cancelled password lookup.");
-      }
-
-      if (result != GNOME_KEYRING_RESULT_OK) {
-        if (found_items)
-          gnome_keyring_found_list_free(found_items);
-        throw std::runtime_error(gnome_keyring_result_to_message(result));
-      }
-
-      if (g_list_length(found_items) > 0) {
-        GnomeKeyringFound *item = (GnomeKeyringFound *)g_list_first(found_items);
-        password = item->secret;
-        ret = item->item_id;
-      }
-
-      if (found_items)
-        gnome_keyring_found_list_free(found_items);
-
-      return ret;
-    }
-
-    //------------------------------------------------------------------------------
     bool UtilitiesImpl::find_password(const std::string &service, const std::string &account, std::string &password) {
-      if (getenv("WB_NO_GNOME_KEYRING")) {
+      if (getenv("WB_NO_KEYRING")) {
         return false;
       }
 
-      return find_password_and_id(service, account, password);
+      GError *error = nullptr;
+      auto cancel = Gio::Cancellable::create();
+      auto userPw = convertAndFreeString(secret_password_lookup_sync(getWbSecretSchema(), cancel->gobj(), &error, "service", service.c_str(), "account", account.c_str(), nullptr));
+
+      if (error != nullptr) {
+        throw std::runtime_error(error->message);
+      }
+
+      if (cancel->is_cancelled()) {
+        throw grt::user_cancelled("User cancelled password lookup.");
+      }
+
+      if (!userPw.empty()) {
+        password = userPw;
+        return true;
+      }
+      return false;
     }
 
-    //------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------
+
     void UtilitiesImpl::forget_password(const std::string &service, const std::string &account) {
-      if (getenv("WB_NO_GNOME_KEYRING")) {
+      if (getenv("WB_NO_KEYRING")) {
         return;
       }
 
-      std::string password;
-      const guint32 item_id = find_password_and_id(service, account, password);
+      GError *error = nullptr;
+      auto cancel = Gio::Cancellable::create();
+      secret_password_clear_sync(getWbSecretSchema(), cancel->gobj(), &error, "service", service.c_str(), "account", account.c_str(), nullptr);
 
-      GnomeKeyringResult res = GNOME_KEYRING_RESULT_BAD_ARGUMENTS;
-      if (item_id)
-        res = gnome_keyring_item_delete_sync(NULL, item_id);
+      if(cancel->is_cancelled()) {
+        throw grt::user_cancelled("User cancelled password lookup.");
+      }
 
-      if (res != GNOME_KEYRING_RESULT_OK)
-        throw std::runtime_error(gnome_keyring_result_to_message(res));
+      if (error != nullptr)
+        throw std::runtime_error(std::string("forget_password ") + error->message);
+
     }
 #else
 

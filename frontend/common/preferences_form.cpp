@@ -52,7 +52,7 @@
 
 #include "grtpp_notifications.h"
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
 #define HAVE_BUNDLED_MYSQLDUMP
 #endif
 
@@ -78,7 +78,7 @@ static LangFontSet font_sets[] = {{
                                     "Default (Western)", DEFAULT_FONT_FAMILY " Bold 12", DEFAULT_FONT_FAMILY " Bold 11",
                                     DEFAULT_FONT_FAMILY " 11", DEFAULT_FONT_FAMILY " 11", DEFAULT_FONT_FAMILY " 11",
                                   },
-#ifdef _WIN32
+#ifdef _MSC_VER
                                   {"Japanese", "Arial Unicode MS Bold 12", "Arial Unicode MS Bold 11",
                                    "Arial Unicode MS 11", "Arial Unicode MS 11", "Arial Unicode MS 11"},
                                   {"Korean", "Arial Unicode MS Bold 12", "Arial Unicode MS Bold 11",
@@ -152,7 +152,7 @@ public:
   void add_option(mforms::View *control, const std::string &caption, const std::string &help) {
     _table.set_row_count(++_rows);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     bool right_aligned = false;
 #else
     bool right_aligned = true;
@@ -176,7 +176,7 @@ public:
     entry->set_tooltip(tooltip);
     entry->set_size(50, -1);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     bool right_aligned = false;
 #else
     bool right_aligned = true;
@@ -242,7 +242,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
   else
     set_title(_("Model Options"));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   set_back_color(base::Color::get_application_color_as_string(base::AppColorMainBackground, false));
 #endif
 
@@ -277,7 +277,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
 
   if (_model.is_valid()) {
     _use_global.set_text(_("Use defaults from global settings"));
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (base::Color::get_active_scheme() == ColorSchemeStandardWin7)
       _use_global.set_front_color("#FFFFFF");
     else
@@ -314,17 +314,18 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
   }
 
   if (!_model.is_valid()) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     add_page(NULL, _("Fonts & Colors"), create_fonts_and_colors_page());
 #else
     // Fonts only for now in Mac/Linux
     add_page(NULL, _("Fonts"), create_fonts_and_colors_page());
 #endif
   }
+  if (!_model.is_valid()) {
+    add_page(NULL, _("SSH"), createSSHPage());
 
-  add_page(NULL, _("SSH"), createSSHPage());
-
-  add_page(NULL, _("Others"), create_others_page());
+    add_page(NULL, _("Others"), create_others_page());
+  }
 
   _hbox.add(&_top_box, true, true);
   set_content(&_hbox);
@@ -390,13 +391,13 @@ bool PreferencesForm::versionIsValid(const std::string &text) {
   return true;
 }
 
-void PreferencesForm::version_changed() {
-  if (versionIsValid(version_entry->get_string_value())) {
-    version_entry->set_back_color("#FFFFFF");
-    version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
+void PreferencesForm::version_changed(mforms::TextEntry *entry) {
+  if (versionIsValid(entry->get_string_value())) {
+    entry->set_back_color("#FFFFFF");
+    entry->set_tooltip(VALID_VERSION_TOOLTIP);
   } else {
-    version_entry->set_back_color("#FF5E5E");
-    version_entry->set_tooltip(INVALID_VERSION_TOOLTIP);
+    entry->set_back_color("#FF5E5E");
+    entry->set_tooltip(INVALID_VERSION_TOOLTIP);
   }
 }
 
@@ -525,7 +526,7 @@ void PreferencesForm::update_checkbox_option(const std::string &option_name, mfo
   wb::WBContextUI::get()->set_wb_options_value(_model.is_valid() ? _model.id() : "", option_name, value,
                                                grt::IntegerType);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // On Windows we have to write the following value also to the registry as our options are not
   // available yet when we need that value.
   if (option_name == "DisableSingleInstance")
@@ -819,10 +820,11 @@ mforms::View *PreferencesForm::create_sqlide_page() {
                                  "Set to 0 to not send keep-alive messages."));
     entry->set_size(100, -1);
 
-    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut", _("DBMS connection read time out (in seconds):"),
-                                     _("Max time the a query can take to return data from the DBMS"));
+    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut", _("DBMS connection read timeout interval (in seconds):"),
+                                     _("The maximum amount of time the query can take to return data from the DBMS."
+                                       "Set 0 to skip the read timeout."));
 
-    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut", _("DBMS connection time out (in seconds):"),
+    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut", _("DBMS connection timeout interval (in seconds):"),
                                      _("Maximum time to wait before a connection attempt is aborted."));
     box->add(otable, false, true);
   }
@@ -1346,7 +1348,7 @@ mforms::View* PreferencesForm::createSSHPage()
           "Determines how long the process waits for i/o"));
 
         timeouts_table->add_option(entry, _("SSH Read Write Timeout:"),
-          _("SSH Read Write Timeout in second."));
+          _("SSH Read/Write Timeout in seconds."));
       }
 
       // SSH commandtimeout
@@ -1355,7 +1357,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_max_length(5);
         entry->set_size(50, -1);
         entry->set_tooltip(_(
-          "Determines how long the process waits for a command output.\nThis is also affected by SSH Command Retry Count"));
+          "Determines how long the process waits for a command output.\nThis is also affected by SSH Command Retry Count."));
 
         timeouts_table->add_option(entry, _("SSH Command timeout:"),
           _("SSH Command Timeout in second."));
@@ -1375,7 +1377,7 @@ mforms::View* PreferencesForm::createSSHPage()
 
       // SSH buffer
       {
-        mforms::TextEntry *entry = new_numeric_entry_option("SSH:BufferSize", 0, 500);
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:BufferSize", 0, 10240);
         entry->set_max_length(5);
         entry->set_size(50, -1);
         entry->set_tooltip(_("Buffer size used for tunnel data transfer"));
@@ -1384,15 +1386,26 @@ mforms::View* PreferencesForm::createSSHPage()
           _("SSH buffer size in bytes."));
       }
 
-      // SSH buffer
+      // SSH maxFileSize
       {
-        mforms::TextEntry *entry = new_numeric_entry_option("SSH:maxFileSize", 0, 500);
-        entry->set_max_length(5);
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:maxFileSize", 0, 1024*ONE_MB);
+        entry->set_max_length(10);
         entry->set_size(50, -1);
         entry->set_tooltip(_("Size used to limit transfering of big files"));
 
         timeouts_table->add_option(entry, _("SSH Maximum File Size:"),
           _("The maximum file that is allowed to be transfered by SSH."));
+      }
+
+      // SSH logsize
+      {
+        mforms::TextEntry *entry = new_numeric_entry_option("SSH:logSize", 0, 1024*ONE_MB);
+        entry->set_max_length(10);
+        entry->set_size(50, -1);
+        entry->set_tooltip(_("Size used to limit transfering of big command output log."));
+
+        timeouts_table->add_option(entry, _("SSH Command Execution log:"),
+          _("The maximum log size that is allowed to be transfered by SSH."));
       }
 
     }
@@ -1486,7 +1499,7 @@ mforms::View *PreferencesForm::create_others_page()
   content->add(frame, false);
 
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
   content->add(table, false, true);
   {
@@ -1686,16 +1699,14 @@ mforms::View *PreferencesForm::create_mysql_page() {
       table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
       version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
       version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
-      version_entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this));
+      version_entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this, version_entry));
       table->add(version_entry, 1, 2, 0, 1, mforms::HExpandFlag | mforms::HFillFlag);
     } else {
       // if editing model options, display the catalog version
       Option *option = new Option();
-      mforms::TextEntry *entry = new mforms::TextEntry();
-
-      option->view = mforms::manage(entry);
-      option->show_value = std::bind(show_target_version, _model, entry);
-      option->update_value = std::bind(update_target_version, _model, entry);
+      mforms::TextEntry *entry = mforms::manage(new mforms::TextEntry());
+      entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this, entry));
+      entry->set_tooltip(VALID_VERSION_TOOLTIP);
 
       option->view = mforms::manage(entry);
       option->show_value = std::bind(show_target_version, _model, entry);
@@ -1735,7 +1746,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
     frame->add(tbox);
     tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), true), false, false);
     tbox->add(entry = new_entry_option("SqlGenerator.Mysql:SQL_MODE", false), true, true);
-    entry->set_tooltip(_("The default value of TRADITIONAL is recommended."));
+    entry->set_tooltip(_("The default value of ONLY_FULL_GROUP_BY, STRICT_TRANS_TABLES, NO_ZERO_IN_DATE, NO_ZERO_DATE, ERROR_FOR_DIVISION_BY_ZERO, NO_ENGINE_SUBSTITUTION is recommended."));
 
     box->add(frame, false);
   }
@@ -2045,7 +2056,7 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page() {
     content->add(table, true, true);
   }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Color Scheme"));
@@ -2054,7 +2065,10 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page() {
     mforms::Selector *selector = new_selector_option("ColorScheme", "", true);
     selector->set_size(250, -1);
     hbox->add(selector, true, false);
-    hbox->add(new_label(_("The scheme that determines the core colors."), false, true), true, false);
+
+    mforms::Label *help = new_label(_("The scheme that determines the core colors."), false, true);
+    hbox->add(help, true, false);
+    help->set_size(200, -1);
 
     frame->add(hbox);
     content->add(frame, false, true);

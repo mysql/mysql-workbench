@@ -25,26 +25,27 @@ echo Images directory: %IMAGES_DIR%
 set SCRIPTS_DIR=%1scripts
 echo Scripts directory: %SCRIPTS_DIR%
 
-set EXT_LIB_DIR=%1..\mysql-win-res\lib\%3
+if %2 == Debug ( set ADDITIONAL_LIBFOLDER=debug\)
+set EXT_LIB_DIR=%WB_3DPARTY_PATH%\%ADDITIONAL_LIBFOLDER%Lib
 echo Windows resource directory: %EXT_LIB_DIR%
 
-set EXT_BIN_DIR=%1..\mysql-win-res\redist-bin\%3\%2
+set EXT_BIN_DIR=%WB_3DPARTY_PATH%\bin
 echo External binary directory: %EXT_BIN_DIR%
-
-set EXT_DATA_DIR=%1..\mysql-win-res\data
-echo External data directory: %EXT_DATA_DIR%
-
-set EXT_SRC_DIR=%1..\mysql-win-res\source
-echo External source directory: %EXT_SRC_DIR%
 
 set TARGET_DIR=%1bin\%3\%2
 echo Target directory: %TARGET_DIR%
 
-set PYTHON_COMMON_DIR=%1..\mysql-win-res\lib\Python
+set PYTHON_COMMON_DIR=%WB_3DPARTY_PATH%\Python\lib
 echo Python common library directory: %PYTHON_COMMON_DIR%
 
-set PYTHON_LIB_DIR=%EXT_LIB_DIR%\python\%2
+set PYTHON_DIR=%WB_3DPARTY_PATH%\Python
+echo Python directory: %PYTHON_DIR%
+
+set PYTHON_LIB_DIR=%WB_3DPARTY_PATH%\Python\Libs
 echo Python library directory: %PYTHON_LIB_DIR%
+
+set PYTHON_DLLS_DIR=%WB_3DPARTY_PATH%\Python\Dlls
+echo Python dlls directory: %PYTHON_DLLS_DIR%
 
 rem -------------------------------------------------------------------------------
 rem Copy the files to the target directory
@@ -67,10 +68,9 @@ xcopy /i /s /y /d %IMAGES_DIR%\toolbar\*.png %TARGET_DIR%\images\icons\. 1> nul 
 xcopy /i /s /y /d %IMAGES_DIR%\changeset\*.png %TARGET_DIR%\images\icons\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\admin\*.png %TARGET_DIR%\images\icons\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\migration\*.png %TARGET_DIR%\images\icons\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_DATA_DIR%\cursors\*.cur %TARGET_DIR%\images\cursors\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_DATA_DIR%\icons\MySQLWorkbench.ico %TARGET_DIR%\images\icons\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_DATA_DIR%\icons\MySQLWorkbenchDoc.ico %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_DATA_DIR%\icons\MySQLWBPlugin.ico %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %IMAGES_DIR%\cursors\*.png %TARGET_DIR%\images\cursors\. 1> nul 2> nul
+xcopy /i /s /y /d %IMAGES_DIR%\icons\MySQLWorkbench.ico %TARGET_DIR%\images\icons\. 1> nul 2> nul
+xcopy /i /s /y /d %IMAGES_DIR%\icons\MySQLWorkbenchDoc.ico %TARGET_DIR%\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\ui\*.png %TARGET_DIR%\images\ui\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\ui\*.xpm %TARGET_DIR%\images\ui\. 1> nul 2> nul
 xcopy /i /s /y /d %IMAGES_DIR%\home\*.png %TARGET_DIR%\images\home\. 1> nul 2> nul
@@ -117,37 +117,45 @@ echo Copy executables ...
 xcopy /i /s /y /d %EXT_BIN_DIR%\mysqldump.exe %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_BIN_DIR%\mysql.exe %TARGET_DIR%\.
 
+xcopy /i /s /y /d %EXT_BIN_DIR%\ogrinfo.exe %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_BIN_DIR%\ogr2ogr.exe %TARGET_DIR%\.
+
+
 rem Do not remove
 rem Python executable needed by MSI Custom Action (to precompile Python files) and maybe some externally executed scripts...
-xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
-
+rem xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
+if %2 == Debug ( set DEBUG_PREFIX=_d)
+if not %2 == Debug ( set EXCLUDE_CMD=/xf *_d.* )
+robocopy %PYTHON_DIR% %TARGET_DIR% python27%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
+robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
+robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc.pyd
 
 echo * MySQL client library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libeay32.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\ssleay32.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\libmysql*.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\libeay32.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\ssleay32.dll %TARGET_DIR%\.
 rem xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.pdb %TARGET_DIR%\. 1> nul 2> nul
 
 echo * MySQL cdbc driver ...
 rem copy %EXT_LIB_DIR%\cppconn\mysql\%2\mysqlcppconn.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * glib libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\glib.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gmodule.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gobject.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\gthread.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib\libintl-8.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gmodule.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gobject.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gthread.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\intl.dll %TARGET_DIR%\.
 
 echo * libxml2 libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libxml\libxml2.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\libxml\libiconv.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\libxml2.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\iconv.dll %TARGET_DIR%\.
 
 echo * zlib + libzip libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\zlib\%2\zlib.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\libzip\%2\libzip.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\zlib1.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\zip.dll %TARGET_DIR%\.
 
 echo * ANTLR4 runtime lib ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\antlr4-runtime\%2\antlr4-runtime.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\antlr4-runtime.dll %TARGET_DIR%\.
 
 rem =========== Python ============================
 
@@ -169,52 +177,49 @@ rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\unittest %TARGET_DIR%\python\lib\unitt
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\ctypes %TARGET_DIR%\python\lib\ctypes 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\sqlite3 %TARGET_DIR%\python\lib\sqlite3 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xml %TARGET_DIR%\python\lib\xml 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\importlib %TARGET_DIR%\python\lib\importlib 1> nul 2> nul
 
-xcopy /i /y /d %PYTHON_LIB_DIR%\*.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /y /d %PYTHON_LIB_DIR%\DLLs\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nul
+rem xcopy /i /y /d %PYTHON_DLLS_DIR%\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nul
+robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
+robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 
 rem site packages that are release type independent
-xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\paramiko %TARGET_DIR%\python\site-packages\paramiko 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\ecdsa %TARGET_DIR%\python\site-packages\ecdsa 1> nul 2> nul
+rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\paramiko %TARGET_DIR%\python\site-packages\paramiko 1> nul 2> nul
+rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\ecdsa %TARGET_DIR%\python\site-packages\ecdsa 1> nul 2> nul
 
 rem site packages for debug/release types
-xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\Crypto %TARGET_DIR%\python\site-packages\Crypto 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\pysqlite2 %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
+rem xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\Crypto %TARGET_DIR%\python\site-packages\Crypto 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_DIR%\pysqlite2\*.pyd %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_DIR%\pysqlite2\*.py %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\*.pyd %TARGET_DIR%\python\site-packages\ 1> nul 2> nul
-
-rem Cleanup stuff that should never or only under certain circumstances stay in the target folder.
-rem if "%2"=="Release" del %TARGET_DIR%\python\*_d.* /S
-rem del %TARGET_DIR%\python\*85.dll %TARGET_DIR%\python\_tkinter.*  1> nul 2> nul
 
 rem =======================================
 
 echo * cairo library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\cairo\*.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\libcairo.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * png library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libpng\libpng.dll %TARGET_DIR%\.
-
-echo * ctemplate library ...
-copy %EXT_LIB_DIR%\ctemplate\%2\libctemplate.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\libpng16.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * cppconn library ...
-copy %EXT_LIB_DIR%\mysqlcppconn\%2\mysqlcppconn.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\mysqlcppconn-7-vs14.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * pcre library ...
-copy %EXT_LIB_DIR%\pcre\%2\pcre.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\pcre.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\pcrecpp.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * sqlite library ...
-copy %EXT_LIB_DIR%\sqlite\%2\sqlite3.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\sqlite3.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * vsqlite++ library ...
-copy "%EXT_LIB_DIR%\vsqlite++\%2\vsqlite++.dll" %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\vsqlite++.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * gdal library + tools ...
-copy %EXT_LIB_DIR%\gdal\%2\gdal.dll %TARGET_DIR%\.
-copy %EXT_LIB_DIR%\gdal\%2\*.exe %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gdal.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\*.exe %TARGET_DIR%\. 1> nul 2> nul
 
 echo * ssh library ...
-copy %EXT_LIB_DIR%\libssh\%2\*.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\ssh.dll %TARGET_DIR%\.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide

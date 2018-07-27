@@ -158,7 +158,7 @@ void FsObjectSelector::browse_file_callback() {
     (*signal_changed())();
 
 // gtkmm file picker doesn't seem to confirm overwrite
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_MSC_VER)
     // Keep all entries that had their contents set using the file dialog
     // so that when checking for filenames that would be overwritten, the ones from such
     // entries are skipped. Paths picked with file dialog are already confirmed against overwrite.

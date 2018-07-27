@@ -32,6 +32,8 @@ target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})
 
 target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 
+set_source_files_properties(drawing_gtk.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
+
 if(BUILD_FOR_TESTS)
   target_link_libraries(wbbase gcov)
 endif()

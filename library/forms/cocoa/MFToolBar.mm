@@ -580,7 +580,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
     mOwner->set_data(self);
     self.target = self;
     self.action = @selector(perform:);
-    self.cell.controlSize = NSSmallControlSize;
+    self.cell.controlSize = NSControlSizeSmall;
     self.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
   }
   return self;
@@ -725,7 +725,7 @@ static NSColor* colorFromHexString(const char* hexcolor)
   {
     if (mOwner->get_type() == SecondaryToolBar)
     {
-      [item cell].controlSize = NSSmallControlSize;
+      [item cell].controlSize = NSControlSizeSmall;
       [item setFont: [NSFont systemFontOfSize: [NSFont smallSystemFontSize]]];
       [item setFrame: NSMakeRect(0, 0, 120, 19)];
     }
@@ -1109,7 +1109,7 @@ static void set_selector_items(ToolBarItem *item, const std::vector<std::string>
     if (item->get_type() == ColorSelectorItem)
     {   
       NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
-      [tbitem cell].controlSize = NSSmallControlSize;
+      [tbitem cell].controlSize = NSControlSizeSmall;
       for (std::vector<std::string>::const_iterator color= items.begin(); color != items.end(); ++color)
       {
         [menu addItem: [[MFColorMenuItem alloc] initWithColorName: wrap_nsstring(*color)]];

@@ -890,31 +890,39 @@ void DbConnectPanel::end_layout() {
 }
 
 void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear) {
-  std::string storage_key;
-  std::string username;
+  std::string storageKey;
+  std::string userName;
   grt::DictRef paramValues(get_connection(true)->parameterValues());
   std::vector<std::string> tokens =
     base::split(param->object()->paramTypeDetails().get_string("storageKeyFormat"), "::");
   if (tokens.size() == 2) {
-    username = tokens[0];
-    storage_key = tokens[1];
+    userName = tokens[0];
+    storageKey = tokens[1];
   } else {
     logError("Invalid storage key format for option %s\n", param->object().id().c_str());
     return;
   }
+
   for (grt::DictRef::const_iterator iter = paramValues.begin(); iter != paramValues.end(); ++iter) {
-    storage_key = base::replaceString(storage_key, "%" + iter->first + "%", iter->second.toString());
-    username = base::replaceString(username, "%" + iter->first + "%", iter->second.toString());
+    storageKey = base::replaceString(storageKey, "%" + iter->first + "%", iter->second.toString());
+    userName = base::replaceString(userName, "%" + iter->first + "%", iter->second.toString());
   }
 
-  if (username.empty()) {
+  if (storageKey.substr(0, 3) == "ssh") { // This is ssh, we should check if port was given, if not, we will append the default 22.
+    auto pos = storageKey.find_last_of(":");
+    if (pos == std::string::npos) {
+      storageKey.append(":22");
+    }
+  }
+
+  if (userName.empty()) {
     mforms::Utilities::show_warning(_("Cannot Set Password"), _("Please fill the username to be used."), _("OK"));
     return;
   }
 
   if (clear) {
     try {
-      mforms::Utilities::forget_password(storage_key, username);
+      mforms::Utilities::forget_password(storageKey, userName);
     } catch (std::exception &exc) {
       mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
     }
@@ -922,8 +930,8 @@ void DbConnectPanel::set_keychain_password(DbDriverParam *param, bool clear) {
     std::string password;
 
     try {
-      if (mforms::Utilities::ask_for_password("Store Password For Connection", storage_key, username, password))
-        mforms::Utilities::store_password(storage_key, username, password);
+      if (mforms::Utilities::ask_for_password("Store Password For Connection", storageKey, userName, password))
+        mforms::Utilities::store_password(storageKey, userName, password);
     } catch (std::exception &exc) {
       mforms::Utilities::show_error("Store Password", base::strfmt("Could not store password: %s", exc.what()), "OK");
     }
@@ -1043,7 +1051,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     case ::ctKeychainPassword: {
       Button *btn = new Button();
 
-#ifdef _WIN32
+#ifdef _MSC_VER
       btn->set_text("Store in Vault ...");
       btn->set_tooltip(_("Store the password for this connection in a secured vault"));
 #else
@@ -1059,7 +1067,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       btn = new Button();
       btn->set_text("Clear");
       btn->set_size(100, -1);
-#ifdef _WIN32
+#ifdef _MSC_VER
       btn->set_tooltip(_("Remove the previously stored password from the secured vault"));
 #else
       btn->set_tooltip(_("Remove the previously stored password from the system's keychain"));

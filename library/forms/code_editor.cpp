@@ -637,7 +637,7 @@ const std::string CodeEditor::get_text_in_range(size_t start, size_t end) {
 
 std::pair<const char*, std::size_t> CodeEditor::get_text_ptr() {
   std::pair<const char*, std::size_t> result;
-  result.first = (const char*)_code_editor_impl->send_editor(this, SCI_GETCHARACTERPOINTER, 0, 0);
+  result.first = reinterpret_cast<const char *>(_code_editor_impl->send_editor(this, SCI_GETCHARACTERPOINTER, 0, 0));
   result.second = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0);
 
   return result;
@@ -1066,12 +1066,12 @@ void CodeEditor::set_font(const std::string& fontDescription) {
 // NOTE: The original MONOSPACE font in windows was Bitstream Vera Sans Mono
 //       but in Windows 8 the code editors using this font were getting hung so
 //       we decided to use Lucida Console as the new MONOSPACE font in windows.
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (base::toupper(font) == "BITSTREAM VERA SANS MONO")
       font = DEFAULT_MONOSPACE_FONT_FAMILY;
 #endif
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
     // scintilla requires the ! in front of the font name to interpret it as a pango/fontconfig font
     // the non-pango version is totally unusable
     if (!font.empty() && font[0] != '!')

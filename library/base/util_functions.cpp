@@ -27,17 +27,12 @@
 #include <fstream>
 #include <vector>
 
+#include "base/log.h"
 #include "base/common.h"
 #include "base/string_utilities.h"
 
-// Log calls only used on Linux atm (causing a warning on Win + Mac).
-#if !defined(_WIN32) && !defined(__APPLE__)
-#include "base/log.h"
-DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
-#endif
-
 // Windows includes
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #include <direct.h>
 #include <tchar.h>
@@ -80,6 +75,8 @@ DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
 #include "base/file_functions.h"
 #include "base/util_functions.h"
 
+DEFAULT_LOG_DOMAIN(DOMAIN_BASE)
+
 struct hardware_info {
   std::string _cpu;
   std::string _clock;
@@ -94,7 +91,7 @@ static void __sappend(char **str, int *ressize, int *reslen, const char *sbegin,
     *ressize += count + 100;
     *str = (char *)g_realloc(*str, *ressize);
   }
-#ifdef _WIN32
+#ifdef _MSC_VER
   strncpy_s(*str + *reslen, *reslen, sbegin, count);
 #else
   strncpy(*str + *reslen, sbegin, count);
@@ -168,7 +165,7 @@ char *auto_line_break(const char *txt, unsigned int width, char sep) {
     w++;
 
     if (w > width) {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
       dst[p + o] = '\r';
       dst[p + o + 1] = '\n';
 
@@ -220,7 +217,7 @@ char *str_toupper(char *str) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 
 #define BUFSIZE 256
 #define VER_SUITE_WH_SERVER 0x00008000
@@ -356,7 +353,7 @@ std::string get_local_hardware_info() {
   return hardware_string;
 }
 
-#else /* !__WIN__ */
+#else
 
 #if defined(__APPLE__) && defined(__MACH__)
 
@@ -666,7 +663,7 @@ std::string get_local_hardware_info() {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::int64_t get_physical_memory_size() {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
   MEMORYSTATUS memstat;
 
   GlobalMemoryStatus(&memstat);
@@ -722,8 +719,6 @@ std::int64_t get_physical_memory_size() {
       }
     }
     fclose(proc);
-  } else {
-    g_warning("Memory stats retrieval not implemented for this system");
   }
   return mem64;
 
@@ -733,7 +728,7 @@ std::int64_t get_physical_memory_size() {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::int64_t get_file_size(const char *filename) {
-#if _WIN32
+#if _MSC_VER
   DWORD dwSizeLow;
   DWORD dwSizeHigh = 0;
   HANDLE hfile;
@@ -827,7 +822,7 @@ const char *strfindword(const char *str, const char *word) {
  * @return 1 if the operation was successfull, otherwise 0.
  */
 int copy_file(const char *source, const char *target) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   {
     const int cch_buf = MAX_PATH;
     WCHAR src_path[MAX_PATH];
@@ -892,7 +887,7 @@ int copy_folder(const char *source_folder, const char *target_folder) {
       char *source = g_build_filename(source_folder, entry, NULL);
       char *target = g_build_filename(target_folder, entry, NULL);
       if (!copy_file(source, target)) {
-        g_warning("Could not copy file %s to %s: %s", source, target, g_strerror(errno));
+        logWarning("Could not copy file %s to %s: %s\n", source, target, g_strerror(errno));
         g_free(source);
         g_free(target);
         g_dir_close(dir);
@@ -903,7 +898,7 @@ int copy_folder(const char *source_folder, const char *target_folder) {
     }
     g_dir_close(dir);
   } else {
-    g_warning("Could not open directory %s", source_folder);
+    logWarning("Could not open directory %s\n", source_folder);
     return 0;
   }
   return 1;
@@ -914,7 +909,7 @@ int copy_folder(const char *source_folder, const char *target_folder) {
 namespace base {
 
   double timestamp() {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
     return (double)GetTickCount() / 1000.0;
 #else
     struct timeval tv;
@@ -929,7 +924,7 @@ namespace base {
 
   std::string fmttime(time_t t, const char *fmt) {
     char date[100];
-#ifdef _WIN32
+#ifdef _MSC_VER
     errno_t err;
 #else
     int err;
@@ -939,7 +934,7 @@ namespace base {
     if (t == 0)
       time(&t);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     err = localtime_s(&newtime, &t);
 #else
     localtime_r(&t, &newtime);

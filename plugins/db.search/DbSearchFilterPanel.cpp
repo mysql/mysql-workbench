@@ -46,7 +46,7 @@ DBSearchFilterPanel::DBSearchFilterPanel()
   _filter_selector.add_item("Search using LIKE");
   _filter_selector.add_item("Search using REGEXP");
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _filter_selector.set_size(150, -1);
 #endif
 

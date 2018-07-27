@@ -183,7 +183,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   NSPoint p = [self convertPoint:event.locationInWindow fromView:nil];
 
   mforms::MouseButton mouseButton;
-  if (event.type == NSLeftMouseDragged)
+  if (event.type == NSEventTypeLeftMouseDragged)
     mouseButton = mforms::MouseButtonLeft;
   else
     mouseButton = mforms::MouseButtonNone;
@@ -257,17 +257,6 @@ struct PasteboardDataWrapper {
     data = NULL;
   }
 };
-
-- (NSDragOperation)draggingSourceOperationMaskForLocal: (BOOL)flag {
-  mforms::DragOperation operations = self.allowedDragOperations;
-  NSDragOperation nativeOperations = NSDragOperationNone;
-  if ((operations & mforms::DragOperationMove) == mforms::DragOperationMove)
-    nativeOperations |= NSDragOperationMove;
-  if ((operations & mforms::DragOperationCopy) == mforms::DragOperationCopy)
-    nativeOperations |= NSDragOperationMove;
-
-  return nativeOperations;
-}
 
 - (mforms::DropDelegate *)determineDropDelegate {
   mforms::DropDelegate *delegate = self.dropDelegate;
@@ -429,7 +418,7 @@ static NSString *dragText = nil;
   // We need a mouse event so the dragImage: call can get the original mouse position.
   // Usually we are called by a mouse down/mouse move event, but we lost the original event while
   // the handling went through the backend. So we create one manually here again.
-  NSEvent *event = [NSEvent mouseEventWithType:NSLeftMouseDown
+  NSEvent *event = [NSEvent mouseEventWithType: NSEventTypeLeftMouseDown
                                       location: [self convertPoint:position toView:nil]
                                  modifierFlags: 0
                                      timestamp: 0
@@ -492,7 +481,7 @@ static bool dragInProgress = NO;
   }
 
   NSPoint position = NSMakePoint(details.location.x, details.location.y);
-  NSEvent *event = [NSEvent mouseEventWithType: NSLeftMouseDown
+  NSEvent *event = [NSEvent mouseEventWithType: NSEventTypeLeftMouseDown
                                       location: [self convertPoint:position toView:nil]
                                  modifierFlags: 0
                                      timestamp: 0
@@ -566,13 +555,13 @@ static bool dragInProgress = NO;
   NSUInteger modifiers = event.modifierFlags;
   mforms::ModifierKey mforms_modifiers = mforms::ModifierNoModifier;
 
-  if ((modifiers & NSControlKeyMask) != 0)
+  if ((modifiers & NSEventModifierFlagControl) != 0)
     mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierControl);
-  if ((modifiers & NSShiftKeyMask) != 0)
+  if ((modifiers & NSEventModifierFlagShift) != 0)
     mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierShift);
-  if ((modifiers & NSCommandKeyMask) != 0)
+  if ((modifiers & NSEventModifierFlagCommand) != 0)
     mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierCommand);
-  if ((modifiers & NSAlternateKeyMask) != 0)
+  if ((modifiers & NSEventModifierFlagOption) != 0)
     mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierAlt);
 
   return mforms_modifiers;

@@ -21,7 +21,11 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#include "string_utilities.h"
+#include "base/log.h"
 #include "mforms/mforms.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_MFORMS_BE)
 
 using namespace mforms;
 
@@ -48,7 +52,7 @@ void TextBox::append_text(const std::string &text, bool scroll_to_end) {
  * If this conversion fails simply add the text as it is to the text box.
  */
 void TextBox::append_text_with_encoding(const std::string &text, const std::string &encoding, bool scroll_to_end) {
-  if (encoding.empty() || encoding == "utf8" || encoding == "utf-8" || encoding == "UTF-8")
+    if (encoding.empty() || base::tolower(encoding) == "utf8" || base::tolower(encoding) == "utf-8")
     _textbox_impl->append_text(this, text, scroll_to_end);
   else {
     gchar *temp = g_convert(text.c_str(), -1, "utf-8", encoding.c_str(), NULL, NULL, NULL);
@@ -56,7 +60,7 @@ void TextBox::append_text_with_encoding(const std::string &text, const std::stri
 
     if (temp == NULL) {
       converted_text = text;
-      g_warning("Cannot convert '%s' from %s to UTF-8", text.c_str(), encoding.c_str());
+      logWarning("Cannot convert '%s' from %s to UTF-8\n", text.c_str(), encoding.c_str());
     } else {
       converted_text = temp;
       g_free(temp);

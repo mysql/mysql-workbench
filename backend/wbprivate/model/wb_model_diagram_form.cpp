@@ -869,6 +869,11 @@ bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::Even
                      // (even though only the first appearance, but if we don't it is as if
                      // we hadn't consumed it at all).
     }
+    
+    if (key.keycode == mdc::KDelete) {
+        delete_selection();
+        return true;
+    }
   } else {
     // Key release.
     if (_space_panning) {
@@ -996,7 +1001,7 @@ bool ModelDiagramForm::can_paste() {
 
   for (std::list<grt::ObjectRef>::iterator iter = data.begin(); iter != data.end(); ++iter) {
     if (!(*iter).is_valid()) {
-      logWarning("copy buffer has null value");
+      logWarning("copy buffer has null value\n");
       return false;
     }
     bool result = false;

@@ -803,7 +803,7 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor) {
   // open tunnel, if needed
   try {
     tunnel = sql::DriverManager::getDriverManager()->getTunnel(editor->connection_descriptor());
-  } catch (grt::user_cancelled) {
+  } catch (grt::user_cancelled &) {
     bec::GRTManager::get()->replace_status_text("Tunnel connection cancelled.");
     return;
   }

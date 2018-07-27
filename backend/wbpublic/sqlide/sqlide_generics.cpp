@@ -23,7 +23,7 @@
 
 #include "sqlide_generics.h"
 #include <sqlite/execute.hpp>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <sys/time.h>
 #endif
 #include <locale>
@@ -102,26 +102,11 @@ namespace sqlide {
 
 } // namespace sqlide
 
-/*
-double timestamp()
-{
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
-  return (double)GetTickCount() / 1000.0;
-#else
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  double seconds = tv.tv_sec;
-  double fraction = tv.tv_usec / (double)(1000000);
-  return seconds + fraction;
-#endif
-}
-
-*/
 std::tm local_timestamp() {
   std::time_t ltime;
   time(&ltime);
   std::tm t;
-#ifdef _WIN32
+#ifdef _MSC_VER
   localtime_s(&t, &ltime);
 #else
   localtime_r(&ltime, &t);

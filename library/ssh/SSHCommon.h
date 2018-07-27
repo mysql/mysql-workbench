@@ -24,6 +24,17 @@
 
 #pragma once
 
+#ifdef _WIN32
+#pragma warning(disable : 4251) // class needs to have dll-interface
+#pragma warning(disable : 4275) // non dll-interface class used as base dll-interface class.
+#ifdef WBSSHLIBRARY_EXPORTS
+#define WBSSHLIBRARY_PUBLIC_FUNC __declspec(dllexport)
+#else
+#define WBSSHLIBRARY_PUBLIC_FUNC __declspec(dllimport)
+#endif
+#else
+#define WBSSHLIBRARY_PUBLIC_FUNC
+#endif
 
 #include <errno.h>
 #ifndef HAVE_PRECOMPILED_HEADERS
@@ -34,14 +45,14 @@
 #include <atomic>
 #include <mutex>
 #endif 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <poll.h>
 #endif
 #include <libssh/callbacks.h>
 #include "base/threading.h"
 
 #ifndef NOEXCEPT
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
 #define NOEXCEPT _NOEXCEPT
 #else
 #ifndef _GLIBCXX_USE_NOEXCEPT
@@ -52,7 +63,7 @@
 #endif
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 typedef int socklen_t;
 #endif
 
@@ -71,20 +82,20 @@ namespace ssh {
 
   inline int wbPoll(pollfd *data, size_t size) {
 #if _MSC_VER
-    return WSAPoll(data, size, -1);
+    return WSAPoll(data, static_cast<ULONG>(size), -1);
 #else
-    return poll(data, (nfds_t)size, -1);
+    return poll(data, static_cast<nfds_t>(size), -1);
 #endif
   }
 
-  const std::size_t LOG_SIZE_1MB = 1048576;
+  const std::size_t LOG_SIZE_100MB = 104857600;
   static std::once_flag sshInitOnce;
   std::string getError();
   std::string getSftpErrorDescription(int rc);
   void setSocketNonBlocking(int sock);
   void initLibSSH();
 
-  class SSHConnectionConfig {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHConnectionConfig {
   public:
     SSHConnectionConfig();
     std::string localhost;
@@ -105,7 +116,7 @@ namespace ssh {
     std::size_t commandTimeout;
     std::size_t commandRetryCount;
     std::string getServer() {
-      return remotehost + ":" + std::to_string(remoteport);
+      return remoteSSHhost + ":" + std::to_string(remoteSSHport);
     }
 
     void dumpConfig() const;
@@ -143,7 +154,7 @@ namespace ssh {
     SSHAuthtype auth;
   };
 
-  class SSHTunnelException : public std::exception {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHTunnelException : public std::exception {
   public:
     explicit SSHTunnelException(const std::string &message)
         : _msgText(message) {
@@ -160,7 +171,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class SSHSftpException : public std::exception {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHSftpException : public std::exception {
   public:
     explicit SSHSftpException(const std::string &message)
         : _msgText(message) {
@@ -177,7 +188,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class SSHAuthException : public std::exception {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHAuthException : public std::exception {
   public:
     explicit SSHAuthException(const std::string &message)
         : _msgText(message) {
@@ -194,7 +205,7 @@ namespace ssh {
     std::string _msgText;
   };
 
-  class SSHThread {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHThread {
   public:
     SSHThread();
     virtual ~SSHThread();

@@ -25,6 +25,7 @@
 
 #include "base/string_utilities.h"
 #include "base/file_functions.h"
+#include "base/log.h"
 
 #include "grt/icon_manager.h"
 #include "grt/grt_manager.h"
@@ -37,6 +38,8 @@
 #include "mforms/label.h"
 
 #include "workbench/wb_context.h"
+
+DEFAULT_LOG_DOMAIN("PlugIn")
 
 class AddOnDownloadWindow::DownloadItem : public mforms::Box {
 public:
@@ -255,7 +258,7 @@ bool PluginInstallWindow::InstallItem::start() {
     }
     try {
       manifest = grt::DictRef::cast_from(grt::GRT::get()->unserialize(manifest_path));
-    } catch (const std::exception) {
+    } catch (const std::exception &) {
       mforms::Utilities::show_error("Invalid Plugin", "There was an error reading the manifest file from the plugin.",
                                     "OK", "", "");
       base_rmdir_recursively(unpacked_path.c_str());
@@ -328,7 +331,7 @@ bool PluginInstallWindow::install_plugin(const std::string &path) {
     }
   } catch (const grt::type_error &exc) {
     mforms::Utilities::show_error("Invalid Plugin", "Error processing plugin, it is probably invalid.", "OK", "", "");
-    g_warning("Error: manifest file for %s is invalid, exception while processing: %s", path.c_str(), exc.what());
+    logWarning("Error: manifest file for %s is invalid, exception while processing: %s\n", path.c_str(), exc.what());
     _box.remove(&item);
     return false;
   }

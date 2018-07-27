@@ -36,6 +36,8 @@ namespace ssh {
     SSHConnectionCredentials _credentials;
     std::shared_ptr<SSHSftp> _sftp;
     int _sessionPoolHandle;
+    bool _isClosing;
+    base::Semaphore _canClose;
   public:
     SSHSessionWrapper(const SSHConnectionConfig &config, const SSHConnectionCredentials &credentials);
     SSHSessionWrapper(const db_mgmt_ConnectionRef connectionProperties);
@@ -44,8 +46,8 @@ namespace ssh {
     virtual void disconnect() override;
     virtual grt::IntegerRef isConnected() override;
     virtual grt::IntegerRef connect() override;
-    virtual grt::StringRef executeCommand(const std::string &command) override;
-    virtual grt::StringRef executeSudoCommand(const std::string &command) override;
+    virtual grt::DictRef executeCommand(const std::string &command) override;
+    virtual grt::DictRef executeSudoCommand(const std::string &command, const std::string &user) override;
     static std::tuple<ssh::SSHConnectionConfig, ssh::SSHConnectionCredentials> getConnectionInfo(
         db_mgmt_ConnectionRef connectionProperties);
     static std::tuple<ssh::SSHConnectionConfig, ssh::SSHConnectionCredentials> getConnectionInfo(
@@ -69,6 +71,7 @@ namespace ssh {
   protected:
     mutable base::RecMutex _timeoutMutex;
     base::RecMutexLock lockTimeout();
+    void makeSessionPoll();
     bool pollSession();
 
   };

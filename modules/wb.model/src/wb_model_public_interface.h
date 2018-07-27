@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WB_MODEL_PUBLIC_INTERFACE_H_
-#define _WB_MODEL_PUBLIC_INTERFACE_H_
+#pragma once
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #ifdef WB_MODEL_WBM_EXPORTS
 #define WB_MODEL_WBM_PUBLIC_FUNC __declspec(dllexport)
@@ -35,5 +34,3 @@
 #else
 #define WB_MODEL_WBM_PUBLIC_FUNC
 #endif
-
-#endif // _WB_MODEL_PUBLIC_INTERFACE_H_

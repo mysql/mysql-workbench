@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _MYSQL_DB_PUBLIC_INTERFACE_H_
-#define _MYSQL_DB_PUBLIC_INTERFACE_H_
+#pragma once
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #ifdef WBPLUGINDBMYSQLBE_EXPORTS
 #define WBPLUGINDBMYSQLBE_PUBLIC_FUNC __declspec(dllexport)
@@ -46,5 +45,3 @@ typedef std::map<std::string, GrtNamedObjectRef> CatalogMap;
 WBPLUGINDBMYSQLBE_PUBLIC_FUNC void update_all_old_names(db_mysql_CatalogRef cat, bool update_only_empty,
                                                         CatalogMap& map);
 WBPLUGINDBMYSQLBE_PUBLIC_FUNC void build_catalog_map(db_mysql_CatalogRef catalog, CatalogMap& map);
-
-#endif // _MYSQL_DB_PUBLIC_INTERFACE_H_

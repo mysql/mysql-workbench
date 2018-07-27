@@ -55,7 +55,7 @@ export_options = {
     #"no-data":["Do not dump table contents.","FALSE"],
     "order-by-primary":["Dump each table's rows sorted by its primary key, or by its first unique index.","FALSE"],
     "dump-date":["Include dump date as \"Dump completed on\" comment if --comments is given.","TRUE"],
-    "$internal$show-internal-schemas":["Show internal MySQL schemas (mysql, information_schema, performance_schema) in the export schema list.","FALSE"],
+    "Show Internal Schemas":["Show internal MySQL schemas (mysql, information_schema, performance_schema) in the export schema list.","FALSE"],
     "tz-utc":["Add SET TIME_ZONE='+00:00' to the dump file.","TRUE"],
 #    "xml":["Produce XML output.","FALSE"]
     "set-gtid-purged":["Add 'SET @@GLOBAL.GTID_PURGED' to the output.","AUTO","STR",("5.6.9", None)]

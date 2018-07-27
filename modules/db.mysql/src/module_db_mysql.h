@@ -62,16 +62,16 @@ class DiffSQLGeneratorBE;
 class MYSQLMODULEDBMYSQL_PUBLIC_FUNC DiffSQLGeneratorBEActionInterface {
 protected:
   bool _put_if_exists;
-  bool _use_short_names;
+  bool _omitSchemas;
   bool _gen_use;
 
 public:
-  DiffSQLGeneratorBEActionInterface() : _put_if_exists(true), _use_short_names(false), _gen_use(false){};
+  DiffSQLGeneratorBEActionInterface() : _put_if_exists(true), _omitSchemas(false), _gen_use(false){};
   virtual ~DiffSQLGeneratorBEActionInterface();
 
   // use short or full table names
-  virtual void set_short_names(const bool flag) {
-    _use_short_names = flag;
+  virtual void setOmitSchemas(const bool flag) {
+    _omitSchemas = flag;
   };
   virtual void set_gen_use(const bool flag) {
     _gen_use = flag;

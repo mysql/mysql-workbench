@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <algorithm>
 #endif
 
@@ -970,7 +970,7 @@ protected:
     if (meta) {
       try {
         return meta->get_member_type(_items[node[0]].key).base.type;
-      } catch (grt::bad_item) {
+      } catch (grt::bad_item &) {
       }
     }
     return UnknownType;
@@ -984,7 +984,7 @@ protected:
     if (meta) {
       try {
         return meta->get_member_type(_items[node[0]].key).base.type;
-      } catch (grt::bad_item) {
+      } catch (grt::bad_item &) {
       }
     }
     return UnknownType;

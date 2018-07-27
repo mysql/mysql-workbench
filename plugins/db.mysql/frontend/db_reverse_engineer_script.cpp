@@ -33,7 +33,7 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   set_short_title(_("Input and Options"));
 
   add(&_table, true, true);
-  _table.set_row_count(4);
+  _table.set_row_count(5);
   _table.set_column_count(2);
   _table.set_row_spacing(14);
   _table.set_column_spacing(4);
@@ -65,13 +65,15 @@ ImportInputPage::ImportInputPage(WizardPlugin *form) : WizardPage(form, "options
   // Fill the encoding selector with a useful list of encodings.
   fill_encodings_list();
 
-  _table.add(&_autoplace_check, 1, 2, 3, 4, mforms::HExpandFlag | mforms::HFillFlag);
-  _autoplace_check.set_text(_("Place imported objects on a diagram"));
-  _autoplace_check.set_active(true);
+  _table.add(&_autoplaceCheck, 1, 2, 3, 4, mforms::HExpandFlag | mforms::HFillFlag);
+  _autoplaceCheck.set_text(_("Place imported objects on a diagram"));
+  _autoplaceCheck.set_active(form->module()->document_int_data("place_figures", 0) != 0);
+
+  _table.add(&_ansiQuotesCheck, 1, 2, 4, 5, mforms::HExpandFlag | mforms::HFillFlag);
+  _ansiQuotesCheck.set_text(_("Use ANSI quotes"));
+  _ansiQuotesCheck.set_active(false);
 
   scoped_connect(signal_leave(), std::bind(&ImportInputPage::gather_options, this, std::placeholders::_1));
-
-  _autoplace_check.set_active(form->module()->document_int_data("place_figures", 0) != 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,12 +135,13 @@ std::string ImportInputPage::next_button_caption() {
 void ImportInputPage::gather_options(bool advancing) {
   values().gset("import.filename", _file_selector.get_filename());
   values().gset("import.file_codeset", _file_codeset_sel.get_string_value());
-  values().gset("import.place_figures", _autoplace_check.get_active());
+  values().gset("import.place_figures", _autoplaceCheck.get_active());
+  values().gset("import.useAnsiQuotes", _ansiQuotesCheck.get_active());
 
   grt::Module *module = ((WizardPlugin *)_form)->module();
 
   module->set_document_data("input_filename", _file_selector.get_filename());
-  module->set_document_data("place_figures", _autoplace_check.get_active());
+  module->set_document_data("place_figures", _autoplaceCheck.get_active());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,7 +216,8 @@ bool ImportProgressPage::allow_back() {
 void ImportProgressPage::enter(bool advancing) {
   if (advancing) {
     _import_be.sql_script(values().get_string("import.filename"));
-    _import_be.sql_script_codeset(values().get_string("import.file_codeset"));
+    _import_be.encoding(values().get_string("import.file_codeset"));
+    _import_be.sqlMode(values().get_int("import.useAnsiQuotes") != 0 ? "ANSI_QUOTES" : "");
 
     _auto_place = values().get_int("import.place_figures") != 0;
 

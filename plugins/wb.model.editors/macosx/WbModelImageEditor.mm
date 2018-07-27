@@ -147,7 +147,7 @@ static void call_refresh(void *theEditor) {
       NSAlert *alert = [NSAlert new];
       alert.messageText = @"Invalid Image";
       alert.informativeText = @"Could not load the image.";
-      alert.alertStyle = NSWarningAlertStyle;
+      alert.alertStyle = NSAlertStyleWarning;
       [alert addButtonWithTitle: @"Close"];
       [alert runModal];
 

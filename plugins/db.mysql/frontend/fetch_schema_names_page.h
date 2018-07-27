@@ -25,9 +25,9 @@
 
 #include "grtui/wizard_progress_page.h"
 
-class FetchSchemaNamesProgressPage : public WizardProgressPage {
+class FetchSchemaNamesProgressPage : public grtui::WizardProgressPage {
 public:
-  FetchSchemaNamesProgressPage(WizardForm *form, const char *name = "fetchNames")
+  FetchSchemaNamesProgressPage(grtui::WizardForm *form, const char *name = "fetchNames")
     : WizardProgressPage(form, name, true), _dbconn(0) {
     set_title(_("Connect to DBMS and Fetch Information"));
     set_short_title(_("Connect to DBMS"));

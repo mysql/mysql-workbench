@@ -23,21 +23,16 @@
 
 #pragma once
 
-#ifdef _WIN32
-#ifdef _WIN64
-typedef __int64 ssize_t;
-#else
-typedef int ssize_t;
-#endif
+#ifdef _MSC_VER
+  #ifdef _WIN64
+    typedef __int64 ssize_t;
+  #else
+    typedef int ssize_t;
+  #endif
 #endif
 
 #include <boost/signals2.hpp>
 #include "base/threading.h"
-
-#if defined(ENABLE_DEBUG) || defined(_DEBUG)
-//#define GRT_LEAK_DETECTOR_ENABLED
-//#define GRT_LEAK_DETECTOR_RECORD_CALL_STACK
-#endif
 
 namespace grt {
   class GRT;
@@ -58,8 +53,10 @@ namespace grt {
 
     SimpleTypeSpec() : type(UnknownType) {
     }
+
     SimpleTypeSpec(const SimpleTypeSpec &o) : type(o.type), object_class(o.object_class) {
     }
+
     inline SimpleTypeSpec &operator=(const SimpleTypeSpec &o) {
       type = o.type;
       object_class = o.object_class;
@@ -101,81 +98,44 @@ namespace grt {
     type_error(const std::string &expected, const std::string &actual);
     type_error(const std::string &expected, const std::string &actual, Type container);
     type_error(const std::string &expected, Type actual);
-    type_error(const std::string &msg) : std::logic_error(msg) {
-    }
+    type_error(const std::string &msg) : std::logic_error(msg) {}
   };
 
 //------------------------------------------------------------------------------------------------
-#ifdef GRT_LEAK_DETECTOR_ENABLED
-  namespace LeakDetector {
-    MYSQLGRT_PUBLIC void print_leaks();
-    MYSQLGRT_PUBLIC void update_objects_data();
-    MYSQLGRT_PUBLIC void enable();
-    MYSQLGRT_PUBLIC void disable();
-    MYSQLGRT_PUBLIC void reset();
-  };
-#else
-  namespace LeakDetector {
-    inline void print_leaks(){};
-    inline void update_objects_data(){};
-    inline void enable(){};
-    inline void disable(){};
-    inline void reset(){};
-  };
 
-#endif
-
-  namespace internal {
+namespace internal {
 
     class Object;
 
     class MYSQLGRT_PUBLIC Value {
     public:
+      virtual ~Value() {}
+
       virtual Type get_type() const = 0;
 
-      Value *retain() {
-        g_atomic_int_inc(&_refcount);
-        return this;
-      }
-
-      void release() {
-#ifdef DEBUG
-        if (_refcount == 0)
-          g_warning("GRT: releasing invalid object");
-#endif
-        if (g_atomic_int_dec_and_test(&_refcount))
-          delete this;
-      }
+      Value *retain();
+      void release();
 
       virtual std::string debugDescription(const std::string &indentation = "") const = 0;
       virtual std::string toString() const = 0;
 
-      inline base::refcount_t refcount() const {
-        return g_atomic_int_get(&_refcount);
-      }
+      base::refcount_t refcount() const;
 
-      virtual void mark_global() const {
-      }
-      virtual void unmark_global() const {
-      }
+      virtual void mark_global() const {}
+      virtual void unmark_global() const {}
 
       virtual bool equals(const Value *) const = 0;
       virtual bool less_than(const Value *) const = 0;
 
-      // reset_references helps to free memory allocated
-      // by Value. The method is overridden in Object, List and Dict.
-      virtual void reset_references() {
-      }
+      // This method helps to free memory allocated by Value.
+      // It is overridden in Object, List and Dict.
+      virtual void reset_references() {}
 
     protected:
-      Value() : _refcount(0) {
-      }
-      virtual ~Value() {
-      }
+      Value() : _refcount(0) {}
 
     private:
-      Value(const Value &) {
-      }
+      Value(const Value &) {}
 
       volatile mutable base::refcount_t _refcount;
     };
@@ -504,6 +464,8 @@ namespace grt {
         return "Object";
       }
 
+      virtual ~Object();
+
       const std::string &id() const;
       MetaClass *get_metaclass() const;
       const std::string &class_name() const;
@@ -565,9 +527,6 @@ namespace grt {
       friend class internal::Unserializer;
 
       explicit Object(MetaClass *gclass);
-#ifdef GRT_LEAK_DETECTOR_ENABLED
-      virtual ~Object();
-#endif
 
       void owned_member_changed(const std::string &name, const grt::ValueRef &ovalue, const grt::ValueRef &nvalue);
       void member_changed(const std::string &name, const grt::ValueRef &ovalue, const grt::ValueRef &nvalue);

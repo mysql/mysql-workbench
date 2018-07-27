@@ -148,7 +148,7 @@ void bec::ValidationMessagesBE::validation_message(const grt::Validator::Tag& ta
       _warnings.push_back(Message(msg, obj, tag));
       break;
     }
-    default: { logWarning("Unhandled type in validation_message"); }
+    default: { logWarning("Unhandled type in validation_message\n"); }
   }
 
   tree_changed();
@@ -169,7 +169,7 @@ void bec::ValidationManager::register_validator(const std::string& type, grt::Va
   if (mc)
     mc->add_validator(v);
   else
-    g_warning("Specified metaclass '%s' is not known.", type.c_str());
+    logWarning("Specified metaclass '%s' is not known.\n", type.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------

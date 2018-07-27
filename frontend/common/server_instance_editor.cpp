@@ -186,7 +186,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     scoped_connect(_no_remote_admin.signal_clicked(), std::bind(&ServerInstanceEditor::toggle_administration, this));
     _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
     scoped_connect(_win_remote_admin.signal_clicked(), std::bind(&ServerInstanceEditor::toggle_administration, this));
-#ifndef _WIN32
+#ifndef _MSC_VER
     _win_remote_admin.set_enabled(false);
 #endif
     _ssh_remote_admin.set_text(_("SSH login based management"));
@@ -220,7 +220,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     remote_param_table->add(manage(RLabel(_("Password:"))), 0, 1, 2, 3, HFillFlag);
     remote_param_table->add(&_password_box, 1, 2, 2, 3, HExpandFlag | HFillFlag | mforms::VFillFlag);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     _password_set.set_text(_("Store in Vault ..."));
     _password_set.set_tooltip(_("Store the password for this connection in the secured vault."));
     _password_clear.set_text(_("Remove from Vault"));
@@ -345,7 +345,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
 
     table = NewTable(3, 2);
     _details_panel.set_title(_("MySQL Management"));
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined(_MSC_VER) || defined(__APPLE__)
     _details_panel.add(manage(table));
 #else
     // XXX tmp workaround for crash caused by changed destruction routine
@@ -360,7 +360,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     scoped_connect(_stop_cmd.signal_changed(), std::bind(&ServerInstanceEditor::entry_changed, this, &_stop_cmd));
 
     table->add(&_sudo_check, 1, 2, 2, 3, HFillFlag | HExpandFlag);
-#ifndef _WIN32
+#ifndef _MSC_VER
     _sudo_check.set_text(_("Elevate privileges to execute start/stop commands\nand write configuration data"));
 #else
     _sudo_check.set_text(
@@ -443,7 +443,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
         try {
           dict = grt::DictRef::cast_from(grt::GRT::get()->unserialize(path + "/" + file));
         } catch (std::exception &exc) {
-          g_warning("Profile %s contains invalid data: %s", path.c_str(), exc.what());
+          logWarning("Profile %s contains invalid data: %s\n", path.c_str(), exc.what());
           continue;
         }
         _presets[dict.get_string("sys.system")].push_back(std::make_pair(label, dict));
@@ -469,23 +469,22 @@ ServerInstanceEditor::~ServerInstanceEditor() {
 void ServerInstanceEditor::set_password(bool clear) {
   std::string port = _ssh_port.get_string_value();
 
-  std::string storage_key;
+  std::string storageKey;
   if (_ssh_remote_admin.get_active()) {
-    // WBA stores password with key ssh@host, without port
-    // storage_key = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
-    storage_key = strfmt("ssh@%s", _remote_host.get_string_value().c_str());
+    // WBA stores password with key ssh@host:port
+    storageKey = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
   } else
-    storage_key = "wmi@" + _remote_host.get_string_value();
-  std::string username = _remote_user.get_string_value();
+    storageKey = "wmi@" + _remote_host.get_string_value();
+  std::string userName = _remote_user.get_string_value();
 
-  if (username.empty()) {
+  if (userName.empty()) {
     mforms::Utilities::show_warning("Cannot Set Password", "Please fill the username to be used.", "OK");
     return;
   }
 
   if (clear) {
     try {
-      mforms::Utilities::forget_password(storage_key, username);
+      mforms::Utilities::forget_password(storageKey, userName);
     } catch (std::exception &exc) {
       mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
     }
@@ -493,8 +492,8 @@ void ServerInstanceEditor::set_password(bool clear) {
     std::string password;
 
     try {
-      if (mforms::Utilities::ask_for_password(_("Store Password For Server"), storage_key, username, password))
-        mforms::Utilities::store_password(storage_key, username, password);
+      if (mforms::Utilities::ask_for_password(_("Store Password For Server"), storageKey, userName, password))
+        mforms::Utilities::store_password(storageKey, userName, password);
     } catch (std::exception &exc) {
       mforms::Utilities::show_error("Store Password", base::strfmt("Could not store password: %s", exc.what()), "OK");
     }
@@ -677,7 +676,7 @@ void ServerInstanceEditor::toggle_administration() {
       instance->serverInfo().remove("remoteAdmin");
 
 // Win admin and ssh admin are mutual exclusive. This semantic is enforced by radio buttons in the UI.
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (local_connection || win_administration)
 #else
     if (win_administration)
@@ -801,9 +800,7 @@ void ServerInstanceEditor::add_instance() {
     }
     _connections.insert(connection);
     _connect_panel->set_connection(connection);
-  } else
-    g_warning("add_row returned -1");
-
+  }
   show_connection();
 }
 
@@ -864,9 +861,7 @@ void ServerInstanceEditor::duplicate_instance() {
   if (node) {
     node->set_string(0, name);
     _stored_connection_list.select_node(node);
-  } else
-    g_warning("add_row returned -1");
-
+  }
   show_connection();
 }
 
@@ -1028,7 +1023,7 @@ void ServerInstanceEditor::connection_changed()
     }
     else
     {
-#ifdef _WIN32
+#ifdef _MSC_VER
       _win_remote_admin.set_enabled(true);
 #else
       _win_remote_admin.set_enabled(false);
@@ -1174,7 +1169,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
   if (serverInfo.get_int("remoteAdmin") != 0)
     _ssh_remote_admin.set_active(true);
   else
-#ifdef _WIN32
+#ifdef _MSC_VER
     if (serverInfo.get_int("windowsAdmin") != 0)
     _win_remote_admin.set_active(true);
   else
@@ -1183,21 +1178,20 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 
   grt::DictRef loginInfo(instance.is_valid() ? instance->loginInfo() : grt::DictRef(true));
 
-  std::string storage_key;
+  std::string storageKey;
   std::string port = _ssh_port.get_string_value();
-  std::string username;
+  std::string userName;
   if (_ssh_remote_admin.get_active()) {
     _remote_host.set_value(loginInfo.get_string("ssh.hostName"));
     _remote_user.set_value(loginInfo.get_string("ssh.userName"));
-    username = _remote_user.get_string_value();
-    // WBA stores password key as "ssh@<host>"
-    // storage_key = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
-    storage_key = strfmt("ssh@%s", _remote_host.get_string_value().c_str());
+    userName = _remote_user.get_string_value();
+    // WBA stores password key as "ssh@<host>:<port>"
+    storageKey = strfmt("ssh@%s:%s", _remote_host.get_string_value().c_str(), port.empty() ? "22" : port.c_str());
   } else {
     _remote_host.set_value(loginInfo.get_string("wmi.hostName"));
     _remote_user.set_value(loginInfo.get_string("wmi.userName"));
-    username = _remote_user.get_string_value();
-    storage_key = "wmi@" + _remote_host.get_string_value();
+    userName = _remote_user.get_string_value();
+    storageKey = "wmi@" + _remote_host.get_string_value();
   }
   _ssh_port.set_value(loginInfo.get_string("ssh.port"));
   _ssh_usekey.set_active(loginInfo.get_int("ssh.useKey") != 0);
@@ -1205,7 +1199,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
 
   std::string dummy;
 
-  if (instance.is_valid() && !username.empty() && mforms::Utilities::find_password(storage_key, username, dummy))
+  if (instance.is_valid() && !userName.empty() && mforms::Utilities::find_password(storageKey, userName, dummy))
     _password_clear.set_enabled(true);
   else
     _password_clear.set_enabled(false);
@@ -1232,7 +1226,7 @@ void ServerInstanceEditor::show_instance_info(db_mgmt_ConnectionRef connection, 
     _win_remote_admin.set_enabled(false);
     _ssh_remote_admin.set_enabled(false);
   } else {
-#ifdef _WIN32
+#ifdef _MSC_VER
     _win_remote_admin.set_enabled(true);
 #else
     _win_remote_admin.set_enabled(false);

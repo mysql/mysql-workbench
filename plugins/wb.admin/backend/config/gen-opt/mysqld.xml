@@ -31,7 +31,6 @@
     <section id="bdb"/>
     <section id="binlog"/>
     <section id="blackhole"/>
-    <section id="cluster"/>
     <section id="connect"/>
     <section id="csv"/>
     <section id="db2"/>
@@ -2054,6 +2053,34 @@
 
   </mysqloption>
 
+  <mysqloption section="xplugin" id="mysqlx_document_id_unique_prefix">
+
+    <xrefto id="sysvar_mysqlx_document_id_unique_prefix"/>
+
+    <name>mysqlx_document_id_unique_prefix</name>
+
+    <description lang="en">
+      Use a custom prefix for document IDs.
+    </description>
+
+    <types>
+      <cmdline format="--mysqlx-document-id-unique-prefix=value"/>
+      <mycnf format="mysqlx_document_id_unique_prefix=value"/>
+      <system isdynamic="yes" scope="global"/>
+    </types>
+
+    <values vartype="integer" platform="all">
+      <value default="0"/>
+      <value minimum="0"/>
+      <value maximum="65535"/>
+    </values>
+
+    <versions>
+      <manual version="8.0"/>
+    </versions>
+
+  </mysqloption>
+
   <mysqloption section="xplugin" id="mysqlx_idle_worker_thread_timeout">
 
     <xrefto id="sysvar_mysqlx_idle_worker_thread_timeout"/>
@@ -2364,7 +2391,7 @@
     </types>
 
     <values vartype="integer" platform="all">
-      <value default="28800"/>
+      <value default="60"/>
       <value minimum="1"/>
       <value maximum="2147483"/>
     </values>
@@ -2379,6 +2406,30 @@
 <!-- end of xplugin system variables -->
 
 <!-- xplugin status variables -->
+
+  <mysqloption section="xplugin" id="Mysqlx_aborted_clients">
+
+    <xrefto id="statvar_Mysqlx_aborted_clients"/>
+
+    <name>Mysqlx_aborted_clients</name>
+
+    <description>
+      Number of clients that were disconnected because of an input or
+      output timeout.
+    </description>
+
+    <types>
+      <status isdynamic="no" scope="global"/>
+    </types>
+
+    <values vartype="integer" platform="all"/>
+
+    <versions>
+      <manual version="5.7"/>
+      <manual version="8.0"/>
+    </versions>
+
+  </mysqloption>
 
   <mysqloption section="xplugin" id="Mysqlx_address">
 
@@ -2866,7 +2917,7 @@
 
   </mysqloption>
 
-  <mysqloption section="xplugin" id="Mysqlx_crud_create_view ">
+  <mysqloption section="xplugin" id="Mysqlx_crud_create_view">
 
     <xrefto id="statvar_Mysqlx_crud_create_view"/>
 
@@ -2912,9 +2963,9 @@
 
   </mysqloption>
 
-  <mysqloption section="xplugin" id="Mysqlx_crud_modify_view ">
+  <mysqloption section="xplugin" id="Mysqlx_crud_modify_view">
 
-    <xrefto id="statvar_Mysqlx_crud_modify_view "/>
+    <xrefto id="statvar_Mysqlx_crud_modify_view"/>
 
     <name>Mysqlx_crud_modify_view </name>
 
@@ -4029,6 +4080,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4064,6 +4117,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4093,6 +4148,8 @@
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4125,6 +4182,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4153,6 +4212,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4178,6 +4239,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4203,6 +4266,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4228,6 +4293,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4253,6 +4320,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4278,6 +4347,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4303,6 +4374,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4332,6 +4405,8 @@
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4361,6 +4436,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4392,6 +4469,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4415,6 +4494,8 @@
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.13"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4444,6 +4525,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4496,6 +4579,8 @@
       <introduced version="5.6.14"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4525,6 +4610,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4561,6 +4648,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4596,6 +4685,8 @@
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4627,6 +4718,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4659,6 +4752,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4694,6 +4789,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4719,6 +4816,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4744,6 +4843,8 @@
       <introduced version="5.6.20"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4776,6 +4877,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -4806,6 +4909,8 @@
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -5554,7 +5659,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     </types>
 
     <values vartype="integer" platform="all">
-      <value minimum="20480 "/>
+      <value minimum="20480"/>
     </values>
 
 <!--
@@ -6006,7 +6111,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     <description>
       Enables logging of rows query log events when using row-based
       logging. Disabled by default. Do not enable when producing logs
-      for pre-5.6.2 slaves/readers.
+      for pre-5.6 slaves/readers.
     </description>
 
     <types>
@@ -6260,8 +6365,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     <name>binlog_expire_logs_seconds</name>
 
     <description>
-      Purge binary logs after this many seconds; effects are additive
-      with expire_logs_days
+      Purge binary logs after this many seconds
     </description>
 
     <types>
@@ -6270,8 +6374,16 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system scope="global" isdynamic="yes"/>
     </types>
 
-    <values vartype="integer" platform="all">
-      <value minimum="0" default="0" maximum="4294967295"/>
+    <values vartype="integer" platform="all" outversion="8.0.4">
+      <value minimum="0"/>
+      <value maximum="4294967295"/>
+      <value default="0"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.11">
+      <value minimum="0"/>
+      <value maximum="4294967295"/>
+      <value default="2592000"/>
     </values>
 
     <versions>
@@ -6356,7 +6468,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system scope="global" format="binlog_gtid_simple_recovery" isdynamic="no"/>
     </types>
 
-    <values vartype="boolean" platform="all">
+    <values vartype="boolean" platform="all" outversion="5.7.6">
       <value default="FALSE"/>
     </values>
 
@@ -6529,7 +6641,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     <description>
       When TRUE, enables logging of rows query log events in row-based
       logging mode. FALSE by default. Do not enable when producing logs
-      for pre-5.6.2 replication slaves or other readers.
+      for pre-5.6 replication slaves or other readers.
     </description>
 
     <types>
@@ -6677,8 +6789,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     </values>
 
     <versions>
-<!--      <manual version="5.7"/>
-      <introduced version="5.7.20"/>-->
+      <manual version="5.7"/>
+      <introduced version="5.7.22"/>
       <manual version="8.0"/>
       <introduced version="8.0.1"/>
     </versions>
@@ -6697,7 +6809,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     </description>
 
     <types>
-      <cmdline format="--binlog-transaction-dependency-size=#" setvar="binlog_transaction_dependency_history_size"/>
+      <cmdline format="--binlog-transaction-dependency-history-size=#" setvar="binlog_transaction_dependency_history_size"/>
       <mycnf/>
       <system scope="global" isdynamic="yes"/>
     </types>
@@ -6707,8 +6819,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     </values>
 
     <versions>
-<!--      <manual version="5.7"/>
-      <introduced version="5.7.20"/>-->
+      <manual version="5.7"/>
+      <introduced version="5.7.22"/>
       <manual version="8.0"/>
       <introduced version="8.0.1"/>
     </versions>
@@ -7205,7 +7317,17 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system isdynamic="yes" scope="both"/>
     </types>
 
-    <values vartype="string" platform="all"/>
+    <values vartype="string" platform="all" outversion="5.1.99">
+      <value default="latin1"/>
+    </values>
+
+    <values vartype="string" platform="all" inversion="5.5.0" outversion="8.0.0">
+      <value default="utf8"/>
+    </values>
+
+    <values vartype="string" platform="all" inversion="8.0.1">
+      <value default="utf8mb4"/>
+    </values>
 
     <versions>
       <manual version="4.1"/>
@@ -7236,7 +7358,17 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system isdynamic="yes" scope="both"/>
     </types>
 
-    <values vartype="string" platform="all"/>
+    <values vartype="string" platform="all" outversion="5.1.99">
+      <value default="latin1"/>
+    </values>
+
+    <values vartype="string" platform="all" inversion="5.5.0" outversion="8.0.0">
+      <value default="utf8"/>
+    </values>
+
+    <values vartype="string" platform="all" inversion="8.0.1">
+      <value default="utf8mb4"/>
+    </values>
 
     <versions>
       <manual version="4.1"/>
@@ -7316,7 +7448,17 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system isdynamic="yes" scope="both"/>
     </types>
 
-    <values vartype="string" platform="all"/>
+    <values vartype="string" platform="all" outversion="5.1.99">
+      <value default="latin1"/>
+    </values>
+
+    <values vartype="string" platform="all" inversion="5.5.0" outversion="8.0.0">
+      <value default="utf8"/>
+    </values>
+
+    <values vartype="string" platform="all" inversion="8.0.1">
+      <value default="utf8mb4"/>
+    </values>
 
     <versions>
       <manual version="4.1"/>
@@ -13724,7 +13866,39 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
 
     <versions>
       <manual version="4.1"/>
-      <deprecated version="4.1.3"/>
+      <introduced version="4.1.3"/>
+      <manual version="5.0"/>
+      <deprecated version="5.0.0"/>
+      <manual version="5.1"/>
+      <manual version="5.5"/>
+      <removed version="5.5.3"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="server" id="default_collation_for_utf8mb4">
+
+    <xrefto id="sysvar_default_collation_for_utf8mb4"/>
+
+    <name>default_collation_for_utf8mb4</name>
+
+    <description>
+      Default collation for utf8mb4 character set
+    </description>
+
+    <types>
+      <mycnf/>
+      <system isdynamic="yes" scope="both" hintable="no"/>
+    </types>
+
+    <values vartype="enumeration" platform="all">
+      <choice value="utf8mb4_0900_ai_ci"/>
+      <choice value="utf8mb4_general_ci"/>
+    </values>
+
+    <versions>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -14457,7 +14631,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <mycnf/>
     </types>
 
-    <values vartype="boolean" platform="all" inversion="5.7.17">
+    <values vartype="boolean" platform="all" inversion="5.7.17" outversion="5.7.20">
       <value default="false"/>
     </values>
 
@@ -15114,8 +15288,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     <name>expire_logs_days</name>
 
     <description>
-      If nonzero, binary logs will be purged after expire_logs_days
-      days; possible purges happen at startup and at binary log rotation
+      Purge binary logs after this many days
     </description>
 
     <types>
@@ -15124,14 +15297,20 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system isdynamic="yes" scope="global"/>
     </types>
 
-    <values vartype="integer" platform="all">
+    <values vartype="integer" platform="all" outversion="8.0.1">
       <value default="0"/>
       <value minimum="0"/>
       <value maximum="99"/>
     </values>
 
-    <values vartype="integer" platform="all" inversion="8.0.2">
+    <values vartype="integer" platform="all" outversion="8.0.4">
       <value default="30"/>
+      <value minimum="0"/>
+      <value maximum="99"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.11">
+      <value default="0"/>
       <value minimum="0"/>
       <value maximum="99"/>
     </values>
@@ -15145,6 +15324,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <manual version="5.6"/>
       <manual version="5.7"/>
       <manual version="8.0"/>
+      <deprecated version="8.0.3"/>
       <manual version="6.0"/>
     </versions>
 
@@ -16100,6 +16280,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.24"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -16125,6 +16307,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.24"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -16150,6 +16334,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.24"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -18969,7 +19155,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     </types>
 
     <values vartype="integer" platform="all">
-      <value default="5" minimum="1" maximum="1073741824 "/>
+      <value default="5" minimum="1" maximum="1073741824"/>
     </values>
 
     <versions>
@@ -22837,7 +23023,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     <types>
       <cmdline format="--innodb_log_buffer_size=#" setvar="innodb_log_buffer_size"/>
       <mycnf/>
-      <system isdynamic="no" scope="global"/>
+      <system isdynamic="no" scope="global" outversion="8.0.4"/>
+      <system isdynamic="yes" scope="global" inversion="8.0.11"/>
     </types>
 
     <values vartype="integer" platform="all" outversion="5.1.99">
@@ -23146,6 +23333,66 @@ but let's keep things simple.
 
   </mysqloption>
 
+  <mysqloption section="innodb" id="innodb_log_spin_cpu_abs_lwm">
+
+    <xrefto id="sysvar_innodb_log_spin_cpu_abs_lwm"/>
+
+    <name>innodb_log_spin_cpu_abs_lwm</name>
+
+    <description>
+      Minimum amount of CPU usage below which user threads no longer
+      spin while waiting for flushed redo
+    </description>
+
+    <types>
+      <cmdline format="--innodb_log_spin_cpu_abs_lwm=#" setvar="innodb_log_spin_cpu_abs_lwm"/>
+      <mycnf/>
+      <system scope="global" isdynamic="yes"/>
+    </types>
+
+    <values vartype="integer" platform="all">
+      <value default="80"/>
+      <value minimum="0"/>
+      <value maximum="4294967295"/>
+    </values>
+
+    <versions>
+      <introduced version="8.0.11"/>
+      <manual version="8.0"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="innodb" id="innodb_log_spin_cpu_pct_hwm">
+
+    <xrefto id="sysvar_innodb_log_spin_cpu_pct_hwm"/>
+
+    <name>innodb_log_spin_cpu_pct_hwm</name>
+
+    <description>
+      Maximum amount of CPU usage above which user threads no longer
+      spin while waiting for flushed redo
+    </description>
+
+    <types>
+      <cmdline format="--innodb_log_spin_cpu_pct_hwm=#" setvar="innodb_log_spin_cpu_pct_hwm"/>
+      <mycnf/>
+      <system scope="global" isdynamic="yes"/>
+    </types>
+
+    <values vartype="integer" platform="all">
+      <value default="50"/>
+      <value minimum="0"/>
+      <value maximum="100"/>
+    </values>
+
+    <versions>
+      <introduced version="8.0.11"/>
+      <manual version="8.0"/>
+    </versions>
+
+  </mysqloption>
+
   <mysqloption section="innodb" id="Innodb_log_waits">
 
     <xrefto id="statvar_Innodb_log_waits"/>
@@ -23173,6 +23420,42 @@ but let's keep things simple.
       <manual version="5.7"/>
       <manual version="8.0"/>
       <manual version="6.0"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="innodb" id="innodb_log_wait_for_flush_spin_hwm">
+
+    <xrefto id="sysvar_innodb_log_wait_for_flush_spin_hwm"/>
+
+    <name>innodb_log_wait_for_flush_spin_hwm</name>
+
+    <description>
+      The maximum average log flush time beyond which user threads no
+      longer spin while waiting for flushed redo
+    </description>
+
+    <types>
+      <cmdline format="--innodb_log_wait_for_flush_spin_hwm=#" setvar="innodb_log_wait_for_flush_spin_hwm"/>
+      <mycnf/>
+      <system scope="global" isdynamic="yes"/>
+    </types>
+
+    <values vartype="integer" platform="all" bitsize="32">
+      <value default="400"/>
+      <value minimum="0"/>
+      <value maximum="2**32-1"/>
+    </values>
+
+    <values vartype="integer" platform="all" bitsize="64">
+      <value default="400"/>
+      <value minimum="0"/>
+      <value maximum="2**64-1"/>
+    </values>
+
+    <versions>
+      <introduced version="8.0.11"/>
+      <manual version="8.0"/>
     </versions>
 
   </mysqloption>
@@ -25857,12 +26140,12 @@ but let's keep things simple.
     </values>
 
     <versions>
-      <introduced version="5.6.29"/>
-      <introduced version="5.7.11"/>
-      <introduced version="8.0.0"/>
       <manual version="5.6"/>
+      <introduced version="5.6.29"/>
       <manual version="5.7"/>
+      <introduced version="5.7.11"/>
       <manual version="8.0"/>
+      <introduced version="8.0.0"/>
     </versions>
 
   </mysqloption>
@@ -26639,7 +26922,7 @@ but let's keep things simple.
       <system scope="global" isdynamic="yes"/>
     </types>
 
-    <values vartype="enumeration" platform="all" inversion="5.7.5" outversion="5.7.5">
+    <values vartype="enumeration" platform="all" outversion="5.7.5">
       <value default="MYISAM"/>
       <choice value="MYISAM"/>
       <choice value="INNODB"/>
@@ -27232,6 +27515,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -27259,6 +27544,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -27286,6 +27573,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -27324,6 +27613,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -27351,6 +27642,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -27374,6 +27667,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -27617,6 +27912,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.12"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28002,6 +28299,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28029,6 +28328,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28056,6 +28357,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28083,6 +28386,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28110,6 +28415,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28137,6 +28444,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28164,6 +28473,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28193,6 +28504,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28222,6 +28535,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28251,6 +28566,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28276,6 +28593,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28305,6 +28624,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28332,6 +28653,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28359,6 +28682,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28386,6 +28711,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28413,6 +28740,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28440,6 +28769,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28467,6 +28798,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28494,6 +28827,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28521,6 +28856,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28548,6 +28885,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.21"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28577,6 +28916,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28606,6 +28947,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28635,6 +28978,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28660,6 +29005,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28689,6 +29036,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28716,6 +29065,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -28743,6 +29094,8 @@ but let's keep things simple.
     <versions>
       <manual version="5.7"/>
       <introduced version="5.7.19"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -29610,8 +29963,12 @@ but let's keep things simple.
       <mycnf/>
     </types>
 
-    <values vartype="integer" platform="all" bitsize="32" outversion="5.7.99">
+    <values vartype="integer" platform="all" bitsize="32" outversion="5.7.20">
       <value default="24576" maximum="4294967295"/>
+    </values>
+
+    <values vartype="integer" platform="all" bitsize="32" inversion="5.7.21">
+      <value default="6 * page size" minimum="6 * page size" maximum="4294967295"/>
     </values>
 
     <values vartype="integer" platform="all" bitsize="64" outversion="5.5.2">
@@ -29620,10 +29977,6 @@ but let's keep things simple.
 
     <values vartype="integer" platform="all" bitsize="64" inversion="5.5.3" outversion="5.7.20">
       <value default="24576" maximum="18446744073709551615"/>
-    </values>
-
-    <values vartype="integer" platform="all" bitsize="32" inversion="5.7.21">
-      <value default="6 * page size" minimum="6 * page size" maximum="4294967295"/>
     </values>
 
     <values vartype="integer" platform="all" bitsize="64" inversion="5.7.21">
@@ -29793,9 +30146,7 @@ but let's keep things simple.
       <system scope="global" isdynamic="no"/>
     </types>
 
-    <values vartype="filename" platform="all">
-      <value default="datadir + '/' + hostname + '-bin'"/>
-    </values>
+    <values vartype="filename" platform="all"></values>
 
     <versions>
       <manual version="5.6"/>
@@ -29909,6 +30260,7 @@ but let's keep things simple.
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
       <manual version="8.0"/>
+      <removed version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -32692,7 +33044,7 @@ but let's keep things simple.
 
   </mysqloption>
 
-  <mysqloption section="innodb" id="mecab_rc_file">
+  <mysqloption section="server" id="mecab_rc_file">
 
     <xrefto id="sysvar_mecab_rc_file"/>
 
@@ -32700,7 +33052,7 @@ but let's keep things simple.
 
     <description>
       Path to the mecabrc configuration file for the MeCab parser for
-      InnoDB Full-Text Search
+      full-text search
     </description>
 
     <types>
@@ -33536,6 +33888,8 @@ but let's keep things simple.
       <introduced version="5.6.24"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -33565,6 +33919,8 @@ but let's keep things simple.
       <introduced version="5.6.24"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -38948,15 +39304,15 @@ but let's keep things simple.
 
   </mysqloption>
 
-  <mysqloption section="innodb" id="ngram_token_size">
+  <mysqloption section="server" id="ngram_token_size">
 
     <xrefto id="sysvar_ngram_token_size"/>
 
     <name>ngram_token_size</name>
 
     <description>
-      Defines the n-gram token size for the InnoDB Full-Text Search
-      n-gram parser
+      Defines the n-gram token size for the full-text search ngram
+      parser
     </description>
 
     <types>
@@ -39027,8 +39383,36 @@ but let's keep things simple.
     </values>
 
     <versions>
-      <introduced version="8.0.4"/>
       <manual version="8.0"/>
+      <introduced version="8.0.4"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="server" id="no-monitor">
+
+    <xrefto id="option_mysqld_no-monitor"/>
+
+    <name>no-monitor</name>
+
+    <description>
+      Do not fork monitor process required for RESTART
+    </description>
+
+    <platforms applies="windows"/>
+
+    <types>
+      <cmdline format="--no-monitor"/>
+      <mycnf/>
+    </types>
+
+    <values vartype="boolean" platform="all">
+      <value default="FALSE"/>
+    </values>
+
+    <versions>
+      <manual version="8.0"/>
+      <introduced version="8.0.12"/>
     </versions>
 
   </mysqloption>
@@ -39255,8 +39639,9 @@ but let's keep things simple.
       <manual version="5.5"/>
       <manual version="5.6"/>
       <manual version="5.7"/>
-      <manual version="8.0"/>
       <deprecated version="5.7.6"/>
+      <manual version="8.0"/>
+      <removed version="8.0.11"/>
       <manual version="6.0"/>
     </versions>
 
@@ -41422,8 +41807,12 @@ but let's keep things simple.
       <system isdynamic="no" scope="global"/>
     </types>
 
-    <values vartype="integer" platform="all">
-      <value default="80"/>
+    <values vartype="integer" platform="all" outversion="8.0.11">
+      <value default="80" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="80" minimum="0" maximum="1024"/>
     </values>
 
     <versions>
@@ -41554,11 +41943,15 @@ but let's keep things simple.
     </types>
 
     <values vartype="integer" platform="all" outversion="5.7.8">
-      <value default="50"/>
+      <value default="50" minimum="0" maximum="256"/>
     </values>
 
-    <values vartype="integer" platform="all" inversion="5.7.9">
-      <value default="80"/>
+    <values vartype="integer" platform="all" inversion="5.7.9" outversion="8.0.11">
+      <value default="80" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="80" minimum="0" maximum="1024"/>
     </values>
 
     <versions>
@@ -41762,15 +42155,19 @@ but let's keep things simple.
     </types>
 
     <values vartype="integer" platform="all" outversion="8.0.0">
-      <value default="200"/>
+      <value default="200" minimum="0" maximum="256"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="8.0.1" outversion="8.0.2">
-      <value default="220"/>
+      <value default="220" minimum="0" maximum="256"/>
     </values>
 
-    <values vartype="integer" platform="all" inversion="8.0.3">
-      <value default="250"/>
+    <values vartype="integer" platform="all" inversion="8.0.3" outversion="8.0.11">
+      <value default="250" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="300" minimum="0" maximum="1024"/>
     </values>
 
     <versions>
@@ -41906,35 +42303,39 @@ but let's keep things simple.
     </types>
 
     <values vartype="integer" platform="all" outversion="5.5.6">
-      <value default="20"/>
+      <value default="20" minimum="0" maximum="256"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="5.5.7" outversion="5.5.99">
-      <value default="30"/>
+      <value default="30" minimum="0" maximum="256"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="5.6.0" outversion="5.6.0">
-      <value default="20"/>
+      <value default="20" minimum="0" maximum="256"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="5.6.1" outversion="5.6.14">
-      <value default="30"/>
+      <value default="30" minimum="0" maximum="256"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="5.6.15" outversion="5.6.99">
-      <value default="40"/>
+      <value default="40" minimum="0" maximum="256"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="5.7.0" outversion="5.7.2">
-      <value default="30"/>
+      <value default="30" minimum="0" maximum="256"/>
     </values>
 
-    <values vartype="integer" platform="all" inversion="5.7.3">
-      <value default="40"/>
+    <values vartype="integer" platform="all" inversion="5.7.3" outversion="8.0.11">
+      <value default="40" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="40" minimum="0" maximum="1024"/>
     </values>
 
     <values vartype="integer" platform="all" inversion="6.0.0" outversion="6.0.99">
-      <value default="20"/>
+      <value default="20" minimum="0" maximum="256"/>
     </values>
 
     <versions>
@@ -42005,8 +42406,12 @@ but let's keep things simple.
       <system isdynamic="no" scope="global"/>
     </types>
 
-    <values vartype="integer" platform="all">
-      <value default="10"/>
+    <values vartype="integer" platform="all" outversion="8.0.11">
+      <value default="10" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="10" minimum="0" maximum="1024"/>
     </values>
 
     <versions>
@@ -42099,8 +42504,12 @@ but let's keep things simple.
       <system isdynamic="no" scope="global"/>
     </types>
 
-    <values vartype="integer" platform="all">
-      <value default="150"/>
+    <values vartype="integer" platform="all" outversion="8.0.11">
+      <value default="150" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="150" minimum="0" maximum="1024"/>
     </values>
 
     <versions>
@@ -42294,11 +42703,15 @@ but let's keep things simple.
     </types>
 
     <values vartype="integer" platform="all" outversion="8.0.2">
-      <value default="50"/>
+      <value default="50" minimum="0" maximum="256"/>
     </values>
 
-    <values vartype="integer" platform="all" inversion="8.0.3">
-      <value default="100"/>
+    <values vartype="integer" platform="all" inversion="8.0.3" outversion="8.0.11">
+      <value default="100" minimum="0" maximum="256"/>
+    </values>
+
+    <values vartype="integer" platform="all" inversion="8.0.12">
+      <value default="100" minimum="0" maximum="1024"/>
     </values>
 
     <versions>
@@ -46501,6 +46914,36 @@ but let's keep things simple.
 
   </mysqloption>
 
+  <mysqloption section="replication" id="rpl_read_size">
+
+    <xrefto id="sysvar_rpl_read_size"/>
+
+    <name>rpl_read_size</name>
+
+    <description>
+      Set the minimum amount of data in bytes that is read from the
+      binary log files and relay log files
+    </description>
+
+    <types>
+      <system scope="global" isdynamic="yes"/>
+      <cmdline format="--rpl-read-size=#"/>
+      <mycnf/>
+    </types>
+
+    <values vartype="integer" platform="all">
+      <value minimum="8192"/>
+      <value maximum="4294967295"/>
+      <value default="8192"/>
+    </values>
+
+    <versions>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
+    </versions>
+
+  </mysqloption>
+
   <mysqloption section="replication" id="rpl_stop_slave_timeout">
 
     <xrefto id="sysvar_rpl_stop_slave_timeout"/>
@@ -46817,40 +47260,40 @@ server produces no warning until 5.5.26
     </types>
 
     <values vartype="string" platform="all" outversion="5.5.52">
-      <value default="empty"/>
-      <choice value="empty"/>
+      <value default="empty string"/>
+      <choice value="empty string"/>
       <choice value="dirname"/>
     </values>
 
     <values vartype="string" platform="all" inversion="5.5.53" outversion="5.5.99">
       <value default="platform specific"/>
-      <choice value="empty"/>
+      <choice value="empty string"/>
       <choice value="dirname"/>
       <choice value="NULL"/>
     </values>
 
     <values vartype="string" platform="all" inversion="5.6.0" outversion="5.6.33">
-      <value default="empty"/>
-      <choice value="empty"/>
+      <value default="empty string"/>
+      <choice value="empty string"/>
       <choice value="dirname"/>
     </values>
 
     <values vartype="string" platform="all" inversion="5.6.34" outversion="5.6.99">
       <value default="platform specific"/>
-      <choice value="empty"/>
+      <choice value="empty string"/>
       <choice value="dirname"/>
       <choice value="NULL"/>
     </values>
 
     <values vartype="string" platform="all" inversion="5.7.0" outversion="5.7.5">
-      <value default="empty"/>
-      <choice value="empty"/>
+      <value default="empty string"/>
+      <choice value="empty string"/>
       <choice value="dirname"/>
     </values>
 
     <values vartype="string" platform="all" inversion="5.7.6">
       <value default="platform specific"/>
-      <choice value="empty"/>
+      <choice value="empty string"/>
       <choice value="dirname"/>
       <choice value="NULL"/>
     </values>
@@ -47176,7 +47619,7 @@ server produces no warning until 5.5.26
     <values vartype="enumeration" platform="all">
       <choice value="OFF"/>
       <choice value="OWN_GTID"/>
-      <choice value="ALL_GTIDS "/>
+      <choice value="ALL_GTIDS"/>
       <value default="OFF"/>
     </values>
 
@@ -47549,6 +47992,32 @@ server produces no warning until 5.5.26
       <deprecated version="5.7.6"/>
       <manual version="8.0"/>
       <removed version="8.0.1"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="server" id="show_create_table_verbosity">
+
+    <xrefto id="sysvar_show_create_table_verbosity"/>
+
+    <name>show_create_table_verbosity</name>
+
+    <description>
+      Whether to display ROW_FORMAT in SHOW CREATE TABLE even if it has
+      the default value
+    </description>
+
+    <types>
+      <cmdline format="--show_create_table_verbosity"/>
+      <mycnf/>
+      <system isdynamic="yes" scope="both" hintable="no"/>
+    </types>
+
+    <versions>
+      <manual version="5.7"/>
+      <introduced version="5.7.22"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -48770,7 +49239,7 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
 
   </mysqloption>
 
-  <mysqloption section="cluster" id="slave_allow_batching">
+  <mysqloption section="ndb" id="slave_allow_batching">
 
     <xrefto id="sysvar_slave_allow_batching"/>
 
@@ -48925,8 +49394,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
     <values vartype="enumeration" platform="all">
       <choice value="IDEMPOTENT"/>
       <choice value="STRICT"/>
-      <value default="STRICT" se="ALL"/>
-      <value default="IDEMPOTENT" se="NDB"/>
+      <value default="IDEMPOTENT">NDB</value>
+      <value default="STRICT">Other</value>
     </values>
 
     <versions>
@@ -50932,6 +51401,36 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.3"/>
       <manual version="5.7"/>
       <manual version="8.0"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="server" id="ssl_fips_mode">
+
+    <xrefto id="sysvar_ssl_fips_mode"/>
+
+    <name>ssl_fips_mode</name>
+
+    <description>
+      Whether to enable FIPS mode on the server side
+    </description>
+
+    <types>
+      <cmdline format="--ssl_fips_mode={OFF|ON|STRICT}"/>
+      <mycnf/>
+      <system isdynamic="yes" scope="global" hintable="no"/>
+    </types>
+
+    <values vartype="enumeration" platform="all">
+      <value default="OFF"/>
+      <choice value="OFF">or 0</choice>
+      <choice value="ON">or 1</choice>
+      <choice value="STRICT">or 2</choice>
+    </values>
+
+    <versions>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -52981,8 +53480,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <value default="one-thread-per-connection"/>
       <choice value="no-threads"/>
       <choice value="one-thread-per-connection"/>
-<!-- dynamically-loaded: Enterprise only -->
-      <choice value="dynamically-loaded"/>
+<!-- loaded-dynamically: Enterprise only -->
+      <choice value="loaded-dynamically"/>
     </values>
 
     <values vartype="enumeration" platform="all" inversion="5.7.0" outversion="5.7.8">
@@ -52995,8 +53494,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <value default="one-thread-per-connection"/>
       <choice value="no-threads"/>
       <choice value="one-thread-per-connection"/>
-<!-- dynamically-loaded: Enterprise only -->
-      <choice value="dynamically-loaded"/>
+<!-- loaded-dynamically: Enterprise only -->
+      <choice value="loaded-dynamically"/>
     </values>
 
     <values vartype="enumeration" platform="all" inversion="6.0.0" outversion="6.0.3">
@@ -53052,6 +53551,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -53083,6 +53584,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -53114,6 +53617,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -53145,6 +53650,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -53180,6 +53687,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
       <manual version="6.0"/>
       <introduced version="6.0.4"/>
       <removed version="6.0.14"/>
@@ -53214,6 +53723,8 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <introduced version="5.6.10"/>
       <manual version="5.7"/>
       <introduced version="5.7.9"/>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>
@@ -53525,12 +54036,13 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <system isdynamic="no" scope="global"/>
     </types>
 
-    <values vartype="string" platform="openssl">
-      <value default="TLSv1,TLSv1.1,TLSv1.2"/>
+    <values vartype="string" platform="all" outversion="8.0.4">
+      <value default="TLSv1,TLSv1.1,TLSv1.2">OpenSSL</value>
+      <value default="TLSv1,TLSv1.1">yaSSL</value>
     </values>
 
-    <values vartype="string" platform="yassl">
-      <value default="TLSv1,TLSv1.1"/>
+    <values vartype="string" platform="all" inversion="8.0.11">
+      <value default="TLSv1,TLSv1.1,TLSv1.2"/>
     </values>
 
     <versions>
@@ -54909,6 +55421,29 @@ Really removed in 5.1.12,  but we do not want to display info in 5.1 manual
       <manual version="5.7"/>
       <manual version="8.0"/>
       <manual version="6.0"/>
+    </versions>
+
+  </mysqloption>
+
+  <mysqloption section="server" id="version_compile_zlib">
+
+    <xrefto id="sysvar_version_compile_zlib"/>
+
+    <name>version_compile_zlib</name>
+
+    <description>
+      Version of compiled-in zlib library
+    </description>
+
+    <types>
+      <system isdynamic="no" scope="global" hintable="no"/>
+    </types>
+
+    <values vartype="string" platform="all"/>
+
+    <versions>
+      <manual version="8.0"/>
+      <introduced version="8.0.11"/>
     </versions>
 
   </mysqloption>

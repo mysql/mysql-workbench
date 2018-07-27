@@ -84,7 +84,7 @@
     imageFrame.size = imageSize;
     [_image drawInRect: imageFrame
                fromRect: NSZeroRect
-              operation: NSCompositeSourceOver
+              operation: NSCompositingOperationSourceOver
                fraction: 1
         respectFlipped: YES
                  hints: nil];

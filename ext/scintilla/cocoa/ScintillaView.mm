@@ -761,7 +761,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
 #ifdef SCROLL_WHEEL_MAGNIFICATION
 - (void) scrollWheel: (NSEvent *) theEvent
 {
-  if (([theEvent modifierFlags] & NSCommandKeyMask) != 0) {
+  if (([theEvent modifierFlags] & NSEventModifierFlagCommand) != 0) {
     mOwner.backend->MouseWheel(theEvent);
   } else {
     [super scrollWheel:theEvent];
@@ -1208,7 +1208,7 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
   rect.size.height = 1.0;
   NSRect rectInWindow = [[[self superview] superview] convertRect:rect toView:nil];
   NSPoint pt = rectInWindow.origin;
-  NSEvent *event = [NSEvent mouseEventWithType: NSRightMouseDown
+  NSEvent *event = [NSEvent mouseEventWithType: NSEventTypeRightMouseDown
 				      location: pt
 				 modifierFlags: 0
 				     timestamp: 0
@@ -1591,7 +1591,7 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
  */
 - (void) positionSubViews
 {
-  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize:NSRegularControlSize
+  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize:NSControlSizeRegular
 						scrollerStyle:NSScrollerStyleLegacy];
 
   NSSize size = [self frame].size;

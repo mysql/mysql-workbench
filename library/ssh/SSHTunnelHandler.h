@@ -24,7 +24,7 @@
 #pragma once
 #include <errno.h>
 #include <fcntl.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <poll.h>
 #endif
 #include <string.h>
@@ -37,7 +37,7 @@
 
 namespace ssh {
 
-  class SSHTunnelHandler : public SSHThread {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHTunnelHandler : public SSHThread {
   public:
     SSHTunnelHandler(uint16_t localPort, int localSocket, std::shared_ptr<ssh::SSHSession> session);
     ~SSHTunnelHandler();

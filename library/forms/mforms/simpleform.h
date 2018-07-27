@@ -73,10 +73,10 @@ namespace mforms {
 // Visual Studio produces a warning about this structure and its use in the list below. It complains about having no
 // DLL interface for it. Huh? This is a private structure and never given out to anyone.
 // If that ever changes then remove the pragma and export the list type properly!
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4251)
-#endif // _WIN32
+#endif // _MSC_VER
     struct Row {
       Label *caption;
       View *view;
@@ -85,9 +85,9 @@ namespace mforms {
     };
     std::list<Row> _rows;
     std::string _ok_caption; // STL type, produces the same DLL-interface warning.
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(pop)
-#endif // _WIN32
+#endif // _MSC_VER
 
     Table *_content;
     Box *_button_box;

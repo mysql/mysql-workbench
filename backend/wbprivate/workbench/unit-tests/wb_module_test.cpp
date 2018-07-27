@@ -109,18 +109,18 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
   ensure_false("OSX, old, no 64-bit, extra chars", isOsSupportedProxy("..... OS X 10.1 ....."));
   ensure_false("OSX, supported, no 64-bit", isOsSupportedProxy("OS X 10.10"));
   ensure_false("OSX, supported, 32-bit", isOsSupportedProxy("OS X 10.10 i386"));
-  ensure_false("OSX, supported, 32-bit, extra chars", isOsSupportedProxy("..... OS X 10.10 i386 ....."));
-  ensure_true("OSX, supported", isOsSupportedProxy("OS X 10.10 x86_64"));
-  ensure_true("OSX, supported, extra chars", isOsSupportedProxy("..... OS X 10.10 ..... x86_64 ....."));
-  ensure_false("OSX, chars between name and version", isOsSupportedProxy("..... OS X ..... 10.10 ..... x86_64 ....."));
+  ensure_false("OSX, supported, 32-bit, extra chars", isOsSupportedProxy("..... macOS 10.13 i386 ....."));
+  ensure_true("OSX, supported", isOsSupportedProxy("macOS 10.13 x86_64"));
+  ensure_true("OSX, supported, extra chars", isOsSupportedProxy("..... macOS 10.13 ..... x86_64 ....."));
+  ensure_false("OSX, chars between name and version", isOsSupportedProxy("..... macOS ..... 10.13 ..... x86_64 ....."));
 
   // other debian-based
   ensure_false("Debian, old", isOsSupportedProxy("Debian 5 x86_64"));
   ensure_true("Debian, supported", isOsSupportedProxy("Debian 8 x86_64"));
 
   // other red-hat-based
-  ensure_false("Fedora, old", isOsSupportedProxy("Fedora release 20 x86_64"));
-  ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 24 x86_64"));
+  ensure_false("Fedora, old", isOsSupportedProxy("Fedora release 26 x86_64"));
+  ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 28 x86_64"));
 }
 
 // Due to the tut nature, this must be executed as a last test always,

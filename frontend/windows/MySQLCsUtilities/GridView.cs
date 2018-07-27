@@ -128,7 +128,7 @@ namespace MySQL.Controls
       using(Graphics g = CreateGraphics()) 
       {
         SizeF textSize = g.MeasureString("setRowHeight", font);
-        RowTemplate.Height = (int)textSize.Height + 1;
+        RowTemplate.Height = (int)(Math.Ceiling(textSize.Height) + 2);
       }
     }
 

@@ -24,9 +24,12 @@
 #include "grt.h"
 #include "grtpp_module_cpp.h"
 #include "grtpp_util.h"
+#include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/file_functions.h"
 #include "base/file_utilities.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 
@@ -180,7 +183,6 @@ bool Module::add_parse_function_spec(const std::string &spec,
     Module::Function func;
 
     if (g_strv_length(parts) != 3) {
-      g_warning("Error parsing module function spec: %s", spec.c_str());
       g_strfreev(parts);
       return false;
     }
@@ -189,7 +191,6 @@ bool Module::add_parse_function_spec(const std::string &spec,
 
     // parse return type
     if (!parse_type_spec(parts[1], func.ret_type)) {
-      g_warning("Error parsing module function spec: %s  '%s'", spec.c_str(), parts[1]);
       g_strfreev(parts);
       return false;
     }
@@ -203,7 +204,6 @@ bool Module::add_parse_function_spec(const std::string &spec,
       ArgSpec arg;
 
       if (!parse_param_spec(args[i], arg)) {
-        g_warning("Error parsing module function spec: %s  '%s'", spec.c_str(), args[i]);
         g_strfreev(args);
         return false;
       }
@@ -252,7 +252,7 @@ void Module::validate() const {
         throw std::logic_error(
           std::string("Module ").append(name()).append(" does not conform to interface ").append(*iter));
     } else
-      g_warning("Interface '%s' implemented by module '%s' is not registered", iter->c_str(), name().c_str());
+      logWarning("Interface '%s' implemented by module '%s' is not registered\n", iter->c_str(), name().c_str());
   }
 }
 

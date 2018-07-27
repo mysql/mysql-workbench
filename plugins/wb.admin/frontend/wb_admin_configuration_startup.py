@@ -22,7 +22,7 @@
 from mforms import newButton, newLabel, newBox, newCheckBox, newTextBox, Utilities
 import mforms
 
-from wb_common import dprint_ex, OperationCancelledError
+from wb_common import dprint_ex, OperationCancelledError, to_encodedString
 import datetime
 from wb_admin_utils import no_remote_admin_warning_label
 
@@ -105,7 +105,9 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
     def print_output(self, text):
         ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S - ")
         if self.startup_msgs_log:
-            self.startup_msgs_log.append_text_with_encoding(ts + text + "\n", self._ctrl_be.server_helper.cmd_output_encoding, True)
+            first = to_encodedString(ts + text + "\n")
+            second = to_encodedString(self._ctrl_be.server_helper.cmd_output_encoding)
+            self.startup_msgs_log.append_text_with_encoding(first, second, True)
 
     #---------------------------------------------------------------------------
     @property

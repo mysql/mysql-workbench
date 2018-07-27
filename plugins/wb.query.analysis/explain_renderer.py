@@ -345,7 +345,7 @@ class ExplainNode(VBoxFigure):
         if text:
             if type(text) is unicode:
                 text = text.encode("utf8")
-            self._context.tooltip = mforms.newPopover(mforms.PopoverStyleTooltip)
+            self._context.tooltip = mforms.newPopover(None, mforms.PopoverStyleTooltip)
 
             if fig.is_container:
                 xx, yy = self._context.client_to_screen(x + 10, y)

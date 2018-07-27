@@ -432,7 +432,7 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
   cancel_button.set_text(_("Cancel"));
   //  cancel_button.set_size(75, -1);
   Utilities::add_end_ok_cancel_buttons(&button_box, &ok_button, &cancel_button);
-  content.add(&button_box, 1, 3, 1, 2, HFillFlag);
+  content.add(&button_box, 1, 3, 1, 2, HFillFlag | VFillFlag);
 
   input_form.set_content(&content);
   input_form.center();
@@ -577,7 +577,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   content.add(&password_edit, 2, 3, 3, 4, HFillFlag | HExpandFlag);
 
   if (prompt_storage) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     save_password_box.set_text(_("Save password in vault"));
 #else
     save_password_box.set_text(_("Save password in keychain"));
@@ -695,7 +695,7 @@ bool Utilities::credentials_for_service(const std::string &title, const std::str
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 static int modal_loops = 0;
 

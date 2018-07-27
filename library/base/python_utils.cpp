@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #include <Python/Python.h>
 #else
 #include <Python.h>

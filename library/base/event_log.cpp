@@ -23,9 +23,8 @@
 
 #include "base/event_log.h"
 #include "base/string_utilities.h"
+#ifdef _MSC_VER
 #include "Objbase.h"
-
-#ifdef _WIN32
 
 #pragma comment(lib, "wevtapi.lib")
 

@@ -79,7 +79,7 @@ NSString *sql11 = @"SELECT a FROM tick t WHERE timestamp > (((((((SELECT 1)  + 1
 NSString *sql12 = @"select * from (select 1 from dual)";
 NSString *sql13 = @"ALTER USER u@localhost IDENTIFIED WITH sha256_password BY 'test';";
 
-static std::set<std::string> charsets = { "_utf8", "_ucs2",   "_big5",   "_latin2",
+static std::set<std::string> charsets = { "_utf8", "_utf8mb3", "_utf8mb4", "_ucs2",   "_big5",   "_latin2",
                                           "_ujis", "_binary", "_cp1250", "_latin1" };
 
 @interface mysql_parserAppDelegate () {
@@ -111,6 +111,8 @@ static std::set<std::string> charsets = { "_utf8", "_ucs2",   "_big5",   "_latin
   IBOutlet NSButton *modeHighNotPrecedenceButton;
   IBOutlet NSButton *modeNoBackslashEscapeButton;
 
+  IBOutlet NSSplitView *singleQuerySplitView;
+
   NSUInteger queryCount;
   BOOL stopTests;
   BOOL running;
@@ -137,6 +139,8 @@ static std::set<std::string> charsets = { "_utf8", "_ucs2",   "_big5",   "_latin
   output.horizontallyResizable = YES;
   output.textContainer.size = NSMakeSize(FLT_MAX, FLT_MAX);
   output.textContainer.widthTracksTextView = NO;
+
+  singleQuerySplitView.autosaveName = @"parser.test.single.split";
 
   NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
   NSString *text = [defaults objectForKey: @"statements-file"];
@@ -341,7 +345,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   }
 
   NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
-  [defaults setObject:fileName forKey: @"statements-file"];
+  [defaults setObject: fileName forKey: @"statements-file"];
+  [defaults setObject: singleQueryText.string forKey: @"single-query"];
+  [defaults setObject: versionText.stringValue forKey: @"version"];
+
 
   stopTests = NO;
   errorQueryText.string = @"";
@@ -351,13 +358,13 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   stepsList.string = @"Counting queries\n";
   progressLabel.stringValue = @"0 of 0";
 
-  [self countQueriesInFile:fileName];
+  [self countQueriesInFile: fileName];
   [self appendStepText: [NSString stringWithFormat: @"Found %lu queries in file\n", (unsigned long)queryCount]];
 
-  [topView setNeedsDisplay:YES];
+  [topView setNeedsDisplay: YES];
 
-  NSThread *thread = [[NSThread alloc] initWithTarget:self selector: @selector(runTestsWithData:) object:contents];
-  [thread setStackSize:16 * 1024 * 1024];
+  NSThread *thread = [[NSThread alloc] initWithTarget:self selector: @selector(runTestsWithData:) object: contents];
+  [thread setStackSize: 16 * 1024 * 1024];
   [thread start];
 }
 
@@ -395,30 +402,85 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   try {
     // 1. Part: parse example queries from file.
     dispatch_async(dispatch_get_main_queue(), ^{
-      statusText.stringValue = @"Running tests from file...";
+      self->statusText.stringValue = @"Running tests from file...";
       [self appendStepText: @"Running tests from file\n"];
     });
 
     NSUInteger count = 0;
     BOOL gotError = NO;
     NSArray *queries = [data componentsSeparatedByString: @"$$\n"];
-    unsigned serverVersion = [self getServerVersion];
-    MySQLRecognizerCommon::SqlMode sqlModes = [self getSqlModes];
-    for (NSString *query in queries) {
+    __block unsigned serverVersion;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      serverVersion = [self getServerVersion];
+    });
+
+    __block MySQLRecognizerCommon::SqlMode sqlModes;
+    dispatch_sync(dispatch_get_main_queue(), ^{
+      sqlModes = [self getSqlModes];
+    });
+
+    static NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern: @"\\[(<|<=|>|>=|=)(\\d{5})\\]"
+                                                                                  options: NSRegularExpressionCaseInsensitive
+                                                                                    error: nil];
+    static std::map<std::string, int> relationMap = {
+      { "<", 0 }, { "<=", 1 }, { "=", 2 }, { ">=", 3 }, { ">", 4 }
+    };
+
+    for (NSString *entry in queries) {
       if (stopTests)
         break;
+
+      NSString *query = entry;
+      if ([query hasPrefix: @"["]) {
+        // There's a version tag.
+        auto match = [regex firstMatchInString: query options: NSMatchingAnchored range: NSMakeRange(0, query.length)];
+        if (match != nil) {
+          auto relation = [entry substringWithRange: [match rangeAtIndex: 1]];
+          auto targetVersion = static_cast<unsigned>([entry substringWithRange: [match rangeAtIndex: 2]].intValue);
+          switch (relationMap[relation.UTF8String]) {
+            case 0:
+              if (serverVersion >= targetVersion)
+                continue;
+              break;
+            case 1:
+              if (serverVersion > targetVersion)
+                continue;
+              break;
+            case 2:
+              if (serverVersion != targetVersion)
+                continue;
+              break;
+            case 3:
+              if (serverVersion < targetVersion)
+                continue;
+              break;
+            case 4:
+              if (serverVersion <= targetVersion)
+                continue;
+              break;
+          }
+
+          // Remove the tag.
+          query = [regex stringByReplacingMatchesInString: query
+                                                  options: 0
+                                                    range: NSMakeRange(0, query.length)
+                                             withTemplate: @""];
+        }
+      }
 
       if (query.length > 0) {
         // The progress label is updated in the worker thread, otherwise it would not show changes in realtime.
         ++count;
+
         dispatch_async(dispatch_get_main_queue(), ^{
-          progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", count, queryCount];
-          [progressLabel setNeedsDisplay];
+          self->progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %lu", count, self->queryCount];
+          [self->progressLabel setNeedsDisplay];
         });
-        if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput:NO needTree:NO] > 0) {
+
+        if ([self parseQuery: query version: serverVersion modes: sqlModes dumpToOutput: NO needTree: NO] > 0) {
           dispatch_async(dispatch_get_main_queue(), ^{
-            statusText.stringValue = @"Error encountered, offending query below:";
-            errorQueryText.string = query;
+            self->statusText.stringValue = @"Error encountered, offending query below:";
+            self->errorQueryText.string = query;
           });
           gotError = YES;
           break;
@@ -430,10 +492,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     if (!gotError && !stopTests) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self appendStepText: [NSString stringWithFormat: @"Parsed %lu queries in file successfully.\n",
-                                                        (unsigned long)queryCount]];
+                                                        (unsigned long)self->queryCount]];
 
         [self appendStepText: @"Running function name tests\n"];
-        statusText.stringValue = @"Running function name tests...";
+        self->statusText.stringValue = @"Running function name tests...";
       });
       gotError = ![self runFunctionNamesTest];
     }
@@ -441,10 +503,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     NSTimeInterval duration = [start timeIntervalSinceNow];
     NSString *durationText = [NSString stringWithFormat: @"Parse time: %.3fs\n\n", -duration];
     dispatch_async(dispatch_get_main_queue(), ^{
-      if (stopTests)
-        statusText.stringValue = @"Execution stopped by user.";
+      if (self->stopTests)
+        self->statusText.stringValue = @"Execution stopped by user.";
       else if (!gotError)
-        statusText.stringValue = @"All queries parsed fine. Great!";
+        self->statusText.stringValue = @"All queries parsed fine. Great!";
       [self appendStepText:durationText];
     });
     running = NO;
@@ -512,8 +574,16 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     ") ENGINE InnoDB";
 
   NSInteger count = sizeof(functions) / sizeof(functions[0]);
-  unsigned serverVersion = [self getServerVersion];
-  MySQLRecognizerCommon::SqlMode sqlModes = [self getSqlModes];
+  __block unsigned serverVersion;
+  dispatch_sync(dispatch_get_main_queue(), ^{
+    serverVersion = [self getServerVersion];
+  });
+
+  __block MySQLRecognizerCommon::SqlMode sqlModes;
+  dispatch_sync(dispatch_get_main_queue(), ^{
+    sqlModes = [self getSqlModes];
+  });
+
   for (size_t i = 0; i < count; i++) {
     if (stopTests)
       return NO;
@@ -521,10 +591,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
     NSString *query = [NSString stringWithFormat: [NSString stringWithUTF8String:query1], functions[i]];
     if (query.length > 0) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %li", i + 1, count];
-        [progressLabel setNeedsDisplay];
+        self->progressLabel.stringValue = [NSString stringWithFormat: @"%lu of %li", i + 1, count];
+        [self->progressLabel setNeedsDisplay];
       });
-      if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput:NO needTree:NO] > 0) {
+      if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput: NO needTree: NO] > 0) {
         statusText.stringValue = @"Error encountered, offending query below:";
         errorQueryText.string = query;
         return NO;
@@ -533,10 +603,10 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
     query = [NSString stringWithFormat: [NSString stringWithUTF8String:query2], functions[i], functions[i]];
     if (query.length > 0) {
-      if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput:NO needTree:NO] > 0) {
+      if ([self parseQuery:query version:serverVersion modes:sqlModes dumpToOutput: NO needTree: NO] > 0) {
         dispatch_async(dispatch_get_main_queue(), ^{
-          statusText.stringValue = @"Error encountered, offending query below:";
-          errorQueryText.string = query;
+          self->statusText.stringValue = @"Error encountered, offending query below:";
+          self->errorQueryText.string = query;
         });
         return NO;
       }

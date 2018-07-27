@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <algorithm>
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <stdexcept>
 #include <stdarg.h>
 #endif

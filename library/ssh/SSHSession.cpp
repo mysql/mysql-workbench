@@ -24,9 +24,16 @@
 
 #include "SSHSession.h"
 #include "base/log.h"
+#include "base/file_functions.h"
+#include "base/string_utilities.h"
 #include <fcntl.h>
 #include <vector>
 #include <functional>
+#include <sstream>
+#ifdef _MSC_VER
+#include "Shlobj.h"
+#endif // _MSC_VER
+
 
 DEFAULT_LOG_DOMAIN("SSHSession")
 
@@ -55,35 +62,91 @@ namespace ssh {
     auto lock = lockSession();
     _config = config;
     _credentials = credentials;
-    _session->setOption(SSH_OPTIONS_USER, credentials.username.c_str());
-    _session->setOption(SSH_OPTIONS_HOST, config.remoteSSHhost.c_str());
-    _session->setOption(SSH_OPTIONS_PORT, config.remoteSSHport);
-    _session->setOption(SSH_OPTIONS_TIMEOUT, config.connectTimeout);
-    _session->setOption(SSH_OPTIONS_STRICTHOSTKEYCHECK, config.strictHostKeyCheck ? 1 : 0);
+
+    // The option setter does't indicate what option failed to set, so we have to wrap each call
+    // individually to be able to report exactly what failed.
+    try {
+      _session->setOption(SSH_OPTIONS_USER, credentials.username.c_str());
+    } catch (SshException &exc) {
+      logError("Error setting user name in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_HOST, config.remoteSSHhost.c_str());
+    } catch (SshException &exc) {
+      logError("Error setting remote host in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_PORT, static_cast<long>(config.remoteSSHport));
+    } catch (SshException &exc) {
+      logError("Error setting remote port in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_TIMEOUT, static_cast<long>(config.connectTimeout));
+    } catch (SshException &exc) {
+      logError("Error setting connection timeout in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
+    try {
+      _session->setOption(SSH_OPTIONS_STRICTHOSTKEYCHECK, config.strictHostKeyCheck ? 1 : 0);
+    } catch (SshException &exc) {
+      logError("Error setting strict host key check value in ssh session option: %s\n", exc.getError().c_str());
+      return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+    }
+
     if (config.compressionLevel > 0) {
-      _session->setOption(SSH_OPTIONS_COMPRESSION, "yes");
-      _session->setOption(SSH_OPTIONS_COMPRESSION_LEVEL, config.compressionLevel);
+      try {
+        _session->setOption(SSH_OPTIONS_COMPRESSION, "yes");
+      } catch (SshException &exc) {
+        logError("Error setting compression flag in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
+
+      try {
+        _session->setOption(SSH_OPTIONS_COMPRESSION_LEVEL, config.compressionLevel);
+      } catch (SshException &exc) {
+        logError("Error setting compression level in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
     }
 
     _config.dumpConfig();
 
-    if (!config.knownHostsFile.empty())
-      _session->setOption(SSH_OPTIONS_KNOWNHOSTS, config.knownHostsFile.c_str());
+    if (!config.knownHostsFile.empty()) {
+      try {
+        _session->setOption(SSH_OPTIONS_KNOWNHOSTS, config.knownHostsFile.c_str());
+      } catch (SshException &exc) {
+        logError("Error setting known hosts in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
+    }
 
-    if (!config.optionsDir.empty())
-      _session->setOption(SSH_OPTIONS_SSH_DIR, config.optionsDir.c_str());
+    if (!config.optionsDir.empty()) {
+      try {
+        _session->setOption(SSH_OPTIONS_SSH_DIR, config.optionsDir.c_str());
+      } catch (SshException &exc) {
+        logError("Error setting options folder in ssh session option: %s\n", exc.getError().c_str());
+        return std::make_tuple(SSHReturnType::INVALID_AUTH_DATA, exc.getError());
+      }
+    }
 
     try {
       if (!config.configFile.empty())
         _session->optionsParseConfig(config.configFile.c_str());
     } catch (ssh::SshException &exc) {
-      logError("Unable to parse config file: %s\nError was: %s", config.configFile.c_str(), exc.getError().c_str());
+      logError("Unable to parse config file: %s\nError was: %s\n", config.configFile.c_str(), exc.getError().c_str());
     }
 
     try {
       _session->connect();
     } catch (ssh::SshException &exc) {
-      logError("Unable to connect: %s:%lu\nError was: %s", config.remoteSSHhost.c_str(), config.remoteSSHport,
+      logError("Unable to connect: %s:%lu\nError was: %s\n", config.remoteSSHhost.c_str(), config.remoteSSHport,
                exc.getError().c_str());
       return std::make_tuple(SSHReturnType::CONNECTION_FAILURE, exc.getError());
     }
@@ -122,19 +185,19 @@ namespace ssh {
     if (!_isConnected)
       return;
 
-    try {
-      base::RecMutexLock lock(_sessionMutex, true);
-
-      if (_event == nullptr) {
-        _event = ssh_event_new();
-        ssh_event_add_session(_event, _session->getCSession());
-      }
-
-      logDebug2("Session pool event\n");
-      ssh_event_dopoll(_event, 0);
-    } catch (...) {
+    if (!_sessionMutex.tryLock()) {
       logDebug2("Can't poll, session busy.\n");
+      return;
     }
+
+    if (_event == nullptr) {
+      _event = ssh_event_new();
+      ssh_event_add_session(_event, _session->getCSession());
+    }
+
+    logDebug2("Session pool event\n");
+    ssh_event_dopoll(_event, 0);
+    _sessionMutex.unlock();
   }
 
   void SSHSession::disconnect() {
@@ -182,20 +245,54 @@ namespace ssh {
   }
 
 
-  std::string SSHSession::execCmd(std::string command, std::size_t logSize) {
+  bool SSHSession::openChannel(ssh::Channel *chann) {
+    int rc = SSH_ERROR;
+    std::size_t i = 0;
+    while (i < _config.connectTimeout) {
+      rc = ssh_channel_open_session(chann->getCChannel());
+      // We can't rely on rc == 0 as there's possibility it will return 0 even that the channel is closed.
+      // Because of this, we have to use isOpen() and try few times
+      if (rc == SSH_AGAIN || !chann->isOpen()) {
+        logDebug3("Unable to open channel, wait a moment and retry.\n");
+        i++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      } else if (rc == SSH_ERROR) {
+        logError("Unable to open channel.\n");
+        return false;
+      } else {
+        logDebug("Channel successfully opened\n");
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Execute command on the remote server.
+   * It returns std::tuple<stdout, stderr, exitStatus>.
+   */
+  std::tuple<std::string, std::string, int> SSHSession::execCmd(std::string command, std::size_t logSize) {
     logDebug2("About to execute command: %s\n", command.c_str());
 
+    logDebug3("Before session lock.\n");
     auto lock = lockSession();
-    auto channel = std::unique_ptr<ssh::Channel, std::function<void(ssh::Channel*)>>(new ssh::Channel(*_session), [](ssh::Channel* chan){
-      chan->close();
-    });
+    logDebug3("Session locked.\n");
+    auto channel = std::unique_ptr<ssh::Channel, std::function<void(ssh::Channel *)>>(
+      new ssh::Channel(*_session), [](ssh::Channel *chan) { if (!chan->isClosed()) chan->close(); });
 
-    channel->openSession();
+    if (!openChannel(channel.get())) {
+      throw SSHTunnelException("Unable to open channel");
+    }
+
+    logDebug3("Before request exec.\n");
     channel->requestExec(command.c_str());
+    logDebug3("Command executed.\n");
     ssize_t readLen = 0, readErrLen = 0;
     std::size_t retryCount = 0;
     std::vector<char> buff(_config.bufferSize, '\0');
-    std::string ret;
+    std::string retError;
+    std::ostringstream so;
+    std::size_t bytesRead = 0;
     do {
       try {
         readLen = channel->read(buff.data(), buff.size(), false, static_cast<int>(1000 * _config.readWriteTimeout));
@@ -213,69 +310,75 @@ namespace ssh {
           std::this_thread::sleep_for(std::chrono::seconds(_config.commandTimeout));
           continue;
         }
-
       } catch (SshException &exc) {
         throw SSHTunnelException(exc.getError());
       }
 
       if (readLen > 0) {
+        bytesRead += readLen;
         std::string data(buff.data(), readLen);
         logDebug3("Read SSH data: %s\n", data.c_str());
-        ret.append(data);
+        so << data;
       }
 
       try {
         // Let's see if maybe there are some errors
         readErrLen = channel->read(buff.data(), buff.size(), true, static_cast<int>(1000 * _config.readWriteTimeout));
-        if (readErrLen > 0)
-        {
+        if (readErrLen > 0) {
           std::string errorMsg(buff.data(), readErrLen);
           logError("Got error: %s\n", errorMsg.c_str());
-          throw SSHTunnelException(errorMsg.c_str());
+          retError.append(errorMsg);
         }
       } catch (SshException &exc) {
         throw SSHTunnelException(exc.getError());
       }
 
-      if (readLen == SSH_ERROR || readLen == SSH_EOF || readErrLen == SSH_ERROR || readErrLen == SSH_EOF)
+      if (readLen == SSH_EOF || readErrLen == SSH_EOF || channel->isEof()) {
+        channel->close();
+        logDebug3("Got EOF.\n");
+        break;
+      }
+
+      if (readLen == SSH_ERROR || readErrLen == SSH_ERROR) {
+        logDebug3("Client disconnected.\n");
         throw SSHTunnelException("client disconnected");
-
-      if (readLen == 0 && channel->isEof()) {
-        logDebug2("Nothing to read.\n");
-        break;
       }
 
-      if (readLen > 0 && (std::size_t) readLen < buff.size()) {//we've got all we need
-        logDebug2("All data has been read.\n");
-        channel->sendEof();
-        break;
-      }
-
-      if (ret.size() > logSize) {
-        channel->sendEof();
-        throw SSHTunnelException("Too much data to read, limit is: " + std::to_string(logSize));
+      if (bytesRead > logSize) {
+        throw SSHTunnelException("Too much data to read, limit is: " + std::to_string(logSize) + ". You can change the limit in the Workbench Preferences.");
       }
     } while (true);
-    return ret;
+
+    logDebug3("Bytes read: %lu\n", bytesRead);
+    return std::make_tuple(so.str(), retError, channel->getExitStatus());
   }
 
-  std::string SSHSession::execCmdSudo(std::string command, std::string password, std::string passwordQuery,
-                                      std::size_t logSize) {
-
+  /**
+   * Execute command on the remote server using sudo authentication.
+   * It returns std::tuple <stdout, stderr, exitStatus>.
+   */
+  std::tuple<std::string, std::string, int> SSHSession::execCmdSudo(std::string command, std::string password,
+                                                               std::string passwordQuery, std::size_t logSize) {
     logDebug2("About to execute elevated command: %s\n", command.c_str());
     auto lock = lockSession();
-    auto channel = std::unique_ptr<ssh::Channel, std::function<void(ssh::Channel*)>>(new ssh::Channel(*_session), [](ssh::Channel* chan){
-          chan->close();
-        });
-    channel->openSession();
+    auto channel = std::unique_ptr<ssh::Channel, std::function<void(ssh::Channel *)>>(
+      new ssh::Channel(*_session), [](ssh::Channel *chan) { if (!chan->isClosed()) chan->close(); });
+
+    if (!openChannel(channel.get())) {
+      throw SSHTunnelException("Unable to open channel");
+    }
+
     channel->requestExec(command.c_str());
+    logDebug3("Command executed.\n");
     ssize_t readlen = 0, readErrLen = 0;
-    ;
     std::size_t writelen = 0;
     std::size_t retryCount = 0;
     std::vector<char> buff(_config.bufferSize, '\0');
-    std::string ret;
+    std::string retError;
+    std::ostringstream so;
+    std::size_t bytesRead = 0;
     bool pwSkip = false;
+
     do {
       if (!pwSkip) {
         try {
@@ -294,9 +397,10 @@ namespace ssh {
               }
             }
             pwSkip = true;
-          } else
-            throw SSHTunnelException("Unknown password prompt.\n");
-
+          } else {
+            logDebug2("Expected pw prompt but it didn't came, instead we got: %s\n", test.c_str());
+            retError.append(test);
+          }
         } catch (SshException &exc) {
           logError("Sudo password didn't came, could be it was cached, we continue and see what will happen\n");
           pwSkip = true;
@@ -306,18 +410,18 @@ namespace ssh {
       try {
         // Let's see if maybe it was wrong sudo credentials
         readErrLen = channel->read(buff.data(), buff.size(), true, static_cast<int>(1000 * _config.readWriteTimeout));
-        std::string testString(buff.data(), readErrLen);
+        std::string errorMessage(buff.data(), readErrLen);
         if (readErrLen > 0) {
-          logError("Got error: %s\n", testString.c_str());
-          if (testString.find("Sorry, try again.") != std::string::npos) {
+          logError("Got error: %s\n", errorMessage.c_str());
+          if (errorMessage.find("Sorry, try again.") != std::string::npos) {
             logError("Incorrect sudo password.\n");
             throw SSHAuthException("Incorrect sudo password");
-          } else if (testString.find("This incident will be reported") != std::string::npos) {
+          } else if (errorMessage.find("This incident will be reported") != std::string::npos) {
             logError("User not in sudoers files.\n");
             throw SSHAuthException("User not in sudoers");
-          } else { //ok this means that there's another error, pass it as a return value
-            logDebug2("Got output on stderr: %s\n", testString.c_str());
-            ret.append(testString);
+          } else {  // This means that there's another error, pass it as a return value.
+            logDebug2("Got output on stderr: %s\n", errorMessage.c_str());
+            retError.append(errorMessage);
           }
         }
       } catch (SshException &exc) {
@@ -337,9 +441,10 @@ namespace ssh {
       }
 
       if (readlen > 0) {
+        bytesRead += readlen;
         std::string data(buff.data(), readlen);
         logDebug3("Read SSH data: %s\n", data.c_str());
-        ret.append(data);
+        so << data;
       }
 
       if (readlen == SSH_ERROR || readlen == SSH_EOF) {
@@ -347,35 +452,30 @@ namespace ssh {
         throw SSHTunnelException("client disconnected");
       }
 
-      if (readlen == 0 && channel->isEof()) {
+      if (readlen == 0 || channel->isEof()) {
         logDebug2("Nothing to read.\n");
+        channel->close();
         break;
       }
 
-      if (readlen > 0 && (std::size_t) readlen < buff.size()) { //we've got all we need
-        logDebug2("All data has been read.\n");
-        channel->sendEof();
-        break;
-      }
-
-      if (ret.size() > logSize) {
-        channel->sendEof();
-        throw SSHTunnelException("Too much data to read, limit is: " + std::to_string(logSize));
+      if (bytesRead > logSize) {
+        throw SSHTunnelException("Too much data to read, limit is: " + std::to_string(logSize) + ". You can change the limit in the Workbench Preferences.");
       }
     } while (true);
-    return ret;
+
+    logDebug3("Bytes read: %lu\n", bytesRead);
+    return std::make_tuple(so.str(), retError, channel->getExitStatus());
   }
 
   void SSHSession::reconnect() {
-    if (!ssh_is_connected(_session->getCSession()))
-    {
+    if (!ssh_is_connected(_session->getCSession())) {
       disconnect();
       connect(_config, _credentials);
     }
   }
 
-  base::RecMutexLock SSHSession::lockSession() {
-    base::RecMutexLock mutexLock(_sessionMutex);
+  base::MutexLock SSHSession::lockSession() {
+    base::MutexLock mutexLock(_sessionMutex);
     return mutexLock;
   }
 
@@ -399,7 +499,7 @@ namespace ssh {
 
     hash.reset(hashPtr);
 
-    std::unique_ptr<char, void (*)(char*)> hexa(ssh_get_hexa(hash.get(), hlen), [](char*ptr) { ssh_string_free_char(ptr); });
+    std::unique_ptr<char, void (*)(char*)> hexa(ssh_get_hexa(hash.get(), hlen), [](char*ptr) {free(ptr);});
     fingerprint = hexa.get();
     int retVal = _session->isServerKnown();
     switch (retVal) {
@@ -409,7 +509,33 @@ namespace ssh {
           return retVal;
         else {
           if (config.fingerprint == hexa.get()) {
+#if _MSC_VER
+            std::string::size_type pos = 0;
+            auto knownHostsFile = _config.knownHostsFile;
+            if (knownHostsFile.empty()) {
+              std::string userFolder = "";
+              PWSTR outFolder = nullptr;
+              if (SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &outFolder) == S_OK) {
+                userFolder = base::wstring_to_string(outFolder);
+                userFolder += "\\.ssh\\known_hosts";
+                CoTaskMemFree(outFolder);
+              }
+              if (base_get_file_size(userFolder.c_str()) == 0) {
+                std::ofstream outfile(userFolder);
+                outfile.close();
+              }
+              knownHostsFile = userFolder;
+              _config.knownHostsFile = userFolder;
+            }
+            while ((pos = knownHostsFile.find_first_of("\\", pos)) != std::string::npos)
+              knownHostsFile.replace(pos, 1, "/");
+            _session->setOption(SSH_OPTIONS_KNOWNHOSTS, knownHostsFile.c_str());
+            // writeKnownhost from libssh supports only linux like path e.g c:/temp/hosts
             _session->writeKnownhost();
+            _session->setOption(SSH_OPTIONS_KNOWNHOSTS, _config.knownHostsFile.c_str());
+#else
+            _session->writeKnownhost();
+#endif
             return SSH_SERVER_KNOWN_OK;
           } else
             return retVal;

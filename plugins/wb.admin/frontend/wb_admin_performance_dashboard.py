@@ -136,7 +136,10 @@ class RenderBox(mforms.PyDrawBox):
 
 
     def make_tooltip_text(self, figure, template):
-        text = template % self.variable_values
+        try:
+            text = template % self.variable_values
+        except Exception:
+            return "--"
 
         # find and evaluate all embedded ${expressions}
         for m in re.findall("(\${[^}]*})", text):
@@ -167,7 +170,7 @@ class RenderBox(mforms.PyDrawBox):
         if fig and getattr(fig, 'hover_text_template', None):
             text = self.make_tooltip_text(fig, fig.hover_text_template)
             if text:
-                self.tooltip = mforms.newPopover(mforms.PopoverStyleTooltip)
+                self.tooltip = mforms.newPopover(None, mforms.PopoverStyleTooltip)
 
                 fx = fig.x + self.offset[0] + 2 * fig.width / 3
                 fy = fig.y + self.offset[1] + 2 * fig.height / 3
@@ -225,7 +228,10 @@ class CDifferencePerSecond(object):
         if not self.expr:
             return result
       
-        value = eval(self.expr % values)
+        try:
+            value = eval(self.expr % values)
+        except Exception, e:
+            value = 0
       
         if self.old_value and self.old_value_timestamp:
             if timestamp > self.old_value_timestamp:
@@ -266,7 +272,10 @@ class CRawValue(object):
     def handle(self, values, timestamp):
         if not self.expr:
             return None
-        value = eval(self.expr % values)
+        try:
+            value = eval(self.expr % values)
+        except Exception, e:
+            value = 0
 
         return value
 

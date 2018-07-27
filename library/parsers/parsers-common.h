@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   #ifdef PARSERS_EXPORTS
     #define PARSERS_PUBLIC_TYPE __declspec(dllexport)
   #else

@@ -28,7 +28,7 @@
 #include "base/trackable.h"
 
 class Wb_plugin;
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma make_public(Wb_plugin)
 #endif
 

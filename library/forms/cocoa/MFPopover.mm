@@ -366,13 +366,13 @@
 
   mHotSpot = location;
   [self computeCoordinatesAndPadding: position];
-  if (!self.visible || mRelativePosition != position) {
+  if (!(self.occlusionState & NSWindowOcclusionStateVisible) || mRelativePosition != position) {
     mRelativePosition = position;
     [self adjustWindowSizeAndContentFrame];
     [self computeOutline];
   }
 
-  if (!self.visible) {
+  if (!(self.occlusionState & NSWindowOcclusionStateVisible)) {
     [NSAnimationContext beginGrouping];
     self.alphaValue = 0;
     [self orderFront:nil];
@@ -410,9 +410,9 @@
 
 using namespace mforms;
 
-static bool popover_create(Popover* popover, mforms::PopoverStyle style) {
+static bool popover_create(Popover* popover, mforms::View *owner, mforms::PopoverStyle style) {
   MFPopover* popoverWindow = [[MFPopover alloc] initWithContentRect: NSMakeRect(0, 0, 100, 100)
-                                                          styleMask: NSBorderlessWindowMask
+                                                          styleMask: NSWindowStyleMaskBorderless
                                                             backing: NSBackingStoreBuffered
                                                               defer: NO
                                                               style: style];

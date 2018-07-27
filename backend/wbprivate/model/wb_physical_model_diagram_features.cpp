@@ -49,7 +49,7 @@ class wb::Tooltip : public mforms::Popover {
   bool _visible;
 
 public:
-  Tooltip() : mforms::Popover(mforms::PopoverStyleTooltip), _visible(false) {
+  Tooltip() : mforms::Popover(nullptr, mforms::PopoverStyleTooltip), _visible(false) {
     set_content(&_label);
   }
 
@@ -138,7 +138,7 @@ void PhysicalModelDiagramFeatures::activate_item(const model_ObjectRef &owner, m
 
 PhysicalModelDiagramFeatures::PhysicalModelDiagramFeatures(ModelDiagramForm *diagram) : _diagram(diagram) {
   _last_over_item = 0;
-  _tooltip = 0;
+  _tooltip = nullptr;
   _tooltip_timer = 0;
   _highlight_all = false;
 
@@ -399,10 +399,10 @@ void PhysicalModelDiagramFeatures::show_tooltip(const model_ObjectRef &object, m
       if (text[text.size() - 1] == '\n')
         text = text.substr(0, text.size() - 1);
 
-      if (!_tooltip)
+      if (_tooltip == nullptr) {
         _tooltip = new Tooltip();
+      }
 
-      base::Point pos;
       _tooltip->set_text(text);
 
       _tooltip->show(-1, -1);

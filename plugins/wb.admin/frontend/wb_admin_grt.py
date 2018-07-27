@@ -729,7 +729,7 @@ def testInstanceSettingByName(what, connection, server_instance):
         config_file = profile.config_file_path
         print "Check if %s exists in remote host" % config_file
         try:
-            if not test_ssh_connection.ssh.file_exists(config_file):
+            if not test_ssh_connection.ssh.fileExists(config_file):
                 return "ERROR File %s doesn't exist" % config_file
             else:
                 print "File was found in expected location"
@@ -781,13 +781,13 @@ def testInstanceSettingByName(what, connection, server_instance):
         cmd_start = None
         if path.startswith("/"):
             cmd_start = path.split()[0]
-            if not test_ssh_connection.ssh.file_exists(cmd_start):
+            if not test_ssh_connection.ssh.fileExists(cmd_start):
                 return "ERROR %s is invalid" % path
 
         path = profile.stop_server_cmd
         if path.startswith("/"):
             cmd = path.split()[0]
-            if cmd != cmd_start and not test_ssh_connection.ssh.file_exists(cmd):
+            if cmd != cmd_start and not test_ssh_connection.ssh.fileExists(cmd):
                 return "ERROR %s is invalid" % path
 
         return "OK"

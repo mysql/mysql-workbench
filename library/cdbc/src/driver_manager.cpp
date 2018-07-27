@@ -234,7 +234,7 @@ namespace sql {
     if (library == "mysqlcppconn")
       driver = get_driver_instance();
     else {
-#ifdef _WIN32
+#ifdef _MSC_VER
       library.append(".dll");
 #elif defined(__APPLE__)
       library.append(".dylib");
@@ -306,14 +306,14 @@ namespace sql {
     properties["CLIENT_MULTI_STATEMENTS"] = true;
     properties["metadataUseInfoSchema"] =
       false; // I_S is way too slow for many things as of MySQL 5.6.10, so disable it for now
-#if defined(__APPLE__) || defined(_WIN32)
+
     // set application name
     {
       std::map<sql::SQLString, sql::SQLString> attribs;
       attribs["program_name"] = "MySQLWorkbench";
       properties["OPT_CONNECT_ATTR_ADD"] = attribs;
     }
-#endif
+    
     // If SSL is enabled but there's no certificate or anything, create the sslKey option to force enabling SSL without
     // a key
     // (equivalent to starting cmdline client with mysql --ssl-key=)
@@ -335,6 +335,7 @@ namespace sql {
     {
       case 0:
          sslMode = sql::SSL_MODE_DISABLED;
+         properties["OPT_GET_SERVER_PUBLIC_KEY"] = true;
         break;
       case 1:
         sslMode = sql::SSL_MODE_PREFERRED;
@@ -354,7 +355,7 @@ namespace sql {
     // If we are on a pipe connection then set the host name explicitly.
     // However, pipe connections can only be established on the local box (Win only).
     if (drv->name() == "MysqlNativeSocket") {
-#ifdef _WIN32
+#ifdef _MSC_VER
       ConnectOptionsMap::iterator it = properties.find("socket");
       if (it != properties.end()) {
         properties["pipe"] = it->second;

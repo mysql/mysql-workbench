@@ -714,7 +714,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
     
     [bar drawAtPoint: NSMakePoint(8, NSHeight(frame) - NSHeight(_descriptionLabel.frame) - 10)
             fromRect: NSMakeRect(0, 0, bar.size.width, bar.size.height)
-           operation: NSCompositeSourceOver
+           operation: NSCompositingOperationSourceOver
             fraction: 0.4];
   }
 }
@@ -840,7 +840,7 @@ static NSString *stringFromNodeId(const bec::NodeId &node)
   
   [bar drawAtPoint:NSMakePoint(8, NSHeight(frame) - 17)
           fromRect:NSMakeRect(0, 0, bar.size.width, bar.size.height)
-         operation:NSCompositeSourceOver
+         operation:NSCompositingOperationSourceOver
           fraction:0.4];
 }
 

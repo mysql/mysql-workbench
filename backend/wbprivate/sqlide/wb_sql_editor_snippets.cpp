@@ -123,7 +123,7 @@ static struct SnippetNameMapping {
   const char *file;
   const char *name;
 } snippet_name_mapping[] = {
-#if (defined(_WIN32) || defined(__APPLE__))
+#if (defined(_MSC_VER) || defined(__APPLE__))
   {"DB Management", "DB Mgmt"},
   {"SQL DDL Statements", "SQL DDL"},
   {"SQL DML Statements", "SQL DML"},
@@ -326,6 +326,8 @@ void DbSqlEditorSnippets::load() {
 
     fclose(f);
   }
+  
+  std::sort(_entries.begin(), _entries.end(), [](Snippet& a, Snippet& b) { return a.title < b.title; });
 }
 
 void DbSqlEditorSnippets::save() {
@@ -334,7 +336,7 @@ void DbSqlEditorSnippets::save() {
   } else {
     FILE *f = base_fopen(base::strfmt("%s/%s.txt", _path.c_str(), _selected_category.c_str()).c_str(), "w+");
     if (f) {
-      for (std::vector<Snippet>::const_iterator i = _entries.begin(); i != _entries.end(); ++i) {
+      for (std::deque<Snippet>::const_iterator i = _entries.begin(); i != _entries.end(); ++i) {
         std::vector<std::string> lines = base::split(i->code, "\n");
 
         fprintf(f, "%s\n", i->title.c_str());
@@ -345,6 +347,7 @@ void DbSqlEditorSnippets::save() {
       fclose(f);
     }
   }
+  std::sort(_entries.begin(), _entries.end(), [](Snippet& a, Snippet& b) { return a.title < b.title; });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -401,9 +404,9 @@ void DbSqlEditorSnippets::add_snippet(const std::string &name, const std::string
   if (_selected_category.empty()) {
     snippet.db_snippet_id = add_db_snippet(name, code);
     if (snippet.db_snippet_id != 0)
-      _entries.push_back(snippet);
+      _entries.push_front(snippet);
   } else {
-    _entries.push_back(snippet);
+    _entries.push_front(snippet);
     save();
   }
 }
@@ -458,6 +461,7 @@ bool DbSqlEditorSnippets::set_field(const bec::NodeId &node, ColumnId column, co
       }
     } else
       save();
+    std::sort(_entries.begin(), _entries.end(), [](Snippet& a, Snippet& b) { return a.title < b.title; });
     return true;
   }
 

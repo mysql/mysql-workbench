@@ -28,7 +28,7 @@
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include <glib/gstdio.h>
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <io.h>
 #endif
 

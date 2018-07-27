@@ -1123,7 +1123,7 @@ void WBContextUI::refresh_home_documents() {
     // file and add this as initial entry, so that a new user has an easy start.
     if (model_count == 0) {
       std::list<std::string> examples_paths;
-#ifdef _WIN32
+#ifdef _MSC_VER
       examples_paths.push_back(mforms::Utilities::get_special_folder(mforms::WinProgramFilesX86) +
                                "\\MySQL\\Samples and Examples 5.5");
       examples_paths.push_back(mforms::Utilities::get_special_folder(mforms::WinProgramFiles) +
@@ -1150,7 +1150,7 @@ void WBContextUI::refresh_home_documents() {
   }
 
   for (grt::StringListRef::const_iterator end = recentFiles.end(), f = recentFiles.begin(); f != end; ++f) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     struct _stat stbuf;
 #else
     struct stat stbuf;

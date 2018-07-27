@@ -37,7 +37,7 @@
 
 using namespace wb;
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <signal.h>
 
 void signal_handler(int sig) {
@@ -57,7 +57,7 @@ TEST_DATA_CONSTRUCTOR(wb_lowlevel_test) {
   if (!copy_file("data/connections_template.xml", "data/connections.xml"))
     fail("Could not copy connection file.");
   tester = new WBTester();
-#ifndef _WIN32
+#ifndef _MSC_VER
   if (signal(SIGSEGV, signal_handler) == SIG_ERR) {
     printf("Failed to setup the signal handler\n");
   }

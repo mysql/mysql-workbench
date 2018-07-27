@@ -36,8 +36,6 @@
 #include "wb_sql_editor_panel.h"
 #include <boost/foreach.hpp>
 
-DEFAULT_LOG_DOMAIN("SqlEditorLog");
-
 using namespace bec;
 using namespace grt;
 using namespace base;
@@ -51,10 +49,8 @@ using namespace base;
 DbSqlEditorLog::DbSqlEditorLog(SqlEditorForm *owner, int max_entry_count)
   : VarGridModel(), _owner(owner), _max_entry_count(max_entry_count) {
   reset();
-  std::string log_dir = base::joinPath(bec::GRTManager::get()->get_user_datadir().c_str(), "log", "");
-  create_directory(log_dir, 0700);
-  _log_file_name = base::joinPath(log_dir.c_str(),
-                                  sanitize_file_name("sql_actions_" + owner->get_session_name() + ".log").c_str(), "");
+  _logDir = base::joinPath(bec::GRTManager::get()->get_user_datadir().c_str(), "log", "");
+  create_directory(_logDir, 0700);
 
   _context_menu.add_item("Copy Row", "copy_row");
   _context_menu.add_item("Copy Action", "copy_action");
@@ -277,13 +273,12 @@ RowId DbSqlEditorLog::add_message(int msg_type, const std::string &context, cons
     return -1;
 
   std::string time = current_time();
-  if (!_log_file_name.empty()) {
-    base::FILE_scope_ptr fp = base_fopen(_log_file_name.c_str(), "a");
-    fprintf(fp, "[%u, %s] %s: %s\n", _next_id, time.c_str(), context.c_str(), msg.c_str());
-  } else {
-    logError("DbSqlEditorLog::add_message called with no log file name set\n");
-    return -1;
-  }
+  
+  std::string logFileName = base::joinPath(_logDir.c_str(),
+                                    sanitize_file_name("sql_actions_" + _owner->get_session_name() + ".log").c_str(), "");
+  
+  base::FILE_scope_ptr fp = base_fopen(logFileName.c_str(), "a");
+  fprintf(fp, "[%u, %s] %s: %s\n", _next_id, time.c_str(), context.c_str(), msg.c_str());
 
   {
     base::RecMutexLock data_mutex(_data_mutex);
@@ -306,7 +301,9 @@ void DbSqlEditorLog::set_message(RowId row, int msg_type, const std::string &con
                                  const std::string &duration) {
   std::string time = current_time();
   {
-    base::FILE_scope_ptr fp = base_fopen(_log_file_name.c_str(), "a");
+    std::string logFileName = base::joinPath(_logDir.c_str(),
+                                      sanitize_file_name("sql_actions_" + _owner->get_session_name() + ".log").c_str(), "");
+    base::FILE_scope_ptr fp = base_fopen(logFileName.c_str(), "a");
     fprintf(fp, "[%u, %s] %s: %s\n", (unsigned)row, time.c_str(), context.c_str(), msg.c_str());
   }
 

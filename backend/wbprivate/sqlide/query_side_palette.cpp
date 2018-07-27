@@ -78,6 +78,7 @@ private:
       if (_selected_snippet)
         set_snippet_info(_selected_snippet, title, sub_title);
       model()->save();
+      refresh_snippets();
 
       set_needs_repaint();
     }
@@ -139,7 +140,7 @@ public:
     _user_snippets_active = false;
     _shared_snippets_active = false;
 
-    _snippet_popover = new wb::SnippetPopover();
+    _snippet_popover = new wb::SnippetPopover(this);
     _snippet_popover->set_size(376, 257);
     _snippet_popover->signal_closed()->connect(std::bind(&SnippetListView::popover_closed, this));
 
@@ -166,8 +167,8 @@ public:
 
   void edit_new_snippet() {
     if (!_snippets.empty()) {
-      _selected_index = (int)_snippets.size() - 1;
-      _selected_snippet = _snippets.back();
+      _selected_index = 0;
+      _selected_snippet = _snippets.front();
       edit_snippet(_selected_snippet);
       _snippet_popover->set_read_only(false);
     }
@@ -250,7 +251,7 @@ public:
 
 QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   :
-#ifdef _WIN32
+#ifdef _MSC_VER
     TabView(mforms::TabViewPalette),
 #else
     TabView(mforms::TabViewSelectorSecondary),
@@ -276,7 +277,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   scoped_connect(_help_text->signal_link_click(),
                  std::bind(&QuerySidePalette::click_link, this, std::placeholders::_1));
 
-#if _WIN32
+#if _MSC_VER
   std::string backgroundColor = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
   _help_text->set_font("Tahoma 8");
 #else
@@ -300,7 +301,7 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   content_border = manage(new Box(false));
   _snippet_list = manage(new SnippetListView("snippet_sql.png"));
   _snippet_list->set_name("Snippet list");
-#ifdef _WIN32
+#ifdef _MSC_VER
   content_border->set_padding(3, 3, 3, 3);
   _snippet_list->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
 #else
@@ -358,17 +359,6 @@ void QuerySidePalette::cancel_timer() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static bool contains_editor(SqlEditorForm::Ref form, MySQLEditor *ed) {
-  for (int c = form->sql_editor_count(), i = 0; i < c; i++) {
-    SqlEditorPanel *panel = form->sql_editor_panel(i);
-    if (panel && panel->editor_be().get() == ed)
-      return true;
-  }
-  return false;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void QuerySidePalette::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
   // Selection and caret changes notification.
   // Only act if this side palette is actually visible.
@@ -380,13 +370,10 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
 
     MySQLEditor *editor = static_cast<MySQLEditor *>(code_editor->get_host());
     if (editor != NULL && editor->grtobj().is_valid()) {
-      // See if this editor instance is actually from the IDE this palette sits in.
       SqlEditorForm::Ref form = _owner.lock();
-      if (form && contains_editor(form, editor)) {
-        cancel_timer();
-        _help_timer =
-          bec::GRTManager::get()->run_every(std::bind(&QuerySidePalette::find_context_help, this, editor), 0.5);
-      }
+      cancel_timer();
+      _help_timer = bec::GRTManager::get()->run_every(
+        std::bind(&QuerySidePalette::find_context_help, this, editor), 0.5);
     }
   }
 }
@@ -444,9 +431,13 @@ bool QuerySidePalette::find_context_help(MySQLEditor *editor) {
       return false;
   }
 
-  // Caret position as <column, row>.
-  std::pair<size_t, size_t> caret = editor->cursor_pos_row_column(true);
-  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext, editor->current_statement(), caret);
+  size_t caretPosition = editor->cursor_pos();
+
+  size_t start, stop;
+  editor->get_current_statement_range(start, stop); // To convert the caret position to a local statement position.
+
+  std::string topic = help::DbSqlEditorContextHelp::get()->helpTopicFromPosition(_helpContext,
+    editor->current_statement(), caretPosition - start);
   update_help_history(topic);
   show_help_text_for_topic(topic);
 

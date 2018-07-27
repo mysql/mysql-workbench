@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _SQL_PARSER_PUBLIC_INTERFACE_H_
-#define _SQL_PARSER_PUBLIC_INTERFACE_H_
+#pragma once
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 
 #ifdef SQL_PARSER_EXPORTS
 #define SQL_PARSER_PUBLIC_FUNC __declspec(dllexport)
@@ -35,5 +34,3 @@
 #else
 #define SQL_PARSER_PUBLIC_FUNC
 #endif
-
-#endif // _SQL_PARSER_PUBLIC_INTERFACE_H_

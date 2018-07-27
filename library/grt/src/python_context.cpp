@@ -43,7 +43,7 @@
 
 #include "base/log.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include "base/event_log.h"
 #endif
 
@@ -72,7 +72,7 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   if (getenv("PYTHON_DEBUG"))
     Py_VerboseFlag = 5;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // Hack needed in Windows because Python lib uses C:\Python26 as default pythonhome
   // That will cause conflicts if there is some other Python installed in there (bug #52949)
 
@@ -346,11 +346,12 @@ static PyObject *grt_print(PyObject *self, PyObject *args) {
   } else if (!ctx->pystring_to_string(o, text, true))
     return NULL;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   OutputDebugStringA(text.c_str());
 #else
   g_print("%s", text.c_str()); // g_print is not routed to g_log
 #endif
+  grt::GRT::get()->send_output(text);
   logDebug3("%s\n", text.c_str());
 
   Py_INCREF(Py_None);
@@ -400,6 +401,31 @@ static PyObject *grt_log_debug2(PyObject *self, PyObject *args) {
 
 static PyObject *grt_log_debug3(PyObject *self, PyObject *args) {
   return pylog(base::Logger::LogLevel::Debug3, args);
+}
+
+static PyObject *grt_send_output(PyObject *self, PyObject *args) {
+  PythonContext *ctx;
+  std::string text;
+
+  if (!(ctx = PythonContext::get_and_check()))
+    return NULL;
+
+  PyObject *o;
+  if (!PyArg_ParseTuple(args, "O", &o)) {
+    if (PyTuple_Size(args) == 1 && PyTuple_GetItem(args, 0) == Py_None) {
+      PyErr_Clear();
+      text = "None";
+    }
+    else
+      return NULL;
+  }
+  else if (!ctx->pystring_to_string(o, text, true))
+    return NULL;
+
+  grt::GRT::get()->send_output(text);
+
+  Py_INCREF(Py_None);
+  return Py_None;
 }
 
 static PyObject *grt_send_warning(PyObject *self, PyObject *args) {
@@ -609,7 +635,7 @@ void PythonContext::printResult(std::map<std::string, std::string> &output) {
   }
 }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 static void printResultCallback(std::map<std::string, std::string> &output) {
   PythonContext *ctx;
 
@@ -631,7 +657,7 @@ static PyObject *getEventLogEntry(PyObject *self, PyObject *args) {
   if (!PyArg_ParseTuple(args, "ls", &seek, &query))
     return NULL;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   EventLogReader reader(query, printResultCallback);
   reader.SetPosition(seek);
   reader.ReadEvents();
@@ -984,6 +1010,7 @@ void PythonContext::set_unwrap_pyobject_func(PyObject *(*func)(PyObject *, PyObj
  <li>etc
  */
 static PyMethodDef GrtModuleMethods[] = {
+  {"send_output", grt_send_output, METH_VARARGS, "Write a string in the GRT shell." },
   {"write", grt_print, METH_VARARGS, "Write a string in the GRT shell (alias to send_output)."},
   {"send_error", grt_send_error, METH_VARARGS, "Write an error message to the GRT shell."},
   {"send_warning", grt_send_warning, METH_VARARGS, "Write a warning message to the GRT shell."},

@@ -45,14 +45,21 @@ protected:
   
   MySQLParserContext::Ref _context;
   MySQLParserServices::Ref _services;
+  GrtVersionRef _oldVersion;
 
   DictRef _options;
-
   void test_import_sql(size_t test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
 
-  TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test)
+  TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test) : _sqlFacade(nullptr), _context(nullptr), _services(nullptr)
   {
+
     _tester = new WBTester();
+    // init datatypes
+    populate_grt(*_tester);
+
+    auto rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/rdbms"));
+    _oldVersion = rdbms->version();
+    rdbms->version(bec::parse_version("5.7.10"));
   }
 
 END_TEST_DATA_CLASS
@@ -61,8 +68,7 @@ TEST_MODULE(highlevel_mysql_parser_test, "High level MySQL parser tests");
 
 TEST_FUNCTION(10)
 {
-  // init datatypes
-  populate_grt(*_tester);
+
 
   _options = DictRef(true);
   _options.set("gen_fk_names_when_empty", IntegerRef(0));
@@ -83,7 +89,6 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_
 
   // Set filenames & messages based on test number.
   std::string number_string = std::to_string(test_no);
-  std::string test_message = "SQL (" + number_string + ")";
   std::string test_sql_filename = TEST_DATA_DIR + number_string + ".sql";
 
   // We have actually 2 parser tests here for now: the old server based parser and the new ANTLR one.
@@ -94,6 +99,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_
   if (test_no != 8 && test_no != 9 && test_no != 16)
   {
   // /*
+    std::string test_message = "SQL old (" + number_string + ")";
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + ".xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "_res.xml";
 
@@ -130,11 +136,12 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_
   // Same steps as above but using the ANTLR parser.
   {
     //*
+    std::string test_message = "SQL new (" + number_string + ")";
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + "a.xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "a_res.xml";
 
     db_mysql_CatalogRef res_catalog(grt::Initialized);
-    res_catalog->version(_tester->get_rdbms()->version());
+    res_catalog->version(bec::parse_version("5.7.10"));
     res_catalog->defaultCharacterSetName("utf8");
     res_catalog->defaultCollationName("utf8_general_ci");
     grt::replace_contents(res_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
@@ -242,6 +249,8 @@ TEST_FUNCTION(90)
 // we can't have this inside of the d-tor.
 TEST_FUNCTION(99)
 {
+  auto rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/rdbms"));
+  rdbms->version(_oldVersion);
   _context.reset(); // TODO: find out what the context is using from the tester, so that we have to release it first.
   delete _tester;
 }

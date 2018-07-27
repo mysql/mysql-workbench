@@ -35,6 +35,7 @@
 #include "grtpp_undo_manager.h"
 #include "grtpp_util.h"
 #include "grt/parse_utils.h"
+#include "grt/grt_manager.h"
 #include "grts/structs.workbench.physical.h"
 #include "grtdb/db_helpers.h"
 
@@ -71,6 +72,38 @@ db_mgmt_RdbmsRef get_rdbms_for_db_object(const ::grt::ValueRef &object) {
   if (parent.is_valid())
     return db_mgmt_RdbmsRef::cast_from(parent.get_member("rdbms"));
   return db_mgmt_RdbmsRef();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+grt::ValueRef bec::getModelOption(workbench_physical_ModelRef model, const std::string &key, bool forceModel) {
+  if (!model.is_valid()) {
+    if (forceModel)
+      return grt::ValueRef();
+
+    if (key == "CatalogVersion")
+      return bec::parse_version(bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion"));
+    else
+      return bec::GRTManager::get()->get_app_option(key);
+  }
+
+  if (!model->options().is_valid() || (model->options().get_int("useglobal", 1) == 1  && forceModel == false) || (!model->options().has_key(key) && key != "CatalogVersion")) {
+    if (key == "CatalogVersion")
+      return bec::parse_version(bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion"));
+    else
+      return bec::GRTManager::get()->get_app_option(key);
+  }
+
+  if (key == "CatalogVersion") {
+    if (model->catalog().is_valid())
+      return model->catalog()->version();
+    else {
+      logError("Unable to detect Catalog Version.\n");
+      return grt::ValueRef();
+    }
+  }
+
+  return model->options().get(key);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -781,8 +814,6 @@ bool TableHelper::rename_foreign_key(const db_TableRef &table, db_ForeignKeyRef 
   if (fk->index().is_valid()) {
     if (old_name == *fk->index()->name())
       fk->index()->name(new_name);
-    //  else
-    //    g_warning("ForeignKey %s has no attached index", fk->name().c_str());
   }
   undo.end(_("Rename Foreign Key"));
 

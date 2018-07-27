@@ -60,7 +60,7 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_MODULE)
 //--------------------------------------------------------------------------------------------------
 
 WorkbenchImpl::WorkbenchImpl(CPPModuleLoader *loader) : super(loader), _wb(0), _is_other_dbms_initialized(false) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   _last_wmi_session_id = 1;
   _last_wmi_monitor_id = 1;
 #endif
@@ -83,19 +83,15 @@ void WorkbenchImpl::set_context(WBContext *wb) {
  * Returns a number of system parameters for use in the log and the debug output.
  */
 std::string WorkbenchImpl::getSystemInfo(bool indent) {
-#ifdef _WIN32
-#define PLATFORM_NAME "Windows"
-#ifdef _WIN64
+
 #define ARCHITECTURE "64 bit"
-#else
-#define ARCHITECTURE "32 bit"
-#endif
+
+#if defined(_MSC_VER)
+  #define PLATFORM_NAME "Windows"
 #elif defined(__APPLE__)
-#define PLATFORM_NAME "Mac OS X"
-#define ARCHITECTURE "64 bit"
+  #define PLATFORM_NAME "Mac OS X"
 #else
-#define PLATFORM_NAME "Linux/Unix"
-#define ARCHITECTURE "64 bit"
+  #define PLATFORM_NAME "Linux/Unix"
 #endif
 
   app_InfoRef info(app_InfoRef::cast_from(grt::GRT::get()->get("/wb/info")));
@@ -115,7 +111,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent) {
 
   result += getFullVideoAdapterInfo(indent);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
   int locale_buffer_size = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SLANGUAGE, NULL, 0);
   if (locale_buffer_size > 0) {
@@ -201,7 +197,7 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap() {
   result["os"] = get_local_os_name();
   result["cpu"] = get_local_hardware_info();
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   result["platform"] = "Windows";
 #elif defined(__APPLE__)
   result["platform"] = "Mac OS X";
@@ -225,15 +221,15 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
   }
 
   static std::vector<std::string> supportedOsList{
-    "Ubuntu 17.10", "Ubuntu 17.04", "Ubuntu 16.10", "Ubuntu 16.04", "Debian 8",
+    "Ubuntu 18.04", "Ubuntu 16.04", "Debian 8",
 
     "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
                                                  // 7.1 (Maipo)"
-    "Fedora release 27", "Fedora release 26", "Fedora release 25", "Fedora release 24", "CentOS release 7",
+    "Fedora release 28", "Fedora release 27", "CentOS release 7",
 
     "Windows 7", "Windows 8", "Windows 10", "Windows 2012 Server", "Windows Server 2012 R2", "Windows Server 2016",
 
-    "OS X 10.9", "OS X 10.10", "OS X 10.11", "macOS 10.12", "macOS 10.13"
+    "OS X 10.11", "macOS 10.12", "macOS 10.13"
   };
 
   for (std::string s : supportedOsList) {
@@ -1323,7 +1319,7 @@ int WorkbenchImpl::showPluginManager() {
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 /**
  * Opens a new wmi session, which is essentially a connection to a computer that can later be used to
@@ -1600,7 +1596,7 @@ grt::DictListRef WorkbenchImpl::getLocalServerList() {
   logDebug("Reading locally installed MySQL servers\n");
 
   grt::DictListRef entries;
-#ifdef _WIN32
+#ifdef _MSC_VER
   try {
     int session = wmiOpenSession("", "", "");
     entries =
@@ -1793,7 +1789,7 @@ int WorkbenchImpl::createInstancesFromLocalServers() {
 
       instance->owner(_wb->get_root()->rdbmsMgmt());
 
-#ifdef _WIN32
+#ifdef _MSC_VER
       instance->serverInfo().gset("sys.system", "Windows");
       instance->serverInfo().gset("windowsAdmin", 1);
       instance->loginInfo().gset("wmi.userName", ""); // Only used for remote connections.
@@ -1888,7 +1884,7 @@ std::string WorkbenchImpl::getVideoAdapter() {
   logDebug("Attempting to determine the current video adaptor and its properties\n");
   std::string result = _("Unknown");
   try {
-#ifdef _WIN32
+#ifdef _MSC_VER
     int session = wmiOpenSession("", "", "");
     grt::DictListRef entries = wmiQuery(session, "select Availability, VideoProcessor from Win32_VideoController");
     wmiCloseSession(session);
@@ -1927,7 +1923,7 @@ std::string WorkbenchImpl::getFullVideoAdapterInfo(bool indent) {
   std::stringstream result;
   std::string tab = indent ? "\t" : "";
   try {
-#ifdef _WIN32
+#ifdef _MSC_VER
     int session = wmiOpenSession("", "", "");
     grt::DictListRef entries = wmiQuery(session, "select * from Win32_VideoController");
     wmiCloseSession(session);
@@ -2004,7 +2000,7 @@ int WorkbenchImpl::initializeOtherRDBMS() {
     }
   }
   if (failed)
-    logWarning("Support for one or more RDBMS sources have failed.");
+    logWarning("Support for one or more RDBMS sources have failed.\n");
 
   _wb->load_other_connections();
 
@@ -2028,7 +2024,7 @@ db_mgmt_SSHConnectionRef WorkbenchImpl::createSSHSession(const grt::ObjectRef &v
       object->set_data(new ssh::SSHSessionWrapper(db_mgmt_ServerInstanceRef::cast_from(val)));
 
     return object;
-  } catch (std::runtime_error &re) {
+  } catch (std::runtime_error &) {
     logError("Unable to create db_mgmt_SSHConnectionRef object.\n");
   }
   return db_mgmt_SSHConnectionRef();

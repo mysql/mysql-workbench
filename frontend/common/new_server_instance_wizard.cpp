@@ -169,7 +169,7 @@ bool TestDatabaseSettingsPage::get_server_version() {
     current_task()->label.set_text("Get Server Version: Unsupported Server Version");
     std::string msg = strfmt(
       "Unknown/unsupported server version or connection protocol detected (%s).\nMySQL Workbench is developed and "
-      "tested for MySQL Server versions 5.1 and newer.\nA connection can be established but some MySQL Workbench "
+      "tested for MySQL Server versions 5.5 and newer.\nA connection can be established but some MySQL Workbench "
       "features may not work properly.",
       version.c_str());
     add_log_text(msg);
@@ -265,7 +265,7 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm *host)
 
   _win_remote_admin.set_text(_("Native Windows remote management (only available on Windows)"));
   scoped_connect(_win_remote_admin.signal_clicked(), std::bind(&HostAndRemoteTypePage::toggle_remote_admin, this));
-#ifndef _WIN32
+#ifndef _MSC_VER
   _win_remote_admin.set_enabled(false);
 #endif
   _ssh_remote_admin.set_text(_("SSH login based management"));
@@ -274,7 +274,7 @@ HostAndRemoteTypePage::HostAndRemoteTypePage(WizardForm *host)
   _management_type_box.add(&_win_remote_admin, false, true);
   _management_type_box.add(&_ssh_remote_admin, false, true);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _win_remote_admin.set_active(true);
 #else
   _ssh_remote_admin.set_active(true);
@@ -355,15 +355,16 @@ void HostAndRemoteTypePage::enter(bool advancing) {
         try {
           dict = grt::DictRef::cast_from(grt::GRT::get()->unserialize(path + "/" + file));
         } catch (std::exception &exc) {
-          g_warning("Profile %s contains invalid data: %s", path.c_str(), exc.what());
+          logWarning("Profile %s contains invalid data: %s\n", path.c_str(), exc.what());
           continue;
         }
         _presets[dict.get_string("sys.system")].push_back(std::make_pair(label, path + "/" + file));
       }
     }
     g_dir_close(dir);
-  } else
-    g_warning("Opening profiles folder failed.");
+  } else {
+    logError("Opening profiles folder failed.");
+  }
 
   // we need to sort the preset list
   for (std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it = _presets.begin();
@@ -375,7 +376,7 @@ void HostAndRemoteTypePage::enter(bool advancing) {
   if (wizard()->is_local()) {
     _management_type_panel.show(false);
     if (detected_os_type.empty()) {
-#ifdef _WIN32
+#ifdef _MSC_VER
       detected_os_type = "Windows";
 #elif defined(__APPLE__)
       detected_os_type = "MacOS X";
@@ -442,7 +443,7 @@ void HostAndRemoteTypePage::toggle_remote_admin() {
     _os_panel.show(true);
     _os_panel.relayout();
     if (detected_os_type.empty() && wizard()->is_local()) {
-#ifdef _WIN32
+#ifdef _MSC_VER
       detected_os_type = "Windows";
 #elif defined(__APPLE__)
       detected_os_type = "MacOS X";
@@ -476,7 +477,7 @@ bool HostAndRemoteTypePage::advance() {
   bool need_templates = false;
   if (wizard()->is_local()) {
     values().gset("remoteAdmin", 0);
-#ifdef _WIN32
+#ifdef _MSC_VER
     values().gset("windowsAdmin", 1);
 #else
     need_templates = true;
@@ -513,7 +514,7 @@ bool HostAndRemoteTypePage::advance() {
 
 bool HostAndRemoteTypePage::skip_page() {
 // Skip this page if this is a local Windows installation.
-#ifdef _WIN32
+#ifdef _MSC_VER
   if (wizard()->is_local()) {
     values().gset("remoteAdmin", 0);
     values().gset("windowsAdmin", 1);
@@ -579,7 +580,7 @@ SSHConfigurationPage::SSHConfigurationPage(WizardForm *host)
 
   _file_selector = mforms::manage(new FsObjectSelector(&_ssh_key_browse_button, &_ssh_key_path));
   std::string homedir =
-#ifdef _WIN32
+#ifdef _MSC_VER
     mforms::Utilities::get_special_folder(mforms::ApplicationData);
 #else
     "~";
@@ -780,7 +781,7 @@ void WindowsManagementPage::enter(bool advancing) {
       try {
         result = Utilities::credentials_for_service(title, "wmi@" + host, user, false, password);
       } catch (std::exception &exc) {
-        logWarning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s\n", exc.what());
         mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
       }
 
@@ -864,7 +865,7 @@ void WindowsManagementPage::enter(bool advancing) {
       }
 
       refresh_config_path();
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error &e) {
       _progress_label.set_text(base::strfmt(_("Could not set up connection: %s"), e.what()));
       wizard()->set_problem(e.what());
 
@@ -873,7 +874,7 @@ void WindowsManagementPage::enter(bool advancing) {
       try {
         Utilities::forget_password("wmi@" + host, user);
       } catch (std::exception &exc) {
-        logWarning("Exception caught when clearning the password: %s", exc.what());
+        logWarning("Exception caught when clearning the password: %s\n", exc.what());
         mforms::Utilities::show_error("Clear Password", base::strfmt("Could not clear password: %s", exc.what()), "OK");
       }
 
@@ -902,7 +903,7 @@ bool WindowsManagementPage::skip_page() {
   // Remote Windows boxes which are managed via SSH use the SSH config page instead, though.
 
   bool local_wmi;
-#ifdef _WIN32
+#ifdef _MSC_VER
   local_wmi = true;
 #else
   local_wmi = false;
@@ -1285,7 +1286,7 @@ void PathsPage::test_path() {
       success = wizard()->test_setting("check_config_path/local", detail);
     else
       success = wizard()->test_setting("check_config_path", detail);
-  } catch (std::exception) {
+  } catch (std::exception &) {
     success = false;
   }
   if (success) {
@@ -1310,7 +1311,7 @@ void PathsPage::test_section() {
       success = wizard()->test_setting("check_config_section/local", detail);
     else
       success = wizard()->test_setting("check_config_section", detail);
-  } catch (std::exception) {
+  } catch (std::exception &) {
     success = false;
   }
 
@@ -1598,7 +1599,7 @@ void NewServerInstanceWizard::load_defaults() {
     try {
       dict = grt::DictRef::cast_from(grt::GRT::get()->unserialize(template_file));
     } catch (std::exception &exc) {
-      g_warning("Instance %s contains invalid data: %s", template_file.c_str(), exc.what());
+      logWarning("Instance %s contains invalid data: %s\n", template_file.c_str(), exc.what());
       return;
     }
     grt::merge_contents(_instance->serverInfo(), dict, true);

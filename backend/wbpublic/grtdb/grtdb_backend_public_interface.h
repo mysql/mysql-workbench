@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef __GRTDB_BACKEND_PUBLIC_INTERFACE_H__
-#define __GRTDB_BACKEND_PUBLIC_INTERFACE_H__
+#pragma once
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 
 #ifdef MYSQLGRTDBBACKEND_EXPORTS
 #define MYSQLGRTDBBACKEND_PUBLIC_FUNC __declspec(dllexport)
@@ -35,5 +34,3 @@
 #else
 #define MYSQLGRTDBBACKEND_PUBLIC_FUNC
 #endif
-
-#endif // __GRTDB_BACKEND_PUBLIC_INTERFACE_H__

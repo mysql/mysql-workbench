@@ -221,7 +221,7 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
     [mBackImage drawInRect: NSMakeRect(x, y, isize.width, isize.height)
                   fromRect: NSZeroRect
-                 operation: NSCompositeSourceOver
+                 operation: NSCompositingOperationSourceOver
                   fraction: 1.0
             respectFlipped: YES
                      hints: nil];

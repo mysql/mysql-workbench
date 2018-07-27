@@ -24,7 +24,7 @@
 #ifndef __MDC_CANVAS_PUBLIC_H__
 #define __MDC_CANVAS_PUBLIC_H__
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #ifdef MYSQLCANVAS_EXPORTS
 #define MYSQLCANVAS_PUBLIC_FUNC __declspec(dllexport)

@@ -113,7 +113,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
         break;
 
       case mforms::TabViewPalette:
-        mTabView.controlSize = NSSmallControlSize;
+        mTabView.controlSize = NSControlSizeSmall;
         mTabView.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
         break;
 

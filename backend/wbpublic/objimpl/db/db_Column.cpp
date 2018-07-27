@@ -158,9 +158,6 @@ grt::StringRef db_Column::formattedType() const {
 void db_Column::formattedType(const grt::StringRef &value) {
   if (formattedType() == value.c_str())
     return;
-  // add code here
-  g_warning("got a request to change %s.formattedType() from '%s' to '%s'",
-            owner().is_valid() ? owner()->name().c_str() : "<null>", formattedType().c_str(), value.c_str());
 }
 
 /** Sets the datatype defined by a string to the column.
@@ -177,7 +174,7 @@ grt::IntegerRef db_Column::setParseType(const std::string &type, const grt::List
     db_CatalogRef catalog = db_CatalogRef::cast_from(owner()->owner()->owner());
     user_types = catalog->userDatatypes();
     default_type_list = catalog->simpleDatatypes();
-    GrtVersionRef catalogVersion = catalog->version();
+    GrtVersionRef catalogVersion = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
     targetVersion->majorNumber(catalogVersion->majorNumber());
     targetVersion->minorNumber(catalogVersion->minorNumber());
     targetVersion->releaseNumber(catalogVersion->releaseNumber() > 0 ? catalogVersion->releaseNumber()

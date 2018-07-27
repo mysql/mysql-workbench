@@ -31,7 +31,7 @@
 
 DEFAULT_LOG_DOMAIN("pwdcache");
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <sys/mman.h>
 #define HAVE_MLOCK 1
 #endif

@@ -501,7 +501,6 @@ bool SpatialDrawBox::mouse_double_click(mforms::MouseButton button, int x, int y
   _offset_x = (int)(_initial_offset_x - (x - dx) / _zoom_level);
   _offset_y = (int)(_initial_offset_y - (y - dy) / _zoom_level);
   _dragging = false;
-  invalidate();
   zoom_in();
 
   return false;

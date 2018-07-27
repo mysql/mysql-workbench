@@ -187,17 +187,17 @@ static void label_set_text_align(::mforms::Label *self, ::mforms::Alignment alig
       case mforms::BottomLeft:
       case mforms::MiddleLeft:
       case mforms::TopLeft:
-        label.alignment = NSLeftTextAlignment;
+        label.alignment = NSTextAlignmentLeft;
         break;
       case mforms::BottomCenter:
       case mforms::TopCenter:
       case mforms::MiddleCenter:
-        label.alignment = NSCenterTextAlignment;
+        label.alignment = NSTextAlignmentCenter;
         break;
       case mforms::BottomRight:
       case mforms::MiddleRight:
       case mforms::TopRight:
-        label.alignment = NSRightTextAlignment;
+        label.alignment = NSTextAlignmentRight;
         break;
     }
     label->mAlignment = alignment;

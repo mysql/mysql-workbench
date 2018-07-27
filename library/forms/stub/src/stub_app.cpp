@@ -44,8 +44,7 @@ static void scan_dir_names(const std::string &dir) {
       }
     }
     g_dir_close(d);
-  } else
-    g_warning("Unable to open dir %s: %s", dir.c_str(), error->message);
+  }
 }
 
 std::string AppWrapper::get_resource_path(App *app, const std::string &file) {

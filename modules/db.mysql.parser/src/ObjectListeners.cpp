@@ -230,12 +230,12 @@ public:
 
   virtual void exitColumnDefinition(MySQLParser::ColumnDefinitionContext *ctx) override {
     // For servers < 8 the column name can be qualified. With 8+ this changed to a simple identifier.
-    if (ctx->fieldIdentifier()) {
-      IdentifierListener listener(ctx->fieldIdentifier());
+    if (ctx->columnName()->fieldIdentifier()) {
+      IdentifierListener listener(ctx->columnName()->fieldIdentifier());
       column->name(listener.parts.back());
       column->oldName(listener.parts.back());
     } else {
-      IdentifierListener listener(ctx->identifier());
+      IdentifierListener listener(ctx->columnName()->identifier());
       column->name(listener.parts.back());
       column->oldName(listener.parts.back());
     }
@@ -786,13 +786,13 @@ void SchemaListener::exitCreateDatabase(MySQLParser::CreateDatabaseContext *ctx)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SchemaListener::exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultContext *ctx) {
+void SchemaListener::exitCharsetName(MySQLParser::CharsetNameContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   std::string charsetName;
   if (ctx->DEFAULT_SYMBOL() != nullptr)
     charsetName = "default";
   else
-    charsetName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx->charsetName()));
+    charsetName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx));
 
   auto info = detailsForCharset(charsetName, schema->defaultCollationName(), _catalog->defaultCharacterSetName());
   schema->defaultCharacterSetName(info.first);
@@ -801,11 +801,11 @@ void SchemaListener::exitCharsetNameOrDefault(MySQLParser::CharsetNameOrDefaultC
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SchemaListener::exitCollationNameOrDefault(MySQLParser::CollationNameOrDefaultContext *ctx) {
+void SchemaListener::exitCollationName(MySQLParser::CollationNameContext *ctx) {
   db_mysql_SchemaRef schema = db_mysql_SchemaRef::cast_from(_object);
   std::string collationName;
   if (ctx->DEFAULT_SYMBOL() == nullptr)
-    collationName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx->collationName()));
+    collationName = base::tolower(MySQLBaseLexer::sourceTextForContext(ctx));
   else
     collationName = "default";
 
@@ -1084,12 +1084,12 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
       // Collation/Charset handling.
       if (option->defaultCollation() != nullptr) {
         auto info = detailsForCollation(
-          MySQLBaseLexer::sourceTextForContext(option->defaultCollation()->collationNameOrDefault()), defaultCollation);
+          MySQLBaseLexer::sourceTextForContext(option->defaultCollation()->collationName()), defaultCollation);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second);
       } else {
         auto info =
-          detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->defaultCharset()->charsetNameOrDefault()),
+          detailsForCharset(MySQLBaseLexer::sourceTextForContext(option->defaultCharset()->charsetName()),
                             defaultCollation, defaultCharset);
         table->defaultCharacterSetName(info.first);
         table->defaultCollationName(info.second); // Collation name or DEFAULT.
@@ -1424,7 +1424,10 @@ void RoutineListener::exitCreateUdf(MySQLParser::CreateUdfContext *ctx) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void RoutineListener::exitProcedureParameter(MySQLParser::ProcedureParameterContext *ctx) {
-  _currentParameter->paramType(ctx->type->getText());
+  if (ctx->type != nullptr)
+    _currentParameter->paramType(ctx->type->getText());
+  else
+    _currentParameter->paramType("IN");
 }
 
 //----------------------------------------------------------------------------------------------------------------------

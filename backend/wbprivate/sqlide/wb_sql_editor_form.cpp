@@ -263,6 +263,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   : exec_sql_task(GrtThreadedTask::create()),
     _history(DbSqlEditorHistory::create()),
     _wbsql(wbsql),
+    _version(grt::Initialized),
     _live_tree(SqlEditorTreeController::create(this)),
     _aux_dbc_conn(new sql::Dbc_connection_handler()),
     _usr_dbc_conn(new sql::Dbc_connection_handler()),
@@ -336,6 +337,7 @@ SqlEditorForm::~SqlEditorForm() {
   delete _menu;
 
   reset_keep_alive_thread();
+  _sshConnection.release();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -646,7 +648,7 @@ db_mgmt_SSHConnectionRef SqlEditorForm::getSSHConnection() {
         }
       }
     }
-  } catch (std::runtime_error &re) {
+  } catch (std::runtime_error &) {
     logError("Unable to create db_mgmt_SSHConnectionRef object\n");
   }
   return _sshConnection;
@@ -1011,8 +1013,13 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
   db_mgmt_ConnectionRef temp_connection = db_mgmt_ConnectionRef::cast_from(grt::CopyContext().copy(db_mgmt_conn));
 
   int read_timeout = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ReadTimeOut");
-  if (read_timeout > 0)
-    temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
+
+  if (read_timeout < 0) {
+      bec::GRTManager::get()->set_app_option("DbSqlEditor:ReadTimeOut", grt::IntegerRef((int)0));
+      read_timeout = 0;
+  }
+
+  temp_connection->parameterValues().set("OPT_READ_TIMEOUT", grt::IntegerRef(read_timeout));
 
   int connect_timeout = (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:ConnectionTimeOut");
   if (connect_timeout > 0)
@@ -1257,7 +1264,7 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _connection_info.append(create_html_line("Name: ", _connection->name()));
     // Host:
     if (_connection->driver()->name() == "MysqlNativeSocket") {
-#ifdef _WIN32
+#ifdef _MSC_VER
       std::string name = _connection->parameterValues().get_string("socket", "");
       if (name.empty())
         name = "pipe";

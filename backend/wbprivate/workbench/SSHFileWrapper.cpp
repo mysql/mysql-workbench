@@ -30,10 +30,11 @@ DEFAULT_LOG_DOMAIN("SSHFileWrapper")
 ssh::SSHFileWrapper::SSHFileWrapper(std::shared_ptr<ssh::SSHSession> session, std::shared_ptr<SSHSftp> ftp, const std::string &path, const std::size_t maxFileLimit)
     : _session(session), _sftp(ftp), _maxFileLimit(maxFileLimit), _path(path) {
   _file = _sftp->open(path);
+  logDebug3("Open file: %s\n", _path.c_str());
 }
 
 ssh::SSHFileWrapper::~SSHFileWrapper() {
-  logDebug2("Close file: %s\n", _path.c_str());
+  logDebug3("Close file: %s\n", _path.c_str());
   auto lock = _session->lockSession();
   sftp_close(_file);
 }
@@ -69,7 +70,7 @@ grt::StringRef ssh::SSHFileWrapper::readline() {
     else if (nBytes < 0) {
       throw SSHSftpException(ssh_get_error(_file->sftp->session));
     }
-    buff.append(buffer, nBytes);
+    buff.append(nBytes, buffer);
     bytesCount += nBytes;
     if (buffer == '\n')
       break;

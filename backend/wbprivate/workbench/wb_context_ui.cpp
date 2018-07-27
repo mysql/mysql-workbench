@@ -185,7 +185,7 @@ bool WBContextUI::request_quit() {
     return true;
 
   if (!bec::GRTManager::get()->in_main_thread())
-    g_warning("request_quit() called in worker thread");
+    logWarning("request_quit() called in worker thread\n");
 
   {
     NotificationInfo info;

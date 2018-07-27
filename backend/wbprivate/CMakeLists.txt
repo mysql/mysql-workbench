@@ -22,6 +22,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/parsers/mysql
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
+    ${PROJECT_SOURCE_DIR}/library/ssh
     ${PROJECT_SOURCE_DIR}/modules
     ${PROJECT_SOURCE_DIR}/frontend/common
     ${PROJECT_SOURCE_DIR}/backend/wbpublic
@@ -61,7 +62,7 @@ add_library(wbprivate
     sqlide/wb_sql_editor_form_ui.cpp
     sqlide/wb_sql_editor_help.cpp
     sqlide/wb_sql_editor_tree_controller.cpp
-  	sqlide/execute_routine_wizard.cpp
+    sqlide/execute_routine_wizard.cpp
     sqlide/wb_sql_editor_panel.cpp
     sqlide/wb_sql_editor_result_panel.cpp
     sqlide/wb_context_sqlide.cpp
@@ -86,13 +87,8 @@ add_library(wbprivate
     workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp
     workbench/about_box.cpp
-    workbench/SSHSftp.cpp
-    workbench/SSHCommon.cpp
-    workbench/SSHSession.cpp
     workbench/SSHSessionWrapper.cpp
     workbench/SSHFileWrapper.cpp
-    workbench/SSHTunnelHandler.cpp
-    workbench/SSHTunnelManager.cpp
     workbench/license_view.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/preferences_form.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/new_connection_wizard.cpp
@@ -113,6 +109,8 @@ target_link_libraries(wbprivate
     grt
     mdcanvas
     wbbase
+    wbssh
+    mforms
     ${CAIRO_LIBRARIES}
     ${GTK3_LIBRARIES}
     ${SIGC++_LIBRARIES}

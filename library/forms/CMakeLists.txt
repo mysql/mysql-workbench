@@ -15,10 +15,12 @@ include_directories(.
     SYSTEM ${PCRE_INCLUDE_DIRS}
     SYSTEM ${PROJECT_SOURCE_DIR}
     SYSTEM ${VSQLITE_INCLUDE_DIRS}
+    SYSTEM ${LIBSECRET_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/library
     ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/library/grt/src
     ${PROJECT_SOURCE_DIR}/library/base
+    ${PROJECT_SOURCE_DIR}/library/base/base
     ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
@@ -133,7 +135,9 @@ endif()
 
 target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${GNOME_KEYRING_LIBRARIES})
+target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla wbbase ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${LIBSECRET_LIBRARIES})
+
+set_source_files_properties(gtk/src/mforms_acc.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(mforms gcov)

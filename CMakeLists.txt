@@ -118,7 +118,7 @@ find_package(VSqlite REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
 find_package(LibSSH 0.7.3 REQUIRED)
-
+find_package(OpenSSL REQUIRED)
 set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 
 if (UNIX)
@@ -158,14 +158,9 @@ pkg_check_modules(CAIRO REQUIRED cairo>=1.5.12)
 pkg_check_modules(UUID REQUIRED uuid)
 pkg_check_modules(LIBZIP REQUIRED libzip)
 if (UNIX)
-	pkg_check_modules(GNOME_KEYRING gnome-keyring-1)
-	if (GNOME_KEYRING_FOUND)
-		set(KEYRING_DEFINITION     "HAVE_GNOME_KEYRING")
-	else()
-		pkg_check_modules(GNOME_KEYRING gnome-keyring)
-		if (GNOME_KEYRING_FOUND)
-			set(KEYRING_DEFINITION     "HAVE_OLD_GNOME_KEYRING")
-		endif()
+  pkg_check_modules(LIBSECRET REQUIRED libsecret-1)
+	if (LIBSECRET_FOUND)
+		set(KEYRING_DEFINITION     "HAVE_LIBSECRET_KEYRING")
 	endif()
 endif()
 
@@ -234,7 +229,13 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 # SET(GCOV OFF CACHE BOOL "Add gcov flags")
 
 # Determine std c++ version
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL "5.0" OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "5.0")
+    set(CMAKE_CXX_STANDARD 14)
+  endif()
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_CXX_STANDARD 11)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.7")
@@ -306,7 +307,9 @@ install(FILES build/mysql-workbench-commercial.mime DESTINATION ${WB_INSTALL_SHA
 
 
 install(FILES build/build_freetds.sh
-              samples/models/sakila_full.mwb
-        DESTINATION ${WB_PACKAGE_SHARED_DIR}/extras
-       )
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+        DESTINATION ${WB_PACKAGE_SHARED_DIR}/extras)
+
+install(FILES samples/models/sakila_full.mwb
+        DESTINATION ${WB_PACKAGE_SHARED_DIR}/extras)
        

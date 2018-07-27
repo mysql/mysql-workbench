@@ -27,8 +27,8 @@
 #include "workbench/wb_backend_public_interface.h"
 #include "base/ui_form.h"
 #include "grt/tree_model.h"
-//#include "workbench/wb_command_ui.h"
-//#include "sqlide/wb_context_sqlide.h"
+
+#include <deque>
 
 namespace wb {
   class WBContextSQLIDE;
@@ -85,7 +85,7 @@ protected:
     int db_snippet_id; // only if it comes from the DB
   };
 
-  std::vector<Snippet> _entries;
+  std::deque<Snippet> _entries;
 
   void toolbar_item_activated(const std::string &name);
   void copy_original_file(const std::string &name, bool overwrite);

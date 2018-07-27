@@ -46,7 +46,7 @@ using namespace std;
 using namespace wb;
 using namespace mforms;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define SIDEBAR_FONT "Segoe UI"
 #define SIDEBAR_TITLE_FONT_SIZE 11
 #define SIDEBAR_ENTRY_FONT_SIZE 11
@@ -582,7 +582,7 @@ base::Accessible* SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   else if (_toggle_mode_button && _toggle_mode_button->check_hit(x, y))
     accessible = _toggle_mode_button;
   else
-    accessible = entry_from_point(x, y);
+    accessible = entry_from_point(static_cast<double>(x), static_cast<double>(y));
 
   return accessible;
 }
@@ -1297,14 +1297,14 @@ void AdvancedSidebar::setup_schema_tree() {
   _schema_search_box.set_back_color(background_color);
   _schema_search_box.set_name("schema-search-box");
   _schema_search_box.set_spacing(5);
-#ifdef _WIN32
+#ifdef _MSC_VER
   _schema_search_box.set_padding(4, 0, 6, 5);
   _schema_search_box.set_size(-1, 17); // Height excluding the padding, which adds extra pixels.
 #else
   _schema_search_box.set_padding(8, 1, 8, 5);
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   mforms::ImageBox* image = mforms::manage(new mforms::ImageBox, false);
   image->set_image("search_sidebar.png");
   image->set_image_align(mforms::MiddleCenter);

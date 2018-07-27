@@ -43,9 +43,6 @@ workbench_physical_Model::ImplData::ImplData(workbench_physical_Model *self) : s
   scoped_connect(self->signal_dict_changed(), std::bind(&ImplData::dict_changed, this, std::placeholders::_1,
                                                         std::placeholders::_2, std::placeholders::_3));
   grt::GRTNotificationCenter::get()->add_grt_observer(this, "GRNPreferencesDidClose");
-
-  if (self->tags().count() > 0)
-    g_warning("tagcount in model starts > 0");
 }
 
 void workbench_physical_Model::ImplData::handle_grt_notification(const std::string &name, grt::ObjectRef sender,

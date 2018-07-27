@@ -34,7 +34,12 @@ if ! type -a gcc; then
 	exit 1
 fi
 
-freetds_tarball=`find . -maxdepth 1 -type f -regex '\./freetds-.*\(\.tar\.gz\|\.tgz\)' -printf "%f" -quit`
+if echo "$(uname)" = darwin; then
+    freetds_tarball=`find . -maxdepth 1 -type f -print | grep -m 1 -E 'freetds.*(\.tar\.gz|\.tgz)'`
+else
+    freetds_tarball=`find . -maxdepth 1 -type f -regex '\./freetds-.*\(\.tar\.gz\|\.tgz\)' -printf "%f" -quit`
+fi
+
 if [ -z $freetds_tarball ]; then
     echo "ERROR: Please download the latest freetds (requires 0.92 or newer) source package to this directory"
     exit 1
@@ -53,19 +58,13 @@ cd /tmp/freetdsbuild
 echo "Extracting files from $freetds_tarball..."
 tar xzf $freetds_tarball
 
-if `uname` = darwin; then
-# force 32bit build
-export CFLAGS="-arch i386"
-export LDFLAGS="-arch i386"
-fi
-
-if iodbc-config --cflags|grep -- -I; then
+if iodbc-config --cflags | grep -- -I; then
     ln -s `iodbc-config --cflags|sed -e "s/.*-I\([^ ]*\).*/\1/"` include
 else
     ln -s /usr/include .
 fi
 
-if iodbc-config --libs|grep -- -L; then
+if iodbc-config --libs | grep -- -L; then
 	ln -s `iodbc-config --libs|sed -e "s/.*-L\([^ ]*\).*/\1/"` .
 else
 	if test `arch` = x86_64; then

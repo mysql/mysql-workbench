@@ -144,6 +144,7 @@ struct MySQLParserContextImpl : public MySQLParserContext {
         lexer.charsets.erase("_utf32");
       } else {
         // Duplicates are automatically ignored.
+        lexer.charsets.insert("_utf8mb3");
         lexer.charsets.insert("_utf8mb4");
         lexer.charsets.insert("_utf16");
         lexer.charsets.insert("_utf32");
@@ -446,7 +447,142 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     expected.remove(tokenType);
   }
 
-  std::string expectedText = intervalToString(expected, 6, parser->getVocabulary());
+  // Try to find the expected input by examining the current parser context and
+  // the expected interval set. The latter often lists useless keywords, especially if they are allowed
+  // as identifiers.
+  std::string expectedText;
+
+  static std::set<size_t> simpleRules = {
+    MySQLParser::RuleIdentifier,
+    MySQLParser::RuleQualifiedIdentifier,
+  };
+
+  static std::map<size_t, std::string> objectNames = {
+    { MySQLParser::RuleColumnName, "column" },
+    { MySQLParser::RuleColumnRef, "column" },
+    { MySQLParser::RuleColumnInternalRef, "column" },
+    { MySQLParser::RuleIndexName, "index" },
+    { MySQLParser::RuleIndexRef, "index" },
+    { MySQLParser::RuleSchemaName, "schema" },
+    { MySQLParser::RuleSchemaRef, "schema" },
+    { MySQLParser::RuleProcedureName, "procedure" },
+    { MySQLParser::RuleProcedureRef, "procedure" },
+    { MySQLParser::RuleFunctionName, "function" },
+    { MySQLParser::RuleFunctionRef, "function" },
+    { MySQLParser::RuleTriggerName, "trigger" },
+    { MySQLParser::RuleTriggerRef, "trigger" },
+    { MySQLParser::RuleViewName, "view" },
+    { MySQLParser::RuleViewRef, "view" },
+    { MySQLParser::RuleTablespaceName, "tablespace" },
+    { MySQLParser::RuleTablespaceRef, "tablespace" },
+    { MySQLParser::RuleLogfileGroupName, "logfile group" },
+    { MySQLParser::RuleLogfileGroupRef, "logfile group" },
+    { MySQLParser::RuleEventName, "event" },
+    { MySQLParser::RuleEventRef, "event" },
+    { MySQLParser::RuleUdfName, "udf" },
+    { MySQLParser::RuleServerName, "server" },
+    { MySQLParser::RuleServerRef, "server" },
+    { MySQLParser::RuleEngineRef, "engine" },
+    { MySQLParser::RuleTableName, "table" },
+    { MySQLParser::RuleTableRef, "table" },
+    { MySQLParser::RuleFilterTableRef, "table" },
+    { MySQLParser::RuleTableRefWithWildcard, "table" },
+    { MySQLParser::RuleParameterName, "parameter" },
+    { MySQLParser::RuleLabelIdentifier, "label" },
+    { MySQLParser::RuleLabelRef, "label" },
+    { MySQLParser::RuleRoleIdentifier, "role" },
+    { MySQLParser::RuleRoleRef, "role" },
+    { MySQLParser::RulePluginRef, "plugin" },
+    { MySQLParser::RuleComponentRef, "component" },
+    { MySQLParser::RuleResourceGroupRef, "resource group" },
+    { MySQLParser::RuleWindowName, "window" },
+  };
+
+  // Walk up from generic rules to reach something that gives us more context, if needed.
+  ParserRuleContext *context = parser->getRuleContext();
+  while (simpleRules.find(context->getRuleIndex()) != simpleRules.end())
+    context = dynamic_cast<ParserRuleContext *>(context->parent);
+
+  switch (context->getRuleIndex()) {
+    case MySQLParser::RuleFunctionCall:
+      expectedText =  "a complete function call or other expression";
+      break;
+
+    case MySQLParser::RuleExpr:
+      expectedText = " an expression";
+      break;
+
+    case MySQLParser::RuleColumnName:
+    case MySQLParser::RuleIndexName:
+    case MySQLParser::RuleSchemaName:
+    case MySQLParser::RuleProcedureName:
+    case MySQLParser::RuleFunctionName:
+    case MySQLParser::RuleTriggerName:
+    case MySQLParser::RuleViewName:
+    case MySQLParser::RuleTablespaceName:
+    case MySQLParser::RuleLogfileGroupName:
+    case MySQLParser::RuleEventName:
+    case MySQLParser::RuleUdfName:
+    case MySQLParser::RuleServerName:
+    case MySQLParser::RuleTableName:
+    case MySQLParser::RuleParameterName:
+    case MySQLParser::RuleLabelIdentifier:
+    case MySQLParser::RuleRoleIdentifier:
+    case MySQLParser::RuleWindowName: {
+      auto iterator = objectNames.find(context->getRuleIndex());
+      if (iterator == objectNames.end())
+        expectedText = " a new object name";
+      else
+        expectedText = std::string(" a new ") + iterator->second + " name";
+      break;
+    }
+
+    case MySQLParser::RuleColumnRef:
+    case MySQLParser::RuleIndexRef:
+    case MySQLParser::RuleSchemaRef:
+    case MySQLParser::RuleProcedureRef:
+    case MySQLParser::RuleFunctionRef:
+    case MySQLParser::RuleTriggerRef:
+    case MySQLParser::RuleViewRef:
+    case MySQLParser::RuleTablespaceRef:
+    case MySQLParser::RuleLogfileGroupRef:
+    case MySQLParser::RuleEventRef:
+    case MySQLParser::RuleServerRef:
+    case MySQLParser::RuleEngineRef:
+    case MySQLParser::RuleTableRef:
+    case MySQLParser::RuleFilterTableRef:
+    case MySQLParser::RuleTableRefWithWildcard:
+    case MySQLParser::RuleLabelRef:
+    case MySQLParser::RuleRoleRef:
+    case MySQLParser::RulePluginRef:
+    case MySQLParser::RuleComponentRef:
+    case MySQLParser::RuleResourceGroupRef: {
+      auto iterator = objectNames.find(context->getRuleIndex());
+      if (iterator == objectNames.end())
+        expectedText = " the name of an existing object";
+      else
+        expectedText = std::string(" the name of an existing ") + iterator->second;
+      break;
+    }
+
+    case MySQLParser::RuleColumnInternalRef:
+      expectedText = " a column name from this table";
+      break;
+
+    default: {
+      // If the expected set contains the IDENTIFIER token we likely want an identifier at this position.
+      // Due to the fact that MySQL defines a number of keywords as possible identifiers, we get all those
+      // whenever an identifier is actually required, bloating so the expected set with irrelevant elements.
+      // Hence we check for the identifier entry and assume we *only* want an identifier. This gives an unprecise
+      // result if both certain keywords *and* an identifier are expected.
+      if (expected.contains(static_cast<ssize_t>(MySQLLexer::IDENTIFIER)))
+        expectedText = " an identifier";
+      else
+        expectedText = ": " + intervalToString(expected, 6, parser->getVocabulary());
+      break;
+    }
+  }
+
   if (wrongText[0] != '"' && wrongText[0] != '\'' && wrongText[0] != '`')
     wrongText = "\"" + wrongText + "\"";
 
@@ -454,35 +590,35 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     // Missing or unwanted tokens.
     if (msg.find("missing") != std::string::npos) {
       if (expected.size() == 1) {
-        message = std::string("Expected ") + expectedText + ", but found " + wrongText + " instead";
+        message = std::string("Expected") + expectedText + ", but found " + wrongText + " instead";
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting: " + expectedText;
+      message = std::string("Extraneous input ") + wrongText + " found, expecting" + expectedText;
     }
   } else {
     try {
       std::rethrow_exception(ep);
     } catch (InputMismatchException &) {
       if (isEof)
-        message = "Unexpected end of input found";
+        message = "Statement is incomplete";
       else
-        message = wrongText + " is no valid input at this position";
+        message = wrongText + " is not valid at this position";
 
       if (!expectedText.empty())
-        message += ", expecting: " + expectedText;
+        message += ", expecting" + expectedText;
     } catch (FailedPredicateException &) {
       message = "FailedPredicateException"; // TODO: find a case that throws this.
     } catch (NoViableAltException &) {
       if (isEof)
-        message = "Unexpected end of input found";
+        message = "Statement is incomplete";
       else {
-        message = wrongText + " is no valid input at this position";
+        message = wrongText + " is not valid at this position";
         if (invalidForVersion)
           message += " for this server version";
       }
 
       if (!expectedText.empty())
-        message += ", expecting: " + expectedText;
+        message += ", expecting" + expectedText;
     }
   }
 
@@ -887,13 +1023,13 @@ std::pair<std::string, std::string> getRoutineNameAndType(ParseTree *context) {
   std::pair<std::string, std::string> result;
   if (routineTree->createProcedure() != nullptr) {
     result.second = "procedure";
-    result.first = routineTree->createProcedure()->procedureName()->getText();
+    result.first = base::unquote(routineTree->createProcedure()->procedureName()->getText());
   } else if (routineTree->createFunction() != nullptr) {
     result.second = "function";
-    result.first = routineTree->createFunction()->functionName()->getText();
+    result.first = base::unquote(routineTree->createFunction()->functionName()->getText());
   } else if (routineTree->createUdf() != nullptr) {
     result.second = "udf";
-    result.first = routineTree->createUdf()->udfName()->getText();
+    result.first = base::unquote(routineTree->createUdf()->udfName()->getText());
   }
   return result;
 }
@@ -991,7 +1127,7 @@ size_t MySQLParserServicesImpl::parseRoutines(MySQLParserContext::Ref context, d
 
   size_t errorCount = 0;
 
-  std::vector<std::pair<size_t, size_t>> ranges;
+  std::vector<StatementRange> ranges;
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
 
   grt::ListRef<db_Routine> routines = group->routines();
@@ -1003,9 +1139,8 @@ size_t MySQLParserServicesImpl::parseRoutines(MySQLParserContext::Ref context, d
 
   int syntaxErrorCounter = 1;
 
-  for (std::vector<std::pair<size_t, size_t>>::iterator iterator = ranges.begin(); iterator != ranges.end();
-       ++iterator) {
-    std::string routineSQL = sql.substr(iterator->first, iterator->second);
+  for (auto &range : ranges) {
+    std::string routineSQL = sql.substr(range.start, range.length);
     auto tree = impl->parse(routineSQL, MySQLParseUnit::PuCreateRoutine);
 
     errorCount += impl->errors.size();
@@ -1351,7 +1486,7 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
   }
 
   size_t errorCount = 0;
-  std::vector<std::pair<size_t, size_t>> ranges;
+  std::vector<StatementRange> ranges;
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges, "\n");
 
   grt::ListRef<GrtObject> createdObjects = grt::ListRef<GrtObject>::cast_from(options.get("created_objects"));
@@ -1360,12 +1495,13 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
     options.set("created_objects", createdObjects);
   }
 
+  StringListRef errors = StringListRef::cast_from(options.get("errors"));
+
   // Collect textual FK references into a local cache. At the end this is used
   // to find actual ref tables + columns, when all tables have been parsed.
   DbObjectsRefsCache refCache;
-  for (std::vector<std::pair<size_t, size_t>>::iterator iterator = ranges.begin(); iterator != ranges.end();
-       ++iterator) {
-    std::string query(sql.c_str() + iterator->first, iterator->second);
+  for (auto &range : ranges) {
+    std::string query(sql.c_str() + range.start, range.length);
     MySQLQueryType queryType = impl->determineQueryType(query);
 
     if (relevantQueryTypes.count(queryType) == 0)
@@ -1374,6 +1510,11 @@ size_t MySQLParserServicesImpl::parseSQLIntoCatalog(MySQLParserContext::Ref cont
     auto tree = impl->parse(query, MySQLParseUnit::PuGeneric);
     if (!impl->errors.empty()) {
       errorCount += impl->errors.size();
+      if (errors.is_valid()) {
+        for (auto &error : impl->errors)
+          errors.insert("(" + std::to_string(range.line) + ", " + std::to_string(error.offset) + ") "
+                        + error.message);
+      }
       continue;
     }
 
@@ -1972,7 +2113,7 @@ public:
   }
 
   virtual void exitTableWild(MySQLParser::TableWildContext *ctx) override {
-    checkIdentifierContext(ctx->identifier());
+    checkIdentifierContext(ctx->identifier()[0]);
   }
 
   virtual void exitQualifiedIdentifier(MySQLParser::QualifiedIdentifierContext *ctx) override {
@@ -2092,7 +2233,7 @@ size_t MySQLParserServicesImpl::renameSchemaReferences(MySQLParserContext::Ref c
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static const unsigned char *skip_leading_whitespace(const unsigned char *head, const unsigned char *tail) {
+static const unsigned char *skipLeadingWhitespace(const unsigned char *head, const unsigned char *tail) {
   while (head < tail && *head <= ' ')
     head++;
   return head;
@@ -2100,7 +2241,7 @@ static const unsigned char *skip_leading_whitespace(const unsigned char *head, c
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool is_line_break(const unsigned char *head, const unsigned char *line_break) {
+bool isLineBreak(const unsigned char *head, const unsigned char *line_break) {
   if (*line_break == '\0')
     return false;
 
@@ -2114,17 +2255,18 @@ bool is_line_break(const unsigned char *head, const unsigned char *line_break) {
 //----------------------------------------------------------------------------------------------------------------------
 
 grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::string &sql) {
-  grt::BaseListRef list(true);
-  std::vector<std::pair<size_t, size_t>> ranges;
 
+  std::vector<StatementRange> ranges;
   determineStatementRanges(sql.c_str(), sql.size(), ";", ranges);
 
-  for (std::vector<std::pair<size_t, size_t>>::const_iterator i = ranges.begin(); i != ranges.end(); ++i) {
+  grt::BaseListRef list(true);
+  for (auto &range : ranges) {
     grt::BaseListRef item(true);
-    item.ginsert(grt::IntegerRef(i->first));
-    item.ginsert(grt::IntegerRef(i->second));
+    item.ginsert(grt::IntegerRef(range.start));
+    item.ginsert(grt::IntegerRef(range.length));
     list.ginsert(item);
   }
+
   return list;
 }
 
@@ -2135,29 +2277,36 @@ grt::BaseListRef MySQLParserServicesImpl::getSqlStatementRanges(const std::strin
  * return their position and length in the original string (instead the copied strings).
  */
 size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t length,
-                                                         const std::string &initial_delimiter,
-                                                         std::vector<std::pair<size_t, size_t>> &ranges,
-                                                         const std::string &line_break) {
-  std::string delimiter = initial_delimiter.empty() ? ";" : initial_delimiter;
-  const unsigned char *delimiter_head = (unsigned char *)delimiter.c_str();
+  const std::string &initialDelimiter, std::vector<StatementRange> &ranges, const std::string &lineBreak) {
 
-  const unsigned char keyword[] = "delimiter";
+  static const unsigned char keyword[] = "delimiter";
 
-  const unsigned char *head = (unsigned char *)sql;
+  std::string delimiter = initialDelimiter.empty() ? ";" : initialDelimiter;
+  const unsigned char *delimiterHead = reinterpret_cast<const unsigned char *>(delimiter.c_str());
+
+  const unsigned char *start = reinterpret_cast<const unsigned char *>(sql);
+  const unsigned char *head = start;
   const unsigned char *tail = head;
   const unsigned char *end = head + length;
-  const unsigned char *new_line = (unsigned char *)line_break.c_str();
-  bool have_content = false; // Set when anything else but comments were found for the current statement.
+  const unsigned char *newLine = reinterpret_cast<const unsigned char *>(lineBreak.c_str());
+
+  size_t currentLine = 0;
+  size_t statementStart = 0;
+  bool haveContent = false; // Set when anything else but comments were found for the current statement.
 
   while (tail < end) {
     switch (*tail) {
       case '/': { // Possible multi line comment or hidden (conditional) command.
         if (*(tail + 1) == '*') {
           tail += 2;
-          bool is_hidden_command = (*tail == '!');
+          bool isHiddenCommand = (*tail == '!');
           while (true) {
-            while (tail < end && *tail != '*')
+            while (tail < end && *tail != '*') {
+              if (isLineBreak(tail, newLine))
+                ++currentLine;
               tail++;
+            }
+
             if (tail == end) // Unfinished comment.
               break;
             else {
@@ -2168,8 +2317,13 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
             }
           }
 
-          if (!is_hidden_command && !have_content)
+          if (isHiddenCommand)
+            haveContent = true;
+          if (!haveContent) {
             head = tail; // Skip over the comment.
+            statementStart = currentLine;
+          }
+
         } else
           tail++;
 
@@ -2178,13 +2332,16 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
 
       case '-': { // Possible single line comment.
         const unsigned char *end_char = tail + 2;
-        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || is_line_break(end_char, new_line))) {
+        if (*(tail + 1) == '-' && (*end_char == ' ' || *end_char == '\t' || isLineBreak(end_char, newLine))) {
           // Skip everything until the end of the line.
           tail += 2;
-          while (tail < end && !is_line_break(tail, new_line))
+          while (tail < end && !isLineBreak(tail, newLine))
             tail++;
-          if (!have_content)
+
+          if (!haveContent) {
             head = tail;
+            statementStart = currentLine;
+          }
         } else
           tail++;
 
@@ -2192,17 +2349,21 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
       }
 
       case '#': { // MySQL single line comment.
-        while (tail < end && !is_line_break(tail, new_line))
+        while (tail < end && !isLineBreak(tail, newLine))
           tail++;
-        if (!have_content)
+
+        if (!haveContent) {
           head = tail;
+          statementStart = currentLine;
+        }
+
         break;
       }
 
       case '"':
       case '\'':
       case '`': { // Quoted string/id. Skip this in a local loop.
-        have_content = true;
+        haveContent = true;
         char quote = *tail++;
         while (tail < end && *tail != quote) {
           // Skip any escaped character too.
@@ -2218,15 +2379,15 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
 
       case 'd':
       case 'D': {
-        have_content = true;
+        haveContent = true;
 
         // Possible start of the keyword DELIMITER. Must be at the start of the text or a character,
         // which is not part of a regular MySQL identifier (0-9, A-Z, a-z, _, $, \u0080-\uffff).
-        unsigned char previous = tail > (unsigned char *)sql ? *(tail - 1) : 0;
+        unsigned char previous = tail > start ? *(tail - 1) : 0;
         bool is_identifier_char = previous >= 0x80 || (previous >= '0' && previous <= '9') ||
                                   ((previous | 0x20) >= 'a' && (previous | 0x20) <= 'z') || previous == '$' ||
                                   previous == '_';
-        if (tail == (unsigned char *)sql || !is_identifier_char) {
+        if (tail == start || !is_identifier_char) {
           const unsigned char *run = tail + 1;
           const unsigned char *kw = keyword + 1;
           int count = 9;
@@ -2235,65 +2396,76 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
           if (count == 0 && *run == ' ') {
             // Delimiter keyword found. Get the new delimiter (everything until the end of the line).
             tail = run++;
-            while (run < end && !is_line_break(run, new_line))
-              run++;
-            delimiter = base::trim(std::string((char *)tail, run - tail));
-            delimiter_head = (unsigned char *)delimiter.c_str();
+            while (run < end && !isLineBreak(run, newLine))
+              ++run;
+            delimiter = base::trim(std::string(reinterpret_cast<const char *>(tail), run - tail));
+            delimiterHead = reinterpret_cast<const unsigned char *>(delimiter.c_str());
 
             // Skip over the delimiter statement and any following line breaks.
-            while (is_line_break(run, new_line))
-              run++;
+            while (isLineBreak(run, newLine)) {
+              ++currentLine;
+              ++run;
+            }
             tail = run;
             head = tail;
+            statementStart = currentLine;
           } else
-            tail++;
+            ++tail;
         } else
-          tail++;
+          ++tail;
 
         break;
       }
 
       default:
+        if (isLineBreak(tail, newLine)) {
+          ++currentLine;
+          if (!haveContent)
+            ++statementStart;
+        }
+
         if (*tail > ' ')
-          have_content = true;
+          haveContent = true;
         tail++;
         break;
     }
 
-    if (*tail == *delimiter_head) {
+    if (*tail == *delimiterHead) {
       // Found possible start of the delimiter. Check if it really is.
       size_t count = delimiter.size();
       if (count == 1) {
         // Most common case. Trim the statement and check if it is not empty before adding the range.
-        head = skip_leading_whitespace(head, tail);
+        head = skipLeadingWhitespace(head, tail);
         if (head < tail)
-          ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
+          ranges.push_back({ statementStart, static_cast<size_t>(head - start), static_cast<size_t>(tail - head) });
         head = ++tail;
-        have_content = false;
+        statementStart = currentLine;
+        haveContent = false;
       } else {
         const unsigned char *run = tail + 1;
-        const unsigned char *del = delimiter_head + 1;
+        const unsigned char *del = delimiterHead + 1;
         while (count-- > 1 && (*run++ == *del++))
           ;
 
         if (count == 0) {
           // Multi char delimiter is complete. Tail still points to the start of the delimiter.
           // Run points to the first character after the delimiter.
-          head = skip_leading_whitespace(head, tail);
+          head = skipLeadingWhitespace(head, tail);
           if (head < tail)
-            ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
+            ranges.push_back({ statementStart, static_cast<size_t>(head - start), static_cast<size_t>(tail - head) });
           tail = run;
           head = run;
-          have_content = false;
+          statementStart = currentLine;
+          haveContent = false;
         }
       }
     }
   }
 
   // Add remaining text to the range list.
-  head = skip_leading_whitespace(head, tail);
+  head = skipLeadingWhitespace(head, tail);
   if (head < tail)
-    ranges.push_back(std::make_pair<size_t, size_t>(head - (unsigned char *)sql, tail - head));
+    ranges.push_back({ statementStart, static_cast<size_t>(head - start), static_cast<size_t>(tail - head) });
 
   return 0;
 }
@@ -2350,7 +2522,10 @@ public:
     _currentUser = grt::DictRef(true);
   }
 
-  virtual void exitGrantUser(MySQLParser::GrantUserContext *ctx) override {
+  /**
+   * Exclusively for pre-8.0 servers.
+   */
+  virtual void exitCreateOrAlterUser(MySQLParser::CreateOrAlterUserContext *ctx) override {
     if (ctx->BY_SYMBOL() != nullptr) {
       _currentUser.gset("id_method", "PASSWORD");
       _currentUser.gset("id_string", base::unquote(ctx->textString()->getText()));
@@ -2361,6 +2536,14 @@ public:
       if (ctx->textString() != nullptr)
         _currentUser.gset("id_string", base::unquote(ctx->textString()->getText()));
     }
+  }
+
+  /**
+   * For server 8 and newer. There's no password allowed anymore.
+   */
+  virtual void exitUserList(MySQLParser::UserListContext *ctx) override {
+    _currentUser.gset("id_method", "");
+    _currentUser.gset("id_string", "");
   }
 
   virtual void exitUser(MySQLParser::UserContext *ctx) override {

@@ -1125,7 +1125,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
 
   update_colors();
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _search_text.set_bordered(false);
   _search_text.set_size(-1, 18);
   _search_text.set_font(mforms::HomeScreenSettings::HOME_NORMAL_FONT);
@@ -1135,7 +1135,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
   _search_box.set_size(160, 25);
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   mforms::ImageBox *image = mforms::manage(new mforms::ImageBox, false);
   image->set_image("search_sidebar.png");
   image->set_image_align(mforms::MiddleCenter);

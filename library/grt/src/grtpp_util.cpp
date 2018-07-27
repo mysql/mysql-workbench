@@ -38,7 +38,7 @@ using namespace grt;
 #include "../../../config.h"
 #endif
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #include <objbase.h>
 #elif defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
@@ -50,7 +50,7 @@ using namespace grt;
 std::string grt::get_guid() {
 /* GUIDs must be no more than 50 chars */
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
   GUID guid;
   WCHAR guid_wstr[50];
   char guid_str[200];
@@ -916,7 +916,7 @@ bool grt::init_python_support(const std::string &module_path) {
   PythonModuleLoader *loader = new PythonModuleLoader(module_path);
   if (!module_path.empty()) {
     loader->get_python_context()->add_module_path(module_path, true);
-#ifdef _WIN32
+#ifdef _MSC_VER
     loader->get_python_context()->add_module_path(module_path + "/python/site-packages", true);
 #endif
   }

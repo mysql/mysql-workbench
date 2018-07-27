@@ -179,10 +179,11 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
         std::string column = rs->getString("Column_name");
         std::string null = rs->getString("Null");
         std::string key = rs->getString("Key_name");
+        std::string nonUnique = rs->getString("Non_unique");
 
         if (key == "PRIMARY") {
           primary_columns.push_back(column);
-        } else {
+        } else if (nonUnique == "0") {
           // at least one of the columns must be NOT NULL in a UNIQUE key
           if (prev_key != key) {
             prev_key = key;
@@ -372,7 +373,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
       info.table = rs_meta->getTableName(i + 1);
       info.field = rs_meta->getColumnLabel(i + 1);
       info.type = rs_meta->getColumnTypeName(i + 1);
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_MSC_VER)
       info.charset = rs_meta->getColumnCharset(i + 1);
 #endif
       info.display_size = rs_meta->getColumnDisplaySize(i + 1);

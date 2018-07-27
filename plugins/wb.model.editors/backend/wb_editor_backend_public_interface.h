@@ -21,10 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WB_EDITOR_BACKEND_PUBLIC_INTERFACE_H_
-#define _WB_EDITOR_BACKEND_PUBLIC_INTERFACE_H_
+#pragma once
 
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 
 #ifdef WBEDITOR_BACKEND_EXPORTS
 #define WBEDITOR_BACKEND_PUBLIC_FUNC __declspec(dllexport)
@@ -35,5 +34,3 @@
 #else
 #define WBEDITOR_BACKEND_PUBLIC_FUNC
 #endif
-
-#endif // _WB_EDITOR_BACKEND_PUBLIC_INTERFACE_H_

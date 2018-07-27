@@ -154,13 +154,13 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer) 
 static mdc::EventState makeEventState(NSEvent *event) {
   int state = 0;
 
-  if (event.modifierFlags & NSShiftKeyMask)
+  if (event.modifierFlags & NSEventModifierFlagShift)
     state |= mdc::SShiftMask;
-  if (event.modifierFlags & NSControlKeyMask)
+  if (event.modifierFlags & NSEventModifierFlagControl)
     state |= mdc::SControlMask;
-  if (event.modifierFlags & NSAlternateKeyMask)
+  if (event.modifierFlags & NSEventModifierFlagOption)
     state |= mdc::SOptionMask;
-  if (event.modifierFlags & NSCommandKeyMask)
+  if (event.modifierFlags & NSEventModifierFlagCommand)
     state |= mdc::SCommandMask;
 
   return (mdc::EventState)state;

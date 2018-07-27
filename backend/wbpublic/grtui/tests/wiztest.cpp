@@ -305,7 +305,7 @@ protected:
   CheckBox _autoplace_check;
 };
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 GRTUI_EXPORT void wiztest();
 
 void wiztest() {

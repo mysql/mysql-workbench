@@ -70,7 +70,7 @@ namespace mdc {
     int print_to_pdf(const std::string &path);
     int print_to_ps(const std::string &path);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
     int print_native(HDC hdc, int width, int height, int page);
 #endif
 

@@ -225,7 +225,7 @@ namespace JsonParser {
   };
 
 #ifndef HAS_NOEXCEPT
-  #if defined(_WIN32) || defined(__APPLE__)
+  #if defined(_MSC_VER) || defined(__APPLE__)
     #define NOEXCEPT _NOEXCEPT
   #else
     #ifndef _GLIBCXX_USE_NOEXCEPT
@@ -237,7 +237,7 @@ namespace JsonParser {
   #define HAS_NOEXCEPT
 #endif
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 // C4275 can be ignored in Visual C++ if you are deriving from a type in the Standard C++ Library
 #pragma warning(push)
 #pragma warning(disable : 4275)
@@ -257,7 +257,7 @@ namespace JsonParser {
   private:
     std::string _msgText;
   };
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
 

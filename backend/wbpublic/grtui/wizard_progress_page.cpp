@@ -136,7 +136,7 @@ WizardProgressPage::WizardProgressPage(WizardForm *form, const std::string &id, 
     add(_progress_label, false, true);
     _progress_bar_box->add(_progress_bar, true, true);
 
-    add(_progress_bar_box, false, false);
+    add(_progress_bar_box, false, true);
 
     _progress_bar_box->show(false);
   }
@@ -375,7 +375,7 @@ void WizardProgressPage::add_log_text(const std::string &text) {
 }
 
 std::string WizardProgressPage::extra_button_caption() {
-#ifdef _WIN32
+#ifdef _MSC_VER
   return _log_panel.is_shown() ? _("&Hide Logs") : _("&Show Logs");
 #else
   return _log_panel.is_shown() ? _("Hide Logs") : _("Show Logs");

@@ -109,6 +109,7 @@ bool WbOptions::parse_args(array<String ^> ^ args, String ^ app_path) {
       Logger::LogInfo("WBContext managed", String::Format("Exiting with rc {0} after parsing arguments\n", rc));
       ret = false;
     }
+    inner->analyzeCommandLineArguments();
   } catch (std::exception &exc) {
     Logger::LogInfo("WBContext managed",
                     String::Format("Exiting with error message: {0}\n", CppStringToNative(exc.what())));

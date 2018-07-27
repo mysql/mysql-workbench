@@ -130,7 +130,7 @@ bool TableTemplateList::mouse_double_click(mforms::MouseButton button, int x, in
 
 TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   : mforms::Box(false), _templates(this), _context(cmodel) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   set_padding(3, 3, 3, 3);
   _templates.set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
 #else

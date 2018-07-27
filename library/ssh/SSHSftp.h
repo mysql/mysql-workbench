@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #else
@@ -32,7 +32,7 @@
 #endif
 #include <libssh/libsshpp.hpp>
 #include <libssh/sftp.h>
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #else
 #pragma warning(pop)
@@ -43,7 +43,7 @@
 #include "base/any.h"
 #include <vector>
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 #define __S_IREAD 0400  /* Read by owner.  */
 #define __S_IWRITE  0200  /* Write by owner.  */
 #define __S_IEXEC 0100  /* Execute by owner.  */
@@ -80,7 +80,7 @@ namespace ssh {
     bool isDir;
   };
 
-  class SSHSftp {
+  class WBSSHLIBRARY_PUBLIC_FUNC SSHSftp {
     std::shared_ptr<SSHSession> _session;
     sftp_session _sftp;
     std::size_t _maxFileLimit;

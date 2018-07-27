@@ -106,8 +106,7 @@ and the destination server where they should be copied to.'''), False, True)
             i = conn.hostIdentifier
             return i[i.find('@')+1:]
 
-        # filter out ssh connections until its supported
-        self._connections = [conn for conn in grt.root.wb.rdbmsMgmt.storedConns if conn.driver and not conn.driver.name.endswith("SSH")]
+        self._connections = [conn for conn in grt.root.wb.rdbmsMgmt.storedConns if conn.driver]
         selector_items = ( ['Pick a Connection'] +
             ['%s (%s)' % (conn.name, formatConnection(conn)) for conn in self._connections] +
             ['-', 'Edit Connections...'] )
@@ -161,7 +160,9 @@ and the destination server where they should be copied to.'''), False, True)
                         self.connections_ok = False
                         return
                 attempt += 1
-                source.password = request_password(source.connection, force_password)
+                username = source.connection.parameterValues.userName
+                storage_string = source.connection.hostIdentifier
+                source.password = request_password(source.connection, username, storage_string, force_password)
             except Exception, e:
                 etext = str(e)
                 if etext.startswith('Error(') and etext.endswith(')'):

@@ -25,7 +25,7 @@
 
 #include "common.h"
 
-#if !defined(_WIN32) && !defined(__APPLE)
+#if !defined(_MSC_VER) && !defined(__APPLE)
 #include <glib.h>
 #endif
 
@@ -52,7 +52,7 @@ namespace base {
 
   BASELIBRARY_PUBLIC_FUNC std::wstring string_to_wstring(const std::string &s);
   BASELIBRARY_PUBLIC_FUNC std::string wstring_to_string(const std::wstring &s);
-#ifdef _WIN32
+#ifdef _MSC_VER
   BASELIBRARY_PUBLIC_FUNC std::wstring path_from_utf8(const std::string &s);
 #else
   BASELIBRARY_PUBLIC_FUNC std::string path_from_utf8(const std::string &s);
@@ -215,7 +215,7 @@ namespace base {
 
     static Eol_format default_eol_format() // platform default eol format
     {
-#if defined(_WIN32)
+#if defined(_MSC_VER)
       return eol_crlf;
 #elif defined(__APPLE__)
       return eol_cr;
@@ -261,7 +261,7 @@ namespace base {
                                                   const std::string &left_fill = "", bool indent_first = true,
                                                   unsigned int max_lines = 30);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   const static std::string engLocale = "en-US";
 #else
   const static std::string engLocale = "en_US.UTF-8";

@@ -323,7 +323,7 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc) {
 
   std::string target_version = bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
-    target_version = "5.6.1";
+    target_version = "8.0.11";
 
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentLogical>()->setup_logical_model(_doc);
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>()->setup_physical_model(_doc, "Mysql",
@@ -1111,16 +1111,7 @@ void WBContextModel::selection_changed() {
 
 GrtVersionRef WBContextModel::get_target_version() {
   if (get_active_model(true).is_valid()) {
-    db_CatalogRef catalog(workbench_physical_ModelRef::cast_from(get_active_model(true))->catalog());
-    if (catalog->version().is_valid())
-      return catalog->version();
-    else {
-      std::string target_version = bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion");
-      if (target_version.empty())
-        target_version = "5.5";
-
-      return bec::parse_version(target_version);
-    }
+    return GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(get_active_model(true)), "CatalogVersion"));
   }
   return GrtVersionRef();
 }
@@ -1311,7 +1302,7 @@ bool WBContextModel::delete_diagram(const model_DiagramRef &view) {
   view->owner()->diagrams().remove_value(view);
   undo.end(strfmt(_("Delete Diagram '%s'"), view->name().c_str()));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   // in windows, a diagram is released as soon as the tab is closed. That means
   // if a user closes a diagram before deleting it, the diagram is released before
   // it's removed from the list of diagrams in the list. That will cause the overview

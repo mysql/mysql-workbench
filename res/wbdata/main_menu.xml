@@ -566,10 +566,10 @@
                             <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.edit.findmenu</link>
                             <value type="string" key="caption">Find and Replace</value>
                             <value type="string" key="name">search_replace</value>
-                            <value type="string" key="command">builtin:search_replace</value>
+                            <value type="string" key="command">builtin:find_replace</value>
                             <value type="string" key="itemType">action</value>
                             <value type="string" key="shortcut">Command+Option+F</value>
-                            <value type="string" key="platform">mac</value>
+                            <value type="string" key="platform">macosx</value>
                         </value>
                     </value>
                 </value>
@@ -2192,7 +2192,6 @@
                     <value type="string" key="name">show-license</value>
                     <value type="string" key="command">builtin:show-license</value>
                     <value type="string" key="itemType">action</value>
-                    <value type="string" key="platform">windows,macosx</value>
                 </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_mysql_docs">
                     <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>

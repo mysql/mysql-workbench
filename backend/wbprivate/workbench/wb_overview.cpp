@@ -265,7 +265,6 @@ OverviewBE::Node *OverviewBE::do_get_node(const NodeId &node) const {
     if (n)
       n = n->get_child(node[i]);
     else {
-      g_warning("OverviewBE::get_node: invalid node %s", node.toString().c_str());
       return 0;
     }
   }

@@ -13,6 +13,7 @@ include_directories(.
     ${PROJECT_SOURCE_DIR}/library/grt/src/diff
     ${PROJECT_SOURCE_DIR}/library/forms
     ${PROJECT_SOURCE_DIR}/library/forms/mforms
+    ${PROJECT_SOURCE_DIR}/library/parsers
     ${PROJECT_SOURCE_DIR}/plugins
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql
     ${PROJECT_SOURCE_DIR}
@@ -32,6 +33,7 @@ add_library(db.mysql.diff.reporting.wbp MODULE
     backend/register_plugin.cpp
     frontend/diff_reporting.cpp
     ${PROJECT_SOURCE_DIR}/plugins/db.mysql/backend/wb_plugin_be.cpp
+    ${PROJECT_SOURCE_DIR}/plugins/db.mysql/backend/db_plugin_be.cpp
 )
 
 target_compile_options(db.mysql.diff.reporting.wbp PUBLIC ${WB_CXXFLAGS})

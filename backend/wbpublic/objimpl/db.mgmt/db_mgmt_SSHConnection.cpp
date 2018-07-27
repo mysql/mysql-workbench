@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2018 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,18 +74,26 @@ grt::IntegerRef db_mgmt_SSHConnection::connect() {
 
 //------------------------------------------------------------------------------------------------
 
-grt::StringRef db_mgmt_SSHConnection::executeCommand(const std::string &text) {
+grt::DictRef db_mgmt_SSHConnection::executeCommand(const std::string &text) {
   if (_data)
     return _data->executeCommand(text);
-  return "";
+  grt::DictRef dict(true);
+  dict.gset("stdout", "");
+  dict.gset("stderr", "");
+  dict.gset("stderr", -1);
+  return dict;
 }
 
 //------------------------------------------------------------------------------------------------
 
-grt::StringRef db_mgmt_SSHConnection::executeSudoCommand(const std::string &text) {
+grt::DictRef db_mgmt_SSHConnection::executeSudoCommand(const std::string &text, const std::string &user) {
   if (_data)
-    return _data->executeSudoCommand(text);
-  return "";
+    return _data->executeSudoCommand(text, user);
+  grt::DictRef dict(true);
+  dict.gset("stdout", "");
+  dict.gset("stderr", "");
+  dict.gset("stderr", -1);
+  return dict;
 }
 
 //------------------------------------------------------------------------------------------------

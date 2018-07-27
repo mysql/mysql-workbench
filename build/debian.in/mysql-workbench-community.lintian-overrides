@@ -1,0 +1,3 @@
+mysql-workbench-community: embedded-library
+mysql-workbench-community: binary-without-manpage
+mysql-workbench-community: debug-file-with-no-debug-symbols

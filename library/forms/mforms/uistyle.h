@@ -27,7 +27,7 @@
 
 // See related utility functions in utilities.h (such as add_ok_cancel_buttons())
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
 #define MF_WINDOW_PADDING 12
 #define MF_PANEL_PADDING 12

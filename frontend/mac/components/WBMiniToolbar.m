@@ -258,7 +258,7 @@ static const float DEFAULT_HEIGHT = 24;
   }
   popup.target = target;
   popup.action = action;
-  popup.cell.controlSize = NSSmallControlSize;
+  popup.cell.controlSize = NSControlSizeSmall;
   popup.font = [NSFont systemFontOfSize: [NSFont smallSystemFontSize]];
   [popup sizeToFit];
   [popup setBordered: NO];
@@ -301,7 +301,7 @@ static const float DEFAULT_HEIGHT = 24;
   NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
   NSMenuItem *selected= nil;
-  popup.cell.controlSize = NSSmallControlSize;
+  popup.cell.controlSize = NSControlSizeSmall;
   for (NSColor *color in colors)
   {
     NSMenuItem *item= [[NSMenuItem alloc] init];

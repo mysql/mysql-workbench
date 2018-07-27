@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4251) // class ... needs to have dll-interface to be used by clients
                                 // Warning caused by Google templates not using dllexport.
 #endif

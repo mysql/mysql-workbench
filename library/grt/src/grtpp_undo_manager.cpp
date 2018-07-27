@@ -29,7 +29,7 @@
 #include <iostream>
 #include <time.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #undef max
 #endif
 
@@ -442,7 +442,7 @@ void UndoGroup::close() {
   if (group)
     group->_is_open = false;
   else
-    g_warning("trying to close already closed undo group");
+    logWarning("trying to close already closed undo group\n");
 }
 
 void UndoGroup::add(UndoAction *op) {
@@ -516,7 +516,7 @@ void UndoManager::enable_logging_to(std::ostream *stream) {
   _undo_log = stream;
 
   *_undo_log << "***** Starting Undo Log at " <<
-#ifdef _WIN32
+#ifdef _MSC_VER
     ctime_s(buf, sizeof(buf), &t)
 #else
     ctime_r(&t, buf)
@@ -963,7 +963,7 @@ AutoUndo::~AutoUndo() {
       UndoGroup *group = dynamic_cast<UndoGroup *>(grt::GRT::get()->get_undo_manager()->get_latest_undo_action());
 
       if (group && group->is_open())
-        logWarning("automatically cancelling unclosed undo group");
+        logWarning("automatically cancelling unclosed undo group\n");
     }
 
     cancel();

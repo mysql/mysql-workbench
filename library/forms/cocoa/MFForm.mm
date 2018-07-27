@@ -36,19 +36,19 @@
 
 - (instancetype)initWithObject: (mforms::Form *)form owner: (mforms::Form *)ownerWindow flags: (mforms::FormFlag)formFlags {
 
-  NSUInteger styleMask = NSTitledWindowMask | NSClosableWindowMask;
+  NSUInteger styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
 
   if ((formFlags & mforms::FormResizable) != 0)
-    styleMask |= NSResizableWindowMask;
+    styleMask |= NSWindowStyleMaskResizable;
 
   if ((formFlags & mforms::FormMinimizable) != 0)
-    styleMask |= NSMiniaturizableWindowMask;
+    styleMask |= NSWindowStyleMaskMiniaturizable;
 
   if ((formFlags & mforms::FormStayOnTop) != 0)
-    styleMask |= NSDocModalWindowMask;
+    styleMask |= NSWindowStyleMaskDocModalWindow;
 
   if ((formFlags & mforms::FormToolWindow) != 0)
-    styleMask |= NSUtilityWindowMask;
+    styleMask |= NSWindowStyleMaskUtilityWindow;
 
   self = [super
     initWithContentRect: NSMakeRect(100, 100, 100, 100)

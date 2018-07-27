@@ -67,7 +67,7 @@ static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
         return NULL;
       }
       grtargs.ginsert(v);
-    } catch (grt::type_error) {
+    } catch (grt::type_error &) {
       PyErr_SetString(PyExc_TypeError,
                       strfmt("%s.%s(): argument %i must be a %s", self->module->name().c_str(),
                              self->function->name.c_str(), (int)(a + 1), grt::fmt_type_spec(arg->type).c_str())
@@ -106,7 +106,7 @@ static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
   } catch (sql::SQLException &exc) {
     PythonContext::set_python_error(exc, strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));
     return NULL;
-  } catch (grt::python_error) {
+  } catch (grt::python_error &) {
     return NULL;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc, strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));

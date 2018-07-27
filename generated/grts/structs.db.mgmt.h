@@ -1,13 +1,13 @@
 #pragma once
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
 
 #include "grt.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4355) // 'this' : used in base member initializer list
 #ifdef GRT_STRUCTS_DB_MGMT_EXPORT
 #define GRT_STRUCTS_DB_MGMT_PUBLIC __declspec(dllexport)
@@ -638,13 +638,13 @@ public:
    \return command output
 
    */
-  virtual grt::StringRef executeCommand(const std::string &text);
+  virtual grt::DictRef executeCommand(const std::string &text);
   /** Method. execute command on the remote server using sudo
    \param text the command to be executed on the server
    \return command output
 
    */
-  virtual grt::StringRef executeSudoCommand(const std::string &text);
+  virtual grt::DictRef executeSudoCommand(const std::string &text, const std::string &user);
 
 
   /** Method. change current working directory
@@ -768,7 +768,8 @@ private:
   }
 
   static grt::ValueRef call_executeSudoCommand(grt::internal::Object *self, const grt::BaseListRef &args) {
-    return dynamic_cast<db_mgmt_SSHConnection*>(self)->executeSudoCommand(grt::StringRef::cast_from(args[0]));
+    return dynamic_cast<db_mgmt_SSHConnection*>(self)->executeSudoCommand(grt::StringRef::cast_from(args[0]),
+                                                                          grt::StringRef::cast_from(args[1]));
   }
 
   static grt::ValueRef call_cd(grt::internal::Object *self, const grt::BaseListRef &args) {
@@ -2097,6 +2098,6 @@ static struct _autoreg__structs_db_mgmt_xml {
 } __autoreg__structs_db_mgmt_xml;
 #endif
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif

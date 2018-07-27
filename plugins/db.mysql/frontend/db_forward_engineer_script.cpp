@@ -34,7 +34,9 @@
 #include "db_mysql_sql_export.h"
 #include "base/string_utilities.h"
 #include "mforms/fs_object_selector.h"
+#include "mforms/app.h"
 #include "grts/structs.workbench.h"
+#include "grtdb/db_object_helpers.h"
 
 using namespace grtui;
 using namespace mforms;
@@ -80,6 +82,17 @@ public:
     _generate_drop_schema_check.set_text(_("Generate DROP SCHEMA"));
     _options_box.add(&_generate_drop_schema_check, false, true);
 
+    _sortTablesAlphabeticallyCheck.set_text(_("Sort Tables Alphabetically"));
+    _sortTablesAlphabeticallyCheck.set_name("Sort tables alphabetically");
+    auto box = mforms::manage(new Box(true));
+    box->add(&_sortTablesAlphabeticallyCheck, false, true);
+    auto img = mforms::manage(new ImageBox());
+    img->set_image(mforms::App::get()->get_resource_path("mini_notice.png"));
+    img->set_tooltip("When this is unchecked, tables will be sorted according to foreign key references.");
+    box->add(img, false, true);
+
+    _options_box.add(box, false, true);
+
     _skip_foreign_keys_check.set_text(_("Skip Creation of FOREIGN KEYS"));
     _options_box.add(&_skip_foreign_keys_check, false, true);
     scoped_connect(_skip_foreign_keys_check.signal_clicked(), std::bind(&ExportInputPage::SkipFKToggled, this));
@@ -112,6 +125,7 @@ public:
 
     _generate_drop_check.set_active(form->module()->document_int_data("generate_drop", false) != 0);
     _generate_drop_schema_check.set_active(form->module()->document_int_data("generate_schema_drop", 0) != 0);
+    _sortTablesAlphabeticallyCheck.set_active(form->module()->document_int_data("SortTablesAlphabetically", 0) != 0);
     _skip_foreign_keys_check.set_active(form->module()->document_int_data("skip_foreign_keys", false) != 0);
     _skip_FK_indexes_check.set_active(form->module()->document_int_data("SkipFKIndexes", false) != 0);
     _omit_schema_qualifier_check.set_active(form->module()->document_int_data("omit_schema_qualifier", false) != 0);
@@ -158,6 +172,7 @@ public:
 
       values().gset("GenerateDrops", _generate_drop_check.get_active());
       values().gset("GenerateSchemaDrops", _generate_drop_schema_check.get_active());
+      values().gset("SortTablesAlphabetically", _sortTablesAlphabeticallyCheck.get_active());
       values().gset("SkipForeignKeys", _skip_foreign_keys_check.get_active());
       values().gset("SkipFKIndexes", _skip_FK_indexes_check.get_active());
       values().gset("GenerateWarnings", _generate_show_warnings_check.get_active());
@@ -175,6 +190,7 @@ public:
       module->set_document_data("create_sql_output_filename", _file_selector->get_filename());
       module->set_document_data("generate_drop", _generate_drop_check.get_active());
       module->set_document_data("generate_schema_drop", _generate_drop_schema_check.get_active());
+      module->set_document_data("SortTablesAlphabetically", _sortTablesAlphabeticallyCheck.get_active());
       module->set_document_data("skip_foreign_keys", _skip_foreign_keys_check.get_active());
       module->set_document_data("SkipFKIndexes", _skip_FK_indexes_check.get_active());
       module->set_document_data("omit_schema_qualifier", _omit_schema_qualifier_check.get_active());
@@ -213,6 +229,7 @@ protected:
   CheckBox _no_FK_for_inserts;
   CheckBox _triggers_after_inserts;
   CheckBox _omit_schema_qualifier_check;
+  CheckBox _sortTablesAlphabeticallyCheck;
 };
 
 //--------------------------------------------------------------------------------
@@ -305,6 +322,7 @@ protected:
     _export_be->set_option("TriggersAfterInserts", values().get_int("TriggersAfterInserts") != 0);
     _export_be->set_option("OmitSchemata", values().get_int("OmitSchemata") != 0);
     _export_be->set_option("GenerateUse", values().get_int("GenerateUse") != 0);
+    _export_be->set_option("SortTablesAlphabetically", values().get_int("SortTablesAlphabetically") != 0);
 
     _export_be->set_option("TablesAreSelected", _table_filter->get_active());
     _export_be->set_option("TriggersAreSelected", _trigger_filter->get_active());
@@ -315,7 +333,9 @@ protected:
     _export_be->set_option("OutputScriptHeader", header);
 
     // take target version from the version in the model
-    _export_be->set_db_options_for_version(_export_be->get_catalog()->version());
+
+    _export_be->set_db_options_for_version(
+        GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(_export_be->get_catalog()->owner()), "CatalogVersion")));
 
     return true;
   }

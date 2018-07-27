@@ -192,8 +192,8 @@ STANDARD_TEXT_ENTRY_HANDLING
 
     if (type == mforms::SmallSearchEntry)
     {
-      self.cell.controlSize = NSSmallControlSize;
-      self.font = [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSSmallControlSize]];
+      self.cell.controlSize = NSControlSizeSmall;
+      self.font = [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: NSControlSizeSmall]];
     }
   }
   return self;

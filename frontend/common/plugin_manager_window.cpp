@@ -73,7 +73,7 @@ PluginManagerWindow::PluginManagerWindow(wb::WBContext *wb)
     vbox->add(&plugin_name, false, true);
 
     plugin_icon.set_image_align(TopCenter);
-#ifdef _WIN32
+#ifdef _MSC_VER
     plugin_icon.set_scale_contents(false);
 #else
     plugin_icon.set_scale_contents(true);

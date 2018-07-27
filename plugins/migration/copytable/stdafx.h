@@ -22,7 +22,8 @@
  */
 
 #pragma once
-#ifdef _WIN32
+
+#ifdef _MSC_VER
 #ifdef _WIN64
 typedef __int64 ssize_t;
 #else
@@ -30,8 +31,8 @@ typedef int ssize_t;
 #endif
 
 #define NOMINMAX
+#include <winsock2.h>
 #include <Windows.h>
-#include <WinSock.h>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -50,6 +51,7 @@ typedef int ssize_t;
 #include <sstream>
 #include <typeinfo>
 #include <memory>
+#include <mutex>
 
 #include <glib.h>
 

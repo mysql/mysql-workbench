@@ -30,9 +30,9 @@ for %%A in ("%VERSION_DETAIL%") do set VERSION_MAIN=%%~nA
 
 rem Set other variables
 set DIST_DIR=.\distribution
-set UTIL_PATH=..\..\..\mysql-win-res\bin
-set PYTHON_EXE_PATH=..\..\..\..\mysql-win-res\bin\python\python.exe
-set PYTHONPATH=..\..\..\..\mysql-win-res\lib\Python
+set UTIL_PATH=%WB_3DPARTY_PATH%\bin
+set PYTHON_EXE_PATH=%WB_3DPARTY_PATH%\python\python.exe
+set PYTHONPATH=%WB_3DPARTY_PATH%\Python
 set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%.zip
 set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%FILENAME_ARCH%)"
 set TMP_DIR=.\temp
@@ -80,7 +80,7 @@ rem precompile Python sources
 %PYTHON_EXE_PATH% -mcompileall %OUTPUT_DIRNAME%
 if %ERRORLEVEL% == 1 goto ERROR5
   
-..\%UTIL_PATH%\zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%
+zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%
 if %ERRORLEVEL% == 1 goto ERROR6
 popd
 echo .
@@ -93,7 +93,7 @@ rmdir /S /Q %TMP_DIR%
 
 pushd %DIST_DIR%
 echo Make .md5 sum ...
-..\%UTIL_PATH%\md5sum %OUTPUT_FILENAME% > %OUTPUT_FILENAME%.md5
+%UTIL_PATH%\md5sum %OUTPUT_FILENAME% > %OUTPUT_FILENAME%.md5
 popd
 echo .
 

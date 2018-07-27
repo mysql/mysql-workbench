@@ -1145,10 +1145,6 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
  {
    self->append_text(text, scroll_to_end);
  }
- void append_text_with_encoding_and_scroll(const std::string &text, const std::string &encoding, bool scroll_to_end)
- {
-   self->append_text_with_encoding(text, encoding, scroll_to_end);
- }
 }
 
 %extend mforms::TextEntry {

@@ -75,7 +75,7 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
                              horizontalScrollerClass: nil
                                verticalScrollerClass: [NSScroller class]
                                           borderType: NSBezelBorder
-                                         controlSize: NSRegularControlSize
+                                         controlSize: NSControlSizeRegular
                                        scrollerStyle: NSScrollerStyleOverlay];
     mTable = [[DraggingTableView alloc] initWithFrame: rect owner: aListBox];
     mHeader= mTable.headerView;

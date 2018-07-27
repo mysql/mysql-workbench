@@ -940,7 +940,7 @@ namespace grt {
 
 // DLL modules must declare the following
 #if 1
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
 #define GRT_MODULE_ENTRY_POINT_PUBLIC __declspec(dllexport)
 #else
 #define GRT_MODULE_ENTRY_POINT_PUBLIC

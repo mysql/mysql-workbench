@@ -62,10 +62,8 @@ TEST_FUNCTION(1) {
   // Keywords.
   std::map<std::string, std::string> keywords = config.get_keywords();
   ensure("Couldn't read keywords", keywords.size() > 0);
-  ensure("Major keyword list missing", keywords.find("Major Keywords") != keywords.end());
-  ensure("Major keyword list empty", !keywords["Major Keywords"].empty());
-  ensure("Other keyword list missing", keywords.find("Keywords") != keywords.end());
-  ensure("Other keyword list empty", !keywords["Keywords"].empty());
+  ensure("Keyword list missing", keywords.find("Keywords") != keywords.end());
+  ensure("Keyword list empty", !keywords["Keywords"].empty());
   ensure("Procedure keyword list missing", keywords.find("Procedure keywords") != keywords.end());
   ensure("Procedure keyword list empty", !keywords["Procedure keywords"].empty());
   ensure("User keyword list 1 missing", keywords.find("User Keywords 1") != keywords.end());
@@ -84,10 +82,10 @@ TEST_FUNCTION(1) {
   ensure("Couldn't read styles", styles.size() > 0);
 
   // Pick some entries, just to check sub map.
-  std::map<std::string, std::string> values = styles[7]; // MySQL major keyword.
-  ensure("Invalid style set for MySQL major keywords", values.size() > 1);
-  ensure("Missing fore color style for MySQL major keywords", !values["fore-color"].empty());
-  ensure("Missing bold style for MySQL major keywords", !values["bold"].empty());
+  std::map<std::string, std::string> values = styles[8]; // MySQL keyword.
+  ensure("Invalid style set for MySQL keywords", values.size() > 1);
+  ensure("Missing fore color style for MySQL keywords", !values["fore-color"].empty());
+  ensure("Missing bold style for MySQL keywords", !values["bold"].empty());
 }
 
 //--------------------------------------------------------------------------------------------------

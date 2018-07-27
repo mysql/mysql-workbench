@@ -165,7 +165,7 @@ std::string ModelFile::create_document_dir(const std::string &dir, const std::st
     try {
       _temp_dir_lock = new base::LockFile(base::makePath(path, lock_filename.c_str()));
       break;
-    } catch (const base::file_locked_error) {
+    } catch (const base::file_locked_error &) {
       // continue
     }
     sprintf(s, "d%i", ++i);
@@ -257,7 +257,7 @@ void ModelFile::open(const std::string &path) {
     // so we don't do anything with this file.
     try {
       base::LockFile test_lock(base::makePath(auto_save_dir, lock_filename.c_str()));
-    } catch (const base::file_locked_error) {
+    } catch (const base::file_locked_error &) {
       mforms::Utilities::show_warning(
         _("Opening Document"),
         base::strfmt(_("Could not lock the document %s.\n"
@@ -276,8 +276,6 @@ void ModelFile::open(const std::string &path) {
       base::file_mtime(auto_save_dir, autosave_ts);
 
     // document dir already exists, ask if it should be recovered or deleted
-    g_warning("Temporary document folder found: %s (ts=%lu, saved=%lu)", auto_save_dir.c_str(), autosave_ts, file_ts);
-
     if (mforms::Utilities::show_warning(
           _("Document Recovery"),
           base::strfmt(_("The document %s was not properly closed in a previous session on %s.\n"
@@ -292,19 +290,15 @@ void ModelFile::open(const std::string &path) {
       _content_dir = auto_save_dir;
 
       if (g_file_test((auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(), G_FILE_TEST_EXISTS)) {
-        g_warning("Committing autosaved document XML file: %s",
-                  (auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str());
         g_remove((auto_save_dir + "/" + MAIN_DOCUMENT_NAME).c_str());
         int rc = g_rename((auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(),
                           (auto_save_dir + "/" + MAIN_DOCUMENT_NAME).c_str());
         if (rc < 0) {
-          // rename failed, try copy
-          g_warning("Failed renaming autosaved XML file: %s", g_strerror(errno));
+          // Rename failed, so try copying the file.
           try {
             copy_file((auto_save_dir + "/" + MAIN_DOCUMENT_AUTOSAVE_NAME).c_str(),
                       (auto_save_dir + "/" + MAIN_DOCUMENT_NAME).c_str());
           } catch (const std::exception &exc) {
-            g_warning("Failed copying autosaved XML file: %s", exc.what());
             mforms::Utilities::show_error("Error recovering file",
                                           base::strfmt("There was an error recovering the document: %s\n", exc.what()),
                                           "OK", "", "");
@@ -415,7 +409,7 @@ retry:
       if (check_and_fix_duplicate_uuid_bug(xmldoc))
         goto retry;
     throw;
-  } catch (std::exception) {
+  } catch (std::exception &) {
     if (xmldoc)
       xmlFreeDoc(xmldoc);
     throw;
@@ -589,7 +583,7 @@ static void zip_dir_contents(zip *z, const std::string &destdir, const std::stri
       } else {
         if (!add_directories) {
           zip_source *src = zip_source_file(z, tmp.c_str(), 0, 0);
-#ifdef _WIN32
+#ifdef _MSC_VER
           if (!src || zip_file_add(z, tmp.c_str(), src, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8) < 0) {
             zip_source_free(src);
             g_dir_close(dir);
@@ -653,7 +647,7 @@ void ModelFile::pack_zip(const std::string &zipfile, const std::string &destdir,
     zip_comment += comment;
   }
 
-#if defined(zip_uint16_t) || defined(_WIN32)
+#if defined(zip_uint16_t) || defined(_MSC_VER)
   zip_set_archive_comment(z, zip_comment.c_str(), (zip_uint16_t)zip_comment.size());
 #else
   zip_set_archive_comment(z, zip_comment.c_str(), (int)zip_comment.size());
@@ -726,7 +720,7 @@ workbench_DocumentRef ModelFile::unserialize_document(xmlDocPtr xmldoc, const st
  */
 bool ModelFile::save_to(const std::string &path, const std::string &comment) {
   RecMutexLock lock(_mutex);
-#ifdef _WIN32
+#ifdef _MSC_VER
   const int read_write = _S_IWRITE | _S_IREAD;
 #else
   const int read_write = S_IRUSR | S_IWUSR;
@@ -974,7 +968,7 @@ void ModelFile::check_and_fix_data_file_bug() {
 // is that some model files will have both data files, because they were opened
 // in a different platform and extra data was added since.
 
-#ifndef _WIN32
+#ifndef _MSC_VER
   // check if @db\data.db exists and is a file
   std::string data_filename_in_windows = _content_dir + "/" + DB_DIR + "\\" + DB_FILE;
   if (g_file_test(data_filename_in_windows.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR))) {

@@ -24,7 +24,7 @@
 #ifndef __CPPDBC_PUBLIC_INTERFACE_H__
 #define __CPPDBC_PUBLIC_INTERFACE_H__
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
 
 #ifdef CPPDBC_EXPORTS
 #define CPPDBC_PUBLIC_FUNC __declspec(dllexport)

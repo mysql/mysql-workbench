@@ -23,7 +23,7 @@
 
 #pragma once
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
   #ifdef MYSQL_PARSER_EXPORTS
     #define MYSQL_PARSER_PUBLIC __declspec(dllexport)
   #else
@@ -187,9 +187,8 @@ public:
                                         const std::string old_name, const std::string new_name) override;
 
   grt::BaseListRef getSqlStatementRanges(const std::string &sql);
-  virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initial_delimiter,
-                                          std::vector<std::pair<size_t, size_t>> &ranges,
-                                          const std::string &line_break = "\n") override;
+  virtual size_t determineStatementRanges(const char *sql, size_t length, const std::string &initialDelimiter,
+    std::vector<parsers::StatementRange> &ranges, const std::string &lineBreak = "\n") override;
 
   grt::DictRef parseStatementDetails(parser_ContextReferenceRef context_ref, const std::string &sql);
   virtual grt::DictRef parseStatement(parsers::MySQLParserContext::Ref context, const std::string &sql) override;

@@ -45,7 +45,7 @@ add_library(linux_utilities
 
 target_compile_options(linux_utilities PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(linux_utilities ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
+target_link_libraries(linux_utilities grt ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(linux_utilities gcov)

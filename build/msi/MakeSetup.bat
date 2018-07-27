@@ -44,7 +44,7 @@ set BUILD_SIGNED=1
 
 rem Set other variables
 set DIST_DIR=.\distribution
-set UTIL_PATH=..\..\..\mysql-win-res\bin
+set UTIL_PATH=%WB_3DPARTY_PATH%\bin
 set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%.msi
 set OUTPUT_FILENAME_UNSIGNED=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%-unsigned.msi
 
@@ -97,7 +97,7 @@ move mysql_workbench.msi %DIST_DIR%\%OUTPUT_FILENAME%
 :make_md5
 pushd %DIST_DIR%
 echo Make .md5 sum ...
-..\%UTIL_PATH%\md5sum %OUTPUT_FILENAME% > %OUTPUT_FILENAME%.md5
+%UTIL_PATH%\md5sum %OUTPUT_FILENAME% > %OUTPUT_FILENAME%.md5
 echo .
 popd
 

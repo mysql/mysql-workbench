@@ -23,7 +23,7 @@
 
 #pragma once
 
-#define MIN_SERVER_VERSION 50100
+#define MIN_SERVER_VERSION 50500
 #define MAX_SERVER_VERSION 99999
 
 #if defined(__GNUC__) || defined(__APPLE)
@@ -34,22 +34,14 @@
 #define WB_UNUSED_RETURN_VALUE
 #endif
 
-// set OS-independent debug flag
-#if defined(_WIN32)
-#ifdef _DEBUG
-#define WB_DEBUG
-#endif
-#elif defined(__APPLE__)
-#ifdef ENABLE_DEBUG
-#define WB_DEBUG
-#endif
-#elif defined(__linux__)
-#ifndef NDEBUG
-#define WB_DEBUG
-#endif
+// Define OS-independent debug flag.
+#if defined(_DEBUG) || defined(ENABLE_DEBUG)
+  #define WB_DEBUG
+#elif defined(__linux__) && !defined(NDEBUG)
+  #define WB_DEBUG
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4251) // class needs to have dll-interface
 
 #ifdef BASELIBRARY_EXPORTS
@@ -61,7 +53,7 @@
 #define BASELIBRARY_PUBLIC_FUNC
 #endif
 
-#if defined(_WIN32) || defined(__APPLE)
+#if defined(_MSC_VER) || defined(__APPLE)
 #define HAVE_PRECOMPILED_HEADERS
 #endif
 
@@ -70,7 +62,7 @@
 #include <math.h>
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #ifndef strcasecmp
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
@@ -81,30 +73,30 @@
 #define snprintf _snprintf_s
 #endif
 
-#endif // _WIN32
+#endif // _MSC_VER
 
 // In Win32 ssize_t and int are the same, so we get a compiler error if we compile functions/c-tors with
 // those types (redefinition error). Hence we need a check when to exclude them.
 // A similar problem exists for uint64_t and size_t in Win64.
-#ifdef _WIN32
-#define DEFINE_INT_FUNCTIONS
+#ifdef _MSC_VER
+  #define DEFINE_INT_FUNCTIONS
 
-#ifdef _WIN64
-#define DEFINE_SSIZE_T_FUNCTIONS
+  #ifdef _WIN64
+    #define DEFINE_SSIZE_T_FUNCTIONS
+  #else
+    #define DEFINE_UINT64_T_FUNCTIONS
+  #endif
 #else
-#define DEFINE_UINT64_T_FUNCTIONS
-#endif
-#else
-#define DEFINE_SSIZE_T_FUNCTIONS
+  #define DEFINE_SSIZE_T_FUNCTIONS
 
-#ifdef __LP64__
-#define DEFINE_INT_FUNCTIONS
-#endif
+  #ifdef __LP64__
+    #define DEFINE_INT_FUNCTIONS
+  #endif
 
-#ifdef __APPLE__
-// On OSX we only support the 64bit arch.
-#define DEFINE_SSIZE_T_FUNCTIONS
-#define DEFINE_UINT64_T_FUNCTIONS
-#define DEFINE_INT_FUNCTIONS
-#endif
+  #ifdef __APPLE__
+    // On OSX we only support the 64bit arch.
+    #define DEFINE_SSIZE_T_FUNCTIONS
+    #define DEFINE_UINT64_T_FUNCTIONS
+    #define DEFINE_INT_FUNCTIONS
+  #endif
 #endif

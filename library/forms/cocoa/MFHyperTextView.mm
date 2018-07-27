@@ -39,7 +39,7 @@
     NSRect rect = self.frame;
     mTextView = [[NSTextView alloc] initWithFrame:rect];
 
-    self.verticalScroller.controlSize = NSSmallControlSize;
+    self.verticalScroller.controlSize = NSControlSizeSmall;
     [self setHasVerticalScroller:YES];
     [self setAutohidesScrollers:YES];
     self.documentView = mTextView;

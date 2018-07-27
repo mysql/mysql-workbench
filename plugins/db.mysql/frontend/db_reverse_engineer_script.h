@@ -21,8 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _DB_REVERSE_ENGINEER_SCRIPT_H_
-#define _DB_REVERSE_ENGINEER_SCRIPT_H_
+#pragma once
 
 #include "grtui/grt_wizard_plugin.h"
 #include "grtui/wizard_progress_page.h"
@@ -53,7 +52,8 @@ namespace ScriptImport {
     Label _file_codeset_caption;
     Selector _file_codeset_sel;
 
-    CheckBox _autoplace_check;
+    CheckBox _autoplaceCheck;
+    CheckBox _ansiQuotesCheck;
 
     void fill_encodings_list();
 
@@ -107,4 +107,3 @@ namespace ScriptImport {
 
 grtui::WizardPlugin *createImportScriptWizard(grt::Module *module, db_CatalogRef catalog);
 
-#endif // _DB_REVERSE_ENGINEER_SCRIPT_H_

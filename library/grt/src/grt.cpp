@@ -207,7 +207,31 @@ type_error::type_error(const std::string &expected, const std::string &actual, T
 db_error::db_error(const sql::SQLException &exc) : std::runtime_error(exc.what()), _error(exc.getErrorCode()) {
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------- Value ----------------------------------------------------------------------------------------------
+
+internal::Value* internal::Value::retain() {
+  g_atomic_int_inc(&_refcount);
+  return this;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void internal::Value::release() {
+#ifdef WB_DEBUG
+  if (_refcount == 0)
+    logWarning("GRT: releasing invalid object\n");
+#endif
+  if (g_atomic_int_dec_and_test(&_refcount))
+    delete this;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+base::refcount_t internal::Value::refcount() const {
+  return g_atomic_int_get(&_refcount);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 StringRef StringRef::format(const char *format, ...) {
   va_list args;
@@ -314,7 +338,7 @@ UndoGroup *GRT::begin_undoable_action(UndoGroup *group) {
 void GRT::end_undoable_action(const std::string &group_description) {
   if (!get_undo_manager()->end_undo_group(group_description, true)) {
     if (getenv("DEBUG_UNDO"))
-      g_warning("'%s' was empty", group_description.c_str());
+      logWarning("'%s' was empty\n", group_description.c_str());
   }
   stop_tracking_changes();
 }
@@ -467,8 +491,7 @@ void GRT::end_loading_metaclasses(bool check_class_binding) {
     // check if there are any metaclasses with unbound members
     for (std::map<std::string, MetaClass *>::iterator iter = _metaclasses.begin(); iter != _metaclasses.end(); ++iter) {
       if (!iter->second->is_bound())
-        g_warning(
-          "Allocation function of '%s' is unbound, which probably means the implementing C++ class was not "
+        logWarning("Allocation function of '%s' is unbound, which probably means the implementing C++ class was not"
           "registered\n",
           iter->second->name().c_str());
     }
@@ -625,7 +648,10 @@ void GRT::add_module_loader(ModuleLoader *loader) {
 }
 
 bool GRT::load_module(const std::string &path, const std::string &basePath, bool refresh) {
-  std::string shortendPath = "<base dir>/" + base::relativePath(basePath, path);
+  std::string shortendPath = base::relativePath(basePath, path);
+  if (shortendPath != path)
+    shortendPath = "<base dir>/" + shortendPath;
+
   for (std::list<ModuleLoader *>::iterator loader = _loaders.begin(); loader != _loaders.end(); ++loader) {
     if ((*loader)->check_file_extension(path)) {
       logDebug2("Trying to load module '%s' (%s)\n", shortendPath.c_str(), (*loader)->get_loader_name().c_str());

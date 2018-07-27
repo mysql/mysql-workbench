@@ -64,7 +64,7 @@ namespace wb {
     void text_changed(int start_line, int lines_changed);
 
   public:
-    SnippetPopover();
+    SnippetPopover(mforms::View *owner);
     ~SnippetPopover();
 
     void set_heading(const std::string& text);

@@ -119,7 +119,7 @@ static bool filter_context_and_platform(const app_CommandItemRef &item, const st
 
   if (!plats.empty()) {
     std::string platform;
-#ifdef _WIN32
+#ifdef _MSC_VER
     platform = "windows";
 #elif defined(__APPLE__)
     platform = "macosx";
@@ -279,7 +279,7 @@ static bool parse_key(const std::string &key, mdc::KeyInfo &info) {
     }
 
   info.string = key;
-#ifndef _WIN32
+#ifndef _MSC_VER
   if (info.string.length() == 1)
     info.string = tolower(info.string[0]);
 #endif
@@ -404,17 +404,17 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent) {
     if (i < 9) {
       caption = strfmt("%li %s", (long)i + 1, strlist.get(i).c_str());
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
       caption = "_" + base::replaceString(caption, "_", "__");
 #endif
     } else if (i == 9) {
       caption = strfmt("0 %s", strlist.get(i).c_str());
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
       caption = "_" + base::replaceString(caption, "_", "__");
 #endif
     } else {
       caption = strfmt(" %s", strlist.get(i).c_str());
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
       caption = base::replaceString(caption, "_", "__");
 #endif
     }
@@ -649,7 +649,7 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         }
       }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
       item->set_title(base::replaceString(item->get_title(), "_", "&"));
 #elif defined(__APPLE__)
       // remove _ in osx
@@ -700,7 +700,7 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
       continue;
 
     std::string caption(mitem->caption());
-#ifdef _WIN32
+#ifdef _MSC_VER
     // turn mnemonic indicator from _ into & for windows
     caption = base::replaceString(caption, "_", "&");
 #elif defined(__APPLE__)

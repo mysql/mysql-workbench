@@ -281,9 +281,6 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
   _canvas_view = canvas_view;
   _model_diagram = model_diagram;
 
-  if (!canvas_view)
-    g_warning("MiniView::set_active_view got nil canvas");
-
   if (!_viewport_figure) {
     _viewport_figure = new mdc::RectangleFigure(get_layer());
     _viewport_figure->set_filled(false);

@@ -63,9 +63,8 @@ endif()
 
 
 set_source_files_properties(myx_sql_tree_item.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
-set_source_files_properties(myx_unicode_scanner.cpp PROPERTIES COMPILE_FLAGS -Wno-empty-body)
+set_source_files_properties(myx_unicode_scanner.cpp PROPERTIES COMPILE_FLAGS "-Wno-empty-body -Wno-pragmas -Wno-implicit-fallthrough")
 set_source_files_properties(ctype-utf8.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
-set_source_files_properties(myx_unicode_scanner.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 set_source_files_properties(myx_statement_parser.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 
 target_compile_options(sqlparser PUBLIC ${WB_CXXFLAGS})

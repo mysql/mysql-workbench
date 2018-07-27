@@ -636,7 +636,7 @@ TEST_FUNCTION(21) {
   try {
     node = vinsp->get_child(NodeId(1), 3);
     ensure("Invalid item", !node.is_valid());
-  } catch (std::range_error) {
+  } catch (std::range_error &) {
     // expected
   }
 

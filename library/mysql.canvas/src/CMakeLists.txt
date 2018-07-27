@@ -55,7 +55,7 @@ add_library(mdcanvas
 
 target_compile_options(mdcanvas PUBLIC ${WB_CXXFLAGS})
 
-target_link_libraries(mdcanvas ${CAIRO_LIBRARIES})
+target_link_libraries(mdcanvas wbbase ${CAIRO_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(mdcanvas gcov)
@@ -79,7 +79,7 @@ add_library(mdcanvasgtk
 )
 
 target_compile_options(mdcanvasgtk PUBLIC ${WB_CXXFLAGS})
-target_link_libraries(mdcanvasgtk mdcanvas ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES})
+target_link_libraries(mdcanvasgtk mdcanvas wbbase ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES})
 
 if(BUILD_FOR_TESTS)
   target_link_libraries(mdcanvasgtk gcov)

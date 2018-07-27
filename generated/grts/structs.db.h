@@ -1,13 +1,13 @@
 #pragma once
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
 
 #include "grt.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning(disable : 4355) // 'this' : used in base member initializer list
 #ifdef GRT_STRUCTS_DB_EXPORT
 #define GRT_STRUCTS_DB_PUBLIC __declspec(dllexport)
@@ -6424,6 +6424,6 @@ static struct _autoreg__structs_db_xml {
 } __autoreg__structs_db_xml;
 #endif
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif

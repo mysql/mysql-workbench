@@ -37,8 +37,7 @@ void model_Object::ImplData::notify_will_unrealize() {
     if (owner.is_valid() && owner->get_data()) {
       _notified_unrealize = true;
       owner->get_data()->notify_object_will_unrealize(_self);
-    } else
-      g_warning("will_unrealize on obj not in diagram");
+    }
   }
 }
 

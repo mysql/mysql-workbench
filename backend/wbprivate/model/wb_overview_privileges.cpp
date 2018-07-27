@@ -123,7 +123,7 @@ public:
     refresh_children();
   }
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
@@ -131,7 +131,7 @@ public:
     if (member == "name")
       _owner->send_refresh_users();
   }
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
 #endif
 
@@ -186,7 +186,7 @@ public:
     refresh_children();
   }
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
 #endif
@@ -194,7 +194,7 @@ public:
     if (member == "name")
       _owner->send_refresh_roles();
   }
-#ifndef _WIN32
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #endif
 

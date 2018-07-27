@@ -80,9 +80,6 @@ class MigrationTarget(object):
         self.state.targetVersion.releaseNumber = self.state.targetDBVersion.releaseNumber
 
     def connect(self):
-        if self.connection.driver.name == 'MysqlNativeSSH':
-            raise NotSupportedError('MySQL connections through SSH are not supported in this version '
-                                    'of the MySQL Workbench Migration Wizard.')
         return grt.modules.DbMySQLFE.connect(self.connection, self.password or "")
 
     def disconnect(self):
@@ -199,13 +196,7 @@ class MigrationSource(object):
     ignoreList = property(_get_ignore_list, _set_ignore_list)
 
     def connect(self):
-        if self.connection.driver.owner.name == 'Mysql' and self.connection.driver.name == 'MysqlNativeSSH':
-            raise NotSupportedError('MySQL connections through SSH are not supported in this version '
-                                    'of the MySQL Workbench Migration Wizard.')
         self._rev_eng_module.connect(self.connection, self.password or "")
-        #if str(self.getDriverDBMSName()).upper() == 'ACCESS':
-        #    raise NotSupportedError('Microsoft Access is not supported in this version of the MySQL Workbench '
-        #                            'Migration Wizard.')
         return True
 
     def disconnect(self):
@@ -443,6 +434,9 @@ class MigrationPlan(object):
     def close(self):
         if self.migrationSource:
             self.migrationSource.cleanup()
+            self.migrationSource.disconnect()
+        if self.migrationTarget:
+            self.migrationTarget.disconnect()
         self.state.owner = None
         grt.root.wb.migration = None
         self.state = None

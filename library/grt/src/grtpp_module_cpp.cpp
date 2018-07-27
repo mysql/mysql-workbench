@@ -49,9 +49,8 @@ Interface *Interface::create(const char *name, ...) {
   iface->_name = name;
 
   if (!g_str_has_suffix(name, "Impl")) {
-    g_warning(
-      "module interface classes must have the suffix Impl to avoid confusion between implementation and wrapper "
-      "classes (%s)",
+    logWarning("module interface classes must have the suffix Impl to avoid confusion between implementation and wrapper "
+      "classes (%s)\n",
       name);
   } else
     iface->_name = iface->_name.substr(0, iface->_name.length() - 4); // truncate Impl part
@@ -163,9 +162,8 @@ void CPPModule::set_name(const std::string &name) {
   _name = name;
 
   if (!g_str_has_suffix(_name.c_str(), "Impl")) {
-    g_warning(
-      "Native C++ module classes must have the suffix Impl to avoid confusion between implementation and wrapper "
-      "classes (%s)",
+    logWarning("Native C++ module classes must have the suffix Impl to avoid confusion between implementation and wrapper "
+      "classes (%s)\n",
       _name.c_str());
   } else
     _name = _name.substr(0, _name.size() - 4); // truncate Impl part
@@ -251,7 +249,7 @@ void CPPModuleLoader::refresh() {
 bool CPPModuleLoader::check_file_extension(const std::string &path) {
 #ifdef __APPLE__
   static const char *ext = ".dylib";
-#elif defined(_WIN32)
+#elif defined(_MSC_VER)
   static const char *ext = ".dll";
 #else
   static const char *ext = ".so";

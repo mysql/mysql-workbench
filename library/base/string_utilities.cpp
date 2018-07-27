@@ -276,7 +276,7 @@ static const char *reserved_keywords[] = {"ACCESSIBLE",
 
 namespace base {
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 
   // Win uses C++11 with support for wstring_convert. Other platforms use boost for now.
 
@@ -344,7 +344,7 @@ namespace base {
   std::string string_to_path_for_open(const std::string &s) {
 // XXX: convert from utf-8 to wide string and then back to utf-8?
 //      How can this help in any way here?
-#ifdef _WIN32
+#ifdef _MSC_VER
     std::wstring ws = string_to_wstring(s);
     int buflen = GetShortPathNameW(ws.c_str(), NULL, 0);
     if (buflen > 0) {
@@ -1095,7 +1095,7 @@ namespace base {
    * Write text data to file, converting to \r\n if in Windows.
    */
   void setTextFileContent(const std::string &filename, const std::string &data) {
-#ifdef _WIN32
+#ifdef _MSC_VER
     // Opening a file in text mode will automatically convert \n to \r\n.
     FILE *f = base_fopen(filename.c_str(), "w+t");
     if (!f)
@@ -1126,12 +1126,11 @@ namespace base {
     enum Encoding { ANSI, UTF8, UTF16LE } encoding = ANSI;
 
     std::string result;
-#ifdef _WIN32
+#ifdef _MSC_VER
     std::ifstream stream(string_to_wstring(filename).c_str(), std::ios::binary);
 #else
     std::ifstream stream(filename.c_str(), std::ifstream::binary);
 #endif
-    std::stringstream ss;
 
     if (!stream.is_open() || stream.eof())
       return "";
@@ -1150,12 +1149,17 @@ namespace base {
         stream.seekg(0);
     }
 
-    ss << stream.rdbuf() << '\0';
+    std::string tmp;
+    stream.seekg(0, std::ios::end);
+    tmp.reserve(stream.tellg());
+    stream.seekg(0, std::ios::beg);
+
+    tmp.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
     switch (encoding) {
       case UTF16LE:
-        return wstring_to_string(std::wstring((wchar_t *)ss.str().c_str()));
+        return wstring_to_string(std::wstring((const wchar_t *)tmp.data()));
       default:
-        return ss.str();
+        return tmp;
     }
   }
 

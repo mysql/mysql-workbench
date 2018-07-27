@@ -42,7 +42,7 @@
 namespace grt {
 
   time_t timestamp() {
-#if defined(__WIN__) || defined(_WIN32) || defined(_WIN64)
+#if defined(_MSC_VER)
     return GetTickCount();
 #else
     struct timeval tv;

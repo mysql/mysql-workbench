@@ -30,7 +30,7 @@
 #include "grts/structs.app.h"
 #include "wbpublic_public_interface.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 typedef uintptr_t NativeHandle;
 #else
 // Don't make this "id" on OSX or we risk a strong reference cycle.

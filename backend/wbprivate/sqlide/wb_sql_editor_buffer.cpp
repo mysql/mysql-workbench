@@ -29,7 +29,6 @@
 #include "wb_sql_editor_tree_controller.h"
 
 #include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <fstream>
 #include <errno.h>
@@ -176,7 +175,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
           if (!restoring_autosave) {
             try {
               lock_file.reset(new base::LockFile(base::makePath(base::makePath(path_prefix, name), "lock")));
-            } catch (const base::file_locked_error) {
+            } catch (const base::file_locked_error &) {
               continue;
             }
             lowest_index = new_index;
@@ -185,7 +184,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
           } else if (new_index < lowest_index) {
             try {
               lock_file.reset(new base::LockFile(base::makePath(base::makePath(path_prefix, name), "lock")));
-            } catch (const base::file_locked_error) {
+            } catch (const base::file_locked_error &) {
               continue;
             }
             lowest_index = new_index;
@@ -195,7 +194,7 @@ std::string SqlEditorForm::find_workspace_state(const std::string &workspace_nam
           if (new_index < lowest_index) {
             try {
               lock_file.reset(new base::LockFile(base::makePath(base::makePath(path_prefix, name), "lock")));
-            } catch (const base::file_locked_error) {
+            } catch (const base::file_locked_error &) {
               continue;
             }
             workspace_path = name;
@@ -408,7 +407,7 @@ mforms::DragOperation SqlEditorForm::files_dropped(mforms::View *sender, base::P
   if ((allowedOperations & mforms::DragOperationCopy) != mforms::DragOperationCopy)
     return mforms::DragOperationNone;
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   bool case_sensitive = false; // TODO: on Mac case sensitivity depends on the file system.
 #else
   bool case_sensitive = true;

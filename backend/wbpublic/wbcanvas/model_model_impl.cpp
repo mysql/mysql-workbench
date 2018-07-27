@@ -21,6 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#include "base/log.h"
 #include "grt/grt_manager.h"
 
 #include "model_model_impl.h"
@@ -32,6 +33,8 @@
 
 #include "grts/structs.workbench.h"
 #include "grtpp_undo_manager.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_CANVAS_BE)
 
 model_Model::ImplData::ImplData(model_Model *owner) : _owner(owner) {
   _reset_pending = false;
@@ -221,7 +224,7 @@ void model_Model::ImplData::update_object_color_in_all_diagrams(const std::strin
     for (grt::ListRef<model_Figure>::const_iterator fig = figures.begin(); fig != figures.end(); ++fig) {
       if ((*fig)->has_member(object_member)) {
         if (!(*fig)->get_member(object_member).is_valid()) {
-          g_warning("Corrupted model: figure %s is invalid", (*fig)->name().c_str());
+          logWarning("Corrupted model: figure %s is invalid\n", (*fig)->name().c_str());
         } else if (grt::ObjectRef::cast_from((*fig)->get_member(object_member)).id() == object_id &&
                    strcmp((*fig)->color().c_str(), color.c_str()) != 0) {
           (*fig)->color(color);

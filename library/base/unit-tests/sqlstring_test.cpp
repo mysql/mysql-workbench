@@ -25,7 +25,16 @@
 #include "base/string_utilities.h"
 #include "wb_helpers.h"
 
+#ifdef __APPLE__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcomma"
+#endif
+
 #include <boost/lexical_cast.hpp>
+
+#ifdef __APPLE__
+#pragma GCC diagnostic pop
+#endif
 
 using namespace base;
 
@@ -377,7 +386,7 @@ TEST_FUNCTION(25) {
     test_result.clear();
     test_result.append(sqlstring("eleventh_test !", QuoteOnlyIfNeeded) << null_str);
     fail("TEST 25.11: Unexpected result quoting null string");
-  } catch (std::invalid_argument e) {
+  } catch (std::invalid_argument &e) {
     // Nothing to do, just catch the error and continue
   }
 
@@ -385,7 +394,7 @@ TEST_FUNCTION(25) {
     test_result.clear();
     test_result.append(sqlstring("twelfth_test !", UseAnsiQuotes) << null_str);
     fail("TEST 25.12: Unexpected result quoting null string");
-  } catch (std::invalid_argument e) {
+  } catch (std::invalid_argument &e) {
     // Nothing to do, just catch the error and continue
   }
 }

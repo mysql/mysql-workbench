@@ -34,6 +34,9 @@
 
 #include "grt/grt_manager.h"
 #include "base/string_utilities.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN(DOMAIN_CANVAS_BE)
 
 using namespace grt;
 using namespace base;
@@ -247,8 +250,7 @@ void model_Diagram::ImplData::realize_selection() {
         _canvas_view->get_selection()->add(layer->get_area_group());
       else // unselect items that don't exist in the canvas
         self()->unselectObject(object);
-    } else
-      g_warning("Unknown object in selection %s", object.class_name().c_str());
+    }
   }
 
   end_selection_update();
@@ -387,7 +389,7 @@ void model_Diagram::ImplData::member_list_changed(grt::internal::OwnedList *alis
   } else if (list == self()->_selection) {
     // consistency check, selection changes shouldn't be tracked in undo history
     if (grt::GRT::get()->get_undo_manager()->is_enabled() && grt::GRT::get()->tracking_changes())
-      g_warning("Undo tracking was enabled during selection change");
+      logWarning("Undo tracking was enabled during selection change\n");
   }
 }
 

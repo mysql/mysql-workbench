@@ -169,7 +169,7 @@ DbSqlEditorView::DbSqlEditorView(SqlEditorForm::Ref editor_be)
     sigc::bind(sigc::ptr_fun(utils::gtk::save_settings), &_main_pane, false));
 
   _sig_restore_sidebar =
-    Glib::signal_idle().connect(sigc::bind_return(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), false));
+    Glib::signal_idle().connect(sigc::bind_return(sigc::bind(sigc::mem_fun(this, &FormViewBase::restore_sidebar_layout), 200, 200), false));
 
   // setup dockingPoint
   {

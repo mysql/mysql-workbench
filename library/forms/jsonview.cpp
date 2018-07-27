@@ -26,7 +26,16 @@
 #include <cctype>
 #include <future>
 
+#ifdef __APPLE__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcomma"
+#endif
+
 #include <boost/date_time.hpp>
+
+#ifdef __APPLE__
+#pragma GCC diagnostic pop
+#endif
 
 #include "mforms/jsonview.h"
 #include "mforms/panel.h"

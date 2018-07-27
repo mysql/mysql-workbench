@@ -1,4 +1,5 @@
-variable_groups = [ ('Mysqlx_address', ['X']),
+variable_groups = [ ('Mysqlx_aborted_clients', ['X']),
+  ('Mysqlx_address', ['X']),
   ('Mysqlx_bytes_sent', ['X']),
   ('Mysqlx_bytes_received', ['X']),
   ('Mysqlx_socket', ['X']),

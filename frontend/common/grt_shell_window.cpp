@@ -80,7 +80,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     _shell_box(false),
     _shell_text(mforms::VerticalScrollBar),
     _shell_hbox(true),
-#ifdef _WIN32
+#ifdef _MSC_VER
     _side_header_panel(mforms::FilledHeaderPanel),
     _lower_tab(mforms::TabViewPalette),
     _lower_header_panel(mforms::FilledHeaderPanel),
@@ -120,7 +120,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     item = menu->add_item_with_title("Close Script", std::bind(&GRTShellWindow::close_tab, this));
     item->set_shortcut("Modifier+W");
     item = menu->add_item_with_title("Close Window", std::bind(&GRTShellWindow::close, this));
-#ifdef _WIN32
+#ifdef _MSC_VER
     item->set_shortcut("Control+F4");
 #else
     item->set_shortcut("Modifier+Shift+W");
@@ -140,7 +140,11 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     item = menu->add_item_with_title("Find...", std::bind(&GRTShellWindow::show_find_panel, this));
     item->set_shortcut("Modifier+F");
     item = menu->add_item_with_title("Replace...", std::bind(&GRTShellWindow::show_replace_panel, this));
+#if defined(__APPLE__)
+    item->set_shortcut("Command+Option+F");
+#else
     item->set_shortcut("Modifier+H");
+#endif
 
     menu = mforms::manage(new mforms::MenuItem("Script"));
     _menu.add_submenu(menu);
@@ -150,7 +154,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     item->set_name("run");
   }
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _content.add(&_padding_box, true, true);
   _padding_box.add(&_hsplitter, true, true);
 
@@ -172,7 +176,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 // Side bar consists of 4 pages: files, globals tree, classes tree and modules tree.
 
 // Setup toolbar.
-#ifdef _WIN32
+#ifdef _MSC_VER
   _toolbar.set_size(-1, 24);
   _toolbar.set_back_color("#BCC7D8");
 #endif
@@ -220,7 +224,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     _pause_button->set_enabled(false);
   }
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_MSC_VER) && !defined(__APPLE__)
   // TODO: remove as soon as all platforms support closable tabs.
   _close_script_tab_button =
     add_tool_button("Discard.png", std::bind(&GRTShellWindow::close_tab, this), _("Close this script tab"), false);
@@ -247,7 +251,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   // Files
   mforms::Box *files_box = mforms::manage(new mforms::Box(false));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeNoBorder | mforms::TreeNoHeader));
 #else
   _files_tree = mforms::manage(new mforms::TreeView(mforms::TreeDefault | mforms::TreeNoHeader));
@@ -270,14 +274,14 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
                  std::bind(&GRTShellWindow::file_list_activated, this, std::placeholders::_1, std::placeholders::_2));
 
   files_box->add(_files_tree, true, true);
-#ifdef _WIN32
+#ifdef _MSC_VER
   files_box->set_back_color("#FFFFFF");
   files_box->set_padding(0, 0, 0, 2);
 #endif
   _side_tab.add_page(files_box, "Files");
 
 // 1) Globals tree
-#ifdef _WIN32
+#ifdef _MSC_VER
   _global_splitter.set_back_color("#FFFFFF");
   _hsplitter.set_back_color("#283752");
 //_global_splitter.set_padding(0, 0, 0, 2); TODO: might require work around since we removed padding from View.
@@ -285,7 +289,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   _side_tab.add_page(&_global_splitter, "Globals");
   _global_splitter.add(&_global_box1, 0);
   _global_splitter.add(&_global_box2, 0);
-#ifndef _WIN32
+#ifndef _MSC_VER
   _global_box1.set_spacing(4);
   _global_box2.set_spacing(4);
 #endif
@@ -294,7 +298,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 
   _global_box2.add(&_global_entry, false, true);
   _global_entry.set_read_only(true);
-#if defined(_WIN32) | defined(__APPLE__)
+#if defined(_MSC_VER) | defined(__APPLE__)
   _global_entry.set_back_color("#FFFFFF");
 #endif
 
@@ -318,7 +322,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 
   _global_tree.set_context_menu(&_global_menu);
 // 2) Classes tree
-#ifdef _WIN32
+#ifdef _MSC_VER
   _classes_splitter.set_back_color("#FFFFFF");
 //_classes_splitter.set_padding(0, 0, 0, 2); TODO: might require workaround.
 #endif
@@ -342,7 +346,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   scoped_connect(_classes_sorting.signal_changed(), std::bind(&GRTShellWindow::refresh_classes_tree, this));
 
 // 3) Modules tree
-#ifdef _WIN32
+#ifdef _MSC_VER
   _modules_splitter.set_back_color("#FFFFFF");
 //_modules_splitter.set_padding(0, 0, 0, 2); TODO: might require workaround.
 #endif
@@ -358,7 +362,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   _right_splitter.add(&_main_tab);
 
 // 4) Notifications tree
-#ifdef _WIN32
+#ifdef _MSC_VER
   _notifs_splitter.set_back_color("#FFFFFF");
 //_modules_splitter.set_padding(0, 0, 0, 2); TODO: might require workaround.
 #endif
@@ -371,7 +375,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   _notifs_tree.end_columns();
   scoped_connect(_notifs_tree.signal_changed(), std::bind(&GRTShellWindow::notif_selected, this));
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   _right_splitter.set_back_color("#283752");
   _lower_header_panel.add(&_lower_tab);
   _right_splitter.add(&_lower_header_panel);
@@ -382,7 +386,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 #endif
 
 // setup shell
-#ifdef _WIN32
+#ifdef _MSC_VER
   _snippet_list = mforms::manage(new TreeView(mforms::TreeNoBorder | mforms::TreeFlatList));
 #else
   _snippet_list = mforms::manage(new TreeView(mforms::TreeDefault | mforms::TreeFlatList));
@@ -391,7 +395,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   _shell_box.add(&_shell_text, true, true);
   _shell_text.set_monospaced(true);
   _shell_text.set_read_only(true);
-#if defined(_WIN32) | defined(__APPLE__)
+#if defined(_MSC_VER) | defined(__APPLE__)
   _shell_text.set_front_color("#FFFFFF");
   _shell_text.set_back_color("#000000");
 #endif
@@ -404,7 +408,7 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   scoped_connect(_shell_entry.signal_action(), std::bind(&GRTShellWindow::shell_action, this, std::placeholders::_1));
 
 // snippets tab
-#ifdef _WIN32
+#ifdef _MSC_VER
   _snippet_splitter.set_back_color("#283752");
 #else
   _snippet_splitter.set_padding(8);
@@ -706,7 +710,7 @@ void GRTShellWindow::show_replace_panel() {
 //--------------------------------------------------------------------------------------------------
 
 void GRTShellWindow::side_tab_changed() {
-#ifdef _WIN32
+#ifdef _MSC_VER
   static std::string side_bar_titles[] = {_("File Browser"), _("Globals Tree"), _("Classes List"), _("Modules List"),
                                           _("Notifications")};
 
@@ -964,8 +968,11 @@ void GRTShellWindow::run_snippet() {
 
       bool ret = execute_script(script, language);
       grt::GRT::get()->pop_message_handler();
-      if (!ret)
+      if (!ret) {
         handle_output("Snippet execution finished with an error\n");
+      } else {
+        handle_output("...execution finished\n");
+      }
     } catch (const std::exception &exc) {
       grt::GRT::get()->pop_message_handler();
 
@@ -1263,6 +1270,7 @@ void GRTShellWindow::delete_selected_file() {
             base::strfmt(_("Really delete '%s' from disk? This operation cannot be undone."), fn.c_str()), _("Delete"),
             _("Cancel")) == mforms::ResultOk) {
         ::g_remove(fn.c_str());
+        ::g_remove((fn + 'c').c_str());
         refresh_files();
       }
     }
@@ -1277,6 +1285,9 @@ mforms::Button *GRTShellWindow::add_tool_button(const std::string &image, const 
   Button *b = manage(new Button(ToolButton));
   b->set_icon(app->get_resource_path(image));
   b->set_tooltip(tooltip);
+#ifdef __APPLE__
+  b->set_size(-1, 24);
+#endif
   scoped_connect(b->signal_clicked(), action);
   if (left)
     _toolbar.add(b, false, true);
@@ -1416,7 +1427,7 @@ void GRTShellWindow::activate_output_tab() {
  * Returns the editor which is currently editing the given file.
  */
 GRTCodeEditor *GRTShellWindow::get_editor_for(const std::string &path, bool select_tab) {
-#ifdef _WIN32
+#ifdef _MSC_VER
   // We probably would need g_utf8_normalize too if we want it really good, but since this is
   // supposed to be a temporary solution...
   gchar *path1 = g_utf8_strdown(path.c_str(), -1);
@@ -1852,7 +1863,7 @@ static void globals_rescan_list(mforms::TreeNodeRef &node, const std::string &pa
         try {
           if (o.has_member("name") && o.get_string_member("name") != "")
             s.append(" ").append(o.get_string_member("name"));
-        } catch (grt::type_error) {
+        } catch (grt::type_error &) {
           s.append(" ").append("?");
         }
         child->set_string(0, s);
@@ -1966,7 +1977,7 @@ void GRTShellWindow::refresh_globals_tree() {
       globals_rescan_value(root, path, value);
       //      root->expand();
     }
-  } catch (const grt::bad_item) {
+  } catch (const grt::bad_item &) {
     // ignore
   }
 }

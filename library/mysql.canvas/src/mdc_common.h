@@ -23,7 +23,7 @@
 
 #pragma once
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 
 #include <glib.h>
 #include <list>
@@ -56,7 +56,7 @@
 
 #include "mdc_canvas_public.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 #define DEFAULT_FONT_FACE "Arial"
 #elif defined(__APPLE__)
 #define DEFAULT_FONT_FACE "Lucida Grande"
@@ -188,7 +188,7 @@ namespace mdc {
     void save_to_png(const std::string &destination) const;
   };
 
-#ifdef _WIN32
+#ifdef _MSC_VER
   class MYSQLCANVAS_PUBLIC_FUNC Win32Surface : public Surface {
   public:
     Win32Surface(HDC hdc, bool printing = false);

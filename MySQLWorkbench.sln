@@ -545,6 +545,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utilities.grt", "modules\ut
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mtemplate", "library\mtemplate\mtemplate.vcxproj", "{85FCF582-B354-4A7D-B31C-534D71BEA53A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wbssh", "library\ssh\wbssh.vcxproj", "{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -963,6 +965,14 @@ Global
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release_Testing|x64.Build.0 = Release|x64
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release|x64.ActiveCfg = Release|x64
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A}.Release|x64.Build.0 = Release|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Debug|x64.ActiveCfg = Debug|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Debug|x64.Build.0 = Debug|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Release_OSS|x64.ActiveCfg = Release_OSS|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Release_OSS|x64.Build.0 = Release_OSS|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Release_Testing|x64.ActiveCfg = Release|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Release_Testing|x64.Build.0 = Release|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Release|x64.ActiveCfg = Release|x64
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1056,5 +1066,9 @@ Global
 		{FADA09F1-53E8-4972-B77B-AEF3945D383A} = {1BBD1428-D18C-48EB-BA2E-01667E0A9A59}
 		{B94B7613-CBA5-4B30-834D-E16F414D1B1C} = {72E9A6AB-79B2-461F-B45A-924CC08E9007}
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A} = {DD440C70-F958-4557-8883-5A0ACEF109BC}
+		{F678C48F-46BA-4E15-8BE2-0D0BD441A23C} = {002B1C73-0D35-427B-B366-D0318FDD7128}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C6A5EA37-F53D-40C5-909E-E4ED40327529}
 	EndGlobalSection
 EndGlobal

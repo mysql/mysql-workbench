@@ -263,6 +263,7 @@ namespace DBImport {
     add_page(mforms::manage(_finish_page));
 
     set_title("Reverse Engineer Database");
+    set_size(900, 700);
   }
 
   //--------------------------------------------------------------------------------
@@ -327,6 +328,12 @@ namespace DBImport {
 
   bool ObjectSelectionPage::advance() {
     Db_plugin *plugin = ((WbPluginDbImport *)_form)->db_plugin();
+      
+
+    GrtVersionRef version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(plugin->db_catalog()->owner()), "CatalogVersion"));
+    version->owner(plugin->model_catalog());
+    plugin->model_catalog()->version(version);
+      
     std::list<std::string> errors;
     std::string text;
 

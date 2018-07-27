@@ -22,8 +22,7 @@
  */
 
 #pragma once
-#define HAVE_ROUND
-#include <Python/Python.h>
+#include <Python.h>
 
 #include <antlr4-runtime.h>
 

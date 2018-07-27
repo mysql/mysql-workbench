@@ -302,7 +302,7 @@ shouldEditTableColumn: (NSTableColumn*) aTableColumn
   
   mCheckBoxCell = [NSButtonCell new];
   [mCheckBoxCell setButtonType: NSSwitchButton];
-  mCheckBoxCell.controlSize = NSSmallControlSize;
+  mCheckBoxCell.controlSize = NSControlSizeSmall;
   mCheckBoxCell.title = @"";
   
   mTableView.target = self;

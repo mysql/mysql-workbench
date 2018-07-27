@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,48 +21,38 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#pragma once
+#ifdef __OBJC__
+  #import <Cocoa/Cocoa.h>
+#endif
+
+#ifdef __cplusplus
 #include <errno.h>
-#include <string.h>
+#include <string>
+#include <cstring>
+#include <exception>
 #include <thread>
 #include <atomic>
-#include <deque>
+#include <mutex>
+#include <libssh/callbacks.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <libssh/libsshpp.hpp>
+#pragma clang diagnostic pop
+#include <libssh/sftp.h>
+#include <vector>
+#include <thread>
 #include <map>
-#include "SSHCommon.h"
-#include "SSHSession.h"
-#include "SSHTunnelHandler.h"
-#include "base/any.h"
+#include <mutex>
+#include <fcntl.h>
+#include <deque>
+#include <locale>
+#include <iomanip>
+#include <sstream>
 
-namespace ssh {
-  typedef struct {
-    uint16_t port;
-    int socketHandle;
-  } sockInfo;
+#include <boost/bind.hpp>
+#include <boost/optional.hpp>
+#include <boost/cstdint.hpp>
+#include <boost/function.hpp>
+#include <boost/locale/encoding_utf.hpp>
 
-  class SSHTunnelManager : public SSHThread {
-  public:
-    SSHTunnelManager();
-    std::tuple<SSHReturnType, base::any> createTunnel(std::shared_ptr<SSHSession> &session);
-    int lookupTunnel(const SSHConnectionConfig &config);
-    virtual ~SSHTunnelManager();
-    void pokeWakeupSocket();
-    void setStop() {
-      _stop = true;
-    }
-
-    void disconnect(const SSHConnectionConfig &config);
-
-  protected:
-    mutable base::RecMutex _socketMutex;
-    base::RecMutexLock lockSocketList();
-    virtual void run() override;
-    sockInfo createSocket();
-    void localSocketHandler();
-
-    uint16_t _wakeupSocketPort;
-    int _wakeupSocket;
-    std::map<int, std::unique_ptr<SSHTunnelHandler>> _socketList;
-
-  };
-
-} /* namespace ssh */
+#endif

@@ -66,7 +66,10 @@ def initialize0():
     nc.add_observer(sqlide_power_import_wizard.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
     nc.add_observer(sqlide_power_export_wizard.handleContextMenu, name = "GRNLiveDBObjectMenuWillShow")
 
-
+@ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
+def launchPowerImport(editor):
+    sqlide_power_import_wizard.showPowerImport(editor, {'table': None, 'schema': editor.defaultSchema})
+    return 0
 
 @ModuleInfo.export(grt.INT, grt.classes.db_query_EditableResultset)
 def importRecordsetDataFromFile(resultset):
@@ -562,7 +565,7 @@ def commentText(editor):
         if lines[0].startswith(commentType):
             new_text = "\n".join((line[commentTypeLength:] if line.startswith(commentType) else line) for line in lines)
         else:
-            new_text = "\n".join(commentType + line for line in lines)
+            new_text = "\n".join(commentType + line if line != "" else line for line in lines)
         editor.replaceSelection(new_text)
     else:
         pos = editor.insertionPoint

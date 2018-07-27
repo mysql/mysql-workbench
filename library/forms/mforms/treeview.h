@@ -238,7 +238,7 @@ namespace mforms {
   struct TreeViewImplPtrs {
     bool (*create)(TreeView *self, TreeOptions options);
 
-#if defined(_WIN32)
+#if defined(_MSC_VER)
     int (*add_column)(TreeView *self, TreeColumnType type, const std::string &name, int initial_width, bool editable);
 #else
     int (*add_column)(TreeView *self, TreeColumnType type, const std::string &name, int initial_width, bool editable,

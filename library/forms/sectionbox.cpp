@@ -28,7 +28,7 @@ using namespace mforms;
 #ifdef __APPLE__
 #define HEADER_FONT "Lucida Grande"
 #define HEADER_FONT_SIZE 12
-#elif _WIN32
+#elif _MSC_VER
 #define HEADER_FONT "Tahoma"
 #define HEADER_FONT_SIZE 13
 #else
@@ -48,7 +48,7 @@ HeaderBox::HeaderBox(SectionBox* owner, bool header_mode) : DrawBox(), _caption_
 //--------------------------------------------------------------------------------------------------
 
 void HeaderBox::draw_background(cairo_t* cr, int width, int height) {
-#ifndef _WIN32
+#ifndef _MSC_VER
   cairo_set_source_rgb(cr, 235 / 255.0, 235 / 255.0, 235 / 255.0);
   cairo_paint(cr);
 
@@ -120,7 +120,7 @@ void HeaderBox::repaint(cairo_t* cr, int x, int y, int w, int h) {
 
 // Expand icon. On Windows this is right aligned and no icon is shown at all if
 // the section is not expandable. We also draw a simple triangle in that case (no image).
-#ifdef _WIN32
+#ifdef _MSC_VER
   double icon_width = 8;
   double icon_height = 7;
   _icon_left = width - icon_width - offset + 0.5;

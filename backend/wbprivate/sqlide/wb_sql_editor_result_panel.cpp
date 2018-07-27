@@ -450,14 +450,13 @@ void SqlEditorResult::show_import_recordset() {
   try {
     RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, _rset, rs) {
       grt::BaseListRef args(true);
-
-      if (result_grtobj().is_valid()) {
-        args.ginsert(result_grtobj());
-        grt::Module *module = grt::GRT::get()->get_module("SQLIDEUtils");
-        if (module)
-          module->call_function("importRecordsetDataFromFile", args);
-      } else
-        logFatal("resultset GRT obj is NULL\n");
+      grt::Module *mod = grt::GRT::get()->get_module("SQLIDEUtils");
+      if (mod) {
+        args.ginsert(_owner->owner()->grtobj());
+        mod->call_function("launchPowerImport", args);
+      }
+      else
+        logFatal("Unable to launch import wizard\n");
     }
   } catch (const std::exception &exc) {
     mforms::Utilities::show_error("Error importing recordset", exc.what(), "OK");

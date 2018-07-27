@@ -173,7 +173,7 @@ TEST_FUNCTION(20) {
     ensure("Invalid data type validity", validity.empty() || validity.size() > 2);
 
     if (validity.empty())
-      validity = "<5.7.13"; // Default is latest GA server at this time.
+      validity = "<8.0.11"; // Default is latest GA server at this time.
 
     std::size_t offset = 1;
     if (validity[1] == '=')
@@ -215,7 +215,10 @@ TEST_FUNCTION(20) {
         }
         break;
     }
+
     catalog->version(version);
+    auto model = workbench_physical_ModelRef::cast_from(catalog->owner());
+    model->options().set("useglobal", grt::IntegerRef(0));
 
     // The parameter format type tells us which combination is valid.
     switch (types[i]->parameterFormatType()) {

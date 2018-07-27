@@ -119,6 +119,7 @@ target_link_libraries(mysql-workbench-bin
     ${MySQL_LIBRARIES}
     ${SQLITE3_LIBRARIES}
     ${GNOME_KEYRING_LIBRARIES}
+    ${OPENSSL_CRYPTO_LIBRARY}
 )
 
 if(BUILD_FOR_TESTS)

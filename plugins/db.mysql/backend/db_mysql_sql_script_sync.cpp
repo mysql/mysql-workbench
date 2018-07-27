@@ -596,7 +596,7 @@ std::shared_ptr<DiffTreeBE> DbMySQLScriptSync::init_diff_tree(const std::vector<
   genoptions.set("OutputObjectContainer", _alter_object_list);
   genoptions.set("UseFilteredLists", grt::IntegerRef(0));
   // enable this once the ALTER script generation code is able to properly generate USE statements
-  // options.set("UseShortNames", grt::IntegerRef(1));
+  // options.set("OmitSchemas", grt::IntegerRef(1));
   //  options.set("CaseSensitive", grt::IntegerRef(_case_sensitive));
 
   if (_alter_change && diffsql_module) {
@@ -629,7 +629,6 @@ std::string DbMySQLScriptSync::generate_diff_tree_script() {
 
   std::vector<grt::ValueRef> vec;
   _diff_tree->get_object_list_for_script(vec);
-
   std::vector<std::string> schemata;
   std::vector<std::string> tables;
   std::vector<std::string> triggers;

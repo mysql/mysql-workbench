@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WIN32
+#ifndef _MSC_VER
 #include <pcre.h>
 #include <stdio.h>
 #endif
@@ -414,7 +414,7 @@ namespace {
     void drop_user(db_UserRef);
 
     std::string get_name(GrtNamedObjectRef object) const {
-      return ::get_name(object, _use_short_names);
+      return ::get_name(object, _omitSchemas);
     };
     std::string generate_add_index(db_mysql_IndexRef index);
 
@@ -661,7 +661,14 @@ namespace {
 
     auto catalog = db_CatalogRef::cast_from(index->owner()->owner()->owner());
 
-    if (bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+
+    GrtVersionRef version;
+    if (catalog->owner().is_valid())
+      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
+    else
+      version = catalog->version();
+
+    if (bec::is_supported_mysql_version_at_least(version, 8, 0, 0)) {
       auto table = db_mysql_TableRef::cast_from(index->owner());
 
       if (index->isPrimary() == 0 && (index->unique() == 0 || table->indices().count() > 1)) {
@@ -689,7 +696,7 @@ namespace {
       return;
 
     sql.append(",\n");
-    padding.pad(sql).append(global_generate_create(fk, padding, _use_short_names));
+    padding.pad(sql).append(global_generate_create(fk, padding, _omitSchemas));
   }
 
   void ActionGenerateSQL::create_table_fks_end(db_mysql_TableRef) {
@@ -873,7 +880,7 @@ namespace {
   void ActionGenerateSQL::alter_table_name(db_mysql_TableRef table, grt::StringRef str) {
     alter_table_property(
       sql, "RENAME TO ",
-      _use_short_names
+      _omitSchemas
         ? std::string(" `").append(str.c_str()).append("`")
         : std::string(" `").append(table->owner()->name().c_str()).append("`.`").append(str.c_str()).append("`"));
   }
@@ -905,9 +912,9 @@ namespace {
   void ActionGenerateSQL::alter_table_comment(db_mysql_TableRef table, grt::StringRef str) {
     std::string comment = bec::TableHelper::generate_comment_text(str, _maxTableCommentLength);
     if (comment.empty())
-      alter_table_property(sql, "\nCOMMENT = ", "''");
+      alter_table_property(sql, "COMMENT = ", "''");
     else
-      alter_table_property(sql, "\nCOMMENT = ", comment);
+      alter_table_property(sql, "COMMENT = ", comment);
   }
 
   void ActionGenerateSQL::alter_table_merge_union(db_mysql_TableRef table, grt::StringRef str) {
@@ -915,7 +922,7 @@ namespace {
     if (!s.empty() && s[0] == '(')
       s = s.substr(1, s.size() - 2);
 
-    if (!_use_short_names)
+    if (!_omitSchemas)
       s = bec::TableHelper::normalize_table_name_list(table->owner()->name(), s);
 
     alter_table_property(sql, "UNION = (", std::string(s).append(") "));
@@ -1223,7 +1230,13 @@ namespace {
 
     auto catalog = db_CatalogRef::cast_from(orgIndex->owner()->owner()->owner());
 
-    if (!bec::is_supported_mysql_version_at_least(catalog->version(), 8, 0, 0)) {
+    GrtVersionRef version;
+    if (catalog->owner().is_valid())
+      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
+    else
+      version = catalog->version();
+
+    if (!bec::is_supported_mysql_version_at_least(version, 8, 0, 0)) {
       alter_table_drop_index(newIndex);
       alter_table_add_index(newIndex);
       return;
@@ -1239,7 +1252,7 @@ namespace {
     }
 
     for (size_t i = 0; i < orgColumns.count(); i++) {
-      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name()) {
+      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name() || orgColumns[i]->descend() != newColumns[i]->descend()) {
         alter_table_drop_index(newIndex);
         alter_table_add_index(newIndex);
         return;
@@ -1265,11 +1278,23 @@ namespace {
       indexAlter.append(";\n");
     }
 
+    if (!newIndex->oldName().empty() && newIndex->name() != newIndex->oldName()) {
+      if (newIndex->isPrimary())
+        return;
+
+      indexAlter.append(strfmt("ALTER TABLE `%s`.`%s` RENAME INDEX `%s` TO `%s`;\n",
+                        db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+                        db_TableRef::cast_from(newIndex->owner())->name().c_str(),
+                        newIndex->oldName().c_str(),
+                        newIndex->name().c_str()));
+    }
+
     indexAlter.append(
-        strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
-               db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
-               db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
-               newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
+      strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
+             db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+             db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
+             newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
+
   }
 
   void ActionGenerateSQL::alter_table_indexes_end(db_mysql_TableRef) {
@@ -1304,7 +1329,7 @@ namespace {
      [reference_definition]
      */
     fk_add_sql += "ADD ";
-    fk_add_sql += global_generate_create(fk, padding, _use_short_names);
+    fk_add_sql += global_generate_create(fk, padding, _omitSchemas);
   }
 
   void ActionGenerateSQL::alter_table_drop_fk(db_mysql_ForeignKeyRef fk) {
@@ -1384,7 +1409,7 @@ namespace {
   void ActionGenerateSQL::create_trigger(db_mysql_TriggerRef trigger, bool for_alter) {
     std::string trigger_sql;
     std::string schema_name = trigger->owner()->owner()->name().c_str();
-    if (!_use_short_names || _gen_use)
+    if (!_omitSchemas || _gen_use)
       trigger_sql.append("USE `").append(schema_name).append("`").append(_non_std_sql_delimiter).append("\n");
 
     std::string trigger_definition = trigger->sqlDefinition();
@@ -1419,7 +1444,7 @@ namespace {
               definer = definer + "`";
             trigger_definition.append(" ").append("DEFINER = ").append(definer);
           }
-          if (_use_short_names)
+          if (_omitSchemas)
             trigger_definition.append(" TRIGGER `").append(trigger->name()).append("`");
           else
             trigger_definition.append(" TRIGGER `")
@@ -1447,7 +1472,7 @@ namespace {
 
   void ActionGenerateSQL::drop_trigger(db_mysql_TriggerRef trigger, bool for_alter) {
     std::string trigger_sql;
-    if (!_use_short_names || _gen_use)
+    if (!_omitSchemas || _gen_use)
       trigger_sql.append("USE `")
         .append(trigger->owner()->owner()->name().c_str())
         .append("`")
@@ -1491,12 +1516,12 @@ namespace {
         pcre_free(patre);
     }
 
-    if (_use_short_names) {
+    if (_omitSchemas) {
       SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
       Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
       renamer->rename_schema_references(view_def, view->owner()->name(), "");
     }
-    if (!_use_short_names || _gen_use) {
+    if (!_omitSchemas || _gen_use) {
       std::string use_def;
       use_def.append("USE `").append(view->owner()->name()).append("`;\n");
       use_def.append(view_def);
@@ -1517,13 +1542,13 @@ namespace {
     routine_sql = "\nDELIMITER ";
     routine_sql.append(_non_std_sql_delimiter).append("\n");
 
-    if (!_use_short_names || _gen_use) {
+    if (!_omitSchemas || _gen_use) {
       routine_sql.append("USE `");
       routine_sql.append(routine->owner()->name()).append("`").append(_non_std_sql_delimiter).append("\n");
     }
     routine_sql.append(routine->sqlDefinition().c_str()).append(_non_std_sql_delimiter).append("\n");
 
-    if (_use_short_names) {
+    if (_omitSchemas) {
       SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
       Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
       renamer->rename_schema_references(routine_sql, routine->owner()->name(), "");
@@ -1541,7 +1566,7 @@ namespace {
   void ActionGenerateSQL::drop_routine(db_mysql_RoutineRef routine, bool for_alter) {
     std::string routine_sql;
 
-    if (!_use_short_names || _gen_use) {
+    if (!_omitSchemas || _gen_use) {
       routine_sql = "\nUSE `";
       routine_sql.append(routine->owner()->name()).append("`;\n");
     }
@@ -1569,7 +1594,7 @@ namespace {
     sql.append(";\n\n");
 
     std::list<std::string> grants;
-    gen_grant_sql(db_CatalogRef::cast_from(user->owner()), user, grants, _use_short_names);
+    gen_grant_sql(db_CatalogRef::cast_from(user->owner()), user, grants, _omitSchemas);
 
     std::list<std::string>::iterator iter = grants.begin();
     for (; iter != grants.end(); ++iter)
@@ -1580,7 +1605,14 @@ namespace {
 
   void ActionGenerateSQL::drop_user(db_UserRef user) {
     auto catalog = db_CatalogRef::cast_from(user->owner());
-    if (bec::is_supported_mysql_version_at_least(catalog->version(), 5, 7, 0)) {
+
+    GrtVersionRef version;
+    if (catalog->owner().is_valid())
+      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion", true));
+    else
+      version = catalog->version();
+
+    if (bec::is_supported_mysql_version_at_least(version, 5, 7, 0)) {
       sql = "DROP USER IF EXISTS " + *user->name();
     } else {
       // Before 5.7 there was no IF EXISTS clause. So we use the implicit user creation with grant here.
@@ -1638,9 +1670,9 @@ namespace {
 DbMySQLImpl::DbMySQLImpl(grt::CPPModuleLoader* ldr) : grt::ModuleImplBase(ldr), _default_traits(true) {
   _default_traits.set("version", grt::StringRef("8.0.5"));
   _default_traits.set("CaseSensitive", grt::IntegerRef(1));
-  _default_traits.set("maxTableCommentLength", grt::IntegerRef(60));
-  _default_traits.set("maxIndexCommentLength", grt::IntegerRef(0));
-  _default_traits.set("maxColumnCommentLength", grt::IntegerRef(255));
+  _default_traits.set("maxTableCommentLength", grt::IntegerRef(2048));
+  _default_traits.set("maxIndexCommentLength", grt::IntegerRef(1024));
+  _default_traits.set("maxColumnCommentLength", grt::IntegerRef(1024));
 }
 
 ssize_t DbMySQLImpl::generateSQL(GrtNamedObjectRef org_object, const grt::DictRef& options,
@@ -1777,7 +1809,7 @@ protected:
   std::string non_std_sql_delimiter;
   ;
   bool show_warnings;
-  bool use_short_names;
+  bool _omitSchemas;
   bool no_view_placeholder;
   bool _case_sensitive;
   grt::DictRef _decomposer_options;
@@ -1787,12 +1819,12 @@ protected:
   alias_map_t alias_map;
 
   SQLComposer(const grt::DictRef options) : _case_sensitive(false) {
-    sql_mode = options.get_string("SQL_MODE", "TRADITIONAL");
+    sql_mode = options.get_string("SQL_MODE", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION");
     SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
     non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
     show_warnings = options.get_int("GenerateWarnings") != 0;
-    use_short_names = options.get_int("UseShortNames") != 0;
+    _omitSchemas = options.get_int("OmitSchemas") != 0;
     no_view_placeholder = options.get_int("NoViewPlaceholders") != 0;
 
     grt::ValueRef dboptsval = options.get("DBSettings");
@@ -1842,7 +1874,7 @@ protected:
 
   std::string generate_view_placeholder(const db_mysql_ViewRef view) {
     std::string sql;
-    std::string view_q_name(get_name(view, use_short_names));
+    std::string view_q_name(get_name(view, _omitSchemas));
 
     SelectStatement::Ref select_statement(new SelectStatement());
     SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
@@ -1893,7 +1925,7 @@ protected:
 
   std::string generate_view_ddl(const db_mysql_ViewRef view, std::string create_view, std::string drop_view = "") {
     std::string sql;
-    std::string view_q_name(get_name(view, use_short_names));
+    std::string view_q_name(get_name(view, _omitSchemas));
 
     // create view
     sql.append("\n");
@@ -1984,10 +2016,11 @@ class SQLExportComposer : public SQLComposer {
   bool gen_schema_drops;
   bool no_user_just_privileges;
   bool gen_inserts;
-  bool case_sensitive;
+  bool caseSensitive;
   bool no_view_placeholders;
   bool no_FK_for_inserts;
   bool triggers_after_inserts;
+  bool sortTablesAlphabetically;
   grt::DictRef create_map;
   grt::DictRef drop_map;
 
@@ -2001,9 +2034,10 @@ public:
     no_user_just_privileges = options.get_int("NoUsersJustPrivileges") != 0;
     no_view_placeholders = options.get_int("NoViewPlaceholders") != 0;
     gen_inserts = options.get_int("GenerateInserts") != 0;
-    case_sensitive = options.get_int("CaseSensitive") != 0;
+    caseSensitive = options.get_int("CaseSensitive") != 0;
     no_FK_for_inserts = options.get_int("NoFKForInserts") != 0;
     triggers_after_inserts = options.get_int("TriggersAfterInserts") != 0;
+    sortTablesAlphabetically = options.get_int("SortTablesAlphabetically") != 0;
   }
 
 protected:
@@ -2020,7 +2054,7 @@ protected:
       result.append("-- -----------------------------------------------------\n");
       result.append(comment);
 
-      if ((!use_short_names || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive)))) {
+      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, caseSensitive)))) {
         if (gen_schema_drops)
           result.append("DROP SCHEMA IF EXISTS `").append(schema->name().c_str()).append("` ;\n");
 
@@ -2034,7 +2068,7 @@ protected:
           result.append("-- ").append(comment).append("\n");
         }
         result.append("-- -----------------------------------------------------\n");
-        result.append(string_from_map(schema, create_map, case_sensitive)).append(";\n");
+        result.append(string_from_map(schema, create_map, caseSensitive)).append(";\n");
       }
       result.append(show_warnings_sql());
     }
@@ -2043,15 +2077,15 @@ protected:
 
   std::string table_sql(const db_mysql_TableRef table) const {
     std::string result;
-    std::string create_table_sql = string_from_map(table, create_map, case_sensitive);
+    std::string create_table_sql = string_from_map(table, create_map, caseSensitive);
 
     result.append("\n");
     result.append("-- -----------------------------------------------------\n");
-    result.append("-- Table ").append(get_name(table, use_short_names)).append("\n");
+    result.append("-- Table ").append(get_name(table, _omitSchemas)).append("\n");
     result.append("-- -----------------------------------------------------\n");
 
     if (gen_drops)
-      result.append(string_from_map(table, drop_map, case_sensitive)).append(";\n\n").append(show_warnings_sql());
+      result.append(string_from_map(table, drop_map, caseSensitive)).append(";\n\n").append(show_warnings_sql());
 
     result.append(create_table_sql).append(";\n\n");
     result.append(show_warnings_sql());
@@ -2062,7 +2096,7 @@ protected:
     if (gen_create_index) {
       grt::ListRef<db_mysql_Index> indices = table->indices();
       for (size_t c3 = indices.count(), k = 0; k < c3; k++) {
-        std::string index_sql = string_from_map(indices.get(k), create_map, case_sensitive);
+        std::string index_sql = string_from_map(indices.get(k), create_map, caseSensitive);
         if (!index_sql.empty())
           result.append(index_sql).append(";\n\n").append(show_warnings_sql());
       }
@@ -2073,7 +2107,7 @@ protected:
   std::string table_inserts_sql(const db_mysql_TableRef table) const {
     std::string result;
     std::string use_code;
-    if (!use_short_names || gen_use)
+    if (!_omitSchemas || gen_use)
       use_code.append("USE `").append(table->owner()->name().c_str()).append("`;\n");
 
     std::string table_inserts_sql;
@@ -2090,7 +2124,7 @@ protected:
       output_storage->rdbms(db_mgmt_RdbmsRef::cast_from(
         table->owner() /*schema*/->owner() /*catalog*/->owner() /*phys.model*/->get_member("rdbms")));
       output_storage->schema_name(table->owner()->name());
-      output_storage->omit_schema_qualifier(use_short_names);
+      output_storage->omit_schema_qualifier(_omitSchemas);
       output_storage->binding_blobs(false);
       output_storage->serialize(rs);
       table_inserts_sql = output_storage->sql_script();
@@ -2098,7 +2132,7 @@ protected:
     if (table_inserts_sql.empty())
       return table_inserts_sql;
     result.append("\n-- -----------------------------------------------------\n-- Data for table ")
-      .append(get_name(table, use_short_names))
+      .append(get_name(table, _omitSchemas))
       .append("\n-- -----------------------------------------------------\nSTART TRANSACTION;\n")
       .append(use_code)
       .append(table_inserts_sql)
@@ -2109,7 +2143,7 @@ protected:
   std::string view_placeholder(const db_mysql_ViewRef view) {
     if (view->modelOnly())
       return "";
-    if (exists_in_map(view, create_map, case_sensitive))
+    if (exists_in_map(view, create_map, caseSensitive))
       return generate_view_placeholder(view);
     return "";
   }
@@ -2124,7 +2158,7 @@ protected:
 
     if (routine->modelOnly())
       return "";
-    std::string create_routine_sql = string_from_map(routine, create_map, case_sensitive);
+    std::string create_routine_sql = string_from_map(routine, create_map, caseSensitive);
     if (create_routine_sql.empty())
       return "";
 
@@ -2137,11 +2171,11 @@ protected:
       .append("\n");
     result.append("-- -----------------------------------------------------\n");
 
-    std::string drop_string = string_from_map(routine, drop_map, case_sensitive);
+    std::string drop_string = string_from_map(routine, drop_map, caseSensitive);
     if (!drop_string.empty())
       result.append(drop_string).append(show_warnings_sql());
 
-    std::string create_string = string_from_map(routine, create_map, case_sensitive);
+    std::string create_string = string_from_map(routine, create_map, caseSensitive);
     if (!create_string.empty())
       result.append(create_string).append(show_warnings_sql());
 
@@ -2152,11 +2186,11 @@ protected:
     send_output(
       std::string("Processing View ").append(view->owner()->name()).append(".").append(view->name()).append("\n"));
 
-    if (view->modelOnly() || !exists_in_map(view, create_map, case_sensitive))
+    if (view->modelOnly() || !exists_in_map(view, create_map, caseSensitive))
       return "";
 
-    return generate_view_ddl(view, string_from_map(view, create_map, case_sensitive),
-                             string_from_map(view, drop_map, case_sensitive));
+    return generate_view_ddl(view, string_from_map(view, create_map, caseSensitive),
+                             string_from_map(view, drop_map, caseSensitive));
   }
 
   std::string trigger_sql(const db_mysql_TriggerRef trigger) const {
@@ -2170,18 +2204,18 @@ protected:
                   .append(trigger->name())
                   .append("\n"));
 
-    if (trigger->modelOnly() || !exists_in_map(trigger, create_map, case_sensitive))
+    if (trigger->modelOnly() || !exists_in_map(trigger, create_map, caseSensitive))
       return "";
 
     // if(gen_drops)
     {
-      std::string drop_trigger(string_from_map(trigger, drop_map, case_sensitive));
+      std::string drop_trigger(string_from_map(trigger, drop_map, caseSensitive));
       if (!drop_trigger.empty())
         result.append("\n").append(drop_trigger).append(non_std_sql_delimiter).append("\n");
       if (show_warnings)
         result.append("SHOW WARNINGS").append(non_std_sql_delimiter).append("\n");
     }
-    result.append(string_from_map(trigger, create_map, case_sensitive)).append(non_std_sql_delimiter).append("\n\n");
+    result.append(string_from_map(trigger, create_map, caseSensitive)).append(non_std_sql_delimiter).append("\n\n");
     if (show_warnings)
       result.append("SHOW WARNINGS").append(non_std_sql_delimiter).append("\n");
 
@@ -2190,20 +2224,20 @@ protected:
 
   std::string user_sql(const db_UserRef user) const {
     std::string result;
-    if (user->modelOnly() || !exists_in_map(user, create_map, case_sensitive))
+    if (user->modelOnly() || !exists_in_map(user, create_map, caseSensitive))
       return "";
 
-    std::string create_user_sql = string_from_map(user, create_map, case_sensitive);
+    std::string create_user_sql = string_from_map(user, create_map, caseSensitive);
 
     // if(gen_drops)
-    if (exists_in_map(user, drop_map, case_sensitive)) {
+    if (exists_in_map(user, drop_map, caseSensitive)) {
       // There is no DROP USER IF EXISTS clause so we create one with
       // GRANT which will fail in traditional mode due to NO_AUTO_CREATE_USER
       result.append("SET SQL_MODE = '';\n");
-      result.append(string_from_map(user, drop_map, case_sensitive)).append(";\n");
+      result.append(string_from_map(user, drop_map, caseSensitive)).append(";\n");
       result.append(base::sqlstring("SET SQL_MODE=?;\n", 0) << sql_mode).append(show_warnings_sql());
     }
-    result.append(string_from_map(user, create_map, case_sensitive)).append(show_warnings_sql());
+    result.append(string_from_map(user, create_map, caseSensitive)).append(show_warnings_sql());
     send_output(std::string("Processing User ").append(user->name()).append("\n"));
     return result;
   }
@@ -2251,19 +2285,31 @@ public:
 
       send_output(std::string("Processing Schema ").append(schema->name()).append("\n"));
 
-      if ((!use_short_names || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))))
+      if ((!_omitSchemas || gen_use) && (create_map.has_key(get_full_object_name_for_key(schema, caseSensitive))))
         out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
 
       // tables
       grt::ListRef<db_mysql_Table> tables = schema->tables();
-      std::vector<db_mysql_TableRef> sorted_tables;
-      for (size_t c2 = tables.count(), j = 0; j < c2; j++)
-        sorter.perform(tables.get(j), sorted_tables);
-      for (std::vector<db_mysql_TableRef>::iterator It = sorted_tables.begin(); It != sorted_tables.end(); ++It) {
+      std::vector<db_mysql_TableRef> sortedTables;
+      if (sortTablesAlphabetically) {
+        sortedTables.reserve(tables.count());
+        for(const auto &it: tables) {
+          sortedTables.push_back(it);
+        }
+
+        std::sort(sortedTables.begin(), sortedTables.end(), [&](db_mysql_TableRef &first, db_mysql_TableRef &second) {
+          return base::string_compare(first->name(), second->name(), caseSensitive) < 0 ? true : false;
+        });
+      } else {
+        for (size_t c2 = tables.count(), j = 0; j < c2; j++)
+          sorter.perform(tables.get(j), sortedTables);
+      }
+
+      for (std::vector<db_mysql_TableRef>::iterator It = sortedTables.begin(); It != sortedTables.end(); ++It) {
         db_mysql_TableRef table = *It;
         if (table->modelOnly() || table->isStub())
           continue;
-        if (exists_in_map(table, create_map, case_sensitive)) {
+        if (exists_in_map(table, create_map, caseSensitive)) {
           out_sql.append(table_sql(table));
           if (gen_inserts) {
             std::string tmp = table_inserts_sql(table);
@@ -2279,7 +2325,7 @@ public:
           schema_triggers_sql.append(trigger_sql(triggers.get(k)));
       }
       if (!schema_triggers_sql.empty()) {
-        if (!use_short_names || gen_use)
+        if (!_omitSchemas || gen_use)
           triggers_sql.append("USE `").append(schema->name().c_str()).append("`;\n");
         triggers_sql.append("\nDELIMITER ").append(non_std_sql_delimiter).append("\n");
         triggers_sql.append(schema_triggers_sql);
@@ -2312,8 +2358,8 @@ public:
       for (size_t c2 = views.count(), j = 0; j < c2; j++)
         objects_sql.append(view_sql(views.get(j)));
 
-      if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, case_sensitive))) {
-        if (!use_short_names || gen_use)
+      if (!objects_sql.empty() && create_map.has_key(get_full_object_name_for_key(schema, caseSensitive))) {
+        if (!_omitSchemas || gen_use)
           out_sql.append("USE `").append(schema->name().c_str()).append("` ;\n");
         out_sql.append(objects_sql);
       }
@@ -2373,6 +2419,7 @@ public:
           out_sql.append(user_script(*script));
       }
     }
+
     return out_sql;
   }
 };
@@ -2798,10 +2845,7 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     db_SimpleDatatypeRef simpletype(
       parsers::MySQLParserServices::findDataType(rdbms->simpleDatatypes(), GrtVersionRef(), type));
 
-    if (!simpletype.is_valid()) // unlikely
-    {
-      g_warning("Could not define built-in userdatatype <%s> %s (%s)", type_init_data[i].oid, type_init_data[i].name,
-                type_init_data[i].sql_def);
+    if (!simpletype.is_valid()) {
       continue;
     }
     db_UserDatatypeRef udata(grt::Initialized);
