@@ -125,9 +125,9 @@ int ThreadedTimer::add_task(TimerUnit unit, double value, bool single_shot, Time
  *
  * @param task_id The id of the task to remove. If it does not exist nothing happens.
  */
-void ThreadedTimer::remove_task(int task_id) {
+bool ThreadedTimer::remove_task(int task_id) {
   ThreadedTimer *timer = ThreadedTimer::get();
-  timer->remove(task_id);
+  return timer->remove(task_id);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +182,6 @@ void ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
 
   try {
     bool do_stop = task->callback(task->task_id);
-
     base::MutexLock lock(timer->_timer_lock);
     task->stop = do_stop || task->single_shot;
     task->scheduled = false;
@@ -200,6 +199,7 @@ void ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
     task->scheduled = false;
     logWarning("Threaded timer: unknown exception in pool function\n");
   }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,15 +260,19 @@ void ThreadedTimer::main_loop() {
 
 /**
  * This function is actually doing the work for the static remove_task function.
+ * @returns true, if the task could be removed, otherwise false.
+ * If the task is already scheduled for execution it cannot be removed anymore.
  */
-void ThreadedTimer::remove(int task_id) {
+bool ThreadedTimer::remove(int task_id) {
   base::MutexLock lock(_timer_lock);
   for (std::list<TimerTask>::iterator iterator = _tasks.begin(); iterator != _tasks.end(); iterator++) {
     if (iterator->task_id == task_id) {
       iterator->stop = true;
-      break;
+      TimerTask &task = *iterator;
+      return !static_cast<bool>(g_thread_pool_move_to_front(_pool, &task));
     }
   }
+  return true;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1101,6 +1101,11 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                             continue
                         if tables_by_schema.has_key(schema):
                             tables, selection = tables_by_schema[schema]
+                            if table in tables:
+                                message = "The selected folder doesn't appear to be valid. Multiple definitions of the same object (%s.%s) have been found." % (schema, table)
+                                Utilities.show_error("Open Dump Folder", message, "OK", "", "")
+                                return
+                                
                             tables.append(table)
                             tables.sort()
                             selection.add(table) # select all by default

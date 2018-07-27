@@ -412,21 +412,24 @@ class SelectFilePage(WizardPage):
     
     
     def is_valid_path(self):
-        import os, errno
+        import os, errno, sys
         
         userpath = self.exportfile_path.get_string_value()
         try:
-            if not isinstance(userpath, str) or not userpath:
+            if (not isinstance(userpath, str) and not isinstance(userpath, unicode)) or not userpath:
                 return False
             
-            _, path = os.path.splitdrive(userpath)
-            rootname = os.environ.get("HOMEDRIVE", "C:") if sys.platform == 'win32' else os.path.sep
+            rootdrive, path = os.path.splitdrive(userpath)
+            rootname = rootdrive if sys.platform == 'win32' else os.path.sep
             if not os.path.isdir(rootname):
                 raise Exception("Fatal, root drive doesn't exists: %s" % rootname)
             
             for part in userpath.split(os.path.sep):
                 try:
-                    os.lstat(rootname + part)
+                    if sys.platform == 'win32':
+                        os.lstat(os.path.join(rootname, part))
+                    else:
+                        os.lstat(rootname + part)
                 except OSError as exc:
                     if hasattr(exc, 'winerror'):
                         if exc.winerror == 123: #Windows error code for invalid path name

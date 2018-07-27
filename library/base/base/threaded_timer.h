@@ -70,7 +70,7 @@ public:
   static void stop();
 
   static int add_task(TimerUnit unit, double value, bool single_shot, TimerFunction callback);
-  static void remove_task(int task_id);
+  static bool remove_task(int task_id);
 
 private:
   base::Mutex _timer_lock; // Synchronize access to the timer class.
@@ -88,7 +88,7 @@ private:
   static gpointer start(gpointer data);
   static void pool_function(gpointer data, gpointer user_data);
   void main_loop();
-  void remove(int task_id);
+  bool remove(int task_id);
 };
 
 #endif // _THREADED_TIMER_H_
