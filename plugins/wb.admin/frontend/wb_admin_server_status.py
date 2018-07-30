@@ -29,12 +29,14 @@ import time
 import wb_admin_monitor
 
 def stradd(table, y, label, value):
-    t = mforms.newLabel(label)
+    t = mforms.newLabel(label + ":")
+    t.set_name(label)
     table.add(t, 0, 1, y, y+1, mforms.VFillFlag|mforms.HFillFlag)
 
     t = mforms.newLabel(value)
     t.set_style(mforms.BoldStyle)
     t.set_color("#555555")
+    t.set_name(label + " Value")
     table.add(t, 1, 2, y, y+1, mforms.VFillFlag|mforms.HFillFlag)
     return t
 
@@ -55,6 +57,7 @@ class StateIcon(mforms.Box):
 
         self.set_spacing(8)
         self.image = mforms.newImageBox()
+        self.image.set_name("Server Stamp")
         self.image.set_image(self.off_icon)
         self.add(self.image, False, True)
 
@@ -93,12 +96,15 @@ class ConnectionInfo(mforms.Box):
         self.set_release_on_add()
         self.set_managed()
         
+        self.set_name("Connection Info Section")
+        
         self.owner = owner
 
         self.set_spacing(35)
 
         self.icon = mforms.newImageBox()
         self.icon.set_image(mforms.App.get().get_resource_path("mysql-logo-00.png"))
+        self.icon.set_name("Server Status Icon")
 
         self.add(self.icon, False, True)
 
@@ -106,10 +112,13 @@ class ConnectionInfo(mforms.Box):
         self.vbox = vbox
         self.add(vbox, True, True)
         vbox.set_spacing(2)
-        vbox.add(mforms.newLabel("Connection Name"), False, True)
+        label = mforms.newLabel("Connection Name")
+        label.set_name("Connection Name")
+        vbox.add(label, False, True)
 
         self.connection_name = mforms.newLabel("?")
         self.connection_name.set_style(mforms.VeryBigStyle)
+        self.connection_name.set_name("Connection Name Value")
         vbox.add(self.connection_name, False, True)
 
         self.info_table = None
@@ -131,20 +140,20 @@ class ConnectionInfo(mforms.Box):
         self.info_table.set_column_spacing(18)
         self.info_table.set_row_spacing(5)
 
-        stradd(self.info_table, 0, "\nHost:", "\n"+info.get("hostname", "n/a"))
-        stradd(self.info_table, 1, "Socket:", info.get("socket", "n/a"))
-        stradd(self.info_table, 2, "Port:", info.get("port", "n/a"))
-        stradd(self.info_table, 3, "Version:", "%s\n%s" % (info.get("version", "n/a"), info.get("version_comment", "")))
-        stradd(self.info_table, 4, "Compiled For:", "%s   (%s)" % (info.get("version_compile_os", "n/a"), info.get("version_compile_machine", "n/a")))
+        stradd(self.info_table, 0, "\nHost", "\n"+info.get("hostname", "n/a"))
+        stradd(self.info_table, 1, "Socket", info.get("socket", "n/a"))
+        stradd(self.info_table, 2, "Port", info.get("port", "n/a"))
+        stradd(self.info_table, 3, "Version", "%s\n%s" % (info.get("version", "n/a"), info.get("version_comment", "")))
+        stradd(self.info_table, 4, "Compiled For", "%s   (%s)" % (info.get("version_compile_os", "n/a"), info.get("version_compile_machine", "n/a")))
 
-        stradd(self.info_table, 5, "Configuration File:", ctrl_be.server_profile.config_file_path or "unknown")
+        stradd(self.info_table, 5, "Configuration File", ctrl_be.server_profile.config_file_path or "unknown")
 
         uptime = status.get("Uptime", None)
         if uptime:
             uptime = long(uptime)
-            stradd(self.info_table, 6, "Running Since:", "%s (%s)" % (time.ctime(ctrl_be.status_variables_time-uptime), format_duration(uptime, True)))
+            stradd(self.info_table, 6, "Running Since", "%s (%s)" % (time.ctime(ctrl_be.status_variables_time-uptime), format_duration(uptime, True)))
         else:
-            stradd(self.info_table, 6, "Running Since:", "n/a")
+            stradd(self.info_table, 6, "Running Since", "n/a")
         self.vbox.add(self.info_table, True, True)
 
         box = mforms.newBox(True)
@@ -186,6 +195,8 @@ class WbAdminServerStatus(mforms.Box):
         mforms.Box.__init__(self, True)
         self.set_managed()
         self.set_release_on_add()
+        
+        self.set_name("Server Status Main")
 
         self.ui_created = False
 
@@ -196,6 +207,7 @@ class WbAdminServerStatus(mforms.Box):
         self.main_view = main_view
 
         lbox = mforms.newBox(False)
+        lbox.set_name("Server Status Left Side")
         self.add(lbox, True, True)
 
         self.connection_info = ConnectionInfo(self)
@@ -204,6 +216,8 @@ class WbAdminServerStatus(mforms.Box):
 
         self.scrollbox = mforms.newScrollPanel(mforms.ScrollPanelDrawBackground)
         self.scrollbox.set_padding(24)
+        self.scrollbox.set_name("Extra Server Info Section")
+        
         self.content = mforms.newBox(False)
         self.content.set_padding(20)
         self.content.set_spacing(4)
@@ -211,6 +225,7 @@ class WbAdminServerStatus(mforms.Box):
         lbox.add(self.scrollbox, True, True)
 
         image = mforms.newImageBox()
+        image.set_name("Server Status Separator")
         if self.server_profile.host_os == "linux":
             image.set_image(mforms.App.get().get_resource_path("mysql-status-separator-linux.png"))
         else:
@@ -322,16 +337,16 @@ class WbAdminServerStatus(mforms.Box):
 
         # Update the controls in the UI
         self.suspend_layout()
-        self.controls["Disk Space in Data Dir:"][0].set_text(disk_space)
+        self.controls["Disk Space in Data Dir"][0].set_text(disk_space)
 
         table = self.controls["Replication Slave"][0]
 
         if repl:
             table.remove(self.controls[""][0])
             self.setup_info_table(table,
-                                  [("Slave IO State:", repl.get("Slave_IO_State")),
-                                   ("Master Host:", repl.get("Master_Host")),
-                                   ("GTID Mode:", info.get("gtid_mode"))],
+                                  [("Slave IO State", repl.get("Slave_IO_State")),
+                                   ("Master Host", repl.get("Master_Host")),
+                                   ("GTID Mode", info.get("gtid_mode"))],
                                   plugins)
         else:
             self.controls[""][0].set_text(repl_error or "this server is not a slave in a replication setup")
@@ -388,30 +403,30 @@ class WbAdminServerStatus(mforms.Box):
         params = (info, plugins, status)
 
         self.add_info_section_2("Available Server Features",
-                              [("Performance Schema:", lambda info, plugins, status: tristate(info.get("performance_schema"))),
-                               ("Thread Pool:", lambda info, plugins, status: tristate(info.get("thread_handling"), "loaded-dynamically")),
-                               ("Memcached Plugin:", lambda info, plugins, status: memcached_status),
-                               ("Semisync Replication Plugin:", lambda info, plugins, status: semi_sync_status),
-                               ("SSL Availability:", lambda info, plugins, status: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
-                               ("Windows Authentication:", lambda info, plugins, status: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication:", lambda info, plugins, status: plugins.has_key("authentication_pam")),
-                               ("Password Validation:", lambda info, plugins, status: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),
-                               ("Audit Log:", lambda info, plugins, status: (tristate(info.get("audit_log_policy")), "(Log Policy: %s)" % info.get("audit_log_policy"))),
-                               ("Firewall:", lambda info, plugins, status: tristate(info.get("mysql_firewall_mode"))),
-                               ("Firewall Trace:", lambda info, plugins, status: tristate(info.get("mysql_firewall_trace")))],
+                              [("Performance Schema", lambda info, plugins, status: tristate(info.get("performance_schema"))),
+                               ("Thread Pool", lambda info, plugins, status: tristate(info.get("thread_handling"), "loaded-dynamically")),
+                               ("Memcached Plugin", lambda info, plugins, status: memcached_status),
+                               ("Semisync Replication Plugin", lambda info, plugins, status: semi_sync_status),
+                               ("SSL Availability", lambda info, plugins, status: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
+                               ("Windows Authentication", lambda info, plugins, status: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication", lambda info, plugins, status: plugins.has_key("authentication_pam")),
+                               ("Password Validation", lambda info, plugins, status: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),
+                               ("Audit Log", lambda info, plugins, status: (tristate(info.get("audit_log_policy")), "(Log Policy: %s)" % info.get("audit_log_policy"))),
+                               ("Firewall", lambda info, plugins, status: tristate(info.get("mysql_firewall_mode"))),
+                               ("Firewall Trace", lambda info, plugins, status: tristate(info.get("mysql_firewall_trace")))],
                                 params)
 
         log_output = info.get("log_output", "FILE")
 
         self.add_info_section("Server Directories",
-                              [("Base Directory:", lambda info, plugins, status: info.get("basedir")),
-                               ("Data Directory:", lambda info, plugins, status: info.get("datadir")),
-                               ("Disk Space in Data Dir:", disk_space),
-                               ("InnoDB Data Directory:", lambda info, plugins, status: info.get("innodb_data_home_dir")) if info.get("innodb_data_home_dir") else None,
-                               ("Plugins Directory:", lambda info, plugins, status: info.get("plugin_dir")),
-                               ("Tmp Directory:", lambda info, plugins, status: info.get("tmpdir")),
-                               ("Error Log:", lambda info, plugins, status: (info.get("log_error") and info.get("log_error")!="OFF", info.get("log_error"))),
-                               ("General Log:", lambda info, plugins, status: (info.get("general_log")!="OFF" and log_output != "NONE", info.get("general_log_file") if "FILE" in log_output else "[Stored in database]")),
-                               ("Slow Query Log:", lambda info, plugins, status: (info.get("slow_query_log")!="OFF" and log_output != "NONE", info.get("slow_query_log_file") if "FILE" in log_output else "[Stored in database]"))],
+                              [("Base Directory", lambda info, plugins, status: info.get("basedir")),
+                               ("Data Directory", lambda info, plugins, status: info.get("datadir")),
+                               ("Disk Space in Data Dir", disk_space),
+                               ("InnoDB Data Directory", lambda info, plugins, status: info.get("innodb_data_home_dir")) if info.get("innodb_data_home_dir") else None,
+                               ("Plugins Directory", lambda info, plugins, status: info.get("plugin_dir")),
+                               ("Tmp Directory", lambda info, plugins, status: info.get("tmpdir")),
+                               ("Error Log", lambda info, plugins, status: (info.get("log_error") and info.get("log_error")!="OFF", info.get("log_error"))),
+                               ("General Log", lambda info, plugins, status: (info.get("general_log")!="OFF" and log_output != "NONE", info.get("general_log_file") if "FILE" in log_output else "[Stored in database]")),
+                               ("Slow Query Log", lambda info, plugins, status: (info.get("slow_query_log")!="OFF" and log_output != "NONE", info.get("slow_query_log_file") if "FILE" in log_output else "[Stored in database]"))],
                               params)
 
         self.add_info_section("Replication Slave",
@@ -419,18 +434,18 @@ class WbAdminServerStatus(mforms.Box):
                               params)
 
         self.add_info_section("Authentication",
-                              [("SHA256 password private key:", lambda info, plugins, status: info.get("sha256_password_private_key_path")),
-                               ("SHA256 password public key:", lambda info, plugins, status: info.get("sha256_password_public_key_path"))],
+                              [("SHA256 password private key", lambda info, plugins, status: info.get("sha256_password_private_key_path")),
+                               ("SHA256 password public key", lambda info, plugins, status: info.get("sha256_password_public_key_path"))],
                               params)
 
         self.add_info_section("SSL",
-                              [("SSL CA:", lambda info, plugins, status: info.get("ssl_ca") or "n/a"),
-                               ("SSL CA path:", lambda info, plugins, status: info.get("ssl_capath") or "n/a"),
-                               ("SSL Cert:", lambda info, plugins, status: info.get("ssl_cert") or "n/a"),
-                               ("SSL Cipher:", lambda info, plugins, status: info.get("ssl_cipher") or "n/a"),
-                               ("SSL CRL:", lambda info, plugins, status: info.get("ssl_crl") or "n/a"),
-                               ("SSL CRL path:", lambda info, plugins, status: info.get("ssl_crlpath") or "n/a"),
-                               ("SSL Key:", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
+                              [("SSL CA", lambda info, plugins, status: info.get("ssl_ca") or "n/a"),
+                               ("SSL CA path", lambda info, plugins, status: info.get("ssl_capath") or "n/a"),
+                               ("SSL Cert", lambda info, plugins, status: info.get("ssl_cert") or "n/a"),
+                               ("SSL Cipher", lambda info, plugins, status: info.get("ssl_cipher") or "n/a"),
+                               ("SSL CRL", lambda info, plugins, status: info.get("ssl_crl") or "n/a"),
+                               ("SSL CRL path", lambda info, plugins, status: info.get("ssl_crlpath") or "n/a"),
+                               ("SSL Key", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
                               params)
 
         log_debug3("mysql_firewall_trace: %s\n" % info.get("mysql_firewall_trace"))
@@ -440,10 +455,10 @@ class WbAdminServerStatus(mforms.Box):
 
         if info.get("mysql_firewall_mode") == "ON":
             self.add_info_section("Firewall",
-                                  [("Access denied:", lambda info, plugins, status: str(status.get("Firewall_access_denied")) or "n/a"),
-                                  ("Access granted:", lambda info, plugins, status: str(status.get("Firewall_access_granted")) or "n/a"),
-                                  ("Access suspicious:", lambda info, plugins, status: str(status.get("Firewall_access_suspicious")) or "n/a"),
-                                  ("Cached entries:", lambda info, plugins, status: str(status.get("Firewall_cached_entries")) or "n/a")],
+                                  [("Access denied", lambda info, plugins, status: str(status.get("Firewall_access_denied")) or "n/a"),
+                                  ("Access granted", lambda info, plugins, status: str(status.get("Firewall_access_granted")) or "n/a"),
+                                  ("Access suspicious", lambda info, plugins, status: str(status.get("Firewall_access_suspicious")) or "n/a"),
+                                  ("Cached entries", lambda info, plugins, status: str(status.get("Firewall_cached_entries")) or "n/a")],
                                   params)
 
     def add_info_section_2(self, title, info, params):
@@ -503,15 +518,19 @@ class WbAdminServerStatus(mforms.Box):
             if self.controls.has_key(label):
                 info_table.remove(self.controls[label][0])
             else:
-                info_table.add(mforms.newLabel(label), 0, 1, i, i+1, mforms.VFillFlag|mforms.HFillFlag)
+                l = mforms.newLabel(label + ":")
+                l.set_name(label)
+                info_table.add(l, 0, 1, i, i+1, mforms.VFillFlag|mforms.HFillFlag)
             is_gtid_mode_setable = label == 'GTID Mode:' and self.ctrl_be.target_version >= Version(5, 7, 6)
             if type(value) is bool or value is None:
                 b = StateIcon()
+                b.set_name(label + " Value")
                 b.set_state(value)
                 info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                 self.controls[label] = (b, value_source)
             elif type(value) is tuple:
                 b = StateIcon()
+                b.set_name(label + " Value")
                 b.set_state(value[0])
                 if value[0] and value[1]:
                     b.set_text(value[1])
@@ -520,6 +539,7 @@ class WbAdminServerStatus(mforms.Box):
             else:
                 if is_gtid_mode_setable:
                     self.gtid_mode_selector = mforms.newSelector()
+                    self.gtid_mode_selector.set_name(label + " Value")
                     self.gtid_mode_selector.add_items(["OFF", "UPGRADE_STEP_1", "UPGRADE_STEP_1", "ON"])
                     self.gtid_mode_selector.set_selected(self.gtid_mode_selector.index_of_item_with_title(value_source))
                     self.gtid_mode_selector.add_changed_callback(self._gtid_mode_changed)
@@ -527,6 +547,7 @@ class WbAdminServerStatus(mforms.Box):
                     self.controls[label] = (self.gtid_mode_selector, value_source)
                 else:
                     l2 = mforms.newLabel(value or "")
+                    l2.set_name(label + " Value")
                     l2.set_style(mforms.BoldStyle)
                     l2.set_color("#1c1c1c")
                     info_table.add(l2, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)

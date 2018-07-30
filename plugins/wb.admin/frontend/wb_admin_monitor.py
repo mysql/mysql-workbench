@@ -51,6 +51,7 @@ class WbAdminMonitor(mforms.Box):
         self.server_profile = server_profile
         self.set_managed()
         self.set_release_on_add()
+        self.set_name("Server Status Right Side")
 
         self.suspend_layout()
 
@@ -70,10 +71,12 @@ class WbAdminMonitor(mforms.Box):
 
         self.status_icon = mforms.newServerStatusWidget()
         self.status_icon.set_description("Server Status")
+        self.status_icon.set_name("Server Status Graph")
         self.status_icon.set_size(86, -1)
         self.box1.add(self.status_icon, False, True)
 
         self.status_label = bigLabel("Unknown\n")
+        self.status_label.set_name("Server Status Value")
         self.status_label.set_size(86, -1)
         health_text.add(self.status_label, False, True)
 
@@ -81,15 +84,14 @@ class WbAdminMonitor(mforms.Box):
         system_box = mforms.newBox(True)
         system_box.set_spacing(28)
         self.cpu_usage = newBarGraphWidget()
-        if self.server_profile.target_is_windows:
-            self.cpu_usage.set_description("CPU")
-        else:
-            self.cpu_usage.set_description("Load")
+        self.cpu_usage.set_description("CPU/Load")
+        self.cpu_usage.set_name("CPU/Load Graph")
         self.cpu_usage.set_right_align(True)
         self.cpu_usage.set_size(31, -1);
         system_box.add(self.cpu_usage, False, True)
 
         label = bigLabel()
+        label.set_name("CPU/Load Value")
         label.set_size(47, -1)
         label.set_text_align(mforms.TopRight)
         health_text.add(label, False, True)
@@ -102,10 +104,12 @@ class WbAdminMonitor(mforms.Box):
         sql = {}
         self.connection_usage= newLineDiagramWidget()
         self.connection_usage.set_description("Connections")
+        self.connection_usage.set_name("Connections Graph")
         self.connection_usage.enable_auto_scale(True)
         self.connection_usage.set_thresholds([0.0], [10.0, 50.0, 100.0, 500.0, 1000.0])
         system_box.add(self.connection_usage, True, True)
         label = bigLabel()
+        label.set_name("Connections Value")
         health_text.add(label, True, True)
         self.widgets['get_connections'] = (self.connection_usage, label, lambda x: "%s\n"%str(int(x)), None)
         sql['get_connections'] = {'query' : ("Threads_connected",), 'min' : 0, 'max' : 10, 'calc' : None}
@@ -123,10 +127,12 @@ class WbAdminMonitor(mforms.Box):
 
         self.traffic = newLineDiagramWidget()
         self.traffic.set_description("Traffic")
+        self.traffic.set_name("Traffic Graph")
         self.traffic.enable_auto_scale(True)
         self.traffic.set_thresholds([0.0], [100000.0, 1000000.0, 10000000.0, 100000000.0])
         health.add(self.traffic, True, True)
         label = bigLabel()
+        label.set_name("Traffic Value")
         health_text.add(label, True, True)
         self.widgets['get_traffic'] = (self.traffic, label, lambda x: "%s\n"%self.format_value(x), None)
         self.last_traffic = 0
@@ -134,8 +140,10 @@ class WbAdminMonitor(mforms.Box):
 
         self.key_efficiency= newLineDiagramWidget()
         self.key_efficiency.set_description("Key Efficiency")
+        self.key_efficiency.set_name("Key Efficiency Graph")
         health.add(self.key_efficiency, True, True)
         label = bigLabel()
+        label.set_name("Key Efficiency Value")
         health_text.add(label, True, True)
         self.widgets['get_key_efficiency'] = (self.key_efficiency, label, lambda x: ("%.1f%%\n" % x), None)
         sql['get_key_efficiency'] = {'query' : ("Key_reads","Key_read_requests"), 'min' : 0, 'max' : 100, 'calc' : self.calc_key_efficiency}
@@ -152,10 +160,12 @@ class WbAdminMonitor(mforms.Box):
 
         self.qps= newLineDiagramWidget()
         self.qps.set_description("Selects per Second")
+        self.qps.set_name("Selects per Second Graph")
         self.qps.enable_auto_scale(True)
         self.qps.set_thresholds([0.0], [50.0, 100.0, 200.0, 500.0, 1000.0, 5000.0, 10000.0])
         health.add(self.qps, True, True)
         label = bigLabel()
+        label.set_name("Selects per Second Value")
         health_text.add(label, True, True)
         self.widgets['get_qps'] = (self.qps, label, lambda x: ("%.0f\n" % x), None)
         self.last_qcount = 0
@@ -189,8 +199,10 @@ class WbAdminMonitor(mforms.Box):
 
         self.ib_usage = newLineDiagramWidget()
         self.ib_usage.set_description("InnoDB Buffer Usage")
+        self.ib_usage.set_name("InnoDB Buffer Usage Graph")
         health.add(self.ib_usage, True, True)
         label = bigLabel()
+        label.set_name("InnoDB Buffer Usage Value")
         health_text.add(label, True, True)
         self.widgets['get_ib_usage'] = (self.ib_usage, label, lambda x: ("%.1f%%\n" % x), None)
         sql['get_ib_usage'] = {'query' : ("Innodb_buffer_pool_pages_free", "Innodb_buffer_pool_pages_total"), 'min' : 0, 'max' : 100, 'calc' : self.calc_ib_usage}
@@ -207,10 +219,12 @@ class WbAdminMonitor(mforms.Box):
 
         self.innodb_reads = newLineDiagramWidget()
         self.innodb_reads.set_description('InnoDB Reads per Second')
+        self.innodb_reads.set_name('InnoDB Reads per Second Graph')
         self.innodb_reads.enable_auto_scale(True)
         self.innodb_reads.set_thresholds([0.0], [50.0, 100.0, 200.0, 500.0, 1000.0, 5000.0, 10000.0])
         health.add(self.innodb_reads, True, True)
         label = bigLabel()
+        label.set_name("InnoDB Reads per Second Value")
         health_text.add(label, True, True)
         self.widgets['get_innodb_reads'] = (self.innodb_reads, label, lambda x: ('%.0f\n' % x), None)
         self.last_ircount = 0
@@ -218,10 +232,12 @@ class WbAdminMonitor(mforms.Box):
 
         self.innodb_writes = newLineDiagramWidget()
         self.innodb_writes.set_description('InnoDB Writes per Second')
+        self.innodb_writes.set_name('InnoDB Writes per Second Graph')
         self.innodb_writes.enable_auto_scale(True)
         self.innodb_writes.set_thresholds([0.0], [50.0, 100.0, 200.0, 500.0, 1000.0, 5000.0, 10000.0])
         health.add(self.innodb_writes, True, True)
         label = bigLabel()
+        label.set_name("InnoDB Writes per Second Value")
         health_text.add(label, True, True)
         self.widgets['get_innodb_writes'] = (self.innodb_writes, label, lambda x: ('%.0f\n' % x), None)
         self.last_iwcount = 0
