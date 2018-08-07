@@ -193,6 +193,7 @@ class ConfigurationPage(WizardPage):
         format_box.add(mforms.newLabel("Detected file format: %s" % self.input_file_type), False, True)
         if len(self.active_module.options) != 0:
             advanced_opts_btn = mforms.newButton(mforms.ToolButton)
+            advanced_opts_btn.set_size(-1, 16)
             advanced_opts_btn.set_icon(mforms.App.get().get_resource_path("admin_option_file.png"))
             advanced_opts_btn.add_clicked_callback(lambda: self.optpanel.show(False) if self.optpanel.is_shown() else self.optpanel.show(True) )
             format_box.add(advanced_opts_btn, False, True)
