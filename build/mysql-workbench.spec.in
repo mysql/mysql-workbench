@@ -88,9 +88,7 @@ BuildRequires: gdal-devel
 %endif
 
 %if 0%{?fedora} >= 18
-BuildRequires: libgnome-keyring-devel libuuid-devel
-%else
-BuildRequires: gnome-keyring-devel
+BuildRequires: libuuid-devel
 %endif
 
 %if 0%{?fedora} >= 26
