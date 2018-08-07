@@ -75,7 +75,7 @@ NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_M
   _top_vbox.add(&_bottom_hbox, false, true);
 
   _bottom_hbox.set_spacing(12);
-
+  _bottom_hbox.set_name("Button Bar");
   _panel.init(_mgmt);
 
   _conn_name = _panel.get_name_entry();

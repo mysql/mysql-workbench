@@ -120,6 +120,7 @@ DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   scoped_connect(_driver_sel.signal_changed(), std::bind(&DbConnectPanel::change_active_driver, this));
   scoped_connect(_name_entry.signal_changed(), std::bind(&DbConnectPanel::change_connection_name, this));
 
+  _name_entry.set_name("Connection Name");
   _table.set_name("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
   _table.set_column_count(3);

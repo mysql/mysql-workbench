@@ -156,6 +156,9 @@ namespace mforms {
     virtual base::Rect getAccessibilityBounds() override;
 
     virtual void accessibilityDoDefaultAction() override;
+    std::string getAccessibilityDefaultAction() {
+      return "click";
+    }
   };
 
   class MFORMS_EXPORT HomeScreenSection : public mforms::DrawBox {
