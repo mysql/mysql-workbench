@@ -166,8 +166,8 @@ class GenericMigration(object):
         else:
             targetVersion = grt.classes.GrtVersion()
             targetVersion.owner = target_catalog
-            targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber, targetVersion.buildNumber = (8, 0, 11, 0)
-            targetVersion.name = "8.0.11"
+            targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber, targetVersion.buildNumber = grt.root.wb.info.version.majorNumber, grt.root.wb.info.version.minorNumber, grt.root.wb.info.version.releaseNumber, grt.root.wb.info.version.buildNumber
+            targetVersion.name = "%d.%d.%d" % (targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber)
             target_catalog.version = targetVersion
 
         if True:

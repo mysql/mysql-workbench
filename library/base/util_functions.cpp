@@ -30,6 +30,7 @@
 #include "base/log.h"
 #include "base/common.h"
 #include "base/string_utilities.h"
+#include <wb_version.h>
 
 // Windows includes
 #ifdef _MSC_VER
@@ -948,7 +949,12 @@ namespace base {
 
     return date;
   }
+  
+  BASELIBRARY_PUBLIC_FUNC std::string getVersion(void) {
+    return strfmt("%u.%u.%u", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
+  }
 
 } // namespace base
 
 //--------------------------------------------------------------------------------------------------
+

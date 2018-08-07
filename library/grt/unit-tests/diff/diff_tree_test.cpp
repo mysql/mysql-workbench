@@ -34,6 +34,7 @@
 #include "synthetic_mysql_model.h"
 #include "module_db_mysql.h"
 #include "backend/diff_tree.h"
+#include "base/util_functions.h"
 
 using namespace grt;
 
@@ -261,8 +262,8 @@ TEST_FUNCTION(25) {
   ValueRef target_val(grt::GRT::get()->unserialize("data/diff/index_change/3_dst.xml"));
   db_mysql_CatalogRef source_cat = db_mysql_CatalogRef::cast_from(source_val);
   db_mysql_CatalogRef target_cat = db_mysql_CatalogRef::cast_from(target_val);
-  source_cat->version(bec::parse_version("8.0.11"));
-  target_cat->version(bec::parse_version("8.0.11"));
+  source_cat->version(bec::parse_version(base::getVersion()));
+  target_cat->version(bec::parse_version(base::getVersion()));
   DbMySQLImpl *diffsql_module = grt::GRT::get()->get_native_module<DbMySQLImpl>();
 
   grt::DictRef options(true);

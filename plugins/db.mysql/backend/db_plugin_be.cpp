@@ -33,6 +33,7 @@
 #include "db.mysql/src/module_db_mysql.h"
 #include "base/log.h"
 #include "grtsqlparser/mysql_parser_services.h"
+#include "base/util_functions.h"
 
 #include <glib.h>
 
@@ -496,7 +497,7 @@ db_CatalogRef Db_plugin::db_catalog() {
 
   grt::StringRef sqlMode = grt::StringRef::cast_from(_db_options.get("SqlMode", grt::StringRef("")));
 
-  auto version = bec::parse_version(grt::StringRef::cast_from(_db_options.get("MySQLVersion", grt::StringRef("5.6.30"))).c_str());
+  auto version = bec::parse_version(grt::StringRef::cast_from(_db_options.get("MySQLVersion", grt::StringRef(base::getVersion()))).c_str());
   catalog->version(version);
 
   auto services = parsers::MySQLParserServices::get();

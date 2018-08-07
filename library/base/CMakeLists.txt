@@ -2,6 +2,8 @@ include_directories(.
     SYSTEM ${Boost_INCLUDE_DIRS}
     SYSTEM ${MYSQLNG_INCLUDE_DIR}
     SYSTEM ${LIBXML2_INCLUDE_DIR}
+    
+    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
 )
 
 add_library(wbbase 

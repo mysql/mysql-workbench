@@ -110,5 +110,8 @@ namespace base {
     v.erase(it, v.end());
     return v;
   }
+  
+  BASELIBRARY_PUBLIC_FUNC std::string getVersion(void);
+  
 
 } // namespace base

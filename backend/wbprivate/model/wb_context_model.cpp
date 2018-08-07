@@ -24,6 +24,7 @@
 #include "base/file_utilities.h"
 #include "base/file_functions.h"
 #include "base/string_utilities.h"
+#include "base/util_functions.h"
 #include "base/log.h"
 
 #include "wb_context_model.h"
@@ -323,7 +324,7 @@ void WBContextModel::model_created(ModelFile *file, workbench_DocumentRef doc) {
 
   std::string target_version = bec::GRTManager::get()->get_app_option_string("DefaultTargetMySQLVersion");
   if (target_version.empty())
-    target_version = "8.0.11";
+    target_version = base::getVersion();
 
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentLogical>()->setup_logical_model(_doc);
   wb::WBContextUI::get()->get_wb()->get_component<WBComponentPhysical>()->setup_physical_model(_doc, "Mysql",
