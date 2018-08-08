@@ -156,7 +156,7 @@ namespace mforms {
     virtual base::Rect getAccessibilityBounds() override;
 
     virtual void accessibilityDoDefaultAction() override;
-    std::string getAccessibilityDefaultAction() {
+    virtual std::string getAccessibilityDefaultAction() override {
       return "click";
     }
   };
