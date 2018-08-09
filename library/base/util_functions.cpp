@@ -30,7 +30,7 @@
 #include "base/log.h"
 #include "base/common.h"
 #include "base/string_utilities.h"
-#include <wb_version.h>
+#include "wb_version.h"
 
 // Windows includes
 #ifdef _MSC_VER
