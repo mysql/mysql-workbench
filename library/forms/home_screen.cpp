@@ -379,11 +379,13 @@ void HomeScreen::addSection(HomeScreenSection *section) {
   _sections.push_back(section);
 
   if (_sidebarSection != nullptr) {
-    mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoFlags));
-    scroll->set_name("homeScreenScrollPanel");
+    mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoAutoScroll));
+    scroll->set_name("HomeScreen Main Panel");
     scroll->add(section->getContainer());
     add(scroll, true, true);
+
     scroll->show(false);
+
 
     bool isCallbackOnly = section->callback ? true : false;
     _sidebarSection->addEntry(section->getTitle(), section->getIcon(), section, [this, isCallbackOnly, section]() {

@@ -51,6 +51,7 @@
 #include "../stub_treeview.h"
 #include "../stub_codeeditor.h"
 #include "../stub_toolbar.h"
+#include "../stub_hypertext.h"
 #include "mforms/dockingpoint.h"
 
 class DockingPointDelegate : public mforms::DockingPointDelegate {
@@ -119,6 +120,7 @@ void ::mforms::stub::init(wb::WBOptions *options) {
   CodeEditorWrapper::init();
   ToolBarWrapper::init();
   TreeViewWrapper::init();
+  HyperTextWrapper::init();
 
   if (getenv("VERBOSE"))
     puts("done setting up mforms stubs...");

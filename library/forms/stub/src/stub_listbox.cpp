@@ -31,10 +31,6 @@ using namespace mforms::stub;
 ListBoxWrapper::ListBoxWrapper(mforms::ListBox *self, bool multi_select) : ViewWrapper(self) {
 }
 
-//--------------------------------------------------------------------------------------------------
-
-void ListBoxWrapper::selection_changed(mforms::ListBox *self) {
-}
 
 //--------------------------------------------------------------------------------------------------
 
@@ -99,6 +95,18 @@ std::vector<size_t> ListBoxWrapper::get_selected_indices(ListBox *self) {
 
 //--------------------------------------------------------------------------------------------------
 
+size_t ListBoxWrapper::getCount(ListBox *self) {
+  return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string ListBoxWrapper::getStringValueFromIndex(ListBox *self, size_t index) {
+  return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ListBoxWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
@@ -113,6 +121,8 @@ void ListBoxWrapper::init() {
   f->_listbox_impl.get_selected_indices = &ListBoxWrapper::get_selected_indices;
   f->_listbox_impl.get_text = &ListBoxWrapper::get_text;
   f->_listbox_impl.set_heading = &ListBoxWrapper::set_heading;
+  f->_listbox_impl.get_count = &ListBoxWrapper::getCount;
+  f->_listbox_impl.get_string_value_from_index = &ListBoxWrapper::getStringValueFromIndex;
 }
 
 //--------------------------------------------------------------------------------------------------

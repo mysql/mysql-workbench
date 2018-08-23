@@ -32,12 +32,17 @@ mforms::gtk::ScrollPanelImpl::ScrollPanelImpl(::mforms::ScrollPanel *self, mform
   _vertical = true;
   _horizontal = true;
   _autohide = true;
+  _noAutoScroll = false;
 
   if (flags & mforms::ScrollPanelBordered)
     _swin->set_shadow_type(Gtk::SHADOW_IN);
   else
     _swin->set_shadow_type(Gtk::SHADOW_NONE);
   _swin->show();
+
+  if (flags & mforms::ScrollPanelNoAutoScroll) {
+    disableAutomaticScrollToChildren();
+  }
   setup();
 }
 
@@ -53,16 +58,24 @@ bool mforms::gtk::ScrollPanelImpl::create(::mforms::ScrollPanel *self, mforms::S
 void mforms::gtk::ScrollPanelImpl::add(::mforms::ScrollPanel *self, ::mforms::View *child) {
   mforms::gtk::ScrollPanelImpl *panel = self->get_data<mforms::gtk::ScrollPanelImpl>();
 
-  panel->_swin->add(*child->get_data<ViewImpl>()->get_outer());
+  if (panel)
+  {
+    panel->_swin->add(*child->get_data<ViewImpl>()->get_outer());
 
-  // remove border around viewport
-  ((Gtk::Viewport *)panel->_swin->get_child())->set_shadow_type(Gtk::SHADOW_NONE);
+    // remove border around viewport
+    ((Gtk::Viewport *)panel->_swin->get_child())->set_shadow_type(Gtk::SHADOW_NONE);
+
+    // Somehow we have to call this one more time.
+    if (panel->_noAutoScroll)
+      panel->disableAutomaticScrollToChildren();
+  }
+
 }
 
 void mforms::gtk::ScrollPanelImpl::remove(::mforms::ScrollPanel *self) {
   mforms::gtk::ScrollPanelImpl *panel = self->get_data<mforms::gtk::ScrollPanelImpl>();
-
-  panel->_swin->remove();
+  if (panel)
+    panel->_swin->remove();
 }
 
 void mforms::gtk::ScrollPanelImpl::set_visible_scrollers(::mforms::ScrollPanel *self, bool vertical, bool horizontal) {
@@ -107,7 +120,6 @@ void mforms::gtk::ScrollPanelImpl::scroll_to_view(mforms::ScrollPanel *self, mfo
   else {
     mforms::gtk::ViewImpl *child_impl = self->get_data<mforms::gtk::ViewImpl>();
     if (child_impl) {
-      // Gtk::Widget *child_widget = child_impl->get_outer();
       Glib::RefPtr<Gtk::Adjustment> vadj = panel->_swin->get_vadjustment();
       if (vadj) {
         const int y = child_impl->get_y(child);
@@ -123,8 +135,20 @@ void mforms::gtk::ScrollPanelImpl::set_padding_impl(int left, int top, int right
 }
 
 //------------------------------------------------------------------------------
+
+void mforms::gtk::ScrollPanelImpl::disableAutomaticScrollToChildren() {
+  _noAutoScroll = true;
+
+  auto dummyAdjV = Gtk::Adjustment::create(0,  0,  0);
+  auto dummyAdjH = Gtk::Adjustment::create(0,  0,  0);
+  _swin->set_vadjustment(dummyAdjV);
+  _swin->set_hadjustment(dummyAdjH);
+}
+
+//------------------------------------------------------------------------------
 base::Rect mforms::gtk::ScrollPanelImpl::get_content_rect(mforms::ScrollPanel *self) {
   mforms::gtk::ScrollPanelImpl *panel = self->get_data<mforms::gtk::ScrollPanelImpl>();
+
   base::Rect rect;
   Gtk::Viewport *vp;
 

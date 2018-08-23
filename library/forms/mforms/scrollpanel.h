@@ -31,7 +31,8 @@ namespace mforms {
   enum ScrollPanelFlags {
     ScrollPanelNoFlags = 0,
     ScrollPanelBordered = (1 << 0),
-    ScrollPanelDrawBackground = (1 << 1)
+    ScrollPanelDrawBackground = (1 << 1),
+    ScrollPanelNoAutoScroll = (1 << 2)
   };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

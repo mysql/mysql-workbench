@@ -56,6 +56,14 @@ namespace mforms {
       static void remove_page(TabView *, View *) {
       }
 
+      static void setAuxView(TabView *, View *) {
+
+      }
+
+      static void setAllowsReordering(TabView *, bool) {
+
+      }
+
     public:
       static void init() {
         ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -66,6 +74,8 @@ namespace mforms {
         f->_tabview_impl.add_page = &TabViewWrapper::add_page;
         f->_tabview_impl.set_tab_title = &TabViewWrapper::set_tab_title;
         f->_tabview_impl.remove_page = &TabViewWrapper::remove_page;
+        f->_tabview_impl.set_aux_view = &TabViewWrapper::setAuxView;
+        f->_tabview_impl.set_allows_reordering = &TabViewWrapper::setAllowsReordering;
       }
     };
   };

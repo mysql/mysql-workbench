@@ -573,6 +573,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   pw_description_label.set_text(_("Password:"));
   pw_description_label.set_text_align(MiddleRight);
   pw_description_label.set_style(BoldStyle);
+  password_edit.set_name("Password");
   content.add(&pw_description_label, 1, 2, 3, 4, HFillFlag | VFillFlag);
   content.add(&password_edit, 2, 3, 3, 4, HFillFlag | HExpandFlag);
 
@@ -586,6 +587,7 @@ static void *_ask_for_password_main(const std::string &title, const std::string 
   }
 
   button_box.set_spacing(8);
+  button_box.set_name("Button Bar");
   ok_button.set_text(_("OK"));
   //  ok_button.set_size(75, -1);
   cancel_button.set_text(_("Cancel"));

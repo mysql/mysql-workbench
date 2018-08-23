@@ -36,6 +36,7 @@ namespace mforms {
       DrawBoxWrapper(::mforms::DrawBox *self);
       static bool create(mforms::DrawBox *self);
       static void set_needs_repaint(mforms::DrawBox *self);
+      static void setNeedsRepaintArea(DrawBox *, int x, int y, int w, int h);
       static void add(mforms::DrawBox *, mforms::View *, mforms::Alignment alignment);
       static void remove(mforms::DrawBox *, mforms::View *);
       static void move(mforms::DrawBox *, mforms::View *, int x, int y);

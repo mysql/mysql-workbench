@@ -194,6 +194,33 @@ void *UtilitiesWrapper::perform_from_main_thread(const std::function<void *()> &
 
 //--------------------------------------------------------------------------------------------------
 
+void UtilitiesWrapper::beep() {
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void UtilitiesWrapper::revealFile(const std::string &url) {
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool UtilitiesWrapper::moveToTrash(const std::string &path) {
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void UtilitiesWrapper::setThreadName(const std::string &name) {
+}
+
+//--------------------------------------------------------------------------------------------------
+
+double UtilitiesWrapper::getTextWidth(const std::string &text, const std::string &font) {
+  return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void UtilitiesWrapper::init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
@@ -216,6 +243,12 @@ void UtilitiesWrapper::init() {
   f->_utilities_impl.show_wait_message = &UtilitiesWrapper::show_wait_message;
   f->_utilities_impl.stop_cancelable_wait_message = &UtilitiesWrapper::stop_cancelable_wait_message;
   f->_utilities_impl.perform_from_main_thread = &UtilitiesWrapper::perform_from_main_thread;
+
+  f->_utilities_impl.beep = &UtilitiesWrapper::beep;
+  f->_utilities_impl.reveal_file = &UtilitiesWrapper::revealFile;
+  f->_utilities_impl.move_to_trash = &UtilitiesWrapper::moveToTrash;
+  f->_utilities_impl.set_thread_name = &UtilitiesWrapper::setThreadName;
+  f->_utilities_impl.get_text_width = &UtilitiesWrapper::getTextWidth;
 }
 
 //--------------------------------------------------------------------------------------------------

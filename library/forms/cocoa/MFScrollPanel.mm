@@ -190,7 +190,6 @@ static void scrollpanel_scroll_to(mforms::ScrollPanel *self, int x, int y)
     [panel.documentView scrollPoint: NSMakePoint(x, y)];
 }
 
-
 void cf_scrollpanel_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();

@@ -35,6 +35,7 @@ namespace mforms {
       Gtk::ScrolledWindow *_swin;
       bool _vertical, _horizontal;
       bool _autohide;
+      bool _noAutoScroll;
 
       virtual Gtk::Widget *get_outer() const {
         return _swin;
@@ -56,6 +57,7 @@ namespace mforms {
       static base::Rect get_content_rect(mforms::ScrollPanel *);
       static void scroll_to(mforms::ScrollPanel *self, int x, int y);
       virtual void set_padding_impl(int left, int top, int right, int bottom);
+      void disableAutomaticScrollToChildren();
 
     public:
       static void init();

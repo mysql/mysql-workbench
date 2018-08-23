@@ -47,6 +47,14 @@ namespace mforms {
       static void exit_event_loop(App *app, int result) {
       }
 
+      static std::string getExecutablePath(App *app, const std::string &file) {
+        return "";
+      }
+
+      static float backingScaleFactor(App *app) {
+        return 0.0;
+      }
+
     public:
       static void init(wb::WBOptions *theOptions);
     };

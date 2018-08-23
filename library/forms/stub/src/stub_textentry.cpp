@@ -58,6 +58,32 @@ namespace mforms {
 
     //--------------------------------------------------------------------------------------------------
 
+    void TextEntryWrapper::cut(TextEntry *self) {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void TextEntryWrapper::copy(TextEntry *self) {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void TextEntryWrapper::paste(TextEntry *self) {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    void TextEntryWrapper::select(TextEntry *self, const base::Range &range) {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
+    base::Range TextEntryWrapper::getSelection(TextEntry *self) {
+      return base::Range();
+    }
+
+    //--------------------------------------------------------------------------------------------------
+
     TextEntryWrapper::TextEntryWrapper(::mforms::TextEntry *self, TextEntryType type) : ViewWrapper(self) {
     }
 
@@ -75,6 +101,11 @@ namespace mforms {
       f->_textentry_impl.set_placeholder_text = &TextEntryWrapper::set_placeholder_text;
       f->_textentry_impl.set_placeholder_color = &TextEntryWrapper::set_placeholder_color;
       f->_textentry_impl.set_bordered = &TextEntryWrapper::set_bordered;
+      f->_textentry_impl.cut = &TextEntryWrapper::cut;
+      f->_textentry_impl.copy = &TextEntryWrapper::copy;
+      f->_textentry_impl.paste = &TextEntryWrapper::paste;
+      f->_textentry_impl.select = &TextEntryWrapper::select;
+      f->_textentry_impl.get_selection = &TextEntryWrapper::getSelection;
     }
   };
 };

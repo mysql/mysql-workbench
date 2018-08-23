@@ -39,6 +39,11 @@ namespace mforms {
       static void set_placeholder_text(TextEntry *self, const std::string &text);
       static void set_placeholder_color(TextEntry *self, const std::string &color);
       static void set_bordered(TextEntry *self, bool flag);
+      static void cut(TextEntry *self);
+      static void copy(TextEntry *self);
+      static void paste(TextEntry *self);
+      static void select(TextEntry *self, const base::Range &range);
+      static base::Range getSelection(TextEntry *self);
 
       void activated(mforms::TextEntry *self);
 

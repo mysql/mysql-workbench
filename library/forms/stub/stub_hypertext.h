@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,50 +18,39 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef _STUB_IMAGEBOX_H_
-#define _STUB_IMAGEBOX_H_
+#ifndef _STUB_HYPERTEXT_H_
+#define _STUB_HYPERTEXT_H_
 
 #include "stub_view.h"
 
 namespace mforms {
   namespace stub {
 
-    class ImageBoxWrapper : public ViewWrapper {
+    class HyperTextWrapper : public ViewWrapper {
     protected:
-      ImageBoxWrapper(::mforms::ImageBox *self) : ViewWrapper(self) {
+      HyperTextWrapper(::mforms::HyperText *self) : ViewWrapper(self) {
       }
 
-      static bool create(::mforms::ImageBox *self) {
+      static bool create(::mforms::HyperText *self) {
         return true;
       }
 
-      static void set_image(::mforms::ImageBox *self, const std::string &file) {
+      static void setMarkupText(HyperText *ht, const std::string &text) {
       }
 
-      static void setImageData(::mforms::ImageBox *, const char *data, size_t length) {
-      }
-
-      static void set_scale_contents(ImageBox *, bool) {
-      }
-
-      static void set_image_align(ImageBox *, Alignment) {
-      }
 
     public:
       static void init() {
         ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-        f->_imagebox_impl.create = &ImageBoxWrapper::create;
-        f->_imagebox_impl.set_image = &ImageBoxWrapper::set_image;
-        f->_imagebox_impl.set_image_data = &ImageBoxWrapper::setImageData;
-        f->_imagebox_impl.set_scale_contents = &ImageBoxWrapper::set_scale_contents;
-        f->_imagebox_impl.set_image_align = &ImageBoxWrapper::set_image_align;
+        f->_hypertext_impl.create = &HyperTextWrapper::create;
+        f->_hypertext_impl.set_markup_text = &HyperTextWrapper::setMarkupText;
       }
     };
   };
 };
 
-#endif /* _STUB_IMAGEBOX_H_ */
+#endif

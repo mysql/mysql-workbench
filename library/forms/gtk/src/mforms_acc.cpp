@@ -526,7 +526,6 @@ namespace mforms {
 
     void mforms_init(MFormsObject *mf) {
       try {
-        gtk_widget_set_can_focus(GTK_WIDGET(mf), TRUE);
         mf->pmforms = new mformsGTK(mf);
       } catch (...) {
       }

@@ -84,6 +84,10 @@ namespace mforms {
       static void set_selector_items(ToolBarItem *item, const std::vector<std::string> &values) {
       }
 
+      static void setItemName(ToolBarItem *item, const std::string &) {
+
+      }
+
     public:
       static void init() {
         ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -102,6 +106,7 @@ namespace mforms {
         f->_tool_bar_impl.set_item_text = &ToolBarWrapper::set_item_text;
         f->_tool_bar_impl.set_item_tooltip = &ToolBarWrapper::set_item_tooltip;
         f->_tool_bar_impl.set_selector_items = &ToolBarWrapper::set_selector_items;
+        f->_tool_bar_impl.set_item_name = &ToolBarWrapper::setItemName;
       }
     };
   }

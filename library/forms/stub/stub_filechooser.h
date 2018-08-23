@@ -81,10 +81,18 @@ namespace mforms {
                                  bool allow_all_file_types = true) {
       }
 
-      // static bool create(FileChooser *self, FileChooserType type, bool show_hidden)
-      //{
-      //  return true;
-      //}
+      static void setPath(FileChooser *self, const std::string &path) {
+
+      }
+
+      static void addSelectorOption(FileChooser *self, const std::string &name, const std::string &label,
+                                  const std::vector<std::pair<std::string, std::string> > &options) {
+
+      }
+
+      static std::string getSelectorOptionValue(FileChooser *self, const std::string &name) {
+        return "";
+      }
 
       FileChooserWrapper(::mforms::FileChooser *form, ::mforms::FileChooserType type) : ViewWrapper(form) {
       }
@@ -96,15 +104,18 @@ namespace mforms {
       static void init() {
         ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
-        // TODO: Investigate how this should be addressed
-        // f->_filechooser_impl.create = &FileChooserWrapper::create;
+        f->_filechooser_impl.create = &FileChooserWrapper::create;
         f->_filechooser_impl.set_title = &FileChooserWrapper::set_title;
         f->_filechooser_impl.run_modal = &FileChooserWrapper::show_modal;
         f->_filechooser_impl.set_extensions = &FileChooserWrapper::set_extensions;
         f->_filechooser_impl.set_directory = &FileChooserWrapper::set_directory;
         f->_filechooser_impl.get_directory = &FileChooserWrapper::get_directory;
         f->_filechooser_impl.get_path = &FileChooserWrapper::get_path;
-        f->_filechooser_impl.create = &FileChooserWrapper::create;
+        f->_filechooser_impl.set_path = &FileChooserWrapper::setPath;
+        f->_filechooser_impl.add_selector_option = &FileChooserWrapper::addSelectorOption;
+        f->_filechooser_impl.get_selector_option_value = &FileChooserWrapper::getSelectorOptionValue;
+
+
       }
     };
   };

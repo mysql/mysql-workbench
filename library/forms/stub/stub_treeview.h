@@ -115,6 +115,44 @@ namespace mforms {
         return TreeNodeRef();
       }
 
+      static void scrollToNode(TreeView *self, TreeNodeRef node) {
+      }
+
+      static int rowForNode(TreeView *self, TreeNodeRef node) {
+        return 0;
+      }
+
+      static TreeNodeRef nodeAtRow(TreeView *self, int row) {
+        return TreeNodeRef();
+      }
+
+      static TreeNodeRef nodeAtPosition(TreeView *self, base::Point position) {
+        return TreeNodeRef();
+      }
+
+      static void setColumnTitle(TreeView *self, int column, const std::string &title) {
+      }
+
+      static void setColumnVisible(TreeView *self, int column, bool flag) {
+      }
+
+      static bool getColumnVisible(TreeView *self, int column) {
+        return false;
+      }
+
+      static void setColumnWidth(TreeView *self, int column, int width) {
+      }
+
+      static int getColumnWidth(TreeView *self, int column) {
+        return 0;
+      }
+
+      static void BeginUpdate(TreeView *self) {
+      }
+
+      static void EndUpdate(TreeView *self) {
+      }
+
     public:
       static void init() {
         ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -136,6 +174,17 @@ namespace mforms {
         f->_treeview_impl.set_row_height = &TreeViewWrapper::set_row_height;
         f->_treeview_impl.clear_selection = &TreeViewWrapper::clear_selection;
         f->_treeview_impl.node_with_tag = &TreeViewWrapper::node_with_tag;
+        f->_treeview_impl.scrollToNode = &TreeViewWrapper::scrollToNode;
+        f->_treeview_impl.row_for_node = &TreeViewWrapper::rowForNode;
+        f->_treeview_impl.node_at_row = &TreeViewWrapper::nodeAtRow;
+        f->_treeview_impl.node_at_position = &TreeViewWrapper::nodeAtPosition;
+        f->_treeview_impl.set_column_title = &TreeViewWrapper::setColumnTitle;
+        f->_treeview_impl.set_column_visible = &TreeViewWrapper::setColumnVisible;
+        f->_treeview_impl.get_column_visible = &TreeViewWrapper::getColumnVisible;
+        f->_treeview_impl.set_column_width = &TreeViewWrapper::setColumnWidth;
+        f->_treeview_impl.get_column_width = &TreeViewWrapper::getColumnWidth;
+        f->_treeview_impl.BeginUpdate = &TreeViewWrapper::BeginUpdate;
+        f->_treeview_impl.EndUpdate = &TreeViewWrapper::EndUpdate;
       }
     };
   }

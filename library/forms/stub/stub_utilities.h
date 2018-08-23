@@ -66,6 +66,11 @@ namespace mforms {
       static bool find_password(const std::string &service, const std::string &account, std::string &password);
       static void forget_password(const std::string &service, const std::string &account);
       static void *perform_from_main_thread(const std::function<void *()> &slot, bool wait);
+      static void beep();
+      static void revealFile(const std::string &url);
+      static bool moveToTrash(const std::string &path);
+      static void setThreadName(const std::string &name);
+      static double getTextWidth(const std::string &text, const std::string &font);
 
     public:
       static void init();

@@ -25,10 +25,23 @@
 
 #include "../lf_mforms.h"
 #include "../lf_menu.h"
+#include "base/log.h"
 #include "mforms.h"
+
+DEFAULT_LOG_DOMAIN("Menu")
 
 //------------------------------------------------------------------------------
 mforms::gtk::MenuImpl::MenuImpl(mforms::Menu *self) : mforms::gtk::ObjectImpl(self) {
+
+  auto parent = _menu.get_parent();
+  if (parent) {
+    Glib::RefPtr<Atk::Object> acc = parent->get_accessible();
+    if (acc)
+      acc->set_name("Context Menu");
+  } else {
+    logWarning("Unable to set context menu a11y name.\n");
+  }
+
 }
 
 //------------------------------------------------------------------------------

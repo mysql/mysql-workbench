@@ -43,7 +43,6 @@ namespace MySQL {
       static void scroll_to_view(mforms::ScrollPanel *backend, mforms::View *view);
       static base::Rect get_content_rect(mforms::ScrollPanel *backend);
       static void scroll_to(mforms::ScrollPanel *backend, int x, int y);
-
     public:
       static void init();
     };

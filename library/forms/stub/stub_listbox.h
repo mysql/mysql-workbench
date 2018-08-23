@@ -32,19 +32,19 @@ namespace mforms {
     class ListBoxWrapper : public ViewWrapper {
     protected:
       ListBoxWrapper(mforms::ListBox *self, bool multi_select);
-      static void selection_changed(mforms::ListBox *self);
       static bool create(mforms::ListBox *self, bool multi_select);
       static void clear(mforms::ListBox *self);
-      static size_t add_item(mforms::ListBox *self, const std::string &item);
+      static void set_heading(ListBox *self, const std::string &text);
       static void add_items(mforms::ListBox *self, const std::list<std::string> &items);
-      static void remove_index(mforms::ListBox *self, size_t index);
+      static size_t add_item(mforms::ListBox *self, const std::string &item);
       static void remove_indexes(mforms::ListBox *self, const std::vector<size_t> &items);
+      static void remove_index(mforms::ListBox *self, size_t index);
       static std::string get_text(mforms::ListBox *self);
       static void set_index(mforms::ListBox *self, ssize_t index);
       static ssize_t get_index(mforms::ListBox *self);
-      static void set_heading(ListBox *self, const std::string &text);
       static std::vector<size_t> get_selected_indices(ListBox *self);
-
+      static size_t getCount(ListBox *self);
+      static std::string getStringValueFromIndex(ListBox *self, size_t index);
     public:
       static void init();
     };

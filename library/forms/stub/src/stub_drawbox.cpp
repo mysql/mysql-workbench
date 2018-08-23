@@ -39,6 +39,10 @@ namespace mforms {
     void DrawBoxWrapper::set_needs_repaint(mforms::DrawBox *self) {
     }
 
+    void DrawBoxWrapper::setNeedsRepaintArea(DrawBox *, int x, int y, int w, int h) {
+
+    }
+
     void DrawBoxWrapper::add(mforms::DrawBox *, mforms::View *, mforms::Alignment alignment) {
     }
 
@@ -53,6 +57,7 @@ namespace mforms {
 
       f->_drawbox_impl.create = &DrawBoxWrapper::create;
       f->_drawbox_impl.set_needs_repaint = &DrawBoxWrapper::set_needs_repaint;
+      f->_drawbox_impl.set_needs_repaint_area = &DrawBoxWrapper::setNeedsRepaintArea;
       f->_drawbox_impl.add = &DrawBoxWrapper::add;
       f->_drawbox_impl.remove = &DrawBoxWrapper::remove;
       f->_drawbox_impl.move = &DrawBoxWrapper::move;
