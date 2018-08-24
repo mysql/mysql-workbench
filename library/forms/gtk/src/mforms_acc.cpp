@@ -100,6 +100,7 @@ namespace mforms {
 
         atk_state_set_add_state(state_set, ATK_STATE_DEFAULT);
         atk_state_set_add_state(state_set, ATK_STATE_VISIBLE);
+        atk_state_set_add_state(state_set, ATK_STATE_TRANSIENT);
         // This is special situation, we paint our widgets inside drawbox
         // hence if parent widget to the drawbox is mapped, then drawbox
         // should be in the same state.

@@ -466,7 +466,7 @@ public:
 
 //----------------- ConnectionsSection -------------------------------------------------------------
 
-class mforms::ConnectionEntry : base::Accessible {
+class mforms::ConnectionEntry : public base::Accessible {
   friend class ConnectionsSection;
 
 public:
@@ -759,8 +759,9 @@ public:
 
 class mforms::FolderEntry : public ConnectionEntry, public std::enable_shared_from_this<mforms::FolderEntry> {
 protected:
-  virtual std::string getAccessibilityName() override {
-    return base::strfmt("%s %s", title.c_str(), _("Connection Group"));
+
+  virtual std::string getAccessibilityDescription() override {
+      return "Connection Group";
   }
 
   virtual void accessibilityShowMenu() override {
@@ -826,6 +827,10 @@ class mforms::FolderBackEntry : public ConnectionEntry {
 protected:
   virtual void accessibilityShowMenu() override {
   };
+
+  virtual std::string getAccessibilityDescription() override {
+      return "Connection Group Back";
+  }
 
 public:
   FolderBackEntry(ConnectionsSection *aowner) : ConnectionEntry(aowner) {
