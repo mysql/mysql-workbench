@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,9 +19,12 @@
 
 #pragma once
 
+#include <atk/atk.h>
 #include <atkmm/selection.h>
 #include <glib.h>
 #include "lf_mforms.h"
+#include "base/accessibility.h"
+#include "mforms/view.h"
 
 #define MFORMSOBJECT(obj) G_TYPE_CHECK_INSTANCE_CAST (obj, mforms_get_type (), MFormsObject)
 #define MFORMSOBJECT_CLASS(klass)  G_TYPE_CHECK_CLASS_CAST (klass, mforms_get_type (), MFormsClass)

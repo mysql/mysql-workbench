@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,7 @@
 #pragma once
 
 #include "base/geometry.h"
+#include <functional>
 
 namespace base {
 
@@ -58,6 +59,7 @@ namespace base {
     virtual std::string getAccessibilityDefaultAction();
     virtual void accessibilityDoDefaultAction();
     virtual void accessibilityShowMenu();
+    std::function <void(Accessible*)> onDestroy;
   };
 
 }

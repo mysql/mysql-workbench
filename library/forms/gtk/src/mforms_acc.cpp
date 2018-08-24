@@ -19,7 +19,6 @@
 
 #include "../mforms_acc.h"
 #include <gtk/gtk-a11y.h>
-#include <atk/atk.h>
 #include <atkmm.h>
 #pragma GCC diagnostic push
 #ifndef __clang__
@@ -421,6 +420,17 @@ namespace mforms {
             auto wgtAcc = gtk_widget_get_accessible(widget);
             auto mformsGtkAcc = FromAccessible(wgtAcc);
             mformsGtkAcc->_mformsAcc = accChild;
+            mformsGtkAcc->_mformsAcc->onDestroy = [&](base::Accessible* self) {
+              auto it = childMapping.find(self);
+              if (it != childMapping.end()) {
+                auto *widget = gtk_accessible_get_widget(GTK_ACCESSIBLE(it->second));
+                if (widget != nullptr)
+                  g_object_ref_sink(widget);  // This is only a floating ref, we remove it.
+
+                g_clear_object(&(it->second));
+                childMapping.erase(it);
+              }
+            };
 
             childMapping.insert( { accChild, (AtkObject*) g_object_ref(wgtAcc) });
 
