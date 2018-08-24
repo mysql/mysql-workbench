@@ -104,7 +104,7 @@ class ConnectionInfo(mforms.Box):
 
         self.icon = mforms.newImageBox()
         self.icon.set_image(mforms.App.get().get_resource_path("mysql-logo-00.png"))
-        self.icon.set_name("Server Status Icon")
+        self.icon.set_name("Server Status Stamp")
 
         self.add(self.icon, False, True)
 

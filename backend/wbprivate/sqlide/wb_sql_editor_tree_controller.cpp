@@ -197,6 +197,9 @@ void SqlEditorTreeController::finish_init() {
   scoped_connect(_admin_side_bar->on_section_command(),
                  std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
 
+  _admin_side_bar->set_name("Administration");
+  _schema_side_bar->set_name("Schemas");
+
   mforms::TaskSectionFlags flags = mforms::TaskSectionRefreshable | mforms::TaskSectionToggleModeButton;
   if (_unified_mode)
     flags = flags | mforms::TaskSectionToggleModeButtonPreSelected;
