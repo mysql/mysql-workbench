@@ -59,10 +59,11 @@ namespace wb {
     mforms::TaskEntryType _type;
     base::Rect _bounds;
     bool _enabled;
+    boost::signals2::signal<void (const std::string &)> *_callback;
 
   public:
     SidebarEntry(const std::string& name, const std::string& title, const std::string& icon,
-                 mforms::TaskEntryType type);
+                 mforms::TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback);
     virtual ~SidebarEntry();
 
     void set_title(const std::string& title);
@@ -85,16 +86,27 @@ namespace wb {
       return _enabled;
     }
 
+    void execute() {
+        (*_callback)(_name);
+    }
+
     // ------ Accesibility Methods -----
-    virtual std::string getAccessibilityName() {
+    virtual std::string getAccessibilityName() override {
       return _title;
     }
-    virtual base::Accessible::Role getAccessibilityRole() {
-      return base::Accessible::OutlineItem;
+    virtual base::Accessible::Role getAccessibilityRole() override {
+      return base::Accessible::PushButton;
     }
-    virtual base::Rect getAccessibilityBounds() {
+    virtual base::Rect getAccessibilityBounds() override {
       return _bounds;
     }
+    virtual std::string getAccessibilityDefaultAction() override {
+        return "click";
+    }
+    virtual void accessibilityDoDefaultAction() override {
+        execute();
+    }
+
   };
 
   class SidebarSection : public mforms::DrawBox {

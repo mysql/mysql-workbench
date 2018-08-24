@@ -69,9 +69,10 @@ using namespace mforms;
 
 //----------------- SidebarSection -----------------------------------------------------------------
 
-SidebarEntry::SidebarEntry(const string& name, const string& title, const string& icon, TaskEntryType type) {
+SidebarEntry::SidebarEntry(const string& name, const string& title, const string& icon, TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback) {
   _name = name;
   _title = title;
+  _callback = callback;
   if (!icon.empty())
     _icon = Utilities::load_icon(icon, true);
   else
@@ -478,7 +479,7 @@ int SidebarSection::add_entry(const std::string& name, const std::string& title,
   if (result > -1)
     return result;
 
-  SidebarEntry* entry = new SidebarEntry(name, title, icon, type);
+  SidebarEntry* entry = new SidebarEntry(name, title, icon, type, _owner->on_section_command());
   _entries.push_back(entry);
   set_layout_dirty(true);
 
@@ -839,7 +840,7 @@ bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y) {
         SidebarEntry* entry = entry_from_point(x, y);
         if (entry && (entry->enabled() || entry->type() == mforms::TaskEntryAlwaysActiveLink) &&
             ((entry == _hot_entry) || (entry == _selected_entry)))
-          (*_owner->on_section_command())(entry->name());
+          entry->execute();
       }
     } break;
 
