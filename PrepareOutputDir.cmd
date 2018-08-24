@@ -131,13 +131,8 @@ robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc.pyd
 
 echo * MySQL client library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libmysql*.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\libeay32.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\ssleay32.dll %TARGET_DIR%\.
-rem xcopy /i /s /y /d %EXT_LIB_DIR%\mysql\%2\libmysql*.pdb %TARGET_DIR%\. 1> nul 2> nul
-
-echo * MySQL cdbc driver ...
-rem copy %EXT_LIB_DIR%\cppconn\mysql\%2\mysqlcppconn.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * glib libraries ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\glib.dll %TARGET_DIR%\.

@@ -42,8 +42,8 @@ ref class MformsHtmlPanel : public HtmlPanel {
 public:
   mforms::HyperText *backend;
 
-  virtual void OnLinkClicked(Object ^ sender, HtmlLinkClickedEventArgs ^ args) override {
-    __super ::OnLinkClicked(sender, args);
+  virtual void OnLinkClicked(HtmlLinkClickedEventArgs ^args) override {
+    __super ::OnLinkClicked(args);
     if (!args->Handled) {
       backend->handle_url_click(NativeToCppString(args->Link));
       args->Handled = true;
