@@ -58,7 +58,8 @@ export_options = {
     "Show Internal Schemas":["Show internal MySQL schemas (mysql, information_schema, performance_schema) in the export schema list.","FALSE"],
     "tz-utc":["Add SET TIME_ZONE='+00:00' to the dump file.","TRUE"],
 #    "xml":["Produce XML output.","FALSE"]
-    "set-gtid-purged":["Add 'SET @@GLOBAL.GTID_PURGED' to the output.","AUTO","STR",("5.6.9", None)]
+    "set-gtid-purged":["Add 'SET @@GLOBAL.GTID_PURGED' to the output.","AUTO","STR",("5.6.9", None)],
+    "column-statistics":["Writing ANALYZE TABLE statements to generate statistics historams (set 0 to diasble).", "0", "INT", (None, None)]
     }
 
     }
