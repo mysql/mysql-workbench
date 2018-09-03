@@ -56,6 +56,7 @@ mforms::gtk::CodeEditorImpl::CodeEditorImpl(CodeEditor *self)
   _sci_gtk_widget = scintilla_new();
   _sci_gtkmm_widget = Glib::wrap(_sci_gtk_widget);
   _sci_gtkmm_widget->reference();
+  _sci_gtkmm_widget->set_hexpand(true);
 
   _sci = SCINTILLA(_sci_gtk_widget);
   _owner = self;
