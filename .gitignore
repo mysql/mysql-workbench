@@ -195,6 +195,7 @@ testing/tut/build/
 testing/tut/temp
 testing/tut/wbdata
 testing/tut/output
+testing/tut/db_connection.cnf
 testing/tut/ssh_connection.cnf
 wb-build
 library/parsers/antlr

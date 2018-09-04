@@ -3072,8 +3072,8 @@ createTableOption: // In the order as they appear in the server grammar.
     | option = MAX_ROWS_SYMBOL EQUAL_OPERATOR? ulonglong_number
     | option = MIN_ROWS_SYMBOL EQUAL_OPERATOR? ulonglong_number
     | option = AVG_ROW_LENGTH_SYMBOL EQUAL_OPERATOR? ulong_number
-    | option = PASSWORD_SYMBOL EQUAL_OPERATOR? textString
-    | option = COMMENT_SYMBOL EQUAL_OPERATOR? textString
+    | option = PASSWORD_SYMBOL EQUAL_OPERATOR? textStringLiteral
+    | option = COMMENT_SYMBOL EQUAL_OPERATOR? textStringLiteral
     | {serverVersion >= 50708}? option = COMPRESSION_SYMBOL EQUAL_OPERATOR? textString
     | {serverVersion >= 50711}? option = ENCRYPTION_SYMBOL EQUAL_OPERATOR? textString
     | option = AUTO_INCREMENT_SYMBOL EQUAL_OPERATOR? ulonglong_number
@@ -3596,7 +3596,8 @@ textString:
     | BIN_NUMBER
 ;
 
-textLiteral: (UNDERSCORE_CHARSET? textStringLiteral | NCHAR_TEXT) textStringLiteral*
+textLiteral:
+    (UNDERSCORE_CHARSET? textStringLiteral | NCHAR_TEXT) textStringLiteral*
 ;
 
 // A special variant of a text string that must not contain a linebreak (TEXT_STRING_sys_nonewline in sql_yacc.yy).

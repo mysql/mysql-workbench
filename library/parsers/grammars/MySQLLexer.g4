@@ -1066,49 +1066,36 @@ IDENTIFIER:
 
 NCHAR_TEXT: [nN] SINGLE_QUOTED_TEXT;
 
-// For all 3 quoted types:
-// MySQL supports automatic concatenation if multiple quoted strings follow each other. There's a twist, though.
-// If there's one or more whitespaces between two strings the quotes and the whitespaces are simply removed. If there's no
-// whitespace however then the repeated quote char is replaced by a single one, which is then part of the string:
-// 1) 'abc'   'def' => 'abcdef'
-// 2) 'abc''def'    => 'abc'def'.
-// The quotes must be handled by the consumer code (tree walker etc.), as well as any escape sequences.
-// That's necessary to not break lexing for invalid sequences and avoids casing issues.
-// This will also help to reproduce the same output if this is a reformatter.
-// Multiple identifiers with only whitespaces between them are handled in the string_literal parser rule.
+// MySQL supports automatic concatenation of mutliple single and double quoted strings if they follow each other as separate
+// tokens. This is reflected in the `textLiteral` parser rule.
+// Here we handle duplication of quotation chars only (which must be replaced by a single char in the target code).
 
 fragment BACK_TICK:    '`';
 fragment SINGLE_QUOTE: '\'';
 fragment DOUBLE_QUOTE: '"';
 
-// Ok, here's another twist: back quoted identifiers don't support the first form (it is interpreted as two identifiers).
-BACK_TICK_QUOTED_ID: (
-        BACK_TICK (
-            {!isSqlModeActive(NoBackslashEscapes)}? (ESCAPE_SEQUENCE | ~[\\`])
-            | {isSqlModeActive(NoBackslashEscapes)}? ~[`]
-        )*? BACK_TICK
-    )
+BACK_TICK_QUOTED_ID:
+    BACK_TICK (
+        {!isSqlModeActive(NoBackslashEscapes)}? '\\' BACK_TICK
+        | .
+    )*? BACK_TICK
 ;
 
 DOUBLE_QUOTED_TEXT: (
         DOUBLE_QUOTE (
-            DOUBLE_QUOTE DOUBLE_QUOTE
-            | {!isSqlModeActive(NoBackslashEscapes)}? (ESCAPE_SEQUENCE | ~[\\"])
-            | {isSqlModeActive(NoBackslashEscapes)}? ~["]
+            {!isSqlModeActive(NoBackslashEscapes)}? '\\' DOUBLE_QUOTE
+            | .
         )*? DOUBLE_QUOTE
-    )
+    )+
 ;
 
 SINGLE_QUOTED_TEXT: (
         SINGLE_QUOTE (
-            SINGLE_QUOTE SINGLE_QUOTE
-            | {!isSqlModeActive(NoBackslashEscapes)}? (ESCAPE_SEQUENCE | ~[\\'])
-            | {isSqlModeActive(NoBackslashEscapes)}? ~[']
+            {!isSqlModeActive(NoBackslashEscapes)}? '\\' SINGLE_QUOTE
+            | .
         )*? SINGLE_QUOTE
-    )
+    )+
 ;
-
-fragment ESCAPE_SEQUENCE: '\\' .; // Valid chars: 0'"bnrtZ\%_;
 
 // There are 3 types of block comments:
 // /* ... */ - The standard multi line comment.

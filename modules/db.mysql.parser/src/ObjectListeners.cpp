@@ -1116,11 +1116,11 @@ void TableListener::exitCreateTableOptions(MySQLParser::CreateTableOptionsContex
         break;
 
       case MySQLLexer::PASSWORD_SYMBOL:
-        table->password(MySQLBaseLexer::sourceTextForContext(option->textString()));
+        table->password(MySQLBaseLexer::sourceTextForContext(option->textStringLiteral()));
         break;
 
       case MySQLLexer::COMMENT_SYMBOL:
-        table->comment(MySQLBaseLexer::sourceTextForContext(option->textString()));
+        table->comment(MySQLBaseLexer::sourceTextForContext(option->textStringLiteral()));
         break;
 
       case MySQLLexer::COMPRESSION_SYMBOL:

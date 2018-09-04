@@ -72,7 +72,7 @@ std::string MySQLBaseRecognizer::getText(RuleContext *context, bool convertEscap
             position = text.find(doubledQuoteChar, position);
             if (position == std::string::npos)
               break;
-            text.replace(position, 2, &quoteChar);
+            text.replace(position, 2, &quoteChar, 1);
           }
           result += text;
           break;

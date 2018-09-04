@@ -720,7 +720,7 @@ TEST_FUNCTION(25) {
     }
 
     ensure_equals("25.4 - error status is unexpected for query (" + std::to_string(counter) + "): \n" + sql + "\n",
-                  (parse(sql, 50630, "") == 0), !expectError);
+                  (parse(sql, 80012, "") == 0), !expectError);
     if (expectError) {
       ++counter;
       continue;
@@ -815,9 +815,9 @@ static const std::vector<std::vector<size_t>> sqlModeTestResults = {
   {P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF},
   {P::CREATE_SYMBOL, P::TABLE_SYMBOL, P::IDENTIFIER, P::OPEN_PAR_SYMBOL, P::IDENTIFIER, P::INT_SYMBOL, P::CLOSE_PAR_SYMBOL, Token::EOF},
 
-  {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, Token::EOF},
+  {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, Token::EOF},
   {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::AS_SYMBOL, P::SINGLE_QUOTED_TEXT, Token::EOF},
-  {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT},
+  {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::DOUBLE_QUOTED_TEXT, P::SINGLE_QUOTED_TEXT},
 
   {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::LOGICAL_OR_OPERATOR, P::DOUBLE_QUOTED_TEXT, Token::EOF},
   {P::SELECT_SYMBOL, P::DOUBLE_QUOTED_TEXT, P::CONCAT_PIPES_SYMBOL, P::DOUBLE_QUOTED_TEXT, Token::EOF},
@@ -833,7 +833,7 @@ static const std::vector<std::vector<size_t>> sqlModeTestResults = {
 
 TEST_FUNCTION(30) {
   for (size_t i = 0; i < sqlModeTestQueries.size(); i++)
-    if (!parseAndCompare(sqlModeTestQueries[i].query, 50610, sqlModeTestQueries[i].sqlMode, sqlModeTestResults[i],
+    if (!parseAndCompare(sqlModeTestQueries[i].query, 80012, sqlModeTestQueries[i].sqlMode, sqlModeTestResults[i],
                          sqlModeTestQueries[i].errors)) {
       fail("30." + std::to_string(i) + ": SQL mode test - query failed: " + sqlModeTestQueries[i].query);
     }
@@ -854,7 +854,7 @@ TEST_FUNCTION(35) {
     }
   };
 
-  ensure_equals("35.1 String concatenation", parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 50610, ""), 0U);
+  ensure_equals("35.1 String concatenation", parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 80012, ""), 0U);
   TestListener listener;
   tree::ParseTreeWalker::DEFAULT.walk(&listener, _lastParseTree);
   ensure_equals("35.2 String concatenation", listener.text, "abcdefghi'\nz");
@@ -988,7 +988,7 @@ static const std::vector<std::vector<size_t>> numbersTestResults = {
 
 TEST_FUNCTION(45) {
   for (size_t i = 0; i < numbersTestQueries.size(); i++)
-    if (!parseAndCompare(numbersTestQueries[i].query, 50610, numbersTestQueries[i].sqlMode, numbersTestResults[i],
+    if (!parseAndCompare(numbersTestQueries[i].query, 80012, numbersTestQueries[i].sqlMode, numbersTestResults[i],
                          numbersTestQueries[i].errors)) {
       fail("45." + std::to_string(i) + ": number test - query failed: " + numbersTestQueries[i].query);
     }
