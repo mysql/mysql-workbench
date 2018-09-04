@@ -701,10 +701,10 @@ TEST_FUNCTION(27) {
 
 TEST_FUNCTION(30) {
   // test version checking utils
-  ensure("5.5.0 supported", bec::is_supported_mysql_version("5.5.0"));
+  ensure("5.5.0 not supported", !bec::is_supported_mysql_version("5.5.0"));
   ensure("5.6.5 supported", bec::is_supported_mysql_version("5.6.5"));
   ensure("3.14.15 not supported", !bec::is_supported_mysql_version("3.14.15"));
-  ensure("5.5 supported", bec::is_supported_mysql_version("5.5"));
+  ensure("5.5 not supported", !bec::is_supported_mysql_version("5.5"));
   ensure("6.6.6 not supported", !bec::is_supported_mysql_version("6.6.6"));
 
   ensure("5.5.5 vs 5.7.4", bec::is_supported_mysql_version_at_least(5, 7, 4, 5, 5, 5));

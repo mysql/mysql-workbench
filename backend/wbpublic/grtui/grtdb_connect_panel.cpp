@@ -650,7 +650,7 @@ bool DbConnectPanel::test_connection() {
                              "A connection to this database can be established but some MySQL Workbench features may "
                              "not work properly since the database is not fully compatible with the supported versions "
                              "of MySQL.\n\n"
-                             "MySQL Workbench is developed and tested for MySQL Server versions 5.5, 5.6, 5.7 and 8.0",
+                             "MySQL Workbench is developed and tested for MySQL Server versions 5.6, 5.7 and 8.0",
                              bec::sanitize_server_version_number(version).c_str()),
                 "Continue Anyway", "Cancel") != mforms::ResultOk)
             return false;
