@@ -62,6 +62,7 @@
                 <File Id="file1027" Name="libcairo.dll"/>
                 <File Id="ssleay32.dll" Name="ssleay32.dll"/>
                 <File Id="libeay32.dll" Name="libeay32.dll"/>
+                <File Id="file1034" Name="libmysql.dll"/>
                 <File Id="file1035" Name="libpng16.dll"/>
                 <File Id="file1036" Name="libxml2.dll"/>
                 <File Id="file1030" Name="glib.dll"/>
