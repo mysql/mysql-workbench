@@ -217,6 +217,8 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             self.bottom_box.add(accept_btn, False, True)
 
         self.set_footer(self.bottom_box)
+        self.enable_ui(False) # Default is to false, in case there will be some error, 
+                              # update_ui and create_ui will take care of enabling it. 
         
     @classmethod
     def wba_register(cls, admin_context):
@@ -231,20 +233,22 @@ class WbAdminConfigFileUI(WbAdminTabBase):
 
     def update_ui(self):
         on = bool(self._instance_info.admin_enabled)
-        self.file_name_ctrl.set_enabled(on)
-        self.section_ctrl.set_enabled(on)
-        self.bottom_box.set_enabled(on)
-        self.tab_view.set_enabled(on)
-        self.search_panel.set_enabled(on)
-
+        self.enable_ui(on)
+        
+    def enable_ui(self, state):
+        self.file_name_ctrl.set_enabled(state)
+        self.section_ctrl.set_enabled(state)
+        self.bottom_box.set_enabled(state)
+        self.tab_view.set_enabled(state)
+        self.search_panel.set_enabled(state)
     #---------------------------------------------------------------------------
     def create_search_panel(self):
         search_label = newLabel("Locate option:")
         self.option_lookup_entry  = newTextEntry()
         self.option_lookup_entry.set_size(200,-1)
-        search_btn = newButton()
-        search_btn.set_text("Find")
-        search_btn.set_size(70, -1)
+        self.search_btn = newButton()
+        self.search_btn.set_text("Find")
+        self.search_btn.set_size(70, -1)
 
         search_box = newBox(True)
         search_box.set_padding(2)
@@ -252,17 +256,16 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         #search_box.set_size(300, -1)
         search_box.add(search_label, False, True)
         search_box.add(self.option_lookup_entry, False, True)
-        search_box.add(search_btn, False, True)
+        search_box.add(self.search_btn, False, True)
         search_panel = newPanel(mforms.FilledPanel)
         search_panel.add(search_box)
 
         def lookup_option_wrapper():
             self.locate_option(self.option_lookup_entry.get_string_value())
 
-        search_btn.add_clicked_callback(lookup_option_wrapper)
+        self.search_btn.add_clicked_callback(lookup_option_wrapper)
 
         return search_panel
-
     #---------------------------------------------------------------------------
     def create_page(self, page_number):
         self.loading = True
@@ -409,12 +412,13 @@ class WbAdminConfigFileUI(WbAdminTabBase):
     #---------------------------------------------------------------------------
     def create_ui(self):
         self.loading = True
-
         self.cfg_be = wb_admin_config_file_be.WbAdminConfigFileBE(self.server_profile, self.ctrl_be)
-
+        self.enable_ui(True)
+        
         sys_config_path = self.server_profile.config_file_path
         if sys_config_path is None:
             sys_config_path = ""
+
         self.file_name_ctrl.set_text(sys_config_path or "not configured")
         self.section_ctrl.add_changed_callback(self.clear_and_load)
         try:
@@ -1224,7 +1228,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
 
     #-------------------------------------------------------------------------------
     def shutdown(self):
-        if hasattr(self.cfg_be, 'changeset') and self.cfg_be.changeset:
+        if hasattr(self, "cfg_be") and hasattr(self.cfg_be, 'changeset') and self.cfg_be.changeset:
             res = Utilities.show_warning('Configuration file', '''Configuration file from instance '%s' may contain unsaved changes.
 Would you like to review them?''' % self.server_profile.name, 'Review', 'Cancel', 'Discard')
             if res == mforms.ResultOk:
