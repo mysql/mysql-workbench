@@ -113,11 +113,24 @@ static std::string util_get_clipboard_text()
 static void util_open_url(const std::string &url)
 {
   if (g_file_test(url.c_str(), G_FILE_TEST_EXISTS) || (!url.empty() && url[0] == '/'))
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath: @(url.c_str())]];
-  else
-    if (![[NSWorkspace sharedWorkspace] openURL:
-          [NSURL URLWithString: [@(url.c_str()) stringByAddingPercentEncodingWithAllowedCharacters: [NSCharacterSet URLPathAllowedCharacterSet]]]])
+    [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: @(url.c_str())]];
+  else {
+    NSURL *tmpUrl = [NSURL URLWithString: @(url.c_str())];
+    NSRange range = [@(url.c_str()) rangeOfString:@"?"];
+    NSString *safeUrl;
+    if (range.location != NSNotFound) {
+      safeUrl = [@(url.c_str()) substringToIndex: range.location];
+    }
+    NSString *fragment = tmpUrl.fragment;
+
+    safeUrl = [safeUrl stringByAppendingString: [NSString stringWithFormat: @"?%@", [tmpUrl.query stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLQueryAllowedCharacterSet]]];
+    if (fragment != nil) {
+         safeUrl = [safeUrl stringByAppendingString: [fragment stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLFragmentAllowedCharacterSet]];
+    }
+ 
+    if (![[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: safeUrl]])
       logError("Could not open URL %s\n", url.c_str());
+  }
 }
 
 
