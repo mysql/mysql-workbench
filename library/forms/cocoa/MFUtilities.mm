@@ -115,11 +115,14 @@ static void util_open_url(const std::string &url)
   if (g_file_test(url.c_str(), G_FILE_TEST_EXISTS) || (!url.empty() && url[0] == '/'))
     [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: @(url.c_str())]];
   else {
-    NSURL *tmpUrl = [NSURL URLWithString: @(url.c_str())];
-    NSRange range = [@(url.c_str()) rangeOfString:@"?"];
+    std::string fixedUrl = url;
+    std::replace(fixedUrl.begin(), fixedUrl.end(), ' ', '+');
+    
+    NSURL *tmpUrl = [NSURL URLWithString: @(fixedUrl.c_str())];
+    NSRange range = [@(fixedUrl.c_str()) rangeOfString:@"?"];
     NSString *safeUrl;
     if (range.location != NSNotFound) {
-      safeUrl = [@(url.c_str()) substringToIndex: range.location];
+      safeUrl = [@(fixedUrl.c_str()) substringToIndex: range.location];
     }
     NSString *fragment = tmpUrl.fragment;
 
@@ -129,7 +132,7 @@ static void util_open_url(const std::string &url)
     }
  
     if (![[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: safeUrl]])
-      logError("Could not open URL %s\n", url.c_str());
+      logError("Could not open URL %s\n", safeUrl.UTF8String);
   }
 }
 
