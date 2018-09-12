@@ -1,0 +1,24 @@
+DUK_USE_CPP_EXCEPTIONS: 1 # use C++ exception handling
+
+# Everything required for debugging support.
+DUK_USE_DEBUGGER_SUPPORT: 1
+DUK_USE_INTERRUPT_COUNTER: 1
+
+# To enable heap object inspection:
+# Note: If this option is not enabled, you will only
+#  be able to inspect local variables in the call stack.
+#  No object properties will be inspectble.
+DUK_USE_DEBUGGER_INSPECT: 1
+
+# (Optional) To forward log calls to the client:
+DUK_USE_DEBUGGER_FWD_LOGGING: 1
+DUK_USE_DEBUGGER_FWD_PRINTALERT: 1
+
+# (Optional) To notify the client when an error is about to be thrown:
+DUK_USE_DEBUGGER_THROW_NOTIFY: 1
+
+# (Optional) To pause on an uncaught errors:
+DUK_USE_DEBUGGER_PAUSE_UNCAUGHT: 1
+
+# The following option to enable the 'DumpHeap' command is currently unsupported.
+DUK_USE_DEBUGGER_DUMPHEAP: 1

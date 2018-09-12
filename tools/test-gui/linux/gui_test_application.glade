@@ -1,0 +1,2288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
+<interface>
+  <requires lib="gtk+" version="3.12"/>
+  <object class="GtkAction" id="action1"/>
+  <object class="GtkAction" id="action3"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="value">28.350000000000001</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">100</property>
+    <property name="value">28.350000000000001</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="upper">100</property>
+    <property name="value">53</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment4">
+    <property name="upper">100</property>
+    <property name="value">47</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment5">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">3</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkDialog" id="dialog1">
+    <property name="can_focus">False</property>
+    <property name="modal">True</property>
+    <property name="default_width">480</property>
+    <property name="default_height">270</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox1">
+        <property name="can_focus">False</property>
+        <property name="hexpand">True</property>
+        <property name="vexpand">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="layout_style">spread</property>
+            <child>
+              <object class="GtkProgressBar" id="progressbar3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">end</property>
+                <property name="fraction">0.63</property>
+                <property name="pulse_step">1</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="progressbar3-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">Dialog Progress
+</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button4">
+                <property name="label" translatable="yes">Close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="halign">end</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="button4-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">button1</property>
+                    <property name="AtkObject::accessible-description" translatable="yes">Close Modal Dialog</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box9">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="label4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Modal or Non-modal Popup</property>
+                <attributes>
+                  <attribute name="font-desc" value="&lt;Enter Value&gt; 18"/>
+                </attributes>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="label4-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">Title</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label11">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</property>
+                <property name="wrap">True</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="label11-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">Main Text
+</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="dialog-vbox1-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes">client</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="dialog1-atkobject">
+        <property name="AtkObject::accessible-name" translatable="yes">dialogwindow</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMenu" id="image1_popup_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem" id="menuitem1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Item 1</property>
+        <property name="use_underline">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="menuitem1-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes">menuitem23</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkCheckMenuItem" id="menuitem2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Item 2</property>
+        <property name="use_underline">True</property>
+        <property name="active">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="menuitem2-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes">menuitem24</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkCheckMenuItem" id="menuitem3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Item 3</property>
+        <property name="use_underline">True</property>
+        <property name="inconsistent">True</property>
+        <child internal-child="accessible">
+          <object class="AtkObject" id="menuitem3-atkobject">
+            <property name="AtkObject::accessible-name" translatable="yes">menuitem25</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="image1_popup_menu-atkobject">
+        <property name="AtkObject::accessible-name" translatable="yes">menu2</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name Column -->
+      <column type="gchararray"/>
+      <!-- column-name Column1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Item 1</col>
+        <col id="1" translatable="yes">Data 1</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Item 2</col>
+        <col id="1" translatable="yes">Data 2</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Item 3</col>
+        <col id="1" translatable="yes">Data 3</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Item 4</col>
+        <col id="1" translatable="yes">Data 4</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name Column -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Item 1</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Item 2</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Item 3</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Item 4</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststore3">
+    <columns>
+      <!-- column-name GdkPixbuf1 -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkMenu" id="menu3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
+  <object class="GtkMenu" id="menu5">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
+  <object class="GtkTextBuffer" id="textbuffer1">
+    <property name="text" translatable="yes">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</property>
+  </object>
+  <object class="GtkApplicationWindow" id="mainwindow">
+    <property name="name">mainwindow</property>
+    <property name="width_request">1280</property>
+    <property name="can_focus">False</property>
+    <property name="default_width">800</property>
+    <property name="default_height">800</property>
+    <child>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="vexpand">True</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkMenuBar" id="menu">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkMenuItem" id="submenu2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_File</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem10">
+                        <property name="label">gtk-new</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem10-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem10</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem11">
+                        <property name="label">gtk-open</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem11-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem11</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="submenu5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Sub Items</property>
+                        <child type="submenu">
+                          <object class="GtkMenu" id="menu6">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkMenuItem" id="menuitem6">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Sub Item 1</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="menuitem5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Sub Item 2</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="submenu5-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">submenu5</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separator10">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="separator10-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">separator10</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem12">
+                        <property name="label">gtk-close</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem12-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem12</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem13">
+                        <property name="label">gtk-save</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem13-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem13</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="submenu2-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">submenu2</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="submenu3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Edit</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem14">
+                        <property name="label">gtk-undo</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem14-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem14</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem15">
+                        <property name="label">gtk-redo</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem15-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem15</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separator11">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="separator11-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">separator11</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem16">
+                        <property name="label">gtk-cut</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem16-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem14</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem17">
+                        <property name="label">gtk-copy</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem17-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem14</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem18">
+                        <property name="label">gtk-paste</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem18-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem14</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem19">
+                        <property name="label">gtk-delete</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem19-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem14</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem20">
+                        <property name="label">gtk-select-all</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem20-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem14</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="submenu3-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">submenu3</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="submenu4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Window</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkMenuItem" id="menuitem21">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Minimize</property>
+                        <property name="use_underline">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem21-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem21</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem22">
+                        <property name="label">gtk-zoom-in</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menuitem22-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuitem22</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="gtk-page-setup">
+                        <property name="label">gtk-page-setup</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem1">
+                        <property name="label">gtk-execute</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem2">
+                        <property name="label">gtk-network</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem3">
+                        <property name="label">gtk-print-preview</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem4">
+                        <property name="label">gtk-print</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem5">
+                        <property name="label">gtk-properties</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="submenu4-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">submenu4</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="menu-atkobject">
+                <property name="AtkObject::accessible-name" translatable="yes">menu1</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Heading label</property>
+            <property name="valign">start</property>
+            <property name="margin_left">8</property>
+            <property name="margin_right">8</property>
+            <property name="margin_top">8</property>
+            <property name="margin_bottom">8</property>
+            <property name="label" translatable="yes">Test application for GUI Automation</property>
+            <attributes>
+              <attribute name="font-desc" value="&lt;Enter Value&gt; 16"/>
+              <attribute name="scale" value="1"/>
+              <attribute name="foreground" value="#20204a4a8787"/>
+            </attributes>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="label-atkobject">
+                <property name="AtkObject::accessible-name" translatable="yes">label1</property>
+                <property name="AtkObject::accessible-description" translatable="yes">Heading Label</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkNotebook" id="notebook1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="margin_left">8</property>
+            <property name="margin_right">8</property>
+            <property name="margin_top">8</property>
+            <property name="margin_bottom">8</property>
+            <property name="vexpand">True</property>
+            <child>
+              <object class="GtkPaned" id="paned1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="vexpand">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkFrame" id="frame1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkGrid" id="grid10">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <child>
+                              <object class="GtkScrolledWindow" id="scrollbox1">
+                                <property name="width_request">300</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="halign">end</property>
+                                <property name="margin_left">4</property>
+                                <property name="margin_right">4</property>
+                                <property name="margin_top">4</property>
+                                <property name="margin_bottom">4</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkViewport" id="viewport1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkGrid" id="grid5">
+                                        <property name="width_request">500</property>
+                                        <property name="height_request">500</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <child>
+                                          <object class="GtkCalendar" id="calendar1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="margin_left">4</property>
+                                            <property name="margin_right">4</property>
+                                            <property name="margin_top">4</property>
+                                            <property name="margin_bottom">4</property>
+                                            <property name="year">2017</property>
+                                            <property name="month">10</property>
+                                            <property name="day">7</property>
+                                            <child internal-child="accessible">
+                                              <object class="AtkObject" id="calendar1-atkobject">
+                                                <property name="AtkObject::accessible-name" translatable="yes">datepicker1</property>
+                                                <property name="AtkObject::accessible-description" translatable="yes">Date Picker</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkButton" id="button3">
+                                            <property name="label" translatable="yes">Open Dialog</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="halign">start</property>
+                                            <property name="valign">start</property>
+                                            <property name="margin_left">4</property>
+                                            <property name="margin_right">4</property>
+                                            <property name="margin_top">4</property>
+                                            <property name="margin_bottom">4</property>
+                                            <property name="relief">none</property>
+                                            <child internal-child="accessible">
+                                              <object class="AtkObject" id="button3-atkobject">
+                                                <property name="AtkObject::accessible-name" translatable="yes">button3</property>
+                                                <property name="AtkObject::accessible-description" translatable="yes">Dialog Button</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">1</property>
+                                            <property name="top_attach">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkEventBox" id="image1_eventbox">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkImage" id="image1">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="tooltip_text" translatable="yes">An image showing a shield</property>
+                                                <property name="margin_left">4</property>
+                                                <property name="margin_right">4</property>
+                                                <property name="margin_top">4</property>
+                                                <property name="margin_bottom">4</property>
+                                                <property name="pixbuf">../images/shield.png</property>
+                                                <child internal-child="accessible">
+                                                  <object class="AtkObject" id="image1-atkobject">
+                                                    <property name="AtkObject::accessible-name" translatable="yes">image1</property>
+                                                    <property name="AtkObject::accessible-description" translatable="yes">Image View</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">1</property>
+                                            <property name="width">2</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child internal-child="accessible">
+                                  <object class="AtkObject" id="scrollbox1-atkobject">
+                                    <property name="AtkObject::accessible-name" translatable="yes">scrollbox1</property>
+                                    <property name="AtkObject::accessible-description" translatable="yes">Standard Scrollbox</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="top_attach">2</property>
+                                <property name="height">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkNotebook" id="notebook2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="margin_left">4</property>
+                                <property name="margin_right">4</property>
+                                <property name="margin_top">4</property>
+                                <property name="margin_bottom">4</property>
+                                <child>
+                                  <object class="GtkGrid" id="grid4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="column_homogeneous">True</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="checkbutton1">
+                                        <property name="label" translatable="yes">Checkbox 1</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="checkbutton1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">checkbox1</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Checkbox</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">0</property>
+                                        <property name="top_attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="checkbutton2">
+                                        <property name="label" translatable="yes">Checkbox 2</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="inconsistent">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="checkbutton2-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">checkbox2</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Checkbox Indeterminate</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="top_attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="checkbutton3">
+                                        <property name="label" translatable="yes">Checkbox 3</property>
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="draw_indicator">True</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="checkbutton3-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">checkbox3</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Checkbox Disabled</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="top_attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="checkbutton4">
+                                        <property name="label" translatable="yes">Checkbox 4</property>
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="inconsistent">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="checkbutton4-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">checkbox4</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Checkbox Indeterminate Disabled</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">3</property>
+                                        <property name="top_attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="radiobutton1">
+                                        <property name="label" translatable="yes">Radiobutton 1</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="radiobutton1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">radiobutton1</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Radio Button</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">0</property>
+                                        <property name="top_attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="radiobutton2">
+                                        <property name="label" translatable="yes">Radiobutton 2</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="inconsistent">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">radiobutton1</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="radiobutton2-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">radiobutton2</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Radio Button Indeterminate</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="top_attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="radiobutton3">
+                                        <property name="label" translatable="yes">Radiobutton 3</property>
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">radiobutton1</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="radiobutton3-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">radiobutton3</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Radio Button Disabled</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="top_attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkRadioButton" id="radiobutton4">
+                                        <property name="label" translatable="yes">Radiobutton 4</property>
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="xalign">0</property>
+                                        <property name="inconsistent">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">radiobutton1</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="radiobutton4-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">radiobutton4</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Radio Button Indeterminate Disabled</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">3</property>
+                                        <property name="top_attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSpinButton" id="spinbutton1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="text" translatable="yes">Stepper 1</property>
+                                        <property name="input_purpose">digits</property>
+                                        <property name="adjustment">adjustment5</property>
+                                        <property name="climb_rate">1</property>
+                                        <property name="numeric">True</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="spinbutton1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">stepper1</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Stepper Control</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">0</property>
+                                        <property name="top_attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="labe">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="halign">start</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="label" translatable="yes">Stepper 1</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="labe-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">label3</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="top_attach">2</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="tab">
+                                  <object class="GtkLabel" id="label6">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Tabpage 1</property>
+                                  </object>
+                                  <packing>
+                                    <property name="tab_fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox" id="box7">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkBox" id="box8">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkProgressBar" id="progressbar1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="margin_left">4</property>
+                                            <property name="margin_right">4</property>
+                                            <property name="margin_top">4</property>
+                                            <property name="margin_bottom">4</property>
+                                            <property name="fraction">0.44</property>
+                                            <property name="pulse_step">1</property>
+                                            <property name="show_text">True</property>
+                                            <child internal-child="accessible">
+                                              <object class="AtkObject" id="progressbar1-atkobject">
+                                                <property name="AtkObject::accessible-name" translatable="yes">progress1</property>
+                                                <property name="AtkObject::accessible-description" translatable="yes">Standard Progress Indicator</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkProgressBar" id="progressbar2">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="margin_left">4</property>
+                                            <property name="margin_right">4</property>
+                                            <property name="margin_top">4</property>
+                                            <property name="margin_bottom">4</property>
+                                            <property name="fraction">1</property>
+                                            <property name="pulse_step">1</property>
+                                            <property name="show_text">True</property>
+                                            <child internal-child="accessible">
+                                              <object class="AtkObject" id="progressbar2-atkobject">
+                                                <property name="AtkObject::accessible-name" translatable="yes">progress2</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkScale" id="scale1">
+                                            <property name="width_request">200</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="margin_left">4</property>
+                                            <property name="margin_right">4</property>
+                                            <property name="margin_top">4</property>
+                                            <property name="margin_bottom">4</property>
+                                            <property name="adjustment">adjustment3</property>
+                                            <property name="show_fill_level">True</property>
+                                            <property name="fill_level">100</property>
+                                            <property name="round_digits">1</property>
+                                            <property name="digits">2</property>
+                                            <child internal-child="accessible">
+                                              <object class="AtkObject" id="scale1-atkobject">
+                                                <property name="AtkObject::accessible-name" translatable="yes">slider1</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkScale" id="scale2">
+                                            <property name="width_request">200</property>
+                                            <property name="visible">True</property>
+                                            <property name="sensitive">False</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="margin_left">4</property>
+                                            <property name="margin_right">4</property>
+                                            <property name="margin_top">4</property>
+                                            <property name="margin_bottom">4</property>
+                                            <property name="adjustment">adjustment4</property>
+                                            <property name="fill_level">100</property>
+                                            <property name="round_digits">1</property>
+                                            <property name="digits">2</property>
+                                            <child internal-child="accessible">
+                                              <object class="AtkObject" id="scale2-atkobject">
+                                                <property name="AtkObject::accessible-name" translatable="yes">slider2</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkScale" id="scale3">
+                                        <property name="width_request">100</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="orientation">vertical</property>
+                                        <property name="adjustment">adjustment2</property>
+                                        <property name="inverted">True</property>
+                                        <property name="fill_level">100</property>
+                                        <property name="round_digits">1</property>
+                                        <property name="digits">2</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="scale3-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">slider3</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkScale" id="scale4">
+                                        <property name="width_request">100</property>
+                                        <property name="visible">True</property>
+                                        <property name="sensitive">False</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="margin_left">4</property>
+                                        <property name="margin_right">4</property>
+                                        <property name="margin_top">4</property>
+                                        <property name="margin_bottom">4</property>
+                                        <property name="orientation">vertical</property>
+                                        <property name="adjustment">adjustment1</property>
+                                        <property name="inverted">True</property>
+                                        <property name="fill_level">100</property>
+                                        <property name="round_digits">1</property>
+                                        <property name="digits">2</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="scale4-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">slider4</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">2</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child type="tab">
+                                  <object class="GtkLabel" id="label7">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Tabpage 2</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                    <property name="tab_fill">False</property>
+                                  </packing>
+                                </child>
+                                <child internal-child="accessible">
+                                  <object class="AtkObject" id="notebook2-atkobject">
+                                    <property name="AtkObject::accessible-name" translatable="yes">tabview1</property>
+                                    <property name="AtkObject::accessible-description" translatable="yes">Standard Tabview</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">3</property>
+                                <property name="width">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow" id="scrolledwindow2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="margin_left">4</property>
+                                <property name="margin_right">4</property>
+                                <property name="margin_top">4</property>
+                                <property name="margin_bottom">4</property>
+                                <property name="hexpand">True</property>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkViewport" id="viewport4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="hexpand">True</property>
+                                    <child>
+                                      <object class="GtkTextView" id="textview1">
+                                        <property name="width_request">500</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="margin_left">8</property>
+                                        <property name="margin_right">8</property>
+                                        <property name="margin_top">8</property>
+                                        <property name="margin_bottom">8</property>
+                                        <property name="wrap_mode">word</property>
+                                        <property name="buffer">textbuffer1</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="textview1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">edit4</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Multiline Edit</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="top_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkGrid" id="grid2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="halign">start</property>
+                                <property name="valign">start</property>
+                                <property name="margin_left">4</property>
+                                <property name="margin_right">4</property>
+                                <property name="margin_top">4</property>
+                                <property name="margin_bottom">4</property>
+                                <property name="row_homogeneous">True</property>
+                                <property name="column_homogeneous">True</property>
+                                <child>
+                                  <object class="GtkButton" id="button1">
+                                    <property name="label" translatable="yes">Button 1</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="button1-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">button1</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Standard Button</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="button2">
+                                    <property name="label" translatable="yes">Button 2</property>
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="button2-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">button2</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Standard Button Disabled</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="combobox2">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="model">liststore2</property>
+                                    <property name="has_entry">True</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                    <child internal-child="entry">
+                                      <object class="GtkEntry" id="combobox-entry1">
+                                        <property name="can_focus">False</property>
+                                        <property name="text" translatable="yes">Combo Box 2</property>
+                                      </object>
+                                    </child>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="combobox2-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">combobox2</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Standard Combobox Editable Disabled</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="combobox1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="model">liststore2</property>
+                                    <property name="has_entry">True</property>
+                                    <property name="entry_text_column">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                    <child internal-child="entry">
+                                      <object class="GtkEntry" id="combobox-entry">
+                                        <property name="can_focus">True</property>
+                                        <property name="text" translatable="yes">Combo Box 1</property>
+                                      </object>
+                                    </child>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="combobox1-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">combobox1</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Standard Combobox Editable</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="entry1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="text" translatable="yes">Single Line Text Edit 1</property>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="entry1-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">edit1</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Single Line Edit</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="entry2">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="editable">False</property>
+                                    <property name="text" translatable="yes">Single Line Edit 2</property>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="entry2-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">edit2</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Single Line Edit Disabled</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="combobox4">
+                                    <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="model">liststore2</property>
+                                    <property name="active">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext6"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="combobox4-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">combobox4</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Standard Combobox Non-Editable Disabled</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="entry3">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="tooltip_text" translatable="yes">Enter some secure info here</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="visibility">False</property>
+                                    <property name="text" translatable="yes">this is a password</property>
+                                    <property name="input_purpose">password</property>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="entry3-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">edit3</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Secure Text Edit</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="combobox3">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="margin_left">4</property>
+                                    <property name="margin_right">4</property>
+                                    <property name="margin_top">4</property>
+                                    <property name="margin_bottom">4</property>
+                                    <property name="model">liststore2</property>
+                                    <property name="active">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="combobox3-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">combobox3</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">Standard Combobox Non-Editable</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="button5">
+                                    <property name="label" translatable="yes">!"$%/?~#:&gt;|Θ∫</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="margin_top">3</property>
+                                    <property name="margin_bottom">3</property>
+                                    <child internal-child="accessible">
+                                      <object class="AtkObject" id="button5-atkobject">
+                                        <property name="AtkObject::accessible-name" translatable="yes">button4</property>
+                                        <property name="AtkObject::accessible-description" translatable="yes">A button with some special characters</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">4</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="margin_left">8</property>
+                                <property name="margin_right">8</property>
+                                <property name="margin_top">8</property>
+                                <property name="margin_bottom">8</property>
+                                <property name="label" translatable="yes">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</property>
+                                <property name="wrap">True</property>
+                                <child internal-child="accessible">
+                                  <object class="AtkObject" id="label5-atkobject">
+                                    <property name="AtkObject::accessible-name" translatable="yes">label2</property>
+                                    <property name="AtkObject::accessible-description" translatable="yes">Standard Label</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">1</property>
+                                <property name="width">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label3">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="halign">start</property>
+                                <property name="margin_left">8</property>
+                                <property name="margin_right">8</property>
+                                <property name="margin_top">8</property>
+                                <property name="margin_bottom">8</property>
+                                <property name="label" translatable="yes">Simple Standard Controls</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label_item">
+                      <placeholder/>
+                    </child>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="frame1-atkobject">
+                        <property name="AtkObject::accessible-name" translatable="yes">groupbox1</property>
+                        <property name="AtkObject::accessible-description" translatable="yes">Standard Controls Group Box</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frame2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="left_padding">12</property>
+                        <child>
+                          <object class="GtkBox" id="box4">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="homogeneous">True</property>
+                            <child>
+                              <object class="GtkScrolledWindow" id="scrolledwindow4">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkViewport" id="viewport5">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkTreeView" id="treeview1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="margin_left">8</property>
+                                        <property name="margin_right">8</property>
+                                        <property name="margin_top">8</property>
+                                        <property name="margin_bottom">8</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="model">liststore1</property>
+                                        <child internal-child="selection">
+                                          <object class="GtkTreeSelection" id="treeview-selection3"/>
+                                        </child>
+                                        <child>
+                                          <object class="GtkTreeViewColumn" id="treecolumn1">
+                                            <property name="title" translatable="yes">Column 1</property>
+                                            <child>
+                                              <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                                              <attributes>
+                                                <attribute name="text">0</attribute>
+                                              </attributes>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkTreeViewColumn" id="treecolumn2">
+                                            <property name="title" translatable="yes">Column 2</property>
+                                            <child>
+                                              <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                                              <attributes>
+                                                <attribute name="text">1</attribute>
+                                              </attributes>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="treeview1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">treeview1</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Treeview</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow" id="scrolledwindow1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkViewport" id="viewport2">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkGrid" id="grid1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="row_homogeneous">True</property>
+                                        <property name="column_homogeneous">True</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="grid1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">grid1</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Grid Control</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow" id="scrolledwindow3">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkViewport" id="viewport3">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkIconView" id="iconview1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="margin">6</property>
+                                        <child internal-child="accessible">
+                                          <object class="AtkObject" id="iconview1-atkobject">
+                                            <property name="AtkObject::accessible-name" translatable="yes">iconview1</property>
+                                            <property name="AtkObject::accessible-description" translatable="yes">Standard Icon View</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label10">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="label" translatable="yes">Complex Standard Controls</property>
+                      </object>
+                    </child>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="frame2-atkobject">
+                        <property name="AtkObject::accessible-name" translatable="yes">groupbox2</property>
+                        <property name="AtkObject::accessible-description" translatable="yes">Complex Controls Group Box</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="paned1-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">splitview1</property>
+                    <property name="AtkObject::accessible-description" translatable="yes">Main Split View</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Standard Controls</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="label1-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">mainpage1</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel" id="label20">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_top">8</property>
+                    <property name="margin_bottom">8</property>
+                    <property name="label" translatable="yes">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</property>
+                    <property name="wrap">True</property>
+                    <child internal-child="accessible">
+                      <object class="AtkObject" id="label20-atkobject">
+                        <property name="AtkObject::accessible-name" translatable="yes">label20</property>
+                        <property name="AtkObject::accessible-description" translatable="yes">Standard Label</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkGrid" id="grid3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="row_homogeneous">True</property>
+                    <property name="column_homogeneous">True</property>
+                    <child>
+                      <object class="GtkVolumeButton" id="volumebutton1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="relief">none</property>
+                        <property name="focus_on_click">False</property>
+                        <property name="orientation">vertical</property>
+                        <property name="icons">audio-volume-muted-symbolic
+audio-volume-high-symbolic
+audio-volume-low-symbolic
+audio-volume-medium-symbolic</property>
+                        <child internal-child="plus_button">
+                          <object class="GtkButton" id="volumebutton-plus_button1">
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="relief">none</property>
+                          </object>
+                        </child>
+                        <child internal-child="minus_button">
+                          <object class="GtkButton" id="volumebutton-minus_button1">
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="relief">none</property>
+                          </object>
+                        </child>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="volumebutton1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">volumeButton1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLevelBar" id="levelbar1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="value">48.119999999999997</property>
+                        <property name="max_value">100</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="levelbar1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">levelBar1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSearchEntry" id="searchentry1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="primary_icon_name">edit-find-symbolic</property>
+                        <property name="primary_icon_activatable">False</property>
+                        <property name="primary_icon_sensitive">False</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="searchentry1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">search1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFontButton" id="fontbutton1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="font">Sans 12</property>
+                        <property name="preview_text"/>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="fontbutton1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">fontButton1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLinkButton" id="linkbutton1">
+                        <property name="label" translatable="yes">button</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="relief">none</property>
+                        <property name="uri">example.com</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="linkbutton1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">linkButton1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="switch1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="action_name">jkhkhkhk</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="switch1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">switch1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="top_attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSpinner" id="spinner1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="active">True</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="spinner1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">spinner1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="top_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkArrow" id="arrow1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="arrow1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">arrow1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">3</property>
+                        <property name="top_attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkExpander" id="expander1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="expanded">True</property>
+                        <child>
+                          <object class="GtkLabel" id="label9">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">This is the expanded content</property>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label8">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Expand me...</property>
+                          </object>
+                        </child>
+                        <accessibility>
+                          <action action_name="activate" description="expander1"/>
+                        </accessibility>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="expander1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">expander1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menubutton1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <property name="popup">image1_popup_menu</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child internal-child="accessible">
+                          <object class="AtkObject" id="menubutton1-atkobject">
+                            <property name="AtkObject::accessible-name" translatable="yes">menuButton1</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkColorButton" id="colorbutton1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="margin_left">8</property>
+                        <property name="margin_right">8</property>
+                        <property name="margin_top">8</property>
+                        <property name="margin_bottom">8</property>
+                        <accessibility>
+                          <action action_name="click" description="colorButton1"/>
+                        </accessibility>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Platform Controls</property>
+                <child internal-child="accessible">
+                  <object class="AtkObject" id="label2-atkobject">
+                    <property name="AtkObject::accessible-name" translatable="yes">mainpage2</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child internal-child="accessible">
+              <object class="AtkObject" id="notebook1-atkobject">
+                <property name="AtkObject::accessible-name" translatable="yes">maintabview</property>
+                <property name="AtkObject::accessible-description" translatable="yes">Main Tabview</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child internal-child="accessible">
+      <object class="AtkObject" id="mainwindow-atkobject">
+        <property name="AtkObject::accessible-name" translatable="yes">mainwindow</property>
+      </object>
+    </child>
+  </object>
+</interface>

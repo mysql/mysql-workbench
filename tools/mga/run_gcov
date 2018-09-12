@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo Running MGA and generate GCOV report...
+
+rm -f mga.info
+# find . -type f -name "*.gcno" -exec rm  {} \;
+find . -type f -name "*.gcda" -exec rm  {} \;
+
+./build/src/mga $1
+lcov --directory . --capture --no-external --output-file mga.info
+genhtml --output-directory cov_htm mga.info
+

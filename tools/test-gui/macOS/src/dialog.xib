@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="DialogController">
+            <connections>
+                <outlet property="progressIndicator1" destination="2Bg-Z7-ph0" id="edI-WR-pkw"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="MKS-gL-Xp7"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="Dialog Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3200" height="1778"/>
+            <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
+                <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aDl-3M-Rxl">
+                        <rect key="frame" x="385" y="13" width="81" height="32"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="69" id="MzK-AJ-0GC"/>
+                        </constraints>
+                        <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="U5H-Ez-bQT">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="smallSystem" size="13"/>
+                        </buttonCell>
+                        <accessibility description="Close Button" identifier="button1"/>
+                        <connections>
+                            <action selector="onButtonClick:" target="-2" id="U4E-sy-mV9"/>
+                        </connections>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iWY-9i-2fF">
+                        <rect key="frame" x="18" y="236" width="444" height="34"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="34" id="PG4-X4-Cen"/>
+                        </constraints>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Modal or Non-modal Popup" id="YGC-9V-LHS">
+                            <font key="font" metaFont="system" size="28"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <accessibility description="Title" identifier="label1"/>
+                    </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m1Q-ql-aLV">
+                        <rect key="frame" x="20" y="101" width="442" height="133"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="jJ1-eY-tre">
+                            <font key="font" metaFont="system" size="15"/>
+                            <string key="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <accessibility description="Main Text" identifier="label2"/>
+                    </textField>
+                    <progressIndicator wantsLayer="YES" maxValue="100" doubleValue="63" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="2Bg-Z7-ph0">
+                        <rect key="frame" x="20" y="19" width="363" height="20"/>
+                        <accessibility description="Dialog Progress" identifier="progressindicator1"/>
+                    </progressIndicator>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="aDl-3M-Rxl" secondAttribute="bottom" constant="20" id="2Kh-JS-g3s"/>
+                    <constraint firstAttribute="trailing" secondItem="m1Q-ql-aLV" secondAttribute="trailing" constant="20" id="E55-5R-Y8C"/>
+                    <constraint firstAttribute="trailing" secondItem="aDl-3M-Rxl" secondAttribute="trailing" constant="20" id="If1-nw-pjI"/>
+                    <constraint firstItem="iWY-9i-2fF" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" id="JAt-GZ-bhP"/>
+                    <constraint firstItem="iWY-9i-2fF" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="M87-wz-NbK"/>
+                    <constraint firstAttribute="trailing" secondItem="iWY-9i-2fF" secondAttribute="trailing" constant="20" id="MXO-b5-nxG"/>
+                    <constraint firstItem="aDl-3M-Rxl" firstAttribute="leading" secondItem="2Bg-Z7-ph0" secondAttribute="trailing" constant="8" id="MmN-FJ-ExR"/>
+                    <constraint firstItem="m1Q-ql-aLV" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="22" id="QB5-Uh-1Og"/>
+                    <constraint firstAttribute="bottom" secondItem="2Bg-Z7-ph0" secondAttribute="bottom" constant="20" id="Tjq-n4-7Do"/>
+                    <constraint firstItem="m1Q-ql-aLV" firstAttribute="top" secondItem="iWY-9i-2fF" secondAttribute="bottom" constant="2" id="ZbD-a5-ILC"/>
+                    <constraint firstItem="aDl-3M-Rxl" firstAttribute="top" secondItem="m1Q-ql-aLV" secondAttribute="bottom" constant="60" id="luT-xf-33Q"/>
+                    <constraint firstItem="2Bg-Z7-ph0" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="nOg-p6-Kmo"/>
+                </constraints>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="m67-dJ-YIO"/>
+            </connections>
+            <point key="canvasLocation" x="-155" y="-38"/>
+        </window>
+    </objects>
+</document>
