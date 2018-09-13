@@ -1,5 +1,5 @@
 
-' Copyright (c) 2012, 2016 Oracle and/or its affiliates. All rights reserved.
+' Copyright (c) 2012, 2018 Oracle and/or its affiliates. All rights reserved.
 '
 ' This program is free software; you can redistribute it and/or
 ' modify it under the terms of the GNU General Public License as
@@ -1057,6 +1057,7 @@ class MEBGetProfiles
         if Wscript.Arguments.Count = 3 then
             meb_command = Wscript.Arguments.Item(1)
             datadir = Wscript.Arguments.Item(2)
+            if Right(datadir,1) <> "\" then datadir = datadir & "\"
             ret_val = true
         end if
 
