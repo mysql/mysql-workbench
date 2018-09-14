@@ -881,7 +881,7 @@ class MainView(WizardPage):
         if selected_node:
             to_replace = selected_node.get_string(type)
             repl_form = ReplaceForm(title, description)
-            ret, to_replace, replace_with = repl_form.show(bool(to_replace))
+            ret, to_replace, replace_with = repl_form.show(str(to_replace))
             if ret:
                 for i in range(self._columns.count()):
                     node = self._columns.node_at_row(i)
