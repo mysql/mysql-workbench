@@ -220,6 +220,7 @@ namespace bec {
     bool _has_unsaved_changes;
     GRTDispatcher::Ref _dispatcher;
     base::Mutex _idle_mutex;
+    base::Mutex _idle_task_blocker_mutex;
     base::Mutex _timer_mutex;
 
   public:

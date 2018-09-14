@@ -337,31 +337,40 @@ void GRTManager::perform_idle_tasks() {
     // flush the shell output buffer
     _shell->flush_shell_output();
   }
+  bool locked = _idle_task_blocker_mutex.tryLock();
+  if (locked) {
+    try {
+      if (!_idle_blocked) {
+        if (!_idle_signals[_current_idle_signal].empty()) {
+          block_idle_tasks();
 
-  if (!_idle_blocked) {
-    if (!_idle_signals[_current_idle_signal].empty()) {
-      block_idle_tasks(); // TODO: that's not thread safe, why isn't the idle mutex used.
+          int signal_to_emit = 0;
+          {
+            MutexLock lock(_idle_mutex);
+            signal_to_emit = _current_idle_signal;
+            _current_idle_signal = _current_idle_signal ? 0 : 1;
+          }
 
-      int signal_to_emit = 0;
-      {
-        MutexLock lock(_idle_mutex);
-        signal_to_emit = _current_idle_signal;
-        _current_idle_signal = _current_idle_signal ? 0 : 1;
+          _idle_signals[signal_to_emit]();
+
+          _idle_signals[signal_to_emit].disconnect_all_slots();
+
+          // XXX disconnect_all_slots() will somehow leave bound functions hanging around until the signal is
+          // connected to something.. if they hold shared_refs to objects, those will be kept around until
+          // the signal is connected again, which sounds like a bug.. so we just do a dummy connection to force
+          // shared refs to be released immediately.. should investigate why is this happening at all
+          // how to test: put a bp in ~DbSqlEditorForm() and close the SQL Editor... if it is deleted immediately,
+          // it works as expected, if it only gets deleted after opening another editor, then its broken
+          _idle_signals[signal_to_emit].connect(std::bind(nothing));
+          unblock_idle_tasks();
+        }
       }
-
-      _idle_signals[signal_to_emit]();
-
-      _idle_signals[signal_to_emit].disconnect_all_slots();
-
-      // XXX disconnect_all_slots() will somehow leave bound functions hanging around until the signal is
-      // connected to something.. if they hold shared_refs to objects, those will be kept around until
-      // the signal is connected again, which sounds like a bug.. so we just do a dummy connection to force
-      // shared refs to be released immediately.. should investigate why is this happening at all
-      // how to test: put a bp in ~DbSqlEditorForm() and close the SQL Editor... if it is deleted immediately,
-      // it works as expected, if it only gets deleted after opening another editor, then its broken
-      _idle_signals[signal_to_emit].connect(std::bind(nothing));
+    } catch (...) {
       unblock_idle_tasks();
+      _idle_task_blocker_mutex.unlock();
+      throw;
     }
+    _idle_task_blocker_mutex.unlock();
   }
 }
 
