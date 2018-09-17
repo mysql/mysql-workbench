@@ -348,6 +348,7 @@ unless the append or update options are specified.""")
         
         self.warning_srs = mforms.newLabel("")
         self.content.add(self.warning_srs, False, True)
+        self.check_ogr_executables()
 
     def go_cancel(self):
         self.main.cancel()
@@ -367,7 +368,6 @@ unless the append or update options are specified.""")
             self.ogr2ogr_missing_lbl.show(True)
 
     def validate(self):
-        self.check_ogr_executables()
         if self.ogrinfo_missing or self.ogr2ogr_missing:
             mforms.Utilities.show_error("Missing Executable", "One of the required executables is missing. Please correct this before continue.", "OK", "", "")
             return False
