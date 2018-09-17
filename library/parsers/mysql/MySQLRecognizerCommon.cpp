@@ -21,6 +21,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include "base/string_utilities.h"
+
 #include "MySQLLexer.h"
 #include "MySQLParser.h"
 
@@ -146,8 +148,15 @@ std::string MySQLRecognizerCommon::sourceTextForRange(Token *start, Token *stop,
     return result;
 
   char quoteChar = result[0];
-  if ((quoteChar == '"' || quoteChar == '`' || quoteChar == '\'') && quoteChar == result.back())
+  if ((quoteChar == '"' || quoteChar == '`' || quoteChar == '\'') && quoteChar == result.back()) {
+    if (quoteChar == '"' || quoteChar == '\'') {
+      // Replace any double occurence of the quote char by a single one.
+      base::replaceStringInplace(result, std::string(2, quoteChar), std::string(1, quoteChar));
+    }
+
     return result.substr(1, result.size() - 2);
+  }
+
   return result;
 }
 
