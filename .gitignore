@@ -203,3 +203,4 @@ library/parsers/antlr
 *.[Vv][Cc].db
 *.[Vv][Cc].opendb
 .vs/
+testing/tut/config.json
