@@ -27,13 +27,14 @@
 #include <cerrno>
 
 #include "tut.h"
+#include "test_helpers.h"
 
 using namespace mforms;
 using namespace stub;
 using namespace tut;
 
 std::function<mforms::DialogResult(void)> UtilitiesWrapper::message_callback;
-
+extern Global_test_parameters *test_params;
 // the only reason why we're wrapping this map is so our unit tests don't segfault.  We're running into static
 // initialisation order fiasco,
 // because the unit tests are created before main() runs, at which point they call different things.  Feel free to
@@ -135,31 +136,17 @@ bool UtilitiesWrapper::find_password(const std::string &service, const std::stri
   bool ret_val = false;
 
   if (!loaded_passwords) {
-    char *password_file = getenv("TEST_PASSWORD_FILE");
-    if (!password_file) {
-      fail("Specify a password file for tests with the TEST_PASSWORD_FILE env variable.");
-    } else {
-      FILE *f = fopen(password_file, "r");
-      if (f) {
+    JsonParser::JsonObject &cnf = *test_params->getConfig();
+    JsonParser::JsonArray pass;
+    try {
+      pass = cnf.get("tutPasswords");
+      for (JsonParser::JsonObject &entry: pass) {
+        passwords()[(std::string)entry.get("service")] = (std::string)entry.get("password");
         if (getenv("VERBOSE"))
-          g_message("Loading %s", password_file);
-        char line[1024];
-        while ((fgets(line, sizeof(line), f))) {
-          char *tmp = strrchr(line, '=');
-          if (tmp) {
-            char *e = strchr(tmp, '\r');
-            if (e)
-              *e = 0;
-            e = strchr(tmp, '\n');
-            if (e)
-              *e = 0;
-            passwords()[std::string(line, tmp - line)] = tmp + 1;
-            if (getenv("VERBOSE"))
-              g_message("%s=%s", std::string(line, tmp - line).c_str(), tmp + 1);
-          }
-        }
-      } else
-        logError("Could not open password file %s: %i\n", password_file, errno);
+          g_message("%s=%s", ((std::string)entry.get("service")).c_str(), ((std::string)entry.get("password")).c_str());
+      }
+    } catch (std::out_of_range &) {
+      g_message("Config file is missing service credentials.\n");
     }
     loaded_passwords = true;
   }
