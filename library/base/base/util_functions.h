@@ -27,6 +27,7 @@
 
 #include "common.h"
 
+#ifdef __linux__
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
@@ -36,6 +37,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/time.h>
+
+#endif
 
 #include "glib.h"
 
