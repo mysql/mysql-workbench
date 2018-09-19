@@ -28,11 +28,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <glib.h>
 #include <iosfwd>
 #include <fstream>
-#endif
 
 #ifndef _MSC_VER
 #include <sys/stat.h>

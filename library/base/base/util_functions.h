@@ -27,7 +27,6 @@
 
 #include "common.h"
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
@@ -39,7 +38,6 @@
 #include <sys/time.h>
 
 #include "glib.h"
-#endif
 
 #ifdef _MSC_VER
 #define _br "\r\n"

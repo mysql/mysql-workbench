@@ -4390,6 +4390,13 @@
 		273766AE17997E4600803099 /* record_import@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "record_import@2x.png"; path = "images/toolbar/record_import@2x.png"; sourceTree = "<group>"; };
 		2738042010AB272500EF15C0 /* string_utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = string_utilities.cpp; path = library/base/string_utilities.cpp; sourceTree = "<group>"; };
 		2738042110AB272500EF15C0 /* string_utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = string_utilities.h; path = library/base/base/string_utilities.h; sourceTree = "<group>"; wrapsLines = 0; };
+		273E435E21523DB5001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/WbResultsetView.xib; sourceTree = "<group>"; };
+		273E435F21523DB5001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/MainWindow.xib; sourceTree = "<group>"; };
+		273E436021523DB5001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/DiagramOptions.xib; sourceTree = "<group>"; };
+		273E436121523DB6001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/IconCollectionView.xib; sourceTree = "<group>"; };
+		273E436221523DB6001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/PluginEditorWindow.xib; sourceTree = "<group>"; };
+		273E436321523DB7001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/PageSetup.xib; sourceTree = "<group>"; };
+		273E436421523DB8001FEE8C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = frontend/mac/Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		273F6AFE17044B37002117F2 /* threading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threading.h; path = library/base/base/threading.h; sourceTree = "<group>"; };
 		2740C70D18AB6F9C008AFE78 /* tab_extender.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = tab_extender.png; path = images/ui/mac/tab_extender.png; sourceTree = "<group>"; };
 		2740C70E18AB6F9C008AFE78 /* tab_extender@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "tab_extender@2x.png"; path = "images/ui/mac/tab_extender@2x.png"; sourceTree = "<group>"; };
@@ -4541,8 +4548,6 @@
 		279F62B72065393A00ABDDBA /* license_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = license_view.cpp; sourceTree = "<group>"; };
 		279F62B82065393A00ABDDBA /* license_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = license_view.h; sourceTree = "<group>"; };
 		27A3E8891098CA7E0014F5B1 /* wba_monitor_be.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wba_monitor_be.py; path = plugins/wb.admin/backend/wba_monitor_be.py; sourceTree = "<group>"; };
-		27A3EC8D164BA997001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		27A3EC90164BA9AB001B6D8F /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/IconCollectionView.xib; sourceTree = "<group>"; };
 		27A5768610FE061C00A948A6 /* fs_object_selector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fs_object_selector.cpp; path = library/forms/fs_object_selector.cpp; sourceTree = "<group>"; };
 		27A5768910FE065000A948A6 /* fs_object_selector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fs_object_selector.h; path = library/forms/mforms/fs_object_selector.h; sourceTree = "<group>"; };
 		27AB27711D2133C4004AC480 /* parsers-common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "parsers-common.cpp"; path = "library/parsers/parsers-common.cpp"; sourceTree = "<group>"; };
@@ -5097,7 +5102,6 @@
 		2B2405731020A1BC00079580 /* app.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = app.h; path = library/forms/mforms/app.h; sourceTree = "<group>"; };
 		2B2405741020A1BC00079580 /* appview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = appview.h; path = library/forms/mforms/appview.h; sourceTree = "<group>"; };
 		2B2405771020A1CA00079580 /* app.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = app.cpp; path = library/forms/app.cpp; sourceTree = "<group>"; };
-		2B241BD11864C88700AF6794 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/WbResultsetView.xib; sourceTree = "<group>"; };
 		2B262A071471AB7F00D3D259 /* db.Schema.unloaded.side.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Schema.unloaded.side.16x16.png; path = structs/db.Schema.unloaded.side.16x16.png; sourceTree = "<group>"; };
 		2B262A5A1471F8D400D3D259 /* db.Schema.loading.side.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.Schema.loading.side.16x16.png; path = structs/db.Schema.loading.side.16x16.png; sourceTree = "<group>"; };
 		2B262BD11472B58C00D3D259 /* module_db_mysql_shared_code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = module_db_mysql_shared_code.h; path = modules/db.mysql/src/module_db_mysql_shared_code.h; sourceTree = "<group>"; };
@@ -5291,7 +5295,6 @@
 		2B26390C0E93B0F800933149 /* workbench.physical.ViewFigure.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = workbench.physical.ViewFigure.16x16.png; sourceTree = "<group>"; };
 		2B263B660E9407A700933149 /* MainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainWindowController.h; path = frontend/mac/workbench/MainWindowController.h; sourceTree = "<group>"; };
 		2B263B670E9407A700933149 /* MainWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MainWindowController.mm; path = frontend/mac/workbench/MainWindowController.mm; sourceTree = "<group>"; };
-		2B263B9A0E94210A00933149 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		2B263BC90E9463FB00933149 /* WBMainController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBMainController.h; path = frontend/mac/workbench/WBMainController.h; sourceTree = "<group>"; };
 		2B263BCA0E9463FB00933149 /* WBMainController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBMainController.mm; path = frontend/mac/workbench/WBMainController.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		2B2909CF159A0C7200708C09 /* db.ForeignKey.16x16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = db.ForeignKey.16x16.png; path = structs/db.ForeignKey.16x16.png; sourceTree = "<group>"; };
@@ -5590,7 +5593,6 @@
 		2B4C9E0710A29CDF00D5F19E /* ui_form.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ui_form.h; path = library/base/base/ui_form.h; sourceTree = "<group>"; };
 		2B4CAAF610AB14F300D5F19E /* WBPluginWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBPluginWindowController.h; path = frontend/mac/workbench/WBPluginWindowController.h; sourceTree = "<group>"; };
 		2B4CAAF710AB14F300D5F19E /* WBPluginWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBPluginWindowController.mm; path = frontend/mac/workbench/WBPluginWindowController.mm; sourceTree = "<group>"; };
-		2B4CAAFB10AB163A00D5F19E /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/PluginEditorWindow.xib; sourceTree = "<group>"; };
 		2B4CAD5210ABA9E300D5F19E /* menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = menu.cpp; path = library/forms/menu.cpp; sourceTree = "<group>"; };
 		2B4CAD5510ABA9F000D5F19E /* menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = menu.h; path = library/forms/mforms/menu.h; sourceTree = "<group>"; };
 		2B4D18BC123F19BF004E6309 /* clear_output.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = clear_output.png; path = images/toolbar/clear_output.png; sourceTree = "<group>"; };
@@ -6206,7 +6208,6 @@
 		2B96166C0F275B0A00F0B599 /* textbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = textbox.h; path = library/forms/mforms/textbox.h; sourceTree = "<group>"; };
 		2B96166D0F275B0A00F0B599 /* textentry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = textentry.h; path = library/forms/mforms/textentry.h; sourceTree = "<group>"; };
 		2B96166F0F275B0A00F0B599 /* view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = view.h; path = library/forms/mforms/view.h; sourceTree = "<group>"; wrapsLines = 0; };
-		2B96EA3210F43226004E6875 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/PageSetup.xib; sourceTree = "<group>"; };
 		2B98345A15FA2F080038D5ED /* record_import.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = record_import.png; path = images/toolbar/record_import.png; sourceTree = "<group>"; };
 		2B9834EF160259620038D5ED /* db_postgresql_migration_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_postgresql_migration_grt.py; path = modules/db.postgresql/db_postgresql_migration_grt.py; sourceTree = "<group>"; };
 		2B9834F0160259620038D5ED /* db_postgresql_re_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_postgresql_re_grt.py; path = modules/db.postgresql/db_postgresql_re_grt.py; sourceTree = "<group>"; };
@@ -6776,7 +6777,6 @@
 		2BF98AAF123A098E008DDCD0 /* wb_server_control.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_server_control.py; path = plugins/wb.admin/backend/wb_server_control.py; sourceTree = "<group>"; };
 		2BF98AB0123A098E008DDCD0 /* wb_server_management.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_server_management.py; path = plugins/wb.admin/backend/wb_server_management.py; sourceTree = "<group>"; };
 		2BF98AFF123A8892008DDCD0 /* wb_common.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_common.py; path = plugins/wb.admin/backend/wb_common.py; sourceTree = "<group>"; };
-		2BFBEFE90F50941C0016F9D1 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = frontend/mac/English.lproj/DiagramOptions.xib; sourceTree = "<group>"; };
 		2BFBEFEC0F5095E10016F9D1 /* WBDiagramSizeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBDiagramSizeController.h; path = frontend/mac/workbench/WBDiagramSizeController.h; sourceTree = "<group>"; };
 		2BFBEFED0F5095E10016F9D1 /* WBDiagramSizeController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WBDiagramSizeController.mm; path = frontend/mac/workbench/WBDiagramSizeController.mm; sourceTree = "<group>"; };
 		2BFBF00C0F518C8A0016F9D1 /* MySQLRoutineEditor.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MySQLRoutineEditor.xib; path = plugins/db.mysql.editors/macosx/MySQLRoutineEditor.xib; sourceTree = "<group>"; };
@@ -13342,7 +13342,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					27D8079D1A3F262D00EDCA8F = {
@@ -13357,6 +13357,7 @@
 			knownRegions = (
 				en,
 				English,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* MySQLWorkbench */;
 			projectDirPath = "";
@@ -16377,7 +16378,7 @@
 		27A3EC8C164BA997001B6D8F /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				27A3EC8D164BA997001B6D8F /* English */,
+				273E436421523DB8001FEE8C /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -16385,7 +16386,7 @@
 		27A3EC8F164BA9AB001B6D8F /* IconCollectionView.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				27A3EC90164BA9AB001B6D8F /* English */,
+				273E436121523DB6001FEE8C /* Base */,
 			);
 			name = IconCollectionView.xib;
 			sourceTree = "<group>";
@@ -16393,7 +16394,7 @@
 		2B241BD01864C88700AF6794 /* WbResultsetView.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2B241BD11864C88700AF6794 /* English */,
+				273E435E21523DB5001FEE8C /* Base */,
 			);
 			name = WbResultsetView.xib;
 			sourceTree = "<group>";
@@ -16401,7 +16402,7 @@
 		2B263B990E94210A00933149 /* MainWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2B263B9A0E94210A00933149 /* English */,
+				273E435F21523DB5001FEE8C /* Base */,
 			);
 			name = MainWindow.xib;
 			sourceTree = "<group>";
@@ -16409,7 +16410,7 @@
 		2B4CAAFA10AB163A00D5F19E /* PluginEditorWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2B4CAAFB10AB163A00D5F19E /* English */,
+				273E436221523DB6001FEE8C /* Base */,
 			);
 			name = PluginEditorWindow.xib;
 			sourceTree = "<group>";
@@ -16426,7 +16427,7 @@
 		2B96EA3110F43226004E6875 /* PageSetup.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2B96EA3210F43226004E6875 /* English */,
+				273E436321523DB7001FEE8C /* Base */,
 			);
 			name = PageSetup.xib;
 			sourceTree = "<group>";
@@ -16434,7 +16435,7 @@
 		2BFBEFE80F50941C0016F9D1 /* DiagramOptions.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2BFBEFE90F50941C0016F9D1 /* English */,
+				273E436021523DB5001FEE8C /* Base */,
 			);
 			name = DiagramOptions.xib;
 			sourceTree = "<group>";
@@ -16455,7 +16456,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_DEBUG,
 					__CORRECT_ISO_CPP_STRING_H_PROTO,
 				);
@@ -16491,7 +16491,6 @@
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = HAVE_PRECOMPILED_HEADERS;
 				GCC_WARN_SIGN_COMPARE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -16792,7 +16791,6 @@
 					ENABLE_PYTHON_MODULES,
 					SCI_NAMESPACE,
 					SCI_LEXERS,
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
 					ENABLE_DEBUG,
 				);
@@ -16840,7 +16838,6 @@
 					ENABLE_PYTHON_MODULES,
 					SCI_NAMEPSACE,
 					SCI_LEXERS,
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -18278,7 +18275,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BOOST_NO_CXX11_RVALUE_REFERENCES,
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_DEBUG,
 					HAVE_STRTOUL,
 					USE_MB_IDENT,
@@ -18309,7 +18305,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BOOST_NO_CXX11_RVALUE_REFERENCES,
-					HAVE_PRECOMPILED_HEADERS,
 					HAVE_STRTOUL,
 					USE_MB_IDENT,
 					USE_MB,
@@ -18672,7 +18667,6 @@
 					ENABLE_PYTHON_MODULES,
 					SCI_NAMESPACE,
 					SCI_LEXERS,
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
 					ENABLE_DEBUG,
 				);
@@ -18722,7 +18716,6 @@
 					ENABLE_PYTHON_MODULES,
 					SCI_NAMEPSACE,
 					SCI_LEXERS,
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_TESTING,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -18898,7 +18891,6 @@
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BOOST_NO_CXX11_RVALUE_REFERENCES,
-					HAVE_PRECOMPILED_HEADERS,
 					ENABLE_DEBUG,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -18922,7 +18914,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
@@ -18966,10 +18958,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "prefix/$(PRODUCT_NAME)_prefix.h";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					BOOST_NO_CXX11_RVALUE_REFERENCES,
-					HAVE_PRECOMPILED_HEADERS,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = BOOST_NO_CXX11_RVALUE_REFERENCES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
@@ -18991,7 +18980,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;

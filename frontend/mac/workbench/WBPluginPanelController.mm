@@ -44,7 +44,7 @@
     NSRect rect = NSZeroRect;
     rect.size = editor.minimumSize;
 
-    _panel = [[NSPanel alloc] initWithContentRect:rect styleMask:0 backing:NSBackingStoreNonretained defer:NO];
+    _panel = [[NSPanel alloc] initWithContentRect: rect styleMask: 0 backing: NSBackingStoreBuffered defer: NO];
     _editor = editor;
     
     _panel.title = _editor.title;

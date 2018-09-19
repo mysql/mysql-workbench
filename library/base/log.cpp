@@ -21,7 +21,6 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
 #include <stdio.h>
 #include <stdarg.h>
@@ -30,7 +29,6 @@
 #include <vector>
 
 #include <glib/gstdio.h>
-#endif
 
 #include "base/c++helpers.h"
 

@@ -23,9 +23,7 @@
 
 #pragma once
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <unordered_set>
-#endif
 
 namespace base {
 #ifndef _MSC_VER

@@ -21,11 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <stdio.h>
 #include <boost/scoped_array.hpp>
 #include <string.h>
-#endif
 
 #include "base/string_utilities.h"
 #include "base/util_functions.h"

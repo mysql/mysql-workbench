@@ -29,7 +29,6 @@
 #include <glib.h>
 #endif
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <inttypes.h>
 #include <string>
 #include <list>
@@ -41,7 +40,6 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <iomanip>
-#endif
 
 #define _(s) s // TODO: replace with localization code.
 

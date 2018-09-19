@@ -240,6 +240,8 @@ TEST_FUNCTION(5) {
   db_mgmt_DriverRef driverProperties(grt::Initialized);
   driverProperties->driverLibraryName(grt::StringRef("mysqlcppconn"));
   connectionProperties->driver(driverProperties);
+  connectionProperties->hostIdentifier(std::string("Mysql@") + config.localhost + ":" +
+    std::to_string(config.remoteport));
 
   try {
     std::vector<sql::ConnectionWrapper> wrapperList;

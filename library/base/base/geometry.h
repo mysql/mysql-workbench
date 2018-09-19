@@ -28,9 +28,7 @@
  * like point, rectangle and the like.
  */
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <stdio.h>
-#endif
 
 #ifndef SWIG
 #include "common.h"

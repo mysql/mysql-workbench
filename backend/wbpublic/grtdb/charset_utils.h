@@ -23,9 +23,7 @@
 
 #pragma once
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
-#endif
 
 #include "wbpublic_public_interface.h"
 

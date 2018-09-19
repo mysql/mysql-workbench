@@ -37,34 +37,35 @@
 #endif
 
 #include <errno.h>
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
 #include <cstring>
 #include <exception>
 #include <thread>
 #include <atomic>
 #include <mutex>
-#endif 
+
 #ifndef _MSC_VER
-#include <poll.h>
+  #include <poll.h>
 #endif
+
 #include <libssh/callbacks.h>
+
 #include "base/threading.h"
 
 #ifndef NOEXCEPT
-#if defined(_MSC_VER) || defined(__APPLE__)
-#define NOEXCEPT _NOEXCEPT
-#else
-#ifndef _GLIBCXX_USE_NOEXCEPT
-#define NOEXCEPT throw()
-#else
-#define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
-#endif
-#endif
+  #if defined(_MSC_VER) || defined(__APPLE__)
+    #define NOEXCEPT _NOEXCEPT
+  #else
+    #ifndef _GLIBCXX_USE_NOEXCEPT
+      #define NOEXCEPT throw()
+    #else
+      #define NOEXCEPT _GLIBCXX_USE_NOEXCEPT
+    #endif
+  #endif
 #endif
 
 #ifdef _MSC_VER
-typedef int socklen_t;
+  typedef int socklen_t;
 #endif
 
 struct ssh_threads_callbacks_struct * ssh_threads_get_std_threads(void);

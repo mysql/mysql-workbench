@@ -21,10 +21,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <assert.h>
 #include <algorithm>
-#endif
 
 #include "base/util_functions.h"
 #include "base/log.h"

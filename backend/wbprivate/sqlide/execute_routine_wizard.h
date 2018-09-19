@@ -25,9 +25,7 @@
 
 #include "mforms/form.h"
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include "grts/structs.db.mysql.h"
-#endif
 
 namespace mforms {
   class Button;

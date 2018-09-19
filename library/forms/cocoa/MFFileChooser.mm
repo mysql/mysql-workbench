@@ -165,7 +165,7 @@ static bool filechooser_run_modal(mforms::FileChooser *self)
     chooser->mPanel.message = @"";
     if (filename != nil)
       chooser->mPanel.nameFieldStringValue = filename;
-    if ([chooser->mPanel runModal] == NSFileHandlingPanelOKButton)
+    if ([chooser->mPanel runModal] == NSModalResponseOK)
       return true;
   }
   return false;

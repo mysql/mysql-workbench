@@ -21,11 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <algorithm>
 #include <string>
 #include <map>
-#endif
 
 #include "base/string_utilities.h"
 #include "charset_utils.h"

@@ -76,7 +76,7 @@
   NSOpenPanel *panel= [NSOpenPanel openPanel];
   panel.title = @"Select file to upload";
   
-  if ([panel runModal] == NSFileHandlingPanelOKButton)
+  if ([panel runModal] == NSModalResponseOK)
     [resultListener chooseFilename: panel.URL.path];
   else
     [resultListener cancel];

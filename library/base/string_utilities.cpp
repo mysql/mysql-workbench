@@ -25,7 +25,6 @@
 #include "base/file_functions.h"
 #include "base/log.h"
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <stdexcept>
 #include <functional>
 #include <locale>
@@ -35,7 +34,6 @@
 #include <string.h>
 #include <fstream>
 #include <boost/locale/encoding_utf.hpp>
-#endif
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
 

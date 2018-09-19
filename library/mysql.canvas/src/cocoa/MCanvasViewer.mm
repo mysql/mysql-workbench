@@ -103,7 +103,6 @@ static void canvas_view_needs_repaint(int x, int y, int w, int h, void *viewer) 
   [super resetCursorRects];
   if (_cursor) {
     [self addCursorRect: self.bounds cursor: _cursor];
-    [_cursor setOnMouseEntered: YES];
   }
 }
 

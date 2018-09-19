@@ -21,16 +21,13 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _THREADED_TIMER_H_
-#define _THREADED_TIMER_H_
+#pragma once
 
 #include "common.h"
 
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include "glib.h"
 #include <list>
 #include <functional>
-#endif
 
 #include "base/threading.h"
 
@@ -90,5 +87,3 @@ private:
   void main_loop();
   bool remove(int task_id);
 };
-
-#endif // _THREADED_TIMER_H_

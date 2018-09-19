@@ -53,14 +53,8 @@
 #define BASELIBRARY_PUBLIC_FUNC
 #endif
 
-#if defined(_MSC_VER) || defined(__APPLE)
-#define HAVE_PRECOMPILED_HEADERS
-#endif
-
-#ifndef HAVE_PRECOMPILED_HEADERS
 #include <string>
 #include <math.h>
-#endif
 
 #ifdef _MSC_VER
 #ifndef strcasecmp

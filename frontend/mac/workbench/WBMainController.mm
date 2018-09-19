@@ -112,7 +112,7 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
     panel.title = @(title.c_str());
     panel.allowedFileTypes = fileTypes;
 
-    if ([panel runModal] == NSFileHandlingPanelOKButton)
+    if ([panel runModal] == NSModalResponseOK)
       return (panel.URL.path).UTF8String;
   } else if (type == "save") {
     NSSavePanel *panel = [NSSavePanel savePanel];
@@ -121,7 +121,7 @@ static std::string showFileDialog(const std::string &type, const std::string &ti
 
     panel.allowedFileTypes = fileTypes;
 
-    if ([panel runModal] == NSFileHandlingPanelOKButton)
+    if ([panel runModal] == NSModalResponseOK)
       return (panel.URL.path).UTF8String;
   }
 
