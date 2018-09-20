@@ -532,6 +532,7 @@
 		27B923CF196ED20000D98D18 /* parser_ContextReference_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 27B923C9196ED20000D98D18 /* parser_ContextReference_impl.h */; };
 		27B923D0196ED20000D98D18 /* parser_ContextReference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27B923CA196ED20000D98D18 /* parser_ContextReference.cpp */; };
 		27B923D2196EDB1300D98D18 /* libparsers.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* libparsers.dylib */; };
+		27B94D612153B6A300E0BF3E /* ssh_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44F15627202E01F700E8C648 /* ssh_test.cpp */; };
 		27BFE4561924B80D0070B8FB /* db.mysql.parser.grt_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4551924B80D0070B8FB /* db.mysql.parser.grt_prefix.h */; };
 		27BFE4581924B89E0070B8FB /* wbpublic.be_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE4571924B89E0070B8FB /* wbpublic.be_prefix.h */; };
 		27BFE45B1924BB080070B8FB /* WBExtras_prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 27BFE45A1924BB080070B8FB /* WBExtras_prefix.h */; };
@@ -15701,6 +15702,7 @@
 				8EF3D2CF205823A400FCF385 /* hierarchy.cpp in Sources */,
 				8EF3D2D0205823A400FCF385 /* grt_module_test.cpp in Sources */,
 				8EF3D2D1205823A400FCF385 /* string_utilities_test.cpp in Sources */,
+				27B94D612153B6A300E0BF3E /* ssh_test.cpp in Sources */,
 				8EF3D2D2205823A400FCF385 /* code_editor_test.cpp in Sources */,
 				8EF3D2D3205823A400FCF385 /* connection_helpers.cpp in Sources */,
 				8EF3D2D4205823A400FCF385 /* wb_helpers.cpp in Sources */,
