@@ -2221,22 +2221,8 @@
                     <value type="string" key="command">builtin:web_mysql_home</value>
                     <value type="string" key="itemType">action</value>
                 </value>
-                <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_home">
-                    <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
-                    <value type="string" key="caption">Workbench Product Page</value>
-                    <value type="string" key="name">web_home</value>
-                    <value type="string" key="command">builtin:web_home</value>
-                    <value type="string" key="itemType">action</value>
-                </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.help.web_standard_edition/SE">
                     <value type="string" key="itemType">separator</value>
-                </value>
-                <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_edelivery/SE">
-                    <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
-                    <value type="string" key="caption">Oracle eDelivery</value>
-                    <value type="string" key="name">web_edelivery</value>
-                    <value type="string" key="command">builtin:web_edelivery</value>
-                    <value type="string" key="itemType">action</value>
                 </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.web_support/SE">
                     <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
@@ -2253,13 +2239,6 @@
                     <value type="string" key="caption">Report a Bug</value>
                     <value type="string" key="name">report_a_bug</value>
                     <value type="string" key="command">plugin:wb.form.reportBug:from_menu</value>
-                    <value type="string" key="itemType">action</value>
-                </value>
-                <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.list_bugs">
-                    <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.help</link>
-                    <value type="string" key="caption">View Reported Bugs</value>
-                    <value type="string" key="name">list_bugs</value>
-                    <value type="string" key="command">builtin:list_bugs</value>
                     <value type="string" key="itemType">action</value>
                 </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.help.locate_log_file">

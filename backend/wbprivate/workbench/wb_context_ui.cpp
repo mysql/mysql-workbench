@@ -309,17 +309,10 @@ void WBContextUI::add_backend_builtin_commands() {
       "web_mysql_forum", std::bind(&WBContextUI::show_web_page, this, "https://forums.mysql.com/list.php?152", true));
 
   if (_wb->is_commercial()) {
-    _command_ui->add_builtin_command("web_edelivery",
-                                     std::bind(&WBContextUI::show_web_page, this, "http://edelivery.oracle.com", true));
-
     _command_ui->add_builtin_command("web_support",
                                      std::bind(&WBContextUI::show_web_page, this, "http://support.oracle.com", true));
   }
 
-  _command_ui->add_builtin_command(
-      "web_home", std::bind(&WBContextUI::show_web_page, this, "http://mysql.com/products/tools/workbench/", true));
-  _command_ui->add_builtin_command(
-      "list_bugs", std::bind(&WBContextUI::show_web_page, this, "http://bugs.mysql.com/saved/WBBugs", true));
   _command_ui->add_builtin_command("help_index", std::bind(&WBContextUI::show_help_index, this));
   _command_ui->add_builtin_command("show-license", std::bind(&WBContextUI::showLicense, this));
   _command_ui->add_builtin_command("locate_log_file", std::bind(&WBContextUI::locate_log_file, this));
