@@ -71,22 +71,6 @@
             argument = "only file_utilities_test"
             isEnabled = "YES">
          </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--host=127.0.0.1"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--port=3306"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--user-name=root"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--password=root"
-            isEnabled = "YES">
-         </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
