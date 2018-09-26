@@ -319,8 +319,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [self notifyObjectSwitched];
 }
 
-- (void)awakeFromNib;
-{
+- (void)awakeFromNib {
   [mTabSwitcher setTabStyle:MEditorBottomTabSwitcher];
 
   // collapse header by default
@@ -384,8 +383,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
 //--------------------------------------------------------------------------------------------------
 
-- (void)dealloc;
-{
+- (void)dealloc {
   [NSRunLoop cancelPreviousPerformRequestsWithTarget:self];
   delete mBackEnd;
 }
@@ -395,8 +393,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 #pragma mark Refreshing of views
 
 // Set up values for the Table tab.
-- (void)refreshTableEditorGUITableTab;
-{
+- (void)refreshTableEditorGUITableTab {
   if (mBackEnd != nil) {
     NSString* name = [NSString stringWithCPPString: mBackEnd->get_name()];
     [mTableName setStringValue:name];
@@ -439,8 +436,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 }
 
 // Set up values for the Columns tab.
-- (void)refreshTableEditorGUIColumnsTab;
-{
+- (void)refreshTableEditorGUIColumnsTab {
   [mColumnsTable reloadData];
 
   NSInteger rowIndex = [mColumnsTable selectedRow];
@@ -512,8 +508,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 }
 
-- (void)refreshTableEditorGUIIndicesTab;
-{
+- (void)refreshTableEditorGUIIndicesTab {
   id col = [mIndicesTable tableColumnWithIdentifier: @"type"];
   id cell = [col dataCell];
   MFillPopupButtonWithStrings(cell, mBackEnd->get_index_types());
@@ -566,8 +561,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 }
 
-- (void)refreshTableEditorGUIFKTab;
-{
+- (void)refreshTableEditorGUIFKTab {
   [mIndicesTable reloadData];
 
   {
@@ -610,8 +604,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 }
 
-- (void)refreshTableEditorGUIPartitioningTab;
-{
+- (void)refreshTableEditorGUIPartitioningTab {
   [mPartitionTable reloadData];
 
   std::string prtn_type = mBackEnd->get_partition_type();
@@ -679,8 +672,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [mPartitionTable setEnabled:tabViewEnabled];
 }
 
-- (void)refreshTableEditorGUIOptionsTab;
-{
+- (void)refreshTableEditorGUIOptionsTab {
   // General options
 
   NSString* option = @(mBackEnd->get_table_option_by_name("PACK_KEYS").c_str());
@@ -747,8 +739,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     mBackEnd->load_trigger_sql();
 }
 
-- (void)refreshTableEditorGUI;
-{
+- (void)refreshTableEditorGUI {
   [self refreshTableEditorGUITableTab];
   [self refreshTableEditorGUIColumnsTab];
   [self refreshTableEditorGUIIndicesTab];
@@ -761,8 +752,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 /**
  * Converts the current placeholder (the last line in the columns grid into a real column.
  */
-- (void)activateColumnPlaceholder: (NSUInteger)rowIndex;
-{
+- (void)activateColumnPlaceholder: (NSUInteger)rowIndex {
   // The following code is a bit involved, but it makes the tablew view
   // properly display the default PK column name and all its other settings.
 
@@ -779,8 +769,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [mColumnsTable reloadData];
 }
 
-- (void)switchToColumnsTab;
-{
+- (void)switchToColumnsTab {
   if (![[[mEditorsTabView selectedTabViewItem] identifier] isEqual: @"columns"]) {
     [mEditorsTabView selectTabViewItemWithIdentifier: @"columns"];
 
@@ -804,8 +793,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
 #pragma mark Table view support
 
-- (NSInteger)numberOfRowsInTableView: (NSTableView*)aTableView;
-{
+- (NSInteger)numberOfRowsInTableView: (NSTableView*)aTableView {
   NSInteger number;
 
   if (aTableView == mColumnsTable) {
@@ -827,8 +815,9 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   return number;
 }
 
-- (id)tableView: (NSTableView*)aTableView objectValueForTableColumn: (NSTableColumn*)aTableColumn row: (NSInteger)rowIndex;
-{
+          - (id)tableView: (NSTableView*)aTableView
+objectValueForTableColumn: (NSTableColumn*)aTableColumn
+                      row: (NSInteger)rowIndex {
   NSString* obj = shouldRaiseException;
 
   id identifier = [aTableColumn identifier];
@@ -913,8 +902,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 - (void)tableView: (NSTableView*)aTableView
   willDisplayCell: (id)aCell
    forTableColumn: (NSTableColumn*)aTableColumn
-              row: (NSInteger)rowIndex;
-{
+              row: (NSInteger)rowIndex {
   id identifier = [aTableColumn identifier];
 
   if (aTableView == mColumnsTable) {
@@ -984,8 +972,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   return 0;
 }
 
-- (void)tableViewSelectionDidChange: (NSNotification*)aNotification;
-{
+- (void)tableViewSelectionDidChange: (NSNotification*)aNotification {
   id sender = [aNotification object];
   if (sender == mColumnsTable) {
     [self refreshTableEditorGUIColumnsTab];
@@ -999,8 +986,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 - (void)tableView: (NSTableView*)aTableView
    setObjectValue: (id)anObject
    forTableColumn: (NSTableColumn*)aTableColumn
-              row: (NSInteger)rowIndex;
-{
+              row: (NSInteger)rowIndex {
   BOOL shouldRefreshGUI = YES;
 
   id identifier = [aTableColumn identifier];
@@ -1194,7 +1180,9 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   }
 }
 
-- (BOOL)tableView: (NSTableView*)aTableView shouldEditTableColumn: (NSTableColumn*)aTableColumn row: (NSInteger)rowIndex {
+    - (BOOL)tableView: (NSTableView*)aTableView
+shouldEditTableColumn: (NSTableColumn*)aTableColumn
+                  row: (NSInteger)rowIndex {
   // Activate the placeholder row and set the default value if this is the name column.
   if (aTableView == mColumnsTable && rowIndex == [mColumnsDataSource numberOfRowsInTableView:aTableView] - 1) {
     NSString* columnName = [mColumnsDataSource objectValueForValueIndex:bec::TableColumnsListBE::Name row: rowIndex];

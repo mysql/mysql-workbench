@@ -2174,10 +2174,10 @@ expr:
 ;
 
 boolPri:
-    predicate                                                                            # primaryExprPredicate
-    | boolPri IS_SYMBOL notRule? NULL_SYMBOL                                             # primaryExprIsNull
-    | boolPri compOp predicate                                                           # primaryExprCompare
-    | boolPri compOp (ALL_SYMBOL | ANY_SYMBOL) OPEN_PAR_SYMBOL subquery CLOSE_PAR_SYMBOL # primaryExprAllAny
+    predicate                                           # primaryExprPredicate
+    | boolPri IS_SYMBOL notRule? NULL_SYMBOL            # primaryExprIsNull
+    | boolPri compOp predicate                          # primaryExprCompare
+    | boolPri compOp (ALL_SYMBOL | ANY_SYMBOL) subquery # primaryExprAllAny
 ;
 
 compOp:
