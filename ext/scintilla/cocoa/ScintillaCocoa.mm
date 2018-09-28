@@ -729,7 +729,7 @@ Scintilla::Point ScintillaCocoa::GetVisibleOriginInMain() const
 {
   NSScrollView *scrollView = ScrollContainer();
   NSRect contentRect = [[scrollView contentView] bounds];
-  return Point(static_cast<XYPOSITION>(contentRect.origin.x), static_cast<XYPOSITION>(contentRect.origin.y));
+  return Point(static_cast<XYPOSITION>(contentRect.origin.x + vs.fixedColumnWidth), static_cast<XYPOSITION>(contentRect.origin.y));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1926,7 +1926,7 @@ void ScintillaCocoa::SetVerticalScrollPos()
   if (scrollView) {
     NSClipView *clipView = [scrollView contentView];
     NSRect contentRect = [clipView bounds];
-    [clipView scrollToPoint: NSMakePoint(contentRect.origin.x, topLine * vs.lineHeight)];
+    [clipView scrollToPoint: NSMakePoint(xOffset-vs.fixedColumnWidth, contentRect.origin.y)];
     [scrollView reflectScrolledClipView:clipView];
   }
 }
@@ -1974,6 +1974,7 @@ bool ScintillaCocoa::ModifyScrollBars(int nMax, int nPage)
 bool ScintillaCocoa::SetScrollingSize(void) {
 	bool changes = false;
 	SCIContentView *inner = ContentView();
+  [sciView setMarginWidth: vs.fixedColumnWidth];
 	if (!enteredSetScrollingSize) {
 		enteredSetScrollingSize = true;
 		NSScrollView *scrollView = ScrollContainer();
@@ -2005,7 +2006,6 @@ bool ScintillaCocoa::SetScrollingSize(void) {
 		SetVerticalScrollPos();
 		enteredSetScrollingSize = false;
 	}
-	[sciView setMarginWidth: vs.fixedColumnWidth];
 	return changes;
 }
 
