@@ -116,6 +116,7 @@ private:
 
   FindHighlightLayer *layerFindIndicator;
 
+  int osVersion; // ml: temporary workaround
 protected:
   Point GetVisibleOriginInMain() const;
   PRectangle GetClientRectangle() const;
