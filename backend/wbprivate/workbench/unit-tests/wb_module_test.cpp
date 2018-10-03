@@ -63,11 +63,9 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
   ensure_false("Windows, no version", isOsSupportedProxy("Windows"));
   ensure_false("Windows, old", isOsSupportedProxy("Windows 98"));
   ensure_false("Windows, old, extra chars", isOsSupportedProxy("..... Windows 98 ....."));
-  ensure_true("Windows, supported", isOsSupportedProxy("Windows 8"));
-  ensure_true("Windows, supported, extra chars", isOsSupportedProxy("..... Windows 8 ....."));
-  ensure_true("Windows, subversion, supported", isOsSupportedProxy("Windows 8.1"));
-  ensure_true("Windows, subversion, supported, extra chars", isOsSupportedProxy("..... Windows 8.1 ....."));
-  ensure_false("Windows, chars between name and version", isOsSupportedProxy("..... Windows ..... 8 ....."));
+  ensure_true("Windows, supported", isOsSupportedProxy("Windows 10"));
+  ensure_true("Windows, supported, extra chars", isOsSupportedProxy("..... Windows 10 ....."));
+  ensure_false("Windows, chars between name and version", isOsSupportedProxy("..... Windows ..... 10 ....."));
 
   // debian-based
   ensure_false("Ubuntu, no version", isOsSupportedProxy("Ubuntu"));
@@ -76,11 +74,14 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
   ensure_false("Ubuntu, supported, no 64-bit", isOsSupportedProxy("Ubuntu 15.04"));
   ensure_false("Ubuntu, supported, 32-bit", isOsSupportedProxy("Ubuntu 15.04 i386"));
   ensure_false("Ubuntu, supported, 32-bit, extra chars", isOsSupportedProxy("..... Ubuntu 15.04 i386 ....."));
-  ensure_true("Ubuntu, supported", isOsSupportedProxy("Ubuntu 16.04 x86_64"));
-  ensure_true("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 16.04 ..... x86_64 ....."));
-  ensure_true("Ubuntu, subversion, supported", isOsSupportedProxy("Ubuntu 16.04.2 x86_64"));
-  ensure_true("Ubuntu, subversion, supported, extra chars",
-              isOsSupportedProxy("..... Ubuntu 16.04.2 ..... x86_64 ....."));
+  ensure_false("Ubuntu, supported", isOsSupportedProxy("Ubuntu 16.04 x86_64"));
+  ensure_false("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 16.04 ..... x86_64 ....."));
+  ensure_false("Ubuntu, subversion, supported", isOsSupportedProxy("Ubuntu 16.04.2 x86_64"));
+
+  ensure_true("Ubuntu, supported", isOsSupportedProxy("Ubuntu 18.04 x86_64"));
+  ensure_true("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 18.04 ..... x86_64 ....."));
+  ensure_true("Ubuntu, supported", isOsSupportedProxy("Ubuntu 18.10 x86_64"));
+    ensure_true("Ubuntu, supported, extra chars", isOsSupportedProxy("..... Ubuntu 18.10 ..... x86_64 ....."));
   ensure_false("Ubuntu, chars between name and version",
                isOsSupportedProxy("..... Ubuntu ..... 16.04 ..... x86_64 ....."));
 
@@ -116,11 +117,13 @@ TEST_FUNCTION(5) // test WorkbenchImpl::isOsSupported()
 
   // other debian-based
   ensure_false("Debian, old", isOsSupportedProxy("Debian 5 x86_64"));
-  ensure_true("Debian, supported", isOsSupportedProxy("Debian 8 x86_64"));
+  ensure_true("Debian, supported", isOsSupportedProxy("Debian 9 x86_64"));
 
   // other red-hat-based
   ensure_false("Fedora, old", isOsSupportedProxy("Fedora release 26 x86_64"));
+  ensure_false("Fedora, old", isOsSupportedProxy("Fedora release 27 x86_64"));
   ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 28 x86_64"));
+  ensure_true("Fedora, supported", isOsSupportedProxy("Fedora release 29 x86_64"));
 }
 
 // Due to the tut nature, this must be executed as a last test always,
