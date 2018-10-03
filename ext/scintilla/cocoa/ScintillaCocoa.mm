@@ -397,8 +397,18 @@ const CGFloat paddingHighlightY = 2;
 
 //----------------- ScintillaCocoa -----------------------------------------------------------------
 
+#include <sys/utsname.h>
+
 ScintillaCocoa::ScintillaCocoa(ScintillaView* sciView_, SCIContentView* viewContent, SCIMarginView* viewMargin)
 {
+  // ml: temporary workaround:
+  struct utsname info;
+
+  if (uname(&info) >= 0) {
+    osVersion = std::stoi(info.release);
+  } else
+    osVersion = 17;
+
   vs.marginInside = false;
 
   // Don't retain since we're owned by view, which would cause a cycle
@@ -729,7 +739,11 @@ Scintilla::Point ScintillaCocoa::GetVisibleOriginInMain() const
 {
   NSScrollView *scrollView = ScrollContainer();
   NSRect contentRect = [[scrollView contentView] bounds];
-  return Point(static_cast<XYPOSITION>(contentRect.origin.x + vs.fixedColumnWidth), static_cast<XYPOSITION>(contentRect.origin.y));
+
+  if (osVersion < 18)
+    return Point(static_cast<XYPOSITION>(contentRect.origin.x), static_cast<XYPOSITION>(contentRect.origin.y));
+  else
+    return Point(static_cast<XYPOSITION>(contentRect.origin.x + vs.fixedColumnWidth), static_cast<XYPOSITION>(contentRect.origin.y));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1926,7 +1940,10 @@ void ScintillaCocoa::SetVerticalScrollPos()
   if (scrollView) {
     NSClipView *clipView = [scrollView contentView];
     NSRect contentRect = [clipView bounds];
-    [clipView scrollToPoint: NSMakePoint(xOffset-vs.fixedColumnWidth, contentRect.origin.y)];
+    if (osVersion < 18)
+      [clipView scrollToPoint: NSMakePoint(contentRect.origin.x, topLine * vs.lineHeight)];
+    else
+      [clipView scrollToPoint: NSMakePoint(xOffset-vs.fixedColumnWidth, contentRect.origin.y)];
     [scrollView reflectScrolledClipView:clipView];
   }
 }
@@ -1974,7 +1991,8 @@ bool ScintillaCocoa::ModifyScrollBars(int nMax, int nPage)
 bool ScintillaCocoa::SetScrollingSize(void) {
 	bool changes = false;
 	SCIContentView *inner = ContentView();
-  [sciView setMarginWidth: vs.fixedColumnWidth];
+  if (osVersion >= 18)
+    [sciView setMarginWidth: vs.fixedColumnWidth];
 	if (!enteredSetScrollingSize) {
 		enteredSetScrollingSize = true;
 		NSScrollView *scrollView = ScrollContainer();
@@ -2006,6 +2024,8 @@ bool ScintillaCocoa::SetScrollingSize(void) {
 		SetVerticalScrollPos();
 		enteredSetScrollingSize = false;
 	}
+  if (osVersion < 18)
+    [sciView setMarginWidth: vs.fixedColumnWidth];
 	return changes;
 }
 
