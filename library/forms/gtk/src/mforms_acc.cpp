@@ -168,8 +168,9 @@ namespace mforms {
       object_class->ref_child = mformsGTKAccessible::refChild;
 
       mforms_object_accessible_parent_class = g_type_class_peek_parent(klass);
-
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
       g_type_class_add_private(klass, sizeof(mformsObjectAccessiblePrivate));
+      G_GNUC_END_IGNORE_DEPRECATIONS
     }
 
     // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
