@@ -39,14 +39,9 @@
 
 #define MFORMS_OBJECT_ACCESSIBLE(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), MFORMS_TYPE_OBJECT_ACCESSIBLE, mformsObjectAccessible))
 #define MFORMS_TYPE_OBJECT_ACCESSIBLE (mforms_object_accessible_get_type(0))
-// We can't use priv member because of dynamic inheritance, so we don't actually know the offset.  Meh.
-#define MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(inst) (G_TYPE_INSTANCE_GET_PRIVATE((inst), MFORMS_TYPE_OBJECT_ACCESSIBLE, mformsObjectAccessiblePrivate))
 
 namespace mforms {
   namespace gtk {
-
-    void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value,
-                                                     GParamSpec *pspec);
 
     typedef GtkAccessible mformsObjectAccessible;
     typedef GtkAccessibleClass mformsObjectAccessibleClass;
@@ -56,8 +51,6 @@ namespace mforms {
     class mformsGTK;
 
     class mformsGTKAccessible {
-      friend void mforms_object_accessible_child_set_property(GObject *object, guint property_id, const GValue *value,
-                                                              GParamSpec *pspec);
     public:
       class AtkActionIface {
       public:
@@ -148,6 +141,10 @@ namespace mforms {
 
     GType mforms_get_type();
     GType mforms_object_accessible_get_type(GType parent_type G_GNUC_UNUSED);
+    static gint mformsObject_private_offset = 0;
+    static inline mformsObjectAccessiblePrivate* mforms_get_instance_private(mformsObjectAccessible *self) {
+      return reinterpret_cast<mformsObjectAccessiblePrivate*>(G_STRUCT_MEMBER_P(self, mformsObject_private_offset));
+    }
 
     GtkWidget* mforms_new();
   }
