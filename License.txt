@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Workbench 8.0.
 
-   Last updated: June 2018.
+   Last updated: September 2018.
 
 Licensing Information
 
@@ -491,6 +491,38 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+AT-SPI
+
+   MySQL Workbench uses only numerical parameters, data structure layouts
+   and accessors, and small macros and small inline functions (ten lines
+   or less in length) from AT-SPI
+
+   AT-SPI is licensed as follows:
+AT-SPI - Assistive Technology Service Provider Interface
+(Gnome Accessibility Project; http://developer.gnome.org/projects/gap)
+
+Copyright 2001, 2002 Sun Microsystems Inc.,
+Copyright 2001, 2002 Ximian, Inc.
+Copyright 2010, 2011 Novell, Inc.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Library General Public
+License as published by the Free Software Foundation; either
+version 2 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Library General Public
+License along with this library; if not, write to the
+Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+Boston, MA 02111-1307, USA.
+
+   This component is licensed under GNU Lesser General Public License
+   Version 2, June 1991.
+
 Bitstream Vera
 
    The following software may be included in this product:
@@ -636,49 +668,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
-CTemplate (Google Template System)
-
-   The following software may be included in this product:
-CTemplate (Google Template System)
-
-Copyright (c) 2005, Google Inc.
-All rights reserved.
-
-Redistribution and use in source and binary forms,
-with or without modification, are permitted provided
-that the following conditions are met:
-
-
-    * Redistributions of source code must retain the
-      above copyright notice, this list of conditions
-      and the following disclaimer.
-
-
-    * Redistributions in binary form must reproduce
-      the above copyright notice, this list of conditions
-      and the following disclaimer in the documentation
-      and/or other materials provided with the distribution.
-
-
-    * Neither the name of Google Inc. nor the names of
-      its contributors may be used to endorse or promote
-      products derived from this software without specific
-      prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 cURL (libcurl)
 
    The following software may be included in this product:
@@ -707,73 +696,6 @@ Except as contained in this notice, the name of a copyright holder shall not
 be used in advertising or otherwise to promote the sale, use or other
 dealings in this Software without prior written authorization of the copyright
 holder.
-
-DockPanel Suite
-
-   The following software may be included in this product:
-DockPanel Suite
-
-The MIT License
-
-Copyright (c) 2007 Weifen Luo (email: weifenluo@yahoo.com)
-
-Permission is hereby granted, free of charge,
-to any person obtaining a copy of this software
-and associated documentation files (the "Software"),
-to deal in the Software without restriction,
-including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit
-persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission
-notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY
-OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
-EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Dojo Toolkit v1.7.0b1
-
-   The following software may be included in this product:
-Dojo Toolkit v1.7.0b1
-Copyright (c) 2005-2006, The Dojo Foundation
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-* Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in
-  the documentation and/or other materials provided with the
-  distribution.
-* Neither the name of the Dojo Foundation nor the names of its
-  contributors may be used to endorse or promote products derived
-  from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
 
 FreeTDS
 
@@ -1073,36 +995,6 @@ library.
    This component is licensed under GNU Lesser General Public License
    Version 2.1, February 1999.
 
-Glitz
-
-   The following software may be included in this product:
-Glitz
-
-Copyright (c) 2004 David Reveman, Peter Nilsson
-
-Permission to use, copy, modify, distribute, and sell
-this software and its documentation for any purpose is
-hereby granted without fee, provided that the above
-copyright notice appear in all copies and that both
-that copyright notice and this permission notice appear
-in supporting documentation, and that the names of
-David Reveman and Peter Nilsson not be used in advertising
-or publicity pertaining to distribution of the software
-without specific, written prior permission. David Reveman
-and Peter Nilsson makes no representations about the
-suitability of this software for any purpose. It is
-provided "as is" without express or implied warranty.
-
-DAVID REVEMAN AND PETER NILSSON DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT
-SHALL DAVID REVEMAN AND PETER NILSSON BE LIABLE FOR ANY
-SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH
-THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
 HtmlRenderer (System.Drawing.Html)
 
    The following software may be included in this product:
@@ -1250,44 +1142,31 @@ Libintl
    The following software may be included in this product:
 
    libintl
-Copyright (C) 1994 X Consortium
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE X CONSORTIUM
-BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Except as contained in this notice, the name of the X Consortium shall not be
-used in advertising or otherwise to promote the sale, use or other dealings in
-this Software without prior written authorization from the X Consortium.
-
-FSF changes to this file are in the public domain.
-
-Copyright 1996-2007 Free Software Foundation, Inc. Taken from GNU libtool, 2001
-
-Originally by Gordon Matzigkeit <gord@gnu.ai.mit.edu>, 1996
-
-This file is free software; the Free Software Foundation gives unlimited
-permission to copy and/or distribute it, with or without modifications, as long
-as this notice is preserved.
-
 You are receiving a copy of the libintl library. The terms of the Oracle
 license do NOT apply to the libintl library; it is licensed under the
 following license, separately from the Oracle programs you receive. If you do
-not wish to install this program, you may delete the intl.dll or libintl.*
-files.
+not wish to install this program, you may create an "exclude" file and run
+tar with the X option or you may remove the shared library after installation
+(e.g., intl.dll or libintl.* files).
+
+Copyright (C) 1995-2002, 2004-2005, 2015-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   This file is derived from the file libgettext.h in the GNU gettext
+   package.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   http://www.gnu.org/licenses/.
 
    This component is licensed under GNU Lesser General Public License
    Version 2.1, February 1999.
@@ -2452,33 +2331,6 @@ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-Lua (liblua)
-
-   The following software may be included in this product:
-Lua (liblua)
-
-Copyright (c) 1994-2008 Lua.org, PUC-Rio.
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject
-to the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
 OpenSSL License
 
    You are receiving a copy of OpenSSL as part of this product in object
@@ -2701,20 +2553,6 @@ OpenSSL License
 
  * [including the GNU Public Licence.]
  */
-
-Paramiko
-
-   The following software may be included in this product:
-Paramiko
-
-You are receiving a copy of Paramiko in both source and object code. The
-terms of the Oracle license do NOT apply to the Paramiko program; it is
-licensed under the following license, separately from the Oracle
-programs you receive. If you do not wish to install this program, you
-may delete the Paramiko folder and all its contents.
-
-   This component is licensed under GNU Lesser General Public License
-   Version 2.1, February 1999.
 
 PCRE
 
@@ -3257,106 +3095,6 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-Python Cryptography Toolkit (PyCrypto)
-
-   The following software may be included in this product:
-Previously, the copyright and/or licensing status of the Python
-Cryptography Toolkit ("PyCrypto") had been somewhat ambiguous.  The
-original intention of Andrew M. Kuchling and other contributors has
-been to dedicate PyCrypto to the public domain, but that intention was
-not necessarily made clear in the original disclaimer (see
-LEGAL/copy/LICENSE.orig).
-
-Additionally, some files within PyCrypto had specified their own
-licenses that differed from the PyCrypto license itself.  For example,
-the original RIPEMD.c module simply had a copyright statement and
-warranty disclaimer, without clearly specifying any license terms.
-(An updated version on the author's website came with a license that
-contained a GPL-incompatible advertising clause.)
-
-To rectify this situation for PyCrypto 2.1, the following steps have
-been taken:
-
-
- 1. Obtaining explicit permission from the original contributors to
-    dedicate their contributions to the public domain if they have not
-    already done so.  (See the "LEGAL/copy/stmts" directory for
-    contributors' statements.)
-
-
- 2. Replacing some modules with clearly-licensed code from other
-    sources (e.g. the DES and DES3 modules were replaced with new ones
-    based on Tom St. Denis's public-domain LibTomCrypt library).
-
-
- 3. Replacing some modules with code written from scratch (e.g. the
-    RIPEMD and Blowfish modules were re-implemented from their
-    respective algorithm specifications without reference to the old
-    implementations).
-
-
- 4. Removing some modules altogether without replacing them.
-
-To the best of our knowledge, with the exceptions noted below or
-within the files themselves, the files that constitute PyCrypto are in
-the public domain.  Most are distributed with the following notice:
-
-  The contents of this file are dedicated to the public domain.  To
-  the extent that dedication to the public domain is not available,
-  everyone is granted a worldwide, perpetual, royalty-free,
-  non-exclusive license to exercise all rights associated with the
-  contents of this file for any purpose whatsoever.
-  No rights are reserved.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-
-Exception:
-
- - Portions of HMAC.py and setup.py are derived from Python 2.2, and
-   are therefore Copyright (c) 2001, 2002, 2003 Python Software
-   Foundation (All Rights Reserved).  They are licensed by the PSF
-   under the terms of the Python 2.2 license.  (See the file
-   LEGAL/copy/LICENSE.python-2.2 for details.)
-
-EXPORT RESTRICTIONS:
-
-Note that the export or re-export of cryptographic software and/or
-source code may be subject to regulation in your jurisdiction.
-
-Python-ecdsa
-
-   The following software may be included in this product:
-python-ecdsa
-
-Copyright (c) 2010 Brian Warner
-
-Portions written in 2005 by Peter Pearson and placed in the public domain.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
 Scintilla
 
    The following software may be included in this product:
@@ -3447,56 +3185,6 @@ THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR
 OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Copyright (c) 2002 Apple Computer, Inc., All Rights Reserved
-
-
-ScintillaNET
-
-   The following software may be included in this product:
-
-ScintillaNET
-
-ScintillaNET is based on the Scintilla component by Neil Hodgson.
-
-ScintillaNET is released on this same license.
-
-The ScintillaNET bindings are Copyright 2002-2006 by Garrett Serack
-<gserack@gmail.com>
-
-All Rights Reserved
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted, provided
-that the above copyright notice appear in all copies and that both that
-copyright notice and this permission notice appear in supporting
-documentation.
-
-GARRETT SERACK AND ALL EMPLOYERS PAST AND PRESENT DISCLAIM ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL GARRETT SERACK AND ALL
-EMPLOYERS PAST AND PRESENT BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
-OF THIS SOFTWARE.
-
-The license for Scintilla is as follows:
------------------------------------------------------------------------
-Copyright 1998-2006 by Neil Hodgson <neilh@scintilla.org>
-
-All Rights Reserved
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted, provided
-that the above copyright notice appear in all copies and that both that
-copyright notice and this permission notice appear in supporting
-documentation.
-
-NEIL HODGSON DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
-ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL NEIL
-HODGSON BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
-DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
-CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 TinyXML
