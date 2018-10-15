@@ -86,7 +86,7 @@ namespace mforms {
     static gpointer mforms_object_accessible_parent_class = nullptr;
 
     static void mforms_object_accessible_init(mformsObjectAccessible *accessible) {
-      mformsObjectAccessiblePrivate *priv = MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible);
+      mformsObjectAccessiblePrivate *priv = mforms_get_instance_private(accessible);
       priv->mfoacc = nullptr;
     }
 
@@ -118,7 +118,7 @@ namespace mforms {
     }
 
     static void mforms_object_accessible_finalize(GObject *object) {
-      mformsObjectAccessiblePrivate *priv = MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(object);
+      mformsObjectAccessiblePrivate *priv = mforms_get_instance_private((mformsObjectAccessible*)object);
 
       if (priv->mfoacc != nullptr) {
         delete priv->mfoacc;
@@ -133,7 +133,7 @@ namespace mforms {
       if (widget == NULL)
         return;
 
-      mformsObjectAccessiblePrivate *priv = MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible);
+      mformsObjectAccessiblePrivate *priv = mforms_get_instance_private(accessible);
       if (priv->mfoacc != nullptr)
         delete priv->mfoacc;
       priv->mfoacc = new mformsGTKAccessible(accessible, mformsGTK::FromWidget(widget)->getmformsAcc());
@@ -144,12 +144,15 @@ namespace mforms {
       if (widget == NULL)
         return;
 
-      mformsObjectAccessiblePrivate *priv = MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible);
+      mformsObjectAccessiblePrivate *priv = mforms_get_instance_private(accessible);
       delete priv->mfoacc;
       priv->mfoacc = nullptr;
     }
 
     static void mforms_object_accessible_class_init(mformsObjectAccessibleClass *klass) {
+
+      g_type_class_adjust_private_offset (klass, &mformsObject_private_offset);
+
       GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
       AtkObjectClass *object_class = ATK_OBJECT_CLASS(klass);
 
@@ -168,7 +171,7 @@ namespace mforms {
       object_class->ref_child = mformsGTKAccessible::refChild;
 
       mforms_object_accessible_parent_class = g_type_class_peek_parent(klass);
-      g_type_class_add_private(klass, sizeof(mformsObjectAccessiblePrivate));
+
     }
 
     // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
@@ -204,6 +207,8 @@ namespace mforms {
 
         g_type_add_interface_static(type_id, ATK_TYPE_ACTION, &atk_action_info);
         g_type_add_interface_static(type_id, ATK_TYPE_COMPONENT, &atk_component_info);
+
+        mformsObject_private_offset = g_type_add_instance_private (type_id, sizeof (mformsObjectAccessiblePrivate));
 
         g_once_init_leave(&type_id_result, type_id);
       }
@@ -449,7 +454,7 @@ namespace mforms {
       if (!widget)
         return 0;
 
-      return MFORMS_OBJECT_ACCESSIBLE_GET_PRIVATE(accessible)->mfoacc;
+      return mforms_get_instance_private(accessible)->mfoacc;
     }
 
     mformsGTKAccessible* mformsGTKAccessible::FromAccessible(AtkObject *accessible) {
