@@ -1,3 +1,9 @@
+mysql-workbench-@edition@ (8.0.14-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Mike Lischke <mike.lischke@oracle.com>  Wed, 17 Oct 2018 09:32:22 +0200
+
 mysql-workbench-@edition@ (8.0.13-1@distrov@) @distro@; urgency=low
 
   * New release
