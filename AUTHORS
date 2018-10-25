@@ -5,17 +5,14 @@ of Development Director Mike Zinner (DBDesigner 4).
 
 Mike Zinner      <mike.zinner@oracle.com> - development director, UI design
 
-Mike Lischke     <mike.lischke@oracle.com> - team lead, Windows, Mac OS X, UI architecture, frontend/backend, parsers, usability, testing
+Mike Lischke     <mike.lischke@oracle.com> - team lead, Windows, macOS, UI architecture, frontend/backend, parsers, usability, testing
 Miguel Tadeu     <miguel.tadeu@oracle.com>  - Linux, Windows, backend, packaging, admin part, python
 Milosz Bodzek    <milosz.bodzek@oracle.com> - migration, sync/diff, forward/reverse engineering, backend, python
 Marcin Szalowicz <marcin.szalowicz@oracle.com> - Linux, Mac OS X, frontend/backend, SQL IDE, python
 Marcin Marek     <marcin.marek@oracle.com> - Windows, Linux, frontend/backend, JSON support
 
 QA:
-Johannes Taxacher      <johannes.taxacher@oracle.com>
 Armando Lopez Valencia <armando.lopezv@oracle.com>
-Rafael Bedoy           <rafael.bedoy@oracle.com>
-
 
 Former team members:
 

@@ -714,7 +714,7 @@ static bool validate_redo(MainWindowController *controller) {
 
 static void flush_main_thread() {
   // flush stuff that could be called with performSelectorOnMainThread:
-  [[NSRunLoop currentRunLoop] acceptInputForMode:NSModalPanelRunLoopMode beforeDate: [NSDate date]];
+  [[NSRunLoop currentRunLoop] acceptInputForMode: NSDefaultRunLoopMode beforeDate: [NSDate date]];
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {

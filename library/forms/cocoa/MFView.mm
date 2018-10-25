@@ -848,7 +848,7 @@ static void view_set_name(mforms::View *self, const std::string &name) {
 
 static void view_relayout(mforms::View *self) {
   id view = self->get_data();
-  [view performSelectorOnMainThread: @selector(relayout) withObject: nil waitUntilDone: true];
+  [view performSelectorOnMainThread: @selector(relayout) withObject: nil waitUntilDone: YES];
 }
 
 static void view_set_needs_repaint(mforms::View *self) {
