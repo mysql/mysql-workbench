@@ -1185,14 +1185,14 @@ SWIG_ADD_SIGNAL_VOID_STRING_CALLBACK(loaded_callback, self->signal_loaded());
 }
 
 %extend mforms::MenuBase {
-  mforms::MenuItem *add_item_with_title(const std::string &title, PyObject *callable, const std::string &name="")
+  mforms::MenuItem *add_item_with_title(const std::string &title, PyObject *callable, const std::string &name = "", const std::string &internalName = "")
   {
-     return self->add_item_with_title(title, pycall_void_fun(callable), name);
+     return self->add_item_with_title(title, pycall_void_fun(callable), name, internalName);
   }
 
-  mforms::MenuItem *add_check_item_with_title(const std::string &title, PyObject *callable, const std::string &name="")
+  mforms::MenuItem *add_check_item_with_title(const std::string &title, PyObject *callable, const std::string &name, const std::string &internalName)
   {
-     return self->add_check_item_with_title(title, pycall_void_fun(callable), name);
+     return self->add_check_item_with_title(title, pycall_void_fun(callable), name, internalName);
   }
 }
 

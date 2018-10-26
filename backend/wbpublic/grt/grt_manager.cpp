@@ -801,10 +801,12 @@ bec::MenuItemList GRTManager::get_plugin_context_menu_items(const std::list<std:
     {
       bec::MenuItem item;
       item.caption = *(*pl)->caption() + ((*pl)->pluginType() == "gui" ? "..." : "");
-      item.name = "plugin:" + *(*pl)->name();
+      item.internalName = "plugin:" + *(*pl)->name();
+      item.accessibilityName = *(*pl)->accessibilityName();
       item.enabled = check_plugin_runnable(*pl, argument_pool);
+      item.accessibilityName = (*pl)->accessibilityName();
       if (item.caption.empty())
-        item.caption = item.name;
+        item.caption = item.accessibilityName;
       item.type = MenuAction;
       items.push_back(item);
     }

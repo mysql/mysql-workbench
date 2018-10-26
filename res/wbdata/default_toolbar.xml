@@ -3,6 +3,7 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.main">
     <value type="string" key="name">default</value>
+    <value type="string" key="accessibilityName">Default</value>
 
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
     <!--

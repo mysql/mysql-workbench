@@ -142,7 +142,8 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   _toolbar = mforms::manage(new mforms::ToolBar(mforms::PaletteToolBar));
 
   mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("edit_templates");
+  item->set_name("Edit Templates");
+  item->setInternalName("edit_templates");
   item->set_icon(mforms::App::get()->get_resource_path("edit_table_templates.png"));
   item->set_tooltip("Open the table template editor.");
   scoped_connect(item->signal_activated(),
@@ -162,7 +163,8 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   _toolbar->add_item(item);
 */
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("use_template");
+  item->set_name("Use Template");
+  item->setInternalName("use_template");
   item->set_icon(mforms::App::get()->get_resource_path("tiny_new_table.png"));
   item->set_tooltip("Create a new table based on the selected table template.");
   scoped_connect(item->signal_activated(),
@@ -203,5 +205,5 @@ void TableTemplatePanel::on_action(const std::string &action) {
 }
 
 void TableTemplatePanel::toolbar_item_activated(mforms::ToolBarItem *item) {
-  on_action(item->get_name());
+  on_action(item->getInternalName());
 }

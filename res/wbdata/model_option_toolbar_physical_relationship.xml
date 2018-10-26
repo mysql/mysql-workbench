@@ -3,6 +3,7 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.tool.option.rel">
     <value type="string" key="name">options/physical/relationship</value>
+    <value type="string" key="accessibilityName">Relationship</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.rel.opt">
@@ -11,6 +12,7 @@
         <value type="string" key="command">option:workbench.physical.Connection:optional</value>
         <value type="string" key="icon">Start is Optional</value>
         <value type="string" key="itemType">check</value>
+        <value type="string" key="accessibilityName">Start is Optional</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.rel.refopt">
@@ -19,6 +21,7 @@
         <value type="string" key="command">option:workbench.physical.Connection:refOptional</value>
         <value type="string" key="icon">End is Optional</value>
         <value type="string" key="itemType">check</value>
+        <value type="string" key="accessibilityName">End is Optional</value>
       </value>
     </value>
   </value>

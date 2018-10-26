@@ -1268,34 +1268,35 @@ void WBContext::init_plugin_groups_grt(WBOptions *options) {
   struct group_def {
     const char *category;
     const char *name;
-  } std_groups[] = {{"Database", "Database"},
-                    {"Catalog", "Editors"},
-                    {"Application", "Workbench"},
-                    {"Model", "Validation"},
-                    {"Model", "Export"},
+    const char *accessibilityName;
+  } std_groups[] = {{"Database", "Database", "Database"},
+                    {"Catalog", "Editors", "Editors"},
+                    {"Application", "Workbench", "Workbench"},
+                    {"Model", "Validation", "Validation"},
+                    {"Model", "Export", "Export"},
 
-                    {"Home", "Home"},
-                    {"Home", "Home/Connections"},
-                    {"Home", "Home/ModelFiles"},
-                    {"Home", "Home/Instances"},
+                    {"Home", "Home", "Home"},
+                    {"Home", "Home/Connections", "Connections"},
+                    {"Home", "Home/ModelFiles", "Model Files"},
+                    {"Home", "Home/Instances", "Instances"},
 
-                    {"Model", "Menu/Text"},
-                    {"SQLEditor", "Menu/Text"},
+                    {"Model", "Menu/Text", "Model Text"},
+                    {"SQLEditor", "Menu/Text", "SQL Editor Text"},
 
-                    {"Model", "Menu/Model"},
-                    {"Model", "Menu/Utilities"},
-                    {"Catalog", "Menu/Catalog"},
-                    {"Catalog", "Menu/Objects"},
-                    {"Database", "Menu/Database"},
+                    {"Model", "Menu/Model", "Model"},
+                    {"Model", "Menu/Utilities", "Utilities"},
+                    {"Catalog", "Menu/Catalog", "Catalog"},
+                    {"Catalog", "Menu/Objects", "Objects"},
+                    {"Database", "Menu/Database", "Database"},
 
-                    {"Utilities", "Filter"},
-                    {"Utilities", "Menu/Utilities"},
+                    {"Utilities", "Filter", "Filter"},
+                    {"Utilities", "Menu/Utilities", "Utilities"},
 
-                    {"SQLEditor", "Menu/SQL/Editor"},
-                    {"SQLEditor", "Menu/SQL/Script"},
-                    {"SQLEditor", "Menu/SQL/Utilities"},
+                    {"SQLEditor", "Menu/SQL/Editor", "SQL Editor"},
+                    {"SQLEditor", "Menu/SQL/Script", "SQL Script"},
+                    {"SQLEditor", "Menu/SQL/Utilities", "SQL Utilities"},
 
-                    {"Others", "Menu/Ungrouped"}};
+                    {"Others", "Menu/Ungrouped", "Others"}};
 
   std::map<std::string, app_PluginGroupRef> groups;
 
@@ -1305,6 +1306,7 @@ void WBContext::init_plugin_groups_grt(WBOptions *options) {
     app_PluginGroupRef group(grt::Initialized);
     group->category(std_groups[i].category);
     group->name(std_groups[i].name);
+    group->accessibilityName(std_groups[i].accessibilityName);
 
     group_list.insert(group);
 

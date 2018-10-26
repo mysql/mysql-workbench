@@ -33,7 +33,8 @@ using namespace grtui;
 DbConnectionDialog::DbConnectionDialog(const db_mgmt_ManagementRef &mgmt)
   : mforms::Form(0), _panel(true), _top_vbox(false), _bottom_hbox(true) {
   set_content(&_top_vbox);
-  set_name("connection_dialog");
+  set_name("Connection");
+  setInternalName("connection_dialog");
 
   _panel.init(mgmt);
 

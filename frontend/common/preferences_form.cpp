@@ -235,7 +235,8 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
     _font_list(mforms::TreeFlatList) {
   _model = model;
 
-  set_name("preferences");
+  set_name("Preferences");
+  setInternalName("preferences");
 
   if (!model.is_valid())
     set_title(_("Workbench Preferences"));
@@ -883,7 +884,8 @@ mforms::View *PreferencesForm::create_general_editor_page() {
 
       tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), true), false, false);
       mforms::TextEntry *entry = new_entry_option("SqlMode", false);
-      entry->set_name("SQL mode syntax");
+      entry->set_name("SQL Mode Syntax");
+      entry->setInternalName("SQL mode syntax");
       entry->set_tooltip(
         _("Value of SQL_MODE DBMS session variable customizes the rules and restrictions for SQL syntax and semantics. "
           "See MySQL Server reference for details.\n"

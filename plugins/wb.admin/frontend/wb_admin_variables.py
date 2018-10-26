@@ -69,7 +69,7 @@ class VariablesViewer(mforms.Box):
         self.tree.add_changed_callback(weakcb(self, "refresh"))
         self.cat_menu = mforms.newContextMenu()
         self.cat_menu.add_will_show_callback(self.cat_menu_will_show)
-        self.cat_menu.add_item_with_title("Delete Category", self.delete_category, "delete")
+        self.cat_menu.add_item_with_title("Delete Category", self.delete_category, "Delete", "Delete")
         self.tree.set_context_menu(self.cat_menu)
 
         self.values = newTreeView(mforms.TreeFlatList)
@@ -411,19 +411,19 @@ class VariablesViewer(mforms.Box):
             return
 
         if item is None:
-            self.menu.add_item_with_title("Add to Custom Category...", self.var_to_custom_group, "var_to_custom_group")
+            self.menu.add_item_with_title("Add to Custom Category...", self.var_to_custom_group, "Variable to Custome Group", "var_to_custom_group")
             sel_group = self.tree.get_selection()
             for node in sel_group:
                 group = node.get_string(0).encode('utf-8')
                 tag = node.get_tag().encode('utf-8')
                 if tag.startswith("Custom: "):
-                    self.menu.add_item_with_title("Remove from %s" % group, lambda self=self, x=group: self.remove_from_group(x), "remove_from_group_%s" % group)
+                    self.menu.add_item_with_title("Remove from %s" % group, lambda self=self, x=group: self.remove_from_group(x), "Remove From Group %s" % group, "remove_from_group_%s" % group)
 
             if len(self.user_groups.content):
                 self.menu.add_separator()
 
             for group in self.user_groups.content:
-                self.menu.add_item_with_title("Add to %s" % group, lambda self=self, x=group: self.var_to_group(x), "var_to_group_%s" % group)
+                self.menu.add_item_with_title("Add to %s" % group, lambda self=self, x=group: self.var_to_group(x), "Variable to Group %s" % group, "var_to_group_%s" % group)
 
     def remove_from_group(self, grp):
         selected_vars = self.values.get_selection()
@@ -607,7 +607,7 @@ class VariablesGroupSelector(mforms.Form):
         self.groups.end_columns()
         self.groups.set_size(200, 200)
         self.menu = mforms.newContextMenu()
-        self.menu.add_item_with_title("Delete Category", self.group_delete, "group_delete")
+        self.menu.add_item_with_title("Delete Category", self.group_delete, "Delete Group", "group_delete")
         self.groups.set_context_menu(self.menu)
 
         content.add(self.groups, True, True)
@@ -737,7 +737,7 @@ class WbAdminVariables(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_management", "Status and System Variables")
+        admin_context.register_page(cls, "Management", "Status and System Variables")
 
     @classmethod
     def identifier(cls):

@@ -59,7 +59,6 @@ namespace mforms {
 
     SidebarEntry();
 
-    virtual std::string getAccessibilityName() override;
     virtual std::string getAccessibilityTitle() override;
     virtual std::string getAccessibilityDescription() override;
     virtual base::Accessible::Role getAccessibilityRole() override;

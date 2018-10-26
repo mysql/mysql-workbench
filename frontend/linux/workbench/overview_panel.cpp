@@ -74,7 +74,7 @@ class OverviewDivision : public Gtk::Box {
     // Create button
     Gtk::ToggleButton *btn = Gtk::manage(new Gtk::ToggleButton());
     btn->set_relief(Gtk::RELIEF_NONE);
-    btn->set_name("group_toggle");
+    btn->set_name("Group Toggle");
 
     btn->property_can_focus() = false;
 
@@ -98,7 +98,7 @@ class OverviewDivision : public Gtk::Box {
     // Create button
     Gtk::Button *btn = Gtk::manage(new Gtk::Button());
     btn->set_relief(Gtk::RELIEF_NONE);
-    btn->set_name("group_toggle");
+    btn->set_name("Group Toggle");
 #if GTK_VERSION_GT(2, 10)
     btn->set_tooltip_text(tooltip);
 #endif
@@ -121,7 +121,7 @@ class OverviewDivision : public Gtk::Box {
   void create_header(const std::string &text, Gtk::EventBox **ebox_dptr, Gtk::Box **hbox_dptr) {
     // Let us get events from the header's widgets by creating EventBox
     Gtk::EventBox *ebox = *ebox_dptr = Gtk::manage(new Gtk::EventBox());
-    ebox->set_name("overview_header");
+    ebox->set_name("Overview Header");
     ebox->set_size_request(-1, 24);
     ebox->show();
 
@@ -130,12 +130,12 @@ class OverviewDivision : public Gtk::Box {
 
     _arrow = Gtk::manage(new Gtk::Arrow(Gtk::ARROW_DOWN, Gtk::SHADOW_NONE));
     hdr_box->pack_start(*_arrow, false, false);
-    _arrow->set_name("toggle");
+    _arrow->set_name("Toggle");
 
     Gtk::Label *label = Gtk::manage(new Gtk::Label(text));
     label->set_alignment(0.0, 0.5);
     hdr_box->pack_start(*label, true, true);
-    label->set_name("caption");
+    label->set_name("Caption");
 
     hdr_box->show_all();
   }
@@ -192,7 +192,7 @@ public:
       // Connect button click event to the method responsible for collapsing/expanding of the division
       ebox->signal_button_release_event().connect(sigc::mem_fun(this, &OverviewDivision::header_button_release));
     }
-    set_name("overview_division");
+    set_name("Overview Division");
   }
 
   void add_edit_buttons(
@@ -679,7 +679,7 @@ public:
     : Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0), _overview(overview), _node(node), _label(label) {
     set_homogeneous(false);
     set_border_width(12);
-    set_name("overview_note_page");
+    set_name("Overview Note Page");
     _uid = _overview->get_node_unique_id(node);
   }
 
@@ -774,7 +774,7 @@ private:
     icon_path = bec::IconManager::get_instance()->get_icon_path(icon);
 
     tab_box->add(*tab);
-    tab_box->set_name("overview_note_header");
+    tab_box->set_name("Overview Note Header");
 
     Gtk::Image *image = Gtk::manage(new Gtk::Image(icon_path));
     tab->pack_start(*image, false, false);
@@ -800,7 +800,7 @@ protected:
 public:
   OverviewGroupContainer(wb::OverviewBE *be, const bec::NodeId &node)
     : _overview(be), _node(node), _is_focus_node_enabled(true), _current_page_index(-1) {
-    set_name("overview_note");
+    set_name("Overview Note");
 
     set_scrollable(true);
 
@@ -851,7 +851,7 @@ public:
 OverviewPanel::OverviewPanel(wb::OverviewBE *overview)
   : _container(Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 0))), _overview_be(overview) {
   add(*_container);
-  _container->get_parent()->set_name("overview_viewport");
+  _container->get_parent()->set_name("Overview Viewport");
 
   set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
   _container->show();
@@ -886,7 +886,7 @@ void OverviewPanel::reset() {
   Gtk::Layout *filler = Gtk::manage(new Gtk::Layout());
   Gtk::Image *img = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("background.png")));
   filler->put(*img, 0, 0);
-  filler->set_name("overview_filler");
+  filler->set_name("Overview Filler");
   _container->pack_start(*filler, true, true);
   filler->show();
 }
@@ -927,7 +927,8 @@ void OverviewPanel::rebuild_all() {
   Gtk::Image *img = Gtk::manage(new Gtk::Image(bec::IconManager::get_instance()->get_icon_path("background.png")));
   filler->put(*img, 0, 0);
 
-  filler->set_name("overview_filler");
+  filler->set_name("Overview Filler");
+
   _container->pack_start(*filler, true, true);
   filler->show();
 

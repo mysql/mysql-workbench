@@ -356,19 +356,22 @@ void JsonTreeBaseView::prepareMenu() {
         showAddModify = false;
 
       auto *item = mforms::manage(new mforms::MenuItem("Add new value"));
-      item->set_name("add_new_doc");
-      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->set_name("Add New Document");
+      item->setInternalName("add_new_doc");
+      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->getInternalName()));
       item->set_enabled(showAddModify);
       _contextMenu->add_item(item);
 
       item = mforms::manage(new mforms::MenuItem("Delete JSON"));
-      item->set_name("delete_doc");
-      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->set_name("Delete Document");
+      item->setInternalName("delete_doc");
+      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->getInternalName()));
       _contextMenu->add_item(item);
 
       item = mforms::manage(new mforms::MenuItem("Modify JSON"));
-      item->set_name("modify_doc");
-      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->get_name()));
+      item->set_name("Modify Document");
+      item->setInternalName("modify_doc");
+      item->signal_clicked()->connect(std::bind(&JsonTreeBaseView::handleMenuCommand, this, item->getInternalName()));
       item->set_enabled(showAddModify);
       _contextMenu->add_item(item);
     }
@@ -1660,7 +1663,7 @@ void JsonGridView::setStringData(int columnId, TreeNodeRef node, const std::stri
 
 void JsonTabView::Setup() {
   assert(_tabView != NULL);
-  _tabView->set_name("json_editor:tab");
+  _tabView->set_name("JSON Editor");
   _tabId.textTabId = _tabView->add_page(_textView, "Text");
   _tabId.treeViewTabId = _tabView->add_page(_treeView, "Tree");
   _tabId.gridViewTabId = _tabView->add_page(_gridView, "Grid");

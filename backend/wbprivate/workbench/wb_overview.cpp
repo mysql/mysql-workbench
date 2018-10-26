@@ -845,7 +845,7 @@ bec::MenuItemList OverviewBE::get_popup_items_for_nodes(const std::vector<bec::N
           bool strip_this_item = true;
           ci = next++;
           for (bec::MenuItemList::reverse_iterator ni = items_for_node.rbegin(); ni != items_for_node.rend(); ++ni) {
-            if (ci->name == ni->name) {
+            if (ci->accessibilityName == ni->accessibilityName) {
               strip_this_item = false;
               break;
             }

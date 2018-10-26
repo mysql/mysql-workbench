@@ -34,7 +34,7 @@ class DbSqlEditorSnippets;
 
 namespace mforms {
   class Menu;
-};
+}
 
 class BaseSnippetList : public mforms::DrawBox {
 protected:
@@ -98,8 +98,8 @@ public:
   base::Rect snippet_bounds(Snippet* snippet);
 
   // ------ Accesibility Methods -----
-  virtual std::string getAccessibilityName() override {
-    return get_name();
+  virtual void set_name(const std::string &name) override {
+    setAccessibilityName(name);
   }
   virtual base::Accessible::Role getAccessibilityRole() override {
     return base::Accessible::List;

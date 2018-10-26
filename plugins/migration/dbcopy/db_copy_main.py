@@ -37,7 +37,7 @@ import db_copy_report
 #===============================================================================
 class DBCopy(mforms.AppView):
     def __init__(self):
-        mforms.AppView.__init__(self, False, 'db_copy', True)
+        mforms.AppView.__init__(self, False, 'Database Copy', 'db_copy', True)
 
         self.background = None
         self.content = mforms.newBox(False)

@@ -38,6 +38,7 @@ namespace MySQL {
       static bool create_menu_item(mforms::MenuItem *item, const std::string &title, const mforms::MenuItemType type);
       static void set_title(mforms::MenuItem *item, const std::string &title);
       static std::string get_title(mforms::MenuItem *item);
+      static void set_name(mforms::MenuItem *item, const std::string &title);
       static void set_shortcut(mforms::MenuItem *item, const std::string &value);
       static void set_enabled(mforms::MenuBase *item, bool state);
       static bool get_enabled(mforms::MenuBase *item);

@@ -222,7 +222,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_instance", "Options File", True)
+        admin_context.register_page(cls, "Instance", "Options File", True)
 
     @classmethod
     def identifier(cls):

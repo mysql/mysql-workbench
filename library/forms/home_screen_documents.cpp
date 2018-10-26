@@ -38,6 +38,13 @@ bool DocumentEntry::operator<(const DocumentEntry &other) const {
 
 //------------------------------------------------------------------------------------------------
 
+void DocumentEntry::setTitle(const std::string &t) {
+    title = t;
+    setAccessibilityName(t);
+}
+
+//------------------------------------------------------------------------------------------------
+
 std::string DocumentEntry::getAccessibilityName() {
   return title;
 }
@@ -92,21 +99,21 @@ DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSectio
 
   load_icons();
 
-  _add_button.name = "add_button";
+  _add_button.setAccessibilityName("Add Model");
   _add_button.title = "Add Model";
   _add_button.description = "Create new model button";
   _add_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionNewEERModel, base::any());
   };
 
-  _open_button.name = "open_button";
+  _open_button.setAccessibilityName("Open Model");
   _open_button.title = "Open Model";
   _open_button.description = "Open existing model button";
   _open_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionOpenEERModel, base::any());
   };
 
-  _action_button.name = "action_button";
+  _action_button.setAccessibilityName("Model Options");
   _action_button.title = "Create Model Options";
   _action_button.description = "Open model options menu button";
   _action_button.defaultHandler = [this]() {
@@ -603,9 +610,9 @@ void DocumentsSection::add_document(const std::string &path, const time_t &time,
   entry.schemas = schemas;
   entry.default_handler = std::bind(&DocumentsSection::accessibleHandler, this, std::placeholders::_1, std::placeholders::_2);
 
-  entry.title = base::strip_extension(base::basename(path));
+  entry.setTitle(base::strip_extension(base::basename(path)));
   if (entry.title.empty())
-    entry.title = "???";
+    entry.title = "???";    //  Don't use setTitle, because it would set the accessibility name to ???, which is an invalid name
   entry.is_model = base::hasSuffix(path, ".mwb") || base::hasSuffix(path, ".mwbd");
   entry.folder = base::dirname(path);
 

@@ -16,6 +16,7 @@ context: see wb_context.h for full listing
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.dbqtoolbar.dbquery">
     <value type="string" key="name">dbquery</value>
+    <!--<value type="string" key="accessibilityName">Query</value>-->
 
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new">
@@ -25,6 +26,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">builtin:query.newFile</value>
         <value type="string" key="tooltip">Create a new SQL tab for executing queries</value>
+        <value type="string" key="accessibilityName">New File</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.open">
@@ -34,6 +36,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">builtin:query.openFile</value>
         <value type="string" key="tooltip">Open a SQL script file in a new query tab</value>
+        <value type="string" key="accessibilityName">Open File</value>
       </value>
 
       <!--value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.saveas">
@@ -49,6 +52,7 @@ context: see wb_context.h for full listing
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
         <value type="string" key="itemType">separator</value>
         <value type="string" key="name">s1</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.schema_inspector">
@@ -58,11 +62,13 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="tooltip">Open Inspector for the selected object</value>
         <value type="string" key="command">builtin:query.show_inspector</value>
+        <value type="string" key="accessibilityName">Show Inspector</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.inspector">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
  
      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_schema">
@@ -72,6 +78,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="tooltip">Create a new schema in the connected server</value>
         <value type="string" key="command">builtin:query.new_schema</value>
+        <value type="string" key="accessibilityName">New Schema</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_table">
@@ -81,6 +88,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="tooltip">Create a new table in the active schema in connected server</value>
         <value type="string" key="command">builtin:query.new_table</value>
+        <value type="string" key="accessibilityName">New Table</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_view">
@@ -90,6 +98,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="tooltip">Create a new view in the active schema in the connected server</value>
         <value type="string" key="command">builtin:query.new_view</value>
+        <value type="string" key="accessibilityName">New View</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_routine">
@@ -99,6 +108,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="tooltip">Create a new stored procedure in the active schema in the connected server</value>
         <value type="string" key="command">builtin:query.new_routine</value>
+        <value type="string" key="accessibilityName">New Routine</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.new_function">
@@ -108,11 +118,13 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="tooltip">Create a new function in the active schema in the connected server</value>
         <value type="string" key="command">builtin:query.new_function</value>
+        <value type="string" key="accessibilityName">New Function</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.tools">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
  
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.dbsearch">
@@ -122,11 +134,13 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">plugin:com.mysql.wb.menu.database.search</value>
         <value type="string" key="tooltip">Search table data for text in objects selected in the sidebar schema tree</value>
+        <value type="string" key="accessibilityName">Search</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.cancel">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.reconnect">
@@ -136,6 +150,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">builtin:query.reconnect</value>
         <value type="string" key="tooltip">Reconnect to DBMS</value>
+        <value type="string" key="accessibilityName">Reconnect to DBMS</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.sep.prefs">
@@ -150,11 +165,13 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">call:Workbench.showOptions</value>
         <value type="string" key="tooltip">Show preferences dialog</value>
+        <value type="string" key="accessibilityName">Show Preferences</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.expander">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.schematabarhide">
@@ -166,6 +183,7 @@ context: see wb_context.h for full listing
         <value type="string" key="command">builtin:wb.toggleSidebar</value>
         <value type="string" key="tooltip">Toggle Schema Sidebar</value>
         <value type="int" key="initialState">1</value>
+        <value type="string" key="accessibilityName">Toggle Sidebar</value>
       </value>
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.outputhide">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
@@ -176,6 +194,7 @@ context: see wb_context.h for full listing
         <value type="string" key="command">builtin:wb.toggleOutputArea</value>
         <value type="string" key="tooltip">Toggle Output Area</value>
         <value type="int" key="initialState">1</value>
+        <value type="string" key="accessibilityName">Toggle Output Area</value>
       </value>
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.helpbarhide">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
@@ -186,6 +205,7 @@ context: see wb_context.h for full listing
         <value type="string" key="command">builtin:wb.toggleSecondarySidebar</value>
         <value type="string" key="tooltip">Toggle Sidebar</value>
         <value type="int" key="initialState">1</value>
+        <value type="string" key="accessibilityName">Toggle Sidebar</value>
       </value>
     </value>
   </value>

@@ -59,7 +59,7 @@ public:
       _tree(mforms::TreeShowColumnLines | mforms::TreeAltRowColors),
       _bbox(true) {
     set_title(_("Table Name Mapping"));
-    set_name("table_name_mapping_editor");
+    set_name("Table Name Mapping Editor");
 
     _vbox.add(&_heading, false, true);
     _heading.set_text(
@@ -316,7 +316,7 @@ public:
       _tree(mforms::TreeShowColumnLines | mforms::TreeAltRowColors),
       _bbox(true) {
     set_title(_("Column Name Mapping"));
-    set_name("column_name_mapping_editor");
+    set_name("Column Name Mapping Editor");
 
     _vbox.add(&_heading, false, true);
     _heading.set_text(

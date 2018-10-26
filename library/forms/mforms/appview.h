@@ -78,10 +78,10 @@ namespace mforms {
      @param context_name - name for Workbench internal context. Use a unique name.
      @param is_main - pass true
      */
-    AppView(bool horiz, const std::string &context_name, bool is_main);
+    AppView(bool horiz, const std::string &accessibilityName, const std::string &context_name, bool is_main);
 #else
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    AppView(bool horiz, const std::string &context_name, bool is_main);
+    AppView(bool horiz, const std::string &accessibilityName, const std::string &context_name, bool is_main);
 #endif
 #endif
     virtual ~AppView();

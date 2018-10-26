@@ -113,7 +113,7 @@ class AdministratorContext:
 
         self.sidebar.add_on_section_command_callback(self._sidebar_entry_clicked)
 
-        self.sidebar_sections = [("wba_management", "MANAGEMENT", []), ("wba_instance", "INSTANCE", []), ("wba_performance", "PERFORMANCE", [])]
+        self.sidebar_sections = [("Management", "Management", "MANAGEMENT", []), ("Instance", "Instance", "INSTANCE", []), ("Performance", "Performance", "PERFORMANCE", [])]
 
         self.shown_in_sidebar = False
 
@@ -329,8 +329,8 @@ class AdministratorContext:
             self.page_instances[entry_id] = page
             self.admin_tab.add_page(page)
 
-        for sname, stitle, sitems in self.sidebar_sections:
-            for ident, title, icon_path in sitems:
+        for sname, saname, stitle, sitems in self.sidebar_sections:
+            for ident, ianame, title, icon_path in sitems:
                 if ident == entry_id:
                     self.admin_tab.set_content_label("Administration - %s" % title)
                     break
@@ -338,22 +338,22 @@ class AdministratorContext:
         self.admin_tab.select_page(page)
 
 
-    def add_section(self, name, title):
+    def add_section(self, name, accessibilityName, title):
         if not any(x[0] == name for x in self.sidebar_sections):
-            self.sidebar_sections.append((name, title, []))
+            self.sidebar_sections.append((name, accessibilityName, title, []))
 
 
     def register_page(self, page_class, section_id, title, needs_remote_access=False):
         if not section_id:
-            section_id = "wba_management" # the default
+            section_id = "Management" # the default
 
         self.page_titles[page_class.identifier()] = title
 
         self.admin_pages[page_class.identifier()] = (page_class, needs_remote_access)
         icon_path = page_class.identifier()+".png"
-        for sname, stitle, sitems in self.sidebar_sections:
+        for sname, saname, stitle, sitems in self.sidebar_sections:
             if sname == section_id:
-                sitems.append((page_class.identifier(), title, icon_path))
+                sitems.append((page_class.identifier(), title, title, icon_path))
                 break
 
     def show_in_sidebar(self):
@@ -365,17 +365,17 @@ class AdministratorContext:
             self.shown_in_sidebar = True
             first = True
             self.disabled_pages = {}
-            for sname, stitle, sitems in self.sidebar_sections:
-                flags = mforms.TaskSectionShowConfigButton if sname == "wba_instance" else mforms.TaskSectionPlain
+            for sname, saname, stitle, sitems in self.sidebar_sections:
+                flags = mforms.TaskSectionShowConfigButton if sname == "Instance" else mforms.TaskSectionPlain
                 if first:
                     flags |= mforms.TaskSectionToggleModeButton
                     first = False
                 if grt.root.wb.options.options['DbSqlEditor:SidebarModeCombined'] == 1:
                     flags |= mforms.TaskSectionToggleModeButtonPreSelected
 
-                self.sidebar.add_section(sname, stitle, flags)
-                for ident, ititle, icon_path in sitems:
-                    self.sidebar.add_section_entry(sname, ident, ititle, icon_path, mforms.TaskEntryAlwaysActiveLink)
+                self.sidebar.add_section(sname, saname, stitle, flags)
+                for ident, ianame, ititle, icon_path in sitems:
+                    self.sidebar.add_section_entry(sname, ident, ianame, ititle, icon_path, mforms.TaskEntryAlwaysActiveLink)
                     mod, requires_remote_access = self.admin_pages.get(ident, (None, True))
                     enabled = True
                     if requires_remote_access and (not self.server_profile or (self.server_profile and not self.server_profile.is_local and not self.server_profile.remote_admin_enabled)):
@@ -830,7 +830,7 @@ def testInstanceSettings(server_instance):
 
 ##------------------------------------------------------------------------------------------------------------------------
 
-@ModuleInfo.plugin("wb.admin.open_into", type="standalone", input=[wbinputs.currentSQLEditor(), wbinputs.string()])
+@ModuleInfo.plugin("wb.admin.open_into", type="standalone", input=[wbinputs.currentSQLEditor(), wbinputs.string()], accessibilityName="Open Into")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor, grt.STRING)
 def openAdminSection(editor, section):
     context = grt.fromgrt(editor.customData["adminContext"])
@@ -843,7 +843,7 @@ def openAdminSection(editor, section):
 # Hack to make this plugin only appear if SE modules are available
 try:
     import wba_meb # noqa
-    @ModuleInfo.plugin("wb.admin.open_into_se", type="standalone", input=[wbinputs.currentSQLEditor(), wbinputs.string()])
+    @ModuleInfo.plugin("wb.admin.open_into_se", type="standalone", input=[wbinputs.currentSQLEditor(), wbinputs.string()], accessibilityName="Open Into")
     @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor, grt.STRING)
     def openAdminSectionSE(editor, section):
         context = grt.fromgrt(editor.customData["adminContext"])
@@ -855,7 +855,7 @@ except ImportError:
     pass
 
 
-@ModuleInfo.plugin("wb.admin.settings", type="standalone", input=[wbinputs.currentSQLEditor()])
+@ModuleInfo.plugin("wb.admin.settings", type="standalone", input=[wbinputs.currentSQLEditor()], accessibilityName="Settings")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def openConnectionSettings(editor):
     grt.modules.Workbench.showInstanceManagerFor(editor.connection)
@@ -864,7 +864,7 @@ def openConnectionSettings(editor):
         context.refresh_admin_links()
 
 
-@ModuleInfo.plugin("wb.admin.reset_password_cache", type="standalone", input=[wbinputs.currentSQLEditor()])
+@ModuleInfo.plugin("wb.admin.reset_password_cache", type="standalone", input=[wbinputs.currentSQLEditor()], accessibilityName="Reset Password Cache")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def resetPasswordCache(editor):
     context = grt.fromgrt(editor.customData["adminContext"])

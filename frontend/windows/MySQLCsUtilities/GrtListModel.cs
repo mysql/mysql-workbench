@@ -124,7 +124,7 @@ namespace MySQL.Grt
         {
           System.Windows.Forms.ToolStripMenuItem mitem = new System.Windows.Forms.ToolStripMenuItem();
 
-          mitem.Name = item.get_name();
+          mitem.Name = item.getInternalName();
           mitem.Size = new System.Drawing.Size(203, 22);
           mitem.Text = item.get_caption();
           mitem.Enabled = item.get_enabled();

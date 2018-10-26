@@ -37,6 +37,7 @@
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param6">
             <value type="string" key="caption">Driver:</value>
+            <value type="string" key="accessibilityName">Driver</value>
             <value type="string" key="defaultValue">PostgreSQL ANSI</value>
             <value type="string" key="description">The Driver name of your ODBC driver (E.g. psqlodbc, PostgreSQL ANSI).</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -52,6 +53,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param1">
             <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="accessibilityName">Host Name</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
             <value type="string" key="description">Name or IP address of the server host.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -67,6 +69,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param2">
             <value type="string" key="caption">Port:</value>
+            <value type="string" key="accessibilityName">Port</value>
             <value type="string" key="defaultValue">5432</value>
             <value type="string" key="description">TCP/IP port.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -82,6 +85,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param3">
             <value type="string" key="caption">Username:</value>
+            <value type="string" key="accessibilityName">Username</value>
             <value type="string" key="defaultValue">postgres</value>
             <value type="string" key="description">Name of the user to connect with.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -97,6 +101,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param4">
             <value type="string" key="caption">Password:</value>
+            <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -114,6 +119,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param5">
             <value type="string" key="caption">Database:</value>
+            <value type="string" key="accessibilityName">Database</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The database to connect to. Cannot be blank.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -129,6 +135,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param7">
             <value type="string" key="caption">Use Declare Fetch</value>
+            <value type="string" key="accessibilityName">Use Declare Fetch</value>
             <value type="string" key="defaultValue">1</value>
             <value type="string" key="description"></value>
             <value type="int" key="layoutAdvanced">1</value>
@@ -144,6 +151,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc.param8">
             <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="accessibilityName">Additional Arguments</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">; separated list of extra arguments to use in the
 ODBC connection string.</value>
@@ -176,6 +184,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_dsn.param1">
             <value type="string" key="caption">DSN:</value>
+            <value type="string" key="accessibilityName">DSN</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Pre-configured ODBC data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -191,6 +200,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_dsn.param2">
             <value type="string" key="caption">Password:</value>
+            <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -208,6 +218,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_dsn.param3">
             <value type="string" key="caption">Use Declare Fetch</value>
+            <value type="string" key="accessibilityName">Use Declare Fetch</value>
             <value type="string" key="defaultValue">1</value>
             <value type="string" key="description"></value>
             <value type="int" key="layoutAdvanced">1</value>
@@ -240,6 +251,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.postgresql.driver.odbc_connstr.param1">
             <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="accessibilityName">Connection String</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
             <value type="int" key="layoutAdvanced">0</value>

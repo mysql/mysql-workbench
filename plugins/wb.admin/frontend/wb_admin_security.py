@@ -1108,7 +1108,7 @@ class SecurityAccount(mforms.Box):
         mforms.Box.__init__(self, False)
         self.set_managed()
         self.set_release_on_add()
-        self.set_name("SecurityAccount")
+        self.set_name("Security Account")
         self.owner = owner
         self.dirty = False
 
@@ -2091,7 +2091,7 @@ class WbAdminSecurity(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_management", "Users and Privileges")
+        admin_context.register_page(cls, "Management", "Users and Privileges")
 
     @classmethod
     def identifier(cls):

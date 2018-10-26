@@ -74,7 +74,7 @@ bool StringCheckBoxList::has_selection() {
 
 void StringCheckBoxList::set_selected(const std::string &name, bool flag) {
   for (std::vector<mforms::CheckBox *>::const_iterator iter = _items.begin(); iter != _items.end(); ++iter) {
-    if ((*iter)->get_name() == name) {
+    if ((*iter)->getInternalName() == name) {
       (*iter)->set_active(flag);
     }
   }
@@ -85,7 +85,7 @@ std::vector<std::string> StringCheckBoxList::get_selection() {
 
   for (std::vector<mforms::CheckBox *>::const_iterator iter = _items.begin(); iter != _items.end(); ++iter) {
     if ((*iter)->get_active())
-      list.push_back((*iter)->get_name());
+      list.push_back((*iter)->getInternalName());
   }
   return list;
 }

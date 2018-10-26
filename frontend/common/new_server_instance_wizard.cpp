@@ -1401,7 +1401,8 @@ void CommandsPage::leave(bool advancing) {
 
 NewServerInstanceWizard::NewServerInstanceWizard(wb::WBContext *context, db_mgmt_ConnectionRef connection)
   : WizardForm(), _instance(grt::Initialized) {
-  set_name("new_instance_wizard");
+  set_name("New Instance Wizard");
+  setInternalName("new_instance_wizard");
   _context = context;
   _connection = connection;
   values().set("connection", connection);

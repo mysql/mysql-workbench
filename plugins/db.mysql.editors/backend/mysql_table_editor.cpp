@@ -304,32 +304,38 @@ bec::MenuItemList MySQLTableColumnsListBE::get_popup_items_for_nodes(const std::
         }
 
         item.caption = "Default 0";
-        item.name = "TSToolStripMenuItem";
+        item.internalName = "TSToolStripMenuItem";
+        item.accessibilityName = "ToBeDefined";
         item.enabled = true;
         items.push_back(item);
 
         item.caption = "Default CURRENT_TIMESTAMP";
-        item.name = "currentTSToolStripMenuItem";
+        item.internalName = "currentTSToolStripMenuItem";
+        item.accessibilityName = "Current Timestamp";
         item.enabled = current_timestamp_allowed;
         items.push_back(item);
 
         item.caption = "Default NULL ON UPDATE CURRENT_TIMESTAMP";
-        item.name = "currentTSNullOnUpdateToolStripMenuItem";
+        item.internalName = "currentTSNullOnUpdateToolStripMenuItem";
+        item.accessibilityName = "Default Null On Update";
         item.enabled = current_timestamp_allowed;
         items.push_back(item);
 
         item.caption = "Default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP";
-        item.name = "currentTSOnUpdateToolStripMenuItem";
+        item.internalName = "currentTSOnUpdateToolStripMenuItem";
+        item.accessibilityName = "Default Current Timestamp";
         item.enabled = current_timestamp_allowed;
         items.push_back(item);
       } else if (col->simpleType()->group()->name() == "numeric" || col->simpleType()->group()->name() == "datetime") {
         item.caption = "Default 0";
-        item.name = "0ToolStripMenuItem";
+        item.internalName = "0ToolStripMenuItem";
+        item.accessibilityName = "Default Zero";
         item.enabled = true;
         items.push_back(item);
       } else if (col->simpleType()->group()->name() == "string" || col->simpleType()->group()->name() == "text") {
         item.caption = "Default ''";
-        item.name = "EmptyToolStripMenuItem";
+        item.internalName = "EmptyToolStripMenuItem";
+        item.accessibilityName = "Empty";
         item.enabled = true;
         items.push_back(item);
       }
@@ -430,7 +436,8 @@ public:
     trigger_list_host->set_spacing(4);
 
     _trigger_list.set_size(230, -1);
-    _trigger_list.set_name("triggers list");
+    _trigger_list.set_name("Triggers List");
+    _trigger_list.setInternalName("triggers list");
     _trigger_list.add_column(mforms::StringColumnType, _("Name"), 200, false, true);
     _trigger_list.end_columns();
     _trigger_list.signal_changed()->connect(std::bind(&MySQLTriggerPanel::selection_changed, this));
@@ -452,25 +459,25 @@ public:
     _trigger_menu.signal_will_show()->connect(
       std::bind(&MySQLTriggerPanel::trigger_menu_will_show, this, std::placeholders::_1));
     _trigger_menu.add_item_with_title("Move trigger up",
-                                      std::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_up"), "trigger_up");
+                                      std::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_up"), "Move Trigger Up", "trigger_up");
     _trigger_menu.add_item_with_title(
-      "Move trigger down", std::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_down"), "trigger_down");
+      "Move trigger down", std::bind(&MySQLTriggerPanel::trigger_action, this, "trigger_down"), "Move Trigger Down", "trigger_down");
     _trigger_menu.add_separator();
 
     _trigger_menu.add_item_with_title(
-      "Add new trigger", std::bind(&MySQLTriggerPanel::trigger_action, this, "add_trigger"), "add_trigger");
+      "Add new trigger", std::bind(&MySQLTriggerPanel::trigger_action, this, "add_trigger"), "Add New Trigger", "add_trigger");
     _trigger_menu.add_item_with_title("Duplicate trigger",
                                       std::bind(&MySQLTriggerPanel::trigger_action, this, "duplicate_trigger"),
-                                      "duplicate_trigger");
+                                      "Duplicate Trigger", "duplicate_trigger");
     _trigger_menu.add_separator();
 
     _trigger_menu.add_item_with_title(
-      "Delete trigger", std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_trigger"), "delete_trigger");
+      "Delete trigger", std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_trigger"), "Delete Trigger", "delete_trigger");
     _trigger_menu.add_item_with_title("Delete all triggers with this timing",
                                       std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers_in_group"),
-                                      "delete_triggers_in_group");
+                                      "Delete All Triggers With This Timing", "delete_triggers_in_group");
     _trigger_menu.add_item_with_title(
-      "Delete all triggers", std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers"), "delete_triggers");
+      "Delete all triggers", std::bind(&MySQLTriggerPanel::trigger_action, this, "delete_triggers"), "Delete all Triggers", "delete_triggers");
     _trigger_list.set_context_menu(&_trigger_menu);
 
     add(_editor_host, true, true);

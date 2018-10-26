@@ -46,7 +46,8 @@ grtui::DbConnectionEditor::DbConnectionEditor(const db_mgmt_ManagementRef &mgmt)
     _conn_list_buttons_hbox(true),
     _stored_connection_list(mforms::TreeDefault | mforms::TreeFlatList),
     _bottom_hbox(true) {
-  set_name("connection_editor");
+  set_name("Connection Editor");
+  setInternalName("connection_editor");
   grt::ListRef<db_mgmt_Rdbms> default_allowed_rdbms(true);
   default_allowed_rdbms.ginsert(find_object_in_list(mgmt->rdbms(), "com.mysql.rdbms.mysql"));
   _panel.init(_mgmt, default_allowed_rdbms);

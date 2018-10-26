@@ -668,6 +668,7 @@
                 <value _ptr_="017258B3" type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param1">
                         <value type="string" key="caption">Hostname:</value>
+                        <value type="string" key="accessibilityName">Host Name</value>
                         <value type="string" key="defaultValue">127.0.0.1</value>
                         <value type="string" key="description">Name or IP address of the server host</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -683,6 +684,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param2">
                         <value type="string" key="caption">Port:</value>
+                        <value type="string" key="accessibilityName">Port</value>
                         <value type="string" key="defaultValue">3306</value>
                         <value type="string" key="description">and TCP/IP port.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -698,6 +700,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param3">
                         <value type="string" key="caption">Username:</value>
+                        <value type="string" key="accessibilityName">Username</value>
                         <value type="string" key="defaultValue">root</value>
                         <value type="string" key="description">Name of the user to connect with.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -713,7 +716,8 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
                         <value type="string" key="caption">Password:</value>
-                        <value type="string" key="defaultValue"></value>
+                        <value type="string" key="accessibilityName">Password</value>
+                        <value type="string" key="defaultValue">Password</value>
                         <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
                         <value type="int" key="layoutAdvanced">0</value>
                         <value type="int" key="layoutRow">3</value>
@@ -730,6 +734,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param5">
                         <value type="string" key="caption">Default Schema:</value>
+                        <value type="string" key="accessibilityName">Default Schema</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -745,6 +750,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param6">
                         <value type="string" key="caption">Use compression protocol</value>
+                        <value type="string" key="accessibilityName">Use Compression Protocol</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Select this option for WAN connections.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -760,6 +766,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param8">
                         <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
+                        <value type="string" key="accessibilityName">Use ANSI Quotes to Quote Identifiers</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -775,6 +782,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param9">
                         <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
+                        <value type="string" key="accessibilityName">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -790,6 +798,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.timeout">
                         <value type="string" key="caption">Timeout:</value>
+                        <value type="string" key="accessibilityName">Timeout</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Maximum time to wait before a connection is aborted.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -820,6 +829,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.others">
                         <value type="string" key="caption">Others:</value>
+                        <value type="string" key="accessibilityName">Others</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Other options for Connector/C++ as option=value pairs, one per line.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -836,6 +846,7 @@
 
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
                         <value type="string" key="caption">Use SSL</value>
+                        <value type="string" key="accessibilityName">Use SSL</value>
                         <value type="string" key="defaultValue">1</value>
                         <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -854,6 +865,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
                       <value type="string" key="caption">SSL Key File:</value>
+                      <value type="string" key="accessibilityName">SSL Key File</value>
                       <value type="string" key="defaultValue"></value>
                       <value type="string" key="description">Path to Client Key file for SSL.</value>
                       <value type="int" key="layoutAdvanced">2</value>
@@ -869,6 +881,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
                       <value type="string" key="caption">SSL CERT File:</value>
+                      <value type="string" key="accessibilityName">SSL CERT File</value>
                       <value type="string" key="defaultValue"></value>
                       <value type="string" key="description">Path to Client Certificate file for SSL.</value>
                       <value type="int" key="layoutAdvanced">2</value>
@@ -884,6 +897,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
                       <value type="string" key="caption">SSL CA File:</value>
+                      <value type="string" key="accessibilityName">SSL CA File</value>
                       <value type="string" key="defaultValue"></value>
                       <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
                       <value type="int" key="layoutAdvanced">2</value>
@@ -899,6 +913,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
                       <value type="string" key="caption">SSL Cipher:</value>
+                      <value type="string" key="accessibilityName">SSL Cipher</value>
                       <value type="string" key="defaultValue"></value>
                       <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
                       <value type="int" key="layoutAdvanced">2</value>
@@ -914,6 +929,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
+                        <value type="string" key="accessibilityName">SSL Wizard</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description"></value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -929,6 +945,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
                         <value type="string" key="caption">Files ...</value>
+                        <value type="string" key="accessibilityName">Files</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description"></value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -958,6 +975,7 @@
                 <value _ptr_="017258B3s" type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param1">
                         <value type="string" key="caption">Socket/Pipe Path:</value>
+                        <value type="string" key="accessibilityName">Socket/Pipe Path</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to local socket or pipe file. Leave empty for default.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -973,6 +991,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param3">
                         <value type="string" key="caption">Username:</value>
+                        <value type="string" key="accessibilityName">Username</value>
                         <value type="string" key="defaultValue">root</value>
                         <value type="string" key="description">Name of the user to connect with.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -988,6 +1007,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param4">
                         <value type="string" key="caption">Password:</value>
+                        <value type="string" key="accessibilityName">Password</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">The user's password. Will be requested later if it's not set now.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1005,6 +1025,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param5">
                         <value type="string" key="caption">Default Schema:</value>
+                        <value type="string" key="accessibilityName">Default Schema</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1020,6 +1041,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param8">
                         <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
+                        <value type="string" key="accessibilityName">Use ANSI Quotes to Quote Identifiers</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1035,6 +1057,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.param9">
                         <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
+                        <value type="string" key="accessibilityName">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1050,6 +1073,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.sqlmode">
                         <value type="string" key="caption">SQL_MODE:</value>
+                        <value type="string" key="accessibilityName">SQL Mode</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1065,6 +1089,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.others">
                         <value type="string" key="caption">Others:</value>
+                        <value type="string" key="accessibilityName">Others</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Other options for Connector/C++ as option=value pairs, one per line</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1082,6 +1107,7 @@
 
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl0">
                         <value type="string" key="caption">Use SSL</value>
+                        <value type="string" key="accessibilityName">Use SSL</value>
                         <value type="string" key="defaultValue">1</value>
                         <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1100,6 +1126,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl1">
                         <value type="string" key="caption">SSL CA File:</value>
+                        <value type="string" key="accessibilityName">SSL CA File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1115,6 +1142,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl2">
                         <value type="string" key="caption">SSL CERT File:</value>
+                        <value type="string" key="accessibilityName">SSL Cert File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to Client Certificate file for SSL.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1130,6 +1158,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl3">
                         <value type="string" key="caption">SSL Key File:</value>
+                        <value type="string" key="accessibilityName">SSL Key File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to Client Key file for SSL.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1145,6 +1174,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_socket.ssl4">
                         <value type="string" key="caption">SSL Cipher:</value>
+                        <value type="string" key="accessibilityName">SSL Cipher</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1160,6 +1190,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
+                        <value type="string" key="accessibilityName">SSL Wizard</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description"></value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1175,6 +1206,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
                         <value type="string" key="caption">Files ...</value>
+                        <value type="string" key="accessibilityName">Files</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description"></value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1205,6 +1237,7 @@
                 <value type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam1">
                         <value type="string" key="caption">SSH Hostname:</value>
+                        <value type="string" key="accessibilityName">SSH Host Name</value>
                         <value type="string" key="defaultValue">127.0.0.1:22</value>
                         <value type="string" key="description">SSH server hostname, with  optional port number.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1220,6 +1253,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam3">
                         <value type="string" key="caption">SSH Username:</value>
+                        <value type="string" key="accessibilityName">SSH Username</value>
                         <value type="string" key="defaultValue">user</value>
                         <value type="string" key="description">Name of the SSH user to connect with.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1235,6 +1269,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam4">
                         <value type="string" key="caption">SSH Password:</value>
+                        <value type="string" key="accessibilityName">SSH Password</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">SSH user password to connect to the SSH tunnel.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1252,6 +1287,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sparam5">
                         <value type="string" key="caption">SSH Key File:</value>
+                        <value type="string" key="accessibilityName">SSH Key File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to SSH private key file.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1267,6 +1303,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param1">
                         <value type="string" key="caption">MySQL Hostname:</value>
+                        <value type="string" key="accessibilityName">MySQL Host Name</value>
                         <value type="string" key="defaultValue">127.0.0.1</value>
                         <value type="string" key="description">MySQL server host relative to the SSH server.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1282,6 +1319,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param2">
                         <value type="string" key="caption">MySQL Server Port:</value>
+                        <value type="string" key="accessibilityName">MySQL Server Port</value>
                         <value type="string" key="defaultValue">3306</value>
                         <value type="string" key="description">TCP/IP port of the MySQL server.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1297,6 +1335,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param3">
                         <value type="string" key="caption">Username:</value>
+                        <value type="string" key="accessibilityName">Username</value>
                         <value type="string" key="defaultValue">root</value>
                         <value type="string" key="description">Name of the user to connect with.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1312,6 +1351,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param4">
                         <value type="string" key="caption">Password:</value>
+                        <value type="string" key="accessibilityName">Password</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">The MySQL user's password. Will be requested later if not set.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1329,6 +1369,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.param5">
                         <value type="string" key="caption">Default Schema:</value>
+                        <value type="string" key="accessibilityName">Default Schema</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">The schema to use as default schema. Leave blank to select it later.</value>
                         <value type="int" key="layoutAdvanced">0</value>
@@ -1345,6 +1386,7 @@
 
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam1">
                         <value type="string" key="caption">Use compression protocol</value>
+                        <value type="string" key="accessibilityName">Use Compression Protocol</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Select this option for WAN connections.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1360,6 +1402,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam3">
                         <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
+                        <value type="string" key="accessibilityName">Use ANSI Quotes to Quote Identifiers</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">If enabled this option overwrites the serverside settings.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1375,6 +1418,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam4">
                         <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
+                        <value type="string" key="accessibilityName">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Send user password in cleartext. Required for some authentication methods.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1390,6 +1434,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam5">
                         <value type="string" key="caption">SSH Compression Level</value>
+                        <value type="string" key="accessibilityName">SSH Compression Level</value>
                         <value type="string" key="defaultValue">0</value>
                         <value type="string" key="description">Use compression for all incoming and outgoing data. Valid range 0-9, use 0 to disable.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1406,6 +1451,7 @@
                     
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.sqlmode">
                         <value type="string" key="caption">SQL_MODE:</value>
+                        <value type="string" key="accessibilityName">SQL Mode</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1421,6 +1467,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.others">
                         <value type="string" key="caption">Others:</value>
+                        <value type="string" key="accessibilityName">Others</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Other options for Connector/C++ as option=value pairs, one per line.</value>
                         <value type="int" key="layoutAdvanced">1</value>
@@ -1438,6 +1485,7 @@
 
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
                         <value type="string" key="caption">Use SSL</value>
+                        <value type="string" key="accessibilityName">Use SSL</value>
                         <value type="string" key="defaultValue">1</value>
                         <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1456,6 +1504,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl1">
                         <value type="string" key="caption">SSL CA File:</value>
+                        <value type="string" key="accessibilityName">SSL CA File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to Certificate Authority file for SSL.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1471,6 +1520,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl2">
                         <value type="string" key="caption">SSL CERT File:</value>
+                        <value type="string" key="accessibilityName">SSL CERT File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to Client Certificate file for SSL.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1486,6 +1536,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl3">
                         <value type="string" key="caption">SSL Key File:</value>
+                        <value type="string" key="accessibilityName">SSL Key File</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to Client Key file for SSL.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1501,6 +1552,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl4">
                         <value type="string" key="caption">SSL Cipher:</value>
+                        <value type="string" key="accessibilityName">SSL Cipher</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Optional : separated list of permissible ciphers to use for SSL encryption.</value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1516,6 +1568,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
+                        <value type="string" key="accessibilityName">SSL Wizard</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description"></value>
                         <value type="int" key="layoutAdvanced">2</value>
@@ -1531,6 +1584,7 @@
                     </value>
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
                         <value type="string" key="caption">Files ...</value>
+                        <value type="string" key="accessibilityName">Files</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description"></value>
                         <value type="int" key="layoutAdvanced">2</value>

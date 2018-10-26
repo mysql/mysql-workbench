@@ -870,6 +870,7 @@ public:
   db_mgmt_DriverParameter(grt::MetaClass *meta = 0)
     : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
       _caption(""),
+      _accessibilityName(""),
       _defaultValue(""),
       _description(""),
       _layoutAdvanced(0),
@@ -907,6 +908,27 @@ obj.caption = value
     grt::ValueRef ovalue(_caption);
     _caption = value;
     member_changed("caption", ovalue, value);
+  }
+
+  /** Getter for attribute accessibilityName
+
+    the accessibilityName used for accessibility applications
+   \par In Python:
+value = obj.caption
+   */
+  grt::StringRef accessibilityName() const {
+    return _accessibilityName;
+  }
+  /** Setter for attribute accessibilityName
+
+    the accessibilityName used for accessibility applications
+    \par In Python:
+obj.caption = value
+   */
+  virtual void accessibilityName(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_accessibilityName);
+    _accessibilityName = value;
+    member_changed("accessibilityName", ovalue, value);
   }
 
   /** Getter for attribute defaultValue
@@ -1120,6 +1142,7 @@ obj.required = value
 
 protected:
   grt::StringRef _caption;
+  grt::StringRef _accessibilityName;
   grt::StringRef _defaultValue;
   grt::StringRef _description;
   grt::IntegerRef _layoutAdvanced;
@@ -1146,6 +1169,12 @@ public:
       void (db_mgmt_DriverParameter::*setter)(const grt::StringRef &) = &db_mgmt_DriverParameter::caption;
       grt::StringRef (db_mgmt_DriverParameter::*getter)() const = &db_mgmt_DriverParameter::caption;
       meta->bind_member("caption",
+                        new grt::MetaClass::Property<db_mgmt_DriverParameter, grt::StringRef>(getter, setter));
+    }
+    {
+      void (db_mgmt_DriverParameter::*setter)(const grt::StringRef &) = &db_mgmt_DriverParameter::accessibilityName;
+      grt::StringRef (db_mgmt_DriverParameter::*getter)() const = &db_mgmt_DriverParameter::accessibilityName;
+      meta->bind_member("accessibilityName",
                         new grt::MetaClass::Property<db_mgmt_DriverParameter, grt::StringRef>(getter, setter));
     }
     {

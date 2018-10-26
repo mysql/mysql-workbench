@@ -41,7 +41,7 @@ namespace MySQL {
     ref class MenuItem {
       System::String ^ caption;
       System::String ^ shortcut;
-      System::String ^ name;
+      System::String ^ internalName;
       MenuItemType type;
 
       bool enabled;
@@ -54,7 +54,7 @@ namespace MySQL {
 
       System::String ^ get_caption();
       System::String ^ get_shortcut();
-      System::String ^ get_name();
+      System::String ^ getInternalName();
       MenuItemType get_type();
 
       bool get_checked();
@@ -82,7 +82,7 @@ namespace MySQL {
     ref class ToolbarItem {
       int icon;
       int alt_icon;
-      System::String ^ name;
+      System::String ^ internalName;
       System::String ^ caption;
       System::String ^ command;
       System::String ^ tooltip;
@@ -95,7 +95,7 @@ namespace MySQL {
       ToolbarItem(const bec::ToolbarItem &item)
         : icon(item.icon),
           alt_icon(item.alt_icon),
-          name(CppStringToNative(item.name)),
+          internalName(CppStringToNative(item.name)),
           caption(CppStringToNative(item.caption)),
           command(CppStringToNative(item.command)),
           tooltip(CppStringToNative(item.tooltip)),
@@ -112,7 +112,7 @@ namespace MySQL {
         return alt_icon;
       }
 
-      System::String ^ get_name() { return name; }
+      System::String ^ getInternalName() { return internalName; }
 
         System::String
         ^ get_caption() { return caption; }

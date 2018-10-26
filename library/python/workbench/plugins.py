@@ -28,7 +28,8 @@ def insert_item_to_plugin_context_menu(menu, item):
         index = menu.get_item_index(bottom)
         if index > 0 and not menu.find_item("top_plugins_separator"):
             sep = mforms.newMenuItem("", mforms.SeparatorMenuItem)
-            sep.set_name("top_plugins_separator")
+            sep.set_name("Top Plugins Separator")
+            sep.setInternalName("top_plugins_separator")
             menu.insert_item(index, sep)
             index += 1
         menu.insert_item(index, item)

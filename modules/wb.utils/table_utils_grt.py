@@ -36,7 +36,7 @@ ModuleInfo = DefineModule(name= "WbTableUtils", author= "MySQL Team", version="1
 # export a function from this module, declaring its return and parameter types and then
 # tell WB that it is a plugin to be shown in the context menu for the selected table
 # and the Objects menu receiving the current selected table as input
-@ModuleInfo.plugin("wb.table.util.copyInsertToClipboard", caption= "Copy Inserts to Clipboard", input= [wbinputs.objectOfClass("db.Table")], groups=["Catalog/Utilities","Menu/Objects"])
+@ModuleInfo.plugin("wb.table.util.copyInsertToClipboard", caption= "Copy Inserts to Clipboard", input= [wbinputs.objectOfClass("db.Table")], groups=["Catalog/Utilities","Menu/Objects"], accessibilityName="Copy Inserts to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_Table)
 def copyInsertToClipboard(table):
 
@@ -51,7 +51,7 @@ def copyInsertToClipboard(table):
 # export a function from this module, declaring its return and parameter types and then
 # tell WB that it is a plugin to be shown in the context menu for the selected table
 # and the Objects menu receiving the current selected table as input
-@ModuleInfo.plugin("wb.table.util.copyInsertTemplateToClipboard", caption= "Copy Insert Template to Clipboard", input= [wbinputs.objectOfClass("db.Table")], groups=["Catalog/Utilities","Menu/Objects"])
+@ModuleInfo.plugin("wb.table.util.copyInsertTemplateToClipboard", caption= "Copy Insert Template to Clipboard", input= [wbinputs.objectOfClass("db.Table")], groups=["Catalog/Utilities","Menu/Objects"], accessibilityName="Copy Insert Template to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_Table)
 def copyInsertTemplateToClipboard(table):
   code = "INSERT INTO `" + table.owner.name + "`.`" + table.name + "` ("
@@ -114,7 +114,7 @@ def _create_table(catalog, schema, name, columns):
 
     return tbl
 
-@ModuleInfo.plugin("wb.table.util.quickTables", caption= "Create Multiple Tables", input= [wbinputs.currentCatalog()], groups=["Catalog/Utilities","Menu/Objects"])
+@ModuleInfo.plugin("wb.table.util.quickTables", caption= "Create Multiple Tables", input= [wbinputs.currentCatalog()], groups=["Catalog/Utilities","Menu/Objects"], accessibilityName="Create Multiple Tables")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def quickTablesInCatalog(catalog):
 
@@ -161,7 +161,7 @@ def quickTablesInCatalog(catalog):
     return 0
 
 
-@ModuleInfo.plugin("wb.table.util.openTableTemplateEditor", caption= "Open Table Templates Editor")
+@ModuleInfo.plugin("wb.table.util.openTableTemplateEditor", caption= "Open Table Templates Editor", accessibilityName="Open Table Templates Editor")
 @ModuleInfo.export(grt.INT)
 def openTableTemplateEditor():
     table_templates.TableTemplateManager().edit_templates()

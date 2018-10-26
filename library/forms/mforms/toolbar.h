@@ -140,11 +140,11 @@ namespace mforms {
     void set_icon(const std::string &path);
     std::string get_icon() {
       return _icon;
-    };
+    }
     void set_alt_icon(const std::string &path);
     std::string get_alt_icon() {
       return _alt_icon;
-    };
+    }
 
     void set_enabled(bool flag);
     bool get_enabled();
@@ -156,10 +156,13 @@ namespace mforms {
       return &_clicked_signal;
     }
 
-    void set_name(const std::string &name);
-    std::string get_name() {
-      return _name;
+    void setInternalName(const std::string &name) {
+        _internalName = name;
     }
+    std::string getInternalName() const {
+      return _internalName;
+    }
+    void set_name(const std::string &name);
 
     void set_selector_items(const std::vector<std::string> &values);
 
@@ -173,7 +176,7 @@ namespace mforms {
 
   private:
     ToolBarImplPtrs *_impl;
-    std::string _name;
+    std::string _internalName;
     std::string _icon;
     std::string _alt_icon;
     ToolBarItemType _type;
@@ -183,4 +186,4 @@ namespace mforms {
     std::function<bool()> _validate;
     std::function<void(const std::string &)> _search;
   };
-};
+}

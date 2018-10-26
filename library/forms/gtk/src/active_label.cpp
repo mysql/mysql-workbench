@@ -45,7 +45,7 @@ ActiveLabel::ActiveLabel(const Glib::ustring& text, const sigc::slot<void>& clos
   _btn_close.add(_closeImage);
   _btn_close.add_events(Gdk::BUTTON_RELEASE_MASK);
   _btn_close.signal_button_release_event().connect(sigc::mem_fun(this, &ActiveLabel::handle_event), false);
-  _btn_close.set_name("wbtab-close-button");
+  _btn_close.set_name("Close");
   _btn_close.get_style_context()->signal_changed().connect(sigc::mem_fun(this, &ActiveLabel::button_style_changed));
 
   _text_label_eventbox.set_visible_window(false);

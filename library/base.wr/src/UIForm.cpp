@@ -36,7 +36,7 @@ using namespace MySQL::Base;
 MenuItem::MenuItem(const ::bec::MenuItem& item)
   : caption(CppStringToNative(item.caption)),
     shortcut(CppStringToNative(item.shortcut)),
-    name(CppStringToNative(item.name)),
+    internalName(CppStringToNative(item.internalName)),
     type((MenuItemType)item.type),
     enabled(item.enabled),
     checked(item.checked) {
@@ -59,8 +59,8 @@ String ^ MenuItem::get_shortcut() {
 
 //--------------------------------------------------------------------------------------------------
 
-String ^ MenuItem::get_name() {
-  return name;
+String ^ MenuItem::getInternalName() {
+  return internalName;
 }
 
 //--------------------------------------------------------------------------------------------------

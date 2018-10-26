@@ -262,7 +262,8 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _automatic_help = bec::GRTManager::get()->get_app_option_int("DbSqlEditor:DisableAutomaticContextHelp", 0) == 0;
   _switching_help = false;
   _helpContext = new help::HelpContext(owner->rdbms()->characterSets(), owner->sql_mode(), owner->server_version());
-  set_name("querySidePalette");
+  set_name("Query Side Palette");
+  setInternalName("querySidePalette");
 
   _pending_snippets_refresh = true;
 
@@ -300,7 +301,8 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
 
   content_border = manage(new Box(false));
   _snippet_list = manage(new SnippetListView("snippet_sql.png"));
-  _snippet_list->set_name("Snippet list");
+  _snippet_list->set_name("Snippet List");
+  _snippet_list->setInternalName("Snippet list");
 #ifdef _MSC_VER
   content_border->set_padding(3, 3, 3, 3);
   _snippet_list->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
@@ -486,7 +488,8 @@ void QuerySidePalette::click_link(const std::string &link) {
 
 ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   ToolBar *toolbar = manage(new ToolBar(mforms::SecondaryToolBar));
-  toolbar->set_name("snippet_toolbar");
+  toolbar->set_name("Snippet Toolbar");
+  toolbar->setInternalName("snippet_toolbar");
 #ifndef __APPLE__
   toolbar->set_padding(0, 0, 0, 0);
   toolbar->set_size(-1, 27);
@@ -494,7 +497,8 @@ ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   ToolBarItem *item;
 
   item = mforms::manage(new ToolBarItem(mforms::SelectorItem));
-  item->set_name("select_category");
+  item->set_name("Select Category");
+  item->setInternalName("select_category");
 
   DbSqlEditorSnippets *snippets_model = DbSqlEditorSnippets::get_instance();
   item->set_selector_items(snippets_model->get_category_list());
@@ -508,7 +512,8 @@ ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   toolbar->add_item(item);
 
   item = mforms::manage(new ToolBarItem(mforms::ActionItem));
-  item->set_name("replace_text");
+  item->set_name("Replace Text");
+  item->setInternalName("replace_text");
   item->set_icon(App::get()->get_resource_path("snippet_use.png"));
   item->set_tooltip(_("Replace the current text by this snippet"));
   scoped_connect(item->signal_activated(),
@@ -516,7 +521,8 @@ ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   toolbar->add_item(item);
 
   item = mforms::manage(new ToolBarItem(mforms::ActionItem));
-  item->set_name("insert_text");
+  item->set_name("Insert Text");
+  item->setInternalName("insert_text");
   item->set_icon(App::get()->get_resource_path("snippet_insert.png"));
   item->set_tooltip(_("Insert the snippet text at the current caret position replacing selected text if there is any"));
   scoped_connect(item->signal_activated(),
@@ -524,7 +530,8 @@ ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
   toolbar->add_item(item);
 
   item = manage(new ToolBarItem(mforms::ActionItem));
-  item->set_name("copy_to_clipboard");
+  item->set_name("Copy To Clipboard");
+  item->setInternalName("copy_to_clipboard");
   item->set_icon(App::get()->get_resource_path("snippet_clipboard.png"));
   item->set_tooltip(_("Copy the snippet text to the clipboard"));
   scoped_connect(item->signal_activated(),
@@ -537,7 +544,7 @@ ToolBar *QuerySidePalette::prepare_snippet_toolbar() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::snippet_toolbar_item_activated(ToolBarItem *item) {
-  std::string action = item->get_name();
+  std::string action = item->getInternalName();
   if (action == "select_category") {
     _snippet_list->show_category(item->get_text());
     bec::GRTManager::get()->set_app_option("DbSqlEditor:SelectedSnippetCategory", grt::StringRef(item->get_text()));
@@ -555,9 +562,6 @@ void QuerySidePalette::snippet_toolbar_item_activated(ToolBarItem *item) {
 
 void QuerySidePalette::snippet_selection_changed() {
   bool has_selection = _snippet_list->selected_index() > -1;
-  //  bool user_snippets_active = _snippet_list->selected_category() == USER_SNIPPETS;
-  // _snippet_toolbar->set_item_enabled("add_snippet", true);
-  _snippet_toolbar->set_item_enabled("del_snippet", has_selection);
   _snippet_toolbar->set_item_enabled("copy_to_clipboard", has_selection);
   _snippet_toolbar->set_item_enabled("replace_text", has_selection);
   _snippet_toolbar->set_item_enabled("insert_text", has_selection);
@@ -576,14 +580,16 @@ void QuerySidePalette::close_popover() {
 
 ToolBar *QuerySidePalette::prepare_help_toolbar() {
   ToolBar *toolbar = manage(new ToolBar(mforms::SecondaryToolBar));
-  toolbar->set_name("help_toolbar");
+  toolbar->set_name("Help Toolbar");
+  toolbar->setInternalName("help_toolbar");
 #ifndef __APPLE__
   toolbar->set_padding(0, 0, 0, 0);
   toolbar->set_size(-1, 27);
 #endif
 
   _back_item = manage(new ToolBarItem(mforms::ActionItem));
-  _back_item->set_name("back");
+  _back_item->set_name("Back");
+  _back_item->setInternalName("back");
   _back_item->set_icon(App::get()->get_resource_path("wb-toolbar_nav-back.png"));
   _back_item->set_tooltip(_("One topic back"));
   _back_item->set_enabled(false);
@@ -592,7 +598,8 @@ ToolBar *QuerySidePalette::prepare_help_toolbar() {
   toolbar->add_item(_back_item);
 
   _forward_item = manage(new ToolBarItem(mforms::ActionItem));
-  _forward_item->set_name("forward");
+  _forward_item->set_name("Forward");
+  _forward_item->setInternalName("forward");
   _forward_item->set_icon(App::get()->get_resource_path("wb-toolbar_nav-forward.png"));
   _forward_item->set_tooltip(_("One topic forward"));
   _forward_item->set_enabled(false);
@@ -603,7 +610,8 @@ ToolBar *QuerySidePalette::prepare_help_toolbar() {
   toolbar->add_item(manage(new ToolBarItem(mforms::SeparatorItem)));
 
   ToolBarItem *item = manage(new ToolBarItem(mforms::ToggleItem));
-  item->set_name("toggle-auto-context-help");
+  item->set_name("Toggle Auto Context Help");
+  item->setInternalName("toggle-auto-context-help");
   item->set_icon(App::get()->get_resource_path("wb-toolbar_automatic-help-off.png"));
   item->set_alt_icon(App::get()->get_resource_path("wb-toolbar_automatic-help-on.png"));
   item->set_tooltip(_("Toggle automatic context help"));
@@ -613,7 +621,8 @@ ToolBar *QuerySidePalette::prepare_help_toolbar() {
   toolbar->add_item(item);
 
   _manual_help_item = manage(new ToolBarItem(mforms::ActionItem));
-  _manual_help_item->set_name("manual-context-help");
+  _manual_help_item->set_name("Manual Context Help");
+  _manual_help_item->setInternalName("manual-context-help");
   _manual_help_item->set_icon(App::get()->get_resource_path("wb-toolbar_manual-help.png"));
   _manual_help_item->set_tooltip(_("Get context help for the item at the current caret position"));
   _manual_help_item->set_enabled(!_automatic_help);
@@ -624,7 +633,8 @@ ToolBar *QuerySidePalette::prepare_help_toolbar() {
   toolbar->add_item(manage(new ToolBarItem(mforms::SeparatorItem)));
 
   _quick_jump_item = manage(new ToolBarItem(mforms::SelectorItem));
-  _quick_jump_item->set_name("quick_jump");
+  _quick_jump_item->set_name("Quick Jump");
+  _quick_jump_item->setInternalName("quick_jump");
 
   std::vector<std::string> topic_entries;
   topic_entries.push_back(_("Jump to"));
@@ -652,7 +662,7 @@ void QuerySidePalette::help_toolbar_item_activated(ToolBarItem *item) {
   if (_switching_help)
     return;
 
-  std::string action = item->get_name();
+  std::string action = item->getInternalName();
   if (action == "back" && _current_topic_index > 0) {
     std::string topic = _topic_history[--_current_topic_index];
     _back_item->set_enabled(_current_topic_index > 0);

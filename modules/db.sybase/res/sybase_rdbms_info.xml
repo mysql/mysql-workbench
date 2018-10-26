@@ -37,6 +37,7 @@
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sybase.driver.odbc_dsn.param1">
             <value type="string" key="caption">DSN:</value>
+            <value type="string" key="accessibilityName">DSN</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Pre-configured ODBC data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -116,6 +117,7 @@
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sybase.driver.odbc_ftds_dsn.param1">
             <value type="string" key="caption">DSN:</value>
+            <value type="string" key="accessibilityName">DSN</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Pre-configured ODBC data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -227,6 +229,7 @@ Required for FreeTDS.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sybase.driver.odbc_native.param0">
             <value type="string" key="caption">Driver:</value>
+            <value type="string" key="accessibilityName">Driver</value>
             <value type="string" key="defaultValue">Adaptive Server Enterprise</value>
             <value type="string" key="description">The name of the ODBC driver you are using.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -353,6 +356,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sybase.driver.odbc.param0">
             <value type="string" key="caption">Driver:</value>
+            <value type="string" key="accessibilityName">Driver</value>
             <value type="string" key="defaultValue">FreeTDS</value>
             <value type="string" key="description">The name of the ODBC driver you are using (E.g. FreeTDS).</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -495,6 +499,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sybase.driver.odbc_connstring.param0">
             <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="accessibilityName">Driver</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The full ODBC connection string.</value>
             <value type="int" key="layoutAdvanced">0</value>

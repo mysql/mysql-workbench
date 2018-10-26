@@ -37,7 +37,7 @@ UserDatatypeList::UserDatatypeList(WBContext *wb)
   end_columns();
 
   _menu = new mforms::ContextMenu();
-  _menu->add_item_with_title("Edit User Types...", std::bind(&UserDatatypeList::handle_menu_action, this, "edit"));
+  _menu->add_item_with_title("Edit User Types...", std::bind(&UserDatatypeList::handle_menu_action, this, "edit"), "Edit User Types", "");
   set_context_menu(_menu);
 }
 

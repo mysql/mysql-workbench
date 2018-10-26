@@ -36,7 +36,7 @@ public:
       _schema_list(false),
       _schemas(schemas) {
     set_title(_("Select Destination Schema"));
-    set_name("schema_selection");
+    set_name("Schema Selection");
     _box.set_spacing(8);
     _box.set_padding(8);
     _button_box.add(&_ok_button, true, true);

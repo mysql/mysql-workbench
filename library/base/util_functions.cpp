@@ -952,10 +952,12 @@ namespace base {
     return date;
   }
   
+
   BASELIBRARY_PUBLIC_FUNC std::string getVersion(void) {
     return strfmt("%u.%u.%u", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
   }
-
+  
+  
 } // namespace base
 
 //--------------------------------------------------------------------------------------------------

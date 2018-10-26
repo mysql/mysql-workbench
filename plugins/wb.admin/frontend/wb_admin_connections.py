@@ -286,7 +286,7 @@ class WbAdminConnections(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_management", "Client Connections", False)
+        admin_context.register_page(cls, "Management", "Client Connections", False)
 
     @classmethod
     def identifier(cls):
@@ -620,14 +620,14 @@ class WbAdminConnections(WbAdminTabBase):
                 if not user_thread:
                     user_thread = len([sel for sel in selected_conn if not sel.get_string(8).startswith('BACKGROUND')]) > 0
 
-                item = self._menu.add_item_with_title("Copy", self.copy_selected, "copy_selected")
-                item = self._menu.add_item_with_title("Copy Info", self.copy_selected_info, "copy_selected_info")
-                item = self._menu.add_item_with_title("Show in Editor", self.edit_selected, "edit_selected")
+                item = self._menu.add_item_with_title("Copy", self.copy_selected, "Copy Selected", "copy_selected")
+                item = self._menu.add_item_with_title("Copy Info", self.copy_selected_info, "Copy Selected Info", "copy_selected_info")
+                item = self._menu.add_item_with_title("Show in Editor", self.edit_selected, "Edit Selected", "edit_selected")
                 item.set_enabled(user_thread)
 
                 if self.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7):
                     self._menu.add_separator()
-                    item = self._menu.add_item_with_title("Explain for Connection", self.explain_selected, "explain")
+                    item = self._menu.add_item_with_title("Explain for Connection", self.explain_selected, "Explain", "explain")
                     if len(selected_conn) != 1:
                         item.set_enabled(False)
                     else:
@@ -636,7 +636,7 @@ class WbAdminConnections(WbAdminTabBase):
                             item.set_enabled(False)
 
                 if self.new_processlist():
-                    item = self._menu.add_item_with_title("View Thread Stack", self.view_thread_stack, "view_thread_stack")
+                    item = self._menu.add_item_with_title("View Thread Stack", self.view_thread_stack, "View Thread Stack", "view_thread_stack")
                     if len(selected_conn) != 1:
                         item.set_enabled(False)
                     instr_caption = "Enable Instrumentation for Thread"
@@ -644,17 +644,17 @@ class WbAdminConnections(WbAdminTabBase):
 
                     if all(start_with_yes):
                         instr_caption = "Disable Instrumentation for Thread"
-                    item = self._menu.add_item_with_title(instr_caption, self.enable_disable_instrumentation, "enable_disable_instrumentation")
+                    item = self._menu.add_item_with_title(instr_caption, self.enable_disable_instrumentation, "Enable Instrumentation", "enable_disable_instrumentation")
                     if any(start_with_yes) and not all(start_with_yes):
                         item.set_enabled(False)                    
 
                 self._menu.add_separator()
-                item = self._menu.add_item_with_title("Kill Query(s)", self.kill_query, "kill_query")
+                item = self._menu.add_item_with_title("Kill Query(s)", self.kill_query, "Kill Query", "kill_query")
                 item.set_enabled(user_thread)
-                item = self._menu.add_item_with_title("Kill Connection(s)", self.kill_connection, "kill_connection")
+                item = self._menu.add_item_with_title("Kill Connection(s)", self.kill_connection, "Kill Connection", "kill_connection")
                 item.set_enabled(user_thread)
                 self._menu.add_separator()
-            self._menu.add_item_with_title("Refresh", self.refresh, "refresh")
+            self._menu.add_item_with_title("Refresh", self.refresh, "Refresh", "refresh")
 
     def column_resized(self, col):
         widths = []

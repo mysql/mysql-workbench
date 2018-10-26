@@ -2238,7 +2238,7 @@ class WbAdminProgressTab(mforms.Box):
 class WbAdminExport(WbAdminTabBase):
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_management", "Data Export")
+        admin_context.register_page(cls, "Management", "Data Export")
 
     @classmethod
     def identifier(cls):
@@ -2375,7 +2375,7 @@ class WbAdminImport(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_management", "Data Import/Restore")
+        admin_context.register_page(cls, "Management", "Data Import/Restore")
 
     @classmethod
     def identifier(cls):

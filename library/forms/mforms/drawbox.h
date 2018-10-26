@@ -73,10 +73,10 @@ namespace mforms {
 #ifndef SWIG
     virtual void repaint(cairo_t *cr, int x, int y, int w, int h) {
     }
-    virtual void cancel_operation(){};
+    virtual void cancel_operation(){}
 
-    virtual std::string getAccessibilityName() {
-      return get_name();
+    virtual void set_name(const std::string &name) override {
+        setAccessibilityName(name);
     }
     virtual base::Rect getAccessibilityBounds() {
       return base::Rect(get_x(), get_y(), get_width(), get_height());

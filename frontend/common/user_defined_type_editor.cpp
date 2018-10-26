@@ -52,7 +52,8 @@ UserDefinedTypeEditor::UserDefinedTypeEditor(const workbench_physical_ModelRef &
     _flags_box(false),
     _button_box(true) {
   set_title(_("User Defined Types"));
-  set_name("user_type_editor");
+  set_name("User Type Editor");
+  setInternalName("user_type_editor");
 
   set_content(&_vbox);
   _vbox.set_spacing(8);
@@ -256,7 +257,7 @@ void UserDefinedTypeEditor::flag_toggled() {
     if ((*iter)->get_active()) {
       if (!flags.empty())
         flags.append(" ");
-      flags.append((*iter)->get_name());
+      flags.append((*iter)->getInternalName());
     }
   }
 

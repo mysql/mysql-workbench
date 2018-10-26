@@ -237,7 +237,8 @@ MenuItemList MessageListBE::get_popup_items_for_nodes(const std::vector<NodeId> 
   MenuItem item;
 
   item.type = bec::MenuAction;
-  item.name = "clear_messages";
+  item.internalName = "clear_messages";
+  item.accessibilityName = "Clear";
   item.caption = _("Clear");
   item.enabled = true;
   menu.push_back(item);

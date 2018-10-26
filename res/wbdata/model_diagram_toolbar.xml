@@ -16,6 +16,7 @@ context: see wb_context.h for full listing
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.main">
     <value type="string" key="name">main</value>
+    <value type="string" key="accessibilityName">Main</value>
 
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
     
@@ -25,6 +26,7 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_new.png</value>
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">plugin:wb.file.newDocument</value>
+        <value type="string" key="accessibilityName">New Document</value>
       </value>
     
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.open">
@@ -33,6 +35,7 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_open.png</value>
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">plugin:wb.file.openModel</value>
+        <value type="string" key="accessibilityName">Open Model</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.save">
@@ -41,12 +44,14 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_save.png</value>
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">plugin:wb.file.saveModel</value>
+        <value type="string" key="accessibilityName">Save Model</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sep.saveas">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
         <value type="string" key="itemType">separator</value>
         <value type="string" key="name">s1</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.undo">
@@ -55,6 +60,7 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_undo.png</value>
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">builtin:undo</value>
+        <value type="string" key="accessibilityName">Undo</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.redo">
@@ -63,11 +69,13 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_redo.png</value>
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">builtin:redo</value>
+        <value type="string" key="accessibilityName">Redo</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sep.redo">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.gridview">
@@ -76,6 +84,7 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_gridview.png</value>
         <value type="string" key="itemType">toggle</value>
         <value type="string" key="command">plugin:wb.edit.toggleGrid</value>
+        <value type="string" key="accessibilityName">Toggle Grid</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.grid">
@@ -84,12 +93,14 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_grid.png</value>
         <value type="string" key="itemType">toggle</value>
         <value type="string" key="command">plugin:wb.edit.toggleGridAlign</value>
+        <value type="string" key="accessibilityName">Toggle Alignment</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sep.lock">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
         <value type="string" key="itemType">separator</value>
         <value type="string" key="name">s2</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.add_diagram">
@@ -99,6 +110,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">action</value>
         <value type="string" key="command">builtin:addModelDiagram</value>
         <value type="string" key="tooltip">Add new Diagram</value>
+        <value type="string" key="accessibilityName">Add New Diagram</value>
       </value>
       <!--value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.grt_shell">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
@@ -114,6 +126,7 @@ context: see wb_context.h for full listing
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
         <value type="string" key="itemType">expander</value>
         <value type="string" key="name">s3</value>
+        <value type="string" key="accessibilityName">Expander</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.search">
@@ -122,6 +135,7 @@ context: see wb_context.h for full listing
         <value type="string" key="itemType">search</value>
         <value type="string" key="command">builtin:find</value>
         <value type="string" key="tooltip">Search for object in selected model</value>
+        <value type="string" key="accessibilityName">Search</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.icon.search">
@@ -132,6 +146,7 @@ context: see wb_context.h for full listing
         <value type="string" key="icon">tiny_search.png</value>
         <value type="string" key="tooltip">Search for object in selected model</value>
         <value type="string" key="platform">windows</value>
+        <value type="string" key="accessibilityName">Find</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.sidebarhide">
@@ -143,6 +158,7 @@ context: see wb_context.h for full listing
         <value type="string" key="command">builtin:wb.toggleSidebar</value>
         <value type="string" key="tooltip">Toggle Sidebar</value>
         <value type="int" key="initialState">1</value>
+        <value type="string" key="accessibilityName">Toggle Sidebar</value>
       </value>
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.secondarysidebarhide">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.main</link>
@@ -153,6 +169,7 @@ context: see wb_context.h for full listing
         <value type="string" key="command">builtin:wb.toggleSecondarySidebar</value>
         <value type="string" key="tooltip">Toggle Secondary Sidebar</value>
         <value type="int" key="initialState">1</value>
+        <value type="string" key="accessibilityName">Toggle Secondary Sidebar</value>
       </value>
     </value>
   </value>

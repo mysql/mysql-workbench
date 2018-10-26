@@ -77,6 +77,7 @@ LauncherEntry::LauncherEntry() : icon(nullptr) {
 //------------------------------------------------------------------------------------------------
 
 LauncherEntry::LauncherEntry(const LauncherEntry &other) {
+  setAccessibilityName(other._accessibilityName);
   title = other.title;
   title_shorted = other.title_shorted;
   description = other.description;
@@ -90,6 +91,7 @@ LauncherEntry::LauncherEntry(const LauncherEntry &other) {
 //------------------------------------------------------------------------------------------------
 
 LauncherEntry &LauncherEntry::operator=(LauncherEntry &&other) {
+  setAccessibilityName(other.getAccessibilityName());
   title = std::move(other.title);
   title_shorted = std::move(other.title_shorted);
   description = std::move(other.description);
@@ -330,6 +332,7 @@ void LaunchersSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int
 void LaunchersSection::addLauncher(const std::string &icon, const std::string &name, const std::string &description,
                                    const any &obj) {
   LauncherEntry entry;
+  entry.setAccessibilityName(name);
   entry.title = name;
   entry.description = description;
   entry.descriptionLines = split(reflow_text(entry.description, 29, "", false, 2), "\n");

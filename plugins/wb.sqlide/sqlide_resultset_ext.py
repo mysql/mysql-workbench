@@ -34,13 +34,13 @@ def handleResultsetContextMenu(name, sender, args):
 
     menu.add_separator()
 
-    item = menu.add_item_with_title("Capitalize Text", lambda: capitalizeCell(sender, row, column))
+    item = menu.add_item_with_title("Capitalize Text", lambda: capitalizeCell(sender, row, column), "Capitalize Text", "")
     item.set_enabled(row is not None and isinstance(sender, grt.classes.db_query_EditableResultset))
 
-    item = menu.add_item_with_title("lowercase Text", lambda: lowerCaseCell(sender, row, column))
+    item = menu.add_item_with_title("lowercase Text", lambda: lowerCaseCell(sender, row, column), "Lowercase Text", "")
     item.set_enabled(row is not None and isinstance(sender, grt.classes.db_query_EditableResultset))
 
-    item = menu.add_item_with_title("UPPERCASE Text", lambda: upperCaseCell(sender, row, column))
+    item = menu.add_item_with_title("UPPERCASE Text", lambda: upperCaseCell(sender, row, column), "Uppercase Text", "")
     item.set_enabled(row is not None and isinstance(sender, grt.classes.db_query_EditableResultset))
 
 

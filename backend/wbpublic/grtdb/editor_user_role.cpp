@@ -190,24 +190,29 @@ MenuItemList RoleObjectListBE::get_popup_items_for_nodes(const std::vector<NodeI
 
     GRTLIST_FOREACH(db_Schema, catalog->schemata(), schema) {
       item.caption = base::strfmt(_("Add Schema '%s'"), (*schema)->name().c_str());
-      item.name = base::strfmt("adds:%s", (*schema)->name().c_str());
+      item.internalName = std::string("adds:") + (*schema)->name().c_str();
+      item.accessibilityName = (*schema)->name();
       items.push_back(item);
       item.caption = base::strfmt(_("Add Tables Wildcard for '%s.*'"), (*schema)->name().c_str());
-      item.name = base::strfmt("addt:%s", (*schema)->name().c_str());
+      item.internalName = std::string("addt:") + (*schema)->name().c_str();
+      item.accessibilityName = (*schema)->name();
       items.push_back(item);
       item.caption = base::strfmt(_("Add All Tables in '%s'"), (*schema)->name().c_str());
-      item.name = base::strfmt("allt:%s", (*schema)->name().c_str());
+      item.internalName = std::string("allt:") + (*schema)->name().c_str();
+      item.accessibilityName = (*schema)->name();
       items.push_back(item);
     }
   }
   item.caption = "";
-  item.name = "sep";
+  item.internalName = "sep";
+  item.accessibilityName = "Separator";
   item.type = MenuSeparator;
   items.push_back(item);
 
   item.type = MenuAction;
   item.caption = _("Delete Selected");
-  item.name = "deleteObject";
+  item.internalName = "deleteObject";
+  item.accessibilityName = "Delete Object";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
 

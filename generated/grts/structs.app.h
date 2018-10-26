@@ -378,6 +378,7 @@ public:
     : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
       _attributes(this, false),
       _caption(""),
+      _accessibilityName(""),
       _description(""),
       _documentStructNames(grt::Initialized, this, false),
       _groups(grt::Initialized, this, false),
@@ -434,6 +435,28 @@ obj.caption = value
     member_changed("caption", ovalue, value);
   }
 
+  /** Getter for attribute accessibilityName
+
+
+   \par In Python:
+value = obj.accessibilityName
+   */
+  grt::StringRef accessibilityName() const {
+    return _accessibilityName;
+  }
+  /** Setter for attribute accessibilityName
+
+
+    \par In Python:
+obj.accessibilityName = value
+   */
+  virtual void accessibilityName(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_accessibilityName);
+    _accessibilityName = value;
+    member_changed("accessibilityName", ovalue, value);
+  }
+  
+  
   /** Getter for attribute description
 
     the plugin description
@@ -619,6 +642,7 @@ obj.showProgress = value
 protected:
   grt::DictRef _attributes;
   grt::StringRef _caption;
+  grt::StringRef _accessibilityName;
   grt::StringRef _description;
   grt::StringListRef _documentStructNames;
   grt::StringListRef _groups;
@@ -649,6 +673,11 @@ public:
       void (app_Plugin::*setter)(const grt::StringRef &) = &app_Plugin::caption;
       grt::StringRef (app_Plugin::*getter)() const = &app_Plugin::caption;
       meta->bind_member("caption", new grt::MetaClass::Property<app_Plugin, grt::StringRef>(getter, setter));
+    }
+    {
+      void (app_Plugin::*setter)(const grt::StringRef &) = &app_Plugin::accessibilityName;
+      grt::StringRef (app_Plugin::*getter)() const = &app_Plugin::accessibilityName;
+      meta->bind_member("accessibilityName", new grt::MetaClass::Property<app_Plugin, grt::StringRef>(getter, setter));
     }
     {
       void (app_Plugin::*setter)(const grt::StringRef &) = &app_Plugin::description;
@@ -753,6 +782,7 @@ public:
   app_PluginGroup(grt::MetaClass *meta = 0)
     : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
       _category(""),
+      _accessibilityName(""),
       _plugins(this, false)
 
   {
@@ -783,6 +813,28 @@ obj.category = value
     member_changed("category", ovalue, value);
   }
 
+  /** Getter for attribute accessibilityName
+
+
+   \par In Python:
+value = obj.accessibilityName
+   */
+  grt::StringRef accessibilityName() const {
+    return _accessibilityName;
+  }
+  /** Setter for attribute accessibilityName
+
+
+    \par In Python:
+obj.accessibilityName = value
+   */
+  virtual void accessibilityName(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_accessibilityName);
+    _accessibilityName = value;
+    member_changed("accessibilityName", ovalue, value);
+  }
+
+  
   // plugins is owned by app_PluginGroup
   /** Getter for attribute plugins (read-only)
 
@@ -805,6 +857,7 @@ private: // the next attribute is read-only
 public:
 protected:
   grt::StringRef _category;
+  grt::StringRef _accessibilityName;
   grt::ListRef<app_Plugin> _plugins; // owned
 private:                             // wrapper methods for use by grt
   static grt::ObjectRef create() {
@@ -823,6 +876,11 @@ public:
       meta->bind_member("category", new grt::MetaClass::Property<app_PluginGroup, grt::StringRef>(getter, setter));
     }
     {
+      void (app_PluginGroup::*setter)(const grt::StringRef &) = &app_PluginGroup::accessibilityName;
+      grt::StringRef (app_PluginGroup::*getter)() const = &app_PluginGroup::accessibilityName;
+      meta->bind_member("accessibilityName", new grt::MetaClass::Property<app_PluginGroup, grt::StringRef>(getter, setter));
+    }
+    {
       void (app_PluginGroup::*setter)(const grt::ListRef<app_Plugin> &) = &app_PluginGroup::plugins;
       grt::ListRef<app_Plugin> (app_PluginGroup::*getter)() const = &app_PluginGroup::plugins;
       meta->bind_member("plugins",
@@ -837,7 +895,8 @@ class app_Toolbar : public GrtObject {
 public:
   app_Toolbar(grt::MetaClass *meta = 0)
     : GrtObject(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
-      _items(this, false)
+      _items(this, false),
+      _accessibilityName("")
 
   {
   }
@@ -857,6 +916,28 @@ value = obj.items
     return _items;
   }
 
+
+  /** Getter for attribute accessibilityName
+
+
+   \par In Python:
+value = obj.accessibilityName
+   */
+  grt::StringRef accessibilityName() const {
+    return _accessibilityName;
+  }
+  /** Setter for attribute accessibilityName
+
+
+    \par In Python:
+obj.accessibilityName = value
+   */
+  virtual void accessibilityName(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_accessibilityName);
+    _accessibilityName = value;
+    member_changed("accessibilityName", ovalue, value);
+  }
+
 private: // the next attribute is read-only
   virtual void items(const grt::ListRef<app_ToolbarItem> &value) {
     grt::ValueRef ovalue(_items);
@@ -868,6 +949,7 @@ private: // the next attribute is read-only
 public:
 protected:
   grt::ListRef<app_ToolbarItem> _items; // owned
+  grt::StringRef _accessibilityName;
 private:                                // wrapper methods for use by grt
   static grt::ObjectRef create() {
     return grt::ObjectRef(new app_Toolbar());
@@ -884,6 +966,11 @@ public:
       grt::ListRef<app_ToolbarItem> (app_Toolbar::*getter)() const = &app_Toolbar::items;
       meta->bind_member("items",
                         new grt::MetaClass::Property<app_Toolbar, grt::ListRef<app_ToolbarItem> >(getter, setter));
+    }
+    {
+      void (app_Toolbar::*setter)(const grt::StringRef &) = &app_Toolbar::accessibilityName;
+      grt::StringRef (app_Toolbar::*getter)() const = &app_Toolbar::accessibilityName;
+      meta->bind_member("accessibilityName", new grt::MetaClass::Property<app_Toolbar, grt::StringRef>(getter, setter));
     }
   }
 };
@@ -1012,7 +1099,8 @@ public:
       _icon(""),
       _initialState(0),
       _itemType(""),
-      _tooltip("")
+      _tooltip(""),
+      _accessibilityName("")
 
   {
   }
@@ -1126,12 +1214,34 @@ obj.tooltip = value
     member_changed("tooltip", ovalue, value);
   }
 
+  /** Getter for attribute accessibilityName
+
+
+   \par In Python:
+value = obj.accessibilityName
+   */
+  grt::StringRef accessibilityName() const {
+    return _accessibilityName;
+  }
+  /** Setter for attribute accessibilityName
+
+
+    \par In Python:
+obj.accessibilityName = value
+   */
+  virtual void accessibilityName(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_accessibilityName);
+    _accessibilityName = value;
+    member_changed("accessibilityName", ovalue, value);
+  }
+
 protected:
   grt::StringRef _altIcon;
   grt::StringRef _icon;
   grt::IntegerRef _initialState;
   grt::StringRef _itemType;
   grt::StringRef _tooltip;
+  grt::StringRef _accessibilityName;
 
 private: // wrapper methods for use by grt
   static grt::ObjectRef create() {
@@ -1168,6 +1278,11 @@ public:
       void (app_ToolbarItem::*setter)(const grt::StringRef &) = &app_ToolbarItem::tooltip;
       grt::StringRef (app_ToolbarItem::*getter)() const = &app_ToolbarItem::tooltip;
       meta->bind_member("tooltip", new grt::MetaClass::Property<app_ToolbarItem, grt::StringRef>(getter, setter));
+    }
+    {
+      void (app_ToolbarItem::*setter)(const grt::StringRef &) = &app_ToolbarItem::accessibilityName;
+      grt::StringRef (app_ToolbarItem::*getter)() const = &app_ToolbarItem::accessibilityName;
+      meta->bind_member("accessibilityName", new grt::MetaClass::Property<app_ToolbarItem, grt::StringRef>(getter, setter));
     }
   }
 };
@@ -1239,7 +1354,8 @@ public:
       _caption(""),
       _itemType(""),
       _shortcut(""),
-      _subItems(this, false)
+      _subItems(this, false),
+      _accessibilityName("")
 
   {
   }
@@ -1311,6 +1427,24 @@ obj.shortcut = value
     member_changed("shortcut", ovalue, value);
   }
 
+  /** Getter for attribute accessibilityName (read-only)
+
+
+   \par In Python:
+value = obj.accessibilityName
+   */
+  grt::StringRef accessibilityName() const {
+    return _accessibilityName;
+  }
+
+  virtual void accessibilityName(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_accessibilityName);
+
+    _accessibilityName = value;
+    owned_member_changed("accessibilityName", ovalue, value);
+  }
+
+
   // subItems is owned by app_MenuItem
   /** Getter for attribute subItems (read-only)
 
@@ -1336,6 +1470,7 @@ protected:
   grt::StringRef _itemType;
   grt::StringRef _shortcut;
   grt::ListRef<app_MenuItem> _subItems; // owned
+  grt::StringRef _accessibilityName;
 private:                                // wrapper methods for use by grt
   static grt::ObjectRef create() {
     return grt::ObjectRef(new app_MenuItem());
@@ -1367,6 +1502,11 @@ public:
       grt::ListRef<app_MenuItem> (app_MenuItem::*getter)() const = &app_MenuItem::subItems;
       meta->bind_member("subItems",
                         new grt::MetaClass::Property<app_MenuItem, grt::ListRef<app_MenuItem> >(getter, setter));
+    }
+    {
+      void (app_MenuItem::*setter)(const grt::StringRef &) = &app_MenuItem::accessibilityName;
+      grt::StringRef (app_MenuItem::*getter)() const = &app_MenuItem::accessibilityName;
+      meta->bind_member("accessibilityName", new grt::MetaClass::Property<app_MenuItem, grt::StringRef>(getter, setter));
     }
   }
 };

@@ -184,7 +184,7 @@ private:
 
 public:
   DBSearchView(db_query_EditorRef editor)
-    : mforms::AppView(false, "dbsearch", false),
+    : mforms::AppView(false, "Database Search", "dbsearch", false),
       _editor(editor),
       _search_panel(),
       _check_selection_timeout(0),

@@ -236,7 +236,7 @@ public:
 
     if (object.is_instance(db_Script::static_class_name())) {
       for (bec::MenuItemList::iterator iter = items.begin(); iter != items.end(); ++iter) {
-        if (iter->name == "plugin:wb.plugin.edit.stored_note") {
+        if (iter->internalName == "plugin:wb.plugin.edit.stored_note") {
           items.erase(iter);
           c--;
           break;
@@ -268,7 +268,8 @@ int SQLScriptsNode::get_popup_menu_items(WBContext *wb, bec::MenuItemList &items
   items.push_back(item);
 
   item.type = bec::MenuAction;
-  item.name = "builtin:add_script_file";
+  item.accessibilityName = "Add Script File";
+  item.internalName = "builtin:add_script_file";
   item.caption = _("Add Script File...");
   items.push_back(item);
 
@@ -335,7 +336,8 @@ int NotesNode::get_popup_menu_items(WBContext *wb, bec::MenuItemList &items) {
   items.push_back(item);
 
   item.type = bec::MenuAction;
-  item.name = "builtin:add_note_file";
+  item.accessibilityName = "Add Note File";
+  item.internalName = "builtin:add_note_file";
   item.caption = _("Add Note File...");
   items.push_back(item);
 
@@ -533,40 +535,40 @@ mforms::MenuBar *PhysicalOverviewBE::get_menubar() {
     _menu = wb::WBContextUI::get()->get_command_ui()->create_menubar_for_context(WB_CONTEXT_PHYSICAL_OVERVIEW);
 
     static const char *diagram_only_items[] = {
-      "diagram_size",
-      "fnotation",
-      "rnotation",
-      "wb.edit.goToNextSelected",
-      "wb.edit.goToPreviousSelected",
-      "wb.edit.selectSimilar",
-      "wb.edit.selectConnected",
-      "wb.edit.toggleGridAlign",
-      "wb.edit.toggleGrid",
-      "wb.edit.togglePageGrid",
-      "wb.view.zoomDefault",
-      "wb.view.zoomIn",
-      "wb.view.zoomOut",
-      "wb.view.setFigureNotation",
-      "wb.view.setRelationshipNotation",
-      "wb.view.setMarker:1",
-      "wb.view.setMarker:2",
-      "wb.view.setMarker:3",
-      "wb.view.setMarker:4",
-      "wb.view.setMarker:5",
-      "wb.view.setMarker:6",
-      "wb.view.setMarker:7",
-      "wb.view.setMarker:8",
-      "wb.view.setMarker:9",
-      "wb.view.goToMarker:1",
-      "wb.view.goToMarker:2",
-      "wb.view.goToMarker:3",
-      "wb.view.goToMarker:4",
-      "wb.view.goToMarker:5",
-      "wb.view.goToMarker:6",
-      "wb.view.goToMarker:7",
-      "wb.view.goToMarker:8",
-      "wb.view.goToMarker:9",
-      nullptr
+        "diagram_size",
+        "fnotation",
+        "rnotation",
+        "wb.edit.goToNextSelected",
+        "wb.edit.goToPreviousSelected",
+        "wb.edit.selectSimilar",
+        "wb.edit.selectConnected",
+        "wb.edit.toggleGridAlign",
+        "wb.edit.toggleGrid",
+        "wb.edit.togglePageGrid",
+        "wb.view.zoomDefault",
+        "wb.view.zoomIn",
+        "wb.view.zoomOut",
+        "wb.view.setFigureNotation",
+        "wb.view.setRelationshipNotation",
+        "wb.view.setMarker:1",
+        "wb.view.setMarker:2",
+        "wb.view.setMarker:3",
+        "wb.view.setMarker:4",
+        "wb.view.setMarker:5",
+        "wb.view.setMarker:6",
+        "wb.view.setMarker:7",
+        "wb.view.setMarker:8",
+        "wb.view.setMarker:9",
+        "wb.view.goToMarker:1",
+        "wb.view.goToMarker:2",
+        "wb.view.goToMarker:3",
+        "wb.view.goToMarker:4",
+        "wb.view.goToMarker:5",
+        "wb.view.goToMarker:6",
+        "wb.view.goToMarker:7",
+        "wb.view.goToMarker:8",
+        "wb.view.goToMarker:9",
+        nullptr
     };
 
     for (int i = 0; diagram_only_items[i]; i++)

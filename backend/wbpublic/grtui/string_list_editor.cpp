@@ -32,7 +32,8 @@ StringListEditor::StringListEditor(mforms::Form *owner, const bool reorderable)
     _vbox(false),
     _tree(mforms::TreeFlatList | (reorderable ? mforms::TreeAllowReorderRows : (mforms::TreeOptions)0)),
     _button_box(true) {
-  set_name("list_editor");
+  set_name("List Editor");
+  setInternalName("list_editor");
   _tree.add_column(mforms::StringColumnType, "Value", 300, true);
   _tree.end_columns();
 

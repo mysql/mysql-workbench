@@ -133,7 +133,7 @@ class MainView(WizardPage):
 
         self._all_menu = mforms.newContextMenu()
         self._all_menu.add_will_show_callback(self.all_menu_will_show)
-        self._all_menu.add_check_item_with_title("Skip Object", self.skip_object, "skip_object")
+        self._all_menu.add_check_item_with_title("Skip Object", self.skip_object, "Skip Object", "skip_object")
 
         self._tree.set_context_menu(self._all_menu)
 
@@ -167,11 +167,11 @@ class MainView(WizardPage):
         
         self._menu = mforms.newContextMenu()
         self._menu.add_will_show_callback(self.menu_will_show)
-        self._menu.add_item_with_title("Set Target Type of Selected Columns...", self.set_target_type, "set_target_type")
-        self._menu.add_item_with_title("Find and Replace Target Type...", self.replace_target_type, "replace_target_type")
-        self._menu.add_item_with_title("Find and Replace Target Flags...", self.replace_target_flags, "replace_target_flags")
-        self._menu.add_item_with_title("Find and Replace Target Default Value...", self.replace_target_default_value, "replace_target_default_value")
-        self._menu.add_item_with_title("Find and Replace Target Collation...", self.replace_target_collation, "replace_target_collation")
+        self._menu.add_item_with_title("Set Target Type of Selected Columns...", self.set_target_type, "Set Target Type", "set_target_type")
+        self._menu.add_item_with_title("Find and Replace Target Type...", self.replace_target_type, "Replace Target Type", "replace_target_type")
+        self._menu.add_item_with_title("Find and Replace Target Flags...", self.replace_target_flags, "Replace Target Flags", "replace_target_flags")
+        self._menu.add_item_with_title("Find and Replace Target Default Value...", self.replace_target_default_value, "Replace Target Default Value", "replace_target_default_value")
+        self._menu.add_item_with_title("Find and Replace Target Collation...", self.replace_target_collation, "Replace Target Collation", "replace_target_collation")
         self._columns.set_context_menu(self._menu)
         
         self.help_label = mforms.newLabel("You can rename target schemas and tables, and change column definitions by clicking them once selected.")

@@ -37,7 +37,7 @@ class DefineModule(dict):
     ##
     ## Decorators for Writing Modules and Plugins
     ##
-    def plugin(self, name, caption= "", description="", type="standalone", input= [], groups= [], pluginMenu= None):
+    def plugin(self, name, caption= "", description="", type="standalone", input= [], groups= [], pluginMenu= None, accessibilityName="Plugin:ToBeDefined"):
         """Decorator to declare a Plugin, used in addition to @wbexport
         Usage:
         @wbmodule.plugin("db.utils.mangleNames", caption="Mangle Names", description="Mangles all object names in current catalog beyond recognition.", input= [wbinputs.currentCatalog()], groups=["Menu/Catalog"])
@@ -59,6 +59,7 @@ class DefineModule(dict):
             plug= grt.classes.app_Plugin()
             plug.name= name
             plug.caption= caption
+            plug.accessibilityName = accessibilityName
             plug.description= description
             plug.pluginType= type
             plug.moduleName= self.name

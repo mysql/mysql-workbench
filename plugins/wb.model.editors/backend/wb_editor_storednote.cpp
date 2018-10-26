@@ -135,7 +135,7 @@ void StoredNoteEditorBE::changed_selector(mforms::ToolBarItem *item) {
     }
 
   bec::AutoUndoEdit undo(this);
-  if (item->get_name() == "syncscript") {
+  if (item->getInternalName() == "syncscript") {
     db_ScriptRef::cast_from(_note)->synchronizeScriptPosition(s);
     undo.end(base::strfmt(_("Change sync output position for %s"), get_name().c_str()));
   } else {

@@ -57,12 +57,6 @@ base::any getAnyMapValue(const anyMap& map, const std::string& key, base::any de
 
 //--------------------------------------------------------------------------------------------------
 
-std::string HomeAccessibleButton::getAccessibilityName() {
-  return name;
-}
-
-//--------------------------------------------------------------------------------------------------
-
 std::string HomeAccessibleButton::getAccessibilityTitle() {
   return title;
 }

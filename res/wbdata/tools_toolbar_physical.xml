@@ -3,11 +3,13 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.tools.physical">
     <value type="string" key="name">tools</value>
+    <value type="string" key="accessibilityName">Physical</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.table">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.table">
@@ -17,6 +19,7 @@
         <value type="string" key="tooltip">Place a New Table</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/table</value>
+        <value type="string" key="accessibilityName">Place New Table</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.view">
@@ -26,6 +29,7 @@
         <value type="string" key="itemType">radio</value>
         <value type="string" key="tooltip">Place a New View</value>
         <value type="string" key="command">tool:physical/view</value>
+        <value type="string" key="accessibilityName">Place New View</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rg">
@@ -35,11 +39,13 @@
         <value type="string" key="tooltip">Place a New Routine Group</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/routinegroup</value>
+        <value type="string" key="accessibilityName">Place New Routine Group</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.rel">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel11_noid">
@@ -49,6 +55,7 @@
         <value type="string" key="tooltip">Place a New 1:1 Non-Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel11_noid</value>
+        <value type="string" key="accessibilityName">Place New 1 to 1 Relationship</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel1n_noid">
@@ -58,6 +65,7 @@
         <value type="string" key="tooltip">Place a New 1:n Non-Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel1n_noid</value>
+        <value type="string" key="accessibilityName">Place New 1 to N Relationship</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel11">
@@ -67,6 +75,7 @@
         <value type="string" key="tooltip">Place a New 1:1 Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel11</value>
+        <value type="string" key="accessibilityName">Place New 1 to 1 Identifying Relationship</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.rel1n">
@@ -76,6 +85,7 @@
         <value type="string" key="tooltip">Place a New 1:n Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel1n</value>
+        <value type="string" key="accessibilityName">Place New 1 to N Identifying Relationship</value>
       </value>
 
      <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.relnm">
@@ -85,11 +95,13 @@
         <value type="string" key="tooltip">Place a New n:m Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/relnm</value>
+        <value type="string" key="accessibilityName">Place New N to M Identifying Relationship</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.relpick">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.relpick">
@@ -99,6 +111,7 @@
         <value type="string" key="tooltip">Place a Relationship Using Existing Columns</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/relpick</value>
+        <value type="string" key="accessibilityName">Place Relationship Using Existing Columns</value>
       </value>
 
     </value>

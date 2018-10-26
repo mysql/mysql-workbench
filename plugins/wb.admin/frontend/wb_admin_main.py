@@ -107,7 +107,7 @@ def scan_admin_modules():
 #===============================================================================
 class AdministratorTab(mforms.AppView):
     def __init__(self, ctrl_be, server_profile, main_view, editor):
-        mforms.AppView.__init__(self, False, "administrator", False)
+        mforms.AppView.__init__(self, False, "Administrator", "Administrator", False)
         self.editor                     = editor
         self.owner                      = main_view
         self.tabs                       = []

@@ -1375,7 +1375,7 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_performance", "Performance Schema Setup", False)
+        admin_context.register_page(cls, "Performance", "Performance Schema Setup", False)
     
     @classmethod
     def identifier(cls):

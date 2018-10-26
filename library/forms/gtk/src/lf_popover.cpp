@@ -148,7 +148,7 @@ namespace mforms {
     set_type_hint(Gdk::WINDOW_TYPE_HINT_TOOLTIP);
     set_app_paintable(true);
     set_resizable(false);
-    set_name("gtk-tooltip");
+    set_name("Tooltip");
     set_border_width(2);
 
     _hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));

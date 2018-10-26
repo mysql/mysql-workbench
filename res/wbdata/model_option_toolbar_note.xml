@@ -3,6 +3,7 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.option.note">
     <value type="string" key="name">options/basic/note</value>
+    <value type="string" key="accessibilityName">Note</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.note.color">
@@ -10,6 +11,7 @@
         <value type="string" key="name">basic/note/color</value>
         <value type="string" key="command">option:workbench.model.NoteFigure:Color</value>
         <value type="string" key="itemType">dropdown</value>
+        <value type="string" key="accessibilityName">Color</value>
       </value>
 
       <!--value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.note.drawback">

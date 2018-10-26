@@ -420,7 +420,9 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent) {
     }
 
     item = mforms::manage(new mforms::MenuItem(caption));
-    item->set_name(strfmt("wb.file.openRecentModel:%li", (long)i + 1));
+
+    item->set_name("Open Recent File " + std::to_string(i + 1));
+    item->setInternalName("wb.file.openRecentModel:" + std::to_string(i + 1));
 
     scoped_connect(item->signal_clicked(), std::bind(&WBContext::open_recent_document, _wb, (int)i + 1));
     parent->add_item(item);
@@ -432,12 +434,13 @@ void CommandUI::add_plugins_menu_items(mforms::MenuItem *parent, const std::stri
 
   for (std::vector<app_PluginRef>::const_iterator iter = plugins.begin(); iter != plugins.end(); ++iter) {
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem((*iter)->caption()));
-    item->set_name(std::string("plugin:").append(*(*iter)->name()));
+    item->set_name((*iter)->accessibilityName());
+    item->setInternalName(std::string("plugin:") + (*iter)->name().c_str());
     item->add_validator(std::bind(&CommandUI::validate_plugin_command, this, *iter));
     item->validate();
     scoped_connect(
       item->signal_clicked(),
-      std::bind((void (CommandUI::*)(const std::string &)) & CommandUI::activate_command, this, item->get_name()));
+      std::bind((void (CommandUI::*)(const std::string &)) & CommandUI::activate_command, this, item->getInternalName()));
     parent->add_item(item);
   }
 }
@@ -460,9 +463,14 @@ void CommandUI::add_plugins_menu(mforms::MenuItem *parent, const std::string &co
     }
 
     if (g_str_has_prefix(group->name().c_str(), "Menu/") && group->plugins().count() > 0) {
-      mforms::MenuItem *item = mforms::manage(new mforms::MenuItem(
-        strrchr(group->name().c_str(), '/') ? strrchr(group->name().c_str(), '/') + 1 : group->name().c_str()));
-      item->set_name(std::string("plugins:").append(group->name().c_str()));
+      std::string name = group->name();
+      size_t pos = name.rfind('/');
+      if (pos != std::string::npos)
+          name = name.substr(pos + 1);
+      
+      mforms::MenuItem *item = mforms::manage(new mforms::MenuItem(name));
+      item->set_name(group->accessibilityName());
+      item->setInternalName(std::string("plugin:") + group->name().c_str());
       parent->add_item(item);
 
       add_plugins_menu_items(item, group->name());
@@ -491,7 +499,7 @@ void CommandUI::add_scripts_menu(mforms::MenuItem *parent) {
     std::sort(files.begin(), files.end());
 
     for (std::vector<std::string>::const_iterator f = files.begin(); f != files.end(); ++f)
-      parent->add_item_with_title(base::basename(*f), std::bind(&WBContext::run_script_file, _wb, *f));
+      parent->add_item_with_title(base::basename(*f), std::bind(&WBContext::run_script_file, _wb, *f), "", "");
   } catch (...) {
   }
 }
@@ -565,7 +573,8 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         if (base::hasSuffix(mitem.id(), "/SE") && !_include_se)
           continue;
         item = mforms::manage(new mforms::MenuItem(mitem->caption(), type));
-        item->set_name(mitem->name());
+        item->set_name(mitem->accessibilityName());
+        item->setInternalName(mitem->name());
         parent->add_item(item);
         update_item_state(mitem, cmd, item);
 
@@ -574,7 +583,8 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
         if (base::hasSuffix(mitem.id(), "/SE") && !_include_se)
           continue;
         item = mforms::manage(new mforms::MenuItem("", mforms::SeparatorMenuItem));
-        item->set_name(mitem->name());
+        item->set_name(mitem->accessibilityName());
+        item->setInternalName(mitem->name());
         parent->add_item(item);
       } else {
         std::string caption = mitem->caption();
@@ -635,7 +645,8 @@ void CommandUI::add_menu_items_for_context(const std::string &context, mforms::M
 
         item = mforms::manage(new mforms::MenuItem(caption, type));
         parent->add_item(item);
-        item->set_name(cmd.args.empty() ? cmd.name : cmd.name + ":" + cmd.args);
+        item->set_name(mitem->accessibilityName());
+        item->setInternalName(cmd.args.empty() ? cmd.name : cmd.name + ":" + cmd.args);
         if (!mitem->shortcut().empty())
           item->set_shortcut(mitem->shortcut());
         scoped_connect(item->signal_clicked(), std::bind(activate_slot, mitem->command()));
@@ -674,10 +685,10 @@ static void connect_validate_to_signal(boost::signals2::signal<void()> &validate
 }
 
 void CommandUI::menu_will_show(mforms::MenuItem *item) {
-  if (item->get_name() == "open_recent") {
+  if (item->getInternalName() == "open_recent") {
     item->remove_all();
     add_recent_menu(item);
-  } else if (item->get_name() == "edit")
+  } else if (item->getInternalName() == "edit")
     revalidate_edit_menu_items();
 }
 
@@ -709,7 +720,8 @@ mforms::MenuBar *CommandUI::create_menubar_for_context(const std::string &contex
 #endif
 
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem(caption));
-    item->set_name(mitem->name());
+    item->set_name(mitem->accessibilityName());
+    item->setInternalName(mitem->name());
     menubar->add_item(item);
 
     add_menu_items_for_context(context, item, mitem);
@@ -763,14 +775,16 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file,
 
     if (titem->itemType() == "action") {
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-      tbitem->set_name(titem->name());
+      tbitem->set_name(titem->accessibilityName());
+      tbitem->setInternalName(titem->name());
       std::string s = IconManager::get_instance()->get_icon_path(titem->icon());
       tbitem->set_icon(s);
 
       scoped_connect(tbitem->signal_activated(), std::bind(activate_slot, titem->command()));
     } else if (titem->itemType() == "toggle") {
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-      tbitem->set_name(titem->name());
+      tbitem->set_name(titem->accessibilityName());
+      tbitem->setInternalName(titem->name());
       std::string s = IconManager::get_instance()->get_icon_path(titem->icon());
       tbitem->set_icon(s);
 
@@ -781,7 +795,8 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file,
       scoped_connect(tbitem->signal_activated(), std::bind(activate_slot, titem->command()));
     } else if (titem->itemType() == "segmentedToggle") {
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::SegmentedToggleItem));
-      tbitem->set_name(titem->name());
+      tbitem->set_name(titem->accessibilityName());
+      tbitem->setInternalName(titem->name());
       tbitem->set_icon(IconManager::get_instance()->get_icon_path(titem->icon()));
       if (strlen(titem->altIcon().c_str()) > 0)
         tbitem->set_alt_icon(IconManager::get_instance()->get_icon_path(titem->altIcon()));
@@ -791,13 +806,15 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file,
       continue;
     } else if (titem->itemType() == "label") {
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-      tbitem->set_name(titem->name());
+      tbitem->set_name(titem->accessibilityName());
+      tbitem->setInternalName(titem->name());
       tbitem->set_text(titem->tooltip());
       tbar->add_item(tbitem);
       continue;
     } else if (titem->itemType() == "selector") {
       tbitem = mforms::manage(new mforms::ToolBarItem(mforms::SelectorItem));
-      tbitem->set_name(titem->name());
+      tbitem->set_name(titem->accessibilityName());
+      tbitem->setInternalName(titem->name());
 
       scoped_connect(tbitem->signal_activated(), std::bind(activate_slot, titem->command()));
     } else if (titem->itemType() == "imagebox") {
@@ -840,7 +857,8 @@ mforms::ToolBar *CommandUI::create_toolbar(const std::string &toolbar_file,
     //      item.tooltip= strfmt("%s (Quick key - press %s)", tooltip.c_str(), shortcut.c_str());
 
     ParsedCommand cmd(titem->command());
-    tbitem->set_name(titem->name());
+    tbitem->set_name(titem->accessibilityName());
+    tbitem->setInternalName(titem->name());
 
     if (cmd.type == "plugin") {
       app_PluginRef plugin(_wb->get_plugin_manager()->get_plugin(cmd.name));

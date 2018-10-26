@@ -32,7 +32,7 @@ using namespace mforms;
 //----------------------------------------------------------------------------------------------------------------------
 
 LicenseView::LicenseView(WBContextUI *wbui)
-: AppView(false, "License", true), _wbui(wbui), _licenseText(ScrollBars::BothScrollBars) {
+: AppView(false, "License", "License", true), _wbui(wbui), _licenseText(ScrollBars::BothScrollBars) {
   add(&_licenseText, true, true);
 
   std::string path = App::get()->get_resource_path(
@@ -47,7 +47,8 @@ LicenseView::LicenseView(WBContextUI *wbui)
   std::string text = base::getTextFileContent(path);
   _licenseText.set_value(text);
   _licenseText.set_padding(20);
-  _licenseText.set_name("licenseTextBox");
+  _licenseText.set_name("License Text");
+  _licenseText.setInternalName("licenseTextBox");
   _licenseText.set_read_only(true);
 }
 

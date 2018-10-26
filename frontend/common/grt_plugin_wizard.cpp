@@ -68,7 +68,8 @@ NewPluginDialog::NewPluginDialog(Form* owner, const std::string& template_dir)
     _python_plugin(_python_script.group_id()),
     _tab(mforms::TabViewTabless) {
   set_title(_("New Script File"));
-  set_name("new_plugin_dialog");
+  set_name("New Plugin Dialog");
+  setInternalName("new_plugin_dialog");
 
   load_plugin_templates(template_dir);
 

@@ -3,6 +3,7 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.option.layer">
     <value type="string" key="name">options/basic/layer</value>
+    <value type="string" key="accessibilityName">Layer</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.option.layer.color">

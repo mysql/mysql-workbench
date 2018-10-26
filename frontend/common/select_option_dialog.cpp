@@ -30,7 +30,8 @@ SelectOptionDialog::SelectOptionDialog(const std::string &title, const std::stri
                                        std::vector<std::string> &options, SelectorStyle style)
   : mforms::Form(0), _top_vbox(false), _bottom_hbox(true), _option_box(style) {
   set_title(title);
-  set_name("select_option_dialog");
+  set_name("Select Option Dialog");
+  setInternalName("select_option_dialog");
   _top_vbox.set_padding(MF_WINDOW_PADDING);
   _top_vbox.set_spacing(MF_TABLE_ROW_SPACING);
   _top_vbox.add(&_description, false, true);

@@ -44,10 +44,12 @@ using namespace base;
 
 DEFAULT_LOG_DOMAIN("DbConnectPanel");
 
-static const std::string control_name_prefix = "ctrl__";
-
 grt::StringRef DbDriverParam::get_control_name() const {
-  return grt::StringRef(control_name_prefix + (*_inner->name()));
+  return grt::StringRef(_inner->name());
+}
+
+grt::StringRef DbDriverParam::get_accessibility_name() const {
+  return grt::StringRef(_inner->accessibilityName());
 }
 
 DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name, std::string real_type) {
@@ -382,7 +384,7 @@ void DbDriverParams::init(
     }
     param_handle = new DbDriverParam(param, stored_conn);
     _collection[_control_name_index.size()] = param_handle;
-    _control_name_index[control_name_prefix + *param->name()] = param_handle;
+    _control_name_index[param->name()] = param_handle;
   }
 
   if (others_option.is_valid()) {
@@ -400,7 +402,7 @@ void DbDriverParams::init(
     }
     param_handle = new DbDriverParam(others_option, grt::StringRef(unknown_options_text));
     _collection[_control_name_index.size()] = param_handle;
-    _control_name_index[control_name_prefix + *others_option->name()] = param_handle;
+    _control_name_index[others_option->name()] = param_handle;
   }
 
   if (trim_schema)

@@ -51,7 +51,8 @@ namespace bec {
     std::string oid;
     std::string caption;
     std::string shortcut;
-    std::string name;
+    std::string accessibilityName;
+    std::string internalName;
     MenuItemType type;
 
     bool enabled;
@@ -158,7 +159,7 @@ namespace bec {
     virtual bool can_close() {
       return true;
     }
-    virtual void close(){};
+    virtual void close(){}
 
     // for main forms
     virtual mforms::MenuBar *get_menubar() {
@@ -175,4 +176,4 @@ namespace bec {
   public:
     static bec::UIForm *form_with_id(const std::string &id);
   };
-};
+}

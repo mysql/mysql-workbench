@@ -93,7 +93,8 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     _userSnippetsLoaded(false),
     _snippetClicked(false) {
   set_title(("Workbench Scripting Shell"));
-  set_name("shell_window");
+  set_name("Shell Window");
+  setInternalName("shell_window");
   set_content(&_content);
   set_menubar(&_menu);
   scoped_connect(signal_closed(), std::bind(&GRTShellWindow::shell_closed, this));
@@ -106,20 +107,20 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     mforms::MenuItem *menu = mforms::manage(new mforms::MenuItem("File"));
     mforms::MenuItem *item;
     _menu.add_submenu(menu);
-    item = menu->add_item_with_title("New...", std::bind(&GRTShellWindow::add_new_script, this));
+    item = menu->add_item_with_title("New...", std::bind(&GRTShellWindow::add_new_script, this), "New", "");
     item->set_shortcut("Modifier+N");
-    menu->add_item_with_title("New Script", std::bind(&GRTShellWindow::add_editor, this, true, "python"));
-    item = menu->add_item_with_title("Open...", std::bind(&GRTShellWindow::open_script_file, this));
+    menu->add_item_with_title("New Script", std::bind(&GRTShellWindow::add_editor, this, true, "python"), "New Script", "");
+    item = menu->add_item_with_title("Open...", std::bind(&GRTShellWindow::open_script_file, this), "Open", "");
     item->set_shortcut("Modifier+O");
     menu->add_separator();
-    item = menu->add_item_with_title("Save", std::bind(&GRTShellWindow::save_file, this, false));
+    item = menu->add_item_with_title("Save", std::bind(&GRTShellWindow::save_file, this, false), "Save", "");
     item->set_shortcut("Modifier+S");
-    item = menu->add_item_with_title("Save As...", std::bind(&GRTShellWindow::save_file, this, true));
+    item = menu->add_item_with_title("Save As...", std::bind(&GRTShellWindow::save_file, this, true), "Save As", "");
     item->set_shortcut("Modifier+Shift+S");
     menu->add_separator();
-    item = menu->add_item_with_title("Close Script", std::bind(&GRTShellWindow::close_tab, this));
+    item = menu->add_item_with_title("Close Script", std::bind(&GRTShellWindow::close_tab, this), "Close Script", "");
     item->set_shortcut("Modifier+W");
-    item = menu->add_item_with_title("Close Window", std::bind(&GRTShellWindow::close, this));
+    item = menu->add_item_with_title("Close Window", std::bind(&GRTShellWindow::close, this), "Close Window", "");
 #ifdef _MSC_VER
     item->set_shortcut("Control+F4");
 #else
@@ -128,18 +129,18 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     menu = mforms::manage(new mforms::MenuItem("Edit"));
     _menu.add_submenu(menu);
 
-    item = menu->add_item_with_title("Cut", std::bind(&GRTShellWindow::cut, this));
+    item = menu->add_item_with_title("Cut", std::bind(&GRTShellWindow::cut, this), "Cut", "");
     item->set_shortcut("Modifier+X");
-    item = menu->add_item_with_title("Copy", std::bind(&GRTShellWindow::copy, this));
+    item = menu->add_item_with_title("Copy", std::bind(&GRTShellWindow::copy, this), "Copy", "");
     item->set_shortcut("Modifier+C");
-    item = menu->add_item_with_title("Paste", std::bind(&GRTShellWindow::paste, this));
+    item = menu->add_item_with_title("Paste", std::bind(&GRTShellWindow::paste, this), "Paste", "");
     item->set_shortcut("Modifier+V");
-    item = menu->add_item_with_title("Select All", std::bind(&GRTShellWindow::select_all, this));
+    item = menu->add_item_with_title("Select All", std::bind(&GRTShellWindow::select_all, this), "Select All", "");
     item->set_shortcut("Modifier+A");
     menu->add_separator();
-    item = menu->add_item_with_title("Find...", std::bind(&GRTShellWindow::show_find_panel, this));
+    item = menu->add_item_with_title("Find...", std::bind(&GRTShellWindow::show_find_panel, this), "Find", "");
     item->set_shortcut("Modifier+F");
-    item = menu->add_item_with_title("Replace...", std::bind(&GRTShellWindow::show_replace_panel, this));
+    item = menu->add_item_with_title("Replace...", std::bind(&GRTShellWindow::show_replace_panel, this), "Replace", "");
 #if defined(__APPLE__)
     item->set_shortcut("Command+Option+F");
 #else
@@ -149,9 +150,10 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     menu = mforms::manage(new mforms::MenuItem("Script"));
     _menu.add_submenu(menu);
 
-    item = menu->add_item_with_title("Run", std::bind(&GRTShellWindow::execute_file, this));
+    item = menu->add_item_with_title("Run", std::bind(&GRTShellWindow::execute_file, this), "Run", "");
     item->set_shortcut("Modifier+R");
-    item->set_name("run");
+    item->set_name("Run");
+    item->setInternalName("run");
   }
 
 #ifdef _MSC_VER
@@ -258,12 +260,12 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
 #endif
 
   _files_menu.add_item_with_title("Add New File",
-                                  std::bind(&GRTShellWindow::file_menu_activate, this, "file-from-template"));
+                                  std::bind(&GRTShellWindow::file_menu_activate, this, "file-from-template"), "Add New File", "");
   _files_menu.add_item_with_title("Open Script File",
-                                  std::bind(&GRTShellWindow::file_menu_activate, this, "open-script"));
+                                  std::bind(&GRTShellWindow::file_menu_activate, this, "open-script"), "Open Script File", "");
   _files_menu.add_separator();
   _files_menu.add_item_with_title("Delete Script",
-                                  std::bind(&GRTShellWindow::file_menu_activate, this, "delete-script"));
+                                  std::bind(&GRTShellWindow::file_menu_activate, this, "delete-script"), "Delete Script", "");
 
   _files_tree->set_context_menu(&_files_menu);
 
@@ -315,10 +317,10 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   scoped_connect(_global_combo.signal_changed(), std::bind(&GRTShellWindow::refresh_globals_tree, this));
   _inspector = 0;
 
-  _global_menu.add_item_with_title(_("Copy Value"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_value"));
-  _global_menu.add_item_with_title(_("Copy Path"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path"));
+  _global_menu.add_item_with_title(_("Copy Value"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_value"), "Copy Value", "");
+  _global_menu.add_item_with_title(_("Copy Path"), std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path"), "Copy Path", "");
   _global_menu.add_item_with_title(_("Copy Path for Python"),
-                                   std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path_py"));
+                                   std::bind(&GRTShellWindow::handle_global_menu, this, "copy_path_py"), "Copy Path for Python", "");
 
   _global_tree.set_context_menu(&_global_menu);
 // 2) Classes tree
@@ -419,15 +421,15 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   _snippet_splitter.add(&_snippet_text, 50, false);
 
   _snippet_menu.add_item_with_title("Execute Snippet",
-                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "execute"));
+                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "execute"), "Execute Snippet", "");
   _snippet_menu.add_item_with_title("Send to Script Editor",
-                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "new_with_snippet"));
+                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "new_with_snippet"), "Send to Script Editor", "");
   _snippet_menu.add_separator();
   _snippet_menu.add_item_with_title("Copy to Clipboard",
-                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "copy_clipboard"));
+                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "copy_clipboard"), "Copy to Clipboard", "");
   _snippet_menu.add_separator();
   _snippet_menu.add_item_with_title("Delete Snippet",
-                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "delete"));
+                                    std::bind(&GRTShellWindow::snippet_menu_activate, this, "delete"), "Delete Snippet", "");
 
   _snippet_list->set_context_menu(&_snippet_menu);
 

@@ -114,6 +114,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param1">
             <value type="string" key="caption">DSN:</value>
+            <value type="string" key="accessibilityName">DSN</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Pre-configured ODBC data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -146,6 +147,7 @@ ODBC connection string.</value>
           </value-->
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_dsn.param3">
             <value type="string" key="caption">Default Character Set</value>
+            <value type="string" key="accessibilityName">Default Character Set</value>
             <value type="string" key="defaultValue">cp1252</value>
             <value type="string" key="description">The character set used in the source database.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -178,6 +180,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_connstr.param1">
             <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="accessibilityName">Connection String</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -193,6 +196,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.msaccess.driver.odbc_connstr.param2">
             <value type="string" key="caption">Default Character Set</value>
+            <value type="string" key="accessibilityName">Default Character Set</value>
             <value type="string" key="defaultValue">cp1252</value>
             <value type="string" key="description">The character set used in the source database.</value>
             <value type="int" key="layoutAdvanced">0</value>

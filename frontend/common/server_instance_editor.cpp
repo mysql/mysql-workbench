@@ -119,7 +119,8 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
     _contains_group(false),
     _bottom_hbox(true),
     _remote_admin_box(false) {
-  set_name("instance_editor");
+  set_name("Instance Editor");
+  setInternalName("instance_editor");
   _mgmt = mgmt;
   _connections = mgmt->storedConns();
   _instances = mgmt->storedInstances();

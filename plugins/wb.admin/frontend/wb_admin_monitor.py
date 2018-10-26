@@ -85,13 +85,13 @@ class WbAdminMonitor(mforms.Box):
         system_box.set_spacing(28)
         self.cpu_usage = newBarGraphWidget()
         self.cpu_usage.set_description("CPU/Load")
-        self.cpu_usage.set_name("CPU/Load Graph")
+        self.cpu_usage.set_name("CPU Load Graph")
         self.cpu_usage.set_right_align(True)
         self.cpu_usage.set_size(31, -1);
         system_box.add(self.cpu_usage, False, True)
 
         label = bigLabel()
-        label.set_name("CPU/Load Value")
+        label.set_name("CPU Load Value")
         label.set_size(47, -1)
         label.set_text_align(mforms.TopRight)
         health_text.add(label, False, True)

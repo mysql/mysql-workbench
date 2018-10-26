@@ -45,6 +45,9 @@ namespace mforms {
       static void set_title(MenuItem *item, const std::string &) {
       }
 
+      static void set_name(MenuItem *item, const std::string &) {
+      }
+
       static std::string get_title(MenuItem *item) {
         return "";
       }
@@ -91,6 +94,7 @@ namespace mforms {
         f->_menu_item_impl.set_enabled = &MenuItemWrapper::set_enabled;
         f->_menu_item_impl.set_shortcut = &MenuItemWrapper::set_shortcut;
         f->_menu_item_impl.set_title = &MenuItemWrapper::set_title;
+        f->_menu_item_impl.set_name = &MenuItemWrapper::set_name;
         f->_menu_item_impl.create_context_menu = &MenuItemWrapper::create_context_menu;
       }
     };

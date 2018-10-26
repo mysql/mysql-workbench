@@ -174,6 +174,24 @@ std::string mforms::gtk::MenuItemImpl::get_title(mforms::MenuItem *item) {
   return ret;
 }
 
+//------------------------------------------------------------------------------
+void mforms::gtk::MenuItemImpl::set_name(mforms::MenuItem *item, const std::string &name) {
+  Gtk::MenuItem *mi = cast<Gtk::MenuItem *>(item->get_data_ptr());
+  
+  if (mi)
+    mi->get_accessible()->set_name(name);
+}
+
+//------------------------------------------------------------------------------
+std::string mforms::gtk::MenuItemImpl::get_name(mforms::MenuItem *item) {
+  std::string ret;
+  Gtk::MenuItem *mi = cast<Gtk::MenuItem *>(item->get_data_ptr());
+  
+  if (mi)
+    ret = mi->get_accessible()->get_name();
+  return ret;
+}
+
 static void add_shortcuts(Glib::RefPtr<Gtk::AccelGroup> accel_group, Gtk::MenuItem *menu_item,
                           const std::vector<std::string> &modifiers, const std::vector<std::string> &shortcuts) {
   std::string modifier;
@@ -433,6 +451,7 @@ void mforms::gtk::lf_menubar_init() {
   f->_menu_item_impl.create_menu_item = mforms::gtk::MenuItemImpl::create_menu_item;
   f->_menu_item_impl.set_title = mforms::gtk::MenuItemImpl::set_title;
   f->_menu_item_impl.get_title = mforms::gtk::MenuItemImpl::get_title;
+  f->_menu_item_impl.set_name = mforms::gtk::MenuItemImpl::set_name;
   f->_menu_item_impl.set_shortcut = mforms::gtk::MenuItemImpl::set_shortcut;
   f->_menu_item_impl.set_enabled = mforms::gtk::MenuItemImpl::set_enabled;
   f->_menu_item_impl.get_enabled = mforms::gtk::MenuItemImpl::get_enabled;

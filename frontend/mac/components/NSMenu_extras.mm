@@ -73,7 +73,7 @@
             item.state = NSOnState;
           else
             item.state = NSOffState;
-          item.representedObject = [NSString stringWithCPPString: iter->name];
+          item.representedObject = [NSString stringWithCPPString: iter->internalName];
         }
       }
     }

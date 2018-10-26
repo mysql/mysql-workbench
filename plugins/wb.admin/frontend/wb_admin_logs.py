@@ -327,8 +327,8 @@ class LogView(mforms.Box):
         self.add_end(self.bbox, False, True)
 
         self._menu = mforms.newContextMenu()
-        self._menu.add_item_with_title("Copy Row", self.copy_record, "copy_record")
-        self._menu.add_item_with_title("Copy Details", self.copy_details, "copy_details")
+        self._menu.add_item_with_title("Copy Row", self.copy_record, "Copy Record", "Copy Record")
+        self._menu.add_item_with_title("Copy Details", self.copy_details, "Copy Details", "Copy Details")
         self.tree.set_context_menu(self._menu)
 
         self.bbox.add(newLabel(""), True, True)
@@ -527,7 +527,7 @@ class WbAdminLogs(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_instance", "Server Logs", True)
+        admin_context.register_page(cls, "Instance", "Server Logs", True)
 
     @classmethod
     def identifier(cls):

@@ -37,6 +37,7 @@
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.generic.driver.odbc.param6">
             <value type="string" key="caption">Driver:</value>
+            <value type="string" key="accessibilityName">Driver</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The Driver name of your ODBC driver (E.g. FreeTDS, PostgreSQL).</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -161,6 +162,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.generic.driver.odbc_dsn.param1">
             <value type="string" key="caption">DSN:</value>
+            <value type="string" key="accessibilityName">DSN</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Pre-configured ODBC data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -210,6 +212,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.generic.driver.odbc_connstr.param1">
             <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="accessibilityName">Connection String</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
             <value type="int" key="layoutAdvanced">0</value>

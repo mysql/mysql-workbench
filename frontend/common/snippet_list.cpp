@@ -91,6 +91,7 @@ public:
   Snippet(cairo_surface_t* icon, const std::string& title, const std::string& description, bool enabled, const std::function<void(int x, int y)> &cb) {
     _icon = (icon != NULL) ? cairo_surface_reference(icon) : NULL;
     _title = title;
+    setAccessibilityName(title);
     _description = description;
     _last_text_width = 0;
 
@@ -265,46 +266,43 @@ public:
 
   bool enabled() {
     return _enabled;
-  };
+  }
 
   //------------------------------------------------------------------------------------------------
 
   base::Rect bounds() {
     return _bounds;
-  };
+  }
 
   //------------------------------------------------------------------------------------------------
 
   std::string title() {
     return _title;
-  };
+  }
 
   //------------------------------------------------------------------------------------------------
 
   void title(const std::string& text) {
     _title = text;
     _last_text_width = 0;
-  };
+  }
 
   //------------------------------------------------------------------------------------------------
 
   std::string description() {
     return _description;
-  };
+  }
 
   //------------------------------------------------------------------------------------------------
 
   void description(const std::string& text) {
     _description = text;
     _last_text_width = 0;
-  };
+  }
 
   //------------------------------------------------------------------------------------------------
 
   // ------ Accesibility Methods -----
-  virtual std::string getAccessibilityName() {
-    return _title;
-  }
   virtual base::Accessible::Role getAccessibilityRole() {
     return base::Accessible::ListItem;
   }

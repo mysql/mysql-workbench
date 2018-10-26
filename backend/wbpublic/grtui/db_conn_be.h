@@ -93,6 +93,7 @@ public:
     return _type;
   }
   grt::StringRef get_control_name() const;
+  grt::StringRef get_accessibility_name() const;
   const grt::ValueRef &get_value() const {
     return _value;
   }

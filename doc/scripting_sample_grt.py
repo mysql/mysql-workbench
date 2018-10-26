@@ -31,7 +31,7 @@ def currentSQLEditor():
     	return arg
 
 
-@ModuleInfo.plugin("my.plugin.fill_random_query", caption= "Fill in Random Values in Query", description="Replaces %[oneof:opt1,opt2,opt3] and %[random:<min>,<max>]% in a query with a randomly picked value.", input=[currentSQLEditor()], pluginMenu="SQL/Utilities")
+@ModuleInfo.plugin("my.plugin.fill_random_query", caption= "Fill in Random Values in Query", description="Replaces %[oneof:opt1,opt2,opt3] and %[random:<min>,<max>]% in a query with a randomly picked value.", input=[currentSQLEditor()], pluginMenu="SQL/Utilities", accessibilityName="Fill Random Query")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def fill_random_query(editor):
 	active_buffer = editor.activeQueryBuffer

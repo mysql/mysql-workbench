@@ -67,7 +67,8 @@ static bool is_local_connection(const db_mgmt_ConnectionRef &connection) {
 NewConnectionWizard::NewConnectionWizard(wb::WBContext *context, const db_mgmt_ManagementRef &mgmt)
   : mforms::Form(0), _context(context), _mgmt(mgmt), _panel(false), _top_vbox(false), _bottom_hbox(true) {
   set_title(_("Manage DB Connections"));
-  set_name("new_connection_wizard");
+  set_name("New Connection Wizard");
+  setInternalName("new_connection_wizard");
 
   _top_vbox.set_padding(MF_WINDOW_PADDING);
   _top_vbox.set_spacing(12);

@@ -3,11 +3,13 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.tools">
     <value type="string" key="name">tools</value>
+    <value type="string" key="accessibilityName">Tools</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.top">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.hand">
@@ -17,11 +19,13 @@
         <value type="string" key="tooltip">Move Model</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:basic/hand</value>
+        <value type="string" key="accessibilityName">Move</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.hand">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.delete">
@@ -31,11 +35,13 @@
         <value type="string" key="tooltip">Delete Object</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:basic/delete</value>
+        <value type="string" key="accessibilityName">Delete</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.separator.layer">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.layer">
@@ -46,6 +52,7 @@
 Use for visually grouping related objects in the diagram.</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:basic/layer</value>
+        <value type="string" key="accessibilityName">New Layer</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.note">
@@ -55,6 +62,7 @@ Use for visually grouping related objects in the diagram.</value>
         <value type="string" key="tooltip">Place a New Text Object</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:basic/note</value>
+        <value type="string" key="accessibilityName">New Text</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.image">
@@ -64,6 +72,7 @@ Use for visually grouping related objects in the diagram.</value>
         <value type="string" key="tooltip">Place a New Image</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:basic/image</value>
+        <value type="string" key="accessibilityName">New Image</value>
       </value>
     </value>
   </value>

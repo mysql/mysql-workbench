@@ -42,7 +42,7 @@ public:
 class IncludeModelWizard : public grtui::WizardPlugin {
 public:
   IncludeModelWizard(grt::Module *module) : WizardPlugin(module) {
-    set_name("model_wizard");
+    set_name("Model Wizard");
     add_page(mforms::manage(_select_objects_page = new SelectObjectsPage(this)));
     add_page(mforms::manage(_select_schema_page = new SelectTargetSchemaPage(this)));
     add_page(mforms::manage(_fix_names_page = new FixNamesPage(this)));

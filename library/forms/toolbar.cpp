@@ -41,7 +41,7 @@ ToolBar::~ToolBar() {
 
 ToolBarItem *ToolBar::find_item(const std::string &name) {
   for (std::vector<ToolBarItem *>::iterator iter = _items.begin(); iter != _items.end(); ++iter)
-    if ((*iter)->get_name() == name)
+    if ((*iter)->getInternalName() == name)
       return *iter;
   return 0;
 }
@@ -162,7 +162,6 @@ bool ToolBarItem::get_checked() {
 }
 
 void ToolBarItem::set_name(const std::string &name) {
-  _name = name;
   if (_impl->set_item_name)
     _impl->set_item_name(this, name);
 }
@@ -178,7 +177,7 @@ void ToolBarItem::callback() {
     if (!_updating)
       _clicked_signal(this);
   } catch (std::exception &exc) {
-    logError("Unhandled exception in toolbar callback for %s: %s\n", _name.c_str(), exc.what());
+    logError("Unhandled exception in toolbar callback for %s: %s\n", _internalName.c_str(), exc.what());
     mforms::Utilities::show_error("Unhandled Exception", exc.what(), "OK");
   }
 }

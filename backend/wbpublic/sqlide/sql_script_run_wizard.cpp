@@ -293,7 +293,8 @@ void SqlScriptApplyPage::enter(bool advancing) {
 
 SqlScriptRunWizard::SqlScriptRunWizard(GrtVersionRef version, std::string algorithm, std::string lock)
   : grtui::WizardForm() {
-  set_name("script_run_wizard");
+  set_name("Script Run Wizard");
+  setInternalName("script_run_wizard");
   set_title(_("Apply SQL Script to Database"));
   review_page = new SqlScriptReviewPage(this, version, algorithm, lock);
   add_page(mforms::manage(review_page));

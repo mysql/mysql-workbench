@@ -1066,6 +1066,8 @@ static std::string get_item_text(ToolBarItem *item)
 
 static void set_item_name(ToolBarItem *item, const std::string &name)
 {
+  NSView *view = item->get_data();
+  view.accessibilityTitle = [NSString stringWithUTF8String: name.c_str()];
   // This is dummy function to silent warnings
 }
 

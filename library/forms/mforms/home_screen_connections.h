@@ -172,7 +172,6 @@ namespace mforms {
 
     virtual size_t getAccessibilityChildCount() override;
     virtual Accessible *getAccessibilityChild(size_t index) override;
-    virtual std::string getAccessibilityName() override;
     virtual Accessible::Role getAccessibilityRole() override;
 
     virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y) override;

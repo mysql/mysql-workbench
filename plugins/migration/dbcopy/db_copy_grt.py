@@ -36,7 +36,7 @@ def handle_view_close(view):
     return True
 
 #-------------------------------------------------------------------------------
-@ModuleInfo.plugin("wb.db.copy.open", type="standalone", caption= "Schema Transfer Wizard",  pluginMenu= "Schema Transfer Wizard")
+@ModuleInfo.plugin("wb.db.copy.open", type="standalone", caption= "Schema Transfer Wizard",  pluginMenu= "Schema Transfer Wizard", accessibilityName="Schema Transfer Wizard")
 @ModuleInfo.export(grt.INT)
 def openDBCopy():
     global tab_reference

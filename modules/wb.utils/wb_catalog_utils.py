@@ -25,7 +25,7 @@ import mforms
 from wb import wbinputs
 from wb_utils_grt import ModuleInfo
 
-@ModuleInfo.plugin('wb.util.copySQLToClipboard', caption='Copy SQL to Clipboard', input= [wbinputs.objectOfClass('db.DatabaseObject')], groups= ['Catalog/Utilities', 'Menu/Objects'])
+@ModuleInfo.plugin('wb.util.copySQLToClipboard', caption='Copy SQL to Clipboard', input= [wbinputs.objectOfClass('db.DatabaseObject')], groups= ['Catalog/Utilities', 'Menu/Objects'], accessibilityName="Copy SQL to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.GrtNamedObject)
 def copySQLToClipboard(obj):
         script = []        
@@ -40,14 +40,14 @@ def copySQLToClipboard(obj):
         Workbench.copyToClipboard(''.join(script))
         return 0
           
-@ModuleInfo.plugin('wb.util.copyColumnNamesToClipboard', caption='Copy Column Names to Clipboard', input= [wbinputs.objectOfClass('db.Table')], groups= ['Catalog/Utilities', 'Menu/Objects'])
+@ModuleInfo.plugin('wb.util.copyColumnNamesToClipboard', caption='Copy Column Names to Clipboard', input= [wbinputs.objectOfClass('db.Table')], groups= ['Catalog/Utilities', 'Menu/Objects'], accessibilityName="Copy Column Names to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_Table)
 def copyColumnNamesToClipboard(table):
         data = ', '.join([column.name for column in table.columns])
         Workbench.copyToClipboard(data)
         return 0
 
-@ModuleInfo.plugin('wb.util.copyTableListToClipboard', caption='Copy Table List to Clipboard', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'])
+@ModuleInfo.plugin('wb.util.copyTableListToClipboard', caption='Copy Table List to Clipboard', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'], accessibilityName="Copy Table List to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def copyTableListToClipboard(cat):    
     #insert = ['`'+schema.name+'`.`'+tbl.name+'`' for tbl in schema.tables for schema in cat.schemata ]
@@ -75,7 +75,7 @@ def generateName(name_prefix, names_map):
 
          name_suffix = name_suffix + 1
          
-@ModuleInfo.plugin('wb.util.obfuscateCatalog', caption='Obfuscate Object Names in Catalog', input= [wbinputs.currentModel()], groups= ['Catalog/Utilities', 'Menu/Utilities'])
+@ModuleInfo.plugin('wb.util.obfuscateCatalog', caption='Obfuscate Object Names in Catalog', input= [wbinputs.currentModel()], groups= ['Catalog/Utilities', 'Menu/Utilities'], accessibilityName="Obsfuscate Object Names in Catalog")
 @ModuleInfo.export(grt.INT, grt.classes.workbench_physical_Model)
 def obfuscateCatalog(model):     
  
@@ -133,7 +133,7 @@ This action cannot be undone!''', 'Clear SQL', 'Cancel', 'Leave SQL')
    
      return 0
 
-@ModuleInfo.plugin('wb.util.prefixTables', caption='Give a Prefix to All Tables in Catalog', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'])
+@ModuleInfo.plugin('wb.util.prefixTables', caption='Give a Prefix to All Tables in Catalog', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'], accessibilityName="Prefix Tables in Catalog")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def prefixTables(cat):
      
@@ -148,7 +148,7 @@ def prefixTables(cat):
              
      return 0             
 
-@ModuleInfo.plugin('wb.util.changeStorageEngines', caption='Change the Storage Engine of All Tables', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'])
+@ModuleInfo.plugin('wb.util.changeStorageEngines', caption='Change the Storage Engine of All Tables', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'], accessibilityName="Change Tables Storage Engine")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def changeStorageEngines(cat):
      ret, new_engine = mforms.Utilities.request_input("Change the Storage Engine of All Tables", "Type the new storage engine name:", "")

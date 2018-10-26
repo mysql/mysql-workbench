@@ -181,7 +181,8 @@ bool DbMySQLRoutineGroupEditor::process_event(GdkEvent *event) {
       bec::MenuItemList menuitems;
       bec::MenuItem item;
       item.caption = "Remove routine from the group";
-      item.name = "remove_routine_from_the_group";
+      item.internalName = "remove_routine_from_the_group";
+      item.accessibilityName = "Remove Routine From Group";
       menuitems.push_back(item);
 
       run_popup_menu(menuitems, event->button.time,

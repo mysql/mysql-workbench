@@ -57,6 +57,7 @@ namespace mforms {
 
     bool operator<(const DocumentEntry &other) const;
 
+    void setTitle(const std::string &t);
     //------ Accessibility Methods -----
     virtual std::string getAccessibilityName() override;
     virtual std::string getAccessibilityDescription() override;

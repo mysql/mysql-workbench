@@ -379,16 +379,16 @@ class PSHelperViewTab(mforms.Box):
         if parent is None:
             self._hmenu.remove_all()
 
-            item = self._hmenu.add_item_with_title("Set Display Unit", lambda: None, "change_unit")
+            item = self._hmenu.add_item_with_title("Set Display Unit", lambda: None, "Change Unit", "change_unit")
             unit = self._column_units[column]
             if unit in time_units:
                 for label in time_units:
-                    i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                    i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label, label)
                     if unit == label:
                         i.set_checked(True)
             elif unit in byte_units:
                 for label in byte_units:
-                    i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label)
+                    i = item.add_item_with_title(label, lambda self=self, column=column, label=label: self._change_unit(column, label), label, label)
                     if unit == label:
                         i.set_checked(True)
             else:
@@ -463,7 +463,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
     
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_performance", "Performance Reports", False)
+        admin_context.register_page(cls, "Performance", "Performance Reports", False)
     
     @classmethod
     def identifier(cls):

@@ -57,7 +57,7 @@ class StateIcon(mforms.Box):
 
         self.set_spacing(8)
         self.image = mforms.newImageBox()
-        self.image.set_name("Server Stamp")
+        self.image.set_name("Status Light")
         self.image.set_image(self.off_icon)
         self.add(self.image, False, True)
 
@@ -140,10 +140,10 @@ class ConnectionInfo(mforms.Box):
         self.info_table.set_column_spacing(18)
         self.info_table.set_row_spacing(5)
 
-        stradd(self.info_table, 0, "\nHost", "\n"+info.get("hostname", "n/a"))
+        stradd(self.info_table, 0, "\nHost", "\n" + info.get("hostname", "n/a"))
         stradd(self.info_table, 1, "Socket", info.get("socket", "n/a"))
         stradd(self.info_table, 2, "Port", info.get("port", "n/a"))
-        stradd(self.info_table, 3, "Version", "%s\n%s" % (info.get("version", "n/a"), info.get("version_comment", "")))
+        stradd(self.info_table, 3, "Version", "%s (%s)" % (info.get("version", "n/a"), info.get("version_comment", "")))
         stradd(self.info_table, 4, "Compiled For", "%s   (%s)" % (info.get("version_compile_os", "n/a"), info.get("version_compile_machine", "n/a")))
 
         stradd(self.info_table, 5, "Configuration File", ctrl_be.server_profile.config_file_path or "unknown")
@@ -183,7 +183,7 @@ class WbAdminServerStatus(mforms.Box):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_management", "Server Status", False)
+        admin_context.register_page(cls, "Management", "Server Status", False)
 
     @classmethod
     def identifier(cls):
@@ -434,17 +434,17 @@ class WbAdminServerStatus(mforms.Box):
                               params)
 
         self.add_info_section("Authentication",
-                              [("SHA256 password private key", lambda info, plugins, status: info.get("sha256_password_private_key_path")),
-                               ("SHA256 password public key", lambda info, plugins, status: info.get("sha256_password_public_key_path"))],
+                              [("SHA256 Password Private Key", lambda info, plugins, status: info.get("sha256_password_private_key_path")),
+                               ("SHA256 Password Public Key", lambda info, plugins, status: info.get("sha256_password_public_key_path"))],
                               params)
 
         self.add_info_section("SSL",
                               [("SSL CA", lambda info, plugins, status: info.get("ssl_ca") or "n/a"),
-                               ("SSL CA path", lambda info, plugins, status: info.get("ssl_capath") or "n/a"),
+                               ("SSL CA Path", lambda info, plugins, status: info.get("ssl_capath") or "n/a"),
                                ("SSL Cert", lambda info, plugins, status: info.get("ssl_cert") or "n/a"),
                                ("SSL Cipher", lambda info, plugins, status: info.get("ssl_cipher") or "n/a"),
                                ("SSL CRL", lambda info, plugins, status: info.get("ssl_crl") or "n/a"),
-                               ("SSL CRL path", lambda info, plugins, status: info.get("ssl_crlpath") or "n/a"),
+                               ("SSL CRL Path", lambda info, plugins, status: info.get("ssl_crlpath") or "n/a"),
                                ("SSL Key", lambda info, plugins, status: info.get("ssl_key") or "n/a")],
                               params)
 
@@ -455,10 +455,10 @@ class WbAdminServerStatus(mforms.Box):
 
         if info.get("mysql_firewall_mode") == "ON":
             self.add_info_section("Firewall",
-                                  [("Access denied", lambda info, plugins, status: str(status.get("Firewall_access_denied")) or "n/a"),
-                                  ("Access granted", lambda info, plugins, status: str(status.get("Firewall_access_granted")) or "n/a"),
-                                  ("Access suspicious", lambda info, plugins, status: str(status.get("Firewall_access_suspicious")) or "n/a"),
-                                  ("Cached entries", lambda info, plugins, status: str(status.get("Firewall_cached_entries")) or "n/a")],
+                                  [("Access Denied", lambda info, plugins, status: str(status.get("Firewall_access_denied")) or "n/a"),
+                                  ("Access Granted", lambda info, plugins, status: str(status.get("Firewall_access_granted")) or "n/a"),
+                                  ("Access Suspicious", lambda info, plugins, status: str(status.get("Firewall_access_suspicious")) or "n/a"),
+                                  ("Cached Entries", lambda info, plugins, status: str(status.get("Firewall_cached_entries")) or "n/a")],
                                   params)
 
     def add_info_section_2(self, title, info, params):
@@ -524,13 +524,15 @@ class WbAdminServerStatus(mforms.Box):
             is_gtid_mode_setable = label == 'GTID Mode:' and self.ctrl_be.target_version >= Version(5, 7, 6)
             if type(value) is bool or value is None:
                 b = StateIcon()
-                b.set_name(label + " Value")
+                if label and label != '':
+                    b.set_name(label + " Value")
                 b.set_state(value)
                 info_table.add(b, 1, 2, i, i+1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                 self.controls[label] = (b, value_source)
             elif type(value) is tuple:
                 b = StateIcon()
-                b.set_name(label + " Value")
+                if label and label != '':
+                    b.set_name(label + " Value")
                 b.set_state(value[0])
                 if value[0] and value[1]:
                     b.set_text(value[1])
@@ -539,7 +541,8 @@ class WbAdminServerStatus(mforms.Box):
             else:
                 if is_gtid_mode_setable:
                     self.gtid_mode_selector = mforms.newSelector()
-                    self.gtid_mode_selector.set_name(label + " Value")
+                    if label and label != '':
+                        self.gtid_mode_selector.set_name(label + " Value")
                     self.gtid_mode_selector.add_items(["OFF", "UPGRADE_STEP_1", "UPGRADE_STEP_1", "ON"])
                     self.gtid_mode_selector.set_selected(self.gtid_mode_selector.index_of_item_with_title(value_source))
                     self.gtid_mode_selector.add_changed_callback(self._gtid_mode_changed)
@@ -547,7 +550,8 @@ class WbAdminServerStatus(mforms.Box):
                     self.controls[label] = (self.gtid_mode_selector, value_source)
                 else:
                     l2 = mforms.newLabel(value or "")
-                    l2.set_name(label + " Value")
+                    if label and label != '':
+                        l2.set_name(label + " Value")
                     l2.set_style(mforms.BoldStyle)
                     l2.set_color("#1c1c1c")
                     info_table.add(l2, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)

@@ -32,7 +32,8 @@ using namespace std;
 using namespace mforms;
 
 SimpleForm::SimpleForm(const std::string &title, const std::string &ok_caption) : Form(NULL) {
-  set_name("simple form");
+  set_name("Simple Form");
+  setInternalName("simple form");
   _caption_width = 0;
   _view_width = 0;
   _title_width = 0;
@@ -310,7 +311,7 @@ std::map<std::string, View *> SimpleForm::get_views() {
 
   for (std::list<Row>::const_iterator iter = _rows.begin(); iter != _rows.end(); ++iter) {
     if (iter->view)
-      views[iter->view->get_name()] = iter->view;
+      views[iter->view->getInternalName()] = iter->view;
   }
 
   return views;

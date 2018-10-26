@@ -1496,19 +1496,22 @@ bec::MenuItemList LiveSchemaTree::get_popup_items_for_nodes(const std::list<mfor
     if (type == Schema) {
       bec::MenuItem active_schema_item;
       active_schema_item.caption = _("Set as Default Schema");
-      active_schema_item.name = "set_active_schema";
+      active_schema_item.internalName = "set_active_schema";
+      active_schema_item.accessibilityName = "Set Active Schema";
       active_schema_item.enabled = nodes.size() == 1;
 
       bec::MenuItem filter_schema_item;
       filter_schema_item.caption = _("Filter to This Schema");
-      filter_schema_item.name = "filter_schema";
+      filter_schema_item.internalName = "filter_schema";
+      filter_schema_item.accessibilityName = "Filter Schema";
       filter_schema_item.enabled = nodes.size() == 1;
 
       items.push_back(active_schema_item);
       items.push_back(filter_schema_item);
       bec::MenuItem item;
       item.type = MenuSeparator;
-      item.name = "builtins_separator"; // this indicates where plugins should start adding their menu items
+      item.internalName = "builtins_separator"; // this indicates where plugins should start adding their menu items
+      item.accessibilityName = "Separator";
       items.push_back(item);
     } else if (type == Table || type == View || type == TableColumn || type == ViewColumn || type == ViewCollection ||
                type == ColumnCollection) {
@@ -1526,24 +1529,28 @@ bec::MenuItemList LiveSchemaTree::get_popup_items_for_nodes(const std::list<mfor
         }
         view_item.caption = caption;
       }
-      view_item.name = "select_data";
+      view_item.internalName = "select_data";
+      view_item.accessibilityName = "Select Data";
       view_item.enabled = !nodes.empty() && (nodes.size() == 1 || (type == TableColumn || type == ViewColumn));
       items.push_back(view_item);
       bec::MenuItem item;
       item.type = MenuSeparator;
-      item.name = "builtins_separator"; // this indicates where plugins should start adding their menu items
+      item.internalName = "builtins_separator"; // this indicates where plugins should start adding their menu items
+      item.accessibilityName = "Separator";
       items.push_back(item);
     }
   }
   {
     bec::MenuItem item;
     item.type = MenuSeparator;
-    item.name = "bottom_plugins_separator"; // this indicates where plugins should start adding their menu items
+    item.internalName = "bottom_plugins_separator";
+    item.accessibilityName = "Separator"; // this indicates where plugins should start adding their menu items
     items.push_back(item);
 
     item.type = MenuAction;
     item.caption = _("Refresh All");
-    item.name = "refresh";
+    item.internalName = "refresh";
+    item.accessibilityName = "Refresh";
     items.push_back(item);
   }
 

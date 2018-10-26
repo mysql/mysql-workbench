@@ -153,7 +153,7 @@ namespace mforms {
     virtual DragOperation files_dropped(View *sender, base::Point p, DragOperation allowedOperations,
                                         const std::vector<std::string> &file_names) {
       return DragOperationNone;
-    };
+    }
 
     /**
      * Called when text was dropped on the receiver (only called if drag_over returned a valid drag operation).
@@ -162,7 +162,7 @@ namespace mforms {
     virtual DragOperation text_dropped(View *sender, base::Point p, DragOperation allowedOperations,
                                        const std::string &text) {
       return DragOperationNone;
-    };
+    }
 
     /**
      * Called when any custom data was dropped on the receiver (only called if drag_over returned a valid drag
@@ -175,7 +175,7 @@ namespace mforms {
     virtual DragOperation data_dropped(View *sender, base::Point p, DragOperation allowedOperations, void *data,
                                        const std::string &format) {
       return DragOperationNone;
-    };
+    }
   };
 #endif
 
@@ -237,7 +237,7 @@ namespace mforms {
     friend class ControlFactory;
 
   private:
-    std::string _name;
+    std::string _internalName;
     bool _layout_dirty;
 
     boost::signals2::signal<void()> _signal_resized;
@@ -270,10 +270,11 @@ namespace mforms {
     bool contains_subview(View *subview);
     void clear_subviews();
 
-    void set_name(const std::string &name);
+    virtual void set_name(const std::string &name);
+    void setInternalName(const std::string &name);
+    std::string getInternalName() const;
     void set_tooltip(const std::string &text);
     virtual void set_font(const std::string &fontDescription); // e.g. "Trebuchet MS bold 9"
-    std::string get_name();
     void set_parent(View *parent);
     View *get_parent() const;
     Form *get_parent_form() const;

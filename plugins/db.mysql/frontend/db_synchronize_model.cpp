@@ -369,7 +369,7 @@ namespace DBSynchronize {
 
   WbPluginDbSynchronize::WbPluginDbSynchronize(grt::Module *module) : WizardPlugin(module) {
     // add validation here
-    set_name("db_synchronize_wizard");
+    set_name("DB Synchronize Wizard");
 
     ConnectionPage *connection_page = new ConnectionPage(this);
     connection_page->set_db_connection(_db_be.db_conn());

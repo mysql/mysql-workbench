@@ -217,12 +217,14 @@ bec::MenuItemList DbSqlEditorHistory::EntriesModel::get_popup_items_for_nodes(co
   bec::MenuItemList items;
   bec::MenuItem item;
 
-  item.name = "delete_selection";
+  item.internalName = "delete_selection";
+  item.accessibilityName = "Delete Selection";
   item.caption = "Delete Selected Date Log";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
 
-  item.name = "delete_all";
+  item.internalName = "delete_all";
+  item.accessibilityName = "Delete All";
   item.caption = "Delete All Logs";
   item.enabled = true;
   items.push_back(item);

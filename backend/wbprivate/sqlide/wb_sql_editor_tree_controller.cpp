@@ -196,14 +196,14 @@ void SqlEditorTreeController::finish_init() {
   _admin_side_bar = (wb::SimpleSidebar *)mforms::TaskSidebar::create("Simple");
   scoped_connect(_admin_side_bar->on_section_command(),
                  std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
-
+  
   _admin_side_bar->set_name("Administration");
   _schema_side_bar->set_name("Schemas");
-
+  
   mforms::TaskSectionFlags flags = mforms::TaskSectionRefreshable | mforms::TaskSectionToggleModeButton;
   if (_unified_mode)
     flags = flags | mforms::TaskSectionToggleModeButtonPreSelected;
-  _schema_side_bar->add_section("SchemaTree", _("SCHEMAS"), flags);
+  _schema_side_bar->add_section("SchemaTree", "Schema Tree", _("SCHEMAS"), flags);
 
   if (!_unified_mode) {
     _task_tabview->add_page(_admin_side_bar, _("Administration"));

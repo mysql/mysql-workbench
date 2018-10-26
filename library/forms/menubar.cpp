@@ -37,20 +37,22 @@ MenuBase::~MenuBase() {
 }
 
 MenuItem *MenuBase::add_item_with_title(const std::string &title, std::function<void()> action,
-                                        const std::string &name) {
+                                        const std::string &name, const std::string &internalName) {
   MenuItem *item = manage(new MenuItem(title));
   item->signal_clicked()->connect(action);
   add_item(item);
   item->set_name(name);
+  item->setInternalName(internalName);
   return item;
 }
 
 MenuItem *MenuBase::add_check_item_with_title(const std::string &title, std::function<void()> action,
-                                              const std::string &name) {
+                                              const std::string &name, const std::string &internalName) {
   MenuItem *item = manage(new MenuItem(title, CheckedMenuItem));
   item->signal_clicked()->connect(action);
   add_item(item);
   item->set_name(name);
+  item->setInternalName(internalName);
   return item;
 }
 
@@ -106,7 +108,7 @@ bool MenuBase::get_enabled() {
 
 MenuItem *MenuBase::find_item(const std::string &name) {
   for (std::vector<MenuItem *>::const_iterator iter = _items.begin(); iter != _items.end(); ++iter) {
-    if ((*iter)->get_name() == name)
+    if ((*iter)->getInternalName() == name)
       return *iter;
     MenuItem *item;
     if ((item = (*iter)->find_item(name)))
@@ -163,6 +165,11 @@ std::string MenuItem::get_title() {
   return _impl->get_title(this);
 }
 
+
+void MenuItem::set_name(const std::string &name) {
+  _impl->set_name(this, name);
+}
+
 void MenuItem::set_shortcut(const std::string &shortcut) {
   _shortcut = shortcut;
   _impl->set_shortcut(this, shortcut);
@@ -204,10 +211,6 @@ void MenuItem::add_validator(const validator_function &slot) {
 
 void MenuItem::clear_validators() {
   _validators.clear();
-}
-
-void MenuItem::set_name(const std::string &name) {
-  _name = name;
 }
 
 MenuBar::MenuBar() : MenuBase() {

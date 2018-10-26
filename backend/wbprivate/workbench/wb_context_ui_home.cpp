@@ -294,7 +294,8 @@ void WBContextUI::show_home_screen() {
 
     // now we have to add sections
     _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
-    _connectionsSection->set_name("homeScreenConnectionsSection");
+    _connectionsSection->set_name("Home Screen Connections Section");
+    _connectionsSection->setInternalName("homeScreenConnectionsSection");
     _connectionsSection->showWelcomeHeading(bec::GRTManager::get()->get_app_option_int("HomeScreen:HeadingMessage", 1) == 1);
     _connectionsSection->getConnectionInfoCallback = std::bind([=] (const std::string &connectionId) -> mforms::anyMap {
       return connectionToMap(getConnectionById(connectionId));
@@ -303,7 +304,8 @@ void WBContextUI::show_home_screen() {
     _home_screen->addSection(_connectionsSection);
 
     _documentsSection = mforms::manage(new mforms::DocumentsSection(_home_screen));
-    _documentsSection->set_name("homeScreenDocumentsSection");
+    _documentsSection->set_name("Home Screen Documents Section");
+    _documentsSection->setInternalName("homeScreenDocumentsSection");
     _home_screen->addSection(_documentsSection);
 
     _home_screen->addSectionEntry("Migration Section", "sidebar_migration.png", [this]() {

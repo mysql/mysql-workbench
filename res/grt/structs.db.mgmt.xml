@@ -68,6 +68,7 @@
       <gstruct name="db.mgmt.DriverParameter" parent="GrtObject" attr:desc="a list of all parameters the Jdbc driver supports">
           <members>
               <member name="caption" type="string" attr:desc="the caption displayed in the connection dialog"/>
+              <member name="accessibilityName" type="string" attr:desc="accessibility name"/>
               <member name="description" type="string" attr:desc="the description displayed in the connection dialog"/>
 
               <member name="paramType" type="string" attr:desc="can be string, int, boolean, tristate, file, dir"/>

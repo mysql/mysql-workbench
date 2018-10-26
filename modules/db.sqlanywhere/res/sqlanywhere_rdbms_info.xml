@@ -37,6 +37,7 @@
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc.param1">
             <value type="string" key="caption">Driver:</value>
+            <value type="string" key="accessibilityName">Driver</value>
             <value type="string" key="defaultValue">SQLAnywhere</value>
             <value type="string" key="description">The Driver name of your ODBC driver.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -161,6 +162,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc_dsn.param1">
             <value type="string" key="caption">DSN:</value>
+            <value type="string" key="accessibilityName">DSN</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Pre-configured ODBC data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -210,6 +212,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.odbc_connstr.param1">
             <value type="string" key="caption">Connection String:</value>
+            <value type="string" key="accessibilityName">Connection String</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The full ODBC connection string to use for the connection.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -242,6 +245,7 @@ ODBC connection string.</value>
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param1">
             <value type="string" key="caption">Host:</value>
+            <value type="string" key="accessibilityName">Host</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
             <value type="string" key="description">Host name or IP address of your server</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -257,6 +261,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param2">
             <value type="string" key="caption">Port:</value>
+            <value type="string" key="accessibilityName">Port</value>
             <value type="string" key="defaultValue">2638</value>
 	    <value type="string" key="description">TCP/IP Port</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -272,6 +277,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param3">
             <value type="string" key="caption">Server Name:</value>
+            <value type="string" key="accessibilityName">Server Name</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Server and Database names</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -287,8 +293,9 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param4">
             <value type="string" key="caption">Database Name:</value>
+            <value type="string" key="accessibilityName">Database Name</value>
             <value type="string" key="defaultValue">demo</value>
-	    <value type="string" key="description"></value>
+            <value type="string" key="description"></value>
             <value type="int" key="layoutAdvanced">0</value>
             <value type="int" key="layoutRow">2</value>
             <value type="int" key="layoutWidth">109</value>
@@ -302,6 +309,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param5">
             <value type="string" key="caption">Username:</value>
+            <value type="string" key="accessibilityName">Username</value>
             <value type="string" key="defaultValue">dba</value>
             <value type="string" key="description">Name of the connection user.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -317,6 +325,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlanywhere.driver.sqlanydb.param6">
             <value type="string" key="caption">Password:</value>
+            <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
             <value type="int" key="layoutAdvanced">0</value>

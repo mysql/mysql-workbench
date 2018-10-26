@@ -206,7 +206,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner) : mforms::Box(false), _
     _toolbar->add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-    item->set_name("reset_tool");
+    item->set_name("Reset Tool");
+    item->setInternalName("reset_tool");
     item->set_icon(mforms::App::get()->get_resource_path("wb_arrow.png"));
     item->set_tooltip("Pan map and select feature to view");
     item->signal_activated()->connect(std::bind(&SpatialDataView::change_tool, this, item));
@@ -214,7 +215,8 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner) : mforms::Box(false), _
     item->set_checked(true);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-    item->set_name("zoom_to_area");
+    item->set_name("Zoom to Area");
+    item->setInternalName("zoom_to_area");
     item->set_icon(mforms::App::get()->get_resource_path("qe_sql-editor-tb-icon_zoom-area.png"));
     item->set_tooltip("Zoom to area. Click and drag in the map to select an area to be zoomed into.");
     item->signal_activated()->connect(std::bind(&SpatialDataView::change_tool, this, item));
@@ -280,9 +282,9 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner) : mforms::Box(false), _
 #endif
 
   _map_menu = new mforms::ContextMenu();
-  _map_menu->add_item_with_title("Copy Coordinates", std::bind(&SpatialDataView::copy_coordinates, this));
-  _map_menu->add_item_with_title("Copy Record for Feature", std::bind(&SpatialDataView::copy_record, this));
-  _map_menu->add_item_with_title("View Record for Feature", std::bind(&SpatialDataView::view_record, this));
+  _map_menu->add_item_with_title("Copy Coordinates", std::bind(&SpatialDataView::copy_coordinates, this), "Copy Coordinates", "");
+  _map_menu->add_item_with_title("Copy Record for Feature", std::bind(&SpatialDataView::copy_record, this), "Copy Record for Feature", "");
+  _map_menu->add_item_with_title("View Record for Feature", std::bind(&SpatialDataView::view_record, this), "View Record for Feature", "");
   _map_menu->signal_will_show()->connect(std::bind(&SpatialDataView::map_menu_will_show, this));
 
   _viewer->set_context_menu(_map_menu);
@@ -292,18 +294,19 @@ SpatialDataView::SpatialDataView(SqlEditorResult *owner) : mforms::Box(false), _
   //  _layer_menu->add_item_with_title("Properties...", std::bind(&SpatialDataView::activate, this));
 
   mforms::MenuItem *mitem = mforms::manage(new mforms::MenuItem("Fill Polygons", mforms::CheckedMenuItem));
-  mitem->set_name("fillup_polygon");
+  mitem->set_name("Fillup Polygon");
+  mitem->setInternalName("fillup_polygon");
   mitem->signal_clicked()->connect(std::bind(&SpatialDataView::fillup_polygon, this, mitem));
   _layer_menu->add_item(mitem);
 
   _layer_menu->add_separator();
-  _layer_menu->add_item_with_title("Refresh", std::bind(&SpatialDataView::refresh_layers, this), "refresh");
+  _layer_menu->add_item_with_title("Refresh", std::bind(&SpatialDataView::refresh_layers, this), "Refresh", "refresh");
 
   _layer_menu->add_separator();
   _layer_menu->add_item_with_title("Move Layer Up", std::bind(&SpatialDataView::layer_menu_action, this, "layer_up"),
-                                   "layer_up");
+                                   "Move Layer Up", "layer_up");
   _layer_menu->add_item_with_title("Move Layer Down",
-                                   std::bind(&SpatialDataView::layer_menu_action, this, "layer_down"), "layer_down");
+                                   std::bind(&SpatialDataView::layer_menu_action, this, "layer_down"), "Move Layer Down", "layer_down");
 
   _layer_menu->signal_will_show()->connect(std::bind(&SpatialDataView::layer_menu_will_show, this));
 
@@ -367,7 +370,7 @@ bool SpatialDataView::refresh_viewer() {
 
 void SpatialDataView::change_tool(mforms::ToolBarItem *item) {
   item->set_checked(true);
-  if (item->get_name() == "reset_tool") {
+  if (item->getInternalName() == "reset_tool") {
     _toolbar->set_item_checked("zoom_to_area", false);
     _viewer->select_area(false);
   } else {

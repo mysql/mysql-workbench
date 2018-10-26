@@ -234,6 +234,13 @@ std::string MenuBarWrapper::get_title(mforms::MenuItem *item) {
 
 //--------------------------------------------------------------------------------------------------
 
+void MenuBarWrapper::set_name(mforms::MenuItem *item, const std::string &name) {
+  ToolStripItem ^ object = GetManagedObject<ToolStripItem>(item);
+  object->AccessibleName = CppStringToNative(name);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void MenuBarWrapper::set_shortcut(mforms::MenuItem *item, const std::string &value) {
   ToolStripMenuItem ^ object = GetManagedObject<ToolStripMenuItem>(item);
   object->ShortcutKeys = MenuManager::convertShortcut(CppStringToNative(value));
@@ -344,6 +351,7 @@ void MenuBarWrapper::init() {
   f->_menu_item_impl.create_menu_item = &MenuBarWrapper::create_menu_item;
   f->_menu_item_impl.set_title = &MenuBarWrapper::set_title;
   f->_menu_item_impl.get_title = &MenuBarWrapper::get_title;
+  f->_menu_item_impl.set_name = &MenuBarWrapper::set_name;
   f->_menu_item_impl.set_shortcut = &MenuBarWrapper::set_shortcut;
   f->_menu_item_impl.set_enabled = &MenuBarWrapper::set_enabled;
   f->_menu_item_impl.get_enabled = &MenuBarWrapper::get_enabled;

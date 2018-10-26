@@ -404,7 +404,7 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
   }
 
   item->ImageScaling = ToolStripItemImageScaling::None;
-  item->Name = CppStringToNative(backend->get_name());
+  item->Name = CppStringToNative(backend->getInternalName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,8 +571,7 @@ void ToolBarWrapper::insert_item(mforms::ToolBar *backend, int index, mforms::To
   ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
 
   // Update the name of the control, so the accessibility layer has something to work with.
-  native_item->Name = CppStringToNative(item->get_name());
-  native_item->AccessibleName = native_item->Name;
+  native_item->Name = CppStringToNative(item->getInternalName());
 
   if (index < 0 || index >= toolstrip->Items->Count) {
     index = toolstrip->Items->Count;
@@ -673,7 +672,8 @@ std::string ToolBarWrapper::get_item_text(mforms::ToolBarItem *item) {
 //--------------------------------------------------------------------------------------------------
 
 void ToolBarWrapper::set_item_name(mforms::ToolBarItem *item, const std::string &name) {
-  // This is dummy function to silent warnings
+  ToolStripItem ^ native_item = ToolBarWrapper::GetManagedObject<ToolStripItem>(item);
+  native_item->AccessibleName = CppStringToNative(name);
 }
 
 //--------------------------------------------------------------------------------------------------

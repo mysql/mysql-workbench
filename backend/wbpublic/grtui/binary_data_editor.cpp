@@ -457,7 +457,8 @@ private:
 
 BinaryDataEditor::BinaryDataEditor(const char *data, size_t length, bool read_only)
   : mforms::Form(0), _box(false), _hbox(true), _read_only(read_only) {
-  set_name("blob_editor");
+  set_name("BLOB Editor");
+  setInternalName("blob_editor");
   _data = 0;
   _length = 0;
 
@@ -488,7 +489,8 @@ BinaryDataEditor::BinaryDataEditor(const char *data, size_t length, bool read_on
 BinaryDataEditor::BinaryDataEditor(const char *data, size_t length, const std::string &text_encoding,
                                    const std::string &datatype, bool read_only)
   : mforms::Form(mforms::Form::main_form()), _type(datatype), _box(false), _hbox(true), _read_only(read_only) {
-  set_name("blob_editor");
+  set_name("BLOB Editor");
+  setInternalName("blob_editor");
   _data = 0;
   _length = 0;
   _updating = false;

@@ -852,19 +852,22 @@ int WBContextModel::get_object_list_popup_items(bec::UIForm *form, const std::ve
     item.checked = false;
     item.enabled = can_copy && can_delete;
     item.caption = label.empty() ? _("Cut") : strfmt(_("Cut %s"), label.c_str());
-    item.name = "builtin:cut";
+    item.accessibilityName = "Cut";
+    item.internalName = "builtin:cut";
     item.type = MenuAction;
     items.push_back(item);
 
     item.enabled = can_copy;
     item.caption = label.empty() ? _("Copy") : strfmt(_("Copy %s"), label.c_str());
-    item.name = "builtin:copy";
+    item.accessibilityName = "Copy";
+    item.internalName = "builtin:copy";
     item.type = MenuAction;
     items.push_back(item);
 
     item.enabled = form->can_paste();
     item.caption = strfmt(_("Paste %s"), wb->get_clipboard()->get_content_description().c_str());
-    item.name = "builtin:paste";
+    item.accessibilityName = "Paste";
+    item.internalName = "builtin:paste";
     item.type = MenuAction;
     items.push_back(item);
 
@@ -922,13 +925,15 @@ int WBContextModel::get_object_list_popup_items(bec::UIForm *form, const std::ve
     items.push_back(item);
   }
   item.caption = label.empty() ? _("Delete") : strfmt(_("Delete %s"), label.c_str());
-  item.name = "builtin:delete";
+  item.accessibilityName = "Delete";
+  item.internalName = "builtin:delete";
   item.type = MenuAction;
   items.push_back(item);
 
   if ((nodes.empty() || nodes[0][0] != 0) && objects.count() > 0) {
     item.caption = label.empty() ? _("Remove Figure") : strfmt(_("Remove Figure %s"), label.c_str());
-    item.name = "builtin:removeFigure";
+    item.internalName = "builtin:removeFigure";
+    item.accessibilityName = "Remove Figure";
     item.type = MenuAction;
     item.enabled = can_remove;
     items.push_back(item);
@@ -984,9 +989,10 @@ int WBContextModel::add_object_plugins_to_popup_menu(const grt::ListRef<GrtObjec
     item.checked = false;
     item.enabled = bec::GRTManager::get()->check_plugin_runnable(*iter, argpool);
     item.shortcut = "";
-    item.name = "plugin:" + *(*iter)->name();
+    item.internalName = "plugin:" + *(*iter)->name();
+    item.accessibilityName = (*iter)->accessibilityName();
     if (item.caption.empty())
-      item.caption = item.name;
+      item.caption = item.accessibilityName;
     items.push_back(item);
     count++;
 
@@ -1005,7 +1011,8 @@ int WBContextModel::add_object_plugins_to_popup_menu(const grt::ListRef<GrtObjec
                                     wb::WBContextUI::get()->get_active_form()->get_edit_target_name().c_str());
       }
 
-      item.name = "plugin:" + *plugin->name();
+      item.internalName = "plugin:" + *plugin->name();
+      item.accessibilityName = *plugin->accessibilityName();
       item.type = MenuAction;
       // state for this item will be the same as for the previous one
       // item.enabled= check_plugin_runnable(plugin, "", objects);

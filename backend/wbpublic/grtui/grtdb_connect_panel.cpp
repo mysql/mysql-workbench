@@ -121,7 +121,7 @@ DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   scoped_connect(_name_entry.signal_changed(), std::bind(&DbConnectPanel::change_connection_name, this));
 
   _name_entry.set_name("Connection Name");
-  _table.set_name("connect_panel:table");
+  _name_entry.setInternalName("connect_panel:table");
   _table.set_row_count(flags & DbConnectPanelShowRDBMSCombo ? 4 : 2);
   _table.set_column_count(3);
 
@@ -157,13 +157,14 @@ DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   _table.add(&_driver_sel, 1, 2, row, row + 1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
   _table.add(&_desc3, 2, 3, row, row + 1, mforms::HFillFlag);
 
-  _tab.set_name("connect_panel:tab");
-  _params_panel.set_name("params_panel");
-  _ssl_panel.set_name("ssl_panel");
-  _advanced_panel.set_name("advanced_panel");
-  _options_panel.set_name("options_panel");
+  _tab.set_name("Connection");
+  _params_panel.set_name("Parameters");
+  _ssl_panel.set_name("SSL");
+  _advanced_panel.set_name("Advanced");
+  _options_panel.set_name("Options");
 
-  set_name("connect_panel");
+  set_name("Connection");
+  setInternalName("connect_panel");
 
   add(&_content, true, true);
   _content.add(&_table, false, true);
@@ -360,7 +361,7 @@ void DbConnectPanel::set_default_host_name(const std::string &host, bool update)
 }
 
 void DbConnectPanel::param_value_changed(mforms::View *sender, bool trim_whitespace) {
-  std::string param_name = sender->get_name();
+  std::string param_name = sender->getInternalName();
 
   if (!_allow_edit_connections && !_updating) {
     // if stored connections combo is shown, copy the current connection params to the
@@ -387,7 +388,7 @@ void DbConnectPanel::param_value_changed(mforms::View *sender, bool trim_whitesp
 }
 
 void DbConnectPanel::enum_param_value_changed(mforms::Selector *sender, std::vector<std::string> options) {
-  std::string param_name = sender->get_name();
+  std::string param_name = sender->getInternalName();
 
   if (!_allow_edit_connections && !_updating) {
     // if stored connections combo is shown, copy the current connection params to the
@@ -831,28 +832,32 @@ void DbConnectPanel::begin_layout() {
 
   _params_table = mforms::manage(new mforms::Table());
   _params_table->set_release_on_add();
-  _params_table->set_name("params_table");
+  _params_table->set_name("Parameters Table");
+  _params_table->setInternalName("params_table");
   _params_table->set_column_count(3);
   _params_table->set_row_spacing(MF_TABLE_ROW_SPACING);
   _params_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
   _params_table->set_padding(MF_PANEL_PADDING);
 
   _ssl_table = mforms::manage(new mforms::Table());
-  _ssl_table->set_name("ssl_table");
+  _ssl_table->set_name("SSL Table");
+  _ssl_table->setInternalName("ssl_table");
   _ssl_table->set_column_count(3);
   _ssl_table->set_row_spacing(MF_TABLE_ROW_SPACING);
   _ssl_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
   _ssl_table->set_padding(MF_PANEL_PADDING);
 
   _advanced_table = mforms::manage(new mforms::Table());
-  _advanced_table->set_name("advanced_table");
+  _advanced_table->set_name("Advanced Table");
+  _advanced_table->setInternalName("advanced_table");
   _advanced_table->set_column_count(3);
   _advanced_table->set_row_spacing(MF_TABLE_ROW_SPACING);
   _advanced_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
   _advanced_table->set_padding(MF_PANEL_PADDING);
 
   _options_table = mforms::manage(new mforms::Table());
-  _options_table->set_name("options_table");
+  _options_table->set_name("Options Table");
+  _options_table->setInternalName("options_table");
   _options_table->set_column_count(3);
   _options_table->set_row_spacing(MF_TABLE_ROW_SPACING);
   _options_table->set_column_spacing(MF_TABLE_COLUMN_SPACING);
@@ -992,6 +997,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     case ::ctLabel: {
       Label *label = new Label();
       label->set_text(caption);
+      label->set_name(driver_param->get_accessibility_name());
       label->set_text_align(mforms::TopRight);
 
       if (is_new_line)
@@ -1004,6 +1010,7 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     case ::ctDescriptionLabel: {
       Label *label = new Label();
       label->set_text(caption);
+      label->set_name(driver_param->get_accessibility_name());
       label->set_text_align(mforms::TopLeft);
       label->set_style(mforms::SmallHelpTextStyle);
       label->set_wrap_text(true);
@@ -1031,7 +1038,8 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     case ::ctCheckBox: {
       CheckBox *ctrl = new CheckBox();
 
-      ctrl->set_name(driver_param->get_control_name());
+      ctrl->set_name(driver_param->get_accessibility_name());
+      ctrl->setInternalName(driver_param->get_control_name());
 
       ctrl->set_text(caption);
 
@@ -1084,7 +1092,8 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       bool is_password = ::DbDriverParam::ptPassword == driver_param->get_type();
       TextEntry *ctrl = new TextEntry(is_password ? PasswordEntry : NormalEntry);
 
-      ctrl->set_name(driver_param->get_control_name());
+      ctrl->set_name(driver_param->get_accessibility_name());
+      ctrl->setInternalName(driver_param->get_control_name());
 
       // value
       {
@@ -1104,7 +1113,8 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     }
     case ::ctText: {
       TextBox *ctrl = new TextBox(mforms::VerticalScrollBar);
-      ctrl->set_name(driver_param->get_control_name());
+      ctrl->set_name(driver_param->get_accessibility_name());
+      ctrl->setInternalName(driver_param->get_control_name());
 
       // value
       {
@@ -1124,7 +1134,8 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     }
     case ::ctFileSelector: {
       FsObjectSelector *ctrl = new FsObjectSelector();
-      ctrl->set_name(driver_param->get_control_name());
+      ctrl->set_name(driver_param->get_accessibility_name());
+      ctrl->setInternalName(driver_param->get_control_name());
       // value
       grt::StringRef value = driver_param->get_value_repr();
       std::string initial_value = "";
@@ -1141,7 +1152,8 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
     }
     case ::ctEnumSelector: {
       mforms::Selector *ctrl = new Selector();
-      ctrl->set_name(driver_param->get_control_name());
+      ctrl->set_name(driver_param->get_accessibility_name());
+      ctrl->setInternalName(driver_param->get_control_name());
       std::vector<std::pair<std::string, std::string> > options;
       std::vector<std::string> option_ids;
       std::string value = driver_param->get_value_repr();

@@ -50,12 +50,6 @@ SidebarEntry::SidebarEntry() : owner(nullptr), canSelect(false), icon(nullptr) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string SidebarEntry::getAccessibilityName() {
-  return title;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 std::string SidebarEntry::getAccessibilityTitle() {
   return title;
 }
@@ -189,6 +183,7 @@ void SidebarSection::addEntry(const std::string &title, const std::string &icon_
   entry->canSelect = canSelect;
   entry->owner = this;
   entry->title = title;
+  entry->setAccessibilityName(title);
 
   if (section)
     entry->indicatorColor = section->getIndicatorColor();
@@ -329,11 +324,13 @@ Accessible *SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
 
 //----------------- HomeScreen -----------------------------------------------------------------------------------------
 
-HomeScreen::HomeScreen(bool singleSection) : AppView(true, "home", true), _singleSection(singleSection) {
-  set_name("homeScreen");
+HomeScreen::HomeScreen(bool singleSection) : AppView(true, "Home", "home", true), _singleSection(singleSection) {
+  set_name("Home Screen");
+  setInternalName("homeScreen");
   if (!_singleSection) {
     _sidebarSection = new SidebarSection(this);
-    _sidebarSection->set_name("homeScreenSideBar");
+    _sidebarSection->set_name("Home Screen Sidebar");
+    _sidebarSection->setInternalName("homeScreenSideBar");
     _sidebarSection->set_size(85, -1);
     add(_sidebarSection, false, true);
   } else
@@ -380,7 +377,8 @@ void HomeScreen::addSection(HomeScreenSection *section) {
 
   if (_sidebarSection != nullptr) {
     mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoAutoScroll));
-    scroll->set_name("HomeScreen Main Panel");
+    scroll->set_name("Home Screen Main Panel");
+    scroll->setInternalName("HomeScreen Main Panel");
     scroll->add(section->getContainer());
     add(scroll, true, true);
 

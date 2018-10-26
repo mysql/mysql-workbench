@@ -28,7 +28,8 @@
 using namespace grtui;
 
 TextInputDialog::TextInputDialog(mforms::Form *owner) : mforms::Form(owner, mforms::FormResizable), _button_box(true) {
-  set_name("input_dialog");
+  set_name("Input Dialog");
+  setInternalName("input_dialog");
   _table.set_padding(12);
 
   _table.set_row_count(3);

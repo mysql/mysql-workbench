@@ -55,7 +55,7 @@ def plat_icon(icon):
 #===============================================================================
 class Migration(mforms.AppView):
     def __init__(self):
-        mforms.AppView.__init__(self, True, "migration", True)
+        mforms.AppView.__init__(self, True, "Migration", "migration", True)
         
         self.plan = migration.MigrationPlan()
 
@@ -69,11 +69,11 @@ class Migration(mforms.AppView):
 
         self.left_side_cont = self.create_tasks_side()
         self.add(self.left_side_cont, False, True)
-        self.tasks_side.add_section("Overview", "OVERVIEW", 0)
-        self.tasks_side.add_section("SourceTarget", "SOURCE & TARGET", 0)
-        self.tasks_side.add_section("ObjectMigration", "OBJECT MIGRATION", 0)
-        self.tasks_side.add_section("DataMigration", "DATA MIGRATION", 0)
-        self.tasks_side.add_section("Report", "REPORT", 0)
+        self.tasks_side.add_section("Overview", "Overview", "OVERVIEW", 0)
+        self.tasks_side.add_section("SourceTarget", "Source Target", "SOURCE & TARGET", 0)
+        self.tasks_side.add_section("ObjectMigration", "Object Migration", "OBJECT MIGRATION", 0)
+        self.tasks_side.add_section("DataMigration", "Data Migration", "DATA MIGRATION", 0)
+        self.tasks_side.add_section("Report", "Report", "REPORT", 0)
 
         self.tasks_side.add_on_section_command_callback(self.section_clicked)
         self.left_side_cont.set_size(220, -1)
@@ -225,7 +225,7 @@ class Migration(mforms.AppView):
 
     #---------------------------------------------------------------------------
     def add_content_page(self, page, section_id, item_name, icon_name):
-        entry = self.tasks_side.add_section_entry(section_id, page.identifier(), item_name, plat_icon(icon_name + ".png"), mforms.TaskEntryLink)
+        entry = self.tasks_side.add_section_entry(section_id, page.identifier(), item_name, item_name, plat_icon(icon_name + ".png"), mforms.TaskEntryLink)
         
         if platform.system() == 'Windows':
             self.content_box.add(page, True, True)
@@ -239,7 +239,7 @@ class Migration(mforms.AppView):
 
     #---------------------------------------------------------------------------
     def add_wizard_page(self, page, section_id, item_name):
-        entry = self.tasks_side.add_section_entry(section_id, page.identifier(), item_name, plat_icon("migration_check_open.png"), mforms.TaskEntryPlainItem)
+        entry = self.tasks_side.add_section_entry(section_id, page.identifier(), item_name, item_name, plat_icon("migration_check_open.png"), mforms.TaskEntryPlainItem)
         
         if platform.system() == 'Windows':
             self.content_box.add(page, True, True)

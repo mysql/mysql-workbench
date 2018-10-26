@@ -26,7 +26,8 @@
 using namespace grtui;
 
 WizardPlugin::WizardPlugin(grt::Module *module) : GUIPluginBase(module), WizardForm() {
-  set_name("wizard");
+  set_name("Wizard");
+  setInternalName("wizard");
 }
 
 bool WizardPlugin::run_wizard() {

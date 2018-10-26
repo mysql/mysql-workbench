@@ -113,6 +113,5 @@ namespace base {
   }
   
   BASELIBRARY_PUBLIC_FUNC std::string getVersion(void);
-  
 
 } // namespace base

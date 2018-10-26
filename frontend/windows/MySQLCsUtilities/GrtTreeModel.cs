@@ -205,7 +205,7 @@ namespace MySQL.Grt
           default:
             {
               ToolStripMenuItem itemFE = new ToolStripMenuItem();
-              itemFE.Name = itemBE.get_name();
+              itemFE.Name = itemBE.getInternalName();
               itemFE.Text = itemBE.get_caption();
               itemFE.Enabled = itemBE.get_enabled();
               if (MySQL.Base.MenuItemType.MenuCascade == itemBE.get_type())

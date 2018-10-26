@@ -136,6 +136,7 @@
         <member name="itemType" type="string" attr:desc="type of item (action, separator, cascade, check, radio)"/>
         <member name="subItems" type="list" content-type="object" content-struct-name="app.MenuItem" owned="1"/>
         <member name="shortcut" type="string" attr:desc="optional shortcut (eg: control+s)"/>
+        <member name="accessibilityName" type="string"/>
       </members>
     </gstruct>
 
@@ -148,6 +149,7 @@
     <gstruct name="app.Toolbar" parent="GrtObject" attr:caption="Toolbar">
       <members>
         <member name="items" type="list" content-type="object" content-struct-name="app.ToolbarItem" owned="1"/>
+        <member name="accessibilityName" type="string"/>
       </members>
     </gstruct>
 
@@ -157,6 +159,7 @@
         <member name="altIcon" type="string"/>
         <member name="itemType" type="string" attr:desc="type of button (action, separator, toggle, segmentedToggle, radio, label, dropdown)"/>
         <member name="tooltip" type="string"/>
+        <member name="accessibilityName" type="string"/>
         <member name="initialState" type="int" attr:desc="For (segmented) toggle only: is the item checked initially?" />
       </members>
     </gstruct>
@@ -164,6 +167,7 @@
     <gstruct name="app.PluginGroup" parent="GrtObject" attr:caption="Plugin Group" attr:desc="groups a number of plugins together">
       <members>        
         <member name="category" type="string" attr:desc="the category this group belongs to"/>
+        <member name="accessibilityName" type="string" attr:desc="the plugin group accessible name"/>
         <member name="plugins" type="list" content-type="object" content-struct-name="app.Plugin" owned="1" attr:desc="the list of plugins in this group"/>
       </members>
     </gstruct>
@@ -171,6 +175,7 @@
     <gstruct name="app.Plugin" parent="GrtObject" attr:caption="Plugin" attr:desc="a plugin that can be registered">
       <members>
         <member name="caption" type="string" attr:desc="the plugin caption"/>
+        <member name="accessibilityName" type="string" attr:desc="the plugin accessible name"/>
         <member name="description" type="string" attr:desc="the plugin description"/>
         <member name="moduleName" type="string" attr:desc="the module that implements the editor (for dll plugins, it will be the dll name)"/>
         <member name="moduleFunctionName" type="string" attr:desc="the module function that implements the editor (for dll plugins, the dll function name)"/>

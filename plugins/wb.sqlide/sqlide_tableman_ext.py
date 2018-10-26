@@ -1153,7 +1153,7 @@ class TableInspector(mforms.AppView):
         self.tab_list = {}
         self.pages = []
 
-        mforms.AppView.__init__(self, False, "TableInspector", False)
+        mforms.AppView.__init__(self, False, "Table Inspector", "TableInspector", False)
 
         self.set_managed()
         self.set_release_on_add()

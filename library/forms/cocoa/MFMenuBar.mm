@@ -155,6 +155,12 @@ static std::string get_title(MenuItem *aitem)
   return item.title.UTF8String ?: "";
 }
 
+static void set_name(MenuItem *aitem, const std::string &name)
+{
+  NSMenuItem *item = aitem->get_data();
+  item.accessibilityLabel = [NSString stringWithUTF8String: name.c_str()];
+}
+
 static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
 {
   NSMenuItem *item = aitem->get_data();
@@ -396,6 +402,7 @@ void cf_menubar_init()
   f->_menu_item_impl.create_menu_item = create_menu_item;
   f->_menu_item_impl.set_title = set_title;
   f->_menu_item_impl.get_title = get_title;
+  f->_menu_item_impl.set_name = set_name;
   f->_menu_item_impl.set_shortcut = set_shortcut;
   f->_menu_item_impl.set_enabled = set_enabled;
   f->_menu_item_impl.get_enabled = get_enabled;

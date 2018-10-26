@@ -38,7 +38,7 @@ def handle_view_close(view):
     return True
 
 #-------------------------------------------------------------------------------
-@ModuleInfo.plugin("wb.migration.open", type="standalone", caption= "Migration Plugin",  pluginMenu= "Migration")
+@ModuleInfo.plugin("wb.migration.open", type="standalone", caption= "Migration Plugin",  pluginMenu= "Migration", accessibilityName="Migration")
 @ModuleInfo.export(grt.INT)
 def openMigration():
     global tab_reference
@@ -60,7 +60,7 @@ def openMigration():
     return 1
 
 
-@ModuleInfo.plugin("wb.migration.showTypeMapEditor", type="standalone", caption= "Type Mapping Editor",  pluginMenu= "Migration")
+@ModuleInfo.plugin("wb.migration.showTypeMapEditor", type="standalone", caption= "Type Mapping Editor",  pluginMenu= "Migration", accessibilityName="Type Mapping Editor")
 @ModuleInfo.export(grt.INT)
 def showTypeMapEditor():
     import datatype_mapping_editor

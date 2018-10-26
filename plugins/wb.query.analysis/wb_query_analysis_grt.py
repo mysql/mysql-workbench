@@ -392,7 +392,7 @@ class ExplainTab(mforms.AppView):
     _explain_context = None
 
     def __init__(self, server_version, query, json_text, explain):
-        mforms.AppView.__init__(self, False, "QueryExplain", False)
+        mforms.AppView.__init__(self, False, "Query Explain", "Query Explain", False)
         self.set_managed()
         self.set_release_on_add()
 
@@ -434,7 +434,8 @@ class ExplainTab(mforms.AppView):
                 self._query_plan.drawbox.relayout()
                 self.tabview.add_page(self._query_plan, "Visual Explain")
 
-                self._query_plan.switcher_item.set_name("visual_explain_switcher")
+                self._query_plan.switcher_item.set_name("Visual Explain Switcher")
+                self._query_plan.switcher_item.setInternalName("visual_explain_switcher")
                 self._query_plan.switcher_item.set_selector_items(["Visual Explain", "Tabular Explain"])
                 self._query_plan.switcher_item.add_activated_callback(self.switch_view)
             except Exception, e:
@@ -451,7 +452,8 @@ class ExplainTab(mforms.AppView):
             self._tabular_explain = TabularExplainTab(self, explain, server_version)
             self.tabview.add_page(self._tabular_explain, "Tabular Explain")
 
-            self._tabular_explain.switcher_item.set_name("tabular_explain_switcher")
+            self._tabular_explain.switcher_item.set_name("Tabular Explain Switcher")
+            self._tabular_explain.switcher_item.setInternalName("tabular_explain_switcher")
             self._tabular_explain.switcher_item.set_selector_items(["Visual Explain", "Tabular Explain"])
             self._tabular_explain.switcher_item.set_text("Tabular Explain")
             self._tabular_explain.switcher_item.add_activated_callback(self.switch_view)

@@ -233,7 +233,7 @@ namespace DBImport {
   //--------------------------------------------------------------------------------
 
   WbPluginDbImport::WbPluginDbImport(grt::Module *module) : WizardPlugin(module) {
-    set_name("db_import_wizard");
+    set_name("DB Import Wizard");
     _db_rev_eng.grtm();
 
     _connection_page = new ConnectionPage(this);

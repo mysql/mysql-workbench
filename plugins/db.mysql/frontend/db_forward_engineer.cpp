@@ -526,7 +526,7 @@ namespace DBExport {
   };
 
   WbPluginDbExport::WbPluginDbExport(grt::Module *module) : WizardPlugin(module) {
-    set_name("db_export_wizard");
+    set_name("DB Export Wizard");
     if (CatalogValidationPage::has_modules())
       _validation_page = new CatalogValidationPage(this);
     else

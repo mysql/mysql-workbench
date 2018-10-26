@@ -83,7 +83,7 @@ void SqlEditorForm::limit_rows(const std::string &limit_text) {
   for (int i = 0; i < c; i++) {
     mforms::MenuItem *item = menu->get_item(i);
     if (item->get_type() != mforms::SeparatorMenuItem) {
-      if (item->get_name().compare(limit_text) == 0) {
+      if (item->getInternalName().compare(limit_text) == 0) {
         item->set_checked(true);
         found = true;
       } else
@@ -98,11 +98,12 @@ void SqlEditorForm::limit_rows(const std::string &limit_text) {
   // special handling for custom values not in the predefined list
   mforms::MenuItem *citem = menu->find_item("custom");
   if (!found) {
-    std::string s = base::strfmt("Limit to %i rows", limit);
+    std::string caption = base::strfmt("Limit to %i rows", limit);
+    std::string accessibilityName = base::strfmt("Limit to %i Rows", limit);
     if (!citem)
-      citem = menu->add_item_with_title(s, std::bind(&SqlEditorForm::limit_rows, this, s), "custom");
+      citem = menu->add_item_with_title(caption, std::bind(&SqlEditorForm::limit_rows, this, caption), accessibilityName, caption);
     else
-      citem->set_title(s);
+      citem->set_title(caption);
     citem->set_checked(true);
   } else {
     if (citem)
@@ -134,13 +135,14 @@ mforms::MenuBar *SqlEditorForm::get_menubar() {
       std::string active_limit = base::strfmt(_("Limit to %i rows"), limit_count);
 
       limit_item->add_check_item_with_title(dont_limit, std::bind(&SqlEditorForm::limit_rows, this, dont_limit),
-                                            dont_limit);
+                                            dont_limit, dont_limit);
       limit_item->add_separator();
       for (int i = 0; limit_counts[i] != 0; i++) {
-        std::string tmp = base::strfmt(_("Limit to %i rows"), limit_counts[i]);
+          std::string caption = base::strfmt(_("Limit to %i rows"), limit_counts[i]);
+          std::string accessibilityName = base::strfmt(_("Limit to %i Rows"), limit_counts[i]);
         if (limit_counts[i] == limit_count)
-          active_limit = tmp;
-        limit_item->add_check_item_with_title(tmp, std::bind(&SqlEditorForm::limit_rows, this, tmp), tmp);
+          active_limit = caption;
+        limit_item->add_check_item_with_title(caption, std::bind(&SqlEditorForm::limit_rows, this, caption), accessibilityName, caption);
       }
       if (limit_count <= 0)
         limit_rows(dont_limit);
@@ -155,7 +157,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar() {
     if (item != nullptr)
       item->add_validator([this]() {
         return !is_running_query() && connected() &&
-               (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false);
+               (active_sql_editor_panel() ? active_sql_editor_panel()->getInternalName() == "db.query.QueryBuffer" : false);
       });
     item = _menu->find_item("query.reconnect");
     if (item != nullptr)
@@ -170,13 +172,13 @@ mforms::MenuBar *SqlEditorForm::get_menubar() {
     if (item != nullptr)
       item->add_validator([this]() {
         return !is_running_query() && connected() &&
-               (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false);
+               (active_sql_editor_panel() ? active_sql_editor_panel()->getInternalName() == "db.query.QueryBuffer" : false);
       });
     item = _menu->find_item("query.explain_current_statement");
     if (item != nullptr)
       item->add_validator([this]() {
         return !is_running_query() && connected() &&
-               (active_sql_editor_panel() ? active_sql_editor_panel()->get_name() == "db.query.QueryBuffer" : false);
+               (active_sql_editor_panel() ? active_sql_editor_panel()->getInternalName() == "db.query.QueryBuffer" : false);
       });
     item = _menu->find_item("query.commit");
     if (item != nullptr)
@@ -184,7 +186,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar() {
     item = _menu->find_item("query.rollback");
     if (item != nullptr)
       item->add_validator([this]() { return !is_running_query() && connected() && !auto_commit(); });
-    item = _menu->find_item("query.stopOnError");
+    item = _menu->find_item("query.continueOnError");
     if (item != nullptr)
       item->add_validator([this]() { return !is_running_query(); });
     item = _menu->find_item("query.autocommit");
@@ -195,7 +197,7 @@ mforms::MenuBar *SqlEditorForm::get_menubar() {
       item->add_validator([this]() {
         return !is_running_query() && connected() && bec::is_supported_mysql_version_at_least(_version, 5, 5);
       });
-    item = _menu->find_item("wb.sqlide.runScript");
+    item = _menu->find_item("run_script");
     if (item != nullptr)
       item->add_validator([this]() { return connected(); });
 

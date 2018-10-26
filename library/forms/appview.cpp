@@ -35,7 +35,7 @@ static int _serial = 0;
 
 #ifdef _MSC_VER
 
-AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
+AppView::AppView(bool horiz, const std::string &accessibilityName, const std::string &context_name, bool is_main)
   : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main) {
   _app_view_impl = &ControlFactory::get_instance()->_app_view_impl;
   if (_app_view_impl && _app_view_impl->create)
@@ -43,14 +43,16 @@ AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
 
   _identifier = base::strfmt("avid%i", ++_serial);
   _dpoint = NULL;
-  set_name(context_name);
+  set_name(accessibilityName);
+  setInternalName(context_name);
 }
 
 #else
 
-AppView::AppView(bool horiz, const std::string &context_name, bool is_main)
+AppView::AppView(bool horiz, const std::string &accessibilityName, const std::string &context_name, bool is_main)
   : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main) {
-  set_name(context_name);
+  set_name(accessibilityName);
+  setInternalName(context_name);
 #ifdef __APPLE__
   // default, empty toolbar for mac, to show the 3px bar under the top tabs
   // TODO: move this to the platform layer. It doesn't belong here.

@@ -41,7 +41,8 @@ using namespace base;
 
 FileCharsetDialog::FileCharsetDialog(const std::string &title, const std::string &message)
 : Form(nullptr, mforms::FormNone) {
-  set_name("file_charset_dialog");
+  set_name("File Charset");
+  setInternalName("file_charset_dialog");
   set_title("Open SQL File");
 
   _charset = manage(new Selector(SelectorCombobox));

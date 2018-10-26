@@ -26,7 +26,8 @@
 ConfirmSaveDialog::ConfirmSaveDialog(mforms::Form *owner, const std::string &window_title, const std::string &caption)
   : mforms::Form(owner), _box(false), _checkboxes(false), _item_count(0) {
   set_title(window_title);
-  set_name("save_dialog");
+  set_name("Save");
+  setInternalName("save_dialog");
   set_content(&_box);
 
   _box.set_padding(25);

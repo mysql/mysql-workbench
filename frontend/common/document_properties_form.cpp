@@ -40,7 +40,8 @@
 DocumentPropertiesForm::DocumentPropertiesForm()
   : Form(NULL, mforms::FormResizable), _bottom_box(true), _text(mforms::BothScrollBars) {
   set_title(_("Document Properties"));
-  set_name("document_properties");
+  set_name("Document Properties");
+  setInternalName("document_properties");
 
   set_content(&_table);
   _table.set_padding(TOP_FORM_PADDING);

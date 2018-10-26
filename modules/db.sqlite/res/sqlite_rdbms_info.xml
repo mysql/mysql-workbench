@@ -37,6 +37,7 @@
         <value  type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sqlite.driver.odbc.param5">
             <value type="string" key="caption">Database File:</value>
+            <value type="string" key="accessibilityName">Database File</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The database to connect to.</value>
             <value type="int" key="layoutAdvanced">0</value>

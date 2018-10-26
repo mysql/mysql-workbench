@@ -88,10 +88,6 @@ public:
     }
 
     // ------ Accesibility Methods -----
-    virtual std::string getAccessibilityName() override {
-      return title;
-    }
-
     virtual Accessible::Role getAccessibilityRole() override {
       return Accessible::ListItem;
     }
@@ -183,6 +179,7 @@ public:
 
     });
 
+    item->setAccessibilityName(title);
     item->title = title;
     item->sub_title = sub_title;
     item->icon = Utilities::load_icon(icon_path, true);

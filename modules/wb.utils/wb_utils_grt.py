@@ -64,7 +64,7 @@ def get_linux_terminal_program():
     return None
 
 
-@ModuleInfo.plugin('wb.tools.backupConnections', caption='Backup existing connections')
+@ModuleInfo.plugin('wb.tools.backupConnections', caption='Backup existing connections', accessibilityName="Backup Existing Connections")
 @ModuleInfo.export(grt.INT)
 def backupConnections():
     user_data_dir = mforms.App.get().get_user_data_folder()
@@ -96,7 +96,7 @@ def backupConnections():
     return 0
 
 
-@ModuleInfo.plugin('wb.tools.restoreConnections', caption='Restore connections from a backup file')
+@ModuleInfo.plugin('wb.tools.restoreConnections', caption='Restore connections from a backup file', accessibilityName="Restore Connections")
 @ModuleInfo.export(grt.INT)
 def restoreConnections():
     def generate_unique_name(name, name_set):
@@ -312,14 +312,14 @@ def connectionFromString(connstr):
     return None
 
 
-@ModuleInfo.plugin("wb.tools.copyConnectionString", caption="Copy Connection String to Clipboard", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.copyConnectionString", caption="Copy Connection String to Clipboard", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections", accessibilityName="Copy Connection String to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def copyConnectionString(conn):
     connstr = connectionStringFromConnection(conn)
     mforms.Utilities.set_clipboard_text(connstr)
 
 
-@ModuleInfo.plugin("wb.tools.copyJDBCConnectionString", caption="Copy JDBC Connection String to Clipboard", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.copyJDBCConnectionString", caption="Copy JDBC Connection String to Clipboard", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections", accessibilityName="Copy JBDC String to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def copyJDBCConnectionString(conn):
     if conn.parameterValues.has_key("schema"):
@@ -340,7 +340,7 @@ def copyJDBCConnectionString(conn):
     mforms.Utilities.set_clipboard_text(connstr+params)
 
 
-@ModuleInfo.plugin("wb.tools.createMissingLocalConnections", caption="Rescan for Local MySQL Instances", input= [], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.createMissingLocalConnections", caption="Rescan for Local MySQL Instances", input= [], pluginMenu="Home/Connections", accessibilityName="Rescan MySQL Instances")
 @ModuleInfo.export(grt.INT)
 def createMissingLocalConnections():
 
@@ -357,7 +357,7 @@ def createMissingLocalConnections():
     
     return 1
 
-@ModuleInfo.plugin("wb.tools.connectionFromClipboard", caption="Add Connection(s) from Clipboard", input= [], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.connectionFromClipboard", caption="Add Connection(s) from Clipboard", input= [], pluginMenu="Home/Connections", accessibilityName="Add Connections From Clipboard")
 @ModuleInfo.export(grt.INT)
 def newConnectionFromClipboard():
     text = mforms.Utilities.get_clipboard_text()
@@ -401,7 +401,7 @@ def newConnectionFromClipboard():
     return 1
 
 
-@ModuleInfo.plugin("wb.tools.cmdlineClient", caption="Start Command Line Client", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections")
+@ModuleInfo.plugin("wb.tools.cmdlineClient", caption="Start Command Line Client", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections", accessibilityName="Command Line Client")
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def startCommandLineClientForConnection(conn):
     import platform
@@ -521,7 +521,7 @@ def process_not_found_utils():
 
         mforms.Utilities.open_url(utilities_url)
 
-@ModuleInfo.plugin("wb.tools.utilitiesShell", caption="Start Shell for MySQL Utilities", groups=["Others/Menu/Ungrouped"])
+@ModuleInfo.plugin("wb.tools.utilitiesShell", caption="Start Shell for MySQL Utilities", groups=["Others/Menu/Ungrouped"], accessibilityName="MySQL Utilities Shell")
 @ModuleInfo.export(grt.INT)
 def startUtilitiesShell():
     import platform
@@ -632,7 +632,7 @@ class CheckForUpdateThread(threading.Thread):
 # Global variable:
 thread = CheckForUpdateThread()
 
-@ModuleInfo.plugin("wb.tools.checkForUpdates", caption="Check for Updates")
+@ModuleInfo.plugin("wb.tools.checkForUpdates", caption="Check for Updates", accessibilityName="Check for Updates")
 @ModuleInfo.export(grt.INT)
 def checkForUpdates():
     global thread

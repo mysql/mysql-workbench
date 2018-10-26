@@ -158,7 +158,8 @@ void AddOnDownloadWindow::DownloadItem::handle_output(const grt::Message &messag
 AddOnDownloadWindow::AddOnDownloadWindow(wb::WBContextUI *wbui)
   : mforms::Form(mforms::Form::main_form()), _box(false), _bbox(true), _wbui(wbui) {
   set_title("Install Add-On");
-  set_name("add_on_download");
+  set_name("Add on Download");
+  setInternalName("add_on_download");
   set_content(&_box);
   _box.set_padding(20);
   _box.set_spacing(20);
@@ -305,7 +306,8 @@ bool PluginInstallWindow::InstallItem::start() {
 PluginInstallWindow::PluginInstallWindow(wb::WBContextUI *wbui)
   : mforms::Form(mforms::Form::main_form()), _box(false), _bbox(true), _wbui(wbui) {
   set_title("Install Add-On");
-  set_name("plugin_installation");
+  set_name("Plugin Installation");
+  setInternalName("plugin_installation");
   set_content(&_box);
   _box.set_padding(20);
   _box.set_spacing(20);

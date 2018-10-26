@@ -37,7 +37,8 @@ using namespace grtui;
 using namespace mforms;
 
 WizardForm::WizardForm() : Wizard(Form::main_form()), _cancelled(false) {
-  set_name("wizard");
+  set_name("Wizard");
+  setInternalName("wizard");
   _active_page = 0;
 
   scoped_connect(signal_next_clicked(), std::bind(&WizardForm::go_to_next, this));

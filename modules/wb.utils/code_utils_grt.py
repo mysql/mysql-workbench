@@ -32,7 +32,7 @@ from sql_reformatter import node_value, node_symbol, node_children, find_child_n
 ModuleInfo = DefineModule(name= "CodeUtils", author= "Oracle Corp.", version="1.0")
 
 
-@ModuleInfo.plugin("wb.sqlide.copyAsPHPConnect", caption= "Copy as PHP Code (Connect to Server)", input= [wbinputs.currentSQLEditor()], pluginMenu= "SQL/Utilities")
+@ModuleInfo.plugin("wb.sqlide.copyAsPHPConnect", caption= "Copy as PHP Code (Connect to Server)", input= [wbinputs.currentSQLEditor()], pluginMenu= "SQL/Utilities", accessibilityName="Copy Server Connection as PHP")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def copyAsPHPConnect(editor):
     """Copies PHP code to connect to the active MySQL connection to the clipboard.
@@ -139,7 +139,7 @@ def _parse_column_name_list_from_query(query):
                 return query, columns, variables
 
 
-@ModuleInfo.plugin("wb.sqlide.copyAsPHPQueryAndFetch", caption= "Copy as PHP Code (Iterate SELECT Results)", input= [wbinputs.currentQueryBuffer()], pluginMenu= "SQL/Utilities")
+@ModuleInfo.plugin("wb.sqlide.copyAsPHPQueryAndFetch", caption= "Copy as PHP Code (Iterate SELECT Results)", input= [wbinputs.currentQueryBuffer()], pluginMenu= "SQL/Utilities", accessibilityName="Copy Select Iteration as PHP Code")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryBuffer)
 def copyAsPHPQueryAndFetch(qbuffer):
     """Copies PHP code to execute the query and iterate its results to the clipboard. The code will substitute @variables with

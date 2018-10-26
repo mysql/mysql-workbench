@@ -342,7 +342,7 @@ void CatalogTreeView::context_menu_will_show(mforms::MenuItem *parent_item) {
       }
 
       if (!caption.empty())
-        parent->add_item_with_title(caption, std::bind(&CatalogTreeView::menu_action, this, "edit", value));
+        parent->add_item_with_title(caption, std::bind(&CatalogTreeView::menu_action, this, "edit", value), "", "");
       else {
         parent->add_separator();
       }

@@ -69,8 +69,10 @@ using namespace mforms;
 
 //----------------- SidebarSection -----------------------------------------------------------------
 
-SidebarEntry::SidebarEntry(const string& name, const string& title, const string& icon, TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback) {
+SidebarEntry::SidebarEntry(const string& name, const std::string& accessibilityName, const string& title,
+                           const string& icon, TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback) {
   _name = name;
+  setAccessibilityName(accessibilityName);
   _title = title;
   _callback = callback;
   if (!icon.empty())
@@ -92,6 +94,7 @@ SidebarEntry::~SidebarEntry() {
 
 void SidebarEntry::set_title(const std::string& title) {
   _title = title;
+  setAccessibilityName(title);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,7 +168,8 @@ bool SidebarEntry::contains(double x, double y) {
 //----------------- SidebarSection -----------------------------------------------------------------
 
 SidebarSection::Button::Button(std::string const& name, std::string const& icon_name, std::string const& alt_icon_name)
-  : name(name), icon(nullptr), alt_icon(nullptr), hot(false), down(false), state(false) {
+  : icon(nullptr), alt_icon(nullptr), hot(false), down(false), state(false) {
+  setAccessibilityName(name);
   iconName = icon_name;
   altIconName = alt_icon_name;
 
@@ -473,13 +477,13 @@ void SidebarSection::update_mode_button(bool active) {
 
 //--------------------------------------------------------------------------------------------------
 
-int SidebarSection::add_entry(const std::string& name, const std::string& title, const std::string& icon,
-                              TaskEntryType type) {
+int SidebarSection::add_entry(const std::string& name, const std::string& accessibilityName, const std::string& title,
+                              const std::string& icon, TaskEntryType type) {
   int result = find_entry(name);
   if (result > -1)
     return result;
 
-  SidebarEntry* entry = new SidebarEntry(name, title, icon, type, _owner->on_section_command());
+  SidebarEntry* entry = new SidebarEntry(name, accessibilityName, title, icon, type, _owner->on_section_command());
   _entries.push_back(entry);
   set_layout_dirty(true);
 
@@ -963,7 +967,7 @@ SimpleSidebar::~SimpleSidebar() {
  */
 int SimpleSidebar::find_section(const std::string& name) {
   for (size_t i = 0; i < _sections.size(); i++) {
-    if (_sections[i]->get_name() == name)
+    if (_sections[i]->getInternalName() == name)
       return (int)i;
   }
 
@@ -972,13 +976,14 @@ int SimpleSidebar::find_section(const std::string& name) {
 
 //--------------------------------------------------------------------------------------------------
 
-int SimpleSidebar::add_section(const std::string& name, const string& title, mforms::TaskSectionFlags flags) {
+int SimpleSidebar::add_section(const std::string& name, const std::string& accessbilityName, const string& title, mforms::TaskSectionFlags flags) {
   int result = find_section(title);
   if (result > -1)
     return result;
 
   SidebarSection* box = new SidebarSection(this, title, flags);
-  box->set_name(name);
+  box->set_name(accessbilityName);
+  box->setInternalName(name);
   box->set_back_color(get_back_color());
   _sections.push_back(box);
   add(box, false, true);
@@ -1000,13 +1005,13 @@ void SimpleSidebar::remove_section(const std::string& section_name) {
 
 //--------------------------------------------------------------------------------------------------
 
-int SimpleSidebar::add_section_entry(const std::string& section_name, const std::string& name, const std::string& title,
-                                     const std::string& icon, TaskEntryType type) {
+int SimpleSidebar::add_section_entry(const std::string& section_name, const std::string& name, const std::string& accessibilityName,
+                                     const std::string& title, const std::string& icon, TaskEntryType type) {
   int index = find_section(section_name);
   if (index < 0)
     return -1;
 
-  return _sections[index]->add_entry(name, title, icon, type);
+  return _sections[index]->add_entry(name, accessibilityName, title, icon, type);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1101,7 +1106,7 @@ std::string SimpleSidebar::get_collapse_states() {
   for (int i = 0; i < (int)_sections.size(); i++) {
     if (i > 0)
       states.append(",");
-    states.append(base::strfmt("%s=%i", _sections[i]->get_name().c_str(), !_sections[i]->expanded()));
+    states.append(base::strfmt("%s=%i", _sections[i]->getInternalName().c_str(), !_sections[i]->expanded()));
   }
   return states;
 }
@@ -1271,7 +1276,8 @@ void AdvancedSidebar::setup_schema_tree() {
     }
   }
 
-  _new_schema_tree.set_name("SchemaTree");
+  _new_schema_tree.set_name("Schema Tree");
+  _new_schema_tree.setInternalName("SchemaTree");
   _new_schema_tree.add_column(mforms::IconStringColumnType, _("Schema"), 100, false, true);
   _new_schema_tree.set_selection_mode(mforms::TreeSelectMultiple);
 #ifndef __APPLE__
@@ -1296,7 +1302,8 @@ void AdvancedSidebar::setup_schema_tree() {
                  std::bind(&AdvancedSidebar::on_show_menu, this, std::placeholders::_1));
 
   _schema_search_box.set_back_color(background_color);
-  _schema_search_box.set_name("schema-search-box");
+  _schema_search_box.set_name("Schema Search Box");
+  _schema_search_box.setInternalName("schema-search-box");
   _schema_search_box.set_spacing(5);
 #ifdef _MSC_VER
   _schema_search_box.set_padding(4, 0, 6, 5);
@@ -1443,16 +1450,19 @@ void AdvancedSidebar::add_items_from_list(mforms::MenuBase& menu, const bec::Men
   for (bec::MenuItemList::const_iterator item = items.begin(); item != items.end(); ++item) {
     if (item->type == bec::MenuAction) {
       mforms::MenuItem* mitem =
-        menu.add_item_with_title(item->caption, std::bind(&AdvancedSidebar::handle_menu_command, this, item->name));
-      mitem->set_name(item->name);
+        menu.add_item_with_title(item->caption, std::bind(&AdvancedSidebar::handle_menu_command, this, item->internalName), "", "");
+      mitem->set_name(item->accessibilityName);
+      mitem->setInternalName(item->internalName);
       mitem->set_enabled(item->enabled);
     } else if (item->type == bec::MenuSeparator) {
       mforms::MenuItem* mitem = mforms::manage(new mforms::MenuItem("", mforms::SeparatorMenuItem));
-      mitem->set_name(item->name);
+      mitem->set_name(item->accessibilityName);
+      mitem->setInternalName(item->internalName);
       menu.add_item(mitem);
     } else if (item->type == bec::MenuCascade) {
       mforms::MenuItem* submenu = mforms::manage(new mforms::MenuItem(item->caption));
-      submenu->set_name(item->name);
+      submenu->set_name(item->accessibilityName);
+      submenu->setInternalName(item->internalName);
       add_items_from_list(*submenu, item->subitems);
       menu.add_submenu(submenu);
       submenu->set_enabled(item->enabled);

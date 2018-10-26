@@ -91,7 +91,7 @@ public:
 };
 
 SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
-  : mforms::AppView(true, "QueryResult", false),
+  : mforms::AppView(true, "Query Result", "QueryResult", false),
     _owner(owner),
     _tabview(mforms::TabViewTabless),
     _switcher(mforms::VerticalIconSwitcher),
@@ -123,7 +123,7 @@ SqlEditorResult::SqlEditorResult(SqlEditorPanel *owner)
   _execution_plan_placeholder = NULL;
 
   // put a placeholder for the resultset, which will be replaced when a resultset is actually available
-  _resultset_placeholder = mforms::manage(new mforms::AppView(false, "ResultGridPlaceholder", false));
+  _resultset_placeholder = mforms::manage(new mforms::AppView(false, "Result Grid Placeholder", "ResultGridPlaceholder", false));
   _resultset_placeholder->set_back_color("#ffffff");
   _resultset_placeholder->set_title("Result\nGrid");
   _resultset_placeholder->set_identifier("result_grid");
@@ -223,12 +223,12 @@ void SqlEditorResult::set_recordset(Recordset::Ref rset) {
     ->connect(std::bind(&SqlEditorResult::reset_sorting, this));
 
   _grid_header_menu = new mforms::ContextMenu();
-  _grid_header_menu->add_item_with_title("Copy Field Name", std::bind(&SqlEditorResult::copy_column_name, this));
+  _grid_header_menu->add_item_with_title("Copy Field Name", std::bind(&SqlEditorResult::copy_column_name, this), "Copy Field Name", "");
   _grid_header_menu->add_item_with_title("Copy All Field Names",
-                                         std::bind(&SqlEditorResult::copy_all_column_names, this));
+                                         std::bind(&SqlEditorResult::copy_all_column_names, this), "Copy All Field Names", "");
   _grid_header_menu->add_separator();
-  _grid_header_menu->add_item_with_title("Reset Sorting", std::bind(&SqlEditorResult::reset_sorting, this));
-  _grid_header_menu->add_item_with_title("Reset Column Widths", std::bind(&SqlEditorResult::reset_column_widths, this));
+  _grid_header_menu->add_item_with_title("Reset Sorting", std::bind(&SqlEditorResult::reset_sorting, this), "Reset Sorting", "");
+  _grid_header_menu->add_item_with_title("Reset Column Widths", std::bind(&SqlEditorResult::reset_column_widths, this), "Reset Column Widths", "");
 
   
   std::string fontDescription = bec::GRTManager::get()->get_app_option_string("workbench.general.Resultset:Font");
@@ -397,7 +397,8 @@ void SqlEditorResult::add_switch_toggle_toolbar_item(mforms::ToolBar *tbar) {
   mforms::App *app = mforms::App::get();
   tbar->add_item(mforms::manage(new mforms::ToolBarItem(mforms::ExpanderItem)));
   mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("sidetoggle");
+  item->set_name("Side Toggle");
+  item->setInternalName("sidetoggle");
   item->set_icon(app->get_resource_path("output_type-toggle-on.png"));
   item->set_alt_icon(app->get_resource_path("output_type-toggle-off.png"));
   item->signal_activated()->connect(std::bind(&SqlEditorResult::toggle_switcher_collapsed, this));
@@ -569,14 +570,17 @@ void SqlEditorResult::restore_grid_column_widths() {
 
 void SqlEditorResult::dock_result_grid(mforms::GridView *view) {
   _result_grid = view;
-  view->set_name("result-grid-wrapper");
+  view->set_name("Result Grid Wrapper");
+  view->setInternalName("result-grid-wrapper");
 
   mforms::AppView *grid_view;
   {
-    mforms::AppView *box = grid_view = mforms::manage(new mforms::AppView(false, "ResultGridView", false));
-    box->set_name("resultset-host");
+    mforms::AppView *box = grid_view = mforms::manage(new mforms::AppView(false, "Result Grid View", "ResultGridView", false));
+    box->set_name("Resultset Host");
+    box->setInternalName("resultset-host");
     mforms::ToolBar *tbar = _rset.lock()->get_toolbar();
-    tbar->set_name("resultset-toolbar");
+    tbar->set_name("Resultset Toolbar");
+    tbar->setInternalName("resultset-toolbar");
     _toolbars.push_back(tbar);
 
     add_switch_toggle_toolbar_item(tbar);
@@ -599,14 +603,14 @@ void SqlEditorResult::dock_result_grid(mforms::GridView *view) {
     _tabdock.dock_view(_form_result_view, "output_type-formeditor.png");
   }
   {
-    _column_info_box = mforms::manage(new mforms::AppView(false, "ResultFieldTypes", false));
+    _column_info_box = mforms::manage(new mforms::AppView(false, "Result Field Types", "ResultFieldTypes", false));
     _column_info_box->set_back_color("#ffffff");
     _column_info_box->set_title("Field\nTypes");
     _column_info_box->set_identifier("column_info");
     _tabdock.dock_view(_column_info_box, "output_type-fieldtypes.png");
   }
   {
-    _query_stats_box = mforms::manage(new mforms::AppView(false, "ResultQueryStats", false));
+    _query_stats_box = mforms::manage(new mforms::AppView(false, "Result Query Stats", "ResultQueryStats", false));
     _query_stats_box->set_back_color("#ffffff");
     _query_stats_box->set_title("Query\nStats");
     _query_stats_box->set_identifier("query_stats");
@@ -632,7 +636,7 @@ void SqlEditorResult::dock_result_grid(mforms::GridView *view) {
     }
   }
   if (!has_explain_tab) {
-    _execution_plan_placeholder = mforms::manage(new mforms::AppView(false, "ExecutionPlan", false));
+    _execution_plan_placeholder = mforms::manage(new mforms::AppView(false, "Execution Plan", "ExecutionPlan", false));
     _execution_plan_placeholder->set_back_color("#ffffff");
     _execution_plan_placeholder->set_title("Execution\nPlan");
     _execution_plan_placeholder->set_identifier("execution_plan");
@@ -664,10 +668,11 @@ void SqlEditorResult::create_spatial_view_panel_if_needed() {
       }
       _spatial_result_view = mforms::manage(new SpatialDataView(this));
       add_switch_toggle_toolbar_item(_spatial_result_view->get_toolbar());
-      mforms::AppView *box = mforms::manage(new mforms::AppView(false, "SpatialView", false));
+      mforms::AppView *box = mforms::manage(new mforms::AppView(false, "Spatial View", "SpatialView", false));
       box->set_title("Spatial\nView");
       box->set_identifier("spatial_result_view");
-      box->set_name("spatial-host");
+      box->set_name("Spatial Host");
+      box->setInternalName("spatial-host");
       box->add(_spatial_result_view, true, true);
       _tabdock.dock_view(box, "output_type-spacialview.png");
     }
@@ -752,9 +757,9 @@ void SqlEditorResult::create_column_info_panel() {
       tree->set_selection_mode(mforms::TreeSelectMultiple);
 
       _column_info_menu = new mforms::ContextMenu();
-      _column_info_menu->add_item_with_title("Copy", std::bind(&SqlEditorResult::copy_column_info, this, tree));
+      _column_info_menu->add_item_with_title("Copy", std::bind(&SqlEditorResult::copy_column_info, this, tree), "Copy", "");
       _column_info_menu->add_item_with_title("Copy Name",
-                                             std::bind(&SqlEditorResult::copy_column_info_name, this, tree));
+                                             std::bind(&SqlEditorResult::copy_column_info_name, this, tree), "Copy Name", "");
       tree->set_context_menu(_column_info_menu);
 
       int i = 0;

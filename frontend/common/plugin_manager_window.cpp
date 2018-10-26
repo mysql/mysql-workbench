@@ -37,7 +37,8 @@ PluginManagerWindow::PluginManagerWindow(wb::WBContext *wb)
     plugin_info_panel(LineBorderPanel),
     plugin_info_box(false),
     plugin_details_box(false) {
-  set_name("plugin_manager");
+  set_name("Plugin Manager");
+  setInternalName("plugin_manager");
   Box *top = manage(new Box(false));
   Box *middle = manage(new Box(true));
 

@@ -294,9 +294,10 @@ class ObjectManager(mforms.Box):
 
 
                 separator = mforms.newMenuItem("", mforms.SeparatorMenuItem)
-                separator.set_name("bottom_plugins_separator")
+                separator.set_name("Bottom Plugins Separator")
+                separator.setInternalName("bottom_plugins_separator")
                 self.menu.add_item(separator)
-                self.menu.add_item_with_title("Refresh", self.refresh, "refresh")
+                self.menu.add_item_with_title("Refresh", self.refresh, "Refresh", "refresh")
 
                 args = grt.Dict()
                 args["selection"] = selection
@@ -1037,7 +1038,7 @@ class SchemaInfoPanel(mforms.Box):
 
 class SchemaManager(mforms.AppView):
     def __init__(self, editor, schema_name):
-        mforms.AppView.__init__(self, False, "schema_inspector", False)
+        mforms.AppView.__init__(self, False, "Schema Inspector", "schema_inspector", False)
 
         self.editor = editor
 

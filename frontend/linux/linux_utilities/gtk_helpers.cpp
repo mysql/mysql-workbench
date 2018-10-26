@@ -302,7 +302,7 @@ static void populate_popup_menu(const bec::MenuItemList &items, const int time,
 
   for (; last_item != cur_item; cur_item++) {
     Gtk::MenuItem *item = Gtk::manage(new Gtk::MenuItem(base::replaceString(cur_item->caption, "_", "__"), true));
-    item->set_name(cur_item->name);
+    item->set_name(cur_item->accessibilityName);
     item->set_sensitive(cur_item->enabled);
     // not support in Gtk from Ubuntu 8.04
     // item->set_use_underline(false);
@@ -313,7 +313,7 @@ static void populate_popup_menu(const bec::MenuItemList &items, const int time,
       case bec::MenuAction:
       case bec::MenuUnavailable: {
         if (item)
-          item->signal_activate().connect(sigc::bind(activate_slot, cur_item->name));
+          item->signal_activate().connect(sigc::bind(activate_slot, cur_item->internalName));
         break;
       }
       case bec::MenuCascade: {
@@ -329,7 +329,7 @@ static void populate_popup_menu(const bec::MenuItemList &items, const int time,
         Gtk::CheckMenuItem *citem = Gtk::manage(new Gtk::CheckMenuItem(cur_item->caption, true));
         item = citem;
         citem->set_active(cur_item->checked);
-        citem->signal_activate().connect(sigc::bind(activate_slot, cur_item->name));
+        citem->signal_activate().connect(sigc::bind(activate_slot, cur_item->internalName));
         break;
       }
       case bec::MenuSeparator: {
@@ -339,7 +339,7 @@ static void populate_popup_menu(const bec::MenuItemList &items, const int time,
       }
       default: {
         g_message("%s: WARNING! unhandled menuitem type %i, '%s'", __FUNCTION__, cur_item->type,
-                  cur_item->name.c_str());
+                  cur_item->internalName.c_str());
         break;
       }
     }

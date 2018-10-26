@@ -40,7 +40,7 @@ def printTableLine(fields, filler= " "):
 # @wbplugin defines the name of the plugin to "wb.catalog.util.dumpColumns", sets the caption to be
 # shown in places like the menu, where to take input arguments from and also that it should be included
 # in the Catalog submenu in Plugins.
-@ModuleInfo.plugin("wb.catalog.util.dumpColumns", caption= "Dump All Table Columns", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog")
+@ModuleInfo.plugin("wb.catalog.util.dumpColumns", caption= "Dump All Table Columns", input= [wbinputs.currentCatalog()], pluginMenu= "Catalog", accessibilityName="Dump Columns")
 @ModuleInfo.export(grt.INT, grt.classes.db_Catalog)
 def printAllColumns(catalog):
     lines= []
@@ -73,7 +73,7 @@ def printAllColumns(catalog):
 
 
 
-@ModuleInfo.plugin("wb.model.print_diagram_pdf", caption= "Export Diagram to PDF...", input= [wbinputs.selectedDiagram()], pluginMenu="Overview")
+@ModuleInfo.plugin("wb.model.print_diagram_pdf", caption= "Export Diagram to PDF...", input= [wbinputs.selectedDiagram()], pluginMenu="Overview", accessibilityName="Export Diagram to PDF")
 @ModuleInfo.export(grt.INT, grt.classes.model_Diagram)
 def printDiagramToPDF(diagram):
     fc = mforms.FileChooser(mforms.Form.main_form(), mforms.SaveFile)
@@ -243,7 +243,7 @@ $document, $doc_version, $doc_author, $doc_project, $doc_date_changed, $doc_date
 
 
 
-@ModuleInfo.plugin("wb.model.print_model", caption= "Print Model to File", input= [wbinputs.currentModel()])
+@ModuleInfo.plugin("wb.model.print_model", caption= "Print Model to File", input= [wbinputs.currentModel()], accessibilityName="Print Model to File")
 @ModuleInfo.export(grt.INT, grt.classes.model_Model)
 def printModel(model):
     dlg = PrintToFileDialog(model)
@@ -252,7 +252,7 @@ def printModel(model):
 
 
 # Quick impl for Rename Diagram... item in modeling overview
-@ModuleInfo.plugin("wb.model.rename_diagram", caption= "Rename Diagram...", input= [wbinputs.selectedDiagram()], pluginMenu="Overview")
+@ModuleInfo.plugin("wb.model.rename_diagram", caption= "Rename Diagram...", input= [wbinputs.selectedDiagram()], pluginMenu="Overview", accessibilityName="Rename Diagram")
 @ModuleInfo.export(grt.INT, grt.classes.model_Diagram)
 def renameDiagram(diagram):
     ret, name = mforms.Utilities.request_input("Rename Diagram", "Enter new name for the diagram", diagram.name)

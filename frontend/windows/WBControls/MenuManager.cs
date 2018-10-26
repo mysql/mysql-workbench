@@ -115,7 +115,7 @@ namespace MySQL.Utilities
               System.Windows.Forms.ToolStripMenuItem smitem;
 
               smitem = new System.Windows.Forms.ToolStripMenuItem();
-              smitem.Name = subitem.get_name();
+              smitem.Name = subitem.getInternalName();
               smitem.Text = subitem.get_caption();
               smitem.ShortcutKeys = shortcut;
               smitem.Enabled = subitem.get_enabled();
@@ -135,7 +135,7 @@ namespace MySQL.Utilities
               System.Windows.Forms.ToolStripMenuItem smitem;
 
               smitem = new System.Windows.Forms.ToolStripMenuItem();
-              smitem.Name = subitem.get_name();
+              smitem.Name = subitem.getInternalName();
               smitem.Text = subitem.get_caption();
               smitem.ShortcutKeys = shortcut;
               smitem.Enabled = subitem.get_enabled();
@@ -154,11 +154,11 @@ namespace MySQL.Utilities
               System.Windows.Forms.ToolStripMenuItem smitem;
 
               smitem = new System.Windows.Forms.ToolStripMenuItem();
-              smitem.Name = subitem.get_name();
+              smitem.Name = subitem.getInternalName();
               smitem.Text = subitem.get_caption();
               smitem.ShortcutKeys = shortcut;
               smitem.Enabled = subitem.get_enabled();
-              buildSubmenu(smitem, subitem.get_name(), subitem.get_subitems(), handler);
+              buildSubmenu(smitem, subitem.getInternalName(), subitem.get_subitems(), handler);
               itemlist[i++] = smitem;
               break;
             }

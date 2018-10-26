@@ -55,6 +55,9 @@ namespace mforms {
       static void insert_item(MenuBase *menu, int index, MenuItem *item);
       static void remove_item(MenuBase *menu, MenuItem *item); // NULL item to remove all
       static void popup_menu(mforms::ContextMenu *menu, View *owner, base::Point location);
+      
+      static void set_name(MenuItem *item, const std::string &);
+      static std::string get_name(MenuItem *item);
     };
 
   }; // namespace gtk

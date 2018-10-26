@@ -99,7 +99,7 @@
           item.target = self;
           if (!iter->enabled)
             [item setEnabled: NO];
-          item.representedObject = [NSString stringWithCPPString: iter->name];
+          item.representedObject = [NSString stringWithCPPString: iter->internalName];
         }
       }
       return menu;

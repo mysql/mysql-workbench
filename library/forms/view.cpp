@@ -135,7 +135,7 @@ void View::remove_from_cache(View *sv) {
 View *View::find_subview(const std::string &name) {
   for (std::vector<std::pair<View *, bool> >::const_iterator iter = _subviews.begin(); iter != _subviews.end();
        ++iter) {
-    if (iter->first->get_name() == name)
+    if (iter->first->getInternalName() == name)
       return iter->first;
 
     View *sv = iter->first->find_subview(name);
@@ -184,8 +184,6 @@ bool View::contains_subview(View *subview) {
 //--------------------------------------------------------------------------------------------------
 
 void View::set_name(const std::string &name) {
-  _name = name;
-
   // Optional implementation.
   if (_view_impl->set_name)
     _view_impl->set_name(this, name);
@@ -205,9 +203,16 @@ void View::set_font(const std::string &fontDescription) {
 
 //--------------------------------------------------------------------------------------------------
 
-std::string View::get_name() {
-  return _name;
+void View::setInternalName(const std::string &name) {
+  _internalName = name;
 }
+
+//--------------------------------------------------------------------------------------------------
+
+std::string View::getInternalName() const {
+    return _internalName;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 

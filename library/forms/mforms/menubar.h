@@ -47,6 +47,7 @@ namespace mforms {
     bool (*create_menu_item)(MenuItem *item, const std::string &, const MenuItemType type);
     void (*set_title)(MenuItem *item, const std::string &);
     std::string (*get_title)(MenuItem *item);
+    void (*set_name)(MenuItem *item, const std::string &);
     void (*set_shortcut)(MenuItem *item, const std::string &);
     void (*set_enabled)(MenuBase *item, bool);
     bool (*get_enabled)(MenuBase *item);
@@ -85,9 +86,9 @@ namespace mforms {
     int item_count();
 
 #ifndef SWIG
-    MenuItem *add_item_with_title(const std::string &title, std::function<void()> action, const std::string &name = "");
+    MenuItem *add_item_with_title(const std::string &title, std::function<void()> action, const std::string &name, const std::string &internalName);
     MenuItem *add_check_item_with_title(const std::string &title, std::function<void()> action,
-                                        const std::string &name = "");
+                                        const std::string &name, const std::string &internalName);
 #endif
     MenuItem *add_separator();
 
@@ -125,6 +126,8 @@ namespace mforms {
     void set_title(const std::string &title);
     std::string get_title();
 
+    void set_name(const std::string &name);
+
     void set_shortcut(const std::string &shortcut);
     std::string get_shortcut() {
       return _shortcut;
@@ -138,9 +141,11 @@ namespace mforms {
       return &_clicked_signal;
     }
 #endif
-    void set_name(const std::string &name);
-    std::string get_name() {
-      return _name;
+    void setInternalName(const std::string &name) {
+        _internalName = name;
+    }
+    std::string getInternalName() {
+      return _internalName;
     }
 
     MenuItemType get_type() {
@@ -155,7 +160,7 @@ namespace mforms {
     virtual void validate();
 
   private:
-    std::string _name;
+    std::string _internalName;
     std::string _shortcut;
     std::vector<validator_function> _validators;
     boost::signals2::signal<void()> _clicked_signal;

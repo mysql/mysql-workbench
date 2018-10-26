@@ -213,8 +213,9 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar() {
           item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
 
           item->set_icon(IconManager::get_instance()->get_icon_path(*titem->icon()));
-          item->set_name((*titem->command()).substr(strlen("tool:")));
-          scoped_connect(item->signal_activated(), std::bind(&ModelDiagramForm::set_tool, this, item->get_name()));
+          item->set_name(*titem->accessibilityName());
+          item->setInternalName(base::split(*titem->command(), ":").back());
+          scoped_connect(item->signal_activated(), std::bind(&ModelDiagramForm::set_tool, this, item->getInternalName()));
         }
         std::string shortcut;
         for (std::vector<WBShortcut>::const_iterator iter = _shortcuts.begin(); iter != _shortcuts.end(); ++iter) {
@@ -230,7 +231,7 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar() {
 
         _tools_toolbar->add_item(item);
 
-        if (item->get_name() == DEFAULT_TOOL)
+        if (item->getInternalName() == DEFAULT_TOOL)
           item->set_checked(true);
       }
       toolbar[t]->reset_references();
@@ -351,7 +352,8 @@ void ModelDiagramForm::update_options_toolbar() {
     if (!titem->altIcon().empty())
       item->set_alt_icon(IconManager::get_instance()->get_icon_path(*titem->altIcon()));
 
-    item->set_name(titem->name());
+    item->set_name(titem->accessibilityName());
+    item->setInternalName(titem->name());
     item->set_tooltip(titem->tooltip());
 
     _options_toolbar->add_item(item);
@@ -381,7 +383,7 @@ std::vector<std::string> ModelDiagramForm::get_dropdown_items(const std::string 
 void ModelDiagramForm::select_dropdown_item(const std::string &option, mforms::ToolBarItem *item) {
   WBComponent *compo;
 
-  compo = get_wb()->get_component_named(base::split(item->get_name(), "/")[0]);
+  compo = get_wb()->get_component_named(base::split(item->getInternalName(), "/")[0]);
   if (compo) {
     std::string::size_type p = option.find(':');
     if (p != std::string::npos) {
@@ -730,7 +732,6 @@ void ModelDiagramForm::handle_mouse_button(mdc::MouseButton button, bool press, 
   if (button == mdc::ButtonRight && !press) {
     model_ObjectRef object = get_object_at(pos);
 
-    bec::MenuItem item;
     bec::MenuItemList items;
 
     // If the user clicks in a selected object or in the view just show popup.
@@ -904,7 +905,7 @@ void ModelDiagramForm::set_tool(std::string tool) {
   std::vector<mforms::ToolBarItem *> items = _tools_toolbar->get_items();
   for (std::vector<mforms::ToolBarItem *>::iterator item = items.begin(); item != items.end(); ++item) {
     if ((*item)->get_type() == mforms::ToggleItem) {
-      if ((*item)->get_name() == _tool)
+      if ((*item)->getInternalName() == _tool)
         (*item)->set_checked(true);
       else
         (*item)->set_checked(false);

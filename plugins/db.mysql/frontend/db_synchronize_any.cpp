@@ -241,7 +241,7 @@ public:
 class WbSynchronizeAnyWizard : public WizardPlugin {
 public:
   WbSynchronizeAnyWizard(grt::Module *module) : WizardPlugin(module) {
-    set_name("synchronize_any_wizard");
+    set_name("Synchronize With Any Source Wizard");
     // Start with intro page
     add_page(mforms::manage(_description_page = new DescriptionPage(this)));
 

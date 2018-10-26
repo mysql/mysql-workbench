@@ -1075,7 +1075,8 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     bool ro = is_readonly();
 
     mforms::MenuItem *item = mforms::manage(new mforms::MenuItem(ro ? "Open Value in Viewer" : "Open Value in Editor"));
-    item->set_name("edit_cell"); // action in higher level
+    item->set_name("Edit Cell"); // action in higher level
+    item->setInternalName("edit_cell");
 
     item->set_enabled((rows.size() == 1) && (clicked_column >= 0));
     if (item->get_enabled()) {
@@ -1093,14 +1094,14 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     if (clicked_column >= 0 && isGeometry(clicked_column)) {
       item = _context_menu->add_item_with_title("Show point in browser",
                                                 std::bind(&Recordset::activate_menu_item, this, "show_in_browser", rows, clicked_column),
-                                                "show_in_browser");
+                                                "Show point in browser", "show_in_browser");
     }
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title(
       "Set Field to NULL", std::bind(&Recordset::activate_menu_item, this, "set_to_null", rows, clicked_column),
-      "set_to_null");
+      "Set Field to NULL", "set_to_null");
 
 // On Windows we can select individual cells, so it is perfectly ok to allow acting on multiple
 // cells. The other platforms only select entire rows in the multi-selection case.
@@ -1113,7 +1114,7 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
 
     item = _context_menu->add_item_with_title(
       "Mark Field Value as a Function/Literal",
-      std::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column), "set_to_function");
+      std::bind(&Recordset::activate_menu_item, this, "set_to_function", rows, clicked_column), "Mark Fiels as Function or Literal", "set_to_function");
 #ifdef _MSC_VER
     item->set_enabled(clicked_column >= 0 && !ro);
 #else
@@ -1122,57 +1123,58 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
 
     item = _context_menu->add_item_with_title(
       "Delete Row(s)", std::bind(&Recordset::activate_menu_item, this, "delete_row", rows, clicked_column),
-      "delete_row");
+      "Delete Rows", "delete_row");
     item->set_enabled(rows.size() > 0 && !ro);
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title(
       "Load Value From File...",
-      std::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column), "load_from_file");
+      std::bind(&Recordset::activate_menu_item, this, "load_from_file", rows, clicked_column), "Load Value From File", "load_from_file");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
 
     item = _context_menu->add_item_with_title(
       "Save Value To File...", std::bind(&Recordset::activate_menu_item, this, "save_to_file", rows, clicked_column),
-      "save_to_file");
+      "Save Value To File", "save_to_file");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1 && !ro);
 
     _context_menu->add_separator();
 
     item = _context_menu->add_item_with_title(
-      "Copy Row", std::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column), "copy_row");
+      "Copy Row", std::bind(&Recordset::activate_menu_item, this, "copy_row", rows, clicked_column), "Copy Row", "copy_row");
     item->set_enabled(rows.size() > 0);
     item = _context_menu->add_item_with_title(
       "Copy Row (with names)",
       std::bind(&Recordset::activate_menu_item, this, "copy_row_with_names", rows, clicked_column),
-      "copy_row_with_names");
+      "Copy Row With Names", "copy_row_with_names");
 
     item = _context_menu->add_item_with_title(
       "Copy Row (unquoted)", std::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted", rows, clicked_column),
-      "copy_row_unquoted");
+      "Copy Row Unquoted", "copy_row_unquoted");
     item->set_enabled(rows.size() > 0);
     item = _context_menu->add_item_with_title(
       "Copy Row (with names, unquoted)",
       std::bind(&Recordset::activate_menu_item, this, "copy_row_unquoted_with_names", rows, clicked_column),
-      "copy_row_unquoted_with_names");
+      "Copy Row With Names and Unquoted)", "copy_row_unquoted_with_names");
 
     item = _context_menu->add_item_with_title(
       "Copy Row (tab separated)",
-      std::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column), "copy_row_tabsep");
+      std::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
+      "Copy Row Tab Separated", "copy_row_tabsep");
     item->set_enabled(rows.size() > 0);
 
     item = _context_menu->add_item_with_title(
-      "Copy Field", std::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column), "copy_field");
+      "Copy Field", std::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column), "Copy Field", "copy_field");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
     item = _context_menu->add_item_with_title(
       "Copy Field (unquoted)",
       std::bind(&Recordset::activate_menu_item, this, "copy_field_unquoted", rows, clicked_column),
-      "copy_field_unquoted");
+      "Copy Field (unquoted)", "copy_field_unquoted");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
     item = _context_menu->add_item_with_title(
-      "Paste Row", std::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column), "paste_row");
+      "Paste Row", std::bind(&Recordset::activate_menu_item, this, "paste_row", rows, clicked_column), "Paste Row", "paste_row");
     item->set_enabled(rows.size() <= 1 && !mforms::Utilities::get_clipboard_text().empty() && !ro);
 
     if (update_selection_for_menu_extra)
@@ -1372,10 +1374,11 @@ std::string Recordset::status_text() {
 }
 
 static mforms::ToolBarItem *add_toolbar_action_item(mforms::ToolBar *toolbar, bec::IconManager *im,
-                                                    const std::string &item_icon, const std::string &item_name,
-                                                    const std::string &item_tooltip) {
+                                                    const std::string &accessibilityName, const std::string &item_icon,
+                                                    const std::string &item_name, const std::string &item_tooltip) {
   mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name(item_name);
+  item->set_name(accessibilityName);
+  item->setInternalName(item_name);
   item->set_icon(im->get_icon_path(item_icon));
   item->set_tooltip(item_tooltip);
   toolbar->add_item(item);
@@ -1383,14 +1386,16 @@ static mforms::ToolBarItem *add_toolbar_action_item(mforms::ToolBar *toolbar, be
 }
 
 static mforms::ToolBarItem *add_toolbar_action_item(mforms::ToolBar *toolbar, bec::IconManager *im,
-                                                    const std::string &item_name, const std::string &item_tooltip) {
-  return add_toolbar_action_item(toolbar, im, item_name + ".png", item_name, item_tooltip);
+                                                    const std::string &accessibilityName, const std::string &item_name,
+                                                    const std::string &item_tooltip) {
+  return add_toolbar_action_item(toolbar, im, accessibilityName, item_name + ".png", item_name, item_tooltip);
 }
 
-static void add_toolbar_label_item(mforms::ToolBar *toolbar, const std::string &label) {
+static void add_toolbar_label_item(mforms::ToolBar *toolbar, const std::string &label, const std::string &name) {
   mforms::ToolBarItem *item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-  ;
+  
   item->set_text(label);
+  item->set_name(name);
   toolbar->add_item(item);
 }
 
@@ -1418,15 +1423,15 @@ void Recordset::rebuild_toolbar() {
     bec::IconManager *im = bec::IconManager::get_instance();
 
     item =
-      add_toolbar_action_item(_toolbar, im, "record_sort_reset.png", "record_sort_reset", "Resets all sorted columns");
+      add_toolbar_action_item(_toolbar, im, "Reset Record Sort", "record_sort_reset.png", "record_sort_reset", "Resets all sorted columns");
 
     if (!_data_storage || _data_storage->reloadable()) {
-      item = add_toolbar_action_item(_toolbar, im, "record_refresh.png", "record_refresh",
+      item = add_toolbar_action_item(_toolbar, im, "Refresh", "record_refresh.png", "record_refresh",
                                      "Refresh data re-executing the original query");
       item->signal_activated()->connect(std::bind(&Recordset::refresh, this));
     }
 
-    add_toolbar_label_item(_toolbar, "Filter Rows:");
+    add_toolbar_label_item(_toolbar, "Filter Rows:", "Filter Rows");
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::SearchFieldItem));
     item->set_name("Search Field");
@@ -1435,44 +1440,46 @@ void Recordset::rebuild_toolbar() {
 
     if (!is_readonly() || _inserts_editor) {
       _toolbar->add_separator_item();
-      add_toolbar_label_item(_toolbar, "Edit:");
-      add_toolbar_action_item(_toolbar, im, "record_edit", "Edit current row");    // connect in frontend
-      add_toolbar_action_item(_toolbar, im, "record_add", "Insert new row");       // connect in frontend
-      add_toolbar_action_item(_toolbar, im, "record_del", "Delete selected rows"); // connect in frontend
+      add_toolbar_label_item(_toolbar, "Edit:", "Edit");
+      add_toolbar_action_item(_toolbar, im, "Edit Row", "record_edit", "Edit current row");    // connect in frontend
+      add_toolbar_action_item(_toolbar, im, "Insert Row", "record_add", "Insert new row");       // connect in frontend
+      add_toolbar_action_item(_toolbar, im, "Delete Selected", "record_del", "Delete selected rows"); // connect in frontend
     }
     _toolbar->add_separator_item();
     if (!is_readonly() || _inserts_editor)
-      add_toolbar_label_item(_toolbar, "Export/Import:");
+      add_toolbar_label_item(_toolbar, "Export/Import:", "Export or Import");
     else
-      add_toolbar_label_item(_toolbar, "Export:");
-    add_toolbar_action_item(_toolbar, im, "record_export", "Export recordset to an external file");
+      add_toolbar_label_item(_toolbar, "Export:", "Export or Import");
+    add_toolbar_action_item(_toolbar, im, "Export Record", "record_export",
+                            "Export recordset to an external file");
     if (!is_readonly() || _inserts_editor)
-      add_toolbar_action_item(_toolbar, im, "record_import", "Import records from an external file");
+      add_toolbar_action_item(_toolbar, im, "Record Import", "record_import",
+                              "Import records from an external file");
 
 #ifndef __APPLE__
     _toolbar->add_separator_item();
-    add_toolbar_label_item(_toolbar, "Wrap Cell Content:");
-    add_toolbar_action_item(_toolbar, im, "record_wrap_vertical",
+    add_toolbar_label_item(_toolbar, "Wrap Cell Content:", "Wrap Cell Content");
+    add_toolbar_action_item(_toolbar, im, "Wrap Vertical", "record_wrap_vertical",
                             "Toggle wrapping of cell contents"); // connect in frontend
 #endif
 
     if (limit_rows_applicable()) {
       _toolbar->add_separator_item();
-      add_toolbar_label_item(_toolbar, "Fetch rows:");
-      item = add_toolbar_action_item(_toolbar, im, "record_fetch_prev.png", "scroll_rows_frame_backward",
+      add_toolbar_label_item(_toolbar, "Fetch rows:", "Fetch Rows");
+      item = add_toolbar_action_item(_toolbar, im, "Fetch Previous", "record_fetch_prev.png",
                                      "Fetch previous frame of records from the data source");
       item->signal_activated()->connect(std::bind(&Recordset::scroll_rows_frame_backward, this));
-      item = add_toolbar_action_item(_toolbar, im, "record_fetch_next.png", "scroll_rows_frame_forward",
+      item = add_toolbar_action_item(_toolbar, im, "Fetch Next", "record_fetch_next.png", "scroll_rows_frame_forward",
                                      "Fetch next frame of records from the data source");
       item->signal_activated()->connect(std::bind(&Recordset::scroll_rows_frame_forward, this));
     }
 
     if (_inserts_editor /* && !is_readonly()*/) {
       _toolbar->add_separator_item();
-      add_toolbar_label_item(_toolbar, "Apply changes:");
-      item = add_toolbar_action_item(_toolbar, im, "record_save", "Apply changes to data");
+      add_toolbar_label_item(_toolbar, "Apply changes:", "Apply Changes");
+      item = add_toolbar_action_item(_toolbar, im, "Save Record", "record_save", "Apply changes to data");
       item->signal_activated()->connect(std::bind(&Recordset::apply_changes, this));
-      item = add_toolbar_action_item(_toolbar, im, "record_discard", "Discard changes to data");
+      item = add_toolbar_action_item(_toolbar, im, "Discard Record", "record_discard", "Discard changes to data");
       item->signal_activated()->connect(std::bind(&Recordset::rollback, this));
     }
   }

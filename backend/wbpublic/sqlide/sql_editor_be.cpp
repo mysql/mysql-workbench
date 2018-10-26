@@ -388,21 +388,24 @@ void MySQLEditor::set_base_toolbar(mforms::ToolBar *toolbar) {
 
   if (d->_is_sql_check_enabled) {
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("query.beautify");
+    item->set_name("Beautify");
+    item->setInternalName("query.beautify");
     item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_beautifier.png"));
     item->set_tooltip(_("Beautify/reformat the SQL script"));
     scoped_connect(item->signal_activated(), std::bind(beautify_script, this));
     d->_toolbar->add_item(item);
   }
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("query.search");
+  item->set_name("Search");
+  item->setInternalName("query.search");
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_find.png"));
   item->set_tooltip(_("Show the Find panel for the editor"));
   scoped_connect(item->signal_activated(), std::bind(show_find_panel_for_active_editor, this));
   d->_toolbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.toggleInvisible");
+  item->set_name("Toggle Invisible");
+  item->setInternalName("query.toggleInvisible");
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_special-chars-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_special-chars-off.png"));
   item->set_tooltip(_("Toggle display of invisible characters (spaces, tabs, newlines)"));
@@ -410,7 +413,8 @@ void MySQLEditor::set_base_toolbar(mforms::ToolBar *toolbar) {
   d->_toolbar->add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
-  item->set_name("query.toggleWordWrap");
+  item->set_name("Toggle Word Wrap");
+  item->setInternalName("query.toggleWordWrap");
   item->set_alt_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_word-wrap-on.png"));
   item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_word-wrap-off.png"));
   item->set_tooltip(_("Toggle wrapping of long lines (keep this off for large files)"));
@@ -458,14 +462,16 @@ mforms::ToolBar *MySQLEditor::get_toolbar(bool include_file_actions) {
       mforms::ToolBarItem *item;
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-      item->set_name("query.openFile");
+      item->set_name("Open File");
+      item->setInternalName("query.openFile");
       item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_open.png"));
       item->set_tooltip(_("Open a script file in this editor"));
       scoped_connect(item->signal_activated(), std::bind(open_file, this));
       d->_toolbar->add_item(item);
 
       item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-      item->set_name("query.saveFile");
+      item->set_name("Save File");
+      item->setInternalName("query.saveFile");
       item->set_icon(IconManager::get_instance()->get_icon_path("qe_sql-editor-tb-icon_save.png"));
       item->set_tooltip(_("Save the script to a file."));
       scoped_connect(item->signal_activated(), std::bind(save_file, this));

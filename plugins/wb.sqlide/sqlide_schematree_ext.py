@@ -136,15 +136,18 @@ def handleLiveTreeContextMenu(name, sender, args):
 
         if False and object_selected and selection_type == 'db.Table':
             item = mforms.newMenuItem(_("Export Data to CSV File..."))
-            item.set_name("export_table_csv")
+            item.set_name("Export Table to CSV")
+            item.setInternalName("export_table_csv")
             menu.insert_item(index-1, item)
             index += 1
             item = mforms.newMenuItem(_("Import Data from CSV File..."))
-            item.set_name("import_table_csv")
+            item.set_name("Import Table to CSV")
+            item.setInternalName("import_table_csv")
             menu.insert_item(index-1, item)
             index += 1
             item = mforms.newMenuItem(_("Dump Data to SQL File..."))
-            item.set_name("dump_table")
+            item.set_name("Dump Table")
+            item.setInternalName("dump_table")
             menu.insert_item(index-1, item)
             index += 1
 
@@ -152,40 +155,42 @@ def handleLiveTreeContextMenu(name, sender, args):
             # Add menu items for generating code
             code_items = [
                           # Caption, callback name, supported node types, enable condition, mixed node types allowed
-                          (_("Name"), 'name_short', ['db.Schema'], len(selection) > 0, False),
-                          (_("Name (short)"), 'name_short', ['tables', 'views', 'functions', 'storedProcedures', 'db.Table', 'db.Table:db.Column', 'db.View:db.Column', 'db.View', 'db.StoredProcedure', 'db.Function'], len(selection) > 0, True),
-                          (_("Name (long)"), 'name_long', ['tables', 'views', 'functions', 'storedProcedures', 'db.Table', 'db.Table:db.Column', 'db.View:db.Column', 'db.View', 'db.StoredProcedure', 'db.Function'], len(selection) > 0, True),
-                          (_("Select All Statement"), 'select_all_statement', ['db.Table', 'db.View'], len(selection) > 0, False),
-                          (_("Select All Statement"), 'select_all_statement', ['columns'], len(selection) == 1 and selection[0].type == 'columns', False),
-                          (_("Select Columns Statement"), 'select_columns_statement', ['db.Table:db.Column', 'db.View:db.Column'], len(unique_tables) == 1, False),
-                          (_("Insert Statement"), 'insert_all_statement', ['db.Table', 'columns'], len(selection) > 0, False),
-                          (_("Insert Statement"), 'insert_columns_statement', ['db.Table:db.Column'], len(selection) > 0, False),
-                          (_("Update Statement"), 'update_all_statement', ['db.Table', 'columns'], len(selection) > 0, False),
-                          (_("Update Statement"), 'update_columns_statement', ['db.Table:db.Column'], len(selection) > 0, False),
-                          (_("Delete Statement"), 'delete_statement', ['db.Table'], len(selection) > 0, False),
-                          (_("Create Statement"), 'create_statement', ['db.Schema', 'db.Table', 'db.View', 'db.StoredProcedure', 'db.Function'], len(selection) > 0, False),
-                          (_("Procedure Call"), 'call_procedure', ['db.StoredProcedure'], len(selection) > 0, False),
-                          (_("Function Call"), 'call_function', ['db.Function'], len(selection) > 0, False),
-                          (None, None, ['db.Table'], None, False),
-                          (_("Join Selected Tables"), 'build_joined_select', ['db.Table'], len(selection) == 2, False),
-                          (_("Delete with References"), 'build_cascaded_delete', ['db.Table'], len(selection) == 1, False),
-                          (_("Select Row References"), 'build_cascaded_select', ['db.Table'], len(selection) == 1, False),
+                          (_("Name"), "Name", 'name_short', ['db.Schema'], len(selection) > 0, False),
+                          (_("Name (short)"), "Short Name", 'name_short', ['tables', 'views', 'functions', 'storedProcedures', 'db.Table', 'db.Table:db.Column', 'db.View:db.Column', 'db.View', 'db.StoredProcedure', 'db.Function'], len(selection) > 0, True),
+                          (_("Name (long)"), "Long Name", 'name_long', ['tables', 'views', 'functions', 'storedProcedures', 'db.Table', 'db.Table:db.Column', 'db.View:db.Column', 'db.View', 'db.StoredProcedure', 'db.Function'], len(selection) > 0, True),
+                          (_("Select All Statement"), "Select All Statement", 'select_all_statement', ['db.Table', 'db.View'], len(selection) > 0, False),
+                          (_("Select All Statement"), "Select All Statement", 'select_all_statement', ['columns'], len(selection) == 1 and selection[0].type == 'columns', False),
+                          (_("Select Columns Statement"), "Select Columns Statement", 'select_columns_statement', ['db.Table:db.Column', 'db.View:db.Column'], len(unique_tables) == 1, False),
+                          (_("Insert Statement"), "Insert Statement", 'insert_all_statement', ['db.Table', 'columns'], len(selection) > 0, False),
+                          (_("Insert Statement"), "Insert Statement", 'insert_columns_statement', ['db.Table:db.Column'], len(selection) > 0, False),
+                          (_("Update Statement"), "Update Statement", 'update_all_statement', ['db.Table', 'columns'], len(selection) > 0, False),
+                          (_("Update Statement"), "Update Statement", 'update_columns_statement', ['db.Table:db.Column'], len(selection) > 0, False),
+                          (_("Delete Statement"), "Delete Statement", 'delete_statement', ['db.Table'], len(selection) > 0, False),
+                          (_("Create Statement"), "Create Statement", 'create_statement', ['db.Schema', 'db.Table', 'db.View', 'db.StoredProcedure', 'db.Function'], len(selection) > 0, False),
+                          (_("Procedure Call"), "Procedure Call", 'call_procedure', ['db.StoredProcedure'], len(selection) > 0, False),
+                          (_("Function Call"), "Function Call", 'call_function', ['db.Function'], len(selection) > 0, False),
+                          (None, None, None, ['db.Table'], None, False),
+                          (_("Join Selected Tables"), "Join Selected Tables", 'build_joined_select', ['db.Table'], len(selection) == 2, False),
+                          (_("Delete with References"), "Delete With References", 'build_cascaded_delete', ['db.Table'], len(selection) == 1, False),
+                          (_("Select Row References"), "Select Row References", 'build_cascaded_select', ['db.Table'], len(selection) == 1, False),
                           ]
 
             copy_submenu = mforms.newMenuItem("Copy to Clipboard")
-            copy_submenu.set_name("copy_to_clipboard")
+            copy_submenu.set_name("Copy to Clipboard")
+            copy_submenu.setInternalName("copy_to_clipboard")
             menu.insert_item(index, copy_submenu)
             index += 1
 
             send_submenu = mforms.newMenuItem("Send to SQL Editor")
-            send_submenu.set_name("send_to_editor")
+            send_submenu.set_name("Send to Editor")
+            send_submenu.setInternalName("send_to_editor")
             menu.insert_item(index, send_submenu)
             index += 1
 
             gencopy = CodeGenerator(sender, selection, False)
             gensend = CodeGenerator(sender, selection, True)
 
-            for caption, name, types, enabled, allow_mixed in code_items:
+            for caption, accessibilityName, name, types, enabled, allow_mixed in code_items:
                 if not allow_mixed and mixed:
                     continue
                 if types and selection_type not in types:
@@ -194,10 +199,10 @@ def handleLiveTreeContextMenu(name, sender, args):
                     copy_submenu.add_separator()
                     send_submenu.add_separator()
                 else:
-                    item = copy_submenu.add_item_with_title(caption, getattr(gencopy, name), name)
+                    item = copy_submenu.add_item_with_title(caption, getattr(gencopy, name), accessibilityName, "")
                     item.set_enabled(bool(enabled))
 
-                    item = send_submenu.add_item_with_title(caption, getattr(gensend, name), name)
+                    item = send_submenu.add_item_with_title(caption, getattr(gensend, name), accessibilityName, "")
                     item.set_enabled(bool(enabled))
             needs_separator = True
         else:
@@ -222,9 +227,9 @@ def handleLiveTreeContextMenu(name, sender, args):
                 #        if selection[0].type == 'tables':
                 #            it.set_enabled(False)
                 for templ in template_manager.templates:
-                    item.add_item_with_title(templ.name, lambda templ=templ, schema=selection[0].schemaName: template_manager.create_table_like_template(sender, schema, templ))
+                    item.add_item_with_title(templ.name, lambda templ=templ, schema=selection[0].schemaName: template_manager.create_table_like_template(sender, schema, templ), templ.name, "")
                 item.add_separator()
-                item.add_item_with_title("Edit Templates...", template_manager.edit_templates)
+                item.add_item_with_title("Edit Templates...", template_manager.edit_templates, "Edit Templates", "")
                 
         if selection_type is None:
             if needs_separator:

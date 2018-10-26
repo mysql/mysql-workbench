@@ -402,7 +402,7 @@ ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdb
 //----------------------------------------------------------------------------------------------------------------
 
 void ResultFormView::navigate(mforms::ToolBarItem *item) {
-  std::string name = item->get_name();
+  std::string name = item->getInternalName();
   Recordset::Ref rset(_rset.lock());
   if (rset) {
     ssize_t row = rset->edited_field_row();
@@ -459,7 +459,7 @@ void ResultFormView::open_field_editor(int column, const std::string &type) {
 }
 
 ResultFormView::ResultFormView(bool editable)
-  : mforms::AppView(false, "ResultFormView", false),
+  : mforms::AppView(false, "Result Form View", "ResultFormView", false),
     _spanel(mforms::ScrollPanelDrawBackground),
     _tbar(mforms::SecondaryToolBar),
     _editable(editable) {
@@ -476,32 +476,37 @@ ResultFormView::ResultFormView(bool editable)
   _tbar.add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("first");
+  item->set_name("First");
+  item->setInternalName("first");
   item->set_tooltip("Go to the first row in the recordset.");
   item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_first.png"));
   _tbar.add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("back");
+  item->set_name("Back");
+  item->setInternalName("back");
   item->set_tooltip("Go back one row in the recordset.");
   item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_back.png"));
   _tbar.add_item(item);
 
   _label_item = mforms::manage(new mforms::ToolBarItem(mforms::LabelItem));
-  _label_item->set_name("location");
+  _label_item->set_name("Location");
+  _label_item->setInternalName("location");
   _tbar.add_item(_label_item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("next");
+  item->set_name("Next");
+  item->setInternalName("next");
   item->set_tooltip("Go next one row in the recordset.");
   item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_next.png"));
   _tbar.add_item(item);
 
   item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-  item->set_name("last");
+  item->set_name("Last");
+  item->setInternalName("last");
   item->set_tooltip("Go to the last row in the recordset.");
   item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
   item->set_icon(app->get_resource_path("record_last.png"));
@@ -515,14 +520,16 @@ ResultFormView::ResultFormView(bool editable)
     _tbar.add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("delete");
+    item->set_name("Delete");
+    item->setInternalName("delete");
     item->set_tooltip("Delete current row from the recordset.");
     item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
     item->set_icon(app->get_resource_path("record_del.png"));
     _tbar.add_item(item);
 
     item = mforms::manage(new mforms::ToolBarItem(mforms::ActionItem));
-    item->set_name("last");
+    item->set_name("Last");
+    item->setInternalName("last");
     item->set_tooltip("Add a new row to the recordset.");
     item->signal_activated()->connect(std::bind(&ResultFormView::navigate, this, item));
     item->set_icon(app->get_resource_path("record_add.png"));
@@ -674,7 +681,7 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
       const std::vector<mforms::ToolBarItem *> &items(_tbar.get_items());
       int i = 0;
       for (std::vector<mforms::ToolBarItem *>::const_iterator iter = items.begin(); iter != items.end(); ++iter) {
-        if ((*iter)->get_name() == "geom_separator")
+        if ((*iter)->getInternalName() == "geom_separator")
           break;
         i++;
       }

@@ -83,7 +83,7 @@ public:
     _options_box.add(&_generate_drop_schema_check, false, true);
 
     _sortTablesAlphabeticallyCheck.set_text(_("Sort Tables Alphabetically"));
-    _sortTablesAlphabeticallyCheck.set_name("Sort tables alphabetically");
+    _sortTablesAlphabeticallyCheck.set_name("Sort Tables Alphabetically");
     auto box = mforms::manage(new Box(true));
     box->add(&_sortTablesAlphabeticallyCheck, false, true);
     auto img = mforms::manage(new ImageBox());
@@ -418,7 +418,7 @@ class WbPluginSQLExport : public WizardPlugin {
 
 public:
   WbPluginSQLExport(grt::Module *module) : WizardPlugin(module) {
-    set_name("sql_export_wizard");
+    set_name("SQL Export Wizard");
     add_page(mforms::manage(new ExportInputPage(this)));
     add_page(mforms::manage(new ExportFilterPage(this, &_export_be)));
     add_page(mforms::manage(new PreviewScriptPage(this, &_export_be)));

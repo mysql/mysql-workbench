@@ -78,7 +78,7 @@ int Menu::add_submenu(const std::string &caption, Menu *submenu) {
 void Menu::add_items_from_list(const bec::MenuItemList &list) {
   for (bec::MenuItemList::const_iterator item = list.begin(); item != list.end(); ++item) {
     if (item->type == bec::MenuAction) {
-      int i = add_item(item->caption, item->name);
+      int i = add_item(item->caption, item->internalName);
       set_item_enabled(i, item->enabled);
     } else if (item->type == bec::MenuSeparator)
       add_separator();

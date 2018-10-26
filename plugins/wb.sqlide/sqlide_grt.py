@@ -121,7 +121,7 @@ def importRecordsetDataFromFile(resultset):
     return 0
 
 
-@ModuleInfo.plugin("wb.sqlide.executeToTextOutput", caption= "Execute Query Into Text Output", input= [wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin("wb.sqlide.executeToTextOutput", caption= "Execute Query Into Text Output", input= [wbinputs.currentQueryEditor()], accessibilityName="Execute Into Text Output")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def executeQueryAsText(qbuffer):
   
@@ -192,7 +192,7 @@ def executeQueryAsText(qbuffer):
     return 0
 
 
-@ModuleInfo.plugin('wb.sqlide.verticalOutput', caption='Vertical Output', input=[wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin('wb.sqlide.verticalOutput', caption='Vertical Output', input=[wbinputs.currentQueryEditor()], accessibilityName="Execute Into Vertical Output")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def verticalOutput(editor):
     statement = editor.currentStatement
@@ -270,7 +270,7 @@ def reformatSQLStatement(text):
     return doReformatSQLStatement(text, False)
 
 
-@ModuleInfo.plugin("wb.sqlide.enbeautificate", caption = "Reformat SQL Query", input=[wbinputs.currentQueryBuffer()])
+@ModuleInfo.plugin("wb.sqlide.enbeautificate", caption = "Reformat SQL Query", input=[wbinputs.currentQueryBuffer()], accessibilityName="Reformat Query")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryBuffer)
 def enbeautificate(editor):
     """Reformat the selected SQL statements or the one under the cursor."""
@@ -416,13 +416,13 @@ def apply_to_keywords(editor, callable):
     return 0
 
 
-@ModuleInfo.plugin("wb.sqlide.upcaseKeywords", caption = "Make keywords in query uppercase", input=[wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin("wb.sqlide.upcaseKeywords", caption = "Make keywords in query uppercase", input=[wbinputs.currentQueryEditor()], accessibilityName="Uppercase Query Keywords")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def upcaseKeywords(editor):
     return apply_to_keywords(editor, lambda s: s.upper())
 
 
-@ModuleInfo.plugin("wb.sqlide.lowercaseKeywords", caption = "Make keywords in query lowercase", input=[wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin("wb.sqlide.lowercaseKeywords", caption = "Make keywords in query lowercase", input=[wbinputs.currentQueryEditor()], accessibilityName="Lowercase Query Keywords")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def lowercaseKeywords(editor):
     return apply_to_keywords(editor, lambda s: s.lower())
@@ -464,7 +464,7 @@ def get_lines_in_range(text, range_start, range_end):
     return (first_line_start, last_line_end, lines)
 
 
-@ModuleInfo.plugin("wb.sqlide.indent", caption = "Indent Selected Lines", input=[wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin("wb.sqlide.indent", caption = "Indent Selected Lines", input=[wbinputs.currentQueryEditor()], accessibilityName="Indent Selected Lines")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def indent(editor):
     # indent and unindent handle selection a bit differently:
@@ -500,7 +500,7 @@ def indent(editor):
 
 
 
-@ModuleInfo.plugin("wb.sqlide.unindent", caption = "Unindent Selected Lines", input=[wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin("wb.sqlide.unindent", caption = "Unindent Selected Lines", input=[wbinputs.currentQueryEditor()], accessibilityName="Unindent Selected Lines")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def unindent(editor):
     indentation = " "*4
@@ -554,7 +554,7 @@ def unindent(editor):
     return 0
 
 
-@ModuleInfo.plugin("wb.sqlide.comment", caption = "Un/Comment Selection", input=[wbinputs.currentQueryEditor()])
+@ModuleInfo.plugin("wb.sqlide.comment", caption = "Un/Comment Selection", input=[wbinputs.currentQueryEditor()], accessibilityName="Comment or Uncomment Selection")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_QueryEditor)
 def commentText(editor):
     commentType = "%s " % grt.root.wb.options.options["DbSqlEditor:SQLCommentTypeForHotkey"]
@@ -622,7 +622,7 @@ def showInspector(editor, selection):
 #    pass
 
 
-@ModuleInfo.plugin("wb.sqlide.runScript", caption = "Run SQL Script", input=[wbinputs.currentSQLEditor()])
+@ModuleInfo.plugin("wb.sqlide.runScript", caption = "Run SQL Script", input=[wbinputs.currentSQLEditor()], accessibilityName="Run SQL Script")
 @ModuleInfo.export(grt.INT, grt.classes.db_query_Editor)
 def runSQLScript(editor):
     form = RunScriptForm(editor)

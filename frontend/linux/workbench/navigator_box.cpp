@@ -51,7 +51,7 @@ NavigatorBox::NavigatorBox()
   Gtk::Image *image2 =
     Gtk::manage(new Gtk::Image(ImageCache::get_instance()->image_from_filename("navigator_zoom_out.png")));
 
-  _combo.set_name("zoom_combo");
+  _combo.set_name("Zoom");
   _combo.set_size_request(60, -1);
   _slider.set_draw_value(false);
   _slider.set_range(10, 200);

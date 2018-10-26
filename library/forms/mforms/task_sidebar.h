@@ -77,10 +77,10 @@ namespace mforms {
     static TaskSidebar* create(const std::string& type); // Create an instance from the factory
 
   public:
-    virtual int add_section(const std::string& name, const std::string& title,
-                            TaskSectionFlags flags = TaskSectionPlain) = 0;
+    virtual int add_section(const std::string& name, const std::string& accessbilityName,
+                            const std::string& title, TaskSectionFlags flags = TaskSectionPlain) = 0;
     virtual void remove_section(const std::string& name) = 0;
-    virtual int add_section_entry(const std::string& section_name, const std::string& entry_name,
+    virtual int add_section_entry(const std::string& section_name, const std::string& entry_name, const std::string& accessibilityName,
                                   const std::string& title, const std::string& icon, TaskEntryType type) = 0;
     virtual void set_section_entry_text(const std::string& entry_name, const std::string& title) = 0;
     virtual void set_section_entry_icon(const std::string& entry_name, const std::string& icon) = 0;

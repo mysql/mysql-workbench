@@ -998,28 +998,33 @@ MenuItemList TableColumnsListBE::get_popup_items_for_nodes(const std::vector<Nod
   MenuItem item;
 
   item.caption = "Move Up";
-  item.name = "moveUpToolStripMenuItem";
+  item.internalName = "moveUpToolStripMenuItem";
+  item.accessibilityName = "Move Up";
   item.enabled = nodes.size() == 1;
   items.push_back(item);
 
   item.caption = "Move Down";
-  item.name = "moveDownToolStripMenuItem";
+  item.internalName = "moveDownToolStripMenuItem";
+  item.accessibilityName = "Move Down";
   item.enabled = nodes.size() == 1;
   items.push_back(item);
   items.push_back(sep);
 
   item.caption = "Copy";
-  item.name = "copyColumnToolStripMenuItem";
+  item.internalName = "copyColumnToolStripMenuItem";
+  item.accessibilityName = "Copy";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
 
   item.caption = "Cut";
-  item.name = "cutColumnToolStripMenuItem";
+  item.internalName = "cutColumnToolStripMenuItem";
+  item.accessibilityName = "Cut";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
 
   item.caption = "Paste";
-  item.name = "pasteColumnToolStripMenuItem";
+  item.internalName = "pasteColumnToolStripMenuItem";
+  item.accessibilityName = "Paste";
   item.enabled = false;
   bec::Clipboard *clip = bec::GRTManager::get()->get_clipboard();
   if (clip->is_data()) {
@@ -1035,24 +1040,28 @@ MenuItemList TableColumnsListBE::get_popup_items_for_nodes(const std::vector<Nod
   items.push_back(item);
 
   item.caption = "Delete Selected";
-  item.name = "deleteSelectedColumnsToolStripMenuItem";
+  item.internalName = "deleteSelectedColumnsToolStripMenuItem";
+  item.accessibilityName = "Delete Selected Columns";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
   items.push_back(sep);
 
   item.caption = "Refresh";
-  item.name = "refreshGridToolStripMenuItem";
+  item.internalName = "refreshGridToolStripMenuItem";
+  item.accessibilityName = "Refresh Grid";
   item.enabled = true;
   items.push_back(item);
   items.push_back(sep);
 
   item.caption = "Clear Default";
-  item.name = "clearDefaultToolStripMenuItem";
+  item.internalName = "clearDefaultToolStripMenuItem";
+  item.accessibilityName = "Clear Default";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
 
   item.caption = "Default NULL";
-  item.name = "defaultNULLToolStripMenuItem";
+  item.internalName = "defaultNULLToolStripMenuItem";
+  item.accessibilityName = "Default to NULL";
   item.enabled = nodes.size() > 0;
   items.push_back(item);
 
@@ -1473,7 +1482,8 @@ MenuItemList IndexListBE::get_popup_items_for_nodes(const std::vector<NodeId> &n
   MenuItemList items;
   MenuItem item;
   item.caption = _("Delete Selected");
-  item.name = "deleteIndices";
+  item.internalName = "deleteIndices";
+  item.accessibilityName = "Delete Indices";
   item.enabled = index.is_valid() && nodes.size() > 0 && /*!index_belongs_to_fk(index) && */ index_editable(index);
   items.push_back(item);
 
@@ -2560,7 +2570,8 @@ MenuItemList FKConstraintListBE::get_popup_items_for_nodes(const std::vector<Nod
 
   MenuItem item;
   item.caption = _("Delete selected");
-  item.name = "deleteSelectedFKs";
+  item.internalName = "deleteSelectedFKs";
+  item.accessibilityName = "Delete Selected";
   item.enabled = (nodes.size() >= 1);
   items.push_back(item);
 

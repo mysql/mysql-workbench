@@ -25,6 +25,8 @@
 namespace base {
 
   struct BASELIBRARY_PUBLIC_FUNC Accessible {
+  protected:
+    std::string _accessibilityName;
   public:
     enum Role {
       RoleNone,
@@ -43,8 +45,14 @@ namespace base {
 
     virtual ~Accessible();
 
+    virtual void setAccessibilityName(const std::string &name) {
+      _accessibilityName = name;
+    }
+
     // Name + role are mandatory.
-    virtual std::string getAccessibilityName() = 0;
+    virtual std::string getAccessibilityName() {
+        return _accessibilityName;
+    }
     virtual Role getAccessibilityRole() = 0;
 
     // The rest of the accessible methods are optional, but it is strongly recommended to implement them

@@ -835,6 +835,7 @@ protected:
 public:
   FolderBackEntry(ConnectionsSection *aowner) : ConnectionEntry(aowner) {
     title = "< back";
+    setAccessibilityName("Back");
   }
 
   virtual bool is_movable() override {
@@ -890,28 +891,28 @@ public:
 //----------------- ConnectionsWelcomeScreen ---------------------------------------------------------------------------
 
 ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(owner) {
-  _closeHomeScreenButton.name = "closeHomeScreenButton";
+  _closeHomeScreenButton.setAccessibilityName("Close Welcome Message Screen");
   _closeHomeScreenButton.title = "Close Welcome Message Screen";
   _closeHomeScreenButton.description = "Welcome screen close button";
   _closeHomeScreenButton.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::CloseWelcomeMessage, base::any());
   };
 
-  _browseDocButton.name = "browseDocButton";
+  _browseDocButton.setAccessibilityName("Browse Documentation");
   _browseDocButton.title = "Browse Documentation >";
   _browseDocButton.description = "Open documentation button";
   _browseDocButton.defaultHandler =  [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionOpenDocs, base::any());
   };
 
-  _readBlogButton.name = "readBlogButton";
+  _readBlogButton.setAccessibilityName("Open Blog");
   _readBlogButton.title = "Read the Blog >";
   _readBlogButton.description = "Open MySQL Workbench blog webpage button";
   _readBlogButton.defaultHandler =  [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionOpenBlog, base::any());
   };
 
-  _discussButton.name = "discussButton";
+  _discussButton.setAccessibilityName("Open Forum");
   _discussButton.title = "Discuss on the Forums >";
   _discussButton.description = "Open MySQL Workbench forums button";
   _discussButton.defaultHandler =  [this]() {
@@ -1128,7 +1129,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
 
   _info_popup = NULL;
 
-  _search_box.set_name("connectionSearchBox");
+  _search_box.set_name("Connection Search Box");
   _search_box.set_spacing(5);
   _search_text.set_size(150, -1);
 
@@ -1150,7 +1151,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
   image->set_image_align(mforms::MiddleCenter);
   _search_box.add(image, false, false);
 #endif
-  _search_text.set_name("searchText");
+  _search_text.set_name("Search Text");
   _search_text.set_placeholder_text("Filter connections");
   _search_text.set_bordered(false);
   _search_box.add(&_search_text, true, true);
@@ -1161,21 +1162,21 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
 
   set_padding(0, 30, CONNECTIONS_RIGHT_PADDING, 0);
 
-  _add_button.name = "add_button";
+  _add_button.setAccessibilityName("Add Connection");
   _add_button.title = "Add Connection";
   _add_button.description = "Open new connection wizard button";
   _add_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionNewConnection, base::any());
   };
 
-  _manage_button.name = "manage_button";
+  _manage_button.setAccessibilityName("Manage Connections");
   _manage_button.title = "Manage Connections";
   _manage_button.description = "Open connection management dialog button";
   _manage_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionManageConnections, base::any());
   };
   
-  _rescanButton.name = "rescanButton";
+  _rescanButton.setAccessibilityName("Rescan Servers");
   _rescanButton.title = "Rescan servers";
   _rescanButton.description = "Rescan servers button";
   _rescanButton.defaultHandler = [this]() {
@@ -1690,6 +1691,7 @@ void ConnectionsSection::addConnection(const std::string &connectionId, const st
   entry = std::shared_ptr<ConnectionEntry>(new ConnectionEntry(this));
 
   entry->connectionId = connectionId;
+  entry->setAccessibilityName(title);
   entry->title = title;
   entry->description = description;
   entry->user = user;
@@ -1722,6 +1724,7 @@ void ConnectionsSection::addConnection(const std::string &connectionId, const st
     if (!found_parent) {
       std::shared_ptr<FolderEntry> folder(new FolderEntry(this));
 
+      folder->setAccessibilityName(parent_name);
       folder->title = parent_name;
       folder->compute_strings = true;
       folder->search_title = parent_name;
@@ -2052,12 +2055,6 @@ base::Accessible *ConnectionsSection::getAccessibilityChild(size_t index) {
 
 //------------------------------------------------------------------------------------------------
 
-std::string ConnectionsSection::getAccessibilityName() {
-  return get_name();
-}
-
-//------------------------------------------------------------------------------------------------
-
 base::Accessible::Role ConnectionsSection::getAccessibilityRole() {
   return Accessible::List;
 }
@@ -2349,7 +2346,8 @@ mforms::View *ConnectionsSection::getContainer() {
     _welcomeScreen = new ConnectionsWelcomeScreen(_owner);
     if (!_showWelcomeHeading)
       _welcomeScreen->show(false);
-    _welcomeScreen->set_name("welcomeScreen");
+    _welcomeScreen->set_name("Welcome Screen");
+    _welcomeScreen->setInternalName("welcomeScreen");
     _welcomeScreen->set_layout_dirty(true);
     _container->add(_welcomeScreen, false, true);
     _container->add(this, true, true);

@@ -843,7 +843,7 @@ static void view_set_font(::mforms::View *self, const std::string &fontDescripti
 
 static void view_set_name(mforms::View *self, const std::string &name) {
   NSView *view = self->get_data();
-  view.accessibilityLabel = [NSString stringWithUTF8String: name.c_str()];
+  view.accessibilityTitle = [NSString stringWithUTF8String: name.c_str()];
 }
 
 static void view_relayout(mforms::View *self) {

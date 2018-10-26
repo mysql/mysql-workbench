@@ -3,11 +3,13 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.option.table">
     <value type="string" key="name">options/physical/table</value>
+    <value type="string" key="accessibilityName">Table</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.templatel">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="command">Template:</value>
         <value type="string" key="itemType">label</value>
+        <value type="string" key="accessibilityName">Template</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.template">
@@ -15,11 +17,13 @@
         <value type="string" key="name">physical/table/template</value>
         <value type="string" key="command">option:workbench.physical.TableFigure:Template</value>
         <value type="string" key="itemType">dropdown</value>
+        <value type="string" key="accessibilityName">Templates</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schemasep">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
 
@@ -27,6 +31,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="command">Schema:</value>
         <value type="string" key="itemType">label</value>
+        <value type="string" key="accessibilityName">Schema</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schema">
@@ -34,17 +39,20 @@
         <value type="string" key="name">physical/table/schema</value>
         <value type="string" key="command">option:workbench.physical.TableFigure:Schema</value>
         <value type="string" key="itemType">dropdown</value>
+        <value type="string" key="accessibilityName">Schemas</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.schemasep">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.enginelbl">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="command">Engine:</value>
         <value type="string" key="itemType">label</value>
+        <value type="string" key="accessibilityName">Engine</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.engine">
@@ -52,17 +60,20 @@
         <value type="string" key="name">physical/table/engine</value>
         <value type="string" key="command">option:workbench.physical.TableFigure:Engine</value>
         <value type="string" key="itemType">dropdown</value>
+        <value type="string" key="accessibilityName">Engines</value>
       </value>
       
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.enginesep">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.collationlbl">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="command">Collation:</value>
         <value type="string" key="itemType">label</value>
+        <value type="string" key="accessibilityName">Collation</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.collation">
@@ -70,11 +81,13 @@
         <value type="string" key="name">physical/table/collation</value>
         <value type="string" key="command">option:workbench.physical.TableFigure:Collation</value>
         <value type="string" key="itemType">dropdown</value>
+        <value type="string" key="accessibilityName">Collations</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.collationsep">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.option.table</link>
         <value type="string" key="itemType">separator</value>
+        <value type="string" key="accessibilityName">Separator</value>
       </value>
 
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tool.option.table.color">
@@ -82,6 +95,7 @@
         <value type="string" key="name">physical/table/color</value>
         <value type="string" key="command">option:workbench.physical.TableFigure:Color</value>
         <value type="string" key="itemType">dropdown</value>
+        <value type="string" key="accessibilityName">Colors</value>
       </value>
     </value>
   </value>

@@ -3,6 +3,7 @@
 <data>
   <value type="object" struct-name="app.Toolbar" id="com.mysql.wb.toolbar.tools">
     <value type="string" key="name">tools</value>
+    <value type="string" key="accessibilityName">Tools</value>
     <value type="list" key="items" content-type="object" content-struct-name="app.ToolbarItem">
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.toolbar.tools.select">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools</link>
@@ -11,6 +12,7 @@
         <value type="string" key="tooltip">Select Object(s)</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:basic/select</value>
+        <value type="string" key="accessibilityName">Select Objects</value>
       </value>
     </value>
   </value>

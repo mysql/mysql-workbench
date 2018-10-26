@@ -62,7 +62,7 @@ namespace wb {
     boost::signals2::signal<void (const std::string &)> *_callback;
 
   public:
-    SidebarEntry(const std::string& name, const std::string& title, const std::string& icon,
+    SidebarEntry(const std::string& name, const std::string& title, const std::string& accessibilityName, const std::string& icon,
                  mforms::TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback);
     virtual ~SidebarEntry();
 
@@ -75,13 +75,13 @@ namespace wb {
 
     std::string title() {
       return _title;
-    };
+    }
     std::string name() {
       return _name;
-    };
+    }
     mforms::TaskEntryType type() {
       return _type;
-    };
+    }
     bool enabled() const {
       return _enabled;
     }
@@ -91,9 +91,6 @@ namespace wb {
     }
 
     // ------ Accesibility Methods -----
-    virtual std::string getAccessibilityName() override {
-      return _title;
-    }
     virtual base::Accessible::Role getAccessibilityRole() override {
       return base::Accessible::PushButton;
     }
@@ -112,7 +109,6 @@ namespace wb {
   class SidebarSection : public mforms::DrawBox {
   private:
     struct Button : public base::Accessible {
-      std::string name;
       cairo_surface_t* icon;
       cairo_surface_t* alt_icon;
       std::string iconName, altIconName;
@@ -133,9 +129,6 @@ namespace wb {
       bool check_hit(ssize_t x, ssize_t y);
 
       // ------ Accesibility Methods -----
-      virtual std::string getAccessibilityName() {
-        return name;
-      }
       virtual base::Accessible::Role getAccessibilityRole() {
         return base::Accessible::PushButton;
       }
@@ -180,8 +173,8 @@ namespace wb {
 
     int find_entry(const std::string& name);
 
-    int add_entry(const std::string& name, const std::string& title, const std::string& icon,
-                  mforms::TaskEntryType type);
+    int add_entry(const std::string& name, const std::string& accessibilityName, const std::string& title,
+                  const std::string& icon, mforms::TaskEntryType type);
     void set_entry_text(int index, const std::string& title);
     void set_entry_icon(int index, const std::string& icon);
     void set_entry_enabled(int index, bool enabled);
@@ -196,17 +189,17 @@ namespace wb {
 
     SidebarEntry* selected() {
       return _selected_entry;
-    };
+    }
     bool expanded() {
       return _expanded;
-    };
+    }
     void toggle_expand();
 
     void update_mode_button(bool active);
 
     std::string title() {
       return _title;
-    };
+    }
 
     virtual void repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) override;
     virtual bool mouse_leave() override;
@@ -218,9 +211,6 @@ namespace wb {
 
     virtual base::Accessible::Role getAccessibilityRole() override {
       return base::Accessible::OutlineItem;
-    }
-    virtual std::string getAccessibilityName() override {
-      return get_name();
     }
     virtual size_t getAccessibilityChildCount() override;
     virtual Accessible* getAccessibilityChild(size_t index) override;
@@ -248,11 +238,11 @@ namespace wb {
   public:
     ~SimpleSidebar();
 
-    virtual int add_section(const std::string& name, const std::string& title,
+    virtual int add_section(const std::string& name, const std::string& accessibilityName, const std::string& title,
                             mforms::TaskSectionFlags flags = mforms::TaskSectionPlain) override;
     virtual void remove_section(const std::string& name) override;
-    virtual int add_section_entry(const std::string& section_name, const std::string& name, const std::string& title,
-                                  const std::string& icon, mforms::TaskEntryType type) override;
+    virtual int add_section_entry(const std::string& section_name, const std::string& name, const std::string& accessibilityName,
+                                  const std::string& title, const std::string& icon, mforms::TaskEntryType type) override;
     virtual void set_section_entry_text(const std::string& entry_name, const std::string& title) override;
     virtual void set_section_entry_icon(const std::string& entry_name, const std::string& icon) override;
     virtual void set_section_entry_enabled(const std::string& entry_name, bool flag) override;

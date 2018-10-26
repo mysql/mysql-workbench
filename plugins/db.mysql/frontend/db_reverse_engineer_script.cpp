@@ -272,7 +272,7 @@ void ImportProgressPage::tasks_finished(bool success) {
 //--------------------------------------------------------------------------------------------------
 
 WbPluginSQLImport::WbPluginSQLImport(grt::Module *module) : WizardPlugin(module) {
-  set_name("sql_import_wizard");
+  set_name("SQL Import Wizard");
   _input_page = new ImportInputPage(this);
   _progress_page = new ImportProgressPage(
     this, std::bind(&WbPluginSQLImport::update_summary, this, std::placeholders::_1, std::placeholders::_2));

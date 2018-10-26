@@ -91,7 +91,7 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "wba_instance", "Startup / Shutdown", True)
+        admin_context.register_page(cls, "Instance", "Startup / Shutdown", True)
 
     @classmethod
     def identifier(cls):
@@ -172,7 +172,7 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
         ui_box.add(heading, False, True)
 
         self.startup_msgs_log = newTextBox(mforms.BothScrollBars)
-        self.startup_msgs_log.set_name('StartupMessagesLog')
+        self.startup_msgs_log.set_name('Startup Messages Log')
         self.startup_msgs_log.set_read_only(True)
         ui_box.add(self.startup_msgs_log, True, True)
 

@@ -39,7 +39,7 @@ using namespace mforms;
 
 //----------------- WebBrowserView -----------------------------------------------------------------
 
-WebBrowserView::WebBrowserView(WBContextUI* wbui) : AppView(false, "Browse", true), _wbui(wbui) {
+WebBrowserView::WebBrowserView(WBContextUI* wbui) : AppView(false, "Browse", "Browse", true), _wbui(wbui) {
   add(&_browser, true, true);
   _browser.set_link_click_handler(std::bind(&WebBrowserView::handle_url, this, std::placeholders::_1));
   UIForm::scoped_connect(_browser.signal_loaded(),

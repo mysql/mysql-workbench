@@ -141,7 +141,6 @@ namespace mforms {
 
   class MFORMS_EXPORT HomeAccessibleButton : public base::Accessible {
   public:
-    std::string name;
     std::string title;
     std::string description;
     base::Rect bounds;
@@ -149,7 +148,6 @@ namespace mforms {
 
     // ------ Accesibility Customized Methods -----
 
-    virtual std::string getAccessibilityName() override;
     virtual std::string getAccessibilityTitle() override;
     virtual std::string getAccessibilityDescription() override;
     virtual Accessible::Role getAccessibilityRole() override;

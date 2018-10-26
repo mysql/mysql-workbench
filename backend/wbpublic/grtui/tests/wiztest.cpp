@@ -249,16 +249,12 @@ class ImportInputPage : public WizardPage {
 public:
   ImportInputPage(WizardForm *form)
     : WizardPage(form, "options"), _frame(true), _contents(true), _options(true), _options_box(false) {
-#ifdef _DEBUG
-    set_name("ImportPage");
-    _frame.set_name("Import:frame");
-    _contents.set_name("Import:contents");
-    _options.set_name("Import:options");
-    _options_box.set_name("Import:options_box");
-    _caption.set_name("Import:caption");
-    _browse_button.set_name("Import:browse_button");
-    _autoplace_check.set_name("Import:autoplace_check");
-#endif
+    set_name("Import Page");
+    _contents.set_name("Contents");
+    _options.set_name("Options");
+    _caption.set_name("Caption");
+    _browse_button.set_name("Browse");
+    _autoplace_check.set_name("Auto Place");
 
     set_title("SQL Import Options");
     set_subtitle("Set options for SQL script to be imported.");

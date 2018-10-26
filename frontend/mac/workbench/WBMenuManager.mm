@@ -54,7 +54,7 @@
       item.enabled = iter->enabled?YES:NO;
       item.target = target;
       [menu addItem: item];
-      item.representedObject = [NSString stringWithCPPString: iter->name];
+      item.representedObject = [NSString stringWithCPPString: iter->internalName];
 
       if (iter->type == bec::MenuCascade)
       {
@@ -70,7 +70,7 @@
     else if (iter->type == bec::MenuSeparator)
       [menu addItem: [NSMenuItem separatorItem]];
     else
-      NSLog(@"unknown context menu item type in %s", iter->name.c_str());
+      NSLog(@"unknown context menu item type in %s", iter->internalName.c_str());
   }
   
   for (NSInteger i= oldCount - 1; i >= 0; i--)
