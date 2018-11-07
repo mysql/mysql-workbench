@@ -17,7 +17,7 @@
 /* A lexical scanner on a temporary buffer with a yacc interface */
 
 #pragma GCC diagnostic push
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 #if defined(__APPLE__) || defined (_WIN32)

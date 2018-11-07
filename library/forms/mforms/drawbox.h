@@ -62,7 +62,7 @@ namespace mforms {
     /** Move the given child window to a fixed position. Automatically sets the alignment to NoAlign. */
     void move(View *child, int x, int y);
 
-    virtual void set_layout_dirty(bool value);
+    virtual void set_layout_dirty(bool value) override;
     void set_padding(int left, int top, int right, int bottom);
 
     void set_needs_repaint();
@@ -78,10 +78,10 @@ namespace mforms {
     virtual void set_name(const std::string &name) override {
         setAccessibilityName(name);
     }
-    virtual base::Rect getAccessibilityBounds() {
+    virtual base::Rect getAccessibilityBounds() override {
       return base::Rect(get_x(), get_y(), get_width(), get_height());
     }
-    virtual Role getAccessibilityRole() {
+    virtual Role getAccessibilityRole() override {
       return base::Accessible::RoleNone;
     }
 #endif
