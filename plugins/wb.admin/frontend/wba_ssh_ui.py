@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from mforms import App, Utilities, newBox, newPanel, newButton, newLabel, newTabView, newTabSwitcher, newTextEntry, newSelector, Form, newTreeView, OpenFile, SaveFile
+from mforms import App, Utilities, newBox, newPanel, newButton, newLabel, newTabView, newTabSwitcher, newTextEntry, newSelector, Form, newTreeView, OpenFile, SaveFile, OpenDirectory
 import mforms
 import errno
 from wb_common import OperationCancelledError, InvalidPasswordError, dprint_ex, parentdir, joinpath
@@ -41,10 +41,13 @@ class RemoteFileSelector(object):
         return self.selection
 
     def on_change(self):
-        selid = self.flist.get_selected_node()
-        if selid:
-            fname = selid.get_string(0)
-            self.selection = joinpath(self.curdir.get_string_value(),fname)
+        if self.dlg_type == OpenDirectory:
+            self.selection = self.curdir.get_string_value()
+        else:
+            selid = self.flist.get_selected_node()
+            if selid:
+                fname = selid.get_string(0)
+                self.selection = joinpath(self.curdir.get_string_value(),fname)
 
     def on_cd(self, row, column):
         fname = None

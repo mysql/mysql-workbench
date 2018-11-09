@@ -957,7 +957,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             return ctrl[1][idx]
 
         is_multiple = False
-        control_name = control(1).get_name()
+        control_name = control(1).getInternalName()
         if control_name == "Multiple":
             is_multiple = True
 
