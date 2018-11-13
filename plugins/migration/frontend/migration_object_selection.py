@@ -33,6 +33,7 @@ class ObjectMainView(WizardPage):
         self._scrollpanel = None
         
         label = mforms.newLabel("You may select the objects to be migrated in the lists below.\nAll tables will be migrated by default.")
+        label.set_name('Select Objects')
         self.content.add(label, False, True)
         
 

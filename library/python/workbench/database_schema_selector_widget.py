@@ -117,6 +117,7 @@ class DatabaseSchemaSelector(mforms.Box):
         self.set_spacing(8)
         
         self.schema_list_tree = mforms.newTreeView(mforms.TreeDefault)
+        self.schema_list_tree.set_name('Schema List')
         self.schema_list_tree.add_column(mforms.CheckColumnType, 'Include', 60, True)
         self.schema_list_tree.add_column(mforms.IconColumnType, 'Catalog/Schema' if self.use_catalogs else 'Schema', 300, False)
         self.schema_list_tree.end_columns()
@@ -128,6 +129,7 @@ class DatabaseSchemaSelector(mforms.Box):
         helper_buttons_box.set_spacing(12)
 
         self.select_summary_label = mforms.newLabel('')
+        self.select_summary_label.set_name('Summary')
         helper_buttons_box.add(self.select_summary_label, False, True)
 
         if self.ui_settings['general']['show_unselect_all_button']:

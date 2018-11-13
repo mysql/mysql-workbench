@@ -31,6 +31,7 @@ class MainView(WizardPage):
         self.main = main
 
         self.main.add_content_page(self, "Overview", "Overview", "migration")
+        grt.modules.Workbench.initializeOtherRDBMS()
 
     def create_ui(self):
         label = mforms.newLabel("Welcome to the MySQL Workbench Migration Wizard")

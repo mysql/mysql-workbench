@@ -385,7 +385,6 @@ class MigrationSource(object):
 class MigrationPlan(object):
 
     def __init__(self):
-        grt.modules.Workbench.initializeOtherRDBMS()
         self.state = grt.root.wb.migration
         if not self.state:
             self.state = grt.classes.db_migration_Migration()

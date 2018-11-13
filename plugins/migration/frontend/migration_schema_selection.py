@@ -95,6 +95,7 @@ class SchemaMainView(WizardPage):
 
     def create_ui(self):
         label = mforms.newLabel('Select the schemata you want to migrate:')
+        label.set_name('Select Schema To Migrate')
         label.set_style(mforms.BoldStyle)
         self.content.add(label, False)
         self.schema_selector = None

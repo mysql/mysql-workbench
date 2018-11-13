@@ -34,10 +34,12 @@ class MainView(WizardPage):
         self.main.add_wizard_page(self, "ObjectMigration", "Target Creation Options")
 
         label = mforms.newLabel("Select options for the creation of the migrated schema in the target\nMySQL server and click [Next >] to execute.")
+        label.set_name("Page Description")
         self.content.add(label, False, True)
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Schema Creation")
+        panel.set_name("Schema Creation")
         self.content.add(panel, False, True)
 
         box = mforms.newBox(False)
@@ -58,7 +60,9 @@ class MainView(WizardPage):
         self._file_hbox = mforms.newBox(True)
         self._file_hbox.set_spacing(4)
         self._file_hbox.add(mforms.newLabel("Script File:"), False, True)
+        self._file_hbox.set_name("Script File")
         self._create_script_file = mforms.newTextEntry()
+        self._create_script_file.set_name("Script File Value")
         self._create_script_file.set_value(os.path.join(os.path.expanduser('~'), 'migration_script.sql'))
         self._file_hbox.add(self._create_script_file, True, True)
         button = mforms.newButton()
@@ -237,12 +241,15 @@ class CreationReportView(WizardPage):
         text = """Scripts to create the target schema were executed. No data has been migrated yet. Review the creation report below 
 for errors or warnings. If there are any errors, you can manually fix the scripts and click [Recreate Objects] to retry 
 the schema creation or return to the Manual Editing page to correct them there and retry the target creation."""
-        self.content.add(mforms.newLabel(text), False, True)
+        description = mforms.newLabel(text)
+        description.set_name("Page Description")
+        self.content.add(description, False, True)
 
         hbox = mforms.newBox(True)
         hbox.set_spacing(12)
         hbox.set_homogeneous(True)
         self._tree = mforms.newTreeView(mforms.TreeFlatList)
+        self._tree.set_name("Script Results")
         self._tree.add_column(mforms.IconStringColumnType, "Object", 200, False)
         self._tree.add_column(mforms.IconStringColumnType, "Result", 600, False)
         self._tree.end_columns()
@@ -252,6 +259,7 @@ the schema creation or return to the Manual Editing page to correct them there a
 
         self._advbox = mforms.newPanel(mforms.TitledBoxPanel)
         self._advbox.set_title("SQL CREATE Script for Selected Object")
+        self._advbox.set_name("SQL IDE")
         box = mforms.newBox(False)
         self._code = mforms.newCodeEditor()
         self._code.set_language(mforms.LanguageMySQL)
@@ -289,6 +297,7 @@ the schema creation or return to the Manual Editing page to correct them there a
 
         self._msgbox = mforms.newPanel(mforms.TitledBoxPanel)
         self._msgbox.set_title("Output Messages")
+        self._msgbox.set_name("Output Messages")
         box = mforms.newBox(False)
         box.set_padding(8)
         self._msgs = mforms.newTextBox(mforms.VerticalScrollBar)

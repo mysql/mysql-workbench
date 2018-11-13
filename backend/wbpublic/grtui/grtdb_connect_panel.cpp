@@ -111,6 +111,7 @@ DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   _desc3.set_text(_("Method to use to connect to the RDBMS"));
   _desc3.set_style(mforms::SmallHelpTextStyle);
 
+  _rdbms_sel.set_name("Database System");
   _stored_connection_sel.set_name("Connection List");
   _driver_sel.set_name("Connection Method");
   if (_show_connection_combo)

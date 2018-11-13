@@ -309,6 +309,7 @@ class SourceMainView(SourceWizardPage):
         self._store_connection_check.set_size(270, -1)
         box.add(self._store_connection_check, False, True)
         self._store_connection_entry = mforms.newTextEntry()
+        self._store_connection_entry.set_name('Store Connection Name')
         box.add(self._store_connection_entry, True, True)
         self._store_connection_entry.set_enabled(False)
 
@@ -381,6 +382,7 @@ class TargetMainView(SourceWizardPage):
         self._store_connection_check.add_clicked_callback(self._toggle_store_connection)
         box.add(self._store_connection_check, False, True)
         self._store_connection_entry = mforms.newTextEntry()
+        self._store_connection_entry.set_name('Store Connection Name')
         box.add(self._store_connection_entry, True, True)
         self._store_connection_entry.set_enabled(False)
 

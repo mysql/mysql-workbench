@@ -53,6 +53,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param2">
             <value type="string" key="caption">Username:</value>
+             <value type="string" key="accessibilityName">User Name</value>
             <value type="string" key="defaultValue">sa</value>
             <value type="string" key="description">Leave blank if specified in data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -68,6 +69,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param3">
             <value type="string" key="caption">Password:</value>
+             <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -85,6 +87,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param4">
             <value type="string" key="caption">Database:</value>
+             <value type="string" key="accessibilityName">Database</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Leave blank if already in data source or to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -133,6 +136,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_ftds_dsn.param2">
             <value type="string" key="caption">Username:</value>
+             <value type="string" key="accessibilityName">User Name</value>
             <value type="string" key="defaultValue">sa</value>
             <value type="string" key="description">Leave blank if specified in data source.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -148,6 +152,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_ftds_dsn.param3">
             <value type="string" key="caption">Password:</value>
+             <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -166,6 +171,7 @@
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.
 odbc_ftds_dsn.param4">
             <value type="string" key="caption">Protocol Version:</value>
+             <value type="string" key="accessibilityName">Protocol Version</value>
             <value type="string" key="defaultValue">7.1</value>
             <value type="string" key="description">TDS protocol version to use by the FreeTDS driver.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -181,6 +187,7 @@ odbc_ftds_dsn.param4">
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_dsn.param5">
             <value type="string" key="caption">Database:</value>
+             <value type="string" key="accessibilityName">Database</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">Leave blank if already in data source or to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -197,6 +204,7 @@ odbc_ftds_dsn.param4">
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.
 odbc_ftds_dsn.aparam2">
             <value type="string" key="caption">Driver sends Unicode data as UTF-8</value>
+             <value type="string" key="accessibilityName">Send Data in UTF-8</value>
             <value type="string" key="defaultValue">0</value>
             <value type="string" key="description">Enable if ODBC driver returns Unicode data as UTF-8 instead of UCS-2.
 Required for FreeTDS.</value>
@@ -246,6 +254,7 @@ Required for FreeTDS.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param1">
             <value type="string" key="caption">Server:</value>
+            <value type="string" key="accessibilityName">Server</value>
             <value type="string" key="defaultValue">localhost\SQLEXPRESS</value>
             <value type="string" key="description">Address\instance name of the server.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -261,6 +270,7 @@ Required for FreeTDS.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param3">
             <value type="string" key="caption">Username:</value>
+            <value type="string" key="accessibilityName">User Name</value>
             <value type="string" key="defaultValue">sa</value>
             <value type="string" key="description">Name of the user to connect with.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -276,6 +286,7 @@ Required for FreeTDS.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param4">
             <value type="string" key="caption">Password:</value>
+            <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -293,6 +304,7 @@ Required for FreeTDS.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.param5">
             <value type="string" key="caption">Database:</value>
+            <value type="string" key="accessibilityName">Database</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -308,6 +320,7 @@ Required for FreeTDS.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc_native.aparam2">
             <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="accessibilityName">Additional Arguments</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">; separated list of extra arguments to use in the
 ODBC connection string.</value>
@@ -358,6 +371,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param1">
             <value type="string" key="caption">Hostname:</value>
+            <value type="string" key="accessibilityName">Host Name</value>
             <value type="string" key="defaultValue">127.0.0.1</value>
             <value type="string" key="description">Name or IP address of the server host.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -373,6 +387,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param2">
             <value type="string" key="caption">Port:</value>
+            <value type="string" key="accessibilityName">Port</value>
             <value type="string" key="defaultValue">1433</value>
             <value type="string" key="description">TCP/IP port.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -388,6 +403,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param3">
             <value type="string" key="caption">Username:</value>
+            <value type="string" key="accessibilityName">User Name</value>
             <value type="string" key="defaultValue">sa</value>
             <value type="string" key="description">Name of the user to connect with.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -403,6 +419,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param4">
             <value type="string" key="caption">Password:</value>
+            <value type="string" key="accessibilityName">Password</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The user's password. Leave blank to input when needed.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -420,6 +437,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.param5">
             <value type="string" key="caption">Database:</value>
+            <value type="string" key="accessibilityName">Database</value>
             <value type="string" key="defaultValue"></value>
             <value type="string" key="description">The database to connect to. Leave blank to select it later.</value>
             <value type="int" key="layoutAdvanced">0</value>
@@ -435,6 +453,7 @@ ODBC connection string.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.aparam1">
             <value type="string" key="caption">Driver sends Unicode data as UTF-8</value>
+            <value type="string" key="accessibilityName">Send Data in UTF-8</value>
             <value type="string" key="defaultValue">0</value>
             <value type="string" key="description">Enable if ODBC driver returns Unicode data as UTF-8
 instead of UCS-2. Required for FreeTDS.</value>
@@ -451,6 +470,7 @@ instead of UCS-2. Required for FreeTDS.</value>
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mssql.driver.odbc.aparam2">
             <value type="string" key="caption">Additional arguments</value>
+            <value type="string" key="accessibilityName">Additional Arguments</value>
             <value type="string" key="defaultValue">TDS_VERSION=7.1</value>
             <value type="string" key="description">; separated list of extra arguments to use in the
 ODBC connection string.</value>

@@ -104,12 +104,16 @@ class MainView(WizardPage):
 
     def create_ui(self):
         self.content.set_spacing(4)
-        self.content.add(mforms.newLabel("Review and edit migrated objects. You can manually edit the generated SQL before applying them to the target database."), False, True)
+        description = mforms.newLabel("Review and edit migrated objects. You can manually edit the generated SQL before applying them to the target database.")
+        description.set_name('Page Description')
+        self.content.add(description, False, True)
         
         hbox = mforms.newBox(True)
         self.tree_head_label = mforms.newLabel("Migrated Objects")
+        self.tree_head_label.set_name('Header')
         hbox.add(self.tree_head_label, False, True)
         self._filter = mforms.newSelector()
+        self._filter.set_name('Change View')
         self._filter.add_items(["Migration Problems", "All Objects", "Column Mappings"])
         self._filter.add_changed_callback(self._filter_changed)
         hbox.add_end(self._filter, False, True)
@@ -118,11 +122,13 @@ class MainView(WizardPage):
         
         self._no_errors_text = "No migration problems found. %d warning(s).\nUse the View pulldown menu to review all objects."
         self._no_errors = mforms.newLabel('')  # Label text will be set later when the warning count is calculated
+        self._no_errors.set_name('Problems Found')
         self._no_errors.set_style(mforms.BigStyle)
         self._no_errors.set_text_align(mforms.MiddleLeft)
         self.content.add(self._no_errors, True, True)
         
         self._tree = mforms.newTreeView(mforms.TreeDefault)
+        self._tree.set_name('All Objects')
         self._tree.add_column(mforms.IconStringColumnType, "Source Object", 200, False)
         self._tree.add_column(mforms.IconStringColumnType, "Target Object", 200, True)
         self._tree.add_column(mforms.IconStringColumnType, "Migration Message", 300, False)
@@ -139,6 +145,7 @@ class MainView(WizardPage):
 
         
         self._columns = mforms.newTreeView(mforms.TreeShowColumnLines|mforms.TreeShowRowLines|mforms.TreeFlatList)
+        self._columns.set_name('Column Mappings')
         self.COL_SOURCE_SCHEMA = self._columns.add_column(mforms.StringColumnType, "Source Schema", 100, False)
         self.COL_SOURCE_TABLE = self._columns.add_column(mforms.IconStringColumnType, "Source Table", 100, False)
         self.COL_SOURCE_COLUMN = self._columns.add_column(mforms.IconStringColumnType, "Source Column", 100, False)
@@ -175,11 +182,13 @@ class MainView(WizardPage):
         self._columns.set_context_menu(self._menu)
         
         self.help_label = mforms.newLabel("You can rename target schemas and tables, and change column definitions by clicking them once selected.")
+        self.help_label.set_name('Help Message')
         self.help_label.set_style(mforms.SmallStyle)
         self.content.add(self.help_label, False, True)
         
         self._advbox = mforms.newPanel(mforms.TitledBoxPanel)
         self._advbox.set_title("SQL CREATE Script for Selected Object")
+        self._advbox.set_name('SQL Editor')
         box = mforms.newBox(True)
         self._code = mforms.newCodeEditor()
         self._code.set_language(mforms.LanguageMySQL)

@@ -50,6 +50,7 @@ class WizardTask(mforms.Box):
         
         self._icon = mforms.newImageBox()
         self._label = mforms.newLabel(label)
+        self._label.set_name(label)
         
         self._enabled = True
         
@@ -219,6 +220,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._use_private_message_handling = use_private_message_handling
       
         self._description = mforms.newLabel(description or "The following tasks will now be performed. Please monitor the execution.")
+        self._description.set_name('Page Description')
         self.content.add(self._description, False, True)
         
         self._tasks_box = mforms.newBox(False)
@@ -234,6 +236,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._progress.show(False)
         
         self._detail_label = mforms.newLabel("")
+        self._detail_label.set_name('Details')
         self.content.add(self._detail_label, False, True)
 
         self._timer = None
@@ -244,6 +247,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         
         self._log_box = mforms.newPanel(mforms.TitledBoxPanel)
         self._log_box.set_title("Message Log")
+        self._log_box.set_name("Message Log")
         
         self._log_text = mforms.newTextBox(mforms.VerticalScrollBar)
         self._log_text.set_name('Wizard Progress Log Text')

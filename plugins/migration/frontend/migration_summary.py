@@ -107,6 +107,7 @@ class FinalReportView(WizardPage):
         self.main.add_wizard_page(self, "Report", "Migration Report")
 
         self._report = mforms.newTextBox(mforms.VerticalScrollBar)
+        self._report.set_name("Migration Report")
         self.content.add(self._report, True, True)
         
         self.next_button.set_text("Finish")

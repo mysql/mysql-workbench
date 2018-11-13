@@ -140,6 +140,7 @@ class DatabaseObjectSelector(mforms.Box):
             if len(group_objects) > 0:
                 box = mforms.newBox(True)
                 search_entry = mforms.newTextEntry(mforms.SearchEntry)
+                search_entry.set_name("Search Entry")
                 search_entry.set_placeholder_text("Filter objects (wildcards chars * and ? are allowed)")
                 search_entry.add_changed_callback(functools.partial(self.search_entry_changed, group=group))
                 box.add(search_entry, False, True)
@@ -150,6 +151,7 @@ class DatabaseObjectSelector(mforms.Box):
                 filter_container.set_spacing(8)
 
                 available_list = mforms.newTreeView(mforms.TreeFlatList)
+                available_list.set_name("Available List")
                 available_list.add_column(mforms.IconColumnType, 'Available Objects', 300, False)
                 available_list.end_columns()
                 available_list.set_selection_mode(mforms.TreeSelectMultiple)
@@ -187,6 +189,7 @@ class DatabaseObjectSelector(mforms.Box):
 
 
                 selected_list = mforms.newTreeView(mforms.TreeFlatList)
+                selected_list.set_name("Selected List")
                 selected_list.add_column(mforms.IconColumnType, 'Objects to Migrate', 300, False)
                 selected_list.end_columns()
                 selected_list.set_selection_mode(mforms.TreeSelectMultiple)

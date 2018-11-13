@@ -2713,6 +2713,8 @@
 		8EAD85CD1E081F1B00FA7D0C /* wb.validation.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B52861A0F1C1E08005FBF7C /* wb.validation.grt.dylib */; };
 		8EAD85CE1E081F3700FA7D0C /* wb.mysql.validation.grt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B5286230F1C1E10005FBF7C /* wb.mysql.validation.grt.dylib */; };
 		8EAD85D31E0932BE00FA7D0C /* utf8string_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */; };
+		8EEF5E2C2191B6D300CE73B7 /* mssql_rdbms_info.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8EEF5E2B2191B6D300CE73B7 /* mssql_rdbms_info.xml */; };
+		8EEF5E2E2193075100CE73B7 /* sybase_rdbms_info.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8EEF5E2D2193075100CE73B7 /* sybase_rdbms_info.xml */; };
 		8EF3D28E205823A400FCF385 /* test_db_mysql_schema_reporting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B151B34444600D6135D /* test_db_mysql_schema_reporting.cpp */; };
 		8EF3D28F205823A400FCF385 /* shell_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A381B343A8B00D6135D /* shell_test.cpp */; };
 		8EF3D290205823A400FCF385 /* grtpp_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A9C1B34434B00D6135D /* grtpp_test.cpp */; };
@@ -6867,6 +6869,8 @@
 		8EAD85C61E08145000FA7D0C /* test_wbmodulevalidationmysql.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_wbmodulevalidationmysql.cpp; path = "internal/wb.mysql.validation/unit-tests/test_wbmodulevalidationmysql.cpp"; sourceTree = "<group>"; };
 		8EAD85C91E08152E00FA7D0C /* test_wbmodulevalidation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_wbmodulevalidation.cpp; path = "internal/wb.validation/unit-tests/test_wbmodulevalidation.cpp"; sourceTree = "<group>"; };
 		8EAD85D21E0932BE00FA7D0C /* utf8string_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utf8string_test.cpp; path = "library/base/unit-tests/utf8string_test.cpp"; sourceTree = "<group>"; };
+		8EEF5E2B2191B6D300CE73B7 /* mssql_rdbms_info.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = mssql_rdbms_info.xml; path = modules/db.mssql/res/mssql_rdbms_info.xml; sourceTree = "<group>"; };
+		8EEF5E2D2193075100CE73B7 /* sybase_rdbms_info.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = sybase_rdbms_info.xml; path = modules/db.sybase/res/sybase_rdbms_info.xml; sourceTree = "<group>"; };
 		8EF3D31C205823A400FCF385 /* wbtests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = wbtests; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED0955DE177374690051CF28 /* page_restore.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = page_restore.png; path = images/admin/page_restore.png; sourceTree = "<group>"; };
 		ED0955DF177374690051CF28 /* title_backup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_backup.png; path = images/admin/title_backup.png; sourceTree = "<group>"; };
@@ -10737,6 +10741,7 @@
 		2BAD7C45156D89270025F13F /* db.mssql */ = {
 			isa = PBXGroup;
 			children = (
+				8EEF5E2B2191B6D300CE73B7 /* mssql_rdbms_info.xml */,
 				2BAD7C46156D89470025F13F /* db_mssql_grt.py */,
 				2BAD7C47156D89470025F13F /* db_mssql_migration_grt.py */,
 			);
@@ -10983,6 +10988,7 @@
 		2BCE49EA15F533E300FA0CDC /* db.sybase */ = {
 			isa = PBXGroup;
 			children = (
+				8EEF5E2D2193075100CE73B7 /* sybase_rdbms_info.xml */,
 				2BCE49EB15F5341C00FA0CDC /* db_sybase_migration_grt.py */,
 				2BCE49EC15F5341C00FA0CDC /* db_sybase_re_grt.py */,
 			);
@@ -14230,6 +14236,7 @@
 				ED8C8461174A9EF80036E6EF /* tcp_utils.py in Resources */,
 				2BF0498D174E559C00A7EA35 /* title_connections.png in Resources */,
 				2BF0498E174E559C00A7EA35 /* title_connections@2x.png in Resources */,
+				8EEF5E2C2191B6D300CE73B7 /* mssql_rdbms_info.xml in Resources */,
 				2BF0498F174E559C00A7EA35 /* title_export.png in Resources */,
 				2BF04990174E559C00A7EA35 /* title_export@2x.png in Resources */,
 				2BF04991174E559C00A7EA35 /* title_import.png in Resources */,
@@ -14277,6 +14284,7 @@
 				27635D20179968B300288DBE /* tiny_refresh@2x.png in Resources */,
 				2B02FEED183E771B00770CC0 /* hand.png in Resources */,
 				27635D22179968B300288DBE /* wb_toolbar_pages_18x18.png in Resources */,
+				8EEF5E2E2193075100CE73B7 /* sybase_rdbms_info.xml in Resources */,
 				27EF538317997C710028EC8C /* tiny_rollback.png in Resources */,
 				27EF538417997C710028EC8C /* tiny_rollback@2x.png in Resources */,
 				273766AF17997E4600803099 /* record_import@2x.png in Resources */,

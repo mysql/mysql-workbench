@@ -85,7 +85,7 @@
           </value>
           <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.sql92.driver.odbc.param3">
             <value type="string" key="caption">Username:</value>
-            <value type="string" key="accessibilityName">Username</value>
+            <value type="string" key="accessibilityName">User Name</value>
             <value type="string" key="defaultValue">root</value>
             <value type="string" key="description">Name of the user to connect with.</value>
             <value type="int" key="layoutAdvanced">0</value>
