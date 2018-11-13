@@ -1773,7 +1773,7 @@ class SecurityAccount(mforms.Box):
         self.user_list.freeze_refresh()
         self.user_list.clear()
         self.firewall_rules.refresh_users(self.owner.secman.account_names)
-        for user, host in self.owner.secman.account_names:
+        for user, host, loaded in self.owner.secman.account_names:
             user = to_unicode(user)
             row = self.user_list.add_node()
             if self.owner.secman.is_zombie(user, host):
@@ -2127,7 +2127,7 @@ class WbAdminSecurity(WbAdminTabBase):
         self.secman.async_refresh(self.do_refresh)
 
         try:
-            anon_accounts = [ (user, host) for user, host in self.secman.account_names if user=='']
+            anon_accounts = [ (user, host, loaded) for user, host, loaded in self.secman.account_names if user=='']
             if anon_accounts and not self.__dict__.get('already_asked_for_anon_accounts', False):
                 logged_username = self.instance_info.db_connection_params.parameterValues['userName']
                 logged_servername = self.instance_info.db_connection_params.hostIdentifier

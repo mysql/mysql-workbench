@@ -329,7 +329,7 @@ class AdminSecurity(object):
             while result.nextRow():
                 user = to_unicode(result.stringByName("User"))
                 host = to_unicode(result.stringByName("Host"))
-                accounts.append((user, host))
+                accounts.append((user, host, True))
 
 
         # Get a list of invalid privileges
@@ -424,22 +424,24 @@ class AdminSecurity(object):
         copy.is_commited = False
         copy.username += '_copy'
         self._account_info_cache[copy.username+"@"+copy.host] = copy
-        self._accounts.append((copy.username, copy.host))
+        self._accounts.append((copy.username, copy.host, False))
         return copy
 
 
     def create_account(self):
         def unique_name(user, host, counter=None):
             name = user + ( str(counter) if counter else '' )
-            if (name, host) in self._accounts:
-                name = unique_name(user, host, counter+1 if isinstance(counter, int) else 1)
+            for (n, h, loaded) in self._accounts:
+                if name == n and host == h:
+                    name = unique_name(user, host, counter+1 if isinstance(counter, int) else 1)
+                    break
             return name
 
         acct = AdminAccount(self)
         acct.host = u"%"
         acct.username = to_unicode(unique_name(u'newuser', acct.host))
         self._account_info_cache[acct.username+"@"+acct.host] = acct
-        self._accounts.append((acct.username, acct.host))
+        self._accounts.append((acct.username, acct.host, False))
         return acct
 
 
@@ -762,7 +764,7 @@ class AdminAccount(object):
             if (self.username, self.host) in self._owner.account_names:
                 raise WBSecurityValidationError("The '%s' account already exists and cannot be saved." % (self.formatted_name()))
         elif not self.is_commited:
-            if (self.username, self.host) in self._owner.account_names:
+            if (self.username, self.host, True) in self._owner.account_names:
                 raise WBSecurityValidationError("The '%s' account already exists and cannot be saved." % (self.formatted_name()))
 
         fields = {
