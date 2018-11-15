@@ -76,6 +76,12 @@ def find_grt_object(name, collection):
             return obj
     return None
 
+def fixQuoteIdentifier(name):
+    quotes = ['\'', '`', '"']
+    if name[0] in quotes:
+        name = name[1:-1]
+    return quoteIdentifier(name)
+
 ###############################################################################
 
 @ModuleInfo.export(grt.STRING, grt.STRING)
@@ -695,7 +701,7 @@ def reverseEngineerTablePK(connection, table):
     catalog = schema.owner
 
     execute_query(connection, 'USE %s' % quoteIdentifier(catalog.name))
-    query = "exec sp_pkeys '%s', '%s'" % (table.name, schema.name)
+    query = "exec sp_pkeys '%s', '%s'" % (fixQuoteIdentifier(table.name), fixQuoteIdentifier(schema.name))
 
     if len(table.columns) == 0:
         grt.send_error('Migration: reverseEngineerTablePK', 'Reverse engineer of table %s.%s was attempted but the table has no columns attribute' % (schema.name, table.name) )
@@ -739,7 +745,7 @@ def reverseEngineerTableIndices(connection, table):
                  i.indid > 0 AND i.indid < 255 AND o.type = 'U' AND 
                  (i.status & 64)=0 AND (i.status & 8388608)=0 AND 
                  (i.status & 2048)=0 AND  u.name='%s' AND o.name='%s'
-               ORDER BY i.name, k.keyno""" % (schema.name, table.name)
+               ORDER BY i.name, k.keyno""" % (fixQuoteIdentifier(schema.name), fixQuoteIdentifier(table.name))
         index_rows = execute_query(connection, get_indices_query_pre90).fetchall()
         index = None
         for table_schema, table_name, index_name, column_name, ignore_dup_keys, is_unique, \
@@ -771,7 +777,7 @@ def reverseEngineerTableIndices(connection, table):
         get_indices_query = """SELECT object_id, name, index_id, CAST (type_desc AS NVARCHAR) AS type_desc, is_unique,
     is_primary_key, is_disabled, has_filter, CAST (filter_definition AS NVARCHAR) AS filter_definition
     FROM sys.indexes
-    WHERE sys.indexes.object_id = OBJECT_ID('%s.%s')""" % (schema.name, table.name)
+    WHERE sys.indexes.object_id = OBJECT_ID('%s.%s')""" % (fixQuoteIdentifier(schema.name), fixQuoteIdentifier(table.name))
 
         get_index_columns_query = """SELECT c.name, ic.is_descending_key
     FROM sys.index_columns ic JOIN sys.columns c on (ic.column_id=c.column_id and ic.object_id=c.object_id)
@@ -833,7 +839,7 @@ WHERE u.name=? AND t.name=? AND
  ref_tbl.id=sfk.rkeyid AND ref_tbl.uid=ref_u.uid AND 
  ref_c.id=ref_tbl.id AND ref_c.colid=sfk.rkey 
 ORDER BY sfk.constid, sfk.keyno"""
-        fk_rows = execute_query(connection, get_fks_query_pre9, (schema.name, table.name)).fetchall()
+        fk_rows = execute_query(connection, get_fks_query_pre9, (fixQuoteIdentifier(schema.name), fixQuoteIdentifier(table.name))).fetchall()
         foreign_key = None
         for fk_name, column_name, referenced_schema_name, referenced_table_name, referenced_column_name, update_rule, delete_rule in fk_rows:
             if foreign_key is None or foreign_key.name != fk_name:
@@ -875,7 +881,7 @@ ORDER BY sfk.constid, sfk.keyno"""
     else:
         get_fks_query = """SELECT object_id as fk_id, name, delete_referential_action_desc, update_referential_action_desc, is_disabled
     FROM sys.foreign_keys
-    WHERE parent_object_id=OBJECT_ID('%s.%s')""" % (schema.name, table.name)
+    WHERE parent_object_id=OBJECT_ID('%s.%s')""" % (fixQuoteIdentifier(schema.name), fixQuoteIdentifier(table.name))
 
         get_fk_mapping_query = """SELECT COL_NAME(fkc.parent_object_id, fkc.parent_column_id) as parent_column,
          OBJECT_SCHEMA_NAME(fkc.referenced_object_id) as referenced_schema,
