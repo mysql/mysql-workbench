@@ -578,16 +578,16 @@ The number of logical write requests InnoDB has done to the buffer pool.
 
 Total: %(Innodb_buffer_pool_write_requests)s"""),
 
- ("InnoDB Buffer Pool", DBRoundMeter, ("Usage",), None, (CRawValue, "(%(Innodb_buffer_pool_pages_data)s+%(Innodb_buffer_pool_pages_misc)s)/(%(Innodb_buffer_pool_pages_total)s+0.0)"),
+ ("InnoDB Buffer Pool", DBRoundMeter, ("Usage",), None, (CRawValue, "(%(Innodb_buffer_pool_bytes_data)s/%(Innodb_page_size)s)/(%(Innodb_buffer_pool_pages_total)s+0.0)"),
   (124/255.0, 193/255.0, 80/255.0), (720, 150),
 """InnoDB Buffer Pool Usage Rate
 How much of the InnoDB buffer pool is in use, from the amount allocated to it.
 
-Usage Rate: ${(%(Innodb_buffer_pool_pages_data)s+%(Innodb_buffer_pool_pages_misc)s)/(%(Innodb_buffer_pool_pages_total)s+0.0)}
+Usage Rate: ${round(((%(Innodb_buffer_pool_bytes_data)s/%(Innodb_page_size)s)/(%(Innodb_buffer_pool_pages_total)s+0.0))*100, 2)}%%
 
 Total Pages Available: %(Innodb_buffer_pool_pages_total)s
-Pages Used for Data: %(Innodb_buffer_pool_pages_data)s
-Pages Used Internally by InnoDB: %(Innodb_buffer_pool_pages_misc)s
+Pages Used for Data: ${(%(Innodb_buffer_pool_bytes_data)s/%(Innodb_page_size)s)}
+Pages Used Internally by InnoDB: ${%(Innodb_buffer_pool_pages_total)s-(%(Innodb_buffer_pool_bytes_data)s/%(Innodb_page_size)s)}
 Pages Free: %(Innodb_buffer_pool_pages_free)s"""),
 
  (None, DBSimpleCounter, ("disk reads\n%.0f %s\n#/s", True), None, (CSingleDifferencePerSecond, "%(Innodb_buffer_pool_reads)s"),
