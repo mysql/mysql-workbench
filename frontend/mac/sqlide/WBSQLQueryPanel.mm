@@ -702,7 +702,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
     if (deleg)
     {
       mforms::AppView* av = deleg->appview_for_view(tabViewItem.view);
-      if (av && av->get_form_context_name() == "administrator")
+      if (av && av->get_form_context_name() == "Administrator")
         expanded_mode = YES;
     }
 
