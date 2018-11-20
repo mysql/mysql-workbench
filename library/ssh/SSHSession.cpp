@@ -486,7 +486,7 @@ namespace ssh {
     int rc = 0;
     std::size_t hlen = 0;
     errno = 0;
-    rc = ssh_get_publickey(_session->getCSession(), &srvPubKey);
+    rc = ssh_get_server_publickey(_session->getCSession(), &srvPubKey);
     if (rc < 0)
       throw SSHTunnelException("Can't get server pubkey " + getError());
 

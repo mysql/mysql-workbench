@@ -117,7 +117,7 @@ find_package(MySQLCppConn 1.1.8 REQUIRED)
 find_package(VSqlite REQUIRED)
 find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
-find_package(LibSSH 0.7.3 REQUIRED)
+find_package(LibSSH 0.8.5 REQUIRED)
 find_package(OpenSSL REQUIRED)
 set(PRECOMPILED_HEADERS_EXCLUDE_PATHS "/usr/include/gdal;/usr/include/arpa;${CMAKE_SOURCE_DIR};${PROJECT_SOURCE_DIR}/ext/antlr-runtime;${PROJECT_BINARY_DIR};${MySQL_INCLUDE_DIRS};${MYSQLNG_INCLUDE_DIR};${Boost_INCLUDE_DIRS}")
 

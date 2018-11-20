@@ -162,7 +162,6 @@
 		27189E5F209B2D0D002EC0D4 /* libmysqlcppconn.7.8.0.13.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.13.dylib */; };
 		27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
 		27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */; };
-		27189E62209B2D1B002EC0D4 /* libssh.4.4.2.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE4E2099E4170050B26B /* libssh.4.4.2.dylib */; };
 		27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */; };
 		27189E65209B2D2F002EC0D4 /* libzip.4.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE502099E43D0050B26B /* libzip.4.dylib */; };
 		27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E67209B2E50002EC0D4 /* libsqlite3.so */; };
@@ -413,7 +412,6 @@
 		278DFEC520A2E0FF00D7E439 /* libz.so.1.2.5 in Frameworks */ = {isa = PBXBuildFile; fileRef = 278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */; };
 		278DFEC720A2E19000D7E439 /* libz.so.1.2.5 in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */; };
 		278DFF0920A2F52E00D7E439 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		278DFF0A20A2F53400D7E439 /* libssh.4.4.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE4E2099E4170050B26B /* libssh.4.4.2.dylib */; };
 		278DFF1520A2F64C00D7E439 /* SSHTunnelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 278DFF0B20A2F64700D7E439 /* SSHTunnelManager.h */; };
 		278DFF1620A2F64C00D7E439 /* SSHTunnelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278DFF0C20A2F64800D7E439 /* SSHTunnelManager.cpp */; };
 		278DFF1720A2F64C00D7E439 /* SSHTunnelHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 278DFF0D20A2F64800D7E439 /* SSHTunnelHandler.h */; };
@@ -598,7 +596,6 @@
 		27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
 		27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		27D6EE4B2099E3E90050B26B /* libmysqlcppconn.7.8.0.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.13.dylib */; };
-		27D6EE4F2099E4170050B26B /* libssh.4.4.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE4E2099E4170050B26B /* libssh.4.4.2.dylib */; };
 		27D6EE512099E43E0050B26B /* libzip.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE502099E43D0050B26B /* libzip.4.dylib */; };
 		27D6EE522099E6030050B26B /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		27D6EE532099E6080050B26B /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
@@ -2680,6 +2677,9 @@
 		447272041C58F991005F840F /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		447272051C59014A005F840F /* utilities.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 447271FA1C58F170005F840F /* utilities.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		447A471B202CA0EC0039D629 /* my_config.h in Headers */ = {isa = PBXBuildFile; fileRef = 447A471A202CA0E70039D629 /* my_config.h */; };
+		4494888521943FF80028E746 /* libssh.4.7.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4494888421943FF80028E746 /* libssh.4.7.2.dylib */; };
+		4494888621943FF80028E746 /* libssh.4.7.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4494888421943FF80028E746 /* libssh.4.7.2.dylib */; };
+		44948887219440020028E746 /* libssh.4.7.2.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 4494888421943FF80028E746 /* libssh.4.7.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		449B5FE91FE2E96500BE0F12 /* db_mgmt_SSHFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FE71FE2E96400BE0F12 /* db_mgmt_SSHFile.cpp */; };
 		449B5FEA1FE2E96500BE0F12 /* db_mgmt_SSHConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FE81FE2E96400BE0F12 /* db_mgmt_SSHConnection.cpp */; };
 		449B5FEB1FE2E96900BE0F12 /* db_mgmt_SSHConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 449B5FE81FE2E96400BE0F12 /* db_mgmt_SSHConnection.cpp */; };
@@ -4046,11 +4046,11 @@
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
-				27189E62209B2D1B002EC0D4 /* libssh.4.4.2.dylib in Copy Files (dylibs) */,
 				27189E72209B30EA002EC0D4 /* libssl.1.0.0.dylib in Copy Files (dylibs) */,
 				27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */,
 				278DFEC720A2E19000D7E439 /* libz.so.1.2.5 in Copy Files (dylibs) */,
 				27189E65209B2D2F002EC0D4 /* libzip.4.dylib in Copy Files (dylibs) */,
+				44948887219440020028E746 /* libssh.4.7.2.dylib in Copy Files (dylibs) */,
 			);
 			name = "Copy Files (dylibs)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4635,7 +4635,6 @@
 		27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libantlr4-runtime.dylib"; path = "3rd-party-ce/lib/libantlr4-runtime.dylib"; sourceTree = "<group>"; };
 		27D6EE402099E2070050B26B /* libgdal.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.1.dylib; path = "3rd-party-ce/lib/libgdal.1.dylib"; sourceTree = "<group>"; };
 		27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvsqlitepp.3.dylib; path = "3rd-party-ce/lib/libvsqlitepp.3.dylib"; sourceTree = "<group>"; };
-		27D6EE4E2099E4170050B26B /* libssh.4.4.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.4.2.dylib; path = "3rd-party-ce/lib/libssh.4.4.2.dylib"; sourceTree = "<group>"; };
 		27D6EE502099E43D0050B26B /* libzip.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libzip.4.dylib; path = "3rd-party-ce/lib/libzip.4.dylib"; sourceTree = "<group>"; };
 		27D963F21CC0D85600C0E2CF /* background_stripes_light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background_stripes_light.png; sourceTree = "<group>"; };
 		27D963F31CC0D85600C0E2CF /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
@@ -6837,6 +6836,7 @@
 		447271FB1C58F1CC005F840F /* utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utilities.cpp; path = modules/utilities/src/utilities.cpp; sourceTree = "<group>"; };
 		447271FE1C58F2BA005F840F /* utilities.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utilities.grt_prefix.h; path = prefix/utilities.grt_prefix.h; sourceTree = "<group>"; };
 		447A471A202CA0E70039D629 /* my_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = my_config.h; path = library/sql.parser/source/my_config.h; sourceTree = "<group>"; };
+		4494888421943FF80028E746 /* libssh.4.7.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.2.dylib; path = "3rd-party-ce/lib/libssh.4.7.2.dylib"; sourceTree = "<group>"; };
 		449B5FC41FE2E88B00BE0F12 /* SSHFileWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SSHFileWrapper.cpp; sourceTree = "<group>"; };
 		449B5FC61FE2E88C00BE0F12 /* SSHSessionWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHSessionWrapper.h; sourceTree = "<group>"; };
 		449B5FC71FE2E88C00BE0F12 /* SSHFileWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSHFileWrapper.h; sourceTree = "<group>"; };
@@ -6900,8 +6900,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4494888521943FF80028E746 /* libssh.4.7.2.dylib in Frameworks */,
 				278DFF0920A2F52E00D7E439 /* libwbbase.dylib in Frameworks */,
-				278DFF0A20A2F53400D7E439 /* libssh.4.4.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7260,11 +7260,11 @@
 				2B6A60C00EB0BBF1008E6D11 /* libcdbc.dylib in Frameworks */,
 				2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */,
 				27D6EE472099E3B10050B26B /* libantlr4-runtime.dylib in Frameworks */,
+				4494888621943FF80028E746 /* libssh.4.7.2.dylib in Frameworks */,
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				27D6EE4B2099E3E90050B26B /* libmysqlcppconn.7.8.0.13.dylib in Frameworks */,
-				27D6EE4F2099E4170050B26B /* libssh.4.4.2.dylib in Frameworks */,
 				2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */,
 				27D6EE512099E43E0050B26B /* libzip.4.dylib in Frameworks */,
 				275256491D9517DB0028ACAB /* Python in Frameworks */,
@@ -9801,6 +9801,7 @@
 		2B750F9E0E8796310003120A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4494888421943FF80028E746 /* libssh.4.7.2.dylib */,
 				27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */,
 				27D6EE362099D8210050B26B /* libcairo.2.dylib */,
 				27189E70209B30DC002EC0D4 /* libcrypto.1.0.0.dylib */,
@@ -9818,7 +9819,6 @@
 				27189E56209B28D8002EC0D4 /* libpng16.16.dylib */,
 				27189E76209B369B002EC0D4 /* libproj.0.dylib */,
 				27189E67209B2E50002EC0D4 /* libsqlite3.so */,
-				27D6EE4E2099E4170050B26B /* libssh.4.4.2.dylib */,
 				27189E6F209B30C7002EC0D4 /* libssl.1.0.0.dylib */,
 				27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
@@ -16536,6 +16536,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
+					"$(PROJECT_DIR)/3rd-party-se/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -16553,6 +16554,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
+					"$(PROJECT_DIR)/3rd-party-se/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -18129,6 +18131,11 @@
 					"$(inherited)",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rd-party-se/lib",
+					"$(PROJECT_DIR)/3rd-party-ce/lib",
+				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
 			};
@@ -18169,6 +18176,11 @@
 					"$(inherited)",
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rd-party-se/lib",
+					"$(PROJECT_DIR)/3rd-party-ce/lib",
+				);
 				PRODUCT_NAME = wbprivate.be;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
