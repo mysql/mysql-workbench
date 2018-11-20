@@ -51,6 +51,7 @@ CREATE_USER_QUERY = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(passwor
 CREATE_USER_QUERY_PLUGIN_AUTH_STRING = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
 CREATE_USER_QUERY_PLUGIN = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s'"
 CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE = u"CREATE USER '%(user)s' IDENTIFIED WITH 'mysql_native_password' BY '%(password)s'"
 
 ALTER_USER_RESOURCES = u"ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
 GRANT_GLOBAL_PRIVILEGES_QUERY = u"GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
@@ -779,9 +780,11 @@ class AdminAccount(object):
   
         password_already_set = False
         if not self.is_commited:  # This is a new account
-            if self.auth_plugin and self.auth_plugin != 'mysql_native_password':
+            if self.auth_plugin:
                 if self.auth_string is None:
                     create_query = CREATE_USER_QUERY_PLUGIN
+                elif self.auth_plugin == 'mysql_native_password':
+                    create_query = CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE
                 elif self.auth_plugin == 'caching_sha2_password':
                     create_query = CREATE_USER_QUERY_PLUGIN_AUTH_CACHING
                 else:
