@@ -70,6 +70,8 @@ namespace wb {
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::exportPDF),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::exportPS),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::exportSVG),
+      DECLARE_MODULE_FUNCTION(WorkbenchImpl::activateDiagram),
+      DECLARE_MODULE_FUNCTION(WorkbenchImpl::exportDiagramToPng),
 
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::selectAll),
       DECLARE_MODULE_FUNCTION(WorkbenchImpl::selectSimilar),
@@ -210,7 +212,8 @@ namespace wb {
     int exportPDF(const std::string &filename);
     int exportPS(const std::string &filename);
     int exportSVG(const std::string &filename);
-
+    int activateDiagram(const model_DiagramRef &diagram);
+    int exportDiagramToPng(const model_DiagramRef &diagram, const std::string &filename);
     int exit();
 
     // edit

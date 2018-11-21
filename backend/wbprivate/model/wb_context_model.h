@@ -111,6 +111,7 @@ namespace wb {
     void export_pdf(const std::string &path);
     void export_ps(const std::string &path);
     void export_svg(const std::string &path);
+    void exportPng(const model_DiagramRef &diagram, const std::string &path);
 
     // Diagrams
     model_DiagramRef get_view_with_id(const std::string &id);

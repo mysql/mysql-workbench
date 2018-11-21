@@ -1194,6 +1194,19 @@ void WBContextModel::export_svg(const std::string &path) {
       _("Cannot Export Diagram"), _("Current diagram cannot be exported as image, please select a diagram first."));
 }
 
+void WBContextModel::exportPng(const model_DiagramRef &diagram, const std::string &path) {
+  wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
+        strfmt(_("Exporting full model diagram to %s..."), path.c_str()));
+  try {
+    diagram->get_data()->get_canvas_view()->export_png(path, true);
+    wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(
+          strfmt(_("Exported diagram image to %s"), path.c_str()));
+  } catch (const std::exception &exc) {
+    wb::WBContextUI::get()->get_wb()->_frontendCallbacks->show_status_text(_("Could not export to PNG file."));
+    wb::WBContextUI::get()->get_wb()->show_exception(_("Export to PNG"), exc);
+  }
+}
+
 void WBContextModel::export_ps(const std::string &path) {
   ModelDiagramForm *form = dynamic_cast<ModelDiagramForm *>(wb::WBContextUI::get()->get_active_main_form());
   if (form) {

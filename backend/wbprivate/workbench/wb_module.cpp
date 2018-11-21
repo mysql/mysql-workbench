@@ -571,6 +571,16 @@ int WorkbenchImpl::exportPS(const std::string &filename) {
   return 0;
 }
 
+int WorkbenchImpl::activateDiagram(const model_DiagramRef &diagram) {
+  _wb->get_model_context()->switch_diagram(diagram);
+  return 0;
+}
+
+int WorkbenchImpl::exportDiagramToPng(const model_DiagramRef &diagram, const std::string &filename) {
+  _wb->get_model_context()->exportPng(diagram, filename);
+  return 0;
+}
+
 static void quit() {
   if (wb::WBContextUI::get()->request_quit())
     wb::WBContextUI::get()->perform_quit();
