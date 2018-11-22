@@ -1010,7 +1010,6 @@ size_t MySQLParserServicesImpl::parseView(MySQLParserContext::Ref context, db_my
       IdentifierListener listener(viewTree->viewName());
       view->name(listener.parts.back() + "_SYNTAX_ERROR");
     }
-    view->modelOnly(1);
   }
 
   return impl->errors.size();
@@ -1079,7 +1078,6 @@ size_t MySQLParserServicesImpl::parseRoutine(MySQLParserContext::Ref context, db
     auto info = getRoutineNameAndType(tree);
     routine->name(info.first + "_SYNTAX_ERROR");
     routine->routineType(info.second);
-    routine->modelOnly(1);
   }
 
   return impl->errors.size();

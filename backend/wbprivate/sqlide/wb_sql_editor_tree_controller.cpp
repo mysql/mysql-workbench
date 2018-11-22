@@ -2105,15 +2105,12 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE *obj
   }
   try {
     if (!dry_run && obj_editor->has_editor() && obj_editor->get_sql_editor()->has_sql_errors()) {
-      int res = mforms::Utilities::show_warning(_("Apply Changes to Object"),
-                                                _("The object's DDL statement contains syntax errors.\n"
-                                                  "Are you sure you want to apply the DDL statement unchanged?"),
-                                                _("Yes"), _("No"));
-
-      if (res != mforms::ResultOk) {
-        _owner->set_log_message(log_id, DbSqlEditorLog::ErrorMsg, "Cancelled", log_descr, "");
-        return false;
-      }
+      // We won't be able to apply with errors. Inform the user and return false.
+      mforms::Utilities::show_error(_("Apply Changes to Object"),
+                                    _("The object's DDL statement contains syntax errors.\n"
+                                    "You cannot modify this object until you fix the errors."),
+                                    _("OK"));
+      return false;
     }
 
     db_DatabaseObjectRef db_object = obj_editor->get_dbobject();
