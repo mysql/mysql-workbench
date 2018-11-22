@@ -239,6 +239,8 @@ void LayerTree::diagram_objects_changed(grt::internal::OwnedList *list, bool add
         for (insertion_point = 0; insertion_point < c; ++insertion_point) {
           mforms::TreeNodeRef n = node_at_row(insertion_point);
           FigureNode *nn = dynamic_cast<FigureNode *>(n->get_data());
+          if (nn == nullptr)
+            continue;
           if (nn->is_layer)
             break;
         }
