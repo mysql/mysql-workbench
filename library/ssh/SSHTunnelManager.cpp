@@ -147,8 +147,14 @@ namespace ssh {
     auto sockLock = lockSocketList();
 
     for (auto &it : _socketList) {
-      if (it.second->getConfig() == config)
+      if (it.second->getConfig() == config) {
+        if (!it.second->isRunning()) {
+          disconnect(config);
+          logWarning("Dead tunnel found, clearing it up.\n");
+          return 0;
+        }
         return it.second->getLocalPort();
+      }
     }
 
     return 0;

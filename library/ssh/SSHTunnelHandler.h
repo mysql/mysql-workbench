@@ -36,7 +36,6 @@
 #include "SSHSession.h"
 
 namespace ssh {
-
   class WBSSHLIBRARY_PUBLIC_FUNC SSHTunnelHandler : public SSHThread {
   public:
     SSHTunnelHandler(uint16_t localPort, int localSocket, std::shared_ptr<ssh::SSHSession> session);
