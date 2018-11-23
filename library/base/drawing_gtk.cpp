@@ -95,6 +95,18 @@ base::Color Color::getSystemColor(base::SystemColor type) {
       }
       break;
     }
+    case base::SystemColor::TextColor: {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else {
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_NORMAL)));
+        colors[type] = ret;
+      }
+      break;
+    }
     case base::SystemColor::TextBackgroundColor: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())
@@ -107,6 +119,18 @@ base::Color Color::getSystemColor(base::SystemColor type) {
       }
       break;
     }
+    case base::SystemColor::DisabledControlTextColor: {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else {
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_INSENSITIVE)));
+        colors[type] = ret;
+      }
+      break;
+    }
     case base::SystemColor::WindowBackgroundColor: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())
@@ -115,6 +139,30 @@ base::Color Color::getSystemColor(base::SystemColor type) {
         Gtk::Window wnd;
         auto ctx = wnd.get_style_context();
         ret = base::Color(rgba_color_to_mforms(ctx->get_background_color(Gtk::STATE_FLAG_NORMAL)));
+        colors[type] = ret;
+      }
+      break;
+    }
+    case base::SystemColor::SelectedTextBackgroundColor: {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else {
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_background_color(Gtk::STATE_FLAG_SELECTED)));
+        colors[type] = ret;
+      }
+      break;
+    }
+    case base::SystemColor::SelectedTextColor: {
+      Colors::const_iterator it = colors.find(type);
+      if (it != colors.end())
+        ret = it->second;
+      else {
+        Gtk::Entry e;
+        auto styleCtx = e.get_style_context();
+        ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_SELECTED)));
         colors[type] = ret;
       }
       break;
