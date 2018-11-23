@@ -264,10 +264,23 @@ void DbSqlEditorView::tab_menu_handler(const std::string &action, ActiveLabel *s
     return;
 
   PluginEditorBase *_pluginView = dynamic_cast<PluginEditorBase *>(widget);
+  if (_pluginView) { // We have to handle this on our own,
+    if (action == "close_tab") {
+      bec::GRTManager::get()->run_once_when_idle(std::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
+      return; // We stop here
+    }  else if (action == "close_other_tabs") { // and clear up what we can, everything else will be handled by the backend.
+      for (auto i = 0; i < _editor_note->get_n_pages(); i++) {
+        auto *plugin = dynamic_cast<PluginEditorBase *>(_editor_note->get_nth_page(i));
+        if (plugin != nullptr && plugin != widget) {
+          close_plugin_tab(plugin);
+        }
+      }
+    }
+  }
 
-  if (_pluginView)
-    bec::GRTManager::get()->run_once_when_idle(std::bind(&FormViewBase::close_plugin_tab, this, _pluginView));
-  else if (widget) {
+  // Once we're done with platform code, pass handling to the backend
+  if (widget)
+  {
     int page = _editor_note->page_num(*widget);
 
     _be->handle_tab_menu_action(action, page);
