@@ -25,6 +25,9 @@
 %define version         @VERSION@
 %endif
 
+# Disable global build id because of cpp connector bundle
+%global _build_id_links none
+
 # whether at least Python 2.6 is available
 %define have_python26   1
 %include %{_rpmconfigdir}/macros.python
