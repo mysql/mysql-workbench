@@ -965,8 +965,9 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx) {
     table->partitionExpression(getIdentifierList(list));
   }
 
-  if (ctx->SUBPARTITION_SYMBOL() != nullptr)
-    table->subpartitionCount((size_t)std::stoull(ctx->real_ulong_number()->getText()));
+  MySQLParser::Real_ulong_numberContext* numberContext = ctx->real_ulong_number();
+  if (ctx->SUBPARTITION_SYMBOL() != nullptr && numberContext != nullptr)
+    table->subpartitionCount(static_cast<size_t>(std::stoull(numberContext->getText())));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
