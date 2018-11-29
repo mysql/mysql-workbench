@@ -737,7 +737,7 @@ class WbAdminVariables(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Management", "Status and System Variables")
+        admin_context.register_page(cls, "Management", "Status and System Variables", "Status and System Variables")
 
     @classmethod
     def identifier(cls):

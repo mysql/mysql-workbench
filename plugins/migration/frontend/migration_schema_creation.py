@@ -48,6 +48,7 @@ class MainView(WizardPage):
 
         self._create_db = mforms.newCheckBox()
         self._create_db.set_text("Create schema in target RDBMS")
+        self._create_db.set_name("Create Schema")
         box.add(self._create_db, False, True)
 
         # spacer
@@ -55,11 +56,14 @@ class MainView(WizardPage):
 
         self._create_script = mforms.newCheckBox()
         self._create_script.set_text("Create a SQL script file")
+        self._create_script.set_name("Create a Script File")
         self._create_script.add_clicked_callback(self._toggle_sql_script)
         box.add(self._create_script, False, True)
         self._file_hbox = mforms.newBox(True)
         self._file_hbox.set_spacing(4)
-        self._file_hbox.add(mforms.newLabel("Script File:"), False, True)
+        label = mforms.newLabel("Script File:")
+        label.set_name("Script File")
+        self._file_hbox.add(label, False, True)
         self._file_hbox.set_name("Script File")
         self._create_script_file = mforms.newTextEntry()
         self._create_script_file.set_name("Script File Value")
@@ -67,6 +71,7 @@ class MainView(WizardPage):
         self._file_hbox.add(self._create_script_file, True, True)
         button = mforms.newButton()
         button.set_text("Browse...")
+        button.set_name("Browse")
         button.add_clicked_callback(self._browse_files)
         self._file_hbox.add(button, False, True)
         box.add(self._file_hbox, False, True)
@@ -82,6 +87,7 @@ class MainView(WizardPage):
 
         self._keep_schema = mforms.newCheckBox()
         self._keep_schema.set_text("Keep schemas if they already exist. Objects that already exist will not be recreated or updated.")
+        self._keep_schema.set_name("Keep Schema")
         box.add(self._keep_schema, False, True)
 
         self._create_db.set_active(True)
@@ -150,10 +156,10 @@ you may correct them in the next step. Table data will be migrated at a later st
 
     def create_ui(self):
         self.clear_tasks()
-        self._script_task = self.add_task(self._create_script_task, "Create Script File")
-        self._db_task1 = self.add_task(self._connect_task, "Connect to Target Database")
-        self._db_task2 = self.add_task(self._validate_existing_schemata, "Perform Checks in Target")
-        self._db_task3 = self.add_threaded_task(self._create_task, "Create Schemas and Objects")
+        self._script_task = self.add_task(self._create_script_task, "Create Script File", "Create Script File")
+        self._db_task1 = self.add_task(self._connect_task, "Connect to Target Database", "Connect to Target Database")
+        self._db_task2 = self.add_task(self._validate_existing_schemata, "Perform Checks in Target", "Perform Checks in Target")
+        self._db_task3 = self.add_threaded_task(self._create_task, "Create Schemas and Objects", "Create Schemas and Objects")
 
     def page_activated(self, advancing):
         WizardProgressPage.page_activated(self, advancing)
@@ -270,6 +276,7 @@ the schema creation or return to the Manual Editing page to correct them there a
         vbox.set_spacing(8)
         self._comment_check = mforms.newCheckBox()
         self._comment_check.set_text("Comment out")
+        self._comment_check.set_name("Comment Out")
         self._comment_check.add_clicked_callback(self._comment_clicked)
         vbox.add(self._comment_check, False, True)
 

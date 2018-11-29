@@ -39,7 +39,9 @@ class SchemaMainView(WizardPage):
         optionsbox.set_padding(8)
         optionsbox.set_spacing(8)
         
-        optionsbox.add(mforms.newLabel('Choose how the reverse engineered schemas and objects should be mapped.\n'), False)
+        label = mforms.newLabel('Choose how the reverse engineered schemas and objects should be mapped.\n')
+        label.set_name('')
+        optionsbox.add(label, False)
 
         options = [ 'Keep schemas as they are: Catalog.Schema.Table -> Schema.Table',
                     'Only one schema: Catalog.Schema.Table -> Catalog.Table',
@@ -49,6 +51,7 @@ class SchemaMainView(WizardPage):
         self.options = []
         for opt in options:
             radio_button = mforms.newRadioButton(rid)
+            radio_button.set_name('Option %i' % options.index(opt))
             radio_button.set_text(opt)
             optionsbox.add(radio_button, False)
             self.options.append(radio_button)
@@ -157,9 +160,9 @@ class ReverseEngineerProgressView(WizardProgressPage):
 so that its structure can be determined.""")
         
         self._autostart = True
-        self.add_task(self.task_connect, "Connect to source DBMS")
-        self.add_threaded_task(self.task_reveng, "Reverse engineer selected schemas")
-        self.add_task(self.task_post_processing, "Post-processing of reverse engineered schemas")
+        self.add_task(self.task_connect, "Connect to source DBMS", "Connect to Source DBMS")
+        self.add_threaded_task(self.task_reveng, "Reverse engineer selected schemas", "Reverse Engineer Selected Schemas")
+        self.add_task(self.task_post_processing, "Post-processing of reverse engineered schemas", "Post Processing of Reverse Engineered Schemas")
 
         self.main.add_wizard_page(self, "SourceTarget", "Reverse Engineer Source")
  

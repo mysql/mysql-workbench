@@ -133,8 +133,8 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _add1_button.set_text(">");
   scoped_connect(_add1_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_clicked, this, false));
 
-  _add1_button.set_name("Filter Remove Selected Object");
-  _add1_button.setInternalName("filterRemoveSelectedObjectButton");
+  _del1_button.set_name("Filter Remove Selected Object");
+  _del1_button.setInternalName("filterRemoveSelectedObjectButton");
   _del1_button.set_text("<");
   scoped_connect(_del1_button.signal_clicked(), std::bind(&DBObjectFilterFrame::del_clicked, this, false));
 
@@ -143,13 +143,13 @@ DBObjectFilterFrame::DBObjectFilterFrame()
   _add2_button.set_text(">>");
   scoped_connect(_add2_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_clicked, this, true));
 
-  _add1_button.set_name("Filter Remove All Objects");
-  _add1_button.setInternalName("filterRemoveAllObjectsButton");
+  _del2_button.set_name("Filter Remove All Objects");
+  _del2_button.setInternalName("filterRemoveAllObjectsButton");
   _del2_button.set_text("<<");
   scoped_connect(_del2_button.signal_clicked(), std::bind(&DBObjectFilterFrame::del_clicked, this, true));
 
-  _add1_button.set_name("Filter Add Pattern");
-  _add1_button.setInternalName("filterAddPatternButton");
+  _mask_button.set_name("Filter Add Pattern");
+  _mask_button.setInternalName("filterAddPatternButton");
   _mask_button.set_text("+");
   scoped_connect(_mask_button.signal_clicked(), std::bind(&DBObjectFilterFrame::add_mask, this));
 

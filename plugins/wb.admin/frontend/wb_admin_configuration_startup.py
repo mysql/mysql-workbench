@@ -91,7 +91,7 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Instance", "Startup / Shutdown", True)
+        admin_context.register_page(cls, "Instance", "Startup / Shutdown", "Startup and Shutdown", True)
 
     @classmethod
     def identifier(cls):

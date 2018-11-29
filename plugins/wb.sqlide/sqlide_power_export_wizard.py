@@ -235,8 +235,8 @@ class ExportProgressPage(WizardProgressPage):
     def __init__(self, owner):
         WizardProgressPage.__init__(self, owner, "Export Data")
         
-        self.add_task(self.prepare_export, "Prepare Export")
-        self.add_threaded_task(self.start_export, "Export data to file")
+        self.add_task(self.prepare_export, "Prepare Export", "Prepare Export")
+        self.add_threaded_task(self.start_export, "Export data to file", "Export Data to File")
         self.module = None
         self.stop = None
         self.export_time = None
@@ -331,6 +331,7 @@ class SelectFilePage(WizardPage):
 
         browse_btn = mforms.newButton()
         browse_btn.set_text("Browse...")
+        browse_btn.set_name("Browse")
         browse_btn.add_clicked_callback(self.browse)
         entry_box.add(browse_btn, False, False)
         self.content.add(entry_box, False, True)

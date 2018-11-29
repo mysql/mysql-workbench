@@ -502,6 +502,7 @@ class WbAdminSchemaListTab(mforms.Box):
 
         self.file_btn = newButton()
         self.file_btn.set_text("...")
+        self.file_btn.set_name("Browse")
         self.file_btn.enable_internal_padding(False)
         self.file_btn.set_enabled(False)
 
@@ -511,7 +512,9 @@ class WbAdminSchemaListTab(mforms.Box):
             self.folderlabel = newLabel("Select the Dump Project Folder to import. You can do a selective restore.")
             self.folderradio = newRadioButton(self._radio_group)
             self.statlabel = newLabel("Press [Start Import] to start...")
+            self.statlabel.set_name("Press Start Info")
             self.filelabel = newLabel("Select the SQL/dump file to import. Please note that the whole file will be imported.")
+            self.filelabel.set_name("Select File to Import Info")
             self.single_transaction_check = None
             self.include_schema_check = None
             self.dump_triggers_check = None
@@ -539,6 +542,7 @@ class WbAdminSchemaListTab(mforms.Box):
         else:
             self.fileradio = newRadioButton(self._radio_group)
             self.fileradio.set_text("Export to Self-Contained File")
+        self.fileradio.set_name("Export or Import")
 
         self.fileradio.set_size(260,-1)
         self.fileradio.add_clicked_callback(self.set_save_option)
@@ -674,6 +678,7 @@ class WbAdminSchemaListTab(mforms.Box):
             self.import_target_schema = newSelector()
             hbox.add(self.import_target_schema, True, True)
             b = newButton()
+            b.set_name("Next")
             b.set_text("New...")
             b.add_clicked_callback(self.new_target_schema)
 
@@ -2134,9 +2139,12 @@ class WbAdminProgressTab(mforms.Box):
             self.hintlabel = newLabel("Press [Start Export] to start...")
         else:
             self.hintlabel = newLabel("Press [Start Import] to start...")
+        self.hintlabel.set_name("Press to Start")
         statusbox.add(self.hintlabel, False, True)
         statusbox.add(self.dump_progressbar, False, True)
-        statusbox.add(newLabel("Status:"), False, True)
+        label = newLabel("Status:")
+        label.set_name("Status")
+        statusbox.add(label, False, True)
         statusbox.add(self.statlabel, False, True)
 
         self.progress_log = newTextBox(mforms.VerticalScrollBar)
@@ -2238,7 +2246,7 @@ class WbAdminProgressTab(mforms.Box):
 class WbAdminExport(WbAdminTabBase):
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Management", "Data Export")
+        admin_context.register_page(cls, "Management", "Data Export", "Data Export")
 
     @classmethod
     def identifier(cls):
@@ -2252,6 +2260,7 @@ class WbAdminExport(WbAdminTabBase):
         self.add_validation(WbAdminValidationConnection(ctrl_be))
 
         self.advanced_options_btn = mforms.newButton()
+        self.advanced_options_btn.set_name("Toggle Advanced Options")
         self.advanced_options_btn.set_text("Advanced Options...")
         self.advanced_options_btn.add_clicked_callback(self.show_options)
 
@@ -2375,7 +2384,7 @@ class WbAdminImport(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Management", "Data Import/Restore")
+        admin_context.register_page(cls, "Management", "Data Import/Restore", "Data Import and Export")
 
     @classmethod
     def identifier(cls):

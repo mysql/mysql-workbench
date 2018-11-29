@@ -60,9 +60,11 @@ DbMySQLEditorPrivPage::DbMySQLEditorPrivPage(::bec::DBObjectEditorBE *be)
   manage(vbox); // add to auto-clean on exit list
 
   _add_button = new Gtk::Button(" < ");
+  _add_button->set_name("Add");
   vbox->pack_start(*_add_button, false, true, 4);
   _add_button->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLEditorPrivPage::assign_privilege_handler));
   _remove_button = new Gtk::Button(" > ");
+  _remove_button->set_name("Remove");
   vbox->pack_start(*_remove_button, false, true, 4);
   _remove_button->signal_clicked().connect(sigc::mem_fun(this, &DbMySQLEditorPrivPage::remove_privilege_handler));
 

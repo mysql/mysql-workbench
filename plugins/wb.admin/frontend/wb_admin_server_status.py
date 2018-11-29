@@ -183,7 +183,7 @@ class WbAdminServerStatus(mforms.Box):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Management", "Server Status", False)
+        admin_context.register_page(cls, "Management", "Server Status", "Server Status", False)
 
     @classmethod
     def identifier(cls):

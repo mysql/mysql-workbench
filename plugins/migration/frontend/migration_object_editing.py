@@ -206,6 +206,7 @@ class MainView(WizardPage):
 
         self._comment_check = mforms.newCheckBox()
         self._comment_check.set_text("Comment out")
+        self._comment_check.set_name("Commet Out")
         self._comment_check.set_tooltip("Mark the object to be commented out on the generated script, making it not get created in the target server.")
         self._comment_check.add_clicked_callback(self._comment_clicked)
         vbox.add(self._comment_check, False, True)

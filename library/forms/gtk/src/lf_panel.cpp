@@ -77,10 +77,16 @@ mforms::gtk::PanelImpl::PanelImpl(::mforms::Panel *self, ::mforms::PanelType typ
       break;
   }
 
-  if (_frame)
+  if (_frame) {
     _frame->show();
-  if (_evbox)
+    _frame->set_name("");
+    _frame->set_label("");
+    _frame->get_label_widget()->set_name("Title");
+  }
+  if (_evbox) {
     _evbox->show();
+    _evbox->set_name("");
+  }
   setup();
 }
 

@@ -35,6 +35,7 @@ class MainView(WizardPage):
 
     def create_ui(self):
         label = mforms.newLabel("Welcome to the MySQL Workbench Migration Wizard")
+        label.set_name("Welcome")
         label.set_style(mforms.BigBoldStyle)
         self.content.add(label, False, True)
         self.content.set_spacing(12)
@@ -42,8 +43,10 @@ class MainView(WizardPage):
 
         label = mforms.newLabel("This wizard will assist you in migrating tables and data from a supported database system to MySQL.\n"+
               "You can also use this wizard to copy databases from one MySQL instance to another.")
+        label.set_name("Introduction")
         self.content.add(label, False, True)
         label = mforms.newLabel("Prerequisites")
+        label.set_name("Prerequisites")
         label.set_style(mforms.BoldStyle)
         self.content.add(label, False, True)
         label = mforms.newLabel("Before starting, check the following preparation steps:\n\n"+
@@ -60,6 +63,7 @@ class MainView(WizardPage):
               "The generic support is capable of migrating tables from many RDBMS that can be connected to using ODBC,\n"+
               "although certain type mappings may not be performed correctly. A manual mapping step is provided for\n"+
               "reviewing and fixing any migration problems that could occur.")
+        label.set_name("Prerequisites Specifications")
         self.content.add(label, False, True)
 
         box = mforms.newBox(True)

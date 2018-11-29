@@ -356,6 +356,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
         self.add_entry_button = newButton()
         self.add_entry_button.set_text("Add Entry...")
+        self.add_entry_button.set_name("Add Entry")
         bbox.add_end(self.add_entry_button, False, True)
         self.add_entry_button.add_clicked_callback(self.add_entry)
 
@@ -411,6 +412,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
         self.grant_all = newButton()
         self.grant_all.set_text('Select "ALL"')
+        self.grant_all.set_name('Select All')
         bottom_box.add_end(self.grant_all, False, True)
         self.grant_all.add_clicked_callback(self.grant_all_schema_privs)
 
@@ -2091,7 +2093,7 @@ class WbAdminSecurity(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Management", "Users and Privileges")
+        admin_context.register_page(cls, "Management", "Users and Privileges", "Users and Privileges")
 
     @classmethod
     def identifier(cls):

@@ -88,6 +88,7 @@ public:
     _left_filebox.set_spacing(4);
     _left_filebox_l.set_text("File Name:");
     _left_filebox_b.set_text("Browse...");
+    _left_filebox_b.set_name("Browse");
     _left_filebox_b.set_size(100, -1);
     _left_filename.set_size(30, -1);
 
@@ -115,6 +116,7 @@ public:
     _right_filebox.set_spacing(4);
     _right_filebox_l.set_text("File Name:");
     _right_filebox_b.set_text("Browse...");
+    _right_filebox_b.set_name("Browse");
     _right_filebox_b.set_size(100, -1);
     _right_filename.set_size(30, -1);
     _right_filebox.add(&_right_filebox_l, false, true);
@@ -275,6 +277,7 @@ public:
 
     _caption.set_text(_("Input SQL Script File:"));
     _browse_button.set_text(_("Browse..."));
+    _browse_button.set_name("Browse");
     _browse_button.set_size(100, -1);
 
     _options.set_title(_("Options"));

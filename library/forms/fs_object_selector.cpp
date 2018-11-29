@@ -92,6 +92,7 @@ void FsObjectSelector::initialize(const std::string& initial_path, FileChooserTy
 
   _edit->set_value(initial_path);
   _browse_button->set_text("...");
+  _browse_button->set_name("Browse");
   _browse_button->set_size(40, -1);
   _browse_button->enable_internal_padding(false);
   _on_validate = on_validate;

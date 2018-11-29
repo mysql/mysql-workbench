@@ -463,7 +463,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
     
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Performance", "Performance Reports", False)
+        admin_context.register_page(cls, "Performance", "Performance Reports", "Performance Reports", False)
     
     @classmethod
     def identifier(cls):

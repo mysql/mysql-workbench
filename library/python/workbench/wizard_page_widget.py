@@ -57,6 +57,7 @@ class WizardPage(mforms.Box):
             if hasattr(self, "go_advanced"):
                 self.advanced_button = mforms.newButton()
                 self.advanced_button.set_text('Advanced >>')
+                self.advanced_button.set_name('Advanced')
                 self.advanced_button.add_clicked_callback(self.go_advanced)
                 self.button_box.add(self.advanced_button, False, True)
 
@@ -70,11 +71,13 @@ class WizardPage(mforms.Box):
 
             self.next_button = mforms.newButton()
             self.next_button.set_text('Next >')
+            self.next_button.set_name('Next')
             self.next_button.add_clicked_callback(self.go_next)
             self.button_box.add_end(self.next_button, False, True)
 
             self.back_button = mforms.newButton()
             self.back_button.set_text('< Back')
+            self.back_button.set_name('Back')
             self.back_button.add_clicked_callback(self.go_back)
             self.button_box.add_end(self.back_button, False, True)
 

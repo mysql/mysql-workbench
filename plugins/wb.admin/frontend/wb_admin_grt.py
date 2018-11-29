@@ -343,7 +343,7 @@ class AdministratorContext:
             self.sidebar_sections.append((name, accessibilityName, title, []))
 
 
-    def register_page(self, page_class, section_id, title, needs_remote_access=False):
+    def register_page(self, page_class, section_id, title, accessibilityName, needs_remote_access=False):
         if not section_id:
             section_id = "Management" # the default
 
@@ -353,7 +353,7 @@ class AdministratorContext:
         icon_path = page_class.identifier()+".png"
         for sname, saname, stitle, sitems in self.sidebar_sections:
             if sname == section_id:
-                sitems.append((page_class.identifier(), title, title, icon_path))
+                sitems.append((page_class.identifier(), accessibilityName, title, icon_path))
                 break
 
     def show_in_sidebar(self):

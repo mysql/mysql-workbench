@@ -287,6 +287,7 @@ class SelectFileWizardPage(WizardPage):
 
         self.shapefile_browse_btn = newButton()
         self.shapefile_browse_btn.set_text("Browse...")
+        self.shapefile_browse_btn.set_name("Browse")
         self.shapefile_browse_btn.add_clicked_callback(self.shapefile_browse)
         entry_box.add(self.shapefile_browse_btn, False, True)
 
@@ -592,8 +593,8 @@ class ImportProgressPage(WizardProgressPage):
     def __init__(self, owner):
         WizardProgressPage.__init__(self, owner, "Import Data")
 
-        self.add_task(self.prepare_import, "Prepare import")
-        self.add_threaded_task(self.start_import, "Import data file")
+        self.add_task(self.prepare_import, "Prepare import", "Prepare Import")
+        self.add_threaded_task(self.start_import, "Import data file", "Import Data File")
         self.importer_time = None
         self.importer = None
 

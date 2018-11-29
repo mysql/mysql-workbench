@@ -664,7 +664,7 @@ class WbAdminDashboard(WbAdminTabBase):
     
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Performance", "Dashboard", False)
+        admin_context.register_page(cls, "Performance", "Dashboard", "Dashboard", False)
     
     @classmethod
     def identifier(cls):

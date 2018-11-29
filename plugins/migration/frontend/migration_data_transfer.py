@@ -43,6 +43,7 @@ class SetupMainView(WizardPage):
         holder.set_spacing(4)
         radio = mforms.newRadioButton(rid)
         radio.set_text(caption)
+        radio.set_name("%s Option" % name)
         holder.add(radio, False, True)
         vbox = mforms.newBox(False)
         vbox.set_spacing(4)
@@ -58,6 +59,7 @@ class SetupMainView(WizardPage):
         radio.add_clicked_callback(self._script_radio_option_callback)
         button = mforms.newButton()
         button.set_text("Browse...")
+        button.set_name("Browse")
         button.add_clicked_callback(lambda option=name, title=browser_caption: self._browse_files(option, title))
         file_box.add(button, False, True)
         vbox.add(file_box, False, True)
@@ -100,6 +102,7 @@ class SetupMainView(WizardPage):
 
         self._copy_db = mforms.newRadioButton(rid)
         self._copy_db.set_text("Online copy of table data to target RDBMS")
+        self._copy_db.set_name("Online Copy")
         self._copy_db.add_clicked_callback(self._script_radio_option_callback)
         box.add(self._copy_db, False, True)
 
@@ -108,11 +111,11 @@ class SetupMainView(WizardPage):
         #self._add_script_checkbox_option(box, "dump_to_file", "Create a dump file with the data", "Dump File:", "Save As")
 
         if sys.platform == "win32":
-            self._add_script_radiobutton_option(box, "copy_script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
+            self._add_script_radiobutton_option(box, "Copy Script", "Create a batch file to copy the data at another time", "Batch File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
         else:
-            self._add_script_radiobutton_option(box, "copy_script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
+            self._add_script_radiobutton_option(box, "Copy Script", "Create a shell script to copy the data from outside Workbench", "Shell Script File:", "Save As", "You should edit this file to add the source and target server passwords before running it.", rid)
 
-        self._add_script_radiobutton_option(box, "bulk_copy_script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it, and run the import script. See the script output for further details.", rid)
+        self._add_script_radiobutton_option(box, "Bulk Copy Script", "Create a shell script to use native server dump and load abilities for fast migration", "Bulk Data Copy Script:", "Save As", "Edit the generated file and change passwords at the top of the generated script.\nRun it on the source server to create a zip package containing a data dump as well as a load script.\nCopy this to the target server, extract it, and run the import script. See the script output for further details.", rid)
 
         panel = mforms.newPanel(mforms.TitledBoxPanel)
         panel.set_title("Options")
@@ -125,6 +128,7 @@ class SetupMainView(WizardPage):
 
         self._truncate_db = mforms.newCheckBox()
         self._truncate_db.set_text("Truncate target tables (i.e. delete contents) before copying data")
+        self._truncate_db.set_name("Truncate")
         self.options_box.add(self._truncate_db, False, True)
 
         hbox = mforms.newBox(True)
@@ -146,10 +150,12 @@ class SetupMainView(WizardPage):
 
         self._debug_copy = mforms.newCheckBox()
         self._debug_copy.set_text("Enable debug output for table copy")
+        self._debug_copy.set_name("Enable Debug Output")
         self.options_box.add(self._debug_copy, False, True)
         
         self._driver_sends_utf8 = mforms.newCheckBox()
         self._driver_sends_utf8.set_text("Driver sends data already encoded as UTF-8.")
+        self._driver_sends_utf8.set_name("Send UTF8 Data")
         self.options_box.add(self._driver_sends_utf8, False, True)
 
 
@@ -166,6 +172,7 @@ class SetupMainView(WizardPage):
         l = mforms.newLabel("""You can limit the number of rows to be copied for certain tables. Tables that are referenced by
 foreign keys from other tables cannot be limited, unless data copy from the referencing tables is also disabled.
 All tables are copied by default.""")
+        l.set_name("Description")
         l.set_style(mforms.SmallHelpTextStyle)
         box.add(l, False, True)
 
@@ -397,12 +404,12 @@ class TransferMainView(WizardProgressPage):
             copy_script = options.get("GenerateCopyScript", None)
             bulk_copy_script = options.get("GenerateBulkCopyScript", None)
 
-            self.add_task(self._prepare_copy, "Prepare information for data copy")
+            self.add_task(self._prepare_copy, "Prepare information for data copy", "Prepare Information for Data Copy")
             if copy_script != None:
-                self._copy_script_task = self.add_task(self._create_copy_script, "Create shell script for data copy")
+                self._copy_script_task = self.add_task(self._create_copy_script, "Create shell script for data copy", "Create Shell Script for Data Copy")
 
             if bulk_copy_script != None:
-                self._bulk_copy_script_task = self.add_task(self._create_bulk_copy_script, "Create shell script for bulk data copy")
+                self._bulk_copy_script_task = self.add_task(self._create_bulk_copy_script, "Create shell script for bulk data copy", "Create Shell Script for Bulk Data Copy")
 
             if options.get("LiveDataCopy", False) or options.get("GenerateDumpScript", False):
                 self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy")

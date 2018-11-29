@@ -39,7 +39,7 @@ class WizardTaskError(Exception):
 
 
 class WizardTask(mforms.Box):
-    def __init__(self, owner, func, label):
+    def __init__(self, owner, func, label, accessibilityName):
         mforms.Box.__init__(self, True)
         self.set_managed()
         self.set_release_on_add()
@@ -50,7 +50,7 @@ class WizardTask(mforms.Box):
         
         self._icon = mforms.newImageBox()
         self._label = mforms.newLabel(label)
-        self._label.set_name(label)
+        self._label.set_name(accessibilityName)
         
         self._enabled = True
         
@@ -162,8 +162,8 @@ class WizardTask(mforms.Box):
 
 
 class WizardThreadedTask(WizardTask):
-    def __init__(self, owner, func, label):
-        WizardTask.__init__(self, owner, func, label)
+    def __init__(self, owner, func, label, accessibilityName):
+        WizardTask.__init__(self, owner, func, label, accessibilityName)
   
         self._thread = None
         
@@ -229,6 +229,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self.content.add(self._tasks_box, False, True)
         
         self._status_label = mforms.newLabel("Click [Next >] to execute.")
+        self._status_label.set_name("Next Information")
         self.content.add(self._status_label, False, True)
         
         self._progress = mforms.newProgressBar()
@@ -276,7 +277,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
     def format_exception_text(self, e):
         return str(e)    
         
-    def add_task(self, func, label):
+    def add_task(self, func, label, accessibilityName):
         """ Add a task to be executed from the main thread. The callback must be as in
           callback(progress), where progress is a function to be optionally executed to
           report progress. 
@@ -285,13 +286,13 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
           by the user. If an error occurs during the execution of the task, an exception must 
           be raised.
         """
-        wtask = WizardTask(self, func, label)
+        wtask = WizardTask(self, func, label, accessibilityName)
         self._tasks.append(wtask)
         self._tasks_box.add(wtask, False, True)
         return wtask
     
     
-    def add_threaded_task(self, func, label):
+    def add_threaded_task(self, func, label, accessibilityName):
         """ Add a task to be executed from a worker thread. The callback must be as in
           callback(). Progress information must be reported using grt.send_progress()
            
@@ -299,7 +300,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
           by the user. If an error occurs during the execution of the task, an exception must 
           be raised.
         """
-        wtask = WizardThreadedTask(self, func, label)
+        wtask = WizardThreadedTask(self, func, label, accessibilityName)
         self._tasks.append(wtask)
         self._tasks_box.add(wtask, False, True)
         return wtask

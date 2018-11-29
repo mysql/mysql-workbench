@@ -113,9 +113,10 @@ const std::string INVALID_VERSION_TOOLTIP =
   _("This is not valid version of MySQL.\nSpecify default target MySQL version in format MAJOR.MINOR or "
     "MAJOR.MINOR.RELEASE");
 
-static mforms::Label *new_label(const std::string &text, bool right_align = false, bool help = false) {
+static mforms::Label *new_label(const std::string &text, const std::string &name, bool right_align = false, bool help = false) {
   mforms::Label *label = mforms::manage(new mforms::Label());
   label->set_text(text);
+  label->set_name(name);
   if (right_align)
     label->set_text_align(mforms::MiddleRight);
   if (help) {
@@ -149,7 +150,7 @@ public:
     _table.set_column_count(_help_column ? 3 : 2);
   }
 
-  void add_option(mforms::View *control, const std::string &caption, const std::string &help) {
+  void add_option(mforms::View *control, const std::string &caption, const std::string &name, const std::string &help) {
     _table.set_row_count(++_rows);
 
 #ifdef _MSC_VER
@@ -158,18 +159,18 @@ public:
     bool right_aligned = true;
 #endif
 
-    mforms::Label *label = new_label(caption, right_aligned);
+    mforms::Label *label = new_label(caption, name, right_aligned);
     _table.add(label, 0, 1, _rows - 1, _rows, mforms::HFillFlag);
     label->set_size(170, -1);
     _table.add(control, 1, 2, _rows - 1, _rows, mforms::HFillFlag | mforms::HExpandFlag);
     control->set_size(150, -1);
-    label = new_label(help, false, true);
+    label = new_label(help, name + " Help", false, true);
     label->set_size(200, -1);
     _table.add(label, 2, 3, _rows - 1, _rows, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
   }
 
   mforms::TextEntry *add_entry_option(const std::string &option, const std::string &caption,
-                                      const std::string &tooltip) {
+                                      const std::string &name, const std::string &tooltip) {
     _table.set_row_count(++_rows);
 
     mforms::TextEntry *entry = _owner->new_entry_option(option, false);
@@ -182,13 +183,13 @@ public:
     bool right_aligned = true;
 #endif
 
-    mforms::Label *label = new_label(caption, right_aligned);
+    mforms::Label *label = new_label(caption, name, right_aligned);
 
     _table.add(label, 0, 1, _rows - 1, _rows, mforms::HFillFlag);
     _table.add(entry, 1, 2, _rows - 1, _rows,
                _help_column ? mforms::HFillFlag : mforms::HFillFlag | mforms::HExpandFlag);
     if (_help_column) {
-      label = new_label(tooltip, false, true);
+      label = new_label(tooltip, name + " Help", false, true);
       label->set_size(200, -1);
       _table.add(label, 2, 3, _rows - 1, _rows, mforms::VFillFlag | mforms::HFillFlag | mforms::HExpandFlag);
     }
@@ -196,11 +197,12 @@ public:
   }
 
   mforms::CheckBox *add_checkbox_option(const std::string &option, const std::string &caption,
-                                        const std::string &tooltip) {
+                                        const std::string &name, const std::string &tooltip) {
     _table.set_row_count(++_rows);
 
     mforms::CheckBox *cb = _owner->new_checkbox_option(option);
     cb->set_text(caption);
+    cb->set_name(name);
     cb->set_tooltip(tooltip);
 
     _table.add(cb, 0, 3, _rows - 1, _rows, mforms::HFillFlag);
@@ -687,39 +689,39 @@ mforms::View *PreferencesForm::create_admin_page() {
     frame->add(table);
 
     mforms::FsObjectSelector *pathsel;
-    table->add(new_label(_("Path to mysqldump Tool:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Path to mysqldump Tool:"), "Path to MySQL Tool", true), 0, 1, 0, 1, mforms::HFillFlag);
     pathsel = new_path_option("mysqldump", true);
     pathsel->get_entry()->set_tooltip(
       _("Specifiy the full path to the mysqldump tool, which is needed for the Workbench Administrator.\nIt usually "
         "comes bundled with the MySQL server and/or client packages."));
     table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #ifdef HAVE_BUNDLED_MYSQLDUMP
-    table->add(new_label(_("Leave blank to use bundled version."), false, true), 2, 3, 0, 1,
+    table->add(new_label(_("Leave blank to use bundled version."), "Leave Blank for Default", false, true), 2, 3, 0, 1,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #else
     table->add(new_label(_("Full path to the mysqldump tool\nif it's not in your PATH."), false, true), 2, 3, 0, 1,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #endif
-    table->add(new_label(_("Path to mysql Tool:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+    table->add(new_label(_("Path to mysql Tool:"), "Path to MySQL Tool", true), 0, 1, 1, 2, mforms::HFillFlag);
     pathsel = new_path_option("mysqlclient", true);
     pathsel->get_entry()->set_tooltip(
       _("Specifiy the full path to the mysql command line client tool, which is needed for the Workbench "
         "Administrator.\nIt usually comes bundled with the MySQL server and/or client packages."));
     table->add(pathsel, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #ifdef HAVE_BUNDLED_MYSQLDUMP
-    table->add(new_label(_("Leave blank to use bundled version."), false, true), 2, 3, 1, 2,
+    table->add(new_label(_("Leave blank to use bundled version."), "Leave Blank for Default", false, true), 2, 3, 1, 2,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #else
     table->add(new_label(_("Full path to the mysql tool\nif it's not in your PATH."), false, true), 2, 3, 1, 2,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #endif
 
-    table->add(new_label(_("Export Directory Path:"), true), 0, 1, 2, 3, mforms::HFillFlag);
+    table->add(new_label(_("Export Directory Path:"), "Export Directory", true), 0, 1, 2, 3, mforms::HFillFlag);
     pathsel = new_path_option("dumpdirectory", false);
     pathsel->get_entry()->set_tooltip(
       _("Specifiy the full path to the directory where dump files should be placed by default."));
     table->add(pathsel, 1, 2, 2, 3, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
-    table->add(new_label(_("Location where dump files should be placed by default."), false, true), 2, 3, 2, 3,
+    table->add(new_label(_("Location where dump files should be placed by default."), "Dump Location", false, true), 2, 3, 2, 3,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 
     box->add(frame, false);
@@ -733,7 +735,7 @@ mforms::View *PreferencesForm::create_sqlide_page() {
 
   mforms::Box *box = mforms::manage(new mforms::Box(false));
   box->set_spacing(8);
-  box->set_name("Sqlide");
+  box->set_name("SQL IDE");
 
   {
     OptionTable *table = mforms::manage(new OptionTable(this, _("SQL Editor"), true));
@@ -741,7 +743,8 @@ mforms::View *PreferencesForm::create_sqlide_page() {
       mforms::CheckBox *save_workspace, *discard_unsaved;
 
       save_workspace =
-        table->add_checkbox_option("workbench:SaveSQLWorkspaceOnClose", _("Save snapshot of open editors on close"),
+        table->add_checkbox_option("workbench:SaveSQLWorkspaceOnClose",
+                                   _("Save snapshot of open editors on close"), "Save Snapshot on Close",
                                    _("A snapshot of all open scripts is saved when the SQL Editor is closed. Next time "
                                      "it is opened to the same connection that state is restored. Unsaved files will "
                                      "remain unsaved, but their contents will be preserved."));
@@ -752,13 +755,13 @@ mforms::View *PreferencesForm::create_sqlide_page() {
           "minutes:1200";
         mforms::Selector *sel = new_selector_option("workbench:AutoSaveSQLEditorInterval", auto_save_intervals, true);
 
-        table->add_option(sel, _("Auto-save scripts interval:"),
+        table->add_option(sel, _("Auto-save scripts interval:"), "Auto Save Interval",
                           _("Interval to perform auto-saving of all open script tabs. The scripts will be restored "
                             "from the last auto-saved version if Workbench unexpectedly quits."));
       }
 
-      discard_unsaved = table->add_checkbox_option(
-        "DbSqlEditor:DiscardUnsavedQueryTabs", _("Create new tabs as Query tabs instead of File"),
+      discard_unsaved = table->add_checkbox_option("DbSqlEditor:DiscardUnsavedQueryTabs",
+        _("Create new tabs as Query tabs instead of File"), "Create New Tabs as Query Tabs",
         _("Unsaved Query tabs do not get a close confirmation, unlike File tabs.\nHowever, once saved, such tabs will "
           "also get unsaved change confirmations.\n"
           "If Snapshot saving is enabled, query tabs are always autosaved to temporary files when the connection is "
@@ -768,7 +771,7 @@ mforms::View *PreferencesForm::create_sqlide_page() {
       (*save_workspace->signal_clicked())();
 
       table->add_checkbox_option("DbSqlEditor:SchemaTreeRestoreState",
-                                 _("Restore expanded state of the active schema objects"),
+                                 _("Restore expanded state of the active schema objects"), "Restore Expanded States",
                                  _("Re-expand (and reload) group nodes that were previously expanded in the active "
                                    "schema when the editor was last closed."));
     }
@@ -778,6 +781,7 @@ mforms::View *PreferencesForm::create_sqlide_page() {
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Sidebar"));
+    frame->set_name(_("Side Bar"));
     box->add(frame, false);
 
     mforms::Box *vbox = mforms::manage(new mforms::Box(false));
@@ -818,16 +822,19 @@ mforms::View *PreferencesForm::create_sqlide_page() {
     mforms::TextEntry *entry;
 
     entry =
-      otable->add_entry_option("DbSqlEditor:KeepAliveInterval", _("DBMS connection keep-alive interval (in seconds):"),
+      otable->add_entry_option("DbSqlEditor:KeepAliveInterval",
+                               _("DBMS connection keep-alive interval (in seconds):"), "Keep Alive Interval",
                                _("Time interval between sending keep-alive messages to DBMS. "
                                  "Set to 0 to not send keep-alive messages."));
     entry->set_size(100, -1);
 
-    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut", _("DBMS connection read timeout interval (in seconds):"),
+    entry = otable->add_entry_option("DbSqlEditor:ReadTimeOut",
+                                     _("DBMS connection read timeout interval (in seconds):"), "Connection Read Timeout",
                                      _("The maximum amount of time the query can take to return data from the DBMS."
                                        "Set 0 to skip the read timeout."));
 
-    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut", _("DBMS connection timeout interval (in seconds):"),
+    entry = otable->add_entry_option("DbSqlEditor:ConnectionTimeOut",
+                                     _("DBMS connection timeout interval (in seconds):"), "Timout Interval",
                                      _("Maximum time to wait before a connection attempt is aborted."));
     box->add(otable, false, true);
   }
@@ -841,13 +848,13 @@ mforms::View *PreferencesForm::create_sqlide_page() {
       entry->set_size(100, -1);
 
       otable->add_option(
-        entry, _("Internal Workbench Schema:"),
+        entry, _("Internal Workbench Schema:"), "Internal Schema",
         _("This schema will be used by MySQL Workbench to store information required for certain operations."));
     }
 
     {
       otable->add_checkbox_option("DbSqlEditor:SafeUpdates",
-                                  _("Safe Updates (rejects UPDATEs and DELETEs with no restrictions)"),
+                                  _("Safe Updates (rejects UPDATEs and DELETEs with no restrictions)"), "Safe Updates",
                                   _("Enables the SQL_SAFE_UPDATES option for the session. "
                                     "If enabled, MySQL aborts UPDATE or DELETE statements "
                                     "that do not use a key in the WHERE clause or a LIMIT clause. "
@@ -882,7 +889,7 @@ mforms::View *PreferencesForm::create_general_editor_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), true), false, false);
+      tbox->add(new_label(_("Default SQL_MODE for syntax checker:"), "Default Syntax Checker", true), false, false);
       mforms::TextEntry *entry = new_entry_option("SqlMode", false);
       entry->set_name("SQL Mode Syntax");
       entry->setInternalName("SQL mode syntax");
@@ -903,6 +910,7 @@ mforms::View *PreferencesForm::create_general_editor_page() {
     {
       mforms::CheckBox *check = new_checkbox_option("SqlIdentifiersCS");
       check->set_text(_("SQL Identifiers are Case Sensitive"));
+      check->set_name("Case Sensitive Identifiers");
       check->set_tooltip(_("Whether to treat identifiers separately if their names differ only in letter case."));
       vbox->add(check, false);
     }
@@ -912,9 +920,9 @@ mforms::View *PreferencesForm::create_general_editor_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Non-Standard SQL Delimiter:"), true), false, false);
+      tbox->add(new_label(_("Non-Standard SQL Delimiter:"), "Non Standard Delimiter", true), false, false);
       mforms::TextEntry *entry = new_entry_option("SqlDelimiter", false);
-      entry->set_name("Sql Delimiter");
+      entry->set_name("SQL Delimiter");
       entry->set_size(50, -1);
       entry->set_tooltip(
         _("Delimiter used for statements that use the semicolon as part of their syntax (e.g. stored routines)"));
@@ -927,12 +935,12 @@ mforms::View *PreferencesForm::create_general_editor_page() {
 
     table = mforms::manage(new OptionTable(this, _("Indentation"), true));
     box->add(table, false, true);
-    table->add_checkbox_option("Editor:TabIndentSpaces", _("Tab key inserts spaces instead of tabs"),
+    table->add_checkbox_option("Editor:TabIndentSpaces", _("Tab key inserts spaces instead of tabs"), "Spaces Instead of Tabs",
                                "Check if you want the tab key to indent using the configured amount of spaces.");
 
-    table->add_entry_option("Editor:IndentWidth", "Indent width:",
+    table->add_entry_option("Editor:IndentWidth", "Indent width:", "Indent Width",
                             "How many spaces to insert when indenting with the tab key.");
-    table->add_entry_option("Editor:TabWidth", "Tab width:", "How many spaces wide are tab characters.");
+    table->add_entry_option("Editor:TabWidth", "Tab width:", "Tab Width", "How many spaces wide are tab characters.");
   }
   return box;
 }
@@ -974,6 +982,7 @@ mforms::View *PreferencesForm::create_editor_page() {
       {
         mforms::CheckBox *auto_start_check = new_checkbox_option("DbSqlEditor:AutoStartCodeCompletion");
         auto_start_check->set_text(_("Automatically Start Code Completion"));
+        auto_start_check->set_name("Automatically Start Code Completion");
         auto_start_check->set_tooltip(
           _("Available only if code completion is enabled. By activating "
             "this option code completion will be started automatically when you type something and wait "
@@ -982,6 +991,7 @@ mforms::View *PreferencesForm::create_editor_page() {
 
         mforms::CheckBox *upper_case_check = new_checkbox_option("DbSqlEditor:CodeCompletionUpperCaseKeywords");
         upper_case_check->set_text(_("Use UPPERCASE keywords on completion"));
+        upper_case_check->set_name("Use Upper Case Keywords");
         upper_case_check->set_tooltip(
           _("Normally keywords are shown and inserted as they come from the "
             "code editor configuration file. With this swich they are always upper-cased instead."));
@@ -1002,10 +1012,11 @@ mforms::View *PreferencesForm::create_editor_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Comment type to use for comment shortcut:"), true), false, false);
+      tbox->add(new_label(_("Comment type to use for comment shortcut:"), "Comment Type", true), false, false);
 
       std::string comment_types = "--:--,#:#";
       mforms::Selector *selector = new_selector_option("DbSqlEditor:SQLCommentTypeForHotkey", comment_types, false);
+      selector->set_name("Comment Types");
       selector->set_size(150, -1);
       selector->set_tooltip(
         _("Default comment type for SQL Query editor, to be used when the comment shortcut is used."));
@@ -1020,7 +1031,7 @@ mforms::View *PreferencesForm::create_editor_page() {
       table->set_row_spacing(4);
       vbox->add(table, false);
 
-      table->add(new_label(_("Max syntax error count:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+      table->add(new_label(_("Max syntax error count:"), "Maximum Error Count", true), 0, 1, 0, 1, mforms::HFillFlag);
       mforms::TextEntry *entry = new_entry_option("SqlEditor::SyntaxCheck::MaxErrCount", false);
       entry->set_size(50, -1);
       entry->set_tooltip(
@@ -1029,7 +1040,7 @@ mforms::View *PreferencesForm::create_editor_page() {
           "Set to 0 to show all errors."));
       table->add(entry, 1, 2, 0, 1, mforms::HFillFlag);
 
-      table->add(new_label(_("Max number of result sets:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+      table->add(new_label(_("Max number of result sets:"), "Maximum Result Sets", true), 0, 1, 1, 2, mforms::HFillFlag);
       entry = new_entry_option("DbSqlEditor::MaxResultsets", false);
       entry->set_size(50, -1);
       entry->set_tooltip(_("Maximum number of result sets that can be opened for a single editor."));
@@ -1042,7 +1053,7 @@ mforms::View *PreferencesForm::create_editor_page() {
 
     table = mforms::manage(new OptionTable(this, _("SQL Beautifier"), true));
     box->add(table, false, true);
-    { table->add_checkbox_option("DbSqlEditor:Reformatter:UpcaseKeywords", _("Change keywords to UPPER CASE"), ""); }
+    { table->add_checkbox_option("DbSqlEditor:Reformatter:UpcaseKeywords", _("Change keywords to UPPER CASE"), "Upper Case Keywords", ""); }
   }
 
   return box;
@@ -1070,7 +1081,7 @@ mforms::View *PreferencesForm::create_object_editor_page() {
       line_box->set_spacing(4);
       vbox->add(line_box, false);
 
-      mforms::Label *label = new_label(_("Default algorithm for ALTER table:"), true);
+      mforms::Label *label = new_label(_("Default algorithm for ALTER table:"), "Default Alghorithm for Alter Table", true);
       label->set_size(180, -1);
       line_box->add(label, false, true);
 
@@ -1087,7 +1098,7 @@ mforms::View *PreferencesForm::create_object_editor_page() {
       line_box->set_spacing(4);
       vbox->add(line_box, false);
 
-      mforms::Label *label = new_label(_("Default lock for ALTER table:"), true);
+      mforms::Label *label = new_label(_("Default lock for ALTER table:"), "Default Lock for Alter Table", true);
       label->set_size(180, -1);
       line_box->add(label, false, true);
 
@@ -1148,7 +1159,7 @@ mforms::View *PreferencesForm::create_query_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Max. query length to store in history (in bytes):"), true), false, false);
+      tbox->add(new_label(_("Max. query length to store in history (in bytes):"), "Maximum History Length", true), false, false);
       mforms::TextEntry *entry = new_entry_option("DbSqlEditor:MaxQuerySizeToHistory", false);
       entry->set_size(50, -1);
       entry->set_tooltip(
@@ -1160,6 +1171,7 @@ mforms::View *PreferencesForm::create_query_page() {
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:ContinueOnError");
       check->set_text(_("Continue SQL script execution on errors (by default)"));
+      check->set_name("Comtinue on Errors");
       check->set_tooltip(_("Whether to continue skipping failed SQL statements when running a script."));
       vbox->add(check, false);
     }
@@ -1167,6 +1179,7 @@ mforms::View *PreferencesForm::create_query_page() {
     {
       mforms::CheckBox *check= new_checkbox_option("DbSqlEditor:AutocommitMode");
       check->set_text(_("New connections use auto commit mode"));
+      check->set_name("Auto Commit on New Connections");
       check->set_tooltip(_("Sets the default autocommit mode for connections.\nWhen enabled, each statement will be committed immediately."
                            "\nNOTE: all query tabs in the same connection share the same transaction. "
                            "To have independent transactions, you must open a new connection."));
@@ -1178,7 +1191,7 @@ mforms::View *PreferencesForm::create_query_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Progress status update interval (in milliseconds):"), true), false, false);
+      tbox->add(new_label(_("Progress status update interval (in milliseconds):"), "Progress Interval", true), false, false);
       mforms::TextEntry *entry = new_entry_option("DbSqlEditor:ProgressStatusUpdateInterval", false);
       entry->set_size(50, -1);
       entry->set_tooltip(_("Time interval between UI updates when running SQL script."));
@@ -1189,6 +1202,7 @@ mforms::View *PreferencesForm::create_query_page() {
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("SELECT Query Results"));
+    frame->set_name("Select Query Results");
     box->add(frame, false);
 
     mforms::Box *vbox = mforms::manage(new mforms::Box(false));
@@ -1211,7 +1225,7 @@ mforms::View *PreferencesForm::create_query_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Limit Rows Count:"), true), false, false);
+      tbox->add(new_label(_("Limit Rows Count:"), "Limit Rows", true), false, false);
       mforms::TextEntry *entry = new_entry_option("SqlEditor:LimitRowsCount", false);
       entry->set_size(50, -1);
       entry->set_tooltip(
@@ -1224,7 +1238,7 @@ mforms::View *PreferencesForm::create_query_page() {
       tbox->set_spacing(4);
       vbox->add(tbox, false);
 
-      tbox->add(new_label(_("Max. Field Value Length to Display (in bytes):"), true), false, false);
+      tbox->add(new_label(_("Max. Field Value Length to Display (in bytes):"), "Maximum Field Length", true), false, false);
       mforms::TextEntry *entry = new_entry_option("Recordset:FieldValueTruncationThreshold", false);
       entry->set_size(50, -1);
       entry->set_tooltip(
@@ -1237,6 +1251,7 @@ mforms::View *PreferencesForm::create_query_page() {
     {
       mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:MySQL:TreatBinaryAsText");
       check->set_text(_("Treat BINARY/VARBINARY as nonbinary character string"));
+      check->set_name("Treat as Non Binary");
       check->set_tooltip(
         _("Whether to treat binary byte strings as nonbinary character strings.\n"
           "Binary byte string values do not appear in results grid and are marked as a BLOB values that are supposed "
@@ -1296,11 +1311,11 @@ mforms::View *PreferencesForm::create_model_page() {
   table = mforms::manage(new OptionTable(this, _("EER Modeler"), true));
   top_box->add(table, false, true);
   {
-    table->add_checkbox_option("workbench.AutoReopenLastModel", _("Automatically reopen previous model at start"), "");
+    table->add_checkbox_option("workbench.AutoReopenLastModel", _("Automatically reopen previous model at start"), "Reopen Previous Model", "");
 
 #ifndef __APPLE__
     table->add_checkbox_option("workbench:ForceSWRendering",
-                               _("Force use of software based rendering for EER diagrams"),
+                               _("Force use of software based rendering for EER diagrams"), "Force Software Redering Diagrams",
                                _("Enable this option if you have drawing problems in Workbench modeling. You must "
                                  "restart Workbench for the option to take effect."));
 #endif
@@ -1310,7 +1325,7 @@ mforms::View *PreferencesForm::create_model_page() {
       entry->set_max_length(5);
       entry->set_size(100, -1);
 
-      table->add_option(entry, _("Model undo history size:"),
+      table->add_option(entry, _("Model undo history size:"), "Undo History Size",
                         _("Allowed values are from 1 up. Note: using high values (> 100) will increase memory usage "
                           "and slow down operation."));
     }
@@ -1320,7 +1335,7 @@ mforms::View *PreferencesForm::create_model_page() {
         "disable:0,10 seconds:10,15 seconds:15,30 seconds:30,1 minute:60,5 minutes:300,10 minutes:600,20 minutes:1200";
       mforms::Selector *sel = new_selector_option("workbench:AutoSaveModelInterval", auto_save_intervals, true);
 
-      table->add_option(sel, _("Auto-save model interval:"),
+      table->add_option(sel, _("Auto-save model interval:"), "Auto Save Model Interval",
                         _("Interval to perform auto-saving of the open model. The model will be restored from the last "
                           "auto-saved version if Workbench unexpectedly quits."));
     }
@@ -1347,7 +1362,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_tooltip(_(
           "Determines how long the process waits for connection until timeout"));
 
-        timeouts_table->add_option(entry, _("SSH Connect Timeout:"),
+        timeouts_table->add_option(entry, _("SSH Connect Timeout:"), "SSH Connect Timeout",
           _("SSH connect timeout in seconds."));
       }
 
@@ -1359,7 +1374,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_tooltip(_(
           "Determines how long the process waits for i/o"));
 
-        timeouts_table->add_option(entry, _("SSH Read Write Timeout:"),
+        timeouts_table->add_option(entry, _("SSH Read Write Timeout:"), "SSH Read and Write Timeout",
           _("SSH Read/Write Timeout in seconds."));
       }
 
@@ -1371,7 +1386,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_tooltip(_(
           "Determines how long the process waits for a command output.\nThis is also affected by SSH Command Retry Count."));
 
-        timeouts_table->add_option(entry, _("SSH Command timeout:"),
+        timeouts_table->add_option(entry, _("SSH Command timeout:"), "SSH Command Timeout",
           _("SSH Command Timeout in second."));
       }
 
@@ -1383,7 +1398,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_tooltip(_(
           "Determines how many times we should retry reading command output after specified SSH Command Timeout option."));
 
-        timeouts_table->add_option(entry, _("SSH Command Retry Count:"),
+        timeouts_table->add_option(entry, _("SSH Command Retry Count:"), "SSH Command Retry Timeout",
           _("SSH Command Retry count."));
       }
 
@@ -1394,7 +1409,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_size(50, -1);
         entry->set_tooltip(_("Buffer size used for tunnel data transfer"));
 
-        timeouts_table->add_option(entry, _("SSH BufferSize:"),
+        timeouts_table->add_option(entry, _("SSH BufferSize:"), "SSH Buffer Size",
           _("SSH buffer size in bytes."));
       }
 
@@ -1405,7 +1420,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_size(50, -1);
         entry->set_tooltip(_("Size used to limit transfering of big files"));
 
-        timeouts_table->add_option(entry, _("SSH Maximum File Size:"),
+        timeouts_table->add_option(entry, _("SSH Maximum File Size:"), "SSH Maximum File Size",
           _("The maximum file that is allowed to be transfered by SSH."));
       }
 
@@ -1416,7 +1431,7 @@ mforms::View* PreferencesForm::createSSHPage()
         entry->set_size(50, -1);
         entry->set_tooltip(_("Size used to limit transfering of big command output log."));
 
-        timeouts_table->add_option(entry, _("SSH Command Execution log:"),
+        timeouts_table->add_option(entry, _("SSH Command Execution log:"), "SSH Command Execution Log",
           _("The maximum log size that is allowed to be transfered by SSH."));
       }
 
@@ -1435,7 +1450,7 @@ mforms::View* PreferencesForm::createSSHPage()
     frame->add(ssh_table);
     {
       mforms::FsObjectSelector *pathsel;
-      ssh_table->add(new_label(_("Path to SSH config file:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+      ssh_table->add(new_label(_("Path to SSH config file:"), "Path to SSH Config File", true), 0, 1, 0, 1, mforms::HFillFlag);
       pathsel= new_path_option("SSH:pathtosshconfig", true);
       pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH config file."));
       ssh_table->add(pathsel, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
@@ -1443,7 +1458,7 @@ mforms::View* PreferencesForm::createSSHPage()
 
     {
       mforms::FsObjectSelector *pathsel;
-      ssh_table->add(new_label(_("Path to SSH known hosts file:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+      ssh_table->add(new_label(_("Path to SSH known hosts file:"), "Path to SSH Known Hosts File", true), 0, 1, 1, 2, mforms::HFillFlag);
       pathsel= new_path_option("SSH:knownhostsfile", true);
       pathsel->get_entry()->set_tooltip(_("Specifiy the full path to the SSH known hosts file."));
       ssh_table->add(pathsel, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
@@ -1487,7 +1502,7 @@ mforms::View *PreferencesForm::create_others_page()
     entry->set_size(50, -1);
     entry->set_tooltip(_("The interval in seconds before connection is aborted."));
 
-    timeouts_table->add_option(entry, _("Migration Connection Timeout:"),
+    timeouts_table->add_option(entry, _("Migration Connection Timeout:"), "Migration Connection Timeout",
       _("Maximum time to wait before a connection is aborted."));
   }
 
@@ -1503,7 +1518,7 @@ mforms::View *PreferencesForm::create_others_page()
   frame->add(optable);
 
   {
-    optable->add(new_label(_("URL location to display geometry point:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+    optable->add(new_label(_("URL location to display geometry point:"), "Geometry Location", true), 0, 1, 1, 2, mforms::HFillFlag);
     auto opt = new_entry_option("SqlEditor:geographicLocationURL", false);
     opt->set_tooltip("The URL to a geographic services to be used for showing a point on an earth map.\nUse %LAT% and %LON% as a placeholder for Latitude and Longitude.");
     optable->add(opt, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
@@ -1516,7 +1531,8 @@ mforms::View *PreferencesForm::create_others_page()
   OptionTable *table = mforms::manage(new OptionTable(this, _("Others"), true));
   content->add(table, false, true);
   {
-    table->add_checkbox_option("DisableSingleInstance", _("Allow more than one instance of MySQL Workbench to run"),
+    table->add_checkbox_option("DisableSingleInstance",
+      _("Allow more than one instance of MySQL Workbench to run"), "Allow More Then One Instance",
       _("By default only one instance of MySQL Workbench can run at the same time. This is more resource friendly "
         "and necessary as multiple instances share the same files (settings etc.). Change at your own risk."));
   }
@@ -1546,13 +1562,15 @@ void PreferencesForm::createLogLevelSelectionPulldown(mforms::Box *content) {
 
   // add dropdown (combo) box
   mforms::Selector *selector = new_selector_option("workbench.logger:LogLevel", logLevels, false);
+  selector->set_name("Log Level");
   selector->set_tooltip(
     _("Log level determines how serious a message has to be before it gets logged.  For example, an error is more "
       "serious than a warning, a warning is more serious than an info, etc.  So if log level is set to error, "
       "anything less serious (warning, info, etc) will not be logged.  If log level is set to warning, both warning "
       "and error will still be logged, but info and anything lower will not.  None disables all logging."));
-  logTable->add_option(selector, _("Log Level"), _("Sets the \"chattyness\" of logs. Choices further down the list "
-                                                   "produce more output than the ones that preceed them."));
+  logTable->add_option(selector, _("Log Level"), "Log Level Information",
+                       _("Sets the \"chattyness\" of logs. Choices further down the list "
+                       "produce more output than the ones that preceed them."));
 
   // callback: on user selection, set log level
   selector->signal_changed()->connect([selector]() {
@@ -1587,7 +1605,7 @@ mforms::View *PreferencesForm::create_model_defaults_page() {
 
     mforms::TextEntry *entry;
 
-    table->add(new_label(_("PK Column Name:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("PK Column Name:"), "Primary Key Column", true), 0, 1, 0, 1, mforms::HFillFlag);
     entry = new_entry_option("PkColumnNameTemplate", false);
     entry->set_tooltip(
       _("Substitutions:\n"
@@ -1595,21 +1613,21 @@ mforms::View *PreferencesForm::create_model_defaults_page() {
         "May be used as %table|upper%, %table|lower%, %table|capitalize%, %table|uncapitalize%"));
     table->add(entry, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("PK Column Type:"), true), 2, 3, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("PK Column Type:"), "Primary Key Type", true), 2, 3, 0, 1, mforms::HFillFlag);
     entry = new_entry_option("DefaultPkColumnType", false);
     entry->set_tooltip(
       _("Default type for use in newly added primary key columns.\nSpecify a column type name or a user defined "
         "type.\nFlags such as UNSIGNED are not accepted."));
     table->add(entry, 3, 4, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("Column Name:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+    table->add(new_label(_("Column Name:"), "Column Name", true), 0, 1, 1, 2, mforms::HFillFlag);
     entry = new_entry_option("ColumnNameTemplate", false);
     entry->set_tooltip(
       _("Substitutions:\n"
         "%table% - name of the table"));
     table->add(entry, 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("Column Type:"), true), 2, 3, 1, 2, mforms::HFillFlag);
+    table->add(new_label(_("Column Type:"), "Column Type", true), 2, 3, 1, 2, mforms::HFillFlag);
     entry = new_entry_option("DefaultColumnType", false);
     entry->set_tooltip(
       _("Default type for use in newly added columns.\nSpecify a column type name or a user defined type.\nFlags such "
@@ -1622,6 +1640,7 @@ mforms::View *PreferencesForm::create_model_defaults_page() {
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Foreign Key/Relationship Defaults"));
+    frame->set_name("Foreign Key and Relationship Defaults");
 
     mforms::Table *table = mforms::manage(new mforms::Table());
 
@@ -1636,7 +1655,7 @@ mforms::View *PreferencesForm::create_model_defaults_page() {
 
     mforms::TextEntry *entry;
 
-    table->add(new_label(_("FK Name:"), true), 0, 1, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("FK Name:"), "Foreign Key", true), 0, 1, 0, 1, mforms::HFillFlag);
     entry = new_entry_option("FKNameTemplate", false);
 
 #define SUBS_HELP                                                    \
@@ -1650,18 +1669,18 @@ mforms::View *PreferencesForm::create_model_defaults_page() {
     entry->set_tooltip(SUBS_HELP);
     table->add(entry, 1, 2, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("Column Name:"), true), 2, 3, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Column Name:"), "Column Name", true), 2, 3, 0, 1, mforms::HFillFlag);
     entry = new_entry_option("FKColumnNameTemplate", false);
     entry->set_tooltip(SUBS_HELP);
     table->add(entry, 3, 4, 0, 1, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("ON UPDATE:"), true), 0, 1, 1, 2, mforms::HFillFlag);
+    table->add(new_label(_("ON UPDATE:"), "On Update", true), 0, 1, 1, 2, mforms::HFillFlag);
     table->add(new_selector_option("db.ForeignKey:updateRule"), 1, 2, 1, 2, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("ON DELETE:"), true), 2, 3, 1, 2, mforms::HFillFlag);
+    table->add(new_label(_("ON DELETE:"), "On Delete", true), 2, 3, 1, 2, mforms::HFillFlag);
     table->add(new_selector_option("db.ForeignKey:deleteRule"), 3, 4, 1, 2, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("Associative Table Name:"), true), 0, 1, 2, 3, mforms::HFillFlag);
+    table->add(new_label(_("Associative Table Name:"), "Associative Table Name", true), 0, 1, 2, 3, mforms::HFillFlag);
     entry = new_entry_option("AuxTableTemplate", false);
     entry->set_tooltip(
       _("Substitutions:\n"
@@ -1669,7 +1688,7 @@ mforms::View *PreferencesForm::create_model_defaults_page() {
         "%dtable% - name of the destination table"));
     table->add(entry, 1, 2, 2, 3, mforms::HFillFlag | mforms::HExpandFlag);
 
-    table->add(new_label(_("for n:m relationships")), 2, 4, 2, 3, mforms::HFillFlag);
+    table->add(new_label(_("for n:m relationships"), "For N to M Relationships"), 2, 4, 2, 3, mforms::HFillFlag);
 
     box->add(frame, false);
   }
@@ -1711,7 +1730,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
     table->set_column_count(2);
 
     if (!_model.is_valid()) {
-      table->add(new_label(_("Default Target MySQL Version:"), true), 0, 1, 0, 1, 0);
+      table->add(new_label(_("Default Target MySQL Version:"), "Default Target version", true), 0, 1, 0, 1, 0);
       version_entry = new_entry_option("DefaultTargetMySQLVersion", false);
       version_entry->set_tooltip(VALID_VERSION_TOOLTIP);
       version_entry->signal_changed()->connect(std::bind(&PreferencesForm::version_changed, this, version_entry));
@@ -1728,7 +1747,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
       option->update_value = std::bind(update_target_version, _model, entry);
       _options.push_back(option);
 
-      table->add(new_label(_("Target MySQL Version:"), true), 0, 1, 0, 1, 0);
+      table->add(new_label(_("Target MySQL Version:"), "Target Version", true), 0, 1, 0, 1, 0);
       table->add(entry, 1, 2, 0, 1, mforms::HExpandFlag | mforms::HFillFlag);
     }
     box->add(frame, false);
@@ -1744,7 +1763,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
 
     frame->add(tbox);
 
-    tbox->add(new_label(_("Default Storage Engine:"), true), false, false);
+    tbox->add(new_label(_("Default Storage Engine:"), "Default Storage Engine", true), false, false);
     tbox->add(new_selector_option("db.mysql.Table:tableEngine"), true, true);
 
     box->add(frame, false);
@@ -1759,7 +1778,7 @@ mforms::View *PreferencesForm::create_mysql_page() {
     tbox->set_padding(8);
 
     frame->add(tbox);
-    tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), true), false, false);
+    tbox->add(new_label(_("SQL_MODE to be used in generated scripts:"), "Mode for Generated Scripts", true), false, false);
     tbox->add(entry = new_entry_option("SqlGenerator.Mysql:SQL_MODE", false), true, true);
     entry->set_tooltip(_("The default value of ONLY_FULL_GROUP_BY, STRICT_TRANS_TABLES, NO_ZERO_IN_DATE, NO_ZERO_DATE, ERROR_FOR_DIVISION_BY_ZERO, NO_ENGINE_SUBSTITUTION is recommended."));
     entry->set_name("SQL Mode Scripts");
@@ -1836,7 +1855,7 @@ mforms::View *PreferencesForm::create_diagram_page() {
       entry->set_max_length(5);
       entry->set_size(50, -1);
 
-      hbox->add(new_label(_("Max. Length of ENUMs and SETs to Display:"), true), false, false);
+      hbox->add(new_label(_("Max. Length of ENUMs and SETs to Display:"), "Maximum Length of Enumerates and Sets", true), false, false);
       hbox->add(entry, false);
 
       vbox->add(hbox, false);
@@ -1858,9 +1877,10 @@ mforms::View *PreferencesForm::create_diagram_page() {
       entry->set_max_length(5);
       entry->set_size(50, -1);
       descr->set_text(_("Larger tables will be truncated."));
+      descr->set_name("Truncate Large tables");
       descr->set_style(mforms::SmallHelpTextStyle);
 
-      hbox->add(new_label(_("Max. Number of Columns to Display:"), true), false, false);
+      hbox->add(new_label(_("Max. Number of Columns to Display:"), "Maximum Columns", true), false, false);
       hbox->add(entry, false);
       hbox->add(descr, true, true);
 
@@ -1883,14 +1903,14 @@ mforms::View *PreferencesForm::create_diagram_page() {
 
     mforms::TextEntry *entry;
 
-    hbox->add(new_label(_("Trim Routine Names Longer Than")), false);
+    hbox->add(new_label(_("Trim Routine Names Longer Than"), "Trim Routine Names"), false);
 
     entry = new_entry_option("workbench.physical.RoutineGroupFigure:MaxRoutineNameLength", true);
     entry->set_size(60, -1);
     entry->set_max_length(3);
     hbox->add(entry, false);
 
-    hbox->add(new_label(_("characters")), false);
+    hbox->add(new_label(_("characters"), "Characters"), false);
 
     box->add(frame, false);
   }
@@ -1898,6 +1918,7 @@ mforms::View *PreferencesForm::create_diagram_page() {
   {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Relationships/Connections"));
+    frame->set_name("Relationships and Connections");
 
     mforms::Box *vbox = mforms::manage(new mforms::Box(false));
 
@@ -1910,14 +1931,17 @@ mforms::View *PreferencesForm::create_diagram_page() {
 
     check = new_checkbox_option("workbench.physical.Diagram:DrawLineCrossings");
     check->set_text(_("Draw Line Crossings (slow in large diagrams)"));
+    check->set_name("Draw Linw Crossings");
     vbox->add(check, false);
 
     check = new_checkbox_option("workbench.physical.Connection:ShowCaptions");
     check->set_text(_("Show Captions"));
+    check->set_name("Show Captions");
     vbox->add(check, false);
 
     check = new_checkbox_option("workbench.physical.Connection:CenterCaptions");
     check->set_text(_("Center Captions Over Line"));
+    check->set_name("Center Captions Over Line");
     vbox->add(check, false);
 
     box->add(frame, false);
@@ -1982,7 +2006,7 @@ mforms::View *PreferencesForm::create_appearance_page() {
 
     mforms::TextBox *text;
 
-    table->add(new_label(_("Colors available when creating tables, views etc")), 0, 1, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Colors available when creating tables, views etc"), "Available Colors"), 0, 1, 0, 1, mforms::HFillFlag);
     text = mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 0, 1, 1, 2, mforms::FillAndExpand);
@@ -1993,7 +2017,7 @@ mforms::View *PreferencesForm::create_appearance_page() {
     option->show_value = std::bind(show_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
     option->update_value = std::bind(update_text_option, get_options(), "workbench.model.ObjectFigure:ColorList", text);
 
-    table->add(new_label(_("Colors available when creating layers, notes etc")), 1, 2, 0, 1, mforms::HFillFlag);
+    table->add(new_label(_("Colors available when creating layers, notes etc"), "Available Colors"), 1, 2, 0, 1, mforms::HFillFlag);
     text = mforms::manage(new mforms::TextBox(mforms::VerticalScrollBar));
     text->set_size(200, 100);
     table->add(text, 1, 2, 1, 2, mforms::FillAndExpand);
@@ -2020,6 +2044,7 @@ mforms::View *PreferencesForm::create_appearance_page() {
     hbox->set_spacing(12);
     hbox->set_padding(12);
 
+    _font_preset.set_name("Font");
     _font_preset.signal_changed()->connect(std::bind(&PreferencesForm::font_preset_changed, this));
 
     std::string font_name;
@@ -2035,7 +2060,9 @@ mforms::View *PreferencesForm::create_appearance_page() {
       if (font_sets[i].name == font_name)
         _font_preset.set_selected((int)i);
     }
-    hbox->add(mforms::manage(new mforms::Label("Configure Fonts For:")), false, true);
+    mforms::Label *label = mforms::manage(new mforms::Label("Configure Fonts For:"));
+    label->set_name("Configure Fonts");
+    hbox->add(label, false, true);
     hbox->add(&_font_preset, true, true);
 
     _font_list.add_column(mforms::StringColumnType, _("Location"), 150, false);
@@ -2060,16 +2087,16 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page() {
   {
     OptionTable *table = new OptionTable(this, _("Fonts"), true);
 
-    table->add_option(new_entry_option("workbench.general.Editor:Font", false), _("SQL Editor:"),
+    table->add_option(new_entry_option("workbench.general.Editor:Font", false), _("SQL Editor:"), "SQL Editor",
                       _("Global font for SQL text editors"));
 
-    table->add_option(new_entry_option("workbench.general.Resultset:Font", false), _("Resultset Grid:"),
+    table->add_option(new_entry_option("workbench.general.Resultset:Font", false), _("Resultset Grid:"), "Resultset Grid",
                       _("Resultset grid in SQL Editor"));
 
-    table->add_option(new_entry_option("workbench.scripting.ScriptingShell:Font", false), _("Scripting Shell:"),
+    table->add_option(new_entry_option("workbench.scripting.ScriptingShell:Font", false), _("Scripting Shell:"), "Scripting Shell",
                       _("Scripting Shell output area"));
 
-    table->add_option(new_entry_option("workbench.scripting.ScriptingEditor:Font", false), _("Script Editor:"),
+    table->add_option(new_entry_option("workbench.scripting.ScriptingEditor:Font", false), _("Script Editor:"), "Script Editor",
                       _("Code editors in scripting shell"));
 
     content->add(table, true, true);
@@ -2080,12 +2107,12 @@ mforms::View *PreferencesForm::create_fonts_and_colors_page() {
     mforms::Panel *frame = mforms::manage(new mforms::Panel(mforms::TitledBoxPanel));
     frame->set_title(_("Color Scheme"));
     mforms::Box *hbox = mforms::manage(new mforms::Box(true));
-    hbox->add(new_label(_("Select your scheme:")), false, false);
+    hbox->add(new_label(_("Select your scheme:"), "Select Scheme"), false, false);
     mforms::Selector *selector = new_selector_option("ColorScheme", "", true);
     selector->set_size(250, -1);
     hbox->add(selector, true, false);
 
-    mforms::Label *help = new_label(_("The scheme that determines the core colors."), false, true);
+    mforms::Label *help = new_label(_("The scheme that determines the core colors."), "", false, true);
     hbox->add(help, true, false);
     help->set_size(200, -1);
 

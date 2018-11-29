@@ -56,6 +56,7 @@ void StringCheckBoxList::set_strings(const grt::StringListRef &strings) {
     mforms::CheckBox *cb = mforms::manage(new mforms::CheckBox());
     cb->set_text(*iter);
     cb->set_name(*iter);
+    cb->setInternalName(*iter);
 
     scoped_connect(cb->signal_clicked(), std::bind(&StringCheckBoxList::toggled, this));
 

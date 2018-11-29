@@ -104,8 +104,8 @@ class ImportProgressPage(WizardProgressPage):
     def __init__(self, owner):
         WizardProgressPage.__init__(self, owner, "Import Data")
 
-        self.add_task(self.prepare_import, "Prepare Import")
-        self.add_threaded_task(self.start_import, "Import data file")
+        self.add_task(self.prepare_import, "Prepare Import", "Prepare Import")
+        self.add_threaded_task(self.start_import, "Import data file", "Import Data Dile")
         self.module = None
         self.stop = None
         self.import_time = None
@@ -761,6 +761,7 @@ class SelectFileWizardPage(WizardPage):
 
         self.importfile_browse_btn = mforms.newButton()
         self.importfile_browse_btn.set_text("Browse...")
+        self.importfile_browse_btn.set_name("Browse")
         self.importfile_browse_btn.add_clicked_callback(self.importfile_browse)
         entry_box.add(self.importfile_browse_btn, False, False)
 

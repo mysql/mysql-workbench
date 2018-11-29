@@ -107,8 +107,8 @@ mappings will be used. You will be able to review and edit generated objects and
 definitions in the Manual Editing step.""")
         
         self._autostart = True
-        self.add_threaded_task(self.task_migrate, "Migrate Selected Objects")
-        self.add_threaded_task(self.task_generate_sql, "Generate SQL CREATE Statements")
+        self.add_threaded_task(self.task_migrate, "Migrate Selected Objects", "Migrate Selected Objects")
+        self.add_threaded_task(self.task_generate_sql, "Generate SQL CREATE Statements", "Generate SQL CREATE Statements")
 
         self.main.add_wizard_page(self, "ObjectMigration", "Migration")
  

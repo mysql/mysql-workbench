@@ -200,6 +200,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
 
         accept_btn = newButton()
         accept_btn.set_text("Apply...")
+        accept_btn.set_name("Apply")
         accept_btn.add_clicked_callback(self.config_apply_changes_clicked)
 
         discard_btn = newButton()
@@ -222,7 +223,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Instance", "Options File", True)
+        admin_context.register_page(cls, "Instance", "Options File", "Options File", True)
 
     @classmethod
     def identifier(cls):

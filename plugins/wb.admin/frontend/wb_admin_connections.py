@@ -189,21 +189,22 @@ class ConnectionDetailsPanel(mforms.Table):
         self.set_row_count(16)
 
         self.labels = {}
-        self.make_line("Processlist Id:", "PROCESSLIST_ID")
-        self.make_line("Thread Id:", "THREAD_ID")
-        self.make_line("Name:", "NAME")
-        self.make_line("Type:", "TYPE")
-        self.make_line("User:", "PROCESSLIST_USER")
-        self.make_line("Host:", "PROCESSLIST_HOST")
-        self.make_line("Schema:", "PROCESSLIST_DB")
-        self.make_line("Command:", "PROCESSLIST_COMMAND")
-        self.make_line("Time:", "PROCESSLIST_TIME")
-        self.make_line("State:", "PROCESSLIST_STATE")
-        self.make_line("Role:", "ROLE")
-        self.make_line("Instrumented:", "INSTRUMENTED")
-        self.make_line("Parent Thread Id:", "PARENT_THREAD_ID")
+        self.make_line("Processlist Id:", "PROCESSLIST_ID", "Process List")
+        self.make_line("Thread Id:", "THREAD_ID", "Thread Identifier")
+        self.make_line("Name:", "NAME", "Name")
+        self.make_line("Type:", "TYPE", "Type")
+        self.make_line("User:", "PROCESSLIST_USER", "Process List User")
+        self.make_line("Host:", "PROCESSLIST_HOST", "Process List Host")
+        self.make_line("Schema:", "PROCESSLIST_DB", "Process List Database")
+        self.make_line("Command:", "PROCESSLIST_COMMAND", "Process List Command")
+        self.make_line("Time:", "PROCESSLIST_TIME", "Process List Time")
+        self.make_line("State:", "PROCESSLIST_STATE", "Process List State")
+        self.make_line("Role:", "ROLE", "Role")
+        self.make_line("Instrumented:", "INSTRUMENTED", "Instrumented")
+        self.make_line("Parent Thread Id:", "PARENT_THREAD_ID", "Parent Thread Identified")
 
         l = mforms.newLabel("Info:")
+        l.set_name("Info")
         l.set_style(mforms.BoldStyle)
         self.add(l, 0, 1, 13, 14, mforms.HFillFlag|mforms.HExpandFlag)
         self.info = mforms.newCodeEditor()
@@ -225,9 +226,10 @@ class ConnectionDetailsPanel(mforms.Table):
 
 
 
-    def make_line(self, caption, name):
+    def make_line(self, caption, name, accessibilityName):
         i = len(self.labels)
         l = mforms.newLabel(caption)
+        l.set_name(accessibilityName)
         l.set_text_align(mforms.MiddleLeft)
         l.set_style(mforms.BoldStyle)
         self.add(l, 0, 1, i, i+1, mforms.HFillFlag|mforms.HExpandFlag)
@@ -286,7 +288,7 @@ class WbAdminConnections(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Management", "Client Connections", False)
+        admin_context.register_page(cls, "Management", "Client Connections", "Client Connections", False)
 
     @classmethod
     def identifier(cls):
@@ -388,17 +390,17 @@ class WbAdminConnections(WbAdminTabBase):
         info_table.set_row_spacing(4)
         info_table.set_column_spacing(20)
 
-        info_table.add(self.create_labeled_info("Threads Connected:", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Threads Running:", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Threads Created:", "lbl_Threads_created"),                         2, 3, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Threads Cached:", "lbl_Threads_cached"),                           3, 4, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Rejected (over limit):", "lbl_Connection_errors_max_connections"), 4, 5, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Connected:", "Threads Connected", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Running:", "Threads Running", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Created:", "Threads Created", "lbl_Threads_created"),                         2, 3, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Threads Cached:", "Threads Cached", "lbl_Threads_cached"),                           3, 4, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Rejected (over limit):", "Rejected", "lbl_Connection_errors_max_connections"), 4, 5, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
 
-        info_table.add(self.create_labeled_info("Total Connections:", "lbl_Connections"),                           0, 1, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Connection Limit:", "lbl_max_connections"),                        1, 2, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Aborted Clients:", "lbl_Aborted_clients"),                         2, 3, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Aborted Connections:", "lbl_Aborted_connects"),                    3, 4, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
-        info_table.add(self.create_labeled_info("Errors:", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Total Connections:", "Total Connections", "lbl_Connections"),                           0, 1, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Connection Limit:", "Connection Limit", "lbl_max_connections"),                        1, 2, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Aborted Clients:", "Aborted Clients", "lbl_Aborted_clients"),                         2, 3, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Aborted Connections:", "Aborted Connections", "lbl_Aborted_connects"),                    3, 4, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
+        info_table.add(self.create_labeled_info("Errors:", "Errors", "lbl_errors", "tooltip_errors"),                         4, 5, 1, 2, mforms.HFillFlag | mforms.VFillFlag)
 
         self.info_table = info_table
         uiBox.add(info_table, False, True)
@@ -417,11 +419,13 @@ class WbAdminConnections(WbAdminTabBase):
 
         self.kill_button = newButton()
         self.kill_button.set_text("Kill Connection(s)")
+        self.kill_button.set_name("Kill Conenctions")
         self.button_box.add_end(self.kill_button, False, True)
         self.kill_button.add_clicked_callback(weakcb(self, "kill_connection"))
         
         self.killq_button = newButton()
         self.killq_button.set_text("Kill Query(s)")
+        self.killq_button.set_name("Kill Queries")
         self.button_box.add_end(self.killq_button, False, True)
         self.killq_button.add_clicked_callback(weakcb(self, "kill_query"))
         
@@ -473,6 +477,7 @@ class WbAdminConnections(WbAdminTabBase):
             self.truncate_info = newCheckBox()
             self.truncate_info.set_active(True)
             self.truncate_info.set_text('Don\'t load full thread info')
+            self.truncate_info.set_name('Do Not Load Thread Info')
             self.truncate_info.set_tooltip('Toggle whether to load the entire query information for all connections or just the first 255 characters.\nEnabling this can have a large impact in busy servers or server executing large INSERTs.')
             self.truncate_info.add_clicked_callback(self.refresh)
             self.check_box.add(self.truncate_info, False, True)
@@ -494,12 +499,15 @@ class WbAdminConnections(WbAdminTabBase):
                 self.mdl_list_box_scrollarea.add(self.mdl_list_box)
 
                 self.mdl_label = mforms.newLabel('Metadata locks (MDL) protect concurrent access to\nobject metadata (not table row/data locks)')
+                self.mdl_label.set_name("Metadata Info")
                 self.mdl_list_box.add(self.mdl_label, False, True)
 
                 label = mforms.newLabel("\nGranted Locks (and threads waiting on them)")
+                label.set_name("Granted Locks Info")
                 label.set_style(mforms.BoldStyle)
                 self.mdl_list_box.add(label, False, True)
                 label = mforms.newLabel("Locks this connection currently owns and\nconnections that are waiting for them.")
+                label.set_name("Lock Connection Info")
                 label.set_style(mforms.SmallHelpTextStyle)
                 self.mdl_list_box.add(label, False, True)
 
@@ -520,6 +528,7 @@ class WbAdminConnections(WbAdminTabBase):
                 self.mdl_blocked_icon.set_image(mforms.App.get().get_resource_path("message_warning.png"))
                 hbox.add(self.mdl_blocked_icon, False, True)
                 self.mdl_waiting_label = mforms.newLabel("Locks this connection is currently waiting for.")
+                self.mdl_waiting_label.set_name("Lock Connection Info")
                 hbox.add(self.mdl_waiting_label, True, True)
                 self.mdl_list_box.add(hbox, False, True)
                 self.mdl_locks_page = self.extra_info_tab.add_page(self.mdl_list_box_scrollarea, "Locks")
@@ -564,10 +573,11 @@ class WbAdminConnections(WbAdminTabBase):
             self._refresh_timeout = None
 
         
-    def create_labeled_info(self, lbl_txt, lbl_name, tooltip_name = None):
+    def create_labeled_info(self, lbl_txt, acc_name, lbl_name, tooltip_name = None):
         lbox = newBox(True)
         lbox.set_spacing(5)
         l = mforms.newLabel(lbl_txt)
+        l.set_name(acc_name)
         lbox.add(l, False, True)
         setattr(self, lbl_name, mforms.newLabel(""))
         l.set_style(mforms.BoldStyle)

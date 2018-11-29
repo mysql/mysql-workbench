@@ -527,7 +527,7 @@ class WbAdminLogs(WbAdminTabBase):
 
     @classmethod
     def wba_register(cls, admin_context):
-        admin_context.register_page(cls, "Instance", "Server Logs", True)
+        admin_context.register_page(cls, "Instance", "Server Logs", "Server Logs", True)
 
     @classmethod
     def identifier(cls):
