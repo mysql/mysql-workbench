@@ -25,6 +25,7 @@
 #include "SSHSession.h"
 #include "base/log.h"
 #include "base/file_functions.h"
+#include "base/file_utilities.h"
 #include "base/string_utilities.h"
 #include <fcntl.h>
 #include <vector>
@@ -572,8 +573,13 @@ namespace ssh {
 
       case SSHAuthtype::KEYFILE: {
         ssh_key privKey;
-        if (ssh_pki_import_privkey_file(credentials.keyfile.c_str(), credentials.keypassword.c_str(), nullptr, nullptr,
-                                        &privKey) == SSH_OK) {
+        if (!base::file_exists(credentials.keyfile))
+          throw std::runtime_error("The key file does not exist.");
+
+        std::string fileKey = base::getTextFileContent(credentials.keyfile);
+
+        if (ssh_pki_import_privkey_base64(fileKey.c_str(), credentials.keypassword.c_str(), nullptr, nullptr,
+          &privKey) == SSH_OK) {
           int authInfo = _session->userauthPublickey(privKey);
           ssh_key_free(privKey);
           handleAuthReturn(authInfo);
