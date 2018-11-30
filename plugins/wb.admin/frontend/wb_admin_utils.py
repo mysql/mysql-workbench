@@ -108,7 +108,7 @@ class WbAdminValidationBase:
         warning = newLabel("\n\n\n\n" + self._error_message)
         warning.set_style(mforms.BigStyle)
         warning.set_text_align(mforms.MiddleCenter)
-        warning.show(False)      
+        warning.show(True)
         return warning
 
 ValidationErrorServerNotRunning = "There is no connection to the MySQL Server.\nThis functionality requires an established connection to a running MySQL server."
