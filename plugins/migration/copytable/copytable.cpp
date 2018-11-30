@@ -2195,8 +2195,13 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index) {
       case MYSQL_TYPE_SET:
       case MYSQL_TYPE_JSON:
         _bulk_insert_record.append("'", 1);
-        ret_val = _bulk_insert_record.append_escaped((char *)(*_row_buffer)[col_index].buffer,
-                                                     *(*_row_buffer)[col_index].length);
+        if ((*_columns)[col_index].source_type == "decimal") {
+            ret_val = _bulk_insert_record.append((char *)(*_row_buffer)[col_index].buffer);
+        }
+        else {
+            ret_val = _bulk_insert_record.append_escaped((char *)(*_row_buffer)[col_index].buffer,
+                                                         *(*_row_buffer)[col_index].length);
+        }
         _bulk_insert_record.append("'", 1);
         break;
       case MYSQL_TYPE_TIME:
