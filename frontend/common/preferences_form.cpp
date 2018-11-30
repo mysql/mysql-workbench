@@ -699,7 +699,7 @@ mforms::View *PreferencesForm::create_admin_page() {
     table->add(new_label(_("Leave blank to use bundled version."), "Leave Blank for Default", false, true), 2, 3, 0, 1,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #else
-    table->add(new_label(_("Full path to the mysqldump tool\nif it's not in your PATH."), false, true), 2, 3, 0, 1,
+    table->add(new_label(_("Full path to the mysqldump tool\nif it's not in your PATH."), "Leave Blank for Default", false, true), 2, 3, 0, 1,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #endif
     table->add(new_label(_("Path to mysql Tool:"), "Path to MySQL Tool", true), 0, 1, 1, 2, mforms::HFillFlag);
@@ -712,7 +712,7 @@ mforms::View *PreferencesForm::create_admin_page() {
     table->add(new_label(_("Leave blank to use bundled version."), "Leave Blank for Default", false, true), 2, 3, 1, 2,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #else
-    table->add(new_label(_("Full path to the mysql tool\nif it's not in your PATH."), false, true), 2, 3, 1, 2,
+    table->add(new_label(_("Full path to the mysql tool\nif it's not in your PATH."), "Leave Blank for Default", false, true), 2, 3, 1, 2,
                mforms::HFillFlag | mforms::HExpandFlag | mforms::VFillFlag);
 #endif
 
