@@ -357,6 +357,7 @@ class AdminSecurity(object):
         privs += get_zombies(ZOMBIE_PROCS_PRIVS_QUERY, ["Db", "Routine_name"])
         zombies = {}
         for account, priv in privs:
+            account = (account[0], account[1], True)
             if account not in zombies:
                 zombies[account] = []
             zombies[account].append(priv)
