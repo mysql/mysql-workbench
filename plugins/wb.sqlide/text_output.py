@@ -23,7 +23,7 @@ import mforms
 
 class TextOutputTab(mforms.AppView):
     def __init__(self, output):
-        super(TextOutputTab, self).__init__(False, "TextOutput", False)
+        super(TextOutputTab, self).__init__(False, "Text Output", "TextOutput", False)
 
         self.textbox = mforms.newTextBox(mforms.BothScrollBars)
         self.textbox.set_monospaced(True)
