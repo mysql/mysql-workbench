@@ -71,14 +71,15 @@ class SetupMainView(WizardPage):
         holder.add(vbox, False, True)
         box.add(holder, False, True)
 
-        setattr(self, name+"_check_duplicate", False)
-        setattr(self, name+"_radiobutton", radio)
-        setattr(self, name+"_entry", file_entry)
-        setattr(self, name+"_vbox", vbox)
+        ctrl_name = name.replace(" ", "")
+        setattr(self, ctrl_name + "_check_duplicate", False)
+        setattr(self, ctrl_name + "_radiobutton", radio)
+        setattr(self, ctrl_name + "_entry", file_entry)
+        setattr(self, ctrl_name + "_vbox", vbox)
 
     def _script_radio_option_callback(self):
-        self.copy_script_vbox.set_enabled(self.copy_script_radiobutton.get_active())
-        self.bulk_copy_script_vbox.set_enabled(self.bulk_copy_script_radiobutton.get_active())
+        self.CopyScript_vbox.set_enabled(self.CopyScript_radiobutton.get_active())
+        self.BulkCopyScript_vbox.set_enabled(self.BulkCopyScript_radiobutton.get_active())
 
     def __init__(self, main):
         WizardPage.__init__(self, main, "Data Transfer Setup")
@@ -205,14 +206,14 @@ All tables are copied by default.""")
         #    if "GenerateDumpScript" in self.main.plan.state.dataBulkTransferParams:
         #       del self.main.plan.state.dataBulkTransferParams["GenerateDumpScript"]
 
-        if self.copy_script_radiobutton.get_active():
-            self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"] = self.copy_script_entry.get_string_value()
+        if self.CopyScript_radiobutton.get_active():
+            self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"] = self.CopyScript_entry.get_string_value()
         else:
             if self.main.plan.state.dataBulkTransferParams.has_key("GenerateCopyScript"):
                 del self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"]
 
-        if self.bulk_copy_script_radiobutton.get_active():
-            self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"] = self.bulk_copy_script_entry.get_string_value()
+        if self.BulkCopyScript_radiobutton.get_active():
+            self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"] = self.BulkCopyScript_entry.get_string_value()
         else:
             if self.main.plan.state.dataBulkTransferParams.has_key("GenerateBulkCopyScript"):
                 del self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
@@ -283,20 +284,20 @@ All tables are copied by default.""")
                 filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"\\copy_migrated_tables.cmd"
             else:
                 filename = mforms.Utilities.get_special_folder(mforms.Desktop)+"/copy_migrated_tables.sh"
-            self.copy_script_entry.set_value(filename)
-            self.copy_script_check_duplicate = True
+            self.CopyScript_entry.set_value(filename)
+            self.CopyScript_check_duplicate = True
 
             source_os = self.main.plan.migrationSource.get_os()
             if not source_os:
-                self.bulk_copy_script_radiobutton.set_enabled(False)
+                self.BulkCopyScript_radiobutton.set_enabled(False)
                 bulk_copy_filename = ''
                 grt.send_warning('Cannot get operating system of source server.')
             elif source_os == "windows":
                 bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.cmd')
             else:
                 bulk_copy_filename = os.path.join(mforms.Utilities.get_special_folder(mforms.Desktop), 'bulk_copy_tables.sh')
-            self.bulk_copy_script_entry.set_value(bulk_copy_filename)
-            self.bulk_copy_script_check_duplicate = True
+            self.BulkCopyScript_entry.set_value(bulk_copy_filename)
+            self.BulkCopyScript_check_duplicate = True
 
 
         WizardPage.page_activated(self, advancing)
@@ -412,8 +413,8 @@ class TransferMainView(WizardProgressPage):
                 self._bulk_copy_script_task = self.add_task(self._create_bulk_copy_script, "Create shell script for bulk data copy", "Create Shell Script for Bulk Data Copy")
 
             if options.get("LiveDataCopy", False) or options.get("GenerateDumpScript", False):
-                self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy")
-                self._migrate_task2 = self.add_threaded_task(self._migrate_data, "Copy data to target RDBMS")
+                self._migrate_task1 = self.add_threaded_task(self._count_rows, "Determine number of rows to copy", "Determine number of rows to copy")
+                self._migrate_task2 = self.add_threaded_task(self._migrate_data, "Copy data to target RDBMS", "Copy data to target RDBMS")
 
             self._migrating_data = False
             self._progress_per_table = {}
