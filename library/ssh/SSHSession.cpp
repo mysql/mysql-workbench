@@ -312,6 +312,8 @@ namespace ssh {
           continue;
         }
       } catch (SshException &exc) {
+        if (channel->isClosed())
+          return std::make_tuple(so.str(), retError, channel->getExitStatus());
         throw SSHTunnelException(exc.getError());
       }
 
@@ -331,6 +333,8 @@ namespace ssh {
           retError.append(errorMsg);
         }
       } catch (SshException &exc) {
+        if (channel->isClosed())
+          return std::make_tuple(so.str(), retError, channel->getExitStatus());
         throw SSHTunnelException(exc.getError());
       }
 
@@ -426,6 +430,9 @@ namespace ssh {
           }
         }
       } catch (SshException &exc) {
+        if (channel->isClosed())
+          return std::make_tuple(so.str(), retError, channel->getExitStatus());
+
         throw SSHTunnelException(exc.getError());
       }
 
@@ -438,6 +445,8 @@ namespace ssh {
           continue;
         }
       } catch (SshException &exc) {
+        if (channel->isClosed())
+          return std::make_tuple(so.str(), retError, channel->getExitStatus());
         throw SSHTunnelException(exc.getError());
       }
 

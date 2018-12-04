@@ -834,19 +834,19 @@ class FileOpsLinuxBase(object):
 
     @useAbsPath("path")
     def check_path_exists(self, path, as_user=Users.CURRENT, user_password=None):
-        res = self.process_ops.exec_cmd('test -d ' + quote_path(path),
+        res = self.process_ops.exec_cmd('test -d %s' % quote_path(path),
                             as_user,
                             user_password,
-                            output_handler = lambda line:None,
+                            output_handler = lambda line: None,
                             options={CmdOptions.CMD_WAIT_OUTPUT:CmdOutput.WAIT_NEVER})
         return res == 0
 
     @useAbsPath("filename")
     def file_exists(self, filename, as_user=Users.CURRENT, user_password=None):
-        res = self.process_ops.exec_cmd('test -e ' + quote_path(filename),
+        res = self.process_ops.exec_cmd('test -e %s' % quote_path(filename),
                             as_user,
                             user_password,
-                            output_handler = lambda line:None,
+                            output_handler = lambda line: None,
                             options={CmdOptions.CMD_WAIT_OUTPUT:CmdOutput.WAIT_NEVER})
         return res == 0
     
