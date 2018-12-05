@@ -130,28 +130,6 @@ robocopy %PYTHON_DIR% %TARGET_DIR% python27%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc.pyd
 
-echo * SSL library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libeay32.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\ssleay32.dll %TARGET_DIR%\.
-
-echo * glib libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\gmodule.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\gobject.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\gthread.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\intl.dll %TARGET_DIR%\.
-
-echo * libxml2 libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libxml2.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\iconv.dll %TARGET_DIR%\.
-
-echo * zlib + libzip libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\zlib1.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\zip.dll %TARGET_DIR%\.
-
-echo * ANTLR4 runtime lib ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\antlr4-runtime.dll %TARGET_DIR%\.
-
 rem =========== Python ============================
 
 echo * Python libraries ...
@@ -190,18 +168,42 @@ xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\*.pyd %TARGET_DIR%\python\site-
 
 rem =======================================
 
+if %2 == Debug ( set DEBUG_PREFIX=d)
+
+echo * SSL library ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\libeay32.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\ssleay32.dll %TARGET_DIR%\.
+
+echo * glib libraries ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gmodule.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gobject.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gthread.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\intl.dll %TARGET_DIR%\.
+
+echo * libxml2 libraries ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\libxml2.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\iconv.dll %TARGET_DIR%\.
+
+echo * zlib + libzip libraries ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\zlib%DEBUG_PREFIX%1.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\zip.dll %TARGET_DIR%\.
+
+echo * ANTLR4 runtime lib ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\antlr4-runtime.dll %TARGET_DIR%\.
+
 echo * cairo library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\libcairo.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * png library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libpng16.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\libpng16%DEBUG_PREFIX%.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * cppconn library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\mysqlcppconn-7-vs14.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * pcre library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\pcre.dll %TARGET_DIR%\. 1> nul 2> nul
-xcopy /i /s /y /d %EXT_LIB_DIR%\pcrecpp.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\pcre%DEBUG_PREFIX%.dll %TARGET_DIR%\. 1> nul 2> nul
+xcopy /i /s /y /d %EXT_LIB_DIR%\pcrecpp%DEBUG_PREFIX%.dll %TARGET_DIR%\. 1> nul 2> nul
 
 echo * sqlite library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\sqlite3.dll %TARGET_DIR%\. 1> nul 2> nul
