@@ -56,7 +56,7 @@ from workbench.os_utils import FileUtils, OSUtils, FunctionType
 def handle_ssh_command_output(return_value, merge_output = False):
     if return_value['stderr']:
         log_error("An error occured during command exec: %s\n" % return_value['stderr'])
-    log_debug3("Exit status was: %d\n" % return_value['status'])
+    log_debug3("Exit status was: %s\n" % str(return_value['status']))
 #     if return_value['status'] == 127:
 #         raise OSError(127, "Command not found")
 
@@ -65,9 +65,9 @@ def handle_ssh_command_output(return_value, merge_output = False):
             raise OSError(2, "No such file or directory")
         
     if merge_output:
-        return return_value['stdout'] + return_value['stderr']
+        return str(return_value['stdout']) + str(return_value['stderr'])
     else:
-        return return_value['stdout']
+        return str(return_value['stdout'])
 
 class wbaOS(object):
     unknown = "unknown"
