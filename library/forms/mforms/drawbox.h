@@ -43,12 +43,28 @@ namespace mforms {
     void (*add)(DrawBox *, View *, Alignment alignment);
     void (*remove)(DrawBox *, View *);
     void (*move)(DrawBox *, View *, int x, int y);
+    void (*drawFocus)(DrawBox*, cairo_t *, const base::Rect);
   };
 
 #endif
 #endif
 
+  struct FocusableArea {
+   public:
+    std::function<void()> activate;
+    std::function<void()> showContextMenu;
+    std::function<base::Rect()> getBounds;
+  };
+
   class MFORMS_EXPORT DrawBox : public View, public base::Accessible {
+  private:
+    std::vector<FocusableArea> _focusableList;
+    int _focusedItem;
+    int _lastFocusedItem;
+
+  protected:
+    void drawFocus(cairo_t *cr, const base::Rect r);
+
   public:
     DrawBox();
 
@@ -71,8 +87,7 @@ namespace mforms {
     virtual base::Size getLayoutSize(base::Size proposedSize);
 
 #ifndef SWIG
-    virtual void repaint(cairo_t *cr, int x, int y, int w, int h) {
-    }
+    virtual void repaint(cairo_t *cr, int x, int y, int w, int h);
     virtual void cancel_operation(){}
 
     virtual void set_name(const std::string &name) override {
@@ -84,6 +99,17 @@ namespace mforms {
     virtual Role getAccessibilityRole() override {
       return base::Accessible::RoleNone;
     }
+
+    void addFocusableArea(FocusableArea fArea);
+    void clearFocusableAreas();
+    bool setFocusOnArea(const base::Point p);
+
+
+    virtual bool keyPress(KeyCode code, ModifierKey modifiers) override;
+    virtual bool focusIn() override;
+    virtual bool focusOut() override;
+    virtual bool mouse_down(mforms::MouseButton button, int x, int y) override;
+
 #endif
 #endif
   protected:

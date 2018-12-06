@@ -36,9 +36,11 @@
 #include "mforms/scrollpanel.h"
 
 #include "mforms/home_screen.h"
+#include "mforms/home_screen_helpers.h"
 #include "mforms/home_screen_connections.h"
 
 #include "base/any.h"
+#include "base/accessibility.h"
 
 using namespace base;
 using namespace mforms;
@@ -383,7 +385,6 @@ void HomeScreen::addSection(HomeScreenSection *section) {
     add(scroll, true, true);
 
     scroll->show(false);
-
 
     bool isCallbackOnly = section->callback ? true : false;
     _sidebarSection->addEntry(section->getTitle(), section->getIcon(), section, [this, isCallbackOnly, section]() {

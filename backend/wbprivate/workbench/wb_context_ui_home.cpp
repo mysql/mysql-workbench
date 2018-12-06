@@ -1066,6 +1066,8 @@ void WBContextUI::refresh_home_connections(bool clear_state) {
     }
   }
 
+  _connectionsSection->updateFocusableAreas();
+
   _oldAuthList = oldAuthList;
 
   // Deletes invalid connections

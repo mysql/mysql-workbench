@@ -67,7 +67,7 @@ namespace mforms {
     }
 
     mforms::KeyCode GetKeys(const guint keyval) {
-      mforms::KeyCode code = mforms::KeyNone;
+      mforms::KeyCode code = mforms::KeyUnkown;
       switch (keyval) {
         case GDK_Home:
           code = mforms::KeyHome;
@@ -91,9 +91,52 @@ namespace mforms {
         case GDK_KEY_Return:
           code = mforms::KeyReturn;
           break;
+        case GDK_KEY_Tab:
+        case GDK_KEY_ISO_Left_Tab:
+          code = mforms::KeyTab;
+          break;
 
         case GDK_KEY_KP_Enter:
           code = mforms::KeyEnter;
+          break;
+        case GDK_KEY_Menu:
+          code = mforms::KeyMenu;
+          break;
+        case  GDK_KEY_F1:
+          code = mforms::KeyF1;
+          break;
+        case  GDK_KEY_F2:
+          code = mforms::KeyF2;
+          break;
+        case  GDK_KEY_F3:
+          code = mforms::KeyF3;
+          break;
+        case  GDK_KEY_F4:
+          code = mforms::KeyF4;
+          break;
+        case  GDK_KEY_F5:
+          code = mforms::KeyF5;
+          break;
+        case  GDK_KEY_F6:
+          code = mforms::KeyF6;
+          break;
+        case  GDK_KEY_F7:
+          code = mforms::KeyF7;
+          break;
+        case  GDK_KEY_F8:
+          code = mforms::KeyF8;
+          break;
+        case  GDK_KEY_F9:
+          code = mforms::KeyF9;
+          break;
+        case  GDK_KEY_F10:
+          code = mforms::KeyF10;
+          break;
+        case  GDK_KEY_F11:
+          code = mforms::KeyF11;
+          break;
+        case  GDK_KEY_F12:
+          code = mforms::KeyF12;
           break;
         case GDK_KEY_Shift_L:
         case GDK_KEY_Shift_R:
@@ -110,9 +153,6 @@ namespace mforms {
             code = mforms::KeyChar;
           break;
       }
-
-      if (code == mforms::KeyNone)
-        code = mforms::KeyUnkown;
 
       return code;
     }
@@ -433,6 +473,48 @@ namespace mforms {
       get_outer()->signal_drag_end().connect(sigc::mem_fun(this, &ViewImpl::slot_drag_end));
       get_outer()->signal_drag_failed().connect(sigc::mem_fun(this, &ViewImpl::slot_drag_failed));
       get_outer()->signal_drag_begin().connect(sigc::mem_fun(this, &ViewImpl::slot_drag_begin));
+
+      get_outer()->signal_focus_in_event().connect([this](GdkEventFocus *evt) {
+        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+        if (ownerView != nullptr)
+          return ownerView->focusIn();
+        return false;
+      });
+
+      get_outer()->signal_focus_out_event().connect([this](GdkEventFocus *evt) {
+        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+        if (ownerView != nullptr)
+          return ownerView->focusOut();
+        return false;
+      });
+
+      get_outer()->signal_enter_notify_event().connect_notify([this](GdkEventCrossing *event) {
+        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+        if (ownerView != nullptr)
+          ownerView->mouse_enter();
+      });
+
+      get_outer()->signal_leave_notify_event().connect_notify([this](GdkEventCrossing *event) {
+        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+        if (ownerView != nullptr)
+          ownerView->mouse_leave();
+      });
+
+      get_outer()->signal_key_press_event().connect([this](GdkEventKey *event) {
+        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+        if (ownerView != nullptr)
+          return ownerView->keyPress(GetKeys(event->keyval), GetModifiers(event->state, event->keyval));
+        return false;
+      });
+
+      get_outer()->signal_key_release_event().connect([this](GdkEventKey *event) {
+        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+        if (ownerView != nullptr)
+          return ownerView->keyRelease(GetKeys(event->keyval), GetModifiers(event->state, event->keyval));
+        return false;
+      });
+
+      get_outer()->add_events(Gdk::FOCUS_CHANGE_MASK|Gdk::KEY_PRESS_MASK|Gdk::KEY_RELEASE_MASK);
     }
 
     void ViewImpl::move_child(ViewImpl *child, int x, int y) {

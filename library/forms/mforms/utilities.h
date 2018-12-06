@@ -63,6 +63,20 @@ namespace mforms {
     KeyNext,
     KeyUp,
     KeyDown,
+    KeyTab,
+    KeyMenu,
+    KeyF1,
+    KeyF2,
+    KeyF3,
+    KeyF4,
+    KeyF5,
+    KeyF6,
+    KeyF7,
+    KeyF8,
+    KeyF9,
+    KeyF10,
+    KeyF11,
+    KeyF12,
     KeyUnkown, //!< Any other key, not yet mapped.
   };
 

@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "wf_base.h"
@@ -349,9 +349,8 @@ void CanvasControl::DoRepaint() {
 
 //--------------------------------------------------------------------------------------------------
 
-void CanvasControl::OnKeyDown(KeyEventArgs ^ args) {
-  __super ::OnKeyDown(args);
-
+void CanvasControl::OnKeyDown(KeyEventArgs ^args) {
+  __super::OnKeyDown(args);
   if (args->KeyCode == Keys::Escape)
     backend->cancel_operation();
 }
@@ -377,7 +376,7 @@ void CanvasControl::OnPaint(PaintEventArgs ^ args) {
 //----------------- DrawBoxLayout ------------------------------------------------------------------
 
 bool DrawBoxLayout::Layout(Object ^ sender, LayoutEventArgs ^ arguments) {
-  CanvasControl ^ canvas = (CanvasControl ^)sender;
+  CanvasControl ^ canvas = (CanvasControl ^) sender;
   Size canvasSize = canvas->Size;
   for each(Control ^ control in canvas->Controls) {
       int x, y;
@@ -482,6 +481,19 @@ void DrawBoxWrapper::move(mforms::DrawBox *backend, mforms::View *view, int x, i
 
 //--------------------------------------------------------------------------------------------------
 
+void DrawBoxWrapper::drawFocus(::mforms::DrawBox *self, cairo_t *cr, const base::Rect r) {
+  auto bounds = r;
+  bounds.use_inter_pixel = true;
+  cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 1.0);
+  cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 2, bounds.height() - 2);
+  double dashes[] = { 1.0, 2.0 };
+  cairo_set_dash(cr, dashes, 2, 0);
+  cairo_set_line_width(cr, 1);
+  cairo_stroke(cr);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void DrawBoxWrapper::init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
@@ -490,6 +502,7 @@ void DrawBoxWrapper::init() {
   f->_drawbox_impl.add = &DrawBoxWrapper::add;
   f->_drawbox_impl.remove = &DrawBoxWrapper::remove;
   f->_drawbox_impl.move = &DrawBoxWrapper::move;
+  f->_drawbox_impl.drawFocus = &DrawBoxWrapper::drawFocus;
 }
 
 //--------------------------------------------------------------------------------------------------

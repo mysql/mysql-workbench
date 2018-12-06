@@ -215,6 +215,9 @@ namespace mforms {
     void addConnection(const std::string &connectionId, const std::string &title, const std::string &description,
                        const std::string &user, const std::string &schema);
 
+    void updateFocusableAreas();
+    bool setFocusOnEntry(ConnectionEntry *entry);
+
     virtual mforms::View *getContainer() override;
     virtual mforms::View *get_parent() const override;
   };

@@ -56,10 +56,6 @@ namespace mforms {
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_button_event), self));
       _darea->signal_button_release_event().connect(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_button_event), self));
-      _darea->signal_enter_notify_event().connect_notify(
-        sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_cross_event), self));
-      _darea->signal_leave_notify_event().connect_notify(
-        sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_cross_event), self));
       _darea->signal_motion_notify_event().connect(
         sigc::bind(sigc::mem_fun(this, &DrawBoxImpl::mouse_move_event), self));
 
@@ -75,8 +71,6 @@ namespace mforms {
       _sig_relayout.disconnect();
       _darea = nullptr;
       _mformsGTK = nullptr;
-
-
     }
 
     void *DrawBoxImpl::on_repaint() {
@@ -191,13 +185,6 @@ namespace mforms {
       return true;
     }
 
-    void DrawBoxImpl::mouse_cross_event(GdkEventCrossing *event, ::mforms::DrawBox *self) {
-      if (event->type == GDK_ENTER_NOTIFY)
-        self->mouse_enter();
-      else
-        self->mouse_leave();
-    }
-
     bool DrawBoxImpl::mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *self) {
       mforms::MouseButton mbtn;
       switch (event->button) // button number assumptions from starter icon code
@@ -249,7 +236,6 @@ namespace mforms {
     bool DrawBoxImpl::create(::mforms::DrawBox *self) {
       return new DrawBoxImpl(self) != 0;
     }
-
 
     void DrawBoxImpl::set_needs_repaint(::mforms::DrawBox *self) {
       // request a repaint so that this can be called from any thread
@@ -321,7 +307,17 @@ namespace mforms {
       _padding._top = top;
       _padding._bottom = bottom;
     }
+
     //------------------------------------------------------------------------------
+
+    void DrawBoxImpl::drawFocus(::mforms::DrawBox *self, cairo_t *cr, const base::Rect r) {
+      auto bounds = r;
+      bounds.use_inter_pixel = true;
+      cairo_set_source_rgba(cr, 0.0, 0.6, 1.0, 1.0);
+      cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 2, bounds.height() - 2);
+      cairo_set_line_width(cr, 1);
+      cairo_stroke(cr);
+    }
 
     void DrawBoxImpl::init() {
       ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -331,6 +327,7 @@ namespace mforms {
       f->_drawbox_impl.add = &DrawBoxImpl::add;
       f->_drawbox_impl.move = &DrawBoxImpl::move;
       f->_drawbox_impl.remove = &DrawBoxImpl::remove;
+      f->_drawbox_impl.drawFocus = &DrawBoxImpl::drawFocus;
     }
   };
 };

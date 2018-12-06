@@ -171,6 +171,143 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
+  void HandlerFocusIn(System::Object ^sender, EventArgs ^e) {
+    mforms::View *ownedView = ViewWrapper::GetBackend<mforms::View>(sender);
+    if (ownedView != nullptr) {
+      ownedView->focusIn();
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void HandlerFocusOut(System::Object ^sender, EventArgs ^e) {
+    mforms::View *ownedView = ViewWrapper::GetBackend<mforms::View>(sender);
+    if (ownedView != nullptr) {
+      ownedView->focusOut();
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void HandlerPreviewKeyKeyDown(System::Object ^sender, PreviewKeyDownEventArgs ^e) {
+    if (e->KeyCode == Keys::Tab) {
+      mforms::View *ownedView = ViewWrapper::GetBackend<mforms::View>(sender);
+      if (ownedView != nullptr) {
+        e->IsInputKey = ownedView->keyPress(GetKeys(e->KeyCode), ViewWrapper::GetModifiers(e->KeyData));
+      }
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  void HandlerKeyDown(System::Object ^sender, KeyEventArgs ^e) {
+    mforms::View *ownedView = ViewWrapper::GetBackend<mforms::View>(sender);
+    if (e->KeyCode == Keys::Tab) {
+      e->Handled = true;
+    } else {
+      mforms::View *ownedView = ViewWrapper::GetBackend<mforms::View>(sender);
+      if (ownedView != nullptr) {
+        e->Handled = ownedView->keyPress(GetKeys(e->KeyCode), ViewWrapper::GetModifiers(e->KeyData));
+      }
+    }
+  }
+  
+  //------------------------------------------------------------------------------------------------
+
+
+  void HandlerKeyUp(System::Object ^sender, KeyEventArgs ^e) {
+    mforms::View *ownedView = ViewWrapper::GetBackend<mforms::View>(sender);
+    if (ownedView != nullptr) {
+      ownedView->keyRelease(GetKeys(e->KeyCode), ViewWrapper::GetModifiers(e->KeyData));
+    }
+  }
+
+  //------------------------------------------------------------------------------------------------
+
+  mforms::KeyCode GetKeys(System::Windows::Forms::Keys arg) {
+    mforms::KeyCode code = mforms::KeyUnkown;
+    switch (arg) {
+    case Keys::Home:
+      code = mforms::KeyHome;
+      break;
+    case Keys::End:
+      code = mforms::KeyEnd;
+      break;
+    case Keys::PageUp:
+      code = mforms::KeyPrevious;
+      break;
+    case Keys::PageDown:
+      code = mforms::KeyNext;
+      break;
+    case Keys::Up:
+      code = mforms::KeyUp;
+      break;
+    case Keys::Down:
+      code = mforms::KeyDown;
+      break;
+    case Keys::Return:
+      code = mforms::KeyReturn;
+      break;
+    case Keys::Tab:
+      code = mforms::KeyTab;
+      break;
+    case Keys::Menu:
+      code = mforms::KeyMenu;
+      break;
+    case  Keys::F1:
+      code = mforms::KeyF1;
+      break;
+    case  Keys::F2:
+      code = mforms::KeyF2;
+      break;
+    case  Keys::F3:
+      code = mforms::KeyF3;
+      break;
+    case  Keys::F4:
+      code = mforms::KeyF4;
+      break;
+    case  Keys::F5:
+      code = mforms::KeyF5;
+      break;
+    case  Keys::F6:
+      code = mforms::KeyF6;
+      break;
+    case  Keys::F7:
+      code = mforms::KeyF7;
+      break;
+    case  Keys::F8:
+      code = mforms::KeyF8;
+      break;
+    case  Keys::F9:
+      code = mforms::KeyF9;
+      break;
+    case  Keys::F10:
+      code = mforms::KeyF10;
+      break;
+    case  Keys::F11:
+      code = mforms::KeyF11;
+      break;
+    case  Keys::F12:
+      code = mforms::KeyF12;
+      break;
+    case Keys::LShiftKey:
+    case Keys::RShiftKey:
+    case Keys::LControlKey:
+    case Keys::RControlKey:
+    case Keys::LWin:
+    case Keys::RWin:
+      code = mforms::KeyModifierOnly;
+      break;
+    default:
+      if (arg >= Keys::A && arg <= Keys::Z)
+        code = mforms::KeyChar;
+      break;
+    }
+    return code;
+  }
+
+  //------------------------------------------------------------------------------------------------
+
   std::vector<std::string> get_available_formats(System::Windows::Forms::IDataObject ^ data) {
     std::vector<std::string> result;
     array<String ^> ^ formats = data->GetFormats();
@@ -1151,6 +1288,11 @@ void ViewWrapper::Initialize() {
       control->DragDrop += gcnew DragEventHandler(eventTarget, &ViewEventTarget::HandleDragDrop);
       control->DragOver += gcnew DragEventHandler(eventTarget, &ViewEventTarget::HandleDragOver);
       control->DragLeave += gcnew EventHandler(eventTarget, &ViewEventTarget::HandleDragLeave);
+      control->GotFocus += gcnew EventHandler(eventTarget, &ViewEventTarget::HandlerFocusIn);
+      control->LostFocus += gcnew EventHandler(eventTarget, &ViewEventTarget::HandlerFocusOut);
+      control->PreviewKeyDown += gcnew PreviewKeyDownEventHandler(eventTarget, &ViewEventTarget::HandlerPreviewKeyKeyDown);
+      control->KeyDown += gcnew KeyEventHandler(eventTarget, &ViewEventTarget::HandlerKeyDown);
+      control->KeyUp += gcnew KeyEventHandler(eventTarget, &ViewEventTarget::HandlerKeyUp);
     }
   }
 };
@@ -1180,6 +1322,8 @@ mforms::ModifierKey ViewWrapper::GetModifiers(Keys keyData) {
   if ((keyData & Keys::Shift) == Keys::Shift)
     modifiers = modifiers | mforms::ModifierShift;
   if ((keyData & Keys::LWin) == Keys::LWin)
+    modifiers = modifiers | mforms::ModifierCommand;
+  if ((keyData & Keys::RWin) == Keys::RWin)
     modifiers = modifiers | mforms::ModifierCommand;
   return modifiers;
 }

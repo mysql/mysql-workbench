@@ -176,9 +176,9 @@ namespace mforms {
 
     // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
     GType mforms_object_accessible_get_type(GType parent_type G_GNUC_UNUSED) {
-      static volatile gsize type_id_result = 0;
+      static volatile gsize typeIdResult = 0;
 
-      if (g_once_init_enter(&type_id_result)) {
+      if (g_once_init_enter(&typeIdResult)) {
         GTypeInfo tinfo = { 0, /* class size */
         (GBaseInitFunc) NULL, /* base init */
         (GBaseFinalizeFunc) NULL, /* base finalize */
@@ -191,29 +191,32 @@ namespace mforms {
         NULL /* value table */
         };
 
-        // good, we have gtk-a11y.h, we can use that
-        GType derived_atk_type = GTK_TYPE_CONTAINER_ACCESSIBLE;
+        GType derivedAtkType = GTK_TYPE_CONTAINER_ACCESSIBLE;
         tinfo.class_size = sizeof(GtkContainerAccessibleClass);
         tinfo.instance_size = sizeof(GtkContainerAccessible);
 
-        GType type_id = g_type_register_static(derived_atk_type, "mformsObjectAccessible", &tinfo, (GTypeFlags) 0);
+        GType typeId = g_type_register_static(derivedAtkType, "mformsObjectAccessible", &tinfo, (GTypeFlags) 0);
 
-        const GInterfaceInfo atk_action_info = { (GInterfaceInitFunc) mformsGTKAccessible::AtkActionIface::init,
+        const GInterfaceInfo atkActionInfo = { (GInterfaceInitFunc) mformsGTKAccessible::AtkActionIface::init,
             (GInterfaceFinalizeFunc) NULL,
             NULL };
 
-        const GInterfaceInfo atk_component_info = { (GInterfaceInitFunc) mformsGTKAccessible::AtkComponentIface::init,
+        const GInterfaceInfo atkComponentInfo = { (GInterfaceInitFunc) mformsGTKAccessible::AtkComponentIface::init,
             (GInterfaceFinalizeFunc) NULL, NULL };
 
-        g_type_add_interface_static(type_id, ATK_TYPE_ACTION, &atk_action_info);
-        g_type_add_interface_static(type_id, ATK_TYPE_COMPONENT, &atk_component_info);
+        const GInterfaceInfo atkTextInfo = { (GInterfaceInitFunc) mformsGTKAccessible::AtkTextIface::init,
+                    (GInterfaceFinalizeFunc) NULL, NULL };
 
-        mformsObject_private_offset = g_type_add_instance_private (type_id, sizeof (mformsObjectAccessiblePrivate));
+        g_type_add_interface_static(typeId, ATK_TYPE_ACTION, &atkActionInfo);
+        g_type_add_interface_static(typeId, ATK_TYPE_COMPONENT, &atkComponentInfo);
+        g_type_add_interface_static(typeId, ATK_TYPE_TEXT, &atkTextInfo);
 
-        g_once_init_leave(&type_id_result, type_id);
+        mformsObject_private_offset = g_type_add_instance_private (typeId, sizeof (mformsObjectAccessiblePrivate));
+
+        g_once_init_leave(&typeIdResult, typeId);
       }
 
-      return type_id_result;
+      return typeIdResult;
     }
 
     mformsGTKAccessible::mformsGTKAccessible(GtkAccessible *accessible, base::Accessible *acc)
@@ -289,6 +292,7 @@ namespace mforms {
       iface->get_position = mformsGTKAccessible::AtkComponentIface::getPosition;
       iface->get_size = mformsGTKAccessible::AtkComponentIface::getSize;
       iface->get_extents = mformsGTKAccessible::AtkComponentIface::getExtents;
+      iface->grab_focus = mformsGTKAccessible::AtkComponentIface::grabFocus;
     }
 
     void mformsGTKAccessible::AtkComponentIface::getPosition(AtkComponent *component, gint *x, gint *y, AtkCoordType coord_type) {
@@ -331,6 +335,37 @@ namespace mforms {
           *y -= yTopLevel;
         }
       }
+    }
+
+    gboolean mformsGTKAccessible::AtkComponentIface::grabFocus(AtkComponent *component) {
+      auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(component));
+      if (thisAccessible != nullptr) {
+        return thisAccessible->_mformsAcc->accessibilityGrabFocus();
+      }
+      return FALSE;
+    }
+
+    void mformsGTKAccessible::AtkTextIface::init(::AtkTextIface *iface) {
+      iface->get_text = mformsGTKAccessible::AtkTextIface::getText;
+      iface->get_character_count = mformsGTKAccessible::AtkTextIface::getCharacterCount;
+    }
+
+    gchar* mformsGTKAccessible::AtkTextIface::getText(AtkText* text, gint start, gint end) {
+      auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(text));
+
+      if (thisAccessible != nullptr && !thisAccessible->_mformsAcc->getAccessibilityValue().empty()) {
+        return g_strdup(thisAccessible->_mformsAcc->getAccessibilityValue().substr(start, end > -1 ? end : thisAccessible->_mformsAcc->getAccessibilityValue().size()).c_str());
+      }
+      return g_strdup("");
+    }
+
+    gint mformsGTKAccessible::AtkTextIface::getCharacterCount(AtkText* text) {
+      auto *thisAccessible = FromAccessible(reinterpret_cast<GtkAccessible*>(text));
+
+      if (thisAccessible != nullptr && !thisAccessible->_mformsAcc->getAccessibilityValue().empty()) {
+        return thisAccessible->_mformsAcc->getAccessibilityValue().size();
+      }
+      return 0;
     }
 
     static AtkObject *mforms_object_accessible_new(GType parent_type, GObject *obj) {

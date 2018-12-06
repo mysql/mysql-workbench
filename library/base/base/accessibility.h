@@ -67,6 +67,7 @@ namespace base {
     virtual std::string getAccessibilityDefaultAction();
     virtual void accessibilityDoDefaultAction();
     virtual void accessibilityShowMenu();
+    virtual bool accessibilityGrabFocus();
     std::function <void(Accessible*)> onDestroy;
   };
 

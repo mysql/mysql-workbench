@@ -80,10 +80,27 @@
       [super mouseUp:event];                                 \
   }
 
-#define STANDARD_FOCUS_HANDLING(wrapper) \
-  -(BOOL)becomeFirstResponder {          \
-    wrapper->mOwner->focus_changed();    \
-    return [super becomeFirstResponder]; \
+#define STANDARD_FOCUS_HANDLING(wrapper)                     \
+  -(BOOL)becomeFirstResponder {                              \
+    wrapper->mOwner->focus_changed();                        \
+    if (![self handleBecomeFirstResponder: wrapper->mOwner]) \
+      return [super becomeFirstResponder];                   \
+    return NO;                                               \
+  }                                                          \
+  -(BOOL)resignFirstResponder {                              \
+    if (![self handleResignFirstResponder: wrapper->mOwner]) \
+      return [super resignFirstResponder];                   \
+    return NO;                                               \
+  }
+
+#define STANDARD_KEYBOARD_HANDLING(wrapper)                 \
+  -(void)keyUp : (NSEvent *)event {                         \
+    if (![self handleKeyUp: event owner:wrapper->mOwner])   \
+      return [super keyUp:event];                           \
+  }                                                         \
+  -(void)keyDown : (NSEvent *)event {                       \
+    if (![self handleKeyDown: event owner:wrapper->mOwner]) \
+      return [super keyDown:event];                         \
   }
 
 enum ViewFlags {
@@ -126,6 +143,10 @@ namespace mforms {
 - (bool)handleMouseMove:(NSEvent *)event owner:(mforms::View *)mOwner;
 - (bool)handleMouseEntered:(NSEvent *)event owner:(mforms::View *)mOwner;
 - (bool)handleMouseExited:(NSEvent *)event owner:(mforms::View *)mOwner;
+- (bool)handleBecomeFirstResponder:(mforms::View *)mOwner;
+- (bool)handleResignFirstResponder:(mforms::View *)mOwner;
+- (bool)handleKeyUp:(NSEvent *)event owner:(mforms::View *)mOwner;
+- (bool)handleKeyDown:(NSEvent *)event owner:(mforms::View *)mOwner;
 - (NSTrackingArea *)updateTrackingArea:(NSTrackingArea *)currentArea;
 
 - (NSSize)preferredSize:(NSSize)proposal;

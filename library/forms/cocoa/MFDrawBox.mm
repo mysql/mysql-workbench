@@ -281,6 +281,7 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
 
 STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+STANDARD_KEYBOARD_HANDLING(self)
 
 //--------------------------------------------------------------------------------------------------
 
@@ -438,6 +439,16 @@ static void drawbox_move(mforms::DrawBox *self, mforms::View *view, int x, int y
   [child setFrameOrigin: NSMakePoint(x, y)];
 }
 
+static void drawbox_drawFocus(mforms::DrawBox *self, cairo_t *cr, const base::Rect r) {
+  auto bounds = r;
+  bounds.use_inter_pixel = true;
+
+  [NSGraphicsContext saveGraphicsState];
+  NSSetFocusRingStyle(NSFocusRingOnly);
+  [[NSBezierPath bezierPathWithRect: {{bounds.left(), bounds.top()}, {bounds.width() - 2, bounds.height() - 2}}] fill];
+  [NSGraphicsContext restoreGraphicsState];
+}
+
 //--------------------------------------------------------------------------------------------------
 
 void cf_drawbox_init() {
@@ -449,6 +460,7 @@ void cf_drawbox_init() {
   f->_drawbox_impl.add = &drawbox_add;
   f->_drawbox_impl.remove = &drawbox_remove;
   f->_drawbox_impl.move = &drawbox_move;
+  f->_drawbox_impl.drawFocus = &drawbox_drawFocus;
 }
 
 @end

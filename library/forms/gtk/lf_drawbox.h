@@ -29,6 +29,7 @@
 #include "mforms_acc.h"
 #include <atkmm/selection.h>
 #include <glib.h>
+#include <sigc++/connection.h>
 
 namespace mforms {
   namespace gtk {
@@ -73,7 +74,6 @@ namespace mforms {
       bool repaint(const ::Cairo::RefPtr< ::Cairo::Context> &context, ::mforms::DrawBox *self);
       bool relayout(::mforms::DrawBox *self);
       void on_size_allocate(Gtk::Allocation &alloc, ::mforms::DrawBox *self);
-      void mouse_cross_event(GdkEventCrossing *event, ::mforms::DrawBox *self);
       bool mouse_button_event(GdkEventButton *event, ::mforms::DrawBox *self);
       bool mouse_move_event(GdkEventMotion *event, ::mforms::DrawBox *self);
 
@@ -83,6 +83,7 @@ namespace mforms {
       static void remove(::mforms::DrawBox *self, ::mforms::View *view);
       static void move(::mforms::DrawBox *self, ::mforms::View *view, int x, int y);
       virtual void set_padding_impl(int left, int top, int right, int bottom);
+      static void drawFocus(::mforms::DrawBox *self, cairo_t *cr, const base::Rect r);
 
     public:
       static void init();

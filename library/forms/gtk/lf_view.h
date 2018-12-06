@@ -90,6 +90,7 @@ namespace mforms {
       void on_focus_grab();
       bool on_button_release(GdkEventButton *btn);
       bool on_button_press(GdkEventButton *btn);
+
       void setup();
       virtual void move_child(ViewImpl *child, int x, int y);
       static void suspend_layout(::mforms::View *view, bool flag);

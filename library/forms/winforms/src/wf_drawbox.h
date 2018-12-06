@@ -119,6 +119,7 @@ namespace MySQL {
       static void add(mforms::DrawBox *backend, mforms::View *view, mforms::Alignment alignment);
       static void remove(mforms::DrawBox *backend, mforms::View *view);
       static void move(mforms::DrawBox *backend, mforms::View *view, int x, int y);
+      static void drawFocus(::mforms::DrawBox *self, cairo_t *cr, const base::Rect r);
 
       void OnRepaint(System::Object ^ sender, System::Windows::Forms::PaintEventArgs ^ e);
       void OnKeyDown(System::Object ^ sender, System::Windows::Forms::KeyEventArgs ^ e);

@@ -25,7 +25,7 @@
 
 using namespace mforms;
 
-DrawBox::DrawBox() {
+DrawBox::DrawBox() : _focusedItem(-1), _lastFocusedItem(-1) {
   _drawbox_impl = &ControlFactory::get_instance()->_drawbox_impl;
   _drawbox_impl->create(this);
 }
@@ -88,3 +88,133 @@ base::Size DrawBox::getLayoutSize(base::Size proposedSize) {
 }
 
 //--------------------------------------------------------------------------------------------------
+
+void DrawBox::repaint(cairo_t *cr, int x, int y, int w, int h) {
+  if (_focusedItem != -1 && _focusedItem < static_cast<int>(_focusableList.size())) {
+    drawFocus(cr, _focusableList[_focusedItem].getBounds());
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DrawBox::drawFocus(cairo_t *cr, const base::Rect r) {
+  if (_drawbox_impl->drawFocus) {
+    _drawbox_impl->drawFocus(this, cr, r);
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DrawBox::addFocusableArea(FocusableArea fArea) {
+  if (fArea.getBounds)
+  _focusableList.push_back(fArea);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void DrawBox::clearFocusableAreas() {
+  _focusedItem = -1;
+  _lastFocusedItem = -1;
+  _focusableList.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DrawBox::setFocusOnArea(const base::Point p) {
+  auto it = std::find_if(_focusableList.begin(), _focusableList.end(), [&](mforms::FocusableArea const& item) {
+    return item.getBounds().contains(p.x, p.y);
+  });
+  if (it != _focusableList.end()) {
+    _focusedItem = it - _focusableList.begin();
+    set_needs_repaint();
+    return true;
+  }
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DrawBox::keyPress(KeyCode code, ModifierKey modifiers) {
+  int handled = -1;
+  if (_focusedItem > -1) {
+    if (code == mforms::KeyTab && (modifiers & ModifierShift) == 0) {
+      _lastFocusedItem = _focusedItem;
+      _focusedItem++;
+      if (_focusedItem >= static_cast<int>(_focusableList.size())) {
+        _focusedItem = -1;
+        handled = 0;
+        set_needs_repaint();
+      } else {
+        handled = 1;
+      }
+    } else if (code == mforms::KeyTab && (modifiers & ModifierShift) != 0) {
+      _lastFocusedItem = _focusedItem;
+      _focusedItem--;
+      if (_focusedItem < 0) {
+        _focusedItem = -1;
+        handled = 0;
+        set_needs_repaint();
+      } else {
+        handled = 1;
+      }
+    } else if (code == mforms::KeyMenu || ((modifiers & ModifierControl) != 0 && code == mforms::KeyF10)) {
+      if (_focusableList[_focusedItem].showContextMenu) {
+        _focusableList[_focusedItem].showContextMenu();
+      }
+    } else if (code == mforms::KeyReturn) {
+      if (_focusableList[_focusedItem].activate)
+        _focusableList[_focusedItem].activate();
+    }
+
+    if (handled > -1 && _focusedItem > -1) {
+      auto parent = dynamic_cast<mforms::ScrollPanel*>(get_parent());
+      if (parent != nullptr) {
+        parent->scroll_to(_focusableList[_focusedItem].getBounds().pos.x, _focusableList[_focusedItem].getBounds().pos.y);
+      }
+      set_needs_repaint();
+    }
+  }
+
+  return handled == 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DrawBox::focusIn() {
+  if (!_focusableList.empty() && _focusedItem == -1) {
+    _focusedItem = _lastFocusedItem > -1 ? _lastFocusedItem :  0;
+    set_needs_repaint();
+  }
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DrawBox::focusOut() {
+  if (_focusedItem > -1) {
+    _lastFocusedItem = _focusedItem;
+    _focusedItem = -1;
+    set_needs_repaint();
+  }
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool DrawBox::mouse_down(mforms::MouseButton button, int x, int y) {
+  if (button == mforms::MouseButtonLeft) {
+
+    auto it = std::find_if(_focusableList.begin(), _focusableList.end(), [&](mforms::FocusableArea const& item) {
+      return item.getBounds().contains(x, y);
+    });
+
+    if (it != _focusableList.end()) {
+      _lastFocusedItem = _focusedItem;
+      _focusedItem = it - _focusableList.begin();
+    } else {
+      _focusedItem = -1;
+    }
+  }
+  set_needs_repaint();
+  return false;
+}

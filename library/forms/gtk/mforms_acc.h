@@ -57,7 +57,7 @@ namespace mforms {
         static void init(::AtkActionIface *iface);
 
       private:
-        AtkActionIface();
+        AtkActionIface() {};
 
         static gboolean doAction(AtkAction *action, gint i);
         static gint getNActions(AtkAction *action);
@@ -69,11 +69,21 @@ namespace mforms {
         static void init(::AtkComponentIface *iface);
 
       private:
-        AtkComponentIface();
+        AtkComponentIface() {};
 
         static void getPosition(AtkComponent *component, gint *x, gint *y, AtkCoordType coord_type);
         static void getSize(AtkComponent *component, gint *width, gint *height);
         static void getExtents(AtkComponent *component, gint *x, gint *y, gint *width, gint *height, AtkCoordType coord_type);
+        static gboolean grabFocus(AtkComponent *component);
+      };
+
+      class AtkTextIface {
+       public:
+        static void init(::AtkTextIface *iface);
+       private:
+        AtkTextIface() {};
+        static gchar* getText(AtkText* text, gint start, gint end);
+        static gint getCharacterCount(AtkText* text);
       };
 
       mformsGTKAccessible(GtkAccessible *accessible, base::Accessible *acc);

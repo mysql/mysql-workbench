@@ -76,6 +76,18 @@ namespace mforms {
             // TODO: identify hard coded values and replace them.
   };
 
+  enum class Modifier {
+    NoModifier   = 0x00,
+    ShiftLeft    = 0x01,
+    ShiftRight   = 0x02,
+    ControlLeft  = 0x04,
+    ControlRight = 0x08,
+    AltLeft      = 0x10,
+    AltRight     = 0x20,
+    MetaLeft     = 0x40,
+    MetaRight    = 0x80
+  };
+
   enum DragOperation {
     DragOperationNone = 0,
     DragOperationCopy = 1 << 0,
@@ -276,7 +288,7 @@ namespace mforms {
     void set_tooltip(const std::string &text);
     virtual void set_font(const std::string &fontDescription); // e.g. "Trebuchet MS bold 9"
     void set_parent(View *parent);
-    View *get_parent() const;
+    virtual View *get_parent() const;
     Form *get_parent_form() const;
     virtual int get_width() const;
     virtual int get_height() const;
@@ -445,6 +457,22 @@ namespace mforms {
     virtual bool mouse_leave();
     virtual bool mouse_move(MouseButton button, int x, int y) {
       return false;
+    }
+
+    virtual bool focusIn() {
+    	return false;
+    }
+
+    virtual bool focusOut() {
+    	return false;
+    }
+
+    virtual bool keyPress(KeyCode code, ModifierKey modifiers) {
+    	return false;
+    }
+
+    virtual bool keyRelease(KeyCode code, ModifierKey modifiers) {
+    	return false;
     }
 #endif
 #endif

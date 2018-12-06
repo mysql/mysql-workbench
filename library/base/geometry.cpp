@@ -96,13 +96,13 @@ Rect::Rect(const Point &apos, const Size &asize) {
 
 //--------------------------------------------------------------------------------------------------
 
-bool Rect::contains(double x, double y) {
+bool Rect::contains(double x, double y) const {
   return !empty() && (x >= pos.x) && (x <= pos.x + size.width) && (y >= pos.y) && (y <= pos.y + size.height);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-bool Rect::contains_flipped(double x, double y) {
+bool Rect::contains_flipped(double x, double y) const {
   // For cairo text the top is actually the bottom (when using it for hit tests).
   return !empty() && (x >= pos.x) && (x <= pos.x + size.width) && (y >= pos.y - size.height) && (y <= pos.y);
 }

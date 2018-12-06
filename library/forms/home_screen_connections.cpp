@@ -26,6 +26,7 @@
 #include "mforms/menu.h"
 #include "mforms/popup.h"
 #include "mforms/imagebox.h"
+#include "mforms/scrollpanel.h"
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "base/log.h"
@@ -529,6 +530,12 @@ protected:
     return "click";
   }
 
+
+  virtual bool accessibilityGrabFocus() override {
+    owner->setFocusOnEntry(this);
+    return true;
+  }
+
   virtual void accessibilityShowMenu() override {
     if (owner->_connection_context_menu != nullptr) {
       owner->_connection_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()),
@@ -605,6 +612,7 @@ public:
     bounds.use_inter_pixel = true;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 1, bounds.height() - 1);
     cairo_set_source_rgba(cr, backColor.red - 0.05, backColor.green - 0.05, backColor.blue - 0.05, alpha);
+
     cairo_set_line_width(cr, 1);
     cairo_stroke(cr);
 
@@ -1265,6 +1273,7 @@ void ConnectionsSection::on_search_text_changed() {
     }
   }
 
+  updateFocusableAreas();
   set_layout_dirty(true);
 }
 
@@ -1584,6 +1593,8 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     row++;
     bounds.pos.y += CONNECTIONS_TILE_HEIGHT + CONNECTIONS_SPACING;
   }
+
+  mforms::DrawBox::repaint(cr, areax, areay, areaw, areah);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1744,6 +1755,40 @@ void ConnectionsSection::addConnection(const std::string &connectionId, const st
   set_layout_dirty(true);
 }
 
+void ConnectionsSection::updateFocusableAreas() {
+  clearFocusableAreas();
+  if (!_filtered_connections.empty()) {
+    for (const auto &it: _filtered_connections) {
+      mforms::FocusableArea fArea;
+      fArea.activate = [it]() { it->activate(); };
+      fArea.getBounds = [it]() { return it->getAccessibilityBounds(); };
+      fArea.showContextMenu = [it, this]() {
+        const auto bounds = it->getAccessibilityBounds();
+        it->context_menu()->popup_at(this, bounds.center().x, bounds.center().y);
+      };
+      addFocusableArea(fArea);
+    }
+  } else {
+    ConnectionVector current_connections = !_active_folder ? _connections : _active_folder->children;
+    for (const auto &it: current_connections) {
+      mforms::FocusableArea fArea;
+      fArea.activate = [it]() { it->activate(); };
+      fArea.getBounds = [it]() { return it->getAccessibilityBounds(); };
+      fArea.showContextMenu = [it, this]() {
+        const auto bounds = it->getAccessibilityBounds();
+        it->context_menu()->popup_at(this, bounds.center().x, bounds.center().y);
+      };
+      addFocusableArea(fArea);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+
+bool ConnectionsSection::setFocusOnEntry(ConnectionEntry *entry) {
+  return setFocusOnArea(entry->bounds.center());
+}
+
 //------------------------------------------------------------------------------------------------
 
 void ConnectionsSection::clear_connections(bool clear_state) {
@@ -1756,6 +1801,7 @@ void ConnectionsSection::clear_connections(bool clear_state) {
     if (_active_folder)
       _active_folder_title_before_refresh_start = _active_folder->title;
   }
+  clearFocusableAreas();
   _entry_for_menu.reset();
   _active_folder.reset();
   _connections.clear();
@@ -1768,16 +1814,17 @@ void ConnectionsSection::clear_connections(bool clear_state) {
 void ConnectionsSection::change_to_folder(std::shared_ptr<FolderEntry> folder) {
   if (_active_folder && !folder) {
     // Returning to root list.
-
     _active_folder.reset();
     _filtered = false;
     _search_text.set_value("");
+    updateFocusableAreas();
     set_layout_dirty(true);
   } else if (folder) {
     _active_folder = folder;
     // Drilling into a folder.
     _filtered = false;
     _search_text.set_value("");
+    updateFocusableAreas();
     set_layout_dirty(true);
   }
 }
@@ -1785,8 +1832,10 @@ void ConnectionsSection::change_to_folder(std::shared_ptr<FolderEntry> folder) {
 //--------------------------------------------------------------------------------------------------
 
 bool ConnectionsSection::mouse_down(mforms::MouseButton button, int x, int y) {
+  mforms::DrawBox::mouse_down(button, x, y);
   if (button == mforms::MouseButtonLeft && _hot_entry)
     _mouse_down_position = base::Rect(x - 4, y - 4, 8, 8); // Center a 8x8 pixels rect around the mouse position.
+
   return false;                                            // Continue with standard mouse handling.
 }
 

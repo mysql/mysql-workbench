@@ -28,6 +28,7 @@
 #import "MFContainerBase.h" // to get forward declaration of setFreezeRelayout:
 #import "ScintillaView.h"   // For drop delegate retrieval.
 #import "NSColor_extras.h"
+#import <Carbon/Carbon.h>
 
 @implementation NSView (MForms)
 
@@ -203,6 +204,28 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 - (bool)handleMouseExited: (NSEvent *)event owner: (mforms::View *)mOwner {
   // NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
   return mOwner->mouse_leave();
+}
+
+- (bool)handleBecomeFirstResponder: (mforms::View *)mOwner {
+  return mOwner->focusIn();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (bool)handleResignFirstResponder: (mforms::View *)mOwner {
+  return mOwner->focusOut();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (bool)handleKeyUp:(NSEvent *)event owner:(mforms::View *)mOwner {
+  return mOwner->keyRelease([self keyFromEvent: event], [self modifiersFromEvent: event]);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+- (bool)handleKeyDown:(NSEvent *)event owner:(mforms::View *)mOwner {
+  return mOwner->keyPress([self keyFromEvent: event], [self modifiersFromEvent: event]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,6 +588,96 @@ static bool dragInProgress = NO;
     mforms_modifiers = mforms::ModifierKey(mforms_modifiers | mforms::ModifierAlt);
 
   return mforms_modifiers;
+}
+
+- (mforms::KeyCode)keyFromEvent:(NSEvent *)event {
+  std::vector<int> letters = {kVK_ANSI_A, kVK_ANSI_S, kVK_ANSI_D, kVK_ANSI_F, kVK_ANSI_H, kVK_ANSI_G, kVK_ANSI_Z,
+    kVK_ANSI_X, kVK_ANSI_C, kVK_ANSI_V, kVK_ANSI_B, kVK_ANSI_Q, kVK_ANSI_W, kVK_ANSI_E, kVK_ANSI_R,
+    kVK_ANSI_Y, kVK_ANSI_T, kVK_ANSI_O, kVK_ANSI_U, kVK_ANSI_I, kVK_ANSI_P, kVK_ANSI_L, kVK_ANSI_J, kVK_ANSI_K, kVK_ANSI_N, kVK_ANSI_M};
+  mforms::KeyCode code = mforms::KeyUnkown;
+  switch (event.keyCode) {
+    case kVK_Home:
+      code = mforms::KeyHome;
+      break;
+    case kVK_End:
+      code = mforms::KeyEnd;
+      break;
+    case kVK_PageUp:
+      code = mforms::KeyPrevious;
+      break;
+    case kVK_PageDown:
+      code = mforms::KeyNext;
+      break;
+    case kVK_UpArrow:
+      code = mforms::KeyUp;
+      break;
+    case kVK_DownArrow:
+      code = mforms::KeyDown;
+      break;
+      
+    case kVK_Return:
+      code = mforms::KeyReturn;
+      break;
+    case kVK_Tab:
+      code = mforms::KeyTab;
+      break;
+    case kVK_ANSI_KeypadEnter:
+      code = mforms::KeyEnter;
+      break;
+    case kVK_F1:
+      code = mforms::KeyF1;
+      break;
+    case kVK_F2:
+      code = mforms::KeyF2;
+      break;
+    case kVK_F3:
+      code = mforms::KeyF3;
+      break;
+    case kVK_F4:
+      code = mforms::KeyF4;
+      break;
+    case kVK_F5:
+      code = mforms::KeyF5;
+      break;
+    case kVK_F6:
+      code = mforms::KeyF6;
+      break;
+    case kVK_F7:
+      code = mforms::KeyF7;
+      break;
+    case kVK_F8:
+      code = mforms::KeyF8;
+      break;
+    case kVK_F9:
+      code = mforms::KeyF9;
+      break;
+    case kVK_F10:
+      code = mforms::KeyF10;
+      break;
+    case kVK_F11:
+      code = mforms::KeyF11;
+      break;
+    case kVK_F12:
+      code = mforms::KeyF12;
+      break;
+    case kVK_RightCommand:
+    case kVK_RightShift:
+    case kVK_RightOption:
+    case kVK_RightControl:
+    case kVK_Shift:
+    case kVK_Command:
+    case kVK_Option:
+    case kVK_Control:
+      code = mforms::KeyModifierOnly;
+      break;
+    default:
+      auto it = std::find(letters.begin(), letters.end(), event.keyCode);
+      if (it != letters.end())
+        code = mforms::KeyChar;
+      break;
+  }
+  
+  return code;
 }
 
 //--------------------------------------------------------------------------------------------------

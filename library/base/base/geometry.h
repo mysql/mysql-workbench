@@ -112,8 +112,8 @@ namespace base {
     Rect(const Point &tl, const Point &br);
     Rect(const Point &apos, const Size &asize);
 
-    bool contains(double x, double y);
-    bool contains_flipped(double x, double y);
+    bool contains(double x, double y) const;
+    bool contains_flipped(double x, double y) const;
     void inflate(double horizontal, double vertical);
 
     double right() const;
