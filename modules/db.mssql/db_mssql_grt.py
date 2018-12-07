@@ -788,7 +788,7 @@ def reverseEngineerTableIndices(connection, table):
             if index_name is None:
                 # this is not a real index, but a HEAP thingmajig...
                 continue
-            if not is_disabled and not is_primary_key:    # Do not create the index if it is disabled or if it is part of the primary key
+            if not is_disabled: # Do not create the index if it is disabled
                 index = grt.classes.db_mssql_Index()
                 index.name = index_name
                 index.isPrimary = is_primary_key
