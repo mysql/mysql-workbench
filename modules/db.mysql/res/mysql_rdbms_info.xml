@@ -717,7 +717,7 @@
                     <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
                         <value type="string" key="caption">Password:</value>
                         <value type="string" key="accessibilityName">Password</value>
-                        <value type="string" key="defaultValue">Password</value>
+                        <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">The user's password. Will be requested later if it's not set.</value>
                         <value type="int" key="layoutAdvanced">0</value>
                         <value type="int" key="layoutRow">3</value>
