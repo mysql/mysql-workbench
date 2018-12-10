@@ -65,9 +65,9 @@
   return mPluginEditor.title;
 }
 
-- (NSString*)identifier
+- (NSString*)panelId
 {
-  return mPluginEditor.identifier;
+  return mPluginEditor.panelId;
 }
 
 - (NSImage*)tabIcon

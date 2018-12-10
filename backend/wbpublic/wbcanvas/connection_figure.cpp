@@ -154,6 +154,9 @@ Connection::Connection(mdc::Layer *layer, FigureEventHub *hub, model_Object *rep
 
   _start_figure = 0;
   _end_figure = 0;
+
+  set_pen_color(base::Color::getSystemColor(base::TextColor));
+  set_fill_color(base::Color::getSystemColor(base::TextBackgroundColor));
 }
 
 void Connection::set_start_figure(mdc::CanvasItem *item) {
@@ -563,12 +566,6 @@ void Connection::render(mdc::CairoCtx *cr) {
   if (_segments.empty())
     return;
 
-  // sanity/debugging check
-  // if (_content_cache)
-  //  throw std::logic_error("connection figure is caching its contents");
-
-  // mdc::Line::render(cr);
-
   draw_state(cr);
 
   cr->translate(get_position());
@@ -576,29 +573,9 @@ void Connection::render(mdc::CairoCtx *cr) {
   cr->set_line_width(_line_width);
   cr->set_color(_pen_color);
 
-  /*
-  if (_start_dashed || _end_dashed)
-  {
-    stroke_outline(cr, 0, true);
-    if (_start_dashed)
-      set_line_pattern(cr, mdc::Dashed1Pattern);
-    else
-      set_line_pattern(cr, _line_pattern);
-    cr->stroke();
-
-    stroke_outline(cr, 0, false);
-    if (_end_dashed)
-      set_line_pattern(cr, mdc::Dashed1Pattern);
-    else
-      set_line_pattern(cr, _line_pattern);
-    cr->stroke();
-  }
-  else*/
-  {
-    stroke_outline(cr);
-    set_line_pattern(cr, _line_pattern);
-    cr->stroke();
-  }
+  stroke_outline(cr);
+  set_line_pattern(cr, _line_pattern);
+  cr->stroke();
 
   cr->set_dash(0, 0, 0);
 
@@ -625,7 +602,7 @@ void Connection::render(mdc::CairoCtx *cr) {
       cr->line_to(-10, 0);
       cr->line_to(0, -10);
       cr->close_path();
-      cr->set_color(Color::Black());
+      cr->set_color(Color::black());
       cr->fill();
       break;
     case LeftEmpty:
@@ -636,9 +613,9 @@ void Connection::render(mdc::CairoCtx *cr) {
       cr->line_to(-10, 0);
       cr->line_to(0, -10);
       cr->close_path();
-      cr->set_color(Color::White());
+      cr->set_color(Color::white());
       cr->fill_preserve();
-      cr->set_color(Color::Black());
+      cr->set_color(Color::black());
       cr->stroke();
       cr->new_path();
       cr->move_to(0, -10);
@@ -656,9 +633,9 @@ void Connection::render(mdc::CairoCtx *cr) {
       cr->line_to(-10, 0);
       cr->line_to(0, -10);
       cr->close_path();
-      cr->set_color(Color::White());
+      cr->set_color(Color::white());
       cr->fill_preserve();
-      cr->set_color(Color::Black());
+      cr->set_color(Color::black());
       cr->stroke();
       cr->new_path();
       cr->move_to(0, -10);
@@ -676,9 +653,9 @@ void Connection::render(mdc::CairoCtx *cr) {
       cr->line_to(-10, 0);
       cr->line_to(0, -10);
       cr->close_path();
-      cr->set_color(Color::White());
+      cr->set_color(Color::white());
       cr->fill_preserve();
-      cr->set_color(Color::Black());
+      cr->set_color(Color::black());
       cr->stroke();
       break;
   }
@@ -732,7 +709,7 @@ void Connection::render_gl(mdc::CairoCtx *cr) {
       Point vertices[] = {
         Point(0, -10), Point(10, 0), Point(0, 10), Point(-10, 0), Point(0, -10),
       };
-      gl_setcolor(Color::Black());
+      gl_setcolor(Color::black());
       gl_polygon(vertices, 5, true);
       break;
     }
@@ -741,15 +718,15 @@ void Connection::render_gl(mdc::CairoCtx *cr) {
       Point vertices[] = {
         Point(0, -10), Point(10, 0), Point(0, 10), Point(-10, 0), Point(0, -10),
       };
-      gl_setcolor(Color::Black());
-      gl_polygon(vertices, 5, Color::Black(), Color::White());
+      gl_setcolor(Color::black());
+      gl_polygon(vertices, 5, Color::black(), Color::white());
     }
 
       {
         Point vertices[] = {
           Point(0, -10), Point(10, 0), Point(0, 10), Point(0, -10),
         };
-        gl_polygon(vertices, 4, Color::Black(), Color::White());
+        gl_polygon(vertices, 4, Color::black(), Color::white());
       }
       break;
 
@@ -757,14 +734,14 @@ void Connection::render_gl(mdc::CairoCtx *cr) {
       Point vertices[] = {
         Point(0, -10), Point(10, 0), Point(0, 10), Point(-10, 0), Point(0, -10),
       };
-      gl_polygon(vertices, 5, Color::Black(), Color::White());
+      gl_polygon(vertices, 5, Color::black(), Color::white());
     }
 
       {
         Point vertices[] = {
           Point(0, -10), Point(10, 0), Point(0, 10), Point(0, -10),
         };
-        gl_setcolor(Color::Black());
+        gl_setcolor(Color::black());
         gl_polygon(vertices, 4, true);
       }
 
@@ -773,7 +750,7 @@ void Connection::render_gl(mdc::CairoCtx *cr) {
       Point vertices[] = {
         Point(0, -10), Point(10, 0), Point(0, 10), Point(-10, 0), Point(0, -10),
       };
-      gl_polygon(vertices, 5, Color::Black(), Color::White());
+      gl_polygon(vertices, 5, Color::black(), Color::white());
     } break;
   }
 

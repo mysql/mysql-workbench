@@ -88,8 +88,7 @@ class UIProfile(object):
                                'subsection-label' : (lambda x: x.set_style(mforms.SmallBoldStyle),
                                                      lambda x: x.set_color("#484950")
                                                     ),
-                               'option-search-panel' : (lambda x: x.set_back_color("#f1f1f1"),
-                                                        lambda x: x.set_size(-1, 26)
+                               'option-search-panel' : (lambda x: x.set_size(-1, 26)
                                                        )
                              }
                       }

@@ -29,14 +29,15 @@
 
 using namespace mforms;
 
-static std::map<std::string, TaskSidebar* (*)()>* sidebar_factory = NULL;
+static std::map<std::string, TaskSidebar* (*)()> *sidebar_factory = nullptr;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 mforms::TaskSidebar::TaskSidebar() : Box(false) {
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 TaskSidebar* TaskSidebar::create(const std::string& type) {
   if (!sidebar_factory || sidebar_factory->find(type) == sidebar_factory->end())
     throw std::invalid_argument("Invalid sidebar type " + type);
@@ -44,7 +45,7 @@ TaskSidebar* TaskSidebar::create(const std::string& type) {
   return (*sidebar_factory)[type]();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void TaskSidebar::register_factory(const std::string& type, TaskSidebar* (*create)()) {
   if (!sidebar_factory)

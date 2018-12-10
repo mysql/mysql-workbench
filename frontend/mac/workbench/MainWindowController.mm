@@ -60,6 +60,8 @@
 
 DEFAULT_LOG_DOMAIN("Workbench")
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class MacNotificationObserver : base::Observer {
   MainWindowController *controller;
 
@@ -81,9 +83,13 @@ public:
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 // Subclass of NSWindow to override makeFirstResponder: and detect key view changes
-@interface WBWindow : NSWindow
+@interface WBWindow : NSWindow <NSWindowDelegate>
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation WBWindow
 
@@ -94,28 +100,65 @@ public:
   self = [super initWithContentRect: contentRect styleMask: aStyle backing: bufferingType defer: flag];
   if (self != nil) {
     mforms::Form::main_form()->set_data(self);
+
+    // Let Workbench know about theme changes in the system.
+    [self addObserver: self forKeyPath: @"effectiveAppearance" options: 0 context: nil];
+    self.delegate = self;
   }
+
   return self;
 }
 
-/** Override to catch changes to firstResponders
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
+  [self removeObserver: self forKeyPath: @"effectiveAppearance"];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)observeValueForKeyPath: (NSString *)keyPath
+                      ofObject: (id)object
+                        change: (NSDictionary *)change
+                       context: (void *)context {
+  if ([keyPath isEqualToString: @"effectiveAppearance"]) {
+    base::NotificationCenter::get()->send("GNColorsChanged", nullptr);
+    return;
+  }
+  [super observeValueForKeyPath: keyPath ofObject: object change: change context: context];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)windowDidChangeBackingProperties: (NSNotification *)notification {
+  base::NotificationCenter::get()->send("GNBackingScaleChanged", nullptr);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Override to catch changes to firstResponders
  *
  * This method is overriden so that we can notify the backend when the
  * first responder is changed, to know when the active 'form' changes, which
  * would trigger updates to the menus, toolbars etc.
  */
 - (BOOL)makeFirstResponder: (NSResponder *)responder {
-  BOOL changed = [super makeFirstResponder:responder];
+  BOOL changed = [super makeFirstResponder: responder];
   if (changed)
-    [self.windowController firstResponderChanged:responder];
+    [self.windowController firstResponderChanged: responder];
 
   return changed;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)becomeKeyWindow {
   mforms::Form::main_form()->activated();
   [super becomeKeyWindow];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)resignKeyWindow {
   [super resignKeyWindow];
@@ -123,6 +166,8 @@ public:
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // mforms integration
 void setup_mforms_app(MainWindowController *mwin);
@@ -132,7 +177,7 @@ void setup_mforms_app(MainWindowController *mwin);
   IBOutlet NSTabView *topTabView;
   IBOutlet MTabSwitcher *tabSwitcher;
 
-  NSMutableDictionary *_panels;
+  NSMutableDictionary<NSString *, WBBasePanel *> *_panels;
 
   NSTimer *_backendTimer;
 
@@ -151,6 +196,8 @@ void setup_mforms_app(MainWindowController *mwin);
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MainWindowController
 
@@ -172,14 +219,15 @@ void setup_mforms_app(MainWindowController *mwin);
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver: self];
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
   delete _backendObserver;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)awakeFromNib {
   tabSwitcher.tabStyle = MMainTabSwitcher;
@@ -189,7 +237,7 @@ void setup_mforms_app(MainWindowController *mwin);
   statusBarText.stringValue = @"";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setup {
   _backendObserver = new MacNotificationObserver(self);
@@ -197,9 +245,11 @@ void setup_mforms_app(MainWindowController *mwin);
   setup_mforms_app(self);
 }
 
-/** Called after the window is shown on screen
- * The amount of work done here should be minimal, so that there isn't any visible window
- * relayouting.
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Called after the window is shown on screen
+ * The amount of work done here should be minimal, so that there isn't any visible window relayouting.
  */
 - (void)setupReady {
   logDebug("Setup done\n");
@@ -209,10 +259,12 @@ void setup_mforms_app(MainWindowController *mwin);
   [self setupModel];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSTabViewItem *)addTopPanel: (WBBasePanel *)panel {
   logDebug2("Adding new top panel\n");
 
-  id tabItem = [[NSTabViewItem alloc] initWithIdentifier:panel.identifier];
+  id tabItem = [[NSTabViewItem alloc] initWithIdentifier: panel.panelId];
 
   if (panel.title)
     [tabItem setView:panel.decoratedTopView];
@@ -222,19 +274,22 @@ void setup_mforms_app(MainWindowController *mwin);
   if ([panel respondsToSelector: @selector(initialFirstResponder)])
     [tabItem setInitialFirstResponder: [(id)panel initialFirstResponder]];
 
-  _panels[panel.identifier] = panel;
+  _panels[panel.panelId] = panel;
 
   [topTabView addTabViewItem: tabItem];
 
   return tabItem;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSTabViewItem *)addTopPanelAndSwitch: (WBBasePanel *)panel {
   NSTabViewItem *item = [self addTopPanel: panel];
   [topTabView selectTabViewItemWithIdentifier: item.identifier];
-  //[topTabView selectLastTabViewItem:nil];
   return item;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)addBottomPanel: (WBBasePanel *)panel {
   WBBasePanel *mainPanel = self.selectedTopPanel;
@@ -243,6 +298,8 @@ void setup_mforms_app(MainWindowController *mwin);
   else
     NSLog(@"No valid main-tab is selected to receive the bottom panel");
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)switchToDiagramWithIdentifier: (const char *)identifier {
   NSString *ident = [NSString stringWithCPPString: identifier];
@@ -265,6 +322,8 @@ void setup_mforms_app(MainWindowController *mwin);
   [topTabView selectTabViewItemWithIdentifier: ident];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)updateBackendTimer {
   [_backendTimer invalidate];
   _backendTimer = 0;
@@ -279,11 +338,15 @@ void setup_mforms_app(MainWindowController *mwin);
                                                     repeats: NO];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)fireBackendTimer: (NSTimer *)timer {
   bec::GRTManager::get()->flush_timers();
 
   [self updateBackendTimer];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)refreshGUI: (wb::RefreshType)type argument1: (const std::string &)arg1 argument2: (NativeHandle)arg2 {
   const char *RefreshTypeStr[] = {
@@ -348,7 +411,7 @@ void setup_mforms_app(MainWindowController *mwin);
       try {
         if (!arg2 || arg2 == _physicalOverview.formBE) {
           if (arg1.empty()) {
-            NSInteger i = [topTabView indexOfTabViewItemWithIdentifier: _physicalOverview.identifier];
+            NSInteger i = [topTabView indexOfTabViewItemWithIdentifier: _physicalOverview.panelId];
             if (i != NSNotFound)
               [topTabView tabViewItemAtIndex: i].label = _physicalOverview.title;
           }
@@ -414,13 +477,19 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setStatusText: (NSString *)text {
   statusBarText.stringValue = text;
   [statusBarText display];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)blockGUI: (BOOL)lock {
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (mdc::CanvasView *)createView: (const char *)oid name: (const char *)name {
   wb::ModelDiagramForm *dform =
@@ -436,9 +505,11 @@ void setup_mforms_app(MainWindowController *mwin);
   return panel.canvas;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)destroyView: (mdc::CanvasView *)view {
   NSString *identifier = @(view->get_tag().c_str());
-  WBModelDiagramPanel *panel = _panels[identifier];
+  WBBasePanel *panel = _panels[identifier];
 
   if (panel) {
     NSUInteger i = [topTabView indexOfTabViewItemWithIdentifier: identifier];
@@ -457,10 +528,14 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)tabViewDidChangeNumberOfTabViewItems: (NSTabView *)TabView {
   if (TabView == topTabView)
     [tabSwitcher setNeedsDisplay: YES];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)tabView: (NSTabView *)tabView didSelectTabViewItem: (NSTabViewItem *)tabViewItem {
   id panel = _panels[tabViewItem.identifier];
@@ -527,7 +602,7 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)tabView: (NSTabView *)tabView willCloseTabViewItem: (NSTabViewItem *)tabViewItem {
   id form = _panels[tabViewItem.identifier];
@@ -535,7 +610,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return [self closePanel: form];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)tabView: (NSTabView *)tabView itemHasCloseButton: (NSTabViewItem *)tabViewItem {
   id form = _panels[tabViewItem.identifier];
@@ -545,7 +620,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (IBAction)handleMenuAction: (id)sender {
   // Close Other Tabs Like This from the main tab
@@ -574,10 +649,10 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)closePanel: (WBBasePanel *)panel {
-  id identifier = panel.identifier;
+  id identifier = panel.panelId;
 
   // Remove first responder status from current first responder to trigger any pending processing
   // done on end-editing. Necessary for instance to make code editors store their content in their backend.
@@ -591,7 +666,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)closeTopPanelWithIdentifier: (id)identifier {
   BOOL hideOnly = NO;
@@ -614,7 +689,7 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)closeBottomPanelWithIdentifier: (id)identifier {
   for (NSTabViewItem *item in topTabView.tabViewItems) {
@@ -626,7 +701,7 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)tabView: (NSTabView *)tabView willSelectTabViewItem: (NSTabViewItem *)tabViewItem {
   if (tabView == topTabView) {
@@ -639,7 +714,7 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)forwardCommandToPanels: (const std::string)command {
   if (command == "wb.next_tab") {
@@ -661,14 +736,14 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)changedIdentifierOfPanel: (WBBasePanel *)panel fromIdentifier: (id)identifier {
   [_panels removeObjectForKey: identifier];
-  _panels[panel.identifier] = panel;
+  _panels[panel.panelId] = panel;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)reopenTopTabViewItem: (id)identifier {
   for (NSTabViewItem *item in _closedTopTabs) {
@@ -686,7 +761,7 @@ void setup_mforms_app(MainWindowController *mwin);
   [topTabView selectTabViewItemWithIdentifier: identifier];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)reopenEditor: (id)editor {
   id panel = self.activePanel;
@@ -707,11 +782,11 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (IBAction)showMySQLOverview: (id)sender {
   if (_physicalOverview) {
-    id identifier = _physicalOverview.identifier;
+    id identifier = _physicalOverview.panelId;
 
     for (NSTabViewItem *item in _closedTopTabs) {
       if ([item.identifier isEqual: identifier]) {
@@ -724,13 +799,13 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (IBAction)showOutput: (id)sender {
   [self reopenTopTabViewItem: @"output"];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)focusSearchField: (id)sender {
   bec::UIForm *main_form = wb::WBContextUI::get()->get_active_main_form();
@@ -747,7 +822,7 @@ void setup_mforms_app(MainWindowController *mwin);
   NSBeep();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)performSearchObject: (id)sender {
   bec::UIForm *main_form = wb::WBContextUI::get()->get_active_main_form();
@@ -762,13 +837,13 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)resetWindowLayout {
   [self showMySQLOverview: nil];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (WBBasePanel *)findPanelForView: (NSView *)view inTabView: (NSTabView *)tabView {
   for (NSTabViewItem *item in tabView.tabViewItems) {
@@ -783,7 +858,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Iterates over all currently open editors in all tabs and returns the first one it encounters
@@ -801,7 +876,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (WBBasePanel *)findMainPanelForUIForm: (bec::UIForm *)form {
   for (NSTabViewItem *item in topTabView.tabViewItems) {
@@ -812,7 +887,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)closeEditorsMatching: (NSString *)identifier {
   for (NSString *key in [_panels keyEnumerator]) {
@@ -823,7 +898,7 @@ void setup_mforms_app(MainWindowController *mwin);
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (WBBasePanel *)panelForResponder: (NSResponder *)aResponder {
   NSResponder *responder = aResponder;
@@ -858,7 +933,7 @@ void setup_mforms_app(MainWindowController *mwin);
   return nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /** Find the active panel based on firstResponder
  */
@@ -866,27 +941,27 @@ void setup_mforms_app(MainWindowController *mwin);
   return [self panelForResponder: self.window.firstResponder];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (WBBasePanel *)selectedMainPanel {
   return _panels[topTabView.selectedTabViewItem.identifier];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)firstResponderChanged: (NSResponder *)responder {
   WBBasePanel *panel = [self panelForResponder:responder];
 
   BOOL changedActivePanel = panel.formBE != wb::WBContextUI::get()->get_active_form();
 
-  // replace Edit menu with the standard one so that copy/paste works without intervention
+  // Replace Edit menu with the standard one so that copy/paste works without intervention.
   if ([responder isKindOfClass: [NSTextView class]]) {
-    NSLog(@"TODO: restore edit menu");
+    // TODO: restore menu
   } else if (!changedActivePanel)
     wb::WBContextUI::get()->get_command_ui()->revalidate_edit_menu_items();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Selects (activates) the given panel in the UI.
@@ -898,29 +973,29 @@ void setup_mforms_app(MainWindowController *mwin);
     wb::WBContextUI::get()->set_active_form(0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setTitle: (NSString *)title forPanel: (WBBasePanel *)panel {
   NSInteger i;
 
-  i = [topTabView indexOfTabViewItemWithIdentifier:panel.identifier];
+  i = [topTabView indexOfTabViewItemWithIdentifier: panel.panelId];
   if (i >= 0 && i != NSNotFound) {
     [topTabView tabViewItemAtIndex:i].label = title;
     [self.window display];
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)closeAllPanels {
   id panelsCopy = [_panels copy];
-  id homeTabId = [topTabView tabViewItemAtIndex:0].identifier;
-  for (id panel in [panelsCopy objectEnumerator]) {
-    if ([homeTabId isEqualTo: [panel identifier]])
+  id homeTabId = [topTabView tabViewItemAtIndex: 0].identifier;
+  for (WBBasePanel *panel in [panelsCopy objectEnumerator]) {
+    if ([homeTabId isEqualTo: panel.panelId])
       continue;
-    if ([topTabView indexOfTabViewItemWithIdentifier: [panel identifier]] != NSNotFound)
-      [topTabView selectTabViewItemWithIdentifier: [panel identifier]];
-    if (![self closePanel:panel])
+    if ([topTabView indexOfTabViewItemWithIdentifier: panel.panelId] != NSNotFound)
+      [topTabView selectTabViewItemWithIdentifier: panel.panelId];
+    if (![self closePanel: panel])
       return NO;
   }
   [_panels removeAllObjects];
@@ -928,19 +1003,19 @@ void setup_mforms_app(MainWindowController *mwin);
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)windowShouldClose: (id)window {
   return wb::WBContextUI::get()->get_wb()->_frontendCallbacks->quit_application();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (WBBasePanel *)selectedTopPanel {
   return _panels[topTabView.selectedTabViewItem.identifier];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 #pragma mark - mforms integration
 
@@ -963,13 +1038,13 @@ public:
 
     if (arg1 == "maintab" || arg1.empty()) {
       if (panel)
-        [controller->topTabView selectTabViewItemWithIdentifier: panel.identifier];
+        [controller->topTabView selectTabViewItemWithIdentifier: panel.panelId];
       else {
         panel = [[WBMFormsPluginPanel alloc] initWithAppView:view];
         if (!view->get_menubar())
           [panel setDefaultMenuBar:wb::WBContextUI::get()->get_command_ui()->create_menubar_for_context(
                                      view->is_main_form() ? view->get_form_context_name() : "")];
-        [controller addTopPanelAndSwitch:panel];
+        [controller addTopPanelAndSwitch: panel];
       }
     }
   }
@@ -991,8 +1066,8 @@ public:
     WBMFormsPluginPanel *panel = [WBMFormsPluginPanel panelOfAppView: view];
 
     if (panel) {
-      // close the panel bypassing the willClose handler (that should've already been called much earlier)
-      id identifier = panel.identifier;
+      // Close the panel bypassing the willClose handler (that should've already been called much earlier).
+      id identifier = panel.panelId;
 
       if ([controller->topTabView indexOfTabViewItemWithIdentifier: identifier] != NSNotFound)
         [controller closeTopPanelWithIdentifier: identifier];
@@ -1040,7 +1115,7 @@ public:
   }
 };
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void set_status_text(mforms::App *app, const std::string &text) {
   MainWindowController *controller = app->get_data();
@@ -1053,7 +1128,7 @@ static void set_status_text(mforms::App *app, const std::string &text) {
     [controller performSelectorOnMainThread: @selector(setStatusText:) withObject: string waitUntilDone: NO];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string get_resource_path(mforms::App *app, const std::string &file) {
   if (file.empty())
@@ -1087,7 +1162,7 @@ static std::string get_resource_path(mforms::App *app, const std::string &file) 
   return "";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string get_executable_path(mforms::App *app, const std::string &file) {
   if (file.empty())
@@ -1106,7 +1181,7 @@ static std::string get_executable_path(mforms::App *app, const std::string &file
   return "";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static base::Rect get_main_window_bounds(mforms::App *app) {
   MainWindowController *controller = app->get_data();
@@ -1115,7 +1190,7 @@ static base::Rect get_main_window_bounds(mforms::App *app) {
   return base::Rect(NSMinX(r), NSMaxY(r), NSWidth(r), NSHeight(r));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static int enter_event_loop(mforms::App *app, float timeout) {
   MainWindowController *controller = app->get_data();
@@ -1142,11 +1217,15 @@ static int enter_event_loop(mforms::App *app, float timeout) {
   return -1;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void exit_event_loop(mforms::App *app, int retcode) {
   MainWindowController *controller = app->get_data();
   if (controller != nil)
     controller->_eventLoopRetCode = retcode;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static float backing_scale_factor(mforms::App *app) {
   MainWindowController *controller = app->get_data();
@@ -1154,6 +1233,20 @@ static float backing_scale_factor(mforms::App *app) {
     return (controller.window).backingScaleFactor; // Available since 10.7.
   return 1.0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool isDarkModeActive(mforms::App *app) {
+  MainWindowController *controller = app->get_data();
+  NSAppearance * appearance = controller.window.effectiveAppearance;
+  if (@available(macOS 10.14, *)) {
+    return appearance.name == NSAppearanceNameDarkAqua;
+  } else {
+    return false;
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void setup_mforms_app(MainWindowController *controller) {
   mforms::ControlFactory *cf = mforms::ControlFactory::get_instance();
@@ -1169,8 +1262,9 @@ void setup_mforms_app(MainWindowController *controller) {
   cf->_app_impl.enter_event_loop = enter_event_loop;
   cf->_app_impl.exit_event_loop = exit_event_loop;
   cf->_app_impl.backing_scale_factor = backing_scale_factor;
+  cf->_app_impl.isDarkModeActive = isDarkModeActive;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 @end

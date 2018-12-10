@@ -24,7 +24,6 @@
 #import <Cocoa/Cocoa.h>
 
 @interface MColoredView : NSView {
-  NSColor *mColor;
 }
 
 @property(copy) NSColor *backgroundColor;

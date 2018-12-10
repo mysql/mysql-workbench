@@ -132,10 +132,11 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   : mforms::Box(false), _templates(this), _context(cmodel) {
 #ifdef _MSC_VER
   set_padding(3, 3, 3, 3);
-  _templates.set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
-#else
+  _templates.set_back_color(base::Color::getApplicationColorAsString(AppColorPanelContentArea, false));
+#elif __linux__
   _templates.set_back_color("#f2f2f2");
 #endif
+    
   _scroll_panel = manage(new mforms::ScrollPanel());
   _scroll_panel->add(&_templates);
 
@@ -145,7 +146,7 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   item->set_name("Edit Templates");
   item->setInternalName("edit_templates");
   item->set_icon(mforms::App::get()->get_resource_path("edit_table_templates.png"));
-  item->set_tooltip("Open the table template editor.");
+  item->set_tooltip("Open the table template editor");
   scoped_connect(item->signal_activated(),
                  std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);
@@ -166,7 +167,7 @@ TableTemplatePanel::TableTemplatePanel(wb::WBContextModel *cmodel)
   item->set_name("Use Template");
   item->setInternalName("use_template");
   item->set_icon(mforms::App::get()->get_resource_path("tiny_new_table.png"));
-  item->set_tooltip("Create a new table based on the selected table template.");
+  item->set_tooltip("Create a new table based on the selected table template");
   scoped_connect(item->signal_activated(),
                  std::bind(&TableTemplatePanel::toolbar_item_activated, this, std::placeholders::_1));
   _toolbar->add_item(item);

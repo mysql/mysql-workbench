@@ -35,7 +35,11 @@ typedef NS_ENUM(NSInteger, WBTabPlacement) {
   WBTabPlacementBottom = 2
 };
 
-typedef NS_ENUM(NSInteger, WBTabSize) { WBTabSizeUndefined = 0, WBTabSizeSmall = 1, WBTabSizeLarge = 2 };
+typedef NS_ENUM(NSInteger, WBTabSize) {
+  WBTabSizeUndefined = 0,
+  WBTabSizeSmall = 1,
+  WBTabSizeLarge = 2
+};
 
 @class WBTabItem;
 @protocol WBTabItemDelegateProtocol
@@ -46,16 +50,6 @@ typedef NS_ENUM(NSInteger, WBTabSize) { WBTabSizeUndefined = 0, WBTabSizeSmall =
 
 @interface WBTabMenuLayer : ResponderLayer {
 }
-@end
-
-@interface WBTabDraggerLayer : ResponderLayer {
-  CGPoint mLocation;
-  BOOL mDragged;
-}
-
-- (void)mouseDraggedToPoint:(CGPoint)mouse;
-- (void)mouseUp;
-
 @end
 
 @interface WBTabArrow : ResponderLayer {
@@ -74,7 +68,11 @@ typedef NS_ENUM(NSInteger, WBTabSize) { WBTabSizeUndefined = 0, WBTabSizeSmall =
 
 @end
 
+@class WBTabView;
+
 @interface WBTabItem : ResponderLayer {
+  WBTabView *owner;
+
   id mIdentifier;
   NSCellStateValue mState;
   BOOL mEnabled;
@@ -97,14 +95,6 @@ typedef NS_ENUM(NSInteger, WBTabSize) { WBTabSizeUndefined = 0, WBTabSizeSmall =
   // Label
   NSString* mLabel;
   CATextLayer* mTitleLayer;
-
-  // Colors.
-  CGColorRef mColorActiveSelected;
-  CGColorRef mColorActiveNotSelected;
-  CGColorRef mColorNotActiveSelected;
-  CGColorRef mColorNotActiveNotSelected;
-
-  NSGradient* mGradient;
 }
 
 - (void)mouseDraggedToPoint:(CGPoint)mouse;
@@ -115,27 +105,26 @@ typedef NS_ENUM(NSInteger, WBTabSize) { WBTabSizeUndefined = 0, WBTabSizeSmall =
 - (void)setEnabled:(BOOL)enabled;
 - (void)setLabel:(NSString*)newLabel;
 - (void)setIconImage:(NSImage*)image;
+
 @property(readonly, strong) id identifier;
-- (void)setColorActiveSelected:(CGColorRef)colorActiveSelected
-        colorActiveNotSelected:(CGColorRef)colorActiveNotSelected
-        colorNotActiveSelected:(CGColorRef)colorNotActiveSelected
-     colorNotActiveNotSelected:(CGColorRef)colorNotActiveNotSelected;
 
-- (instancetype)initWithIdentifier:(id)identifier
-                             label:(NSString*)label
-                         direction:(WBTabDirection)tabDirection
-                         placement:(WBTabPlacement)tabPlacement
-                              size:(WBTabSize)tabSize
-                           hasIcon:(BOOL)hasIcon
-                          canClose:(BOOL)canClose NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithOwner: (WBTabView *)owner
+                   identifier:(id)identifier
+                        label:(NSString*)label
+                    direction:(WBTabDirection)tabDirection
+                    placement:(WBTabPlacement)tabPlacement
+                         size:(WBTabSize)tabSize
+                      hasIcon:(BOOL)hasIcon
+                     canClose:(BOOL)canClose NS_DESIGNATED_INITIALIZER;
 
-+ (WBTabItem*)tabItemWithIdentifier:(id)identifier
-                              label:(NSString*)label
-                          direction:(WBTabDirection)tabDirection
-                          placement:(WBTabPlacement)tabPlacement
-                               size:(WBTabSize)tabSize
-                            hasIcon:(BOOL)hasIcon
-                           canClose:(BOOL)canClose;
++ (WBTabItem*)tabItemWithOwner: (WBTabView *)owner
+                    identifier: (id)identifier
+                         label: (NSString*)label
+                     direction: (WBTabDirection)tabDirection
+                     placement: (WBTabPlacement)tabPlacement
+                          size: (WBTabSize)tabSize
+                       hasIcon: (BOOL)hasIcon
+                      canClose: (BOOL)canClose;
 
 @property(readonly) CGFloat preferredWidth;
 

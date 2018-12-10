@@ -48,7 +48,7 @@ Color Conversions::ColorToNative(base::Color color) {
 //--------------------------------------------------------------------------------------------------
 
 Color Conversions::GetApplicationColor(ApplicationColor color, bool foreground) {
-  base::Color baseColor = base::Color::get_application_color((base::ApplicationColor)color, foreground);
+  base::Color baseColor = base::Color::getApplicationColor((base::ApplicationColor)color, foreground);
   if (!baseColor.is_valid())
     return Color::Black;
   return Color::FromArgb(int(baseColor.red * 255), int(baseColor.green * 255), int(baseColor.blue * 255));

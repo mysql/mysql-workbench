@@ -63,7 +63,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   IBOutlet __weak NSTabView* mEditorsTabView;
   IBOutlet __weak MTabSwitcher* mTabSwitcher;
 
-  IBOutlet __weak NSView* mHeaderView;
+  IBOutlet __weak NSBox *mHeaderView;
   IBOutlet __weak NSButton* mHeaderExpander;
 
   // Table
@@ -291,7 +291,6 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     [item setView: [mPrivilegesTab view]];
     [item setLabel: @"Privileges"];
     [mEditorsTabView addTabViewItem:item];
-    [(MColoredView*)[mPrivilegesTab view] setBackgroundColor: [NSColor whiteColor]];
   }
   // Register a callback that will call [self refresh] when the edited object is
   // changed from somewhere else in the application.
@@ -302,8 +301,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [self updateFKPlaceholder];
   {
     id view = mBackEnd->get_trigger_panel()->get_data();
-    [mTriggerTabItem addSubview:view];
-    [mTriggerTabItem setBackgroundColor: [NSColor whiteColor]];
+    [mTriggerTabItem addSubview: view];
     [view setFrame: [mTriggerTabItem bounds]];
     [view setAutoresizesSubviews: YES];
     [(NSView*)view
@@ -320,24 +318,23 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 }
 
 - (void)awakeFromNib {
-  [mTabSwitcher setTabStyle:MEditorBottomTabSwitcher];
+  [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
 
   // collapse header by default
-  [mHeaderExpander setState:NSOffState];
+  [mHeaderExpander setState: NSOffState];
   [self toggleHeader: NO];
 
   // Store the min size specified in the .xib file.
   NSSize size = [[self view] frame].size;
   [self setMinimumSize:size];
 
-  // Assemle all the separate editor views into the tab view.
+  // Assemble all the separate editor views into the tab view.
   NSTabViewItem* item;
 
   item = [[NSTabViewItem alloc] initWithIdentifier: @"columns"];
   [item setView:mEditorColumns];
   [item setLabel: @"Columns"];
   [mEditorsTabView addTabViewItem:item];
-  [mEditorColumns setBackgroundColor: [NSColor whiteColor]];
 
   item = [[NSTabViewItem alloc] initWithIdentifier: @"indices"];
   [item setView:mEditorIndices];
@@ -349,7 +346,6 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [item setView:mEditorForeignKeys];
   [item setLabel: @"Foreign Keys"];
   [mEditorsTabView addTabViewItem:item];
-  [mEditorForeignKeys setBackgroundColor: [NSColor whiteColor]];
 
   item = [[NSTabViewItem alloc] initWithIdentifier: @"triggers"];
   [item setView: mTriggerTabItem];
@@ -360,7 +356,6 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [item setView:mEditorPartitioning];
   [item setLabel: @"Partitioning"];
   [mEditorsTabView addTabViewItem:item];
-  [mEditorPartitioning setBackgroundColor: [NSColor whiteColor]];
 
   item = [[NSTabViewItem alloc] initWithIdentifier: @"options"];
   NSScrollView* sv = [[NSScrollView alloc] initWithFrame: [mEditorColumns frame]];
@@ -374,17 +369,57 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [item setView:sv];
   [item setLabel: @"Options"];
   [mEditorsTabView addTabViewItem:item];
-  [mEditorOptions setBackgroundColor: [NSColor whiteColor]];
 
   [mColumnsTable registerForDraggedTypes: @[ columnDragUTI ]];
+
+  NSWindow *window = NSApplication.sharedApplication.mainWindow;
+  [window addObserver: self forKeyPath: @"effectiveAppearance" options: 0 context: nil];
+  [self updateColors];
 
   mDidAwakeFromNib = YES;
 }
 
 //--------------------------------------------------------------------------------------------------
 
+- (void)observeValueForKeyPath: (NSString *)keyPath
+                      ofObject: (id)object
+                        change: (NSDictionary *)change
+                       context: (void *)context {
+  if ([keyPath isEqualToString: @"effectiveAppearance"]) {
+    [self updateColors];
+    return;
+  }
+  [super observeValueForKeyPath: keyPath ofObject: object change: change context: context];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)updateColors {
+  NSWindow *window = NSApplication.sharedApplication.mainWindow;
+
+  BOOL isDark = NO;
+  if (@available(macOS 10.14, *)) {
+    isDark = window.effectiveAppearance.name == NSAppearanceNameDarkAqua;
+  }
+
+  NSColor *backgroundColor = NSColor.windowBackgroundColor;
+  mHeaderView.fillColor = backgroundColor;
+  mTriggerTabItem.backgroundColor = backgroundColor;
+  mEditorColumns.backgroundColor = backgroundColor;
+  mEditorIndices.backgroundColor = backgroundColor;
+  mEditorForeignKeys.backgroundColor = backgroundColor;
+  mEditorPartitioning.backgroundColor = backgroundColor;
+  mEditorOptions.backgroundColor = backgroundColor;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)dealloc {
-  [NSRunLoop cancelPreviousPerformRequestsWithTarget:self];
+  [NSRunLoop cancelPreviousPerformRequestsWithTarget: self];
+
+  NSWindow *window = NSApplication.sharedApplication.mainWindow;
+  [window removeObserver: self forKeyPath: @"effectiveAppearance"];
+
   delete mBackEnd;
 }
 
@@ -770,7 +805,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 }
 
 - (void)switchToColumnsTab {
-  if (![[[mEditorsTabView selectedTabViewItem] identifier] isEqual: @"columns"]) {
+  if (![mEditorsTabView.selectedTabViewItem.identifier isEqual: @"columns"]) {
     [mEditorsTabView selectTabViewItemWithIdentifier: @"columns"];
 
     [mColumnsDataSource refresh];
@@ -820,7 +855,7 @@ objectValueForTableColumn: (NSTableColumn*)aTableColumn
                       row: (NSInteger)rowIndex {
   NSString* obj = shouldRaiseException;
 
-  id identifier = [aTableColumn identifier];
+  id identifier = aTableColumn.identifier;
   NSInteger valueIndex = NSNotFound;
 
   if (aTableView == mColumnsTable) {
@@ -903,7 +938,7 @@ objectValueForTableColumn: (NSTableColumn*)aTableColumn
   willDisplayCell: (id)aCell
    forTableColumn: (NSTableColumn*)aTableColumn
               row: (NSInteger)rowIndex {
-  id identifier = [aTableColumn identifier];
+  id identifier = aTableColumn.identifier;
 
   if (aTableView == mColumnsTable) {
     if ([identifier isEqual: @"name"]) {
@@ -989,7 +1024,7 @@ objectValueForTableColumn: (NSTableColumn*)aTableColumn
               row: (NSInteger)rowIndex {
   BOOL shouldRefreshGUI = YES;
 
-  id identifier = [aTableColumn identifier];
+  id identifier = aTableColumn.identifier;
 
   if (aTableView == mColumnsTable) {
     NSString* value;
@@ -1642,7 +1677,7 @@ shouldEditTableColumn: (NSTableColumn*)aTableColumn
 
 #pragma mark Super class overrides
 
-- (id)identifier;
+- (id)panelId;
 {
   // An identifier for this editor (just take the object id).
   return [NSString stringWithCPPString: mBackEnd->get_object().id()];

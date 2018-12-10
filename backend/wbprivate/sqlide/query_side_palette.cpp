@@ -272,43 +272,40 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   _help_text = manage(new mforms::HyperText());
 
   // Separate box since we need a border around the content, but not the toolbar.
-  Box *content_border = manage(new Box(false));
+  _contentBorder = manage(new Box(false));
 
   // No scoped_connect needed since _help_text is a member variable.
   scoped_connect(_help_text->signal_link_click(),
                  std::bind(&QuerySidePalette::click_link, this, std::placeholders::_1));
 
 #if _MSC_VER
-  std::string backgroundColor = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
+  std::string backgroundColor = base::Color::getApplicationColorAsString(AppColorPanelContentArea, false);
   _help_text->set_font("Tahoma 8");
+#elif __APPLE__
+  std::string backgroundColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor).to_html();
 #else
   std::string backgroundColor = "#ebebeb";
 #endif
 
   _help_text->set_back_color(backgroundColor);
-  content_border->set_back_color(backgroundColor);
-  content_border->set_padding(3, 3, 3, 3);
+  _contentBorder->set_back_color(backgroundColor);
+  _contentBorder->set_padding(3, 3, 3, 3);
 
   _help_text->set_markup_text("");
   _current_topic_index = -1;
 
   help_page->add(_help_toolbar, false, true);
-  content_border->add(_help_text, true, true);
-  help_page->add(content_border, true, true);
+  _contentBorder->add(_help_text, true, true);
+  help_page->add(_contentBorder, true, true);
   add_page(help_page, _("Context Help"));
 
   Box *snippet_page = manage(new Box(false));
 
-  content_border = manage(new Box(false));
+  Box *content_border = manage(new Box(false));
   _snippet_list = manage(new SnippetListView("snippet_sql.png"));
   _snippet_list->set_name("Snippet List");
   _snippet_list->setInternalName("Snippet list");
-#ifdef _MSC_VER
-  content_border->set_padding(3, 3, 3, 3);
-  _snippet_list->set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
-#else
-  _snippet_list->set_back_color("#f2f2f2");
-#endif
+
   _snippet_box = manage(new ScrollPanel());
   _snippet_box->add(_snippet_list);
 
@@ -339,7 +336,10 @@ QuerySidePalette::QuerySidePalette(const SqlEditorForm::Ref &owner)
   snippet_selection_changed();
   show_help_hint_or_update();
 
+  updateColors();
+
   base::NotificationCenter::get()->add_observer(this, "GNTextSelectionChanged");
+  base::NotificationCenter::get()->add_observer(this, "GNColorsChanged");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -377,6 +377,40 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
       _help_timer = bec::GRTManager::get()->run_every(
         std::bind(&QuerySidePalette::find_context_help, this, editor), 0.5);
     }
+  } else if (name == "GNColorsChanged") {
+    updateColors();
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void QuerySidePalette::updateColors() {
+#if _MSC_VER
+  std::string backgroundColor = base::Color::getApplicationColorAsString(AppColorPanelContentArea, false);
+  _help_text->set_font("Tahoma 8");
+#elif __APPLE__
+  std::string backgroundColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor).to_html();
+#else
+  std::string backgroundColor = "#ebebeb";
+#endif
+
+  _help_text->set_back_color(backgroundColor);
+  _contentBorder->set_back_color(backgroundColor);
+
+#ifdef _MSC_VER 
+  _contentBorder->set_padding(3, 3, 3, 3);
+  _snippet_list->set_back_color(base::Color::getApplicationColorAsString(AppColorPanelContentArea, false));
+#elif __APPLE__
+  _snippet_list->set_back_color(backgroundColor);
+#else
+  _snippet_list->set_back_color("#f2f2f2");
+#endif
+
+  // Also reload any help text, to update HTML colors.
+  if (!_currentHelpTopic.empty()) {
+    std::string text;
+    help::DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
+    _help_text->set_markup_text(text);
   }
 }
 
@@ -385,10 +419,8 @@ void QuerySidePalette::handle_notification(const std::string &name, void *sender
 void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
   _currentHelpTopic = topic;
   if (_currentHelpTopic.empty()) {
-    _help_text->set_markup_text(std::string("<hmtl><body style=\"font-family:") + DEFAULT_FONT_FAMILY +
-                                "; font-size: 8pt\">"
-                                "<div style=\"width: 100%\"><b style=\"font-size: 10pt; color:#B0B0B0\">"
-                                "No Context Help<b><br><br><hr></div></body></html>");
+    _help_text->set_markup_text(std::string("<hmtl><body style=\"font-family:'") + DEFAULT_FONT_FAMILY + "'; \">"
+      "<div style='text-align: center;'><b style='color: gray; font-size: 16pt;'>No Context Help</b></div></body></html>");
   } else {
     std::string text;
     help::DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
@@ -405,11 +437,10 @@ void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
 void QuerySidePalette::show_help_hint_or_update() {
   if (!_automatic_help) {
     _help_text->set_markup_text(
-      std::string("<hmtl><body style=\"font-family:") + DEFAULT_FONT_FAMILY +
-      "; font-size: 8pt\">"
-      "<div style=\"width: 100%\"><b style=\"font-size: 10pt; color:#B0B0B0\">"
+      std::string("<hmtl><body style=\"font-family:") + DEFAULT_FONT_FAMILY + ";\">"
+      "<div style='text-align: center;'><b style='color: gray; font-size: 12pt;'>"
       "Automatic context help is disabled. Use the toolbar to manually get help for the current caret "
-      "position or to toggle automatic help.<b><br><br><hr></div></body></html>");
+      "position or to toggle automatic help.</b></div></body></html>");
   } else {
     show_help_text_for_topic(_current_topic_index > 0 ? _topic_history[_current_topic_index] : "");
   }

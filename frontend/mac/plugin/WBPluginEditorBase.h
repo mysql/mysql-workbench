@@ -51,7 +51,7 @@ namespace mforms {
 @property(readonly) BOOL enableLiveChangeButtons;
 @property NSSize minimumSize;
 @property(readonly) bec::BaseEditor *editorBE;
-@property(readonly, strong) id identifier;
+@property(readonly, strong) id panelId;
 @property(readonly, copy) NSImage *titleIcon;
 
 - (void)updateTitle:(NSString *)title;

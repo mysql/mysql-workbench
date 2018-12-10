@@ -72,6 +72,12 @@ Color Color::getSystemColor(SystemColor colorType) {
     case TextBackgroundColor:
       sysColor = GetSysColor(COLOR_WINDOW);
       break;
+    case LabelColor:
+    case SecondaryLabelColor:
+    case TertiaryLabelColor:
+    case QuaternaryLabelColor:
+      sysColor = GetSysColor(COLOR_WINDOWTEXT);
+      break;
     case SelectedTextColor:
       sysColor = GetSysColor(COLOR_HIGHLIGHTTEXT);
       break;
@@ -90,6 +96,9 @@ Color Color::getSystemColor(SystemColor colorType) {
       break;
     case WindowFrameTextColor:
       sysColor = GetSysColor(COLOR_CAPTIONTEXT);
+      break;
+    case SecondaryBackgroundColor:
+      sysColor = GetSysColor(COLOR_WINDOW);
       break;
 
     case SelectedMenuItemColor:

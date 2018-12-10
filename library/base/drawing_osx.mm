@@ -27,35 +27,41 @@ using namespace base;
 
 static bool inTesting = false;
 
-std::string OSConstants::defaultFontName()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string OSConstants::defaultFontName() {
   NSFont *font = [NSFont systemFontOfSize: 13];
   NSString *name = font.fontName;
   return name.UTF8String;
 }
 
-float OSConstants::systemFontSize()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::systemFontSize() {
   return NSFont.systemFontSize;
 }
 
-float OSConstants::smallSystemFontSize()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::smallSystemFontSize() {
   return NSFont.smallSystemFontSize;
 }
 
-float OSConstants::labelFontSize()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+float OSConstants::labelFontSize() {
   return NSFont.labelFontSize;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-Color Color::getSystemColor(SystemColor colorType)
-{
+Color Color::getSystemColor(SystemColor colorType) {
+  // NOTE: this function must only be called from the main thread!
+  NSAppearance * saved = NSAppearance.currentAppearance;
+  NSAppearance.currentAppearance = NSApp.mainWindow.effectiveAppearance;
+
   NSColor *color;
-  switch (colorType)
-  {
+  switch (colorType) {
     case ControlShadowColor: color = NSColor.controlShadowColor; break;
     case ControlDarkShadowColor: color = NSColor.controlDarkShadowColor; break;
     case ControlColor: color = NSColor.controlColor; break;
@@ -67,7 +73,12 @@ Color Color::getSystemColor(SystemColor colorType)
     case SecondarySelectedControlColor: color = NSColor.secondarySelectedControlColor; break;
     case SelectedControlTextColor: color = NSColor.selectedControlTextColor; break;
     case DisabledControlTextColor: color = NSColor.disabledControlTextColor; break;
+
     case TextColor: color = NSColor.textColor; break;
+    case LabelColor: color = NSColor.labelColor; break;
+    case SecondaryLabelColor: color = NSColor.secondaryLabelColor; break;
+    case TertiaryLabelColor: color = NSColor.tertiaryLabelColor; break;
+    case QuaternaryLabelColor: color = NSColor.quaternaryLabelColor; break;
     case TextBackgroundColor: color = NSColor.textBackgroundColor; break;
     case SelectedTextColor: color = NSColor.selectedTextColor; break;
     case SelectedTextBackgroundColor: color = NSColor.selectedTextBackgroundColor; break;
@@ -76,6 +87,7 @@ Color Color::getSystemColor(SystemColor colorType)
     case WindowBackgroundColor: color = NSColor.windowBackgroundColor; break;
     case WindowFrameColor: color = NSColor.windowFrameColor; break;
     case WindowFrameTextColor: color = NSColor.windowFrameTextColor; break;
+    case SecondaryBackgroundColor: color = NSColor.underPageBackgroundColor; break;
 
     case SelectedMenuItemColor: color = NSColor.selectedMenuItemColor; break;
     case SelectedMenuItemTextColor: color = NSColor.selectedMenuItemTextColor; break;
@@ -93,43 +105,47 @@ Color Color::getSystemColor(SystemColor colorType)
       color = nil;
   }
 
-  if (color == nil)
-    return Color();
+  Color result;
 
-  NSColor *rgbColor = [color colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-  if (rgbColor == nil) {
-    // A pattern color probably.
-    rgbColor = [color colorUsingColorSpaceName: NSPatternColorSpace];
-    NSImage *pattern = rgbColor.patternImage;
-    if (pattern != nil) {
-      NSBitmapImageRep *representation = (NSBitmapImageRep *)pattern.representations[0]; // Usually only has one.
-      if (representation.colorSpaceName == NSCalibratedRGBColorSpace)
-      {
-        // Patterns are usually of a very small size (like 8 x 8 pixels), we simply iterate over all pixels to find an
-        // average value (as if we had scaled it to one pixel).
-        NSInteger count = representation.size.width * representation.size.height;
-        CGFloat red = 0, green = 0, blue = 0;
-        for (NSInteger x = 0; x < representation.size.width; ++x)
-        {
-          for (NSInteger y = 0; y < representation.size.height; ++y)
-          {
-            NSColor *pixel = [representation colorAtX: x y: y];
-            red += pixel.redComponent;
-            green += pixel.greenComponent;
-            blue += pixel.blueComponent;
+  if (color != nil) {
+    NSColor *rgbColor = [color colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
+    if (rgbColor == nil) {
+      // A pattern color probably.
+      rgbColor = [color colorUsingColorSpaceName: NSPatternColorSpace];
+      NSImage *pattern = rgbColor.patternImage;
+      if (pattern != nil) {
+        NSBitmapImageRep *representation = (NSBitmapImageRep *)pattern.representations[0]; // Usually only has one.
+        if (representation.colorSpaceName == NSCalibratedRGBColorSpace) {
+          // Patterns are usually of a very small size (like 8 x 8 pixels), we simply iterate over all pixels to find an
+          // average value (as if we had scaled it to one pixel).
+          NSInteger count = representation.size.width * representation.size.height;
+          CGFloat red = 0, green = 0, blue = 0;
+          for (NSInteger x = 0; x < representation.size.width; ++x) {
+            for (NSInteger y = 0; y < representation.size.height; ++y) {
+              NSColor *pixel = [representation colorAtX: x y: y];
+              red += pixel.redComponent;
+              green += pixel.greenComponent;
+              blue += pixel.blueComponent;
+            }
+
           }
-
+          result = Color(red / count, green / count, blue / count, 1);
         }
-        return Color(red / count, green / count, blue / count, 1);
       }
     }
+
+    if (!result.is_valid())
+      result = Color(rgbColor.redComponent, rgbColor.greenComponent, rgbColor.blueComponent, rgbColor.alphaComponent);
   }
-  return Color(rgbColor.redComponent, rgbColor.greenComponent, rgbColor.blueComponent, rgbColor.alphaComponent);
+
+  NSAppearance.currentAppearance = saved;
+  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Color::prepareForTesting()
-{
+void Color::prepareForTesting() {
   inTesting = true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

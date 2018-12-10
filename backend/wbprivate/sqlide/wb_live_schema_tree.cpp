@@ -886,7 +886,7 @@ bool LiveSchemaTree::update_node_children(mforms::TreeNodeRef parent, base::Stri
 }
 
 std::string LiveSchemaTree::get_field_description(const mforms::TreeNodeRef& node) {
-  std::string text("");
+  std::string text;
   mforms::TreeNodeRef temp_node = node;
 
   try {

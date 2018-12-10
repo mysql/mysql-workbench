@@ -246,7 +246,7 @@ PreferencesForm::PreferencesForm(const workbench_physical_ModelRef &model)
     set_title(_("Model Options"));
 
 #ifdef _MSC_VER
-  set_back_color(base::Color::get_application_color_as_string(base::AppColorMainBackground, false));
+  set_back_color(base::Color::getApplicationColorAsString(base::AppColorMainBackground, false));
 #endif
 
   _switcher.add_column(mforms::StringColumnType, "", 150);
@@ -464,7 +464,7 @@ void PreferencesForm::update_values() {
   }
 
   if (!_model.is_valid())
-    update_colors_and_fonts();
+    updateColorsAndFonts();
 
   undo.end(_("Change Options"));
 }
@@ -804,15 +804,6 @@ mforms::View *PreferencesForm::create_sqlide_page() {
       check->set_tooltip(
         _("Whether to show internal schemas in the schema tree "
           "(eg INFORMATION_SCHEMA, mysql and schemas starting with '.')."));
-      vbox->add(check, false);
-    }
-
-    {
-      mforms::CheckBox *check = new_checkbox_option("DbSqlEditor:SidebarModeCombined");
-      check->set_text(_("Combine Management Tools and Schema Tree"));
-      check->set_tooltip(
-        _("Check this if you want to display the management tools and the "
-          "schema list in the same tab page in the sidebar. Uncheck it to have them in separate tab pages."));
       vbox->add(check, false);
     }
   }
@@ -2178,7 +2169,7 @@ void PreferencesForm::show_colors_and_fonts() {
 
 //--------------------------------------------------------------------------------------------------
 
-void PreferencesForm::update_colors_and_fonts() {
+void PreferencesForm::updateColorsAndFonts() {
   for (int c = _font_list.count(), i = 0; i < c; i++) {
     std::string value = _font_list.root_node()->get_child(i)->get_string(1);
 

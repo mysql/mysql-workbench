@@ -67,7 +67,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   : mforms::AppView(false, "Query Buffer", "db.query.QueryBuffer", false),
     _form(owner),
     _editor_box(false),
-    _splitter(false, true),
+    _splitter(false, false),
 #ifdef __APPLE__
     _lower_tabview(mforms::TabViewEditorBottomPinnable), // TODO: Windows, Linux
 #else
@@ -119,8 +119,8 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   if (start_collapsed)
     _editor->get_editor_control()->set_size(-1, 25);
 
-  _splitter.add(&_editor_box);
-  _splitter.add(&_lower_tabview);
+  _splitter.add(&_editor_box, 150);
+  _splitter.add(&_lower_tabview, 150);
   _editor_box.set_name("Editor Area");
   _editor_box.setInternalName("Editor area");
   _lower_tabview.set_name("Resultset Placeholder");
@@ -147,7 +147,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   _tab_action_apply.set_size(-1, 19);
   _tab_action_revert.set_size(-1, 19);
   _tab_action_box.set_size(-1, 19);
-  _tab_action_box.set_back_color(Color::get_application_color_as_string(AppColorTabUnselected, false));
+  _tab_action_box.set_back_color(Color::getApplicationColorAsString(AppColorTabUnselected, false));
 #endif
 
   _lower_tabview.set_aux_view(&_tab_action_box);
@@ -734,7 +734,7 @@ static void toggle_continue_on_error(SqlEditorForm *sql_editor_form) {
 //--------------------------------------------------------------------------------------------------
 
 mforms::ToolBar *SqlEditorPanel::setup_editor_toolbar() {
-  mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::SecondaryToolBar)));
+  mforms::ToolBar *tbar(mforms::manage(new mforms::ToolBar(mforms::OptionsToolBar)));
   tbar->set_name("Editor Toolbar");
 #ifdef _MSC_VER
   tbar->set_size(-1, 27);
@@ -1275,9 +1275,9 @@ void SqlEditorPanel::lower_tab_reordered(mforms::View *view, int from, int to) {
       }
     }
   }
+
   if (to_index < 0) {
-    logFatal("Unable to find suitable target index for reorder\n");
-    return;
+    to_index = panels.back().second;
   }
 
   grtobj()->resultPanels()->reorder(from_index, to_index);

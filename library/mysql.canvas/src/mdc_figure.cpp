@@ -30,7 +30,7 @@ using namespace mdc;
 using namespace base;
 
 Figure::Figure(Layer *layer)
-  : CanvasItem(layer), _pen_color(Color::Black()), _fill_color(Color::White()), _line_width(1.0) {
+  : CanvasItem(layer), _pen_color(Color::black()), _fill_color(Color::white()), _line_width(1.0) {
 }
 
 void Figure::render(CairoCtx *cr) {
@@ -95,12 +95,12 @@ Point Figure::get_intersection_with_line_to(const Point &p) {
     {
       CairoCtx cr(crs);
       cr.rectangle(0, 0, get_size().width, get_size().height);
-      cr.set_color(Color::Black());
+      cr.set_color(Color::black());
       cr.fill();
 
       cr.translate(-get_position().x, -get_position().y);
       stroke_outline(&cr, 0);
-      cr.set_color(Color::White());
+      cr.set_color(Color::white());
       cr.fill();
 
       unsigned char *data= cairo_image_surface_get_data(crs);

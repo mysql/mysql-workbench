@@ -54,15 +54,18 @@
 #define MIN_OUTPUT_AREA_HEIGHT 80
 #define MIN_INFO_BOX_HEIGHT 30
 
-@interface ColorBallTextCell : NSTextFieldCell
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface ColorBallTextCell : NSTextFieldCell {
 }
+
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation ColorBallTextCell
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
-{
+- (void)drawWithFrame: (NSRect)cellFrame inView :(NSView *)controlView {
   [self.backgroundColor set];
   
   NSAttributedString *text = self.attributedStringValue;
@@ -81,8 +84,9 @@
 
 @end
 
-@interface WBSQLQueryPanel()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface WBSQLQueryPanel () {
   __weak IBOutlet WBSplitView* mWorkView;
 
   __weak IBOutlet WBMiniToolbar* mOutputToolbar;
@@ -122,26 +126,24 @@
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation WBSQLQueryPanel
 
 @synthesize backEnd = mBackEnd;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 #pragma mark Table View support
 
-- (NSInteger) numberOfRowsInTableView: (NSTableView*) tableView;
-{
-  if (tableView == mMessagesTable)
-  {
+- (NSInteger) numberOfRowsInTableView: (NSTableView*) tableView {
+  if (tableView == mMessagesTable) {
     if (mBackEnd)
       return mBackEnd->log()->count();
-  }
-  else if (tableView == mHistoryTable)
-  {
+  } else if (tableView == mHistoryTable) {
     if (mBackEnd)
       return mBackEnd->history()->entries_model()->count();
-  }
-  else if (tableView == mHistoryDetailsTable)
-  {
+  } else if (tableView == mHistoryDetailsTable) {
     if (mBackEnd && mHistoryTable.selectedRow >= 0)
       return mBackEnd->history()->details_model()->count();
   }
@@ -149,24 +151,20 @@
   return 0;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)tableView: (NSTableView *)tableView
   willDisplayCell: (id)cell
    forTableColumn: (NSTableColumn *)tableColumn
-              row: (NSInteger)row
-{
-  if (tableView == mMessagesTable)
-  {
-    if ([tableColumn.identifier isEqual:@"0"])
-    {
+              row: (NSInteger)row {
+  if (tableView == mMessagesTable) {
+    if ([tableColumn.identifier isEqual: @"0"]) {
       ssize_t msgtype;
       mBackEnd->log()->get_field(row, 0, msgtype);
-      if (msgtype == DbSqlEditorLog::BusyMsg)
-      {
+      if (msgtype == DbSqlEditorLog::BusyMsg) {
         [[cell progressIndicator] startAnimation: nil];
         [[cell progressIndicator] setHidden: NO];
-      }
-      else
-      {
+      } else {
         [[cell progressIndicator] stopAnimation: nil];
         [[cell progressIndicator] setHidden: YES];
       }
@@ -174,44 +172,36 @@
   }
 }
 
-- (id) tableView: (NSTableView*) aTableView
+//----------------------------------------------------------------------------------------------------------------------
+
+         - (id) tableView: (NSTableView*) aTableView
 objectValueForTableColumn: (NSTableColumn*) aTableColumn
-             row: (NSInteger) rowIndex;
-{
-  if (aTableView == mMessagesTable)
-  {
+                      row: (NSInteger) rowIndex {
+  if (aTableView == mMessagesTable) {
     std::string text;
     
-    if ([aTableColumn.identifier isEqual:@"0"])
-    {
+    if ([aTableColumn.identifier isEqual: @"0"]){
       ssize_t msgtype;
       mBackEnd->log()->get_field(rowIndex, 0, msgtype);
-      if (msgtype != DbSqlEditorLog::BusyMsg)
-      {
+      if (msgtype != DbSqlEditorLog::BusyMsg) {
         bec::IconId icon_id= mBackEnd->log()->get_field_icon(rowIndex, 0, bec::Icon16);
       
         if (icon_id != 0)
           return [[GRTIconCache sharedIconCache] imageForIconId:icon_id];
       }
       return nil;
-    }
-    else
-    {
+    } else {
       mBackEnd->log()->get_field(rowIndex, aTableColumn.identifier.intValue, text);
       
       return [NSString stringWithCPPString: text];
     }
-  }
-  else if (aTableView == mHistoryTable)
-  {
+  } else if (aTableView == mHistoryTable) {
     std::string text;
     
     mBackEnd->history()->entries_model()->get_field(rowIndex, aTableColumn.identifier.intValue, text);
     
     return [NSString stringWithCPPString: text];
-  }
-  else if (aTableView == mHistoryDetailsTable)
-  {
+  } else if (aTableView == mHistoryDetailsTable) {
     std::string text;
     
     mBackEnd->history()->details_model()->get_field(rowIndex, aTableColumn.identifier.intValue, text);
@@ -221,6 +211,8 @@ objectValueForTableColumn: (NSTableColumn*) aTableColumn
 
   return @"foo";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSString *)tableView:(NSTableView *)aTableView 
          toolTipForCell:(NSCell *)aCell
@@ -415,7 +407,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
 - (void)addEditor: (WBBasePanel*)editor
 {
-  id identifier = editor.identifier;
+  id identifier = editor.panelId;
   if ([editor isKindOfClass: [WBPluginPanel class]])
   {
     WBPluginEditorBase *peditor = ((WBPluginPanel*)editor).pluginEditor;
@@ -531,9 +523,9 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 
 #pragma mark Public getters + setters
 
-- (id)identifier
+- (id)panelId
 {
-  return [NSString stringWithFormat:@"dbquery%p", mBackEnd.get()];
+  return [NSString stringWithFormat: @"dbquery%p", mBackEnd.get()];
 }
 
 - (NSImage*)tabIcon
@@ -657,38 +649,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
 }
 
 
-- (void)tabViewDraggerClicked: (NSTabView*) tabView
-{
-  if (mLastClick > 0 && [NSDate timeIntervalSinceReferenceDate] - mLastClick < 0.3)
-  {  
-    if (mQueryAreaOpen && mResultsAreaOpen)
-    {
-      mResultsAreaOpen= NO;
-      [mWorkView setPosition: NSHeight(mWorkView.frame) - MIN_OUTPUT_AREA_HEIGHT
-            ofDividerAtIndex: 0];
-    }
-    else if (mQueryAreaOpen && !mResultsAreaOpen)
-    {
-      mResultsAreaOpen= YES;
-      mQueryAreaOpen= NO;
-      [mWorkView setPosition: 0
-            ofDividerAtIndex: 0];
-    }
-    else
-    {
-      mResultsAreaOpen= YES;
-      mQueryAreaOpen= YES;
-      
-      [mWorkView setPosition: 200
-            ofDividerAtIndex: 0];
-    }
-    mLastClick= 0;
-  }
-  else
-    mLastClick= [NSDate timeIntervalSinceReferenceDate];
-}
-
-
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
   if (tabView == mUpperTabView)
@@ -727,16 +687,15 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   }
 }
 
-- (BOOL)tabView:(NSTabView *)tabView itemHasCloseButton:(NSTabViewItem *)item
-{
-  if (tabView == mUpperTabView)
-    return YES;
-  return NO;
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)tabView:(NSTabView *)tabView itemHasCloseButton:(NSTabViewItem *)item {
+  return tabView == mUpperTabView && item != nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)tabView:(NSTabView *)tabView didReorderTabViewItem: (NSTabViewItem *)item toIndex: (NSInteger)index
-{
+- (void)tabView:(NSTabView *)tabView didReorderTabViewItem: (NSTabViewItem *)item toIndex: (NSInteger)index {
   if (tabView == mUpperTabView)
   {
     SqlEditorPanel *editor = mBackEnd->sql_editor_panel((int)[tabView indexOfTabViewItem: item]);
@@ -780,32 +739,35 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSImage*)tabView:(NSTabView *)tabView iconForItem:(NSTabViewItem *)tabViewItem
-{
-  if (tabView == mUpperTabView)
-  {
+- (NSImage*)tabView:(NSTabView *)tabView iconForItem:(NSTabViewItem *)tabViewItem {
+  if (tabView == mUpperTabView) {
     id tab = mEditors[tabViewItem.identifier];
     if ([tab respondsToSelector: @selector(tabIcon)])
       return [tab tabIcon];
-    else
-    {
+    else {
       TabViewDockingPointDelegate* deleg = dynamic_cast<TabViewDockingPointDelegate*>(mDockingPoint->get_delegate());
-      if (deleg)
-      {
+      if (deleg) {
         mforms::AppView* av = deleg->appview_for_view(tabViewItem.view);
-        if (av)
-        {
-          NSImage *icon = [NSImage imageNamed: [NSString stringWithFormat: @"tab_icon_%s", av->get_form_context_name().c_str()]];
+        if (av) {
+          NSString *name;
+          if (self.isDarkModeActive)
+            name = [NSString stringWithFormat: @"tab_icon_%s_dark", av->get_form_context_name().c_str()];
+          else
+            name = [NSString stringWithFormat: @"tab_icon_%s_light", av->get_form_context_name().c_str()];
+          NSImage *icon = [NSImage imageNamed: name];
           if (icon)
             return icon;
         }
       }
     }
   }
+
   return [NSImage imageNamed: @"tab_icon_plugin"];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSString*)tabView:(NSTabView *)tabView toolTipForItem:(NSTabViewItem *)item
 {
@@ -900,13 +862,6 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       mUpperTabSwitcher.tabStyle = MEditorTabSwitcher;
       [mUpperTabSwitcher setAllowTabReordering: YES];
 
-      [mOutputToolbar setGradient: [[NSGradient alloc] initWithColorsAndLocations:
-                                    [NSColor colorWithCalibratedWhite:0xd9/255.0 alpha: 1.0], (CGFloat)0.0,
-                                    [NSColor colorWithCalibratedWhite:0xe2/255.0 alpha: 1.0], (CGFloat)0.5,
-                                    [NSColor colorWithCalibratedWhite:0xef/255.0 alpha: 1.0], (CGFloat)0.87,
-                                    [NSColor colorWithCalibratedWhite:0xe6/255.0 alpha: 1.0], (CGFloat)0.91,
-                                    [NSColor colorWithCalibratedWhite:0xa9/255.0 alpha: 1.0], (CGFloat)1.0,
-                                    nil]];
       mTextOutputLock = [[NSLock alloc] init];
 
       NSFont *font = [NSFont fontWithName: @"AndaleMono"
@@ -916,10 +871,7 @@ static void addTextToOutput(const std::string &text, bool bring_to_front, void *
       if (font)
         mTextOutput.font = font;
 
-      (self.splitView).backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
-
-      mWorkView.dividerThickness = 0;
-      (self.splitView).dividerThickness = 1;
+      self.splitView.backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
 
       mMessagesTable.menu = nsmenuForMenu(mBackEnd->log()->get_context_menu());
 

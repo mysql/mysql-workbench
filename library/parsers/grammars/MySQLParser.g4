@@ -2806,7 +2806,7 @@ cursorClose:
 ;
 
 cursorFetch:
-    FETCH_SYMBOL identifier INTO_SYMBOL identifierList
+    FETCH_SYMBOL (NEXT_SYMBOL? FROM_SYMBOL)? identifier INTO_SYMBOL identifierList
 ;
 
 //----------------- Supplemental rules -------------------------------------------------------------

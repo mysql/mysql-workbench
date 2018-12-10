@@ -1651,8 +1651,7 @@ class SecurityAccount(mforms.Box):
             self.schema_privs.show_user(None)
 
         self.password_label.set_text(self.password_advice)
-        self.password_label.set_color('#000000')
-        
+
         self.setup_bottom_message_box(user)           
 
     def _find_user_position(self, user, host):
@@ -1801,8 +1800,7 @@ class SecurityAccount(mforms.Box):
             self.user_selected()
 
         self.password_label.set_text(self.password_advice)
-        self.password_label.set_color('#000000')
-        
+
         self.setup_bottom_message_box(su) 
 
     def refresh_priv_list(self):

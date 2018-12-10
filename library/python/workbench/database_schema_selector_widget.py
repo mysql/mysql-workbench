@@ -89,7 +89,7 @@ class DatabaseSchemaSelector(mforms.Box):
                          },
             'schemas'  : { 'icon': 'db.Schema.16x16.png',
                          },
-            'general'  : { 'summary_text': '%(nSchemata)d schemata selected',
+            'general'  : { 'summary_text': '%(nSchemata)d schemas selected',
                            'show_select_all_button': not self.use_catalogs,
                            'show_unselect_all_button': True,
                          },

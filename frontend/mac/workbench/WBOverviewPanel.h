@@ -33,7 +33,7 @@
   WBOverviewBackgroundView *_backgroundView;
   NSMutableDictionary *_itemContainers;
 
-  NSString *_identifier;
+  NSString *_panelId;
 
   bec::NodeId *_lastFoundNode;
   NSString *_searchText;
@@ -44,7 +44,6 @@
 }
 
 - (void)setupWithOverviewBE:(wb::OverviewBE *)overview;
-- (void)setNoBackground;
 - (void)setNoHeader;
 - (void)rebuildAll;
 - (void)refreshNode:(const bec::NodeId &)node;
@@ -54,7 +53,7 @@
 
 @property(readonly, strong) NSView *topView;
 @property(readonly, copy) NSString *title;
-@property(readonly, copy) NSString *identifier;
+@property(readonly, copy) NSString *panelId;
 @property(readonly) bec::UIForm *formBE;
 @property(readonly) wb::OverviewBE *backend;
 

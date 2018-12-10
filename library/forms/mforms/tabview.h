@@ -38,7 +38,6 @@ namespace mforms {
                                //   and such). unclosable tabs
     TabViewDocumentClosable,   //!< WB style for tabbed documents (top standing tabs, sql editors
                                //   and such). closable tabs
-    TabViewDocumentClosableX, // A variation of TabViewDocumentClosable with the same functionality but different style.
     TabViewPalette,           //!< WB style tab view (bottom hanging tabs on Win), unclosable tabs
     TabViewSelectorSecondary, //!< Sidebar palette selector style, unclosable tabs.
     TabViewEditorBottom,      //!< Bottom facing, closable tabs to be used for docking editors

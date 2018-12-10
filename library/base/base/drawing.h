@@ -34,22 +34,28 @@
 #include <map>
 
 #ifdef _MSC_VER
-#define DEFAULT_FONT_FAMILY "Tahoma"
-#define DEFAULT_FONT_SIZE 11
+  #define DEFAULT_FONT_FAMILY "Tahoma"
+  #define DEFAULT_FONT_SIZE 11
 
-#define DEFAULT_SMALL_FONT "Modern"
-#define DEFAULT_MONOSPACE_FONT_FAMILY "Consolas"
-#define DEFAULT_MONOSPACE_FONT_FAMILY_ALT "Lucida Console"
+  #define DEFAULT_SMALL_FONT "Modern"
+  #define DEFAULT_MONOSPACE_FONT_FAMILY "Consolas"
+  #define DEFAULT_MONOSPACE_FONT_FAMILY_ALT "Lucida Console"
+
+  #define DETAILS_FONT_FAMILIY "Arial"
 #elif defined(__APPLE__)
-#define DEFAULT_FONT_FAMILY "Helvetica"
-#define DEFAULT_FONT_SIZE 11
-#define DEFAULT_SMALL_FONT "Helvetica"
-#define DEFAULT_MONOSPACE_FONT_FAMILY "Consolas"
+  #define DEFAULT_FONT_FAMILY "Helvetica"
+  #define DEFAULT_FONT_SIZE 11
+  #define DEFAULT_SMALL_FONT "Helvetica"
+  #define DEFAULT_MONOSPACE_FONT_FAMILY "Menlo"
+
+  #define DETAILS_FONT_FAMILIY "Lucida Grande"
 #else
-#define DEFAULT_FONT_FAMILY "Helvetica"
-#define DEFAULT_FONT_SIZE 11
-#define DEFAULT_SMALL_FONT "Sans"
-#define DEFAULT_MONOSPACE_FONT_FAMILY "Bitstream Vera Sans Mono"
+  #define DEFAULT_FONT_FAMILY "Helvetica"
+  #define DEFAULT_FONT_SIZE 11
+  #define DEFAULT_SMALL_FONT "Sans"
+  #define DEFAULT_MONOSPACE_FONT_FAMILY "Bitstream Vera Sans Mono"
+
+  #define DETAILS_FONT_FAMILIY "Helvetica"
 #endif
 
 namespace base {
@@ -92,15 +98,21 @@ namespace base {
     SecondarySelectedControlColor, // Color for selected controls when control is not active (that is, not focused)
     SelectedControlTextColor,      // Text on selected controls
     DisabledControlTextColor,      // Text on disabled controls
+
     TextColor,                     // Document text
     TextBackgroundColor,           // Document text background
+    LabelColor,                    // Foreground color for static text and related elements
+    SecondaryLabelColor,           // Foreground color for secondary static text and related elements
+    TertiaryLabelColor,            // Foreground color for disabled static text and related elements
+    QuaternaryLabelColor,          // Foreground color for large secondary or disabled static text, separators, large glyphs/icons, etc
     SelectedTextColor,             // Selected document text
     SelectedTextBackgroundColor,   // Selected document text background
     GridColor,                     // Grids in controls
 
-    WindowBackgroundColor, // Background fill for window contents
-    WindowFrameColor,      // Window frames
-    WindowFrameTextColor,  // Text on window frames
+    WindowBackgroundColor,         // Background fill for window contents
+    WindowFrameColor,              // Window frames
+    WindowFrameTextColor,          // Text on window frames
+    SecondaryBackgroundColor,      // Sidebars and similar.
 
     SelectedMenuItemColor,     // Highlight color for menus
     SelectedMenuItemTextColor, // Highlight color for menu text
@@ -126,26 +138,28 @@ namespace base {
     Color(const HSVColor &hsv);
     Color(const std::string &color);
 
-    bool operator!=(const Color &other);
+    bool operator != (const Color &other);
     std::string to_html() const;
     long toRGB() const;
     long toBGR() const;
     bool is_valid() const;
+    Color invert() const;
+    double brightness() const;
 
     static Color parse(const std::string &color);
 
-    static inline Color Black() {
+    static inline Color black() {
       return Color(0, 0, 0);
     }
-    static inline Color White() {
+    static inline Color white() {
       return Color(1, 1, 1);
     }
-    static inline Color Invalid() {
+    static inline Color invalid() {
       return Color(-1, -1, -1);
     }
 
-    static Color get_application_color(ApplicationColor color, bool foreground);
-    static std::string get_application_color_as_string(ApplicationColor color, bool foreground);
+    static Color getApplicationColor(ApplicationColor color, bool foreground);
+    static std::string getApplicationColorAsString(ApplicationColor color, bool foreground);
 
     static Color getSystemColor(SystemColor colorType);
 

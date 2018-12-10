@@ -552,9 +552,9 @@ void SqlEditorForm::sql_editor_reordered(SqlEditorPanel *panel, int to) {
       }
     }
   }
+
   if (to_index < 0) {
-    logFatal("Unable to find suitable target index for reorder\n");
-    return;
+    to_index = panels.back().second;
   }
 
   grtobj()->queryEditors()->reorder(from_index, to_index);

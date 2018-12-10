@@ -593,7 +593,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
         message = std::string("Expected") + expectedText + ", but found " + wrongText + " instead";
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting" + expectedText;
+      message = std::string("Extraneous input ") + wrongText + " found, expecting " + expectedText;
     }
   } else {
     try {
@@ -605,7 +605,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
         message = wrongText + " is not valid at this position";
 
       if (!expectedText.empty())
-        message += ", expecting" + expectedText;
+        message += ", expecting " + expectedText;
     } catch (FailedPredicateException &) {
       message = "FailedPredicateException"; // TODO: find a case that throws this.
     } catch (NoViableAltException &) {
@@ -618,7 +618,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
       }
 
       if (!expectedText.empty())
-        message += ", expecting" + expectedText;
+        message += ", expecting " + expectedText;
     }
   }
 

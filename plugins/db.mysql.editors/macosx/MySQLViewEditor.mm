@@ -33,6 +33,8 @@
 #import "DbPrivilegeEditorTab.h"
 #include "mysql_view_editor.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @interface DbMysqlViewEditor () {
   IBOutlet NSTabView *tabView;
 
@@ -47,12 +49,16 @@
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation DbMysqlViewEditor
 
 static void call_refresh(void *theEditor) {
   DbMysqlViewEditor *editor = (__bridge DbMysqlViewEditor *)theEditor;
   [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithModule: (grt::Module *)module arguments: (const grt::BaseListRef &)args {
   self = [super initWithNibName: @"MySQLViewEditor" bundle: [NSBundle bundleForClass: [self class]]];
@@ -72,6 +78,8 @@ static void call_refresh(void *theEditor) {
   }
   return self;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)reinitWithArguments:(const grt::BaseListRef &)args {
   [super reinitWithArguments:args];
@@ -105,9 +113,13 @@ static void call_refresh(void *theEditor) {
   mBackEnd->reset_editor_undo_stack();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)dealloc {
   delete mBackEnd;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)refresh {
   if (mBackEnd) {
@@ -121,16 +133,20 @@ static void call_refresh(void *theEditor) {
   }
 }
 
-- (id)identifier {
+//----------------------------------------------------------------------------------------------------------------------
+
+- (id)panelId {
   // an identifier for this editor (just take the object id)
   return [NSString stringWithCPPString: mBackEnd->get_object().id()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)matchesIdentifierForClosingEditor:(NSString *)identifier {
   return mBackEnd->should_close_on_delete_of([identifier UTF8String]);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)textDidEndEditing:(NSNotification *)aNotification {
   if ([[aNotification object] isKindOfClass:[ScintillaView class]]) {
@@ -145,10 +161,12 @@ static void call_refresh(void *theEditor) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bec::BaseEditor *)editorBE {
   return mBackEnd;
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

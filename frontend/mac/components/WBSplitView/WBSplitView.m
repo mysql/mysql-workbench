@@ -23,67 +23,42 @@
 
 #import "WBSplitView.h"
 
-@interface WBSplitView()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface WBSplitView () {
   CGFloat dividerWidth;
   BOOL mEnabled;
 }
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation WBSplitView
 
 @synthesize backgroundColor;
-@synthesize dividerThickness = dividerWidth;
 
-- (void)drawDividerInRect: (NSRect) aRect;
-{
-  NSColor* color;
-  
-  if (mEnabled) {
-    color = [NSColor colorWithDeviceWhite: 0xaa/256.0 alpha: 1.0];
-  }
-  else {
-    color = [NSColor colorWithCalibratedRed: 0.8
-                                      green: 0.8
-                                       blue: 0.8
-                                      alpha: 1];
-  }
-  
-  [color set];
-  [NSBezierPath fillRect: aRect];
-}
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)drawRect: (NSRect)rect
-{
-  if (backgroundColor != nil)
-  {
-    [backgroundColor set];
-    NSRectFill(rect);
-  }
-  else
-    [super drawRect: rect];
-}
-
-- (void) handleDidBecomeMain: (id) aNotification;
-{
+- (void) handleDidBecomeMain: (id) aNotification {
   mEnabled = YES;
   [self setNeedsDisplay: YES];
 }
 
-- (void)handleDidResignMain: (id) aNotification;
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)handleDidResignMain: (id) aNotification {
   mEnabled = NO;
   [self setNeedsDisplay: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 #pragma mark Create and Destroy
 
-- (void)awakeFromNib;
-{
+- (void)awakeFromNib {
   mEnabled = YES;
-  self.dividerThickness = 1;
-  
+
   // Set up notifications.
   NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
   [dc addObserver: self
@@ -96,12 +71,13 @@
            object: self.window];
 }
 
-- (void)dealloc
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
   NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
   [dc removeObserver: self];
 }
 
 @end
 
-
+//----------------------------------------------------------------------------------------------------------------------

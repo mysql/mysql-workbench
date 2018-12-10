@@ -966,7 +966,7 @@ void Layer::repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area)
   color.blue *= 0.6;
   cr.set_color(color);
   for (std::deque<Feature *>::iterator it = _features.begin(); it != _features.end() && !_interrupt; ++it)
-    (*it)->repaint(cr, scale, clip_area, _fill_polygons ? _color : base::Color::Invalid());
+    (*it)->repaint(cr, scale, clip_area, _fill_polygons ? _color : base::Color::invalid());
 
   cr.restore();
 }

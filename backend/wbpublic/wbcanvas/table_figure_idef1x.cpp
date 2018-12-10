@@ -38,7 +38,7 @@ void Separator::draw_contents(mdc::CairoCtx *cr) {
     cr->line_to(get_size().width, 0.5);
   }
   cr->set_line_width(1);
-  cr->set_color(Color::Black());
+  cr->set_color(Color::black());
   cr->stroke();
 }
 
@@ -73,11 +73,11 @@ Idef1xTable::Idef1xTable(mdc::Layer *layer, FigureEventHub *hub, const model_Obj
 
   _column_box.set_spacing(1);
 
-  _column_box.set_border_color(Color::Black());
-  _column_box.set_background_color(Color::White());
+  _column_box.set_border_color(Color::black());
+  _column_box.set_background_color(Color::white());
   _column_box.set_draw_background(true);
 
-  set_background_color(Color::White());
+  set_background_color(Color::white());
   set_draw_background(true);
 
   add(&_column_box, true, true, true);

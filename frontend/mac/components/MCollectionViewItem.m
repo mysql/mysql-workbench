@@ -24,11 +24,11 @@
 #import "MCollectionViewItem.h"
 #import "MCollectionViewItemView.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MCollectionViewItem
 
-
-- (id)copy
-{
+- (id)copy {
   id other = [super copy];
   [other view].menu = self.view.menu;
   MCollectionViewItemView *itemView = (MCollectionViewItemView *)[other view];
@@ -36,25 +36,26 @@
   return other;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)setView: (NSView*)view
-{
+- (void)setView: (NSView*)view {
   super.view = view;
   MCollectionViewItemView *itemView = (MCollectionViewItemView *)view;
   itemView.owner = self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)setSelected:(BOOL)flag 
-{
+- (void)setSelected:(BOOL)flag {
   super.selected = flag;
   
-  MCollectionViewItemView* itemView= (MCollectionViewItemView*)self.view;
-  if ([itemView isKindOfClass:[MCollectionViewItemView class]]) 
-  {
+  MCollectionViewItemView* itemView = (MCollectionViewItemView*)self.view;
+  if ([itemView isKindOfClass: [MCollectionViewItemView class]]) {
     itemView.selected = flag;
     [itemView setNeedsDisplay:YES];
   }
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

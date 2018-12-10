@@ -25,6 +25,8 @@
 #import "MFMForms.h"
 #import "NSColor_extras.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MFLabelImpl
 
 - (instancetype)initWithObject: (::mforms::Label *)aLabel {
@@ -46,13 +48,19 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)description {
   return [NSString stringWithFormat:@"<%@ '%@'>", self.className, self.stringValue];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (mforms::Object *)mformsObject {
   return mOwner;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setFrame: (NSRect)frame {
   // do vertical alignment of the textfield here
@@ -79,17 +87,18 @@
   super.frame = frame;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setEnabled: (BOOL)flag {
   if (!flag)
     self.textColor = [NSColor darkGrayColor];
   else {
-    if (mStyle == mforms::SmallHelpTextStyle)
-      self.textColor = [NSColor colorWithCalibratedRed: 0.2 green: 0.2 blue: 0.2 alpha: 1.0];
-    else
-      self.textColor = [NSColor textColor];
+    self.textColor = [NSColor textColor];
   }
   super.enabled = flag;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)preferredSize: (NSSize)proposal {
   NSSize size;
@@ -106,10 +115,14 @@
   return { ceil(MAX(size.width, minSize.width)), ceil(MAX(size.height, minSize.height)) };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setStringValue: (NSString *)text {
   super.stringValue = text;
   [self sizeToFit];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setLabelStyle: (mforms::LabelStyle)style {
   self.textColor = [NSColor textColor];
@@ -146,7 +159,6 @@
       break;
     case mforms::SmallHelpTextStyle:
       self.font = [NSFont systemFontOfSize: [NSFont labelFontSize]];
-      self.textColor = [NSColor colorWithCalibratedRed: 0.2 green: 0.2 blue: 0.2 alpha: 1.0];
       break;
     case mforms::VeryBigStyle:
       self.font = [NSFont systemFontOfSize: 18];
@@ -155,11 +167,15 @@
   mStyle = style;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool label_create(::mforms::Label *self) {
   MFLabelImpl *label = [[MFLabelImpl alloc] initWithObject: self];
 
   return label != nil;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void label_set_text(::mforms::Label *self, const std::string &text) {
   if (self) {
@@ -169,6 +185,8 @@ static void label_set_text(::mforms::Label *self, const std::string &text) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void label_set_wrap_text(::mforms::Label *self, bool flag) {
   if (self) {
     MFLabelImpl *label = self->get_data();
@@ -176,6 +194,8 @@ static void label_set_wrap_text(::mforms::Label *self, bool flag) {
     label.cell.wraps = flag;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void label_set_text_align(::mforms::Label *self, ::mforms::Alignment alignment) {
   if (self) {
@@ -204,6 +224,8 @@ static void label_set_text_align(::mforms::Label *self, ::mforms::Alignment alig
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void label_set_style(mforms::Label *self, mforms::LabelStyle style) {
   if (self) {
     MFLabelImpl *label = self->get_data();
@@ -212,6 +234,8 @@ static void label_set_style(mforms::Label *self, mforms::LabelStyle style) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void label_set_color(mforms::Label *self, const std::string &color) {
   if (self) {
     MFLabelImpl *label = self->get_data();
@@ -219,6 +243,8 @@ static void label_set_color(mforms::Label *self, const std::string &color) {
     label.textColor = [NSColor colorFromHexString: @(color.c_str())];
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_label_init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -232,3 +258,5 @@ void cf_label_init() {
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

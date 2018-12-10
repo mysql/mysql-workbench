@@ -24,6 +24,7 @@
 #include "base/log.h"
 #include "base/drawing.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "base/notifications.h"
 #include "base/drawing.h"
 #include "base/xml_functions.h"
@@ -31,7 +32,7 @@
 #include "SciLexer.h"
 
 #include "mforms/mforms.h"
-#include "mdc_image.h"
+#include "mforms/utilities.h"
 
 #include "mysql/MySQLRecognizerCommon.h"
 #include "SymbolTable.h"
@@ -57,7 +58,15 @@ using namespace base;
 #define ERROR_INDICATOR INDIC_CONTAINER
 #define ERROR_INDICATOR_VALUE 42 // Arbitrary value.
 
-//----------------- CodeEditorConfig ---------------------------------------------------------------
+typedef struct {
+  bool hiresImage;
+  int width;
+  int height;
+  void *data;
+} ImageRecord;
+static std::map<std::string, ImageRecord> registeredImages; // Registered RGBA images used in all editors.
+
+//----------------- CodeEditorConfig -----------------------------------------------------------------------------------
 
 CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language) {
   _used_language = language;
@@ -67,21 +76,6 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language) {
   std::string lexer;
   std::string override_lexer;
   switch (language) {
-    case mforms::LanguageMySQL50:
-      override_lexer = "SCLEX_MYSQL_50";
-      lexer = "SCLEX_MYSQL";
-      break;
-
-    case mforms::LanguageMySQL51:
-      override_lexer = "SCLEX_MYSQL_51";
-      lexer = "SCLEX_MYSQL";
-      break;
-
-    case mforms::LanguageMySQL55:
-      override_lexer = "SCLEX_MYSQL_55";
-      lexer = "SCLEX_MYSQL";
-      break;
-
     case mforms::LanguageMySQL56:
       override_lexer = "SCLEX_MYSQL_56";
       lexer = "SCLEX_MYSQL";
@@ -296,28 +290,19 @@ CodeEditor::CodeEditor(void* host, bool showInfo) : _host(host) {
   _scroll_on_resize = true;
   _auto_indent = false;
 
-  setup();
-}
-
-//--------------------------------------------------------------------------------------------------
-
-CodeEditor::~CodeEditor() {
-  delete _find_panel;
-
-  auto_completion_cancel();
-  for (std::map<int, void*>::iterator iterator = _images.begin(); iterator != _images.end(); ++iterator)
-    free(iterator->second);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void CodeEditor::setup() {
   scoped_connect(Form::main_form()->signal_deactivated(), std::bind(&CodeEditor::auto_completion_cancel, this));
+  base::NotificationCenter::get()->add_observer(this, "GNColorsChanged");
 
-  _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_NULL, 0);
-  _code_editor_impl->send_editor(this, SCI_STYLERESETDEFAULT, 0, 0); // Reset default style to what it was initially.
-  _code_editor_impl->send_editor(this, SCI_STYLECLEARALL, 0, 0);     // Set all other styles to the default style.
+  // Load the marker images for folding, debugging, error marker etc.
+  setupMarker(CE_STATEMENT_MARKER, "editor_statement.png");
+  setupMarker(CE_ERROR_MARKER, "editor_error.png");
+  setupMarker(CE_BREAKPOINT_MARKER, "editor_breakpoint.png");
+  setupMarker(CE_BREAKPOINT_HIT_MARKER, "editor_breakpoint_hit.png");
+  setupMarker(CE_CURRENT_LINE_MARKER, "editor_current_pos.png");
+  setupMarker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error.png");
 
+  // Determine fixed settings that don't change with the OS appearance.
+  // Margin 0: line numbers.
   _code_editor_impl->send_editor(this, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
 #if defined(__APPLE__)
   _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, (sptr_t)10);
@@ -325,74 +310,50 @@ void CodeEditor::setup() {
   _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, (sptr_t)8);
 #endif
   sptr_t lineNumberStyleWidth =
-    _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_999999");
+  _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_9999");
   _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, lineNumberStyleWidth);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 0, 0);
 
-  // Margin: Markers.
+  // Margin 1: all kind of markers (debugging, current line, code line indicator etc.).
   _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 1, 16);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 1, 1);
 
-  // Folder setup.
+  // Margin 2: folding.
   _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (uptr_t) "fold", (sptr_t) "1");
-  _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 2, 16);
+  _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 2, 13);
   _code_editor_impl->send_editor(this, SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW | SC_AUTOMATICFOLD_CHANGE, 0);
   _code_editor_impl->send_editor(this, SCI_SETMARGINMASKN, 2, SC_MASK_FOLDERS);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 2, 1); // Margin is clickable.
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_BOXMINUS);
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_BOXPLUS);
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNER);
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_BOXPLUSCONNECTED);
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_BOXMINUSCONNECTED);
-  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNER);
-  for (int n = 25; n < 32; ++n) { // Markers 25..31 are reserved for folding.
-    _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, 0xffffff);
-    _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, 0x404040);
-  }
 
-  // Text margin.
-  _code_editor_impl->send_editor(this, SCI_SETMARGINTYPEN, 3, SC_MARGIN_TEXT);
-  _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 3, 0);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_CIRCLEMINUS);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_CIRCLEPLUS);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_VLINE);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_LCORNERCURVE);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_CIRCLEPLUSCONNECTED);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED);
+  _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE);
+
+  // Maring 3: empty, to provide some spacing between the folder margin and the text.
+  _code_editor_impl->send_editor(this, SCI_SETMARGINTYPEN, 3, SC_MARGIN_BACK);
+  _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 3, 5);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 3, 0);
 
-  // Margin: Line number style.
-  _code_editor_impl->send_editor(this, SCI_STYLESETFORE, STYLE_LINENUMBER, 0x404040);
-  _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_LINENUMBER, 0xE0E0E0);
-
   // Init markers & indicators for highlighting of syntax errors.
-  _code_editor_impl->send_editor(this, SCI_INDICSETFORE, ERROR_INDICATOR, 0x2119D0);
   _code_editor_impl->send_editor(this, SCI_INDICSETUNDER, ERROR_INDICATOR, 1);
   _code_editor_impl->send_editor(this, SCI_INDICSETSTYLE, ERROR_INDICATOR, INDIC_SQUIGGLE);
 
-  // Gutter markers for errors and statements, breakpoints and current code line.
-  setup_marker(CE_STATEMENT_MARKER, "editor_statement");
-  setup_marker(CE_ERROR_MARKER, "editor_error");
-  setup_marker(CE_BREAKPOINT_MARKER, "editor_breakpoint");
-  setup_marker(CE_BREAKPOINT_HIT_MARKER, "editor_breakpoint_hit");
-  setup_marker(CE_CURRENT_LINE_MARKER, "editor_current_pos");
-  setup_marker(CE_ERROR_CONTINUE_MARKER, "editor_continue_on_error");
-
   // Other settings.
-  Color color = Color::getSystemColor(base::SelectedTextBackgroundColor);
-  sptr_t rawColor = color.toBGR();
-  _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, rawColor);
-  color = Color::getSystemColor(base::SelectedTextColor);
-  rawColor = color.toBGR();
-  _code_editor_impl->send_editor(this, SCI_SETSELFORE, 1, rawColor);
+  _code_editor_impl->send_editor(this, SCI_SETEXTRAASCENT, 3, 0);
+  _code_editor_impl->send_editor(this, SCI_SETEXTRADESCENT, 3, 0);
 
   _code_editor_impl->send_editor(this, SCI_SETCARETLINEVISIBLE, 1, 0);
-  _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACK, 0xF8C800, 0);
-  _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACKALPHA, 20, 0);
+  _code_editor_impl->send_editor(this, SCI_SETCARETWIDTH, 2, 0);
 
   // - Tabulators + indentation
   _code_editor_impl->send_editor(this, SCI_SETTABINDENTS, 1, 0);
   _code_editor_impl->send_editor(this, SCI_SETBACKSPACEUNINDENTS, 1, 0);
 
   // - Call tips
-  _code_editor_impl->send_editor(this, SCI_CALLTIPSETFORE, 0x202020, 0);
-  _code_editor_impl->send_editor(this, SCI_CALLTIPSETBACK, 0xF0F0F0, 0);
-
   _code_editor_impl->send_editor(this, SCI_SETMOUSEDWELLTIME, 200, 0);
 
   // - Line ending + scrolling.
@@ -402,6 +363,108 @@ void CodeEditor::setup() {
   // - Auto completion
   _code_editor_impl->send_editor(this, SCI_AUTOCSETSEPARATOR, AC_LIST_SEPARATOR, 0);
   _code_editor_impl->send_editor(this, SCI_AUTOCSETTYPESEPARATOR, AC_TYPE_SEPARATOR, 0);
+
+  updateColors();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+CodeEditor::~CodeEditor() {
+  base::NotificationCenter::get()->remove_observer(this);
+
+  delete _find_panel;
+  auto_completion_cancel();
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void CodeEditor::updateColors() {
+  bool darkMode = App::get()->isDarkModeActive();
+
+  base::Color color = base::Color::getSystemColor(base::TextBackgroundColor);
+  long mainBackground = color.toBGR();
+  _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_DEFAULT, mainBackground);
+
+  // Propagate the new background color to all editor text styles.
+  for (int i = 0; i < STYLE_DEFAULT; ++i)
+    _code_editor_impl->send_editor(this, SCI_STYLESETBACK, i, mainBackground);
+  for (int i = STYLE_LASTPREDEFINED + 1; i < STYLE_MAX; ++i)
+    _code_editor_impl->send_editor(this, SCI_STYLESETBACK, i, mainBackground);
+
+  for (int n = SC_MARKNUM_FOLDEREND; n <= SC_MARKNUM_FOLDEROPEN; ++n) {
+    _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, mainBackground); // Front/back meaning is reversed here.
+    _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, n, 0xA0B0B0);
+  }
+
+  _code_editor_impl->send_editor(this, SCI_STYLESETFORE, STYLE_LINENUMBER, darkMode ? 0x808080 : 0x907522);
+  _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_LINENUMBER, mainBackground);
+
+  _code_editor_impl->send_editor(this, SCI_INDICSETFORE, ERROR_INDICATOR, darkMode ? 0x281FFF : 0x2119D0);
+
+  // Other settings.
+  color = Color::getSystemColor(base::SelectedTextBackgroundColor);
+  _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, color.toBGR());
+
+  if (darkMode) {
+    _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACK, 0xFFFFFF, 0);
+    _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACKALPHA, 0x38, 0);
+    _code_editor_impl->send_editor(this, SCI_SETCARETFORE, 0xAEAEAE, 0);
+  } else {
+    _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACK, 0x000000, 0);
+    _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACKALPHA, 0x10, 0);
+    _code_editor_impl->send_editor(this, SCI_SETCARETFORE, 0x404040, 0);
+  }
+
+  // - Call tips
+  color = base::Color::getSystemColor(base::TextColor);
+  _code_editor_impl->send_editor(this, SCI_CALLTIPSETFORE, color.toBGR(), 0);
+  _code_editor_impl->send_editor(this, SCI_CALLTIPSETBACK, darkMode ? 0x404040 : 0xF8F8F8, 0);
+
+  auto applyStyle = [&](int id, auto &values) {
+    std::string value = darkMode ? values["fore-color-dark"] : values["fore-color-light"];
+    if (value.empty())
+      value = values["fore-color"]; // Backwards compatibility.
+
+    if (!value.empty()) {
+      Color color = Color::parse(value);
+      _code_editor_impl->send_editor(this, SCI_STYLESETFORE, id, color.toBGR());
+    }
+
+    value = darkMode ? values["back-color-dark"] : values["back-color-light"];
+    if (!value.empty()) {
+      Color color = Color::parse(value);
+      _code_editor_impl->send_editor(this, SCI_STYLESETBACK, id, color.toBGR());
+    }
+
+    value = base::tolower(values["bold"]);
+    if (!value.empty()) {
+      bool flag = value == "1" || value == "yes" || value == "true";
+      _code_editor_impl->send_editor(this, SCI_STYLESETBOLD, id, flag);
+    }
+
+    value = base::tolower(values["italic"]);
+    if (!value.empty()) {
+      bool flag = value == "1" || value == "yes" || value == "true";
+      _code_editor_impl->send_editor(this, SCI_STYLESETITALIC, id, flag);
+    }
+  };
+
+  // First load the default style and apply that to all text style entries. Then loop again for individual settings.
+  for (auto &style : _currentStyles) {
+    if (style.first == 0) {
+      for (int i = 0; i < STYLE_DEFAULT; ++i)
+        applyStyle(i, style.second);
+      for (int i = STYLE_LASTPREDEFINED + 1; i < STYLE_MAX; ++i)
+        applyStyle(i, style.second);
+      break;
+    }
+  }
+
+  for (auto &style : _currentStyles) {
+    if (style.first == 0)
+      continue;
+    applyStyle(style.first, style.second);
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,8 +503,7 @@ void CodeEditor::setColor(EditorMargin margin, base::Color color, bool foregroun
         _code_editor_impl->send_editor(this, SCI_STYLESETBACK, STYLE_LINENUMBER, color.toRGB());
       break;
     case MarkersMargin:
-      for (int n = 25; n < 32; ++n) // Markers 25..31 are reserved for folding.
-      {
+      for (int n = 25; n < 32; ++n) { // Markers 25..31 are reserved for folding.
         if (foreground)
           _code_editor_impl->send_editor(this, SCI_MARKERSETFORE, n, color.toRGB());
         else
@@ -675,15 +737,24 @@ bool CodeEditor::get_range_of_line(ssize_t line, ssize_t& start, ssize_t& end) {
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::setup_marker(int marker, const std::string& name) {
-  std::string path = App::get()->get_resource_path(name + ".xpm");
+void CodeEditor::setupMarker(int marker, const std::string& name) {
+  if (base::hasSuffix(name, ".xpm")) {
+    std::string path = App::get()->get_resource_path(name);
 
-  gchar* content = NULL;
-  if (g_file_get_contents(path.c_str(), &content, NULL, NULL)) {
-    _code_editor_impl->send_editor(this, SCI_MARKERDEFINEPIXMAP, marker, (sptr_t)content);
-    g_free(content);
+    gchar* content = NULL;
+    if (g_file_get_contents(path.c_str(), &content, NULL, NULL)) {
+      _code_editor_impl->send_editor(this, SCI_MARKERDEFINEPIXMAP, marker, (sptr_t)content);
+      g_free(content);
+    }
+  } else { // png
+    if (ensureImage(name)) {
+      auto &data = registeredImages[name];
+      _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETWIDTH, data.width, 0);
+      _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETHEIGHT, data.height, 0);
+      _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETSCALE, data.hiresImage ? 200 : 100, 0);
+      _code_editor_impl->send_editor(this, SCI_MARKERDEFINERGBAIMAGE, marker, reinterpret_cast<sptr_t>(data.data));
+    }
   }
-  _code_editor_impl->send_editor(this, SCI_MARKERSETBACK, marker, 0xD01921);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -761,9 +832,61 @@ void CodeEditor::handleMarkerMove(int position, int linesAdded) {
     _marker_changed_event(changeset, false);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void CodeEditor::load_configuration(SyntaxHighlighterLanguage language) {
+/**
+ * Ensures the given image is loaded from disk and stored in our image list.
+ * Returns true if the image exists.
+ */
+bool CodeEditor::ensureImage(std::string const& name) {
+  if (registeredImages.find(name) != registeredImages.end())
+    return true;
+
+  std::string path = App::get()->get_resource_path(name);
+  if (base::file_exists(path) && base::hasSuffix(path, ".png")) {
+    cairo_surface_t* image = Utilities::load_icon(path);
+    if (image == NULL)
+      return false;
+
+    if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+      cairo_surface_destroy(image);
+      return false;
+    }
+
+    int width = cairo_image_surface_get_width(image);
+    int height = cairo_image_surface_get_height(image);
+
+    unsigned char* data = cairo_image_surface_get_data(image);
+
+    // We not only need to keep the data around for the lifetime of the editor we also have
+    // to swap blue and red.
+    unsigned char *target = reinterpret_cast<unsigned char *>(malloc(4 * width * height));
+    if (target != nullptr) {
+      ImageRecord entry = {
+        Utilities::is_hidpi_icon(image),
+        cairo_image_surface_get_width(image),
+        cairo_image_surface_get_height(image),
+        target
+      };
+      registeredImages[name] = entry;
+      int j = 0;
+      while (j < 4 * width * height) {
+        target[j] = data[j + 2];
+        target[j + 1] = data[j + 1];
+        target[j + 2] = data[j];
+        target[j + 3] = data[j + 3];
+        j += 4;
+      }
+    }
+    cairo_surface_destroy(image);
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void CodeEditor::loadConfiguration(SyntaxHighlighterLanguage language) {
   CodeEditorConfig config(language);
 
   // Keywords.
@@ -789,9 +912,6 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language) {
     // First part delivered by a parser are function names in MySQL.
     size_t version = 0;
     switch (language) {
-      case LanguageMySQL55:
-        version = 505;
-        break;
       case LanguageMySQL56:
         version = 506;
         break;
@@ -807,10 +927,10 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language) {
     }
 
     if (version > 0) {
-      parsers::SymbolTable* functions = parsers::functionSymbolsForVersion(507);
+      parsers::SymbolTable* functions = parsers::functionSymbolsForVersion(version);
       std::set<std::string> functionNames = functions->getAllSymbolNames();
       std::string functionList;
-      for (auto& name : functionNames)
+      for (auto const& name : functionNames)
         functionList += name + " ";
 
       _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 3, (sptr_t)functionList.c_str());
@@ -818,71 +938,41 @@ void CodeEditor::load_configuration(SyntaxHighlighterLanguage language) {
   }
 
   // Properties.
-  std::map<std::string, std::string> properties = config.get_properties();
-  for (std::map<std::string, std::string>::const_iterator iterator = properties.begin(); iterator != properties.end();
-       ++iterator) {
-    _code_editor_impl->send_editor(this, SCI_SETPROPERTY, (uptr_t)iterator->first.c_str(),
-                                   (sptr_t)iterator->second.c_str());
+  for (auto const& property : config.get_properties()) {
+    _code_editor_impl->send_editor(this, SCI_SETPROPERTY,
+      reinterpret_cast<uptr_t>(property.first.c_str()), reinterpret_cast<sptr_t>(property.second.c_str()));
   }
 
   // Settings.
-  std::map<std::string, std::string> settings = config.get_settings();
-  for (std::map<std::string, std::string>::const_iterator iterator = settings.begin(); iterator != settings.end();
-       ++iterator) {
-    if (iterator->first == "usetabs") {
-      int int_value = base::atoi<int>(iterator->second, 0);
-      _code_editor_impl->send_editor(this, SCI_SETUSETABS, int_value, 0);
-    } else if (iterator->first == "tabwidth") {
-      int int_value = base::atoi<int>(iterator->second, 0);
-      _code_editor_impl->send_editor(this, SCI_SETTABWIDTH, int_value, 0);
-    } else if (iterator->first == "indentation") {
-      int int_value = base::atoi<int>(iterator->second, 0);
-      _code_editor_impl->send_editor(this, SCI_SETINDENT, int_value, 0);
+  for (auto const& setting : config.get_settings()) {
+    if (setting.first == "usetabs") {
+      int value = base::atoi<int>(setting.second, 0);
+      _code_editor_impl->send_editor(this, SCI_SETUSETABS, value, 0);
+    } else if (setting.first == "tabwidth") {
+      int value = base::atoi<int>(setting.second, 0);
+      _code_editor_impl->send_editor(this, SCI_SETTABWIDTH, value, 0);
+    } else if (setting.first == "indentation") {
+      int value = base::atoi<int>(setting.second, 0);
+      _code_editor_impl->send_editor(this, SCI_SETINDENT, value, 0);
     }
   }
 
   // Styles.
-  std::map<int, std::map<std::string, std::string> > styles = config.get_styles();
-  for (std::map<int, std::map<std::string, std::string> >::const_iterator iterator = styles.begin();
-       iterator != styles.end(); ++iterator) {
-    int id = iterator->first;
-    std::map<std::string, std::string> values = iterator->second;
-    std::string value = values["fore-color"];
-    if (!value.empty()) {
-      // Colors for Scintilla must be converted from HTML to BGR style.
-      Color color = Color::parse(value);
-      int raw_color = (int)(255 * color.red) + ((int)(255 * color.green) << 8) + ((int)(255 * color.blue) << 16);
-      _code_editor_impl->send_editor(this, SCI_STYLESETFORE, id, raw_color);
-    }
-
-    value = values["back-color"];
-    if (!value.empty()) {
-      Color color = Color::parse(value);
-      int raw_color = (int)(255 * color.red) + ((int)(255 * color.green) << 8) + ((int)(255 * color.blue) << 16);
-      _code_editor_impl->send_editor(this, SCI_STYLESETBACK, id, raw_color);
-    }
-
-    value = base::tolower(values["bold"]);
-    if (!value.empty()) {
-      bool flag = value == "1" || value == "yes" || value == "true";
-      _code_editor_impl->send_editor(this, SCI_STYLESETBOLD, id, flag);
-    }
-
-    value = base::tolower(values["italic"]);
-    if (!value.empty()) {
-      bool flag = value == "1" || value == "yes" || value == "true";
-      _code_editor_impl->send_editor(this, SCI_STYLESETITALIC, id, flag);
-    }
-  }
+  _currentStyles = config.get_styles();
+  updateColors();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+void CodeEditor::handle_notification(const std::string &name, void *sender, NotificationInfo &info) {
+  if (name == "GNColorsChanged")
+    updateColors();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_language(SyntaxHighlighterLanguage language) {
   switch (language) {
-    case mforms::LanguageMySQL50:
-    case mforms::LanguageMySQL51:
-    case mforms::LanguageMySQL55:
     case mforms::LanguageMySQL56:
     case mforms::LanguageMySQL57:
     case mforms::LanguageMySQL80:
@@ -904,15 +994,12 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language) {
       break;
 
     default:
-      // No language. Reset all styling so the editor appears without syntax highlighting.
+      // No (known) language. Syntax highlighting will be switched off.
       _code_editor_impl->send_editor(this, SCI_SETLEXER, SCLEX_NULL, 0);
-      _code_editor_impl->send_editor(this, SCI_STYLERESETDEFAULT, 0,
-                                     0);                             // Reset default style to what it was initially.
-      _code_editor_impl->send_editor(this, SCI_STYLECLEARALL, 0, 0); // Set all other styles to the default style.
       return;
   }
 
-  load_configuration(language);
+  loadConfiguration(language);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1062,33 +1149,25 @@ void CodeEditor::set_font(const std::string& fontDescription) {
   float size;
   bool bold;
   bool italic;
-  if (base::parse_font_description(fontDescription, font, size, bold, italic)) {
-// NOTE: The original MONOSPACE font in windows was Bitstream Vera Sans Mono
-//       but in Windows 8 the code editors using this font were getting hung so
-//       we decided to use Lucida Console as the new MONOSPACE font in windows.
-#ifdef _MSC_VER
-    if (base::toupper(font) == "BITSTREAM VERA SANS MONO")
-      font = DEFAULT_MONOSPACE_FONT_FAMILY;
-#endif
 
+  // Bold and italic are ignored as they can be set by a highlighter style.
+  if (base::parse_font_description(fontDescription, font, size, bold, italic)) {
 #if !defined(_MSC_VER) && !defined(__APPLE__)
-    // scintilla requires the ! in front of the font name to interpret it as a pango/fontconfig font
-    // the non-pango version is totally unusable
+    // Scintilla requires the ! in front of the font name to interpret it as a pango/fontconfig font.
     if (!font.empty() && font[0] != '!')
       font = "!" + font;
 #endif
+
     for (int i = 0; i < 128; i++) {
       _code_editor_impl->send_editor(this, SCI_STYLESETFONT, i, (sptr_t)font.c_str());
       _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, i, (sptr_t)size);
-      _code_editor_impl->send_editor(this, SCI_STYLESETBOLD, i, (sptr_t)bold);
-      _code_editor_impl->send_editor(this, SCI_STYLESETITALIC, i, (sptr_t)italic);
     }
   }
 
   // Recompute the line number margin width if it is visible.
   sptr_t lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 0, 0);
   if (lineNumberStyleWidth > 0) {
-    lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_999999");
+    lineNumberStyleWidth = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_9999");
     _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, lineNumberStyleWidth);
   }
 }
@@ -1241,7 +1320,7 @@ void CodeEditor::set_features(CodeEditorFeature features, bool flag) {
 
   if ((features & mforms::FeatureGutter) != 0) {
     if (flag) {
-      sptr_t width = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_999999");
+      sptr_t width = _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_9999");
 
       _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 0, width); // line numbers
       _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 1, 16);    // markers
@@ -1712,55 +1791,17 @@ void CodeEditor::auto_completion_max_size(int width, int height) {
 
 //--------------------------------------------------------------------------------------------------
 
-void CodeEditor::auto_completion_register_images(const std::vector<std::pair<int, std::string> >& images) {
-  for (size_t i = 0; i < images.size(); ++i) {
-    std::string path = App::get()->get_resource_path(images[i].second);
-    if (g_file_test(path.c_str(), G_FILE_TEST_EXISTS)) {
-      if (g_str_has_suffix(path.c_str(), ".png")) {
-        cairo_surface_t* image = mdc::surface_from_png_image(path.c_str());
-        if (image == NULL)
-          continue;
-        if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
-          cairo_surface_destroy(image);
-          continue;
-        }
+void CodeEditor::auto_completion_register_images(const std::vector<std::pair<int, std::string> > &images) {
+  for (auto &image : images) {
+    if (ensureImage(image.second)) {
+      auto &data = registeredImages[image.second];
+      _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETWIDTH, data.width, 0);
+      _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETHEIGHT, data.height, 0);
 
-        int width = cairo_image_surface_get_width(image);
-        int height = cairo_image_surface_get_height(image);
-        _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETWIDTH, width, 0);
-        _code_editor_impl->send_editor(this, SCI_RGBAIMAGESETHEIGHT, height, 0);
+      // Scale factors are not supported for code completion images.
+      //_code_editor_impl->send_editor(this, SCI_RGBAIMAGESETSCALE, data.hiresImage ? 200 : 100, 0);
 
-        unsigned char* data = cairo_image_surface_get_data(image);
-
-        // We not only need to keep the data around for the lifetime of the editor we also have
-        // to swap blue and red. Allocate memory for this in our internal images list. Release what
-        // is there already for this id.
-        std::map<int, void*>::iterator entry = _images.find(images[i].first);
-        if (entry != _images.end())
-          free(entry->second);
-
-        unsigned char* target = (unsigned char*)malloc(4 * width * height);
-        if (target != NULL) {
-          _images[images[i].first] = target;
-          int j = 0;
-          while (j < 4 * width * height) {
-            target[j] = data[j + 2];
-            target[j + 1] = data[j + 1];
-            target[j + 2] = data[j];
-            target[j + 3] = data[j + 3];
-            j += 4;
-          }
-        }
-        _code_editor_impl->send_editor(this, SCI_REGISTERRGBAIMAGE, images[i].first, (sptr_t)target);
-        cairo_surface_destroy(image);
-      } else if (g_str_has_suffix(path.c_str(), ".xpm")) {
-        gchar* contents;
-        gsize length;
-        if (g_file_get_contents(path.c_str(), &contents, &length, NULL)) {
-          _code_editor_impl->send_editor(this, SCI_REGISTERIMAGE, images[i].first, (sptr_t)contents);
-          g_free(contents);
-        }
-      }
+      _code_editor_impl->send_editor(this, SCI_REGISTERRGBAIMAGE, image.first, reinterpret_cast<sptr_t>(data.data));
     }
   }
 }

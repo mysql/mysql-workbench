@@ -45,7 +45,7 @@ ResponderLayer
 
 #import <QuartzCore/QuartzCore.h>
 
-@interface ResponderLayer : CALayer {
+@interface ResponderLayer : CAGradientLayer {
   CGPoint mMouseDownPoint;
 }
 

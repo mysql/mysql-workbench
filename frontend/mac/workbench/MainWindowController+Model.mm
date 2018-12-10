@@ -45,7 +45,7 @@
 
 - (void)handleModelClosed
 {
-  [self closeTopPanelWithIdentifier: _physicalOverview.identifier hideOnly: NO];
+  [self closeTopPanelWithIdentifier: _physicalOverview.panelId hideOnly: NO];
   _physicalOverview= nil;
 }
 

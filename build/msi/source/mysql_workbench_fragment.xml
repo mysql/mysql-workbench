@@ -583,9 +583,12 @@
                     <File Id="file62025" Name="record_refresh.png"/>
                     <File Id="file62026" Name="dashboard_arrow_in_static.png"/>
                     <File Id="file62027" Name="dashboard_arrow_out_static.png"/>
-                    <File Id="file62028" Name="dashboard_header_innodb.png"/>
-                    <File Id="file62029" Name="dashboard_header_mysql.png"/>
-                    <File Id="file62030" Name="dashboard_header_network.png"/>
+                    <File Id="dashboard_header_innodb_light" Name="dashboard_header_innodb_light.png"/>
+                    <File Id="dashboard_header_mysql_light" Name="dashboard_header_mysql_light.png"/>
+                    <File Id="dashboard_header_network_light" Name="dashboard_header_network_light.png"/>
+                    <File Id="dashboard_header_innodb_dark" Name="dashboard_header_innodb_dark.png"/>
+                    <File Id="dashboard_header_mysql_dark" Name="dashboard_header_mysql_dark.png"/>
+                    <File Id="dashboard_header_network_dark" Name="dashboard_header_network_dark.png"/>
                     <File Id="file62031" Name="admin_dashboard.png"/>
                     <File Id="file62033" Name="admin_instrumentation_setup.png"/>
                     <File Id="file62035" Name="admin_performance_reports.png"/>
@@ -607,8 +610,9 @@
                     <File Id="file62053" Name="ps_switcher_fully_hoover.png"/>
                     <File Id="file62054" Name="ps_switcher_fully_off.png"/>
                     <File Id="file62055" Name="ps_switcher_fully_on.png"/>
-                    <File Id="file62056" Name="ps_switcher_legende.png"/>
-                    <File Id="file62057" Name="ps_switcher_text.png"/>
+                    <File Id="file62056" Name="ps_switcher_legend.png"/>
+                    <File Id="ps_switcher_text_light" Name="ps_switcher_text_light.png"/>
+					<File Id="ps_switcher_text_dark" Name="ps_switcher_text_dark.png"/>
                     <File Id="file62058" Name="ps_overview.png"/>
                     <File Id="file62059" Name="query_continue_on_error.png"/>
                     <File Id="file62069" Name="query_stop_on_error.png"/>
@@ -713,11 +717,11 @@
                     <File Id="file60617" Name="zoom_out.png"/>
                     <File Id="file60618" Name="zoom_reset.png"/>
                     <File Id="file60619" Name="options-horizontal-separator.png"/>
-                    <File Id="file60624" Name="editor_breakpoint.xpm"/>
-                    <File Id="file60625" Name="editor_breakpoint_hit.xpm"/>
-                    <File Id="file60626" Name="editor_current_pos.xpm"/>
-                    <File Id="file60627" Name="editor_error.xpm"/>
-                    <File Id="file60628" Name="editor_statement.xpm"/>
+                    <File Id="file60624" Name="editor_breakpoint.png"/>
+                    <File Id="file60625" Name="editor_breakpoint_hit.png"/>
+                    <File Id="file60626" Name="editor_current_pos.png"/>
+                    <File Id="file60627" Name="editor_error.png"/>
+                    <File Id="file60628" Name="editor_statement.png"/>
                     <File Id="file60629" Name="message_wb_bug.png"/>
                     <File Id="file60630" Name="message_wb_lock.png"/>
                     <File Id="file60631" Name="change_alert_thin.png"/>
@@ -734,7 +738,7 @@
                     <File Id="file60645" Name="big_switcher_yes.png"/>
                     <File Id="file60646" Name="big_switcher_no.png"/>
                     <File Id="file60647" Name="separator_vertical.png"/>
-                    <File Id="file60648" Name="editor_continue_on_error.xpm"/>
+                    <File Id="file60648" Name="editor_continue_on_error.png"/>
 
                     <File Id="file60685" Name="switcher_bottom_on_win8.png"/>
                     <File Id="file60659" Name="switcher_left_on_win8.png"/>
@@ -774,39 +778,34 @@
                     <File Id="sidebar_wb" Name="sidebar_wb.png"/>
                     <File Id="sidebar_modeling" Name="sidebar_modeling.png"/>
                     <File Id="home13" Name="wb_tile_folder.png"/>
-                    <File Id="home13m" Name="wb_tile_folder_mini.png"/>
-                    <File Id="home14" Name="wb_tile_mouseover.png"/>
-                    <File Id="home15" Name="wb_tile_mouseover_2.png"/>
-                    <File Id="home16" Name="wb_tile_network.png"/>
-                    <File Id="home17" Name="wb_tile_page-down.png"/>
-                    <File Id="home18" Name="wb_tile_page-up.png"/>
-                    <File Id="home19" Name="wb_tile_plus.png"/>
-                    <File Id="home20" Name="wb_tile_sakila.png"/>
-                    <File Id="home21" Name="wb_tile_schema.png"/>
-                    <File Id="home22" Name="wb_tile_time.png"/>
-                    <File Id="home23" Name="wb_tile_user.png"/>
+                    <File Id="wb_tile_folder_mini_dark" Name="wb_tile_folder_mini_dark.png"/>
+					<File Id="wb_tile_folder_mini_light" Name="wb_tile_folder_mini_light.png"/>
+                    <File Id="wb_tile_network_dark" Name="wb_tile_network_dark.png"/>
+					<File Id="wb_tile_network_light" Name="wb_tile_network_light.png"/>
+                    <File Id="wb_tile_plus_dark" Name="wb_tile_plus_dark.png"/>
+					<File Id="wb_tile_plus_light" Name="wb_tile_plus_light.png"/>
+                    <File Id="wb_tile_sakila_light" Name="wb_tile_sakila_light.png"/>
+					<File Id="wb_tile_sakila_dark" Name="wb_tile_sakila_dark.png"/>
+                    <File Id="wb_tile_schema_light" Name="wb_tile_schema_light.png"/>
+                    <File Id="wb_tile_schema_dark" Name="wb_tile_schema_dark.png"/>
+                    <File Id="wb_tile_time_light" Name="wb_tile_time_light.png"/>
+                    <File Id="wb_tile_time_dark" Name="wb_tile_time_dark.png"/>
+                    <File Id="wb_tile_user_dark" Name="wb_tile_user_dark.png"/>
+					<File Id="wb_tile_user_light" Name="wb_tile_user_light.png"/>
                     <File Id="home24" Name="wb_doc_model.png"/>
                     <File Id="home24a" Name="wb_doc_model@2x.png"/>
                     <File Id="home25" Name="wb_doc_sql.png"/>
-                    <File Id="home26" Name="wb_tile_number.png"/>
+                    <File Id="wb_tile_number_light" Name="wb_tile_number_light.png"/>
+                    <File Id="wb_tile_number_dark" Name="wb_tile_number_dark.png"/>
                     <File Id="home27" Name="wb_close.png"/>
-                    <File Id="home28" Name="wb_tile_manage.png"/>
-                    <File Id="home29" Name="wb_tile_more.png"/>
-                    <File Id="home30" Name="wb_tile_open.png"/>
-                    <File Id="home31" Name="home_screen_close.png"/>
-                    <File Id="wb_starter_edelivery_52" Name="wb_starter_edelivery_52.png"/>
-                    <File Id="wb_starter_generic_52" Name="wb_starter_generic_52.png"/>
-                    <File Id="wb_starter_grt_shell_52" Name="wb_starter_grt_shell_52.png"/>
-                    <File Id="wb_starter_mysql_bug_reporter_52" Name="wb_starter_mysql_bug_reporter_52.png"/>
-                    <File Id="wb_starter_mysql_doc_lib_52" Name="wb_starter_mysql_doc_lib_52.png"/>
-                    <File Id="wb_starter_mysql_forums_52" Name="wb_starter_mysql_forums_52.png"/>
-                    <File Id="wb_starter_mysql_migration_52" Name="wb_starter_mysql_migration_52.png"/>
-                    <File Id="wb_starter_mysql_news_52" Name="wb_starter_mysql_news_52.png"/>
-                    <File Id="wb_starter_mysql_utilities_52" Name="wb_starter_mysql_utilities_52.png"/>
-                    <File Id="wb_starter_mysql_wb_blog_52" Name="wb_starter_mysql_wb_blog_52.png"/>
-                    <File Id="wb_starter_mysql_wb_twitters_52" Name="wb_starter_mysql_wb_twitters_52.png"/>
-                    <File Id="wb_starter_planet_mysql_52" Name="wb_starter_planet_mysql_52.png"/>
-                    <File Id="wb_starter_support_52" Name="wb_starter_support_52.png"/>
+                    <File Id="wb_tile_manage_dark" Name="wb_tile_manage_dark.png"/>
+					<File Id="wb_tile_manage_light" Name="wb_tile_manage_light.png"/>
+                    <File Id="wb_tile_more_light" Name="wb_tile_more_light.png"/>
+                    <File Id="wb_tile_more_dark" Name="wb_tile_more_dark.png"/>
+                    <File Id="wb_tile_open_light" Name="wb_tile_open_light.png"/>
+                    <File Id="wb_tile_open_dark" Name="wb_tile_open_dark.png"/>
+                    <File Id="home_screen_close_dark" Name="home_screen_close_dark.png"/>
+					<File Id="home_screen_close_light" Name="home_screen_close_light.png"/>
                   </Component>
                 </Directory>
 
@@ -867,8 +866,6 @@
 
                     <File Id="file61751" Name="qe_sql-editor-tb-icon_word-wrap-off.png"/>
                     <File Id="file61752" Name="qe_sql-editor-tb-icon_word-wrap-on.png"/>
-                    <File Id="file61753" Name="wb-sidebar-collapse.png"/>
-                    <File Id="file61754" Name="wb-sidebar-expand.png"/>
                     <File Id="file61755" Name="qe_main-tb-icon_search_db.png"/>
                     <File Id="file61756" Name="wb-sidebar-refresh.png"/>
                     <File Id="file61758" Name="qe_main-tb-icon_preferences.png"/>

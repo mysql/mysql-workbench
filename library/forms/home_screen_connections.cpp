@@ -37,435 +37,7 @@ DEFAULT_LOG_DOMAIN("home");
 using namespace base;
 using namespace mforms;
 
-//--------------------------------------------------------------------------------------------------
-
-class mforms::ConnectionInfoPopup : public mforms::Popup {
-private:
-  ConnectionsSection *_owner;
-
-  base::Rect _free_area;
-  int _info_width;
-  std::string _connectionId;
-
-  base::Rect _button1_rect;
-  base::Rect _button2_rect;
-  base::Rect _button3_rect;
-  base::Rect _button4_rect;
-  base::Rect _close_button_rect;
-
-  cairo_surface_t *_close_icon;
-
-public:
-  const int POPUP_HEIGHT = 240;
-  const int POPUP_TIP_HEIGHT = 14;
-  const int POPUP_LR_PADDING = 53; // Left and right padding.
-  const int POPUP_TB_PADDING = 24; // Top and bottom padding.
-  const int POPUP_BUTTON_MIN_WIDTH = 88;
-  const int POPUP_BUTTON_HEIGHT = 24;
-  const int POPUP_BUTTON_SPACING = 19; // Horizontal space between adjacent buttons.
-  const int POPUP_BUTTON_PADDING = 11; // Horizontal space between button border and text.
-
-  const int DETAILS_TOP_OFFSET = 44;
-  const int DETAILS_LINE_HEIGHT = 18;
-  const int DETAILS_LINE_WIDTH = 340;
-
-  ConnectionInfoPopup(ConnectionsSection *owner, const std::string connectionId, base::Rect host_bounds,
-                      base::Rect free_area, int info_width)
-    : Popup(mforms::PopupPlain) {
-    _owner = owner;
-    _connectionId = connectionId;
-
-    _close_icon = mforms::Utilities::load_icon("home_screen_close.png");
-
-    // Host bounds is the overall size the popup should cover.
-    // The free area is a hole in that overall area which should not be covered to avoid darkening it.
-    _free_area = free_area;
-    _info_width = info_width;
-    set_size((int)host_bounds.width(), (int)host_bounds.height());
-    show((int)host_bounds.left(), (int)host_bounds.top());
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  ~ConnectionInfoPopup() {
-    deleteSurface(_close_icon);
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  /**
-   * Draws a button with the given text at the given position. The button width depends on the
-   * text. Font face and size are set already.
-   * Result is the actual button bounds rectangle we can use for hit tests later.
-   */
-  base::Rect draw_button(cairo_t *cr, base::Point position, std::string text, bool right_aligned = false) {
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, text.c_str(), &extents);
-
-    base::Rect button_rect =
-      base::Rect(position.x, position.y, extents.width + 2 * POPUP_BUTTON_PADDING, POPUP_BUTTON_HEIGHT);
-    if (button_rect.width() < POPUP_BUTTON_MIN_WIDTH)
-      button_rect.size.width = POPUP_BUTTON_MIN_WIDTH;
-
-    if (right_aligned)
-      button_rect.pos.x -= button_rect.width();
-
-    button_rect.use_inter_pixel = true;
-    cairo_rectangle(cr, button_rect.left(), button_rect.top(), button_rect.width(), button_rect.height());
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_stroke(cr);
-
-    double x = (int)(button_rect.left() + (button_rect.width() - extents.width) / 2.0);
-    double y = (int)(button_rect.bottom() - (button_rect.height() - extents.height) / 2.0);
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, x, y);
-    cairo_show_text(cr, text.c_str());
-    cairo_stroke(cr);
-
-    return button_rect;
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  void repaint(cairo_t *cr, int x, int y, int w, int h) {
-    cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
-
-    base::Rect bounds = get_content_rect();
-    cairo_set_line_width(cr, 1);
-    cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width(), bounds.height());
-
-    // Exclude free area by specifying it counterclockwise.
-    cairo_move_to(cr, _free_area.left(), _free_area.top());
-    cairo_rel_line_to(cr, 0, _free_area.height());
-    cairo_rel_line_to(cr, _free_area.width(), 0);
-    cairo_rel_line_to(cr, 0, -_free_area.height());
-    cairo_close_path(cr);
-
-    cairo_set_source_rgba(cr, 0, 0, 0, 0.5);
-    cairo_fill(cr);
-
-    // Determine which side of the free area we can show the popup. We use the lower part as long
-    // as there is enough room.
-    base::Point tip = base::Point((int)_free_area.xcenter(), 0);
-    base::Rect content_bounds = bounds;
-    content_bounds.pos.x += POPUP_LR_PADDING;
-    content_bounds.size.width = _info_width - 2 * POPUP_LR_PADDING;
-    double right = (int)bounds.left() + _info_width;
-    double top;
-    if (bounds.bottom() - _free_area.bottom() >= POPUP_HEIGHT + POPUP_TIP_HEIGHT + 2) {
-      // Below the free area.
-      tip.y += (int)_free_area.bottom() + 2;
-      top = tip.y + POPUP_TIP_HEIGHT;
-      cairo_move_to(cr, bounds.left(), top);
-      cairo_line_to(cr, tip.x - POPUP_TIP_HEIGHT, top);
-      cairo_line_to(cr, tip.x, tip.y);
-      cairo_line_to(cr, tip.x + POPUP_TIP_HEIGHT, top);
-      cairo_line_to(cr, right, top);
-      cairo_line_to(cr, right, top + POPUP_HEIGHT);
-      cairo_line_to(cr, bounds.left(), top + POPUP_HEIGHT);
-
-      cairo_set_source_rgb(cr, 1, 1, 1);
-      cairo_fill(cr);
-
-      content_bounds.pos.y = tip.y + POPUP_TIP_HEIGHT;
-    } else {
-      // Above the free area.
-      tip.y += _free_area.top() - 2;
-      top = tip.y - POPUP_TIP_HEIGHT - POPUP_HEIGHT;
-      cairo_move_to(cr, bounds.left(), top);
-      cairo_line_to(cr, right, top);
-      cairo_line_to(cr, right, tip.y - POPUP_TIP_HEIGHT);
-      cairo_line_to(cr, tip.x + POPUP_TIP_HEIGHT, tip.y - POPUP_TIP_HEIGHT);
-      cairo_line_to(cr, tip.x, tip.y);
-      cairo_line_to(cr, tip.x - POPUP_TIP_HEIGHT, tip.y - POPUP_TIP_HEIGHT);
-      cairo_line_to(cr, bounds.left(), tip.y - POPUP_TIP_HEIGHT);
-
-      cairo_set_source_rgb(cr, 1, 1, 1);
-      cairo_fill(cr);
-
-      content_bounds.pos.y = tip.y - POPUP_TIP_HEIGHT - POPUP_HEIGHT;
-    }
-
-    content_bounds.pos.y += POPUP_TB_PADDING;
-    content_bounds.size.height = POPUP_HEIGHT - 2 * POPUP_TB_PADDING;
-
-    auto connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
-
-    // The title.
-    cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
-                           CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
-    cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, content_bounds.left(), content_bounds.top() + 16);
-    cairo_show_text(cr, connectionInfo["name"].as<std::string>().c_str());
-    cairo_stroke(cr);
-
-    // All the various info.
-    cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL,
-                           CAIRO_FONT_WEIGHT_NORMAL);
-    cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_DETAILS_FONT_SIZE);
-    print_details_text(cr, content_bounds);
-
-    // Buttons at the bottom.
-    base::Point position = base::Point(content_bounds.left(), content_bounds.bottom() - POPUP_BUTTON_HEIGHT);
-    _button1_rect = draw_button(cr, position, _("Edit Connection..."));
-
-    bool pending = false;
-    if (!connectionInfo["serverInfo"].isNull()) {
-      mforms::anyMap serverInfo = connectionInfo["serverInfo"];
-      pending = getAnyMapValueAs<ssize_t>(serverInfo, "setupPending") == 1;
-      if (!pending && !connectionInfo["isLocalConnection"].as<bool>() &&
-          getAnyMapValueAs<ssize_t>(serverInfo, "remoteAdmin") == 0 &&
-          getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 0)
-        pending = true;
-    } else
-      pending = true;
-
-    if (pending) {
-      position.x += _button1_rect.width() + POPUP_BUTTON_SPACING;
-      if (connectionInfo["isLocalConnection"].as<bool>())
-        _button2_rect = draw_button(cr, position, _("Configure Local Management..."));
-      else
-        _button2_rect = draw_button(cr, position, _("Configure Remote Management..."));
-    } else
-      _button2_rect = base::Rect();
-
-    // The last button is right-aligned.
-    position.x = right - POPUP_LR_PADDING;
-    _button4_rect = draw_button(cr, position, _("Connect"), true);
-
-    // Finally the close button.
-    _close_button_rect =
-      base::Rect(right - imageWidth(_close_icon) - 10, top + 10, imageWidth(_close_icon), imageHeight(_close_icon));
-    cairo_set_source_surface(cr, _close_icon, _close_button_rect.left(), _close_button_rect.top());
-
-    cairo_paint(cr);
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  /**
-   * Prints a single details line with name left aligned in the given bounds and info right aligned.
-   * The height value in the given bounds is not set and is ignored. The position is as used by
-   * cairo for text output (lower-left corner).
-   */
-  void print_info_line(cairo_t *cr, base::Rect bounds, std::string name, std::string info) {
-    if (info.empty())
-      info = _("<unknown>");
-
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, info.c_str(), &extents);
-
-    cairo_move_to(cr, bounds.left(), bounds.top());
-    cairo_show_text(cr, name.c_str());
-
-    cairo_move_to(cr, bounds.right() - extents.width, bounds.top());
-    cairo_show_text(cr, info.c_str());
-
-    cairo_stroke(cr);
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  /**
-   * Prints all info details for the current connection. Font face, size and color must be set up
-   * already.
-   */
-  void print_details_text(cairo_t *cr, base::Rect bounds) {
-    // Connection info first.
-    base::Rect line_bounds = bounds;
-    line_bounds.pos.y += DETAILS_TOP_OFFSET;
-
-    // Use POPUP_LR_PADDIND as space between the two columns.
-    line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
-
-    mforms::anyMap connectionInfo = _owner->getConnectionInfoCallback(_connectionId);
-
-    mforms::anyMap serverInfo;
-    if (!connectionInfo["serverInfo"].isNull())
-      serverInfo = getAnyMapValueAs<mforms::anyMap>(connectionInfo, "serverInfo");
-
-    std::string server_version = getAnyMapValueAs<std::string>(connectionInfo, "serverVersion");
-
-    print_info_line(cr, line_bounds, _("MySQL Version"), server_version);
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-    if (connectionInfo.find("lastConnected") != connectionInfo.end()) {
-      time_t time = connectionInfo["lastConnected"].as<ssize_t>();
-      if (time == 0)
-        print_info_line(cr, line_bounds, _("Last connected"), "");
-      else {
-        struct tm *ptm = localtime(&time);
-        char buffer[32];
-        strftime(buffer, 32, "%d %B %Y %H:%M", ptm);
-        print_info_line(cr, line_bounds, _("Last connected"), buffer);
-      }
-      line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    }
-
-    if (connectionInfo.find("sshHost") != connectionInfo.end()) {
-      std::string sshHost = connectionInfo["sshHost"];
-      if (!sshHost.empty()) {
-        std::string sshUser = connectionInfo["sshUserName"];
-        print_info_line(cr, line_bounds, _("Using Tunnel"), sshUser + "@" + sshHost);
-      }
-    }
-
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-    std::string user_name = getAnyMapValueAs<std::string>(connectionInfo, "userName");
-
-    print_info_line(cr, line_bounds, _("User Account"), user_name);
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-    std::string password_stored = _("<not stored>");
-    std::string password;
-    bool find_result = false;
-
-    try {
-      find_result =
-        mforms::Utilities::find_password(connectionInfo["hostIdentifier"].as<std::string>(), user_name, password);
-    } catch (std::exception &except) {
-      logWarning("Exception caught when trying to find a password for '%s' connection: %s\n",
-                 connectionInfo["name"].as<std::string>().c_str(), except.what());
-    }
-
-    if (find_result) {
-      password = "";
-      password_stored = _("<stored>");
-    }
-    print_info_line(cr, line_bounds, _("Password"), password_stored);
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    print_info_line(cr, line_bounds, _("Network Address"), getAnyMapValueAs<std::string>(connectionInfo, "hostName"));
-    line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-    ssize_t port = getAnyMapValueAs<ssize_t>(connectionInfo, "port");
-    print_info_line(cr, line_bounds, _("TCP/IP Port"), std::to_string(port));
-
-    line_bounds = bounds;
-    line_bounds.pos.x += (bounds.width() + POPUP_LR_PADDING) / 2;
-    line_bounds.pos.y += DETAILS_TOP_OFFSET;
-    line_bounds.size.width = (bounds.width() - POPUP_LR_PADDING) / 2;
-
-    // Make sure the entire right part does not extend beyond the available horizontal space.
-    if (line_bounds.right() > bounds.right())
-      line_bounds.pos.x -= bounds.right() - line_bounds.right();
-
-    {
-      bool pending = false;
-      if (!connectionInfo["serverInfo"].isNull()) {
-        mforms::anyMap serverInfo = connectionInfo["serverInfo"];
-        pending = getAnyMapValueAs<ssize_t>(serverInfo, "setupPending") == 1;
-        if (!pending && !connectionInfo["isLocalConnection"].as<bool>() &&
-            getAnyMapValueAs<ssize_t>(serverInfo, "remoteAdmin") == 0 &&
-            getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 0)
-          pending = true;
-      } else
-        pending = true;
-
-      if (pending) {
-        if (connectionInfo["isLocalConnection"].as<bool>())
-          print_info_line(cr, line_bounds, _("Local management not set up"), " ");
-        else
-          print_info_line(cr, line_bounds, _("Remote management not set up"), " ");
-      } else {
-        if (connectionInfo["isLocalConnection"].as<bool>()) {
-          print_info_line(cr, line_bounds, _("Local management"), "Enabled");
-          line_bounds.pos.y += 6 * DETAILS_LINE_HEIGHT; // Same layout as for remote mgm. So config file is at bottom.
-          print_info_line(cr, line_bounds, _("Config Path"),
-                          getAnyMapValueAs<std::string>(serverInfo, "sys.config.path"));
-        } else if (!connectionInfo["loginInfo"].isNull()) {
-          mforms::anyMap loginInfo = connectionInfo["loginInfo"];
-          bool windowsAdmin = getAnyMapValueAs<ssize_t>(serverInfo, "windowsAdmin") == 1;
-
-          std::string os = getAnyMapValueAs<std::string>(serverInfo, "serverOS");
-          if (os.empty()) // If there's no OS set (yet) then use the generic system identifier (which is not that
-                          // specific, but better than nothing).
-            os = getAnyMapValueAs<std::string>(serverInfo, "sys.system");
-          if (os.empty() && windowsAdmin)
-            os = "Windows";
-          print_info_line(cr, line_bounds, _("Operating System"), os);
-          line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-          if (windowsAdmin) {
-            print_info_line(cr, line_bounds, _("Remote management via"), "WMI");
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-            std::string host_name = getAnyMapValueAs<std::string>(loginInfo, "wmi.hostName");
-            print_info_line(cr, line_bounds, _("Target Server"),
-                            getAnyMapValueAs<std::string>(loginInfo, "wmi.hostName"));
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("WMI user"), getAnyMapValueAs<std::string>(loginInfo, "wmi.userName"));
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-            std::string password_key = "wmi@" + host_name;
-            user_name = getAnyMapValueAs<std::string>(loginInfo, "wmi.userName");
-            if (mforms::Utilities::find_password(password_key, user_name, password)) {
-              password = "";
-              password_stored = _("<stored>");
-            } else
-              password_stored = _("<not stored>");
-            print_info_line(cr, line_bounds, _("WMI Password"), user_name);
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
-            print_info_line(cr, line_bounds, _("Config Path"),
-                            getAnyMapValueAs<std::string>(serverInfo, "sys.config.path"));
-          } else {
-            print_info_line(cr, line_bounds, _("Remote management via"), "SSH");
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT; // Empty line by design. Separated for easier extension.
-
-            std::string host_name = getAnyMapValueAs<std::string>(loginInfo, "ssh.hostName");
-            print_info_line(cr, line_bounds, _("SSH Target"), host_name);
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH User"), getAnyMapValueAs<std::string>(loginInfo, "ssh.userName"));
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-
-            std::string security = (getAnyMapValueAs<ssize_t>(loginInfo, "ssh.useKey", (ssize_t)0) != 0)
-                                     ? _("Public Key")
-                                     : _("Password ") + password_stored;
-            print_info_line(cr, line_bounds, _("SSH Security"), security);
-            line_bounds.pos.y += DETAILS_LINE_HEIGHT;
-            print_info_line(cr, line_bounds, _("SSH Port"),
-                            getAnyMapValueAs<std::string>(loginInfo, "ssh.port", std::string("22")));
-          }
-        }
-      }
-    }
-  }
-
-  //------------------------------------------------------------------------------------------------
-
-  virtual bool mouse_up(mforms::MouseButton button, int x, int y) {
-    if (button == mforms::MouseButtonLeft) {
-      // We are going to destroy ourselves when starting an action, so we have to cache
-      // values we need after destruction. The self destruction is also the reason why we
-      // use mouse_up instead of mouse_click.
-      HomeScreen *owner = _owner->_owner;
-
-      std::string id = _connectionId; // Have to copy the value as we might get released now.
-
-      if (_button1_rect.contains(x, y)) {
-        set_modal_result(1); // Just a dummy value to close ourselves.
-        owner->handleContextMenu(id, "manage_connections");
-      } else if (_button2_rect.contains(x, y)) {
-        set_modal_result(1);
-        owner->trigger_callback(HomeScreenAction::ActionSetupRemoteManagement, id);
-      } else if (_button3_rect.contains(x, y)) {
-        set_modal_result(1);
-        owner->handleContextMenu(id, "");
-      } else if (_button4_rect.contains(x, y)) {
-        set_modal_result(1);
-        owner->handleContextMenu(id, "open_connection");
-      } else if (_close_button_rect.contains(x, y))
-        set_modal_result(1);
-    }
-    return false;
-  }
-};
-
-//----------------- ConnectionsSection -------------------------------------------------------------
+//----------------- ConnectionsSection ---------------------------------------------------------------------------------
 
 class mforms::ConnectionEntry : public base::Accessible {
   friend class ConnectionsSection;
@@ -491,19 +63,25 @@ protected:
 
   base::Rect bounds;
 
-  //------ Accesibility Methods -----
+  //------ Accessibility Methods ---------------------------------------------------------------------------------------
 
   virtual std::string getAccessibilityName() override {
     return title;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual std::string getAccessibilityTitle() override {
     return title;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual std::string getAccessibilityDescription() override {
     return "Connection Tile";
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual std::string getAccessibilityValue() override {
     std::string result = "host: " + description;
@@ -514,27 +92,38 @@ protected:
     return result;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual Accessible::Role getAccessibilityRole() override {
     return Accessible::PushButton;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual base::Rect getAccessibilityBounds() override {
     return bounds;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void accessibilityDoDefaultAction() override {
     activate();
   };
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual std::string getAccessibilityDefaultAction() override {
     return "click";
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual bool accessibilityGrabFocus() override {
     owner->setFocusOnEntry(this);
     return true;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void accessibilityShowMenu() override {
     if (owner->_connection_context_menu != nullptr) {
@@ -542,6 +131,8 @@ protected:
         static_cast<int>(bounds.ycenter()));
     }
   };
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   /**
    * Draws and icon followed by the given text. The given position is that of the upper left corner
@@ -554,7 +145,8 @@ protected:
       x += imageWidth(icon) + 3;
     }
 
-    cairo_set_source_rgba(cr, 51 / 255.0, 51 / 255.0, 51 / 255.0, alpha);
+    base::Color titleColor = getTitleColor();
+    cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, titleColor.alpha);
 
     std::vector<std::string> texts = base::split(text, "\n");
 
@@ -569,32 +161,42 @@ protected:
     }
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
 public:
   enum ItemPosition { First, Last, Other };
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   ConnectionEntry(ConnectionsSection *aowner) : owner(aowner), compute_strings(false) {
     draw_info_tab = true;
   }
 
-  virtual std::string section_name() {
-    return "";
-  }
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual bool is_movable() {
     return true;
   }
 
-  virtual base::Color getTitleColor() {
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual base::Color getTitleColor() const {
     return owner->_titleColor;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual base::Color getBackgroundColor(bool hot) {
     return hot ? owner->_backgroundColorHot : owner->_backgroundColor;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual cairo_surface_t *get_background_icon() {
     return owner->_sakila_icon;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   void draw_tile_background(cairo_t *cr, bool hot, double alpha, bool for_dragging) {
     base::Color backColor = getBackgroundColor(hot);
@@ -611,7 +213,11 @@ public:
     // Border.
     bounds.use_inter_pixel = true;
     cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.width() - 1, bounds.height() - 1);
-    cairo_set_source_rgba(cr, backColor.red - 0.05, backColor.green - 0.05, backColor.blue - 0.05, alpha);
+
+    if (owner->_owner->isDarkModeActive())
+      cairo_set_source_rgba(cr, backColor.red + 0.1, backColor.green + 0.1, backColor.blue + 0.1, alpha);
+    else
+      cairo_set_source_rgba(cr, backColor.red - 0.05, backColor.green - 0.05, backColor.blue - 0.05, alpha);
 
     cairo_set_line_width(cr, 1);
     cairo_stroke(cr);
@@ -628,6 +234,8 @@ public:
     cairo_paint_with_alpha(cr, image_alpha * alpha);
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging) {
     base::Color titleColor = getTitleColor();
     base::Rect bounds = this->bounds;
@@ -637,27 +245,6 @@ public:
     draw_tile_background(cr, hot, alpha, for_dragging);
 
     cairo_set_source_rgba(cr, titleColor.red, titleColor.green, titleColor.blue, alpha);
-
-    if (hot && owner->_show_details && draw_info_tab) {
-#ifdef __APPLE__
-      // On OS X we show the usual italic small i letter instead of the peeling corner.
-      cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_INFO_FONT, CAIRO_FONT_SLANT_ITALIC,
-                             CAIRO_FONT_WEIGHT_BOLD);
-      cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
-
-      owner->_info_button_rect = base::Rect(bounds.right() - 15, bounds.bottom() - 10, 10, 10);
-      cairo_move_to(cr, owner->_info_button_rect.left(), owner->_info_button_rect.top());
-      cairo_show_text(cr, "i");
-      cairo_stroke(cr);
-
-#else
-      cairo_surface_t *overlay = owner->_mouse_over_icon;
-      cairo_set_source_surface(cr, overlay, bounds.left() + bounds.width() - imageWidth(overlay), bounds.top());
-      cairo_paint_with_alpha(cr, alpha);
-
-      cairo_set_source_rgba(cr, 1, 1, 1, alpha);
-#endif
-    }
 
     std::string systemFont = base::OSConstants::defaultFontName();
     cairo_select_font_face(cr, systemFont.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -671,7 +258,7 @@ public:
       // On first render compute the actual string to show. We only need to do this once
       // as neither the available space changes nor is the entry manipulated.
 
-      // We try to shrink titles at the middle, if there's a colon in it we assume it's a port number
+      // We try to shrink titles in the middle. If there's a colon in it we assume it's a port number
       // and thus, we shrink everything before the colon.
       if (title.find(':') != std::string::npos) {
         double available_width = bounds.width() - 21;
@@ -699,6 +286,8 @@ public:
     compute_strings = false;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha) {
     if (compute_strings) {
       double available_width = bounds.width() - 24 - imageWidth(owner->_network_icon);
@@ -718,13 +307,19 @@ public:
     draw_icon_with_text(cr, x, y, owner->_network_icon, description, alpha);
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void activate() {
     owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, connectionId);
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual mforms::Menu *context_menu() {
     return owner->_connection_context_menu;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void menu_open(ItemPosition pos) {
     mforms::Menu *menu = context_menu();
@@ -740,37 +335,22 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
-  /**
-   * Displays the info popup for the hot entry and enters a quasi-modal-state.
-   */
-  virtual mforms::ConnectionInfoPopup *show_info_popup() {
-    mforms::View *scrollPanel = owner->get_parent();
-    mforms::View *main = scrollPanel->get_parent();
+  //--------------------------------------------------------------------------------------------------------------------
 
-    // We have checked in the hit test already that we are on a valid connection object.
-    std::pair<int, int> pos = main->client_to_screen(main->get_x(), main->get_y());
-
-    // Place the popup window over the full WB client area, but keep the info area in our direct parent's bounds
-    base::Rect hostBounds = base::Rect(pos.first, pos.second, main->get_width(), main->get_height());
-
-    int width = owner->get_width();
-    ConnectionsSection::ConnectionVector connections(owner->displayed_connections());
-
-    size_t top_entry = std::find(connections.begin(), connections.end(), owner->_hot_entry) - connections.begin();
-    base::Rect tileBounds = owner->bounds_for_entry(top_entry, width);
-    tileBounds.pos.x += scrollPanel->get_x() + owner->get_x();
-    tileBounds.pos.y += owner->get_y();
-
-    return mforms::manage(new ConnectionInfoPopup(owner, connectionId, hostBounds, tileBounds, main->get_width()));
-  }
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class mforms::FolderEntry : public ConnectionEntry, public std::enable_shared_from_this<mforms::FolderEntry> {
 protected:
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual std::string getAccessibilityDescription() override {
       return "Connection Group";
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void accessibilityShowMenu() override {
     if (owner->_folder_context_menu != nullptr) {
@@ -779,12 +359,18 @@ protected:
     }
   };
 
+  //--------------------------------------------------------------------------------------------------------------------
+
 public:
   std::vector<std::shared_ptr<ConnectionEntry> > children;
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   FolderEntry(ConnectionsSection *aowner) : ConnectionEntry(aowner) {
     draw_info_tab = false;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void draw_tile_text(cairo_t *cr, double x, double y, double alpha) override {
     base::Color titleColor = getTitleColor();
@@ -797,9 +383,13 @@ public:
     cairo_stroke(cr);
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual mforms::Menu *context_menu() override {
     return owner->_folder_context_menu;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void menu_open(ItemPosition pos) override {
     mforms::Menu *menu = context_menu();
@@ -810,57 +400,84 @@ public:
     menu->set_item_enabled(menu->get_item_index("move_connection_to_end"), pos != Last);
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void activate() override {
     owner->change_to_folder(shared_from_this());
   }
 
-  virtual base::Color getTitleColor() override {
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual base::Color getTitleColor() const override {
     return owner->_folderTitleColor;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual base::Color getBackgroundColor(bool hot) override {
     return hot ? owner->_folderBackgroundColorHot : owner->_folderBackgroundColor;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual cairo_surface_t *get_background_icon() override {
     return owner->_folder_icon;
   }
 
-  virtual mforms::ConnectionInfoPopup *show_info_popup() override {
-    return NULL;
-  }
+  //--------------------------------------------------------------------------------------------------------------------
+
 };
 
 class mforms::FolderBackEntry : public ConnectionEntry {
 protected:
+
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void accessibilityShowMenu() override {
   };
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual std::string getAccessibilityDescription() override {
       return "Connection Group Back";
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
 public:
+
+  //--------------------------------------------------------------------------------------------------------------------
+
   FolderBackEntry(ConnectionsSection *aowner) : ConnectionEntry(aowner) {
     title = "< back";
     setAccessibilityName("Back");
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual bool is_movable() override {
     return false;
   }
 
-  virtual base::Color getTitleColor() override {
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual base::Color getTitleColor() const override {
     return owner->_folderTitleColor;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual base::Color getBackgroundColor(bool hot) override {
     return hot ? owner->_backTileBackgroundColorHot : owner->_backTileBackgroundColor;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual cairo_surface_t *get_background_icon() override {
     return owner->_folder_icon;
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   /**
    * Separate tile drawing for the special back tile (to return from a folder).
@@ -880,25 +497,32 @@ public:
     cairo_stroke(cr);
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual mforms::Menu *context_menu() override {
     return NULL;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   virtual void menu_open(ItemPosition pos) override {
   }
 
-  virtual mforms::ConnectionInfoPopup *show_info_popup() override {
-    return NULL;
-  }
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void activate() override {
     owner->change_to_folder(std::shared_ptr<FolderEntry>());
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
 };
 
 //----------------- ConnectionsWelcomeScreen ---------------------------------------------------------------------------
 
 ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(owner) {
+  logDebug("Creating Connections Welcome Screen\n");
+
   _closeHomeScreenButton.setAccessibilityName("Close Welcome Message Screen");
   _closeHomeScreenButton.title = "Close Welcome Message Screen";
   _closeHomeScreenButton.description = "Welcome screen close button";
@@ -927,7 +551,7 @@ ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(o
     _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
   };
 
-  _closeIcon = mforms::Utilities::load_icon("home_screen_close.png");
+  _closeIcon = nullptr;
 
   _heading = "Welcome to MySQL Workbench";
   _content = {
@@ -1029,11 +653,6 @@ Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(ssize_t x, ssize_t y)
 //----------------------------------------------------------------------------------------------------------------------
 
 void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
-  if (_closeIcon != nullptr && Utilities::icon_needs_reload(_closeIcon)) {
-    cairo_surface_destroy(_closeIcon);
-    _closeIcon = Utilities::load_icon("home_screen_close.png", true);
-  }
-
   Size size = Utilities::getImageSize(_closeIcon);
   _closeHomeScreenButton.bounds = base::Rect(get_width() - size.width - 8, 8, size.width, size.height);
 
@@ -1045,10 +664,11 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
                          CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 3);
-  cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
+  cairo_set_source_rgb(cr, _textColor.red, _textColor.green, _textColor.blue);
 
   cairo_text_extents_t extents;
   cairo_text_extents(cr, _heading.c_str(), &extents);
+  
   double x;
   x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
   cairo_move_to(cr, x, yoffset);
@@ -1089,6 +709,26 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void ConnectionsWelcomeScreen::updateColors() {
+  if (_owner->isDarkModeActive()) {
+    _textColor = base::Color::parse("#F4F4F4");
+  } else {
+    _textColor = base::Color::parse("#505050");
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ConnectionsWelcomeScreen::updateIcons() {
+  cairo_surface_destroy(_closeIcon);
+  if (_owner->isDarkModeActive())
+    _closeIcon = Utilities::load_icon("home_screen_close_dark.png", true);
+  else
+    _closeIcon = Utilities::load_icon("home_screen_close_light.png", true);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, int y) {
   if (button == MouseButtonLeft) {
     HomeAccessibleButton *button = dynamic_cast<HomeAccessibleButton *>(accessibilityHitTest(x, y));
@@ -1103,45 +743,34 @@ bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, in
 //------------------ ConnectionsSection --------------------------------------------------------------------------------
 
 ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("sidebar_wb.png"),
-    _search_box(true),
-    _search_text(mforms::SmallSearchEntry),
-    _showWelcomeHeading(true),
-    _welcomeScreen(nullptr),
-    _container(nullptr) {
+  _search_box(true), _search_text(mforms::SmallSearchEntry), _showWelcomeHeading(true) {
 
   _owner = owner;
-  _connection_context_menu = NULL;
-  _folder_context_menu = NULL;
-  _generic_context_menu = NULL;
-  _show_details = false;
+  _welcomeScreen = nullptr;
+  _container = nullptr;
+  _connection_context_menu = nullptr;
+  _folder_context_menu = nullptr;
+  _generic_context_menu = nullptr;
   _drag_index = -1;
   _drop_index = -1;
   _filtered = false;
+
+  _folder_icon = nullptr;
+  _network_icon = nullptr;
+  _plus_icon = nullptr;
+  _sakila_icon = nullptr;
+  _user_icon = nullptr;
+  _manage_icon = nullptr;
 
   std::vector<std::string> formats;
   formats.push_back(mforms::HomeScreenSettings::TILE_DRAG_FORMAT); // We allow dragging tiles to reorder them.
   formats.push_back(mforms::DragFormatFileName);                   // We accept sql script files to open them.
   register_drop_formats(this, formats);
 
-  _folder_icon = mforms::Utilities::load_icon("wb_tile_folder.png");
-  _mouse_over_icon = mforms::Utilities::load_icon("wb_tile_mouseover.png");
-  _mouse_over2_icon = mforms::Utilities::load_icon("wb_tile_mouseover_2.png");
-  _network_icon = mforms::Utilities::load_icon("wb_tile_network.png");
-  // TODO: We need a tile icon for the group filter and the status.
-  _ha_filter_icon = mforms::Utilities::load_icon("wb_tile_network.png");
-  _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
-  _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila.png");
-  _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png");
-  _user_icon = mforms::Utilities::load_icon("wb_tile_user.png");
-  _manage_icon = mforms::Utilities::load_icon("wb_tile_manage.png");
-
-  _info_popup = NULL;
-
   _search_box.set_name("Connection Search Box");
+
   _search_box.set_spacing(5);
   _search_text.set_size(150, -1);
-
-  update_colors();
 
 #ifdef _MSC_VER
   _search_text.set_bordered(false);
@@ -1203,37 +832,89 @@ ConnectionsSection::~ConnectionsSection() {
     _generic_context_menu->release();
 
   deleteSurface(_folder_icon);
-  deleteSurface(_mouse_over_icon);
-  deleteSurface(_mouse_over2_icon);
   deleteSurface(_network_icon);
-  deleteSurface(_ha_filter_icon);
   deleteSurface(_plus_icon);
   deleteSurface(_sakila_icon);
-  deleteSurface(_schema_icon);
   deleteSurface(_user_icon);
   deleteSurface(_manage_icon);
-
-  if (_info_popup != NULL)
-    delete _info_popup;
 }
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::update_colors() {
-  _titleColor = base::Color::parse("#505050");
-  _folderTitleColor = base::Color::parse("#F0F0F0");
-  _backgroundColor = base::Color::parse("#F4F4F4");
-  _backgroundColorHot = base::Color::parse("#D5D5D5");
-  _folderBackgroundColor = base::Color::parse("#3477a6");
-  _folderBackgroundColorHot = base::Color::parse("#4699b8");
-  _backTileBackgroundColor = base::Color::parse("#d9532c");
-  _backTileBackgroundColorHot = base::Color::parse("#d97457");
+void ConnectionsSection::updateColors() {
+  if (_owner->isDarkModeActive()) {
+    _titleColor = base::Color::parse("#F4F4F4");
+    _folderTitleColor = base::Color::parse("#F0F0F0");
+    _backgroundColor = base::Color::parse("#505050");
+    _backgroundColorHot = base::Color::parse("#626160");
+    _folderBackgroundColor = base::Color::parse("#3477a6");
+    _folderBackgroundColorHot = base::Color::parse("#4699b8");
+    _backTileBackgroundColor = base::Color::parse("#d9532c");
+    _backTileBackgroundColorHot = base::Color::parse("#d97457");
+  } else {
+    _titleColor = base::Color::parse("#505050");
+    _folderTitleColor = base::Color::parse("#F0F0F0");
+    _backgroundColor = base::Color::parse("#F4F4F4");
+    _backgroundColorHot = base::Color::parse("#D5D5D5");
+    _folderBackgroundColor = base::Color::parse("#3477a6");
+    _folderBackgroundColorHot = base::Color::parse("#4699b8");
+    _backTileBackgroundColor = base::Color::parse("#d9532c");
+    _backTileBackgroundColorHot = base::Color::parse("#d97457");
 
 #ifndef __APPLE__
-  _search_text.set_front_color("#000000");
+    _search_text.set_front_color("#000000");
+    _search_text.set_placeholder_color("#303030");
+    _search_text.set_back_color("#ffffff");
 #endif
-  _search_text.set_placeholder_color("#303030");
-  _search_text.set_back_color("#ffffff");
+  }
+
+  if (_welcomeScreen != nullptr)
+    _welcomeScreen->updateColors();
+}
+
+//------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::updateIcons() {
+  if (_owner->isDarkModeActive()) {
+    deleteSurface(_sakila_icon);
+    _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila_dark.png");
+
+    deleteSurface(_manage_icon);
+    _manage_icon = mforms::Utilities::load_icon("wb_tile_manage_dark.png");
+
+    deleteSurface(_folder_icon);
+    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder.png");
+
+    deleteSurface(_network_icon);
+    _network_icon = mforms::Utilities::load_icon("wb_tile_network_dark.png");
+
+    deleteSurface(_plus_icon);
+    _plus_icon = mforms::Utilities::load_icon("wb_tile_plus_dark.png");
+
+    deleteSurface(_user_icon);
+    _user_icon = mforms::Utilities::load_icon("wb_tile_user_dark.png");
+  } else {
+    deleteSurface(_sakila_icon);
+    _sakila_icon = mforms::Utilities::load_icon("wb_tile_sakila_light.png");
+
+    deleteSurface(_manage_icon);
+    _manage_icon = mforms::Utilities::load_icon("wb_tile_manage_light.png");
+
+    deleteSurface(_folder_icon);
+    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder.png");
+
+    deleteSurface(_network_icon);
+    _network_icon = mforms::Utilities::load_icon("wb_tile_network_light.png");
+
+    deleteSurface(_plus_icon);
+    _plus_icon = mforms::Utilities::load_icon("wb_tile_plus_light.png");
+
+    deleteSurface(_user_icon);
+    _user_icon = mforms::Utilities::load_icon("wb_tile_user_light.png");
+  }
+
+  if (_welcomeScreen != nullptr)
+    _welcomeScreen->updateIcons();
 }
 
 //------------------------------------------------------------------------------------------------
@@ -1364,8 +1045,7 @@ ssize_t ConnectionsSection::calculate_index_from_point(int x, int y) {
 
 //------------------------------------------------------------------------------------------------
 
-std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, int y, bool &in_details_area) {
-  in_details_area = false;
+std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, int y) {
   std::shared_ptr<ConnectionEntry> entry;
 
   ConnectionVector connections(displayed_connections());
@@ -1374,11 +1054,6 @@ std::shared_ptr<ConnectionEntry> ConnectionsSection::entry_from_point(int x, int
       entry = *conn;
       break;
     }
-  }
-
-  if (entry) {
-    x -= CONNECTIONS_LEFT_PADDING;
-    in_details_area = (x % (CONNECTIONS_TILE_WIDTH + CONNECTIONS_SPACING)) > 3 * CONNECTIONS_TILE_WIDTH / 4.0;
   }
 
   return entry;
@@ -1441,10 +1116,10 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     tiles_per_row = 1;
 
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
-                         CAIRO_FONT_WEIGHT_NORMAL);
+                         CAIRO_FONT_WEIGHT_BOLD);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
 
-  cairo_set_source_rgb(cr, 49 / 255.0, 49 / 255.0, 49 / 255.0);
+  cairo_set_source_rgba(cr, _titleColor.red, _titleColor.green, _titleColor.blue, _titleColor.alpha);
   cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, yoffset);
 
   ConnectionVector &connections(displayed_connections());
@@ -1459,33 +1134,29 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   cairo_text_extents(cr, title.c_str(), &extents);
   double text_width = ceil(extents.width);
 
-  _add_button.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, yoffset - imageHeight(_plus_icon),
+  _add_button.bounds = base::Rect(CONNECTIONS_LEFT_PADDING + text_width + 10, yoffset - imageHeight(_plus_icon) + 2,
                                   imageWidth(_plus_icon), imageHeight(_plus_icon));
 
   cairo_set_source_surface(cr, _plus_icon, _add_button.bounds.left(), _add_button.bounds.top());
   cairo_paint(cr);
 
-  _manage_button.bounds = base::Rect(_add_button.bounds.right() + 10, yoffset - imageHeight(_manage_icon),
+  _manage_button.bounds = base::Rect(_add_button.bounds.right() + 4, yoffset - imageHeight(_manage_icon) + 2,
                                      imageWidth(_manage_icon), imageHeight(_manage_icon));
   cairo_set_source_surface(cr, _manage_icon, _manage_button.bounds.left(), _manage_button.bounds.top());
   cairo_paint(cr);
 
   int row = 0;
-  // number of tiles that act as a filler
-  int filler_tiles = 0;
-  std::string current_section;
 
   base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
   
-  if (connections.size() == 0)
-  {
+  if (connections.size() == 0) {
     std::string line1 = "MySQL Workbench could not detect any MySQL server running.";
     std::string line2 = "This means that MySQL is not installed or is not running.";
     
     double x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     int yoffset = static_cast<int>(bounds.top()) + 30;
     cairo_text_extents_t extents;
-    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_source_rgb(cr, _titleColor.red, _titleColor.green, _titleColor.blue);
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_text_extents(cr, line1.c_str(), &extents);
     
@@ -1495,7 +1166,6 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line1.c_str());
     
-    cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_text_extents(cr, line2.c_str(), &extents);
     
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
@@ -1529,40 +1199,19 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
 
     bounds.pos.x = CONNECTIONS_LEFT_PADDING;
     for (int column = 0; column < tiles_per_row; column++) {
-      std::string section = connections[index]->section_name();
-      if (!section.empty() && current_section != section) {
-        current_section = section;
-        bounds.pos.y += mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE + CONNECTIONS_SPACING;
-
-        // draw the section title
-        cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
-        cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TILES_TITLE_FONT_SIZE);
-        cairo_set_source_rgb(cr, 59 / 255.0, 59 / 255.0, 59 / 255.0);
-        cairo_text_extents(cr, current_section.c_str(), &extents);
-        cairo_move_to(cr, CONNECTIONS_LEFT_PADDING, bounds.pos.y - (extents.height + extents.y_bearing) - 4);
-        cairo_show_text(cr, current_section.c_str());
-      }
-
-      // if the name of the next section is different, then we add some filler space after this tile
-      if (!current_section.empty() && (size_t)index < connections.size() - 1 &&
-          connections[index + 1]->section_name() != current_section) {
-        int tiles_occupied = tiles_per_row - column;
-        filler_tiles += tiles_occupied;
-        column += (tiles_occupied - 1);
-      }
-
-      // Updates the bounds on the tile
+      // Update the stored bounds of the tile.
       connections[index]->bounds = bounds;
 
       bool draw_hot = connections[index] == _hot_entry;
       connections[index]->draw_tile(cr, draw_hot, 1.0, false);
 
       // Draw drop indicator.
+      if (static_cast<ssize_t>(index) == _drop_index) {
+        if (mforms::App::get()->isDarkModeActive())
+          cairo_set_source_rgb(cr, 1, 1, 1);
+        else
+          cairo_set_source_rgb(cr, 0, 0, 0);
 
-      // This shouldn't be a problem as I don't think there will be more than that many connections.
-      if ((ssize_t)index == _drop_index) {
-        cairo_set_source_rgb(cr, 0, 0, 0);
         if (_drop_position == mforms::DropPositionOn) {
           double x = bounds.left() - 4;
           double y = bounds.ycenter();
@@ -1878,20 +1527,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
       }
       
       if (_hot_entry) {
-#ifdef __APPLE__
-        bool show_info = _info_button_rect.contains_flipped(x, y);
-#else
-        bool show_info = _show_details;
-#endif
-
-        if (show_info && !_info_popup && _parent && (_info_popup = _hot_entry->show_info_popup())) {
-          scoped_connect(_info_popup->on_close(), std::bind(&ConnectionsSection::popup_closed, this));
-
-          return true;
-        }
-
         _hot_entry->activate();
-
         return true;
       }
 
@@ -1925,13 +1561,8 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
 //------------------------------------------------------------------------------------------------
 
 bool ConnectionsSection::mouse_leave() {
-  // Ignore mouse leaves if we are showing the info popup. We want the entry to stay hot.
-  if (_info_popup != NULL)
-    return true;
-
   if (_hot_entry) {
     _hot_entry.reset();
-    _show_details = false;
     set_needs_repaint();
   }
   return false;
@@ -1941,8 +1572,7 @@ bool ConnectionsSection::mouse_leave() {
 
 bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y) {
 
-  bool in_details_area;
-  std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y, in_details_area);
+  std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y);
 
   if (entry && !_mouse_down_position.empty() && (!_mouse_down_position.contains(x, y))) {
     if (!entry->is_movable()) {
@@ -1959,14 +1589,8 @@ bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y) {
     // mouse down outside any tile, drag over a tile, release mouse button -> click
     // (or hover effects in general).
     if (button == mforms::MouseButtonNone) {
-      if (entry != _hot_entry || _show_details != in_details_area) {
+      if (entry != _hot_entry) {
         _hot_entry = entry;
-#ifndef __APPLE__
-        if (_hot_entry)
-          _show_details = in_details_area;
-#else
-        _show_details = true;
-#endif
         set_needs_repaint();
         return true;
       }
@@ -2036,26 +1660,6 @@ void ConnectionsSection::menu_open() {
 
 //------------------------------------------------------------------------------------------------
 
-void ConnectionsSection::hide_info_popup() {
-  if (_info_popup != NULL) {
-    _hot_entry.reset();
-    _show_details = false;
-
-    _info_popup->release();
-    _info_popup = NULL;
-
-    set_needs_repaint();
-  }
-}
-
-//------------------------------------------------------------------------------------------------
-
-void ConnectionsSection::popup_closed() {
-  hide_info_popup();
-}
-
-//------------------------------------------------------------------------------------------------
-
 size_t ConnectionsSection::getAccessibilityChildCount() {
   size_t ret_val = 2; // 2 for create + manage icons.
 
@@ -2118,8 +1722,7 @@ base::Accessible *ConnectionsSection::accessibilityHitTest(ssize_t x, ssize_t y)
   else if (_manage_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_manage_button;
   else {
-    bool in_details_area = false;
-    std::shared_ptr<ConnectionEntry> entry = entry_from_point(static_cast<int>(x), static_cast<int>(y), in_details_area);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_point(static_cast<int>(x), static_cast<int>(y));
 
     if (entry)
       accessible = entry.get();
@@ -2180,8 +1783,7 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
 
   if (std::find(formats.begin(), formats.end(), mforms::DragFormatFileName) != formats.end()) {
     // Indicate we can accept files if one of the connection tiles is hit.
-    bool in_details_area;
-    std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+    std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y);
 
     if (!entry)
       return mforms::DragOperationNone;
@@ -2301,8 +1903,7 @@ mforms::DragOperation ConnectionsSection::drag_over(View *sender, base::Point p,
 mforms::DragOperation ConnectionsSection::files_dropped(View *sender, base::Point p,
                                                         mforms::DragOperation allowedOperations,
                                                         const std::vector<std::string> &file_names) {
-  bool in_details_area;
-  std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y, in_details_area);
+  std::shared_ptr<ConnectionEntry> entry = entry_from_point((int)p.x, (int)p.y);
   if (!entry)
     return mforms::DragOperationNone;
 

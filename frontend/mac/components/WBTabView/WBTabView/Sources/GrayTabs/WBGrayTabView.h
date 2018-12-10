@@ -25,9 +25,3 @@
 
 @interface WBGrayTabView : WBTabView
 @end
-
-@interface WBPaddedGrayTabView : WBGrayTabView
-@end
-
-@interface WBUnpaddedGrayTabView : WBGrayTabView
-@end

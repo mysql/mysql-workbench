@@ -50,22 +50,20 @@ namespace mforms {
   /** Options used to customize what to show in the tree. */
   enum TreeOptions {
     TreeDefault = 0,
-    TreeNoColumns = 1 << 3, //!< On non-Windows platforms columns are always on, so switch them on
-                            //! on Windows too by default and use this flag to switch them off, if really needed.
-                            //! At least gtk has problems with arbitrary items for a tree. Treeview in gtk is
-                            //! built on View-Source model, where source is a row/column based thing. That may
-                            //! require some hacking to support NoColums in gtk, so really think if that is worth it.
-    TreeAllowReorderRows = 1 << 4, //!< Allows row reordering, sets TreeCanBeDragSource implicitly.
-    TreeShowColumnLines = 1 << 5,  //!< show column separator lines
-    TreeShowRowLines = 1 << 6,     //!< show row separator lines
-    TreeNoBorder = 1 << 7,         //!< Switch off the border around the control. Default is to show the border.
-    TreeSidebar = 1 << 8,          //!< sidebar style treeview
-    TreeNoHeader = 1 << 9,         //!< Don't show a column header. Only meaningful if columns are used.
-    TreeShowHeader = 0,            //!< for backwards compatibility
-    TreeFlatList = 1 << 10,        //!< no child items expected
-    TreeAltRowColors = 1 << 11,    //!< enable alternating row colors
-    TreeSizeSmall = 1 << 12,       //!< small text
-    TreeIndexOnTag = 1 << 13,      //!< keep a node index on the tags (use with node_with_tag)
+    TreeTranslucent = 1 << 1,      // Where supported make the tree stand out by adding blurred background translucency.
+    TreeNoColumns = 1 << 3,        // On non-Windows platforms columns are always on, so switch them on
+                                   // Windows too by default and use this flag to switch them off, if really needed.
+    TreeAllowReorderRows = 1 << 4, // Allows row reordering, sets TreeCanBeDragSource implicitly.
+    TreeShowColumnLines = 1 << 5,  // Show column separator lines.
+    TreeShowRowLines = 1 << 6,     // Show row separator lines.
+    TreeNoBorder = 1 << 7,         // Switch off the border around the control. Default is to show the border.
+    TreeSidebar = 1 << 8,          // Sidebar style treeview.
+    TreeNoHeader = 1 << 9,         // Don't show a column header. Only meaningful if columns are used.
+    TreeShowHeader = 0,            // For backwards compatibility.
+    TreeFlatList = 1 << 10,        // No child items expected.
+    TreeAltRowColors = 1 << 11,    // Enable alternating row colors.
+    TreeSizeSmall = 1 << 12,       // Small text.
+    TreeIndexOnTag = 1 << 13,      // Keep a node index on the tags (use with node_with_tag).
 
     TreeCanBeDragSource = 1 << 14, //!< allow the tree to be a drag source, data used depends on actual tree
     TreeColumnsAutoResize = 1 << 15, //!< used only on OSX enable column autoresize

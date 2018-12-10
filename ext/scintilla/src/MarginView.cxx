@@ -204,9 +204,13 @@ void MarginView::PaintMargin(Surface *surface, int topLine, PRectangle rc, PRect
 					// Required because of special way brush is created for selection margin
 					// Ensure patterns line up when scrolling with separate margin view
 					// by choosing correctly aligned variant.
-					bool invertPhase = static_cast<int>(ptOrigin.y) & 1;
-					surface->FillRectangle(rcSelMargin,
-						invertPhase ? *pixmapSelPattern : *pixmapSelPatternOffset1);
+          // ml: disable pattern drawing to allow proper dark mode display.
+					//bool invertPhase = static_cast<int>(ptOrigin.y) & 1;
+					//surface->FillRectangle(rcSelMargin,
+					//	invertPhase ? *pixmapSelPattern : *pixmapSelPatternOffset1);
+
+          ColourDesired colour = vs.styles[margin].back;
+          surface->FillRectangle(rcSelMargin, colour);
 				} else {
 					ColourDesired colour;
 					switch (vs.ms[margin].style) {
@@ -372,6 +376,7 @@ void MarginView::PaintMargin(Surface *surface, int topLine, PRectangle rc, PRect
 				PRectangle rcMarker = rcSelMargin;
 				rcMarker.top = static_cast<XYPOSITION>(yposScreen);
 				rcMarker.bottom = static_cast<XYPOSITION>(yposScreen + vs.lineHeight);
+
 				if (vs.ms[margin].style == SC_MARGIN_NUMBER) {
 					if (firstSubLine) {
 						char number[100] = "";

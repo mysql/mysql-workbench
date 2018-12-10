@@ -32,9 +32,12 @@ using namespace mdc;
 using namespace wb;
 using namespace base;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 MiniView::MiniView(mdc::Layer *layer) : mdc::Figure(layer), _canvas_view(0), _viewport_figure(0) {
   _updating_viewport = false;
   _skip_viewport_update = false;
+  _backgroundColor = Color::getSystemColor(base::TextBackgroundColor);
 
 #ifndef __APPLE__
   set_cache_toplevel_contents(true);
@@ -46,6 +49,8 @@ MiniView::MiniView(mdc::Layer *layer) : mdc::Figure(layer), _canvas_view(0), _vi
     std::function<bool(CanvasView *, KeyInfo, EventState, bool)>());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 MiniView::~MiniView() {
   if (_view_repaint_connection.connected())
     _view_repaint_connection.disconnect();
@@ -55,6 +60,8 @@ MiniView::~MiniView() {
 
   delete _viewport_figure; // not added to layer, so delete it by hand
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool MiniView::view_button_cb(mdc::CanvasView *view, mdc::MouseButton btn, bool press, Point pos, mdc::EventState) {
   if (btn == mdc::ButtonLeft && _viewport_figure) {
@@ -90,9 +97,13 @@ bool MiniView::view_button_cb(mdc::CanvasView *view, mdc::MouseButton btn, bool 
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool MiniView::view_motion_cb(mdc::CanvasView *, Point, mdc::EventState) {
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void MiniView::update_size() {
   Size size = get_layer()->get_view()->get_total_view_size();
@@ -103,6 +114,8 @@ void MiniView::update_size() {
   viewport_changed();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void MiniView::render_figure(CairoCtx *cr, const model_FigureRef &elem) {
   model_Figure::ImplData *e = elem->get_data();
 
@@ -110,12 +123,16 @@ void MiniView::render_figure(CairoCtx *cr, const model_FigureRef &elem) {
     e->render_mini(cr);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void MiniView::render_layer(CairoCtx *cr, const model_LayerRef &layer) {
   model_Layer::ImplData *l = layer->get_data();
 
   if (l)
     l->render_mini(cr);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void MiniView::render_layer_figures(mdc::CairoCtx *cr, const model_LayerRef &layer) {
   for (size_t c = layer->figures().count(), i = 0; i < c; i++) {
@@ -134,6 +151,8 @@ void MiniView::render_layer_figures(mdc::CairoCtx *cr, const model_LayerRef &lay
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 Rect MiniView::get_scaled_target_bounds(double &scale) {
   Rect rect;
@@ -161,9 +180,11 @@ Rect MiniView::get_scaled_target_bounds(double &scale) {
   return rect;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void MiniView::draw_contents(CairoCtx *cr) {
   cr->set_operator(CAIRO_OPERATOR_SOURCE);
-  cr->set_color(Color(0.7, 0.7, 0.7));
+  cr->set_color(Color(0.5, 0.5, 0.5));
   cr->paint();
 
   if (!_canvas_view || !_model_diagram.is_valid() || !_model_diagram->rootLayer().is_valid())
@@ -175,11 +196,10 @@ void MiniView::draw_contents(CairoCtx *cr) {
   cr->save();
 
   cr->set_line_width(1);
-
-  cr->set_color(Color(1, 1, 1));
+  cr->set_color(_backgroundColor);
   cr->rectangle(bounds);
   cr->fill_preserve();
-  cr->set_color(Color(0.0, 0.0, 0.0));
+  cr->set_color(_backgroundColor.invert());
   cr->stroke();
 
   Size page_size(_canvas_view->get_page_size());
@@ -189,7 +209,7 @@ void MiniView::draw_contents(CairoCtx *cr) {
 
   mdc::Count xpages, ypages;
 
-  cr->set_color(Color(0.7, 0.7, 0.7));
+  cr->set_color(Color(0.5, 0.5, 0.5));
   page_size.width *= scale;
   page_size.height *= scale;
   page_size = page_size.round();
@@ -223,6 +243,8 @@ void MiniView::draw_contents(CairoCtx *cr) {
   cr->restore();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void MiniView::viewport_changed() {
   if (_viewport_figure && _canvas_view && !_updating_viewport) {
     Rect vp = _canvas_view->get_viewport();
@@ -240,6 +262,8 @@ void MiniView::viewport_changed() {
     _skip_viewport_update = false;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void MiniView::viewport_dragged(const Rect &orect) {
   if (!_skip_viewport_update) {
@@ -277,6 +301,8 @@ void MiniView::viewport_dragged(const Rect &orect) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_DiagramRef &model_diagram) {
   _canvas_view = canvas_view;
   _model_diagram = model_diagram;
@@ -284,8 +310,9 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
   if (!_viewport_figure) {
     _viewport_figure = new mdc::RectangleFigure(get_layer());
     _viewport_figure->set_filled(false);
+    _viewport_figure->set_pen_color(base::Color::getSystemColor(base::TextBackgroundColor).invert());
     get_layer()->get_view()->get_current_layer()->add_item(_viewport_figure);
-    //_viewport_figure->set_cache_toplevel_contents(false);
+
     _viewport_figure->set_accepts_selection(true);
     _viewport_figure->set_accepts_focus(false);
     _viewport_figure->set_state_drawing(false);
@@ -324,3 +351,15 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
 
   set_needs_render();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void MiniView::setBackgroundColor(base::Color const& color) {
+  _backgroundColor = color;
+  if (_viewport_figure != nullptr)
+    _viewport_figure->set_pen_color(color.invert());
+  
+  set_needs_render();
+}
+
+//----------------------------------------------------------------------------------------------------------------------

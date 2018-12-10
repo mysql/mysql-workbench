@@ -36,7 +36,6 @@ namespace mforms {
   class ConnectionEntry;
   class FolderBackEntry;
   class FolderEntry;
-  class ConnectionInfoPopup;
 
   class MFORMS_EXPORT ConnectionsWelcomeScreen : public mforms::DrawBox {
   public:
@@ -54,6 +53,9 @@ namespace mforms {
     virtual base::Rect getAccessibilityBounds() override;
     virtual Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
 
+    void updateColors();
+    void updateIcons();
+
   private:
     int _totalHeight = 100; // Arbitrary initial value, til our computation is done.
 
@@ -62,7 +64,10 @@ namespace mforms {
     HomeAccessibleButton _browseDocButton;
     HomeAccessibleButton _readBlogButton;
     HomeAccessibleButton _discussButton;
+
     cairo_surface_t *_closeIcon;
+
+    base::Color _textColor;
 
     std::string _heading;
     std::vector<std::string> _content;
@@ -75,19 +80,14 @@ namespace mforms {
     friend class ConnectionEntry;
     friend class FolderBackEntry;
     friend class FolderEntry;
-    friend class ConnectionInfoPopup;
 
   private:
     HomeScreen *_owner;
 
     cairo_surface_t *_folder_icon;
-    cairo_surface_t *_mouse_over_icon;
-    cairo_surface_t *_mouse_over2_icon;
     cairo_surface_t *_network_icon;
-    cairo_surface_t *_ha_filter_icon;
     cairo_surface_t *_plus_icon;
     cairo_surface_t *_sakila_icon;
-    cairo_surface_t *_schema_icon;
     cairo_surface_t *_user_icon;
     cairo_surface_t *_manage_icon;
 
@@ -115,8 +115,6 @@ namespace mforms {
 
     std::shared_ptr<ConnectionEntry> _hot_entry;      // The connection entry under the mouse.
     std::shared_ptr<ConnectionEntry> _entry_for_menu; // The entry that was hot when the context menu was opened.
-    bool _show_details; // If there's a hot connection this indicates if we just show the hot state or the connection
-                        // details.
 
     ssize_t _drag_index; // The index of the entry that is being dragged.
     ssize_t _drop_index; // The index of the entry that is currently the drop target.
@@ -126,8 +124,6 @@ namespace mforms {
     HomeAccessibleButton _manage_button;
     HomeAccessibleButton _rescanButton;
 
-    base::Rect _info_button_rect;
-    ConnectionInfoPopup *_info_popup;
     mforms::Box _search_box;
     mforms::TextEntry _search_text;
 
@@ -140,12 +136,13 @@ namespace mforms {
 
     ConnectionVector &displayed_connections();
 
-    void update_colors();
+    virtual void updateColors() override;
+    virtual void updateIcons() override;
 
     void on_search_text_changed();
     void on_search_text_action(mforms::TextEntryAction action);
     ssize_t calculate_index_from_point(int x, int y);
-    std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y, bool &in_details_area);
+    std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y);
     std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
     base::Rect bounds_for_entry(size_t index, size_t width);
     std::string connectionIdFromIndex(ssize_t index);
@@ -163,10 +160,6 @@ namespace mforms {
     void handle_folder_command(const std::string &command);
 
     void menu_open();
-
-    void show_info_popup();
-    void hide_info_popup();
-    void popup_closed();
 
     void change_to_folder(std::shared_ptr<FolderEntry> folder);
 

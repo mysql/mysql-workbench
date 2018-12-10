@@ -36,7 +36,7 @@
 using namespace wb;
 
 LayerTree::LayerTree(ModelDiagramForm *form, const model_DiagramRef &diagram)
-  : mforms::TreeView(mforms::TreeSidebar | mforms::TreeNoHeader | mforms::TreeIndexOnTag),
+  : mforms::TreeView(mforms::TreeSidebar | mforms::TreeNoHeader | mforms::TreeIndexOnTag | mforms::TreeTranslucent),
     _form(form),
     _diagram(diagram),
     _updating_selection(false) {

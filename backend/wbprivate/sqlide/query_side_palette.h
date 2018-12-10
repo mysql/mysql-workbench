@@ -57,6 +57,7 @@ private:
   mforms::HyperText *_help_text;
   bec::GRTManager::Timer *_help_timer;
 
+  mforms::Box *_contentBorder;
   mforms::ScrollPanel *_snippet_box;
   mforms::ToolBar *_snippet_toolbar;
   SnippetListView *_snippet_list;
@@ -77,6 +78,7 @@ private:
     _topic_cache; // Plain text and html text under a specific topic.
 
   void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
+  void updateColors();
 
   void show_help_text_for_topic(const std::string &topic);
   void show_help_hint_or_update();

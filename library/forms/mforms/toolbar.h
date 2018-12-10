@@ -32,11 +32,11 @@ namespace mforms {
   class ToolBar;
 
   enum ToolBarType {
-    MainToolBar,
-    SecondaryToolBar,
-    ToolPickerToolBar, // only toggle and separator items are required to work
-    OptionsToolBar,
-    PaletteToolBar
+    MainToolBar,       // The application toolbar.
+    SecondaryToolBar,  // Any other toolbar not handled by the special variants below (e.g. on sidebars).
+    ToolPickerToolBar, // The special vertical toolpicker toolbar for modeling.
+    OptionsToolBar,    // For parts which involve a light UI (e.g. toolbar over SQL editors + result sets).
+    PaletteToolBar     // TODO: not sure why we need that. A toolbar that doesn't differ from SecondaryToolBar.
   };
 
   enum ToolBarItemType {
@@ -54,8 +54,6 @@ namespace mforms {
     ExpanderItem,
     ImageBoxItem,
     TitleItem,
-    SwitcherItem, // A button, usually with both image + text, that's like an action button, but shows special
-                  // backgrounds on hover + click.
   };
 
 #ifndef SWIG
@@ -122,13 +120,9 @@ namespace mforms {
     friend class ToolBar;
 
   public:
-    ToolBarItem(ToolBarItemType type = ActionItem, const bool expandable = false);
+    ToolBarItem(ToolBarItemType type = ActionItem);
     ToolBarItemType get_type() {
       return _type;
-    }
-
-    bool get_expandable() const {
-      return _expandable;
     }
 
     // Caption for labels, selected entry in drop down items, search text in search fields.
@@ -181,7 +175,6 @@ namespace mforms {
     std::string _alt_icon;
     ToolBarItemType _type;
     bool _updating;
-    const bool _expandable;
     boost::signals2::signal<void(ToolBarItem *)> _clicked_signal;
     std::function<bool()> _validate;
     std::function<void(const std::string &)> _search;

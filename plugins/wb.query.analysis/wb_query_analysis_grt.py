@@ -28,6 +28,10 @@ from workbench.utils import Version
 from workbench.graphics.cairo_utils import Context
 from explain_renderer import ExplainContext, decode_json
 
+from mforms import Color, ControlBackgroundColor, TextColor, TextBackgroundColor
+
+from workbench.notifications import nc
+
 ModuleInfo = DefineModule(name= "SQLIDEQueryAnalysis", author= "Oracle Corp.", version= "1.0")
 
 
@@ -258,7 +262,6 @@ class QueryPlanTab(mforms.Box):
 
         # Query Plan diagram
         self.scroll = mforms.newScrollPanel(mforms.ScrollPanelNoFlags)
-        self.scroll.set_back_color("#ffffff")
         self.scroll.set_visible_scrollers(True, True)
         
         #self.img = mforms.newImageBox()
@@ -280,6 +283,9 @@ class QueryPlanTab(mforms.Box):
         self.add(self._raw_explain, True, True)
         self._raw_explain.show(False)
 
+        nc.add_observer(self.updateColors, "GNColorsChanged")
+        backgroundColor = Color.getSystemColor(TextBackgroundColor)
+        self.scroll.set_back_color(backgroundColor.to_html())
 
     def display_cost(self, item):
         text = item.get_text()
@@ -326,7 +332,9 @@ class QueryPlanTab(mforms.Box):
         self._context.enter_overview_mode()
         self.drawbox.set_needs_repaint()
 
-
+    def updateColors(self, name, sender, info):
+        backgroundColor = Color.getSystemColor(TextBackgroundColor)
+        self.scroll.set_back_color(backgroundColor.to_html())
 
 class TabularExplainTab(mforms.Box):
     node_spacing = 30

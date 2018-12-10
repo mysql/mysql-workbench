@@ -22,7 +22,6 @@
  */
 
 #include "base/log.h"
-
 #include "mdc_back_layer.h"
 #include "mdc_algorithms.h"
 #include "mdc_canvas_view.h"
@@ -33,6 +32,8 @@ DEFAULT_LOG_DOMAIN("canvas")
 using namespace mdc;
 using namespace base;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 BackLayer::BackLayer(CanvasView *view) : Layer(view) {
   _grid_visible = true;
   _paper_visible = true;
@@ -40,15 +41,25 @@ BackLayer::BackLayer(CanvasView *view) : Layer(view) {
   _grid1_dl = 0;
   _grid2_dl = 0;
 
-  _line1_color = Color(0.9, 0.9, 0.9);
-  _line2_color = Color(0.95, 0.95, 0.95);
-
-  _fill_color = Color(1, 1, 1);
+  set_color(Color::getSystemColor(base::TextBackgroundColor));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void BackLayer::set_color(const Color &color) {
   _fill_color = color;
+
+  // Compute grid colors that play well with the background (which can be dark or light).
+  if (_fill_color.brightness() < 0.5) {
+    _line1_color = Color(1.1 * _fill_color.red, 1.1 * _fill_color.green, 1.1 * _fill_color.blue);
+    _line2_color = Color(1.15 * _fill_color.red, 1.15 * _fill_color.green, 1.15 * _fill_color.blue);
+  } else {
+    _line1_color = Color(0.9 * _fill_color.red, 0.9 * _fill_color.green, 0.9 * _fill_color.blue);
+    _line2_color = Color(0.95 * _fill_color.red, 0.95 * _fill_color.green, 0.95 * _fill_color.blue);
+  }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 BackLayer::~BackLayer() {
   if (_grid1_dl)
@@ -56,6 +67,8 @@ BackLayer::~BackLayer() {
   if (_grid2_dl)
     glDeleteLists(_grid2_dl, 1);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void BackLayer::render_grid(const Rect &bounds) {
   bool use_gl = _owner->has_gl();
@@ -180,6 +193,8 @@ void BackLayer::render_grid(const Rect &bounds) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void BackLayer::render_page_borders(const Rect &bounds) {
   CairoCtx *cr = _owner->cairoctx();
   bool use_gl = _owner->has_gl();
@@ -189,15 +204,14 @@ void BackLayer::render_page_borders(const Rect &bounds) {
   double right, bottom;
   Size psize = _owner->get_page_size();
 
-  double jitter = use_gl ? 0 : 0.5;
-  left = jitter;
-  right = bounds.right() + jitter;
+  left = 0;
+  right = floor(bounds.right());
 
-  top = jitter;
-  bottom = bounds.bottom() + jitter;
+  top = 0;
+  bottom = floor(bounds.bottom());
 
   if (use_gl) {
-    glColor4d(0.75, 0.75, 0.75, 1);
+    glColor4d(0.5, 0.5, 0.5, 1);
     glBegin(GL_LINES);
     for (x = left; x <= right; x += psize.width) {
       glVertex2d(x, top);
@@ -211,20 +225,23 @@ void BackLayer::render_page_borders(const Rect &bounds) {
     }
     glEnd();
   } else {
-    cr->set_color(Color(0.75, 0.75, 0.75));
-    cr->set_line_width(1.0);
+    cr->set_color(Color(0.5, 0.5, 0.5));
+    cr->set_line_width(2.0);
 
-    for (x = left; x <= right; x += psize.width) {
+    for (x = left; x <= right; x += floor(psize.width)) {
       cr->move_to(x, top);
       cr->line_to(x, bottom);
     }
-    for (y = top; y <= bottom; y += psize.height) {
+
+    for (y = top; y <= bottom; y += floor(psize.height)) {
       cr->move_to(left, y);
       cr->line_to(right, y);
     }
     cr->stroke();
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void BackLayer::repaint(const Rect &aBounds) {
   Rect vrect = _owner->get_viewport();
@@ -245,7 +262,7 @@ void BackLayer::repaint(const Rect &aBounds) {
   // If paper is smaller than window, then show the non-paper background.
   if (extra_offset.x > 0 || extra_offset.y > 0) {
     if (use_gl) {
-      gl_setcolor(Color(0.8, 0.8, 0.8));
+      gl_setcolor(Color::getSystemColor(base::WindowBackgroundColor));
 
       // Sides.
       if (extra_offset.x > 0) {
@@ -259,11 +276,11 @@ void BackLayer::repaint(const Rect &aBounds) {
         gl_rectangle(aBounds.left(), view_size.height - 2 * extra_offset.y, view_size.width, extra_offset.y, true);
       }
 
-      draw_shadow_gl(Rect(Point(), total_size), Color(0.60, 0.60, 0.60));
+      //draw_shadow_gl(Rect(Point(), total_size), Color(0.60, 0.60, 0.60));
     } else {
       cr->save();
 
-      cr->set_color(Color(0.8, 0.8, 0.8));
+      cr->set_color(Color::getSystemColor(base::WindowBackgroundColor));
 
       // sides
       if (extra_offset.x > 0) {
@@ -279,7 +296,7 @@ void BackLayer::repaint(const Rect &aBounds) {
       }
       cr->fill();
 
-      draw_shadow(cr, Rect(Point(), total_size), Color(0.3, 0.3, 0.3));
+      //draw_shadow(cr, Rect(Point(), total_size), Color(0.3, 0.3, 0.3));
       cr->restore();
     }
   }
@@ -292,20 +309,8 @@ void BackLayer::repaint(const Rect &aBounds) {
       cr->clip();
     }
 
-    //    Rect bounds= aBounds;
     int x, y, w, h;
     _owner->canvas_to_window(Rect(0, 0, total_size.width, total_size.height), x, y, w, h);
-
-    //    if (extra_offset.x > 0)
-    //    {
-    //      bounds.pos.x= x;
-    //      bounds.size.width= w;
-    //    }
-    //    if (extra_offset.y > 0)
-    //    {
-    //      bounds.pos.y= y;
-    //      bounds.size.height= h;
-    //    }
 
     // Draw paper background.
     Rect paper(aBounds);
@@ -347,12 +352,18 @@ void BackLayer::repaint(const Rect &aBounds) {
   cr->restore();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void BackLayer::set_grid_visible(bool flag) {
   _grid_visible = flag;
   queue_repaint();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void BackLayer::set_paper_visible(bool flag) {
   _paper_visible = flag;
   queue_repaint();
 }
+
+//----------------------------------------------------------------------------------------------------------------------

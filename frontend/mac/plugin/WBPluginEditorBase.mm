@@ -54,7 +54,7 @@
   [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
-- (id)identifier
+- (id)panelId
 {
   return nil;
 }
@@ -116,7 +116,7 @@
     // workaround for stupid tabview hack
     if ([tabView.superview isKindOfClass: [WBTabView class]])
       tabView = (NSTabView*)tabView.superview;
-    NSInteger index = [tabView indexOfTabViewItemWithIdentifier: self.identifier];
+    NSInteger index = [tabView indexOfTabViewItemWithIdentifier: self.panelId];
     if (index != NSNotFound)
     {
       id item= [tabView tabViewItemAtIndex: index];

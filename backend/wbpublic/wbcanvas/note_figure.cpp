@@ -33,12 +33,12 @@ Note::Note(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &self)
   set_accepts_selection(true);
 
   set_border_color(Color(0.5, 0.5, 0.5, 0.2));
-  set_background_color(Color::White());
+  set_background_color(Color::white());
   set_draw_background(true);
 
   _text.set_padding(8, 8);
   _text.set_font(get_view()->get_default_font());
-  _text.set_pen_color(Color::Black());
+  _text.set_pen_color(Color::black());
   _text.set_multi_line(true);
 
   add(&_text, false, false, true);

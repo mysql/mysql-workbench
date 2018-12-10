@@ -23,7 +23,6 @@
 
 @interface WBSplitView : NSSplitView
 
-@property CGFloat dividerThickness;
 @property(strong) NSColor *backgroundColor;
 
 @end

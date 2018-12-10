@@ -41,7 +41,7 @@ RoutineGroup::RoutineGroup(mdc::Layer *layer, FigureEventHub *hub, const model_O
 
   set_border_color(Color(0.5, 0.5, 0.5));
   set_draw_background(true);
-  set_background_color(Color::White());
+  set_background_color(Color::white());
   set_background_corners(mdc::CAll, 8.0);
 
   _title.set_rounded(mdc::CTop);

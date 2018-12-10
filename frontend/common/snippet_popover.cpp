@@ -23,6 +23,9 @@
 
 #include "snippet_popover.h"
 
+#include "base/log.h"
+#include "base/drawing.h"
+
 #include "mforms/imagebox.h"
 #include "mforms/textentry.h"
 #include "mforms/label.h"
@@ -32,13 +35,10 @@
 #include "mforms/button.h"
 #include "mforms/box.h"
 
-#include "base/log.h"
-
-using namespace std;
-
 using namespace wb;
 using namespace mforms;
-//----------------- SnippetPopover -----------------------------------------------------------------
+
+//----------------- SnippetPopover -------------------------------------------------------------------------------------
 
 SnippetPopover::SnippetPopover(mforms::View *owner) : Popover(owner, mforms::PopoverStyleNormal) {
   setName("Snippet Editor");
@@ -55,16 +55,19 @@ SnippetPopover::SnippetPopover(mforms::View *owner) : Popover(owner, mforms::Pop
   _header->add(image, false, true);
   _header->add(_heading_label, true, true);
 
-  Panel* border_panel = manage(new Panel(mforms::FilledPanel));
-  border_panel->set_back_color("#cdcdcd");
-  border_panel->set_padding(1);
+  _borderPanel = manage(new Panel(mforms::FilledPanel));
+
+  base::Color backgroundColor = base::Color::getSystemColor(base::WindowBackgroundColor);
+  _borderPanel->set_back_color(backgroundColor.to_html());
+
+  _borderPanel->set_padding(1);
   _editor = manage(new CodeEditor());
   _editor->set_language(mforms::LanguageMySQL);
   _editor->set_text("USE SQL CODE;");
   _editor->set_features(mforms::FeatureGutter, false);
   _editor->signal_changed()->connect(
     std::bind(&SnippetPopover::text_changed, this, std::placeholders::_1, std::placeholders::_2));
-  border_panel->add(_editor);
+  _borderPanel->add(_editor);
 
   Box* button_box = manage(new Box(true));
   button_box->set_spacing(8);
@@ -97,22 +100,26 @@ SnippetPopover::SnippetPopover(mforms::View *owner) : Popover(owner, mforms::Pop
   button_box->add_end(_edit_button, false, true);
 
   _content->add(_header, false, true);
-  _content->add(border_panel, true, true);
+  _content->add(_borderPanel, true, true);
   _content->add_end(button_box, false, true);
   _content->set_spacing(4);
 
   set_content(_content);
+
+  base::NotificationCenter::get()->add_observer(this, "GNColorsChanged");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 SnippetPopover::~SnippetPopover() {
+  base::NotificationCenter::get()->remove_observer(this);
+
   _heading_label->release();
   _heading_entry->release();
   _content->release();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::revert_clicked() {
   _heading_label->set_text(_original_heading);
@@ -122,26 +129,26 @@ void SnippetPopover::revert_clicked() {
   set_read_only(true);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::edit_clicked() {
   set_read_only(false);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::close_clicked() {
   close();
   _closed();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::text_changed(int start_line, int lines_changed) {
   _revert_button->set_enabled(true);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::set_heading(const std::string& text) {
   _original_heading = text;
@@ -149,7 +156,7 @@ void SnippetPopover::set_heading(const std::string& text) {
   _heading_label->set_text(text);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::set_text(const std::string& text) {
   _original_text = text;
@@ -157,7 +164,7 @@ void SnippetPopover::set_text(const std::string& text) {
   _revert_button->set_enabled(false);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SnippetPopover::set_read_only(bool flag) {
   // We have to exchange a label and a text entry, depending on the read-only state
@@ -179,23 +186,32 @@ void SnippetPopover::set_read_only(bool flag) {
   _edit_button->set_enabled(flag);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string SnippetPopover::get_text() {
   return _editor->get_text(false);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string SnippetPopover::get_heading() {
   return _heading_entry->get_string_value();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SnippetPopover::has_changed() {
   // We don't have a change event from the text entry so we compare the content instead.
   return _revert_button->is_enabled() || (_heading_entry->get_string_value() != _original_heading);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+void SnippetPopover::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
+  if (name == "GNColorsChanged") {
+    base::Color backgroundColor = base::Color::getSystemColor(base::WindowBackgroundColor);
+    _borderPanel->set_back_color(backgroundColor.to_html());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------

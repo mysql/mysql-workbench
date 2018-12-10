@@ -35,7 +35,7 @@ namespace wb {
 
 - (instancetype)initWithId:(NSString *)oid formBE:(wb::ModelDiagramForm *)be NS_DESIGNATED_INITIALIZER;
 
-@property(readonly, copy) NSString *identifier;
+@property(readonly, copy) NSString *panelId;
 @property(readonly) bec::UIForm *formBE;
 
 @property(readonly, weak) MCanvasViewer *canvasViewer;

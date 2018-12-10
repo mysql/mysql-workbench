@@ -23,10 +23,7 @@
 
 typedef NS_ENUM(NSInteger, MTabSwitcherStyle) {
   MSectionTabSwitcher,
-  MPaletteTabSwitcher, // Similar to SectionTabSwitcher, but with slight changes (darker and centered)
-  MPaletteTabSwitcherSmallText,
   MEditorTabSwitcher,
-  MEditorTabSwitcherX,
   MEditorBottomTabSwitcher,
   MEditorBottomTabSwitcherPinnable,
   MMainTabSwitcher
@@ -55,13 +52,11 @@ typedef NS_ENUM(NSInteger, MTabSwitcherStyle) {
 @property(nonatomic) MTabSwitcherStyle tabStyle;
 @property BOOL allowTabReordering;
 
-- (void)setTabView:
-  (NSTabView *_Nullable)tabView; // TODO the associated tabview is bound via an outlet. Why do we need a setter then?
+- (void)setTabView: (NSTabView *_Nullable)tabView;
 
 - (void)setBusyTab:(NSTabViewItem *_Nullable)tab;
 - (void)closeTabViewItem:(NSTabViewItem *_Nullable)item;
 - (void)tile;
-- (void)makeUnselected;
 
 // Methods needed for accessibility.
 - (NSRect)tabItemRect: (NSTabViewItem *_Nullable)aItem;

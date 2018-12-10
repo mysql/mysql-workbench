@@ -21,6 +21,8 @@
 
 from workbench.graphics.canvas import Figure, ImageFigure, RectangleShapeFigure, TextFigure
 
+from mforms import Color, ControlBackgroundColor, TextColor, TextBackgroundColor
+
 import re
 import math
 
@@ -115,9 +117,11 @@ class DBTimeLineGraph(Figure):
         c.save()
         c.translate(self.x, self.y)
         
+        textColor = Color.getSystemColor(TextColor)
+
         # draw axis
         c.set_line_width(2)
-        c.set_source_rgb(0, 0, 0)
+        c.set_source_rgb(textColor.red, textColor.green, textColor.blue)
         c.move_to(0, self.height - 0.5)
         c.line_to(self.width, self.height - 0.5)
         c.stroke()
@@ -134,7 +138,7 @@ class DBTimeLineGraph(Figure):
                 c.stroke()
             
             if not detail_values:
-                c.set_source_rgb(0, 0, 0)
+                c.set_source_rgb(textColor.red, textColor.green, textColor.blue)
                 c.move_to(0, y - 2.5)
                 c.show_text(self.format_vaxis_value(i * self._scale / self._vertical_dividers))
         
@@ -169,7 +173,7 @@ class DBTimeLineGraph(Figure):
                 c.stroke()
 
         if self._detail_line_pos is not None:
-            c.set_source_rgba(1, 0, 0, 0.8 if detail_values else 0.1)
+            c.set_source_rgba(textColor.red, textColor.green, textColor.blue, 0.8 if detail_values else 0.2)
             c.set_line_width(1)
             c.move_to(self._detail_line_pos + 0.5, 0)
             c.line_to(self._detail_line_pos + 0.5, self.height)
@@ -262,13 +266,13 @@ class DBSimpleCounter(RectangleShapeFigure):
         self.set_line_width(2)
         self.set_font_size(11)
         self.set_font_bold(True)
-        self.set_corner_radius(10)
+        self.set_corner_radius(6)
         self._line_spacing = 2
         self.set_text_color(0.4, 0.4, 0.4, 1)
         self._format = format or "%.2f %s"
         self._scale_unit = scale_unit
 
-        self.set_usize(80, 35)
+        self.set_usize(90, 35)
     
 
     def set(self, value):

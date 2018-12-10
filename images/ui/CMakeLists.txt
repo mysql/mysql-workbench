@@ -137,12 +137,12 @@ set(IMAGE_FILES
     zoom_in.png
     zoom_out.png
     zoom_reset.png
-    editor_breakpoint_hit.xpm
-    editor_breakpoint.xpm
-    editor_continue_on_error.xpm
-    editor_current_pos.xpm
-    editor_error.xpm
-    editor_statement.xpm
+    editor_breakpoint_hit.png
+    editor_breakpoint.png
+    editor_continue_on_error.png
+    editor_current_pos.png
+    editor_error.png
+    editor_statement.png
     JS_Datatype_Array.png
     JS_Datatype_Bin.png
     JS_Datatype_Bool.png

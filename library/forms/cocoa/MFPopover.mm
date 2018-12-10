@@ -46,16 +46,8 @@
   NSGraphicsContext* context = [NSGraphicsContext currentContext];
   [context saveGraphicsState];
 
-  if (readOnly)
-    [[NSColor colorWithDeviceRed: 248 / 255.0 green: 245 / 255.0 blue: 198 / 255.0 alpha: 1] set];
-  else
-    [[NSColor colorWithDeviceWhite: 232 / 255.0 alpha: 1] set];
-
+  [NSColor.windowBackgroundColor set];
   [outline fill];
-
-  // Something is drawing the border for us. Can't find out which part does it, though.
-  //[[NSColor colorWithDeviceWhite: 118 / 255.0 alpha: 1] set];
-  //[outline stroke];
 
   [context restoreGraphicsState];
 }
@@ -86,7 +78,7 @@
       default:
         mArrowSize = 16;
         mArrowBase = 32;
-        mCornerRadius = 14;
+        mCornerRadius = 10;
         break;
     }
     [self setOpaque:NO];

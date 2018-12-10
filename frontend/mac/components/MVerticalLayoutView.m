@@ -27,37 +27,44 @@
 
 #import "MVerticalLayoutView.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @interface NSView(NSView_Extras)
+
 @property (readonly) NSSize minimumSize;
-- (BOOL)expandsOnLayoutVertically:(BOOL)vertically;
+- (BOOL)expandsOnLayoutVertically: (BOOL)vertically;
+
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MVerticalLayoutView
 
-- (instancetype)initWithFrame:(NSRect)frameRect
-{
+- (instancetype)initWithFrame: (NSRect)frameRect {
   self = [super initWithFrame: frameRect];
-  if (self)
-  {
+  if (self != nil) {
     expandsByDefault = YES;
     minimumHeight = 100;
   }
   return self;
 }
 
-- (void)dealloc
-{
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
-- (void)setSpacing:(float)spc
-{
-  spacing= spc;
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setSpacing: (float)spc {
+  spacing = spc;
   [self tile];
 }
 
-- (void)setPaddingLeft:(float)lpad right:(float)rpad top:(float)tpad bottom:(float)bpad
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setPaddingLeft: (float)lpad right: (float)rpad top: (float)tpad bottom: (float)bpad {
   leftPadding = lpad;
   rightPadding = rpad;
   topPadding = tpad;
@@ -65,22 +72,25 @@
   [self tile];
 }
 
-- (void)setExpandSubviewsByDefault:(BOOL)flag
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setExpandSubviewsByDefault: (BOOL)flag {
   expandsByDefault = flag;
   [self tile];
 }
 
-- (BOOL)_subviewShouldExpand:(NSView*)view
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)_subviewShouldExpand: (NSView*)view {
   if ([view respondsToSelector: @selector(expandsOnLayoutVertically:)])
     return [view expandsOnLayoutVertically: YES];
   else
     return expandsByDefault;
 }
 
-- (void)tile
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)tile {
   float width = NSWidth(self.frame) - leftPadding - rightPadding;
   float availableHeight;
   float y;
@@ -96,15 +106,13 @@
   else
     minimumHeight = 0;
 
-  for (id view in self.subviews)
-  {
+  for (id view in self.subviews) {
     float minHeight;
-    if (![view isHidden])
-    {
+    if (![view isHidden]) {
       BOOL expands = [self _subviewShouldExpand: view];
       
       if ([view respondsToSelector: @selector(tile)])
-          [view tile];
+        [view tile];
       
       if ([view respondsToSelector: @selector(minimumSize)])
         minHeight = [view minimumSize].height;
@@ -113,8 +121,7 @@
       
       if (!expands)
         minimumHeight += MAX(NSHeight([view frame]), minHeight);
-      else
-      {
+      else {
         minimumHeight += minHeight;
         expandable++;
       }
@@ -129,15 +136,12 @@
     extraSpacePerItem = (availableHeight - minimumHeight) / expandable;
   else
     extraSpacePerItem = 0;
-  y= NSHeight(self.frame) - topPadding;
-  for (id view in self.subviews)
-  {
-    if (![view isHidden])
-    {
+  y = NSHeight(self.frame) - topPadding;
+  for (id view in self.subviews) {
+    if (![view isHidden]) {
       float height = NSHeight([view frame]);
       
-      if ([self _subviewShouldExpand: view])
-      {
+      if ([self _subviewShouldExpand: view]) {
         if ([view respondsToSelector: @selector(minimumSize)])
           height = MAX(extraSpacePerItem, [view minimumSize].height);
         else
@@ -146,19 +150,19 @@
 
       height = MAX(1, height);
 
-      y-= height;
+      y -= height;
       [view setFrame: NSMakeRect(leftPadding, y, width, height)];
       y -= spacing;
     }
   }
   [self setNeedsDisplay:YES];
   
-  relayouting= NO;
+  relayouting = NO;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)resizeWithOldSuperviewSize:(NSSize)oldBoundsSize
-{
+- (void)resizeWithOldSuperviewSize: (NSSize)oldBoundsSize {
   NSRect superBounds = self.superview.bounds;
   NSRect frame = self.frame;
   float leftMargin = NSMinX(frame);
@@ -173,58 +177,60 @@
   [self tile];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)resizeSubviewsWithOldSize:(NSSize)oldSize
-{
+- (void)resizeSubviewsWithOldSize: (NSSize)oldSize {
   NSRect frame= self.frame;
-  if (minimumHeight > frame.size.height)
-  {
+  if (minimumHeight > frame.size.height) {
     frame.size.height= minimumHeight;
     self.frame = frame;
   }
   [self tile];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)childFrameChanged:(NSNotification*)notif
-{
+- (void)childFrameChanged: (NSNotification*)notif {
   [self tile];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)didAddSubview:(NSView*)subview
-{
+- (void)didAddSubview: (NSView*)subview {
   [subview setPostsFrameChangedNotifications:YES];
-  [[NSNotificationCenter defaultCenter] addObserver:self
-                                           selector:@selector(childFrameChanged:)
-                                               name:NSViewFrameDidChangeNotification
-                                             object:subview];
+  [[NSNotificationCenter defaultCenter] addObserver :self
+                                           selector: @selector(childFrameChanged:)
+                                               name: NSViewFrameDidChangeNotification
+                                             object: subview];
   
   [super didAddSubview:subview];
   
   [self tile];
 }
 
-- (void)setBackgroundColor: (NSColor*)color
-{
-  backColor= color;
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setBackgroundColor: (NSColor*)color {
+  backColor = color;
 }
 
-- (void)drawRect:(NSRect)rect
-{
-  if (backColor)
-  {
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)drawRect: (NSRect)rect {
+  if (backColor != nil) {
     [backColor set];
     NSRectFill(rect);
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)expandsOnLayoutVertically:(BOOL)vertically
-{
+- (BOOL)expandsOnLayoutVertically: (BOOL)vertically {
   if (vertically)
     return expandsByDefault;
   return YES;
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

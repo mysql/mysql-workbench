@@ -121,6 +121,12 @@ base::Rect AppWrapper::get_application_bounds(mforms::App *app) {
 
 //--------------------------------------------------------------------------------------------------
 
+bool AppWrapper::isDarkModeActive(mforms::App *app) {
+  return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+
 static int message_loop_exit_code = MININT; // Can stay unguarded. We only use it from the main thread.
 
 /**
@@ -162,6 +168,8 @@ void AppWrapper::init() {
   f->_app_impl.get_application_bounds = &get_application_bounds;
   f->_app_impl.enter_event_loop = &enter_event_loop;
   f->_app_impl.exit_event_loop = &exit_event_loop;
+  f->_app_impl.isDarkModeActive = &isDarkModeActive;
+
 }
 
 //--------------------------------------------------------------------------------------------------

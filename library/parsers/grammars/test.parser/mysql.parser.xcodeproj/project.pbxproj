@@ -44,7 +44,6 @@
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
-		1DDD58150DA1D0A300B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		256AC3F00F4B6AF500CF3369 /* mysql_parser_Prefix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = mysql_parser_Prefix.h; sourceTree = "<group>"; };
 		274912421D574E600030C9F5 /* mysql_parserAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mysql_parserAppDelegate.h; sourceTree = "<group>"; };
 		274912431D574E600030C9F5 /* mysql_parserAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mysql_parserAppDelegate.mm; sourceTree = "<group>"; wrapsLines = 0; };
@@ -55,6 +54,7 @@
 		27AC52C71CE76C780093AAAB /* MySQLBaseRecognizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLBaseRecognizer.cpp; path = ../../mysql/MySQLBaseRecognizer.cpp; sourceTree = "<group>"; };
 		27AC52C81CE76C780093AAAB /* MySQLBaseRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLBaseRecognizer.h; path = ../../mysql/MySQLBaseRecognizer.h; sourceTree = "<group>"; wrapsLines = 0; };
 		27B738081D1A958B00B02B5A /* libantlr4-runtime.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libantlr4-runtime.dylib"; path = "../../../../../mysql-mac-res/lib/libantlr4-runtime.dylib"; sourceTree = "<group>"; };
+		27C5D56E2183005E00D2B55B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		27D89B321CE4C0F000BEEA3B /* MySQLLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLLexer.cpp; path = ../../mysql/MySQLLexer.cpp; sourceTree = "<group>"; };
 		27D89B331CE4C0F000BEEA3B /* MySQLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLParser.cpp; path = ../../mysql/MySQLParser.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27D89B341CE4C0F000BEEA3B /* MySQLParserBaseListener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLParserBaseListener.cpp; path = ../../mysql/MySQLParserBaseListener.cpp; sourceTree = "<group>"; };
@@ -233,6 +233,7 @@
 				Japanese,
 				French,
 				German,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* mysql.parser */;
 			projectDirPath = "";
@@ -307,7 +308,7 @@
 		1DDD58140DA1D0A300B32029 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				1DDD58150DA1D0A300B32029 /* English */,
+				27C5D56E2183005E00D2B55B /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";

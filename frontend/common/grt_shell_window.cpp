@@ -95,6 +95,10 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
   set_title(("Workbench Scripting Shell"));
   set_name("Shell Window");
   setInternalName("shell_window");
+
+  // Minimum size for the entire window.
+  set_size(800, 600);
+
   set_content(&_content);
   set_menubar(&_menu);
   scoped_connect(signal_closed(), std::bind(&GRTShellWindow::shell_closed, this));
@@ -463,9 +467,6 @@ GRTShellWindow::GRTShellWindow(wb::WBContext *context)
     delete _debugger;
     _debugger = 0;
   }
-
-  // Minimum size for the entire window.
-  set_size(800, 600);
 
   bec::GRTManager::get()->run_once_when_idle(std::bind(&GRTShellWindow::set_splitter_positions, this));
 

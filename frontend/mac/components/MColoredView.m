@@ -23,37 +23,104 @@
 
 #import "MColoredView.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface MColoredView () {
+  NSColor *mColor;
+  BOOL useDefault;
+}
+
+@end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MColoredView
 
-- (instancetype) initWithFrame:(NSRect)frameRect
-{
+-(instancetype)initWithFrame: (NSRect)frameRect {
   self = [super initWithFrame: frameRect];
-  if (self)
-  {
-    mColor = [NSColor colorWithDeviceWhite: 232 / 255.0 alpha: 1.0];
+  if (self != nil && mColor == nil) {
+    useDefault = YES;
+    mColor = NSColor.windowBackgroundColor;
+
+    NSWindow *window = NSApplication.sharedApplication.mainWindow;
+    [window addObserver: self forKeyPath: @"effectiveAppearance" options: 0 context: nil];
+    [self updateColors: window];
+  }
+
+  return self;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+-(instancetype)initWithCoder:(NSCoder *)decoder {
+  self = [super initWithCoder: decoder];
+  if (self != nil) {
+    useDefault = YES;
+    mColor = NSColor.windowBackgroundColor;
+
+    NSWindow *window = NSApplication.sharedApplication.mainWindow;
+    [window addObserver: self forKeyPath: @"effectiveAppearance" options: 0 context: nil];
+    [self updateColors: window];
   }
   return self;
 }
 
-- (NSColor*)backgroundColor
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
+  NSWindow *window = NSApplication.sharedApplication.mainWindow;
+  [window removeObserver: self forKeyPath: @"effectiveAppearance"];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)observeValueForKeyPath: (NSString *)keyPath
+                      ofObject: (id)object
+                        change: (NSDictionary *)change
+                       context: (void *)context {
+  if ([keyPath isEqualToString: @"effectiveAppearance"]) {
+    [self updateColors: object];
+    return;
+  }
+  [super observeValueForKeyPath: keyPath ofObject: object change: change context: context];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)updateColors: (NSWindow *)window {
+  if (!useDefault)
+    return;
+
+  BOOL isDark = NO;
+  if (@available(macOS 10.14, *)) {
+    isDark = window.effectiveAppearance.name == NSAppearanceNameDarkAqua;
+  }
+
+  mColor = NSColor.windowBackgroundColor;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSColor*)backgroundColor {
   return mColor;
 }
 
-- (void)setBackgroundColor:(NSColor*)color
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setBackgroundColor: (NSColor*)color {
+  useDefault = NO;
   mColor = color;
 }
 
-- (void) drawRect:(NSRect)rect
-{
-  if (!mColor)
-  {
-    mColor = [NSColor colorWithDeviceWhite: 232 / 255.0 alpha: 1.0];
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void) drawRect:(NSRect)rect {
+  if (mColor != nil) {
+    [mColor set];
+    NSRectFill(rect);
   }
-  [mColor set];
-  NSRectFill(rect);
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

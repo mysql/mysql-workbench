@@ -35,15 +35,15 @@ SimpleTable::SimpleTable(mdc::Layer *layer, FigureEventHub *hub, const model_Obj
   magnetize_bounds();
 
   add(&_title, false, true, true);
-  _title.set_border_color(Color::Black());
+  _title.set_border_color(Color::black());
   _title.set_font(mdc::FontSpec(_title.get_font().family, mdc::SNormal, mdc::WNormal, 12));
 
   _column_box.set_spacing(1);
 
   //_column_box.set_fixed_min_size(mdc::Size(-1, 20));
 
-  set_border_color(Color::Black());
-  set_background_color(Color::White());
+  set_border_color(Color::black());
+  set_background_color(Color::white());
   set_draw_background(true);
 
   _barker = false;

@@ -57,7 +57,9 @@ using namespace wb;
 using namespace bec;
 using namespace base;
 
-static const double zoom_steps[] = {2.0, 1.5, 1.2, 1.0, 0.95, 0.9, 0.85, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1};
+static const double zoom_steps[] = { 2.0, 1.5, 1.2, 1.0, 0.95, 0.9, 0.85, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &view)
   : _catalog_tree(NULL),
@@ -102,7 +104,7 @@ ModelDiagramForm::ModelDiagramForm(WBComponent *owner, const model_DiagramRef &v
   NotificationCenter::get()->add_observer(this, "GNMainFormChanged");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 ModelDiagramForm::~ModelDiagramForm() {
   NotificationCenter::get()->remove_observer(this);
@@ -117,28 +119,24 @@ ModelDiagramForm::~ModelDiagramForm() {
   delete _features;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
   if (name == "GNColorsChanged") {
     // Single colors or the entire color scheme changed.
     update_toolbar_icons();
   }
-  //  else if(name == "GNMainFormChanged" && _catalog_tree != NULL)
-  //  {
-  //    _catalog_tree->refill();
-  //  }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string ModelDiagramForm::get_form_context_name() const {
   return WB_CONTEXT_MODEL;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-mforms::ToolBar *ModelDiagramForm::get_toolbar() {
+mforms::ToolBar* ModelDiagramForm::get_toolbar() {
   if (!_toolbar) {
     _toolbar = WBContextUI::get()->get_command_ui()->create_toolbar("data/model_diagram_toolbar.xml");
     update_toolbar_icons();
@@ -146,10 +144,12 @@ mforms::ToolBar *ModelDiagramForm::get_toolbar() {
   return _toolbar;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 // Implemented in wb_sql_editor_form_ui.cpp.
 extern std::string find_icon_name(std::string icon_name, bool use_win8);
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::update_toolbar_icons() {
   if (_toolbar == NULL)
@@ -180,7 +180,7 @@ void ModelDiagramForm::update_toolbar_icons() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 mforms::TreeView *ModelDiagramForm::get_layer_tree() {
   if (!_layer_tree) {
@@ -190,7 +190,7 @@ mforms::TreeView *ModelDiagramForm::get_layer_tree() {
   return _layer_tree;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 mforms::ToolBar *ModelDiagramForm::get_tools_toolbar() {
   if (!_tools_toolbar) {
@@ -240,10 +240,14 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar() {
   return _tools_toolbar;
 }
 
-mforms::ToolBar *ModelDiagramForm::get_options_toolbar() {
+//----------------------------------------------------------------------------------------------------------------------
+
+mforms::ToolBar* ModelDiagramForm::get_options_toolbar() {
   update_options_toolbar();
   return _options_toolbar;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 mforms::MenuBar *ModelDiagramForm::get_menubar() {
   if (!_menu) {
@@ -260,6 +264,8 @@ mforms::MenuBar *ModelDiagramForm::get_menubar() {
   revalidate_menu();
   return _menu;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::revalidate_menu() {
   static const char *figure_notations[] = {"workbench/default", "workbench/simple", "workbench/pkonly",
@@ -303,7 +309,7 @@ void ModelDiagramForm::revalidate_menu() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::update_options_toolbar() {
   app_ToolbarRef toolbar = get_wb()->get_component_named("basic")->get_tool_options(get_tool());
@@ -363,6 +369,8 @@ void ModelDiagramForm::update_options_toolbar() {
   // toolbar->reset_references();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<std::string> ModelDiagramForm::get_dropdown_items(const std::string &name, const std::string &option,
                                                               std::string &selected) {
   std::vector<std::string> items;
@@ -380,6 +388,8 @@ std::vector<std::string> ModelDiagramForm::get_dropdown_items(const std::string 
   return items;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::select_dropdown_item(const std::string &option, mforms::ToolBarItem *item) {
   WBComponent *compo;
 
@@ -392,6 +402,8 @@ void ModelDiagramForm::select_dropdown_item(const std::string &option, mforms::T
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::toggle_checkbox_item(const std::string &name, const std::string &option, bool state) {
   WBComponent *compo;
@@ -406,6 +418,8 @@ void ModelDiagramForm::toggle_checkbox_item(const std::string &name, const std::
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::activate_catalog_tree_item(const grt::ValueRef &value) {
   if (value.is_valid() && db_DatabaseObjectRef::can_wrap(value)) {
     db_DatabaseObjectRef object(db_DatabaseObjectRef::cast_from(value));
@@ -413,6 +427,8 @@ void ModelDiagramForm::activate_catalog_tree_item(const grt::ValueRef &value) {
     bec::GRTManager::get()->open_object_editor(object);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::selection_changed() {
   get_wb()->request_refresh(RefreshSelection, "", 0);
@@ -423,7 +439,7 @@ void ModelDiagramForm::selection_changed() {
     bec::GRTManager::get()->run_once_when_idle(std::bind(&ModelDiagramForm::revalidate_menu, this));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::diagram_changed(grt::internal::OwnedList *olist, bool added, const grt::ValueRef &val) {
   _idle_node_mark.disconnect();
@@ -432,6 +448,8 @@ void ModelDiagramForm::diagram_changed(grt::internal::OwnedList *olist, bool add
       bec::GRTManager::get()->run_once_when_idle(std::bind(&ModelDiagramForm::mark_catalog_node, this, val, true));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::mark_catalog_node(grt::ValueRef val, bool mark) {
   if (model_ObjectRef::can_wrap(val)) {
     model_ObjectRef f(model_ObjectRef::cast_from(val));
@@ -439,6 +457,8 @@ void ModelDiagramForm::mark_catalog_node(grt::ValueRef val, bool mark) {
       _catalog_tree->mark_node(_owner->get_object_for_figure(f), mark);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::attach_canvas_view(mdc::CanvasView *cview) {
   _view = cview;
@@ -462,6 +482,8 @@ void ModelDiagramForm::attach_canvas_view(mdc::CanvasView *cview) {
   selection_changed();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::close() {
   set_closed(true);
   _mini_view->set_active_view(NULL, model_DiagramRef());
@@ -474,6 +496,8 @@ void ModelDiagramForm::close() {
   _model_diagram->get_data()->unrealize();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 CatalogTreeView *ModelDiagramForm::get_catalog_tree() {
   if (_catalog_tree == NULL) {
     _catalog_tree = new CatalogTreeView(this);
@@ -482,6 +506,8 @@ CatalogTreeView *ModelDiagramForm::get_catalog_tree() {
   }
   return _catalog_tree;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::notify_catalog_tree(const CatalogNodeNotificationType &notify_type, grt::ValueRef value) {
   _idle_node_mark.disconnect(); // if there is pending mark_node, disable it
@@ -499,6 +525,8 @@ void ModelDiagramForm::notify_catalog_tree(const CatalogNodeNotificationType &no
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::refill_catalog_tree() {
   if (!_catalog_tree) {
     _catalog_tree = new CatalogTreeView(this);
@@ -509,29 +537,39 @@ void ModelDiagramForm::refill_catalog_tree() {
   _catalog_tree->refill(true);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::set_closed(bool flag) {
   if (_model_diagram.is_valid())
     _model_diagram->closed(flag != 0);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::is_closed() {
   return *_model_diagram->closed() != 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::set_button_callback(
   const std::function<bool(ModelDiagramForm *, mdc::MouseButton, bool, Point, mdc::EventState)> &cb) {
   _handle_button = cb;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::set_motion_callback(const std::function<bool(ModelDiagramForm *, Point, mdc::EventState)> &cb) {
   _handle_motion = cb;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::set_reset_tool_callback(const std::function<void(ModelDiagramForm *)> &cb) {
   _reset_tool = cb;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Enables or disables zooming via shortcut and mouse click (similar to Adobe Photoshop).
@@ -570,7 +608,7 @@ void ModelDiagramForm::enable_zoom_click(bool enable, bool zoomin) {
   set_tool(_tool);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::enable_panning(bool flag) {
   if (flag) {
@@ -594,6 +632,8 @@ void ModelDiagramForm::enable_panning(bool flag) {
     set_tool(_tool);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::begin_selection_drag() {
   mdc::Selection::ContentType selection(_view->get_selection()->get_contents());
@@ -630,6 +670,8 @@ void ModelDiagramForm::begin_selection_drag() {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::end_selection_drag() {
   std::string name;
@@ -694,6 +736,8 @@ void ModelDiagramForm::end_selection_drag() {
     um->end_undo_group(_("Move Objects"));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::current_mouse_position(int &x, int &y) {
   int w, h;
 
@@ -706,6 +750,8 @@ bool ModelDiagramForm::current_mouse_position(int &x, int &y) {
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::current_mouse_position(Point &pos) {
   int x, y;
   bool inside = current_mouse_position(x, y);
@@ -715,11 +761,13 @@ bool ModelDiagramForm::current_mouse_position(Point &pos) {
   return inside;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 mdc::CanvasItem *ModelDiagramForm::get_leaf_item_at(const Point &pos) {
   return _view->get_leaf_item_at(pos);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::handle_mouse_button(mdc::MouseButton button, bool press, int x, int y, mdc::EventState state) {
   if (_features)
@@ -798,7 +846,7 @@ void ModelDiagramForm::handle_mouse_button(mdc::MouseButton button, bool press, 
   _view->handle_mouse_button(button, press, x, y, state);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::handle_mouse_double_click(mdc::MouseButton button, int x, int y, mdc::EventState state) {
   stop_editing();
@@ -809,12 +857,10 @@ void ModelDiagramForm::handle_mouse_double_click(mdc::MouseButton button, int x,
   _view->handle_mouse_double_click(button, x, y, state);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::handle_mouse_move(int x, int y, mdc::EventState state) {
   Point pos(_view->window_to_canvas(x, y));
-
-  //_features->mouse_moved(x, y, state);
 
   _current_mouse_x = x;
   _current_mouse_y = y;
@@ -825,9 +871,13 @@ void ModelDiagramForm::handle_mouse_move(int x, int y, mdc::EventState state) {
   _view->handle_mouse_move(x, y, state);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::handle_mouse_leave(int x, int y, mdc::EventState state) {
   _view->handle_mouse_leave(x, y, state);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::EventState state) {
   if (press) {
@@ -888,7 +938,7 @@ bool ModelDiagramForm::handle_key(const mdc::KeyInfo &key, bool press, mdc::Even
   return _view->handle_key(key, press, state);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::set_tool(std::string tool) {
   if (_tool != DEFAULT_TOOL)
@@ -916,9 +966,9 @@ void ModelDiagramForm::set_tool(std::string tool) {
     _owner->get_wb()->_frontendCallbacks->tool_changed(_view);
 }
 
-void ModelDiagramForm::reset_tool(bool notify) {
-  // _tool_args.clear();
+//----------------------------------------------------------------------------------------------------------------------
 
+void ModelDiagramForm::reset_tool(bool notify) {
   if (_tools_toolbar) {
     mforms::ToolBarItem *item = _tools_toolbar->find_item(_tool);
     if (!_tool.empty() && item)
@@ -948,53 +998,72 @@ std::string ModelDiagramForm::get_tool_argument(const std::string &option) {
   return _tool_args[option];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
- ****************************************************************************
  * @brief Sets options for the selected tool
  *
  * Change the value of an option for the currently selected tool.
  *
  * @param option name of the option
  * @param value value of the option
- *****************************************************************************/
+ */
 void ModelDiagramForm::set_tool_argument(const std::string &option, const std::string &value) {
   _tool_args[option] = value;
 
   _tool_argument_changed(option);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::set_zoom(double zoom) {
   _model_diagram->zoom(zoom);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 double ModelDiagramForm::get_zoom() {
   return _model_diagram->zoom();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bec::Clipboard *ModelDiagramForm::get_clipboard() {
   return bec::GRTManager::get()->get_clipboard();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::can_undo() {
   return grt::GRT::get()->get_undo_manager()->can_undo();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::can_redo() {
   return grt::GRT::get()->get_undo_manager()->can_redo();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::can_copy() {
   return get_copiable_selection().count() > 0;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::can_select_all() {
   return true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void check_if_can_paste(WBComponent *compo, const grt::ObjectRef &object, bool *result) {
   if (compo->can_paste_object(object))
     *result = true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::can_paste() {
   std::list<grt::ObjectRef> data(get_clipboard()->get_data());
@@ -1012,6 +1081,8 @@ bool ModelDiagramForm::can_paste() {
   }
   return !get_clipboard()->empty();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::can_delete() {
   return has_selection();
@@ -1035,13 +1106,19 @@ std::string ModelDiagramForm::get_edit_target_name() {
     return strfmt(_("%i Selected Figures"), (int)sel.count());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::undo() {
   grt::GRT::get()->get_undo_manager()->undo();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::redo() {
   grt::GRT::get()->get_undo_manager()->redo();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::cut() {
   grt::UndoManager *um = grt::GRT::get()->get_undo_manager();
@@ -1058,6 +1135,8 @@ void ModelDiagramForm::cut() {
 
   _owner->get_wb()->_frontendCallbacks->show_status_text(strfmt(_("%i figure(s) cut."), count));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::copy() {
   // object must be duplicated on copy because if the object is edited after copy
@@ -1083,14 +1162,20 @@ void ModelDiagramForm::copy() {
   _owner->get_wb()->_frontendCallbacks->show_status_text(strfmt(_("%i object(s) copied."), count));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::clipboard_changed() {
   _paste_offset = 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void get_component_that_can_paste(WBComponent *compo, const grt::ObjectRef &object, WBComponent **result) {
   if (compo->can_paste_object(object))
     *result = compo;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::paste() {
   // Prevent too many updates.
@@ -1146,6 +1231,8 @@ void ModelDiagramForm::paste() {
       strfmt(_("%i figure(s) pasted, %i duplicated."), count, duplicated));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::select_all() {
   for (size_t c = get_model_diagram()->figures().count(), i = 0; i < c; i++)
     get_model_diagram()->selectObject(get_model_diagram()->figures().get(i));
@@ -1153,6 +1240,8 @@ void ModelDiagramForm::select_all() {
   for (size_t c = get_model_diagram()->layers().count(), i = 0; i < c; i++)
     get_model_diagram()->selectObject(get_model_diagram()->layers().get(i));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::remove_selection(bool deleteSelection) {
   grt::UndoManager *um = grt::GRT::get()->get_undo_manager();
@@ -1190,9 +1279,13 @@ void ModelDiagramForm::remove_selection(bool deleteSelection) {
   _owner->get_wb()->_frontendCallbacks->show_status_text(statusText);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::delete_selection() {
   remove_selection(true);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string ModelDiagramForm::get_diagram_info_text() {
   if (_model_diagram.is_valid())
@@ -1200,15 +1293,21 @@ std::string ModelDiagramForm::get_diagram_info_text() {
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<std::string> ModelDiagramForm::get_accepted_drop_types() {
   std::vector<std::string> vec;
   vec.push_back(WB_DBOBJECT_DRAG_TYPE);
   return vec;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 grt::ListRef<model_Object> ModelDiagramForm::get_selection() {
   return _model_diagram->selection();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 grt::ListRef<model_Object> ModelDiagramForm::get_copiable_selection() {
   grt::ListRef<model_Object> sel(_model_diagram->selection());
@@ -1221,9 +1320,13 @@ grt::ListRef<model_Object> ModelDiagramForm::get_copiable_selection() {
   return copiable;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::has_selection() {
   return _model_diagram->selection().count() > 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static mdc::CanvasItem *extractItem(const model_ObjectRef &object) {
   mdc::CanvasItem *item = nullptr;
@@ -1240,6 +1343,8 @@ static mdc::CanvasItem *extractItem(const model_ObjectRef &object) {
   return item;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::is_visible(const model_ObjectRef &object, bool partially) {
   mdc::CanvasItem *item = extractItem(object);
 
@@ -1254,6 +1359,8 @@ bool ModelDiagramForm::is_visible(const model_ObjectRef &object, bool partially)
   else
     return mdc::bounds_contain_bounds(viewport, bounds);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::focus_and_make_visible(const model_ObjectRef &object, bool select) {
   mdc::CanvasItem *item = extractItem(object);
@@ -1285,6 +1392,8 @@ void ModelDiagramForm::focus_and_make_visible(const model_ObjectRef &object, boo
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static model_ObjectRef search_object_list(const grt::ListRef<model_Object> &objects, size_t starting_index,
                                           const std::string &text) {
   for (size_t count = objects.count(), i = starting_index; i < count; i++) {
@@ -1296,6 +1405,8 @@ static model_ObjectRef search_object_list(const grt::ListRef<model_Object> &obje
 
   return model_ObjectRef();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::search_and_focus_object(const std::string &text) {
   if (text.empty())
@@ -1363,9 +1474,13 @@ bool ModelDiagramForm::search_and_focus_object(const std::string &text) {
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::set_cursor(const std::string &cursor) {
   _cursor = cursor;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 model_LayerRef ModelDiagramForm::get_layer_at(const Point &pos, Point &offset) {
   model_LayerRef layer;
@@ -1399,6 +1514,8 @@ model_LayerRef ModelDiagramForm::get_layer_at(const Point &pos, Point &offset) {
   return _model_diagram->rootLayer();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 model_LayerRef ModelDiagramForm::get_layer_bounding(const Rect &rect, Point &offset) {
   grt::ListRef<model_Layer> layers(_model_diagram->layers());
 
@@ -1410,6 +1527,8 @@ model_LayerRef ModelDiagramForm::get_layer_bounding(const Rect &rect, Point &off
   }
   return model_LayerRef();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 model_ObjectRef ModelDiagramForm::get_object_at(const Point &pos) {
   mdc::CanvasItem *item = _view->get_item_at(pos);
@@ -1438,6 +1557,8 @@ model_ObjectRef ModelDiagramForm::get_object_at(const Point &pos) {
   return model_ObjectRef();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ModelDiagramForm::relocate_figures() {
   bool relocated = false;
   grt::ListRef<model_Figure> figures(_model_diagram->figures());
@@ -1452,19 +1573,19 @@ bool ModelDiagramForm::relocate_figures() {
   return relocated;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::accepts_drop(int x, int y, const std::string &type, const std::list<GrtObjectRef> &objects) {
   return _owner->accepts_drop(this, x, y, type, objects);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::accepts_drop(int x, int y, const std::string &type, const std::string &text) {
   return _owner->accepts_drop(this, x, y, type, text);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::perform_drop(int x, int y, const std::string &type, const std::list<GrtObjectRef> &objects) {
   bool retval = _owner->perform_drop(this, x, y, type, objects);
@@ -1477,15 +1598,19 @@ bool ModelDiagramForm::perform_drop(int x, int y, const std::string &type, const
   return retval;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ModelDiagramForm::perform_drop(int x, int y, const std::string &type, const std::string &text) {
   return _owner->perform_drop(this, x, y, type, text);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 mdc::Layer *ModelDiagramForm::get_floater_layer() {
   return _floater_layer;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::add_floater(Floater *floater) {
   Point pos;
@@ -1497,24 +1622,15 @@ void ModelDiagramForm::add_floater(Floater *floater) {
   _floater_layer->add_item(floater);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 WBContext *ModelDiagramForm::get_wb() {
   return _owner->get_wb();
 }
 
-/* unused
-void ModelDiagramForm::hover_in_figure(mdc::CanvasItem *item, Point pos)
-{
-}
-
-
-
-void ModelDiagramForm::hover_out_figure(mdc::CanvasItem *item)
-{
-}
-*/
+//----------------------------------------------------------------------------------------------------------------------
 
 // inline editing
-
 void ModelDiagramForm::begin_editing(const Rect &rect, const std::string &text, float text_size, bool multiline) {
   if (_inline_edit_context) {
     int x, y;
@@ -1529,14 +1645,20 @@ void ModelDiagramForm::begin_editing(const Rect &rect, const std::string &text, 
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::stop_editing() {
   if (_inline_edit_context)
     _inline_edit_context->end_editing();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void forward_edit_finished(const std::string &text, EditFinishReason reason, ModelDiagramForm *form) {
   (*form->signal_editing_done())(text, reason);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::set_inline_editor_context(InlineEditContext *context) {
   _inline_edit_context = context;
@@ -1544,6 +1666,8 @@ void ModelDiagramForm::set_inline_editor_context(InlineEditContext *context) {
   scoped_connect(_inline_edit_context->signal_edit_finished(),
                  std::bind(forward_edit_finished, std::placeholders::_1, std::placeholders::_2, this));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::zoom_in() {
   model_DiagramRef view(get_model_diagram());
@@ -1559,6 +1683,8 @@ void ModelDiagramForm::zoom_in() {
   view->zoom(zoom_steps[0]);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ModelDiagramForm::zoom_out() {
   model_DiagramRef view(get_model_diagram());
   double zoom = *view->zoom();
@@ -1572,6 +1698,8 @@ void ModelDiagramForm::zoom_out() {
   }
   view->zoom(zoom_steps[sizeof(zoom_steps) / sizeof(*zoom_steps) - 1]);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::setup_mini_view(mdc::CanvasView *view) {
   if (!_mini_view) {
@@ -1593,7 +1721,7 @@ void ModelDiagramForm::setup_mini_view(mdc::CanvasView *view) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::update_mini_view_size(int w, int h) {
   if (_mini_view) {
@@ -1606,23 +1734,35 @@ void ModelDiagramForm::update_mini_view_size(int w, int h) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+void ModelDiagramForm::setBackgroundColor(base::Color const& color) {
+  if (_mini_view != nullptr)
+    _mini_view->setBackgroundColor(color);
+  if (_view != nullptr)
+    _view->setBackgroundColor(color);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string ModelDiagramForm::get_title() {
   return std::string(_model_diagram->name());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ModelDiagramForm::set_highlight_fks(bool flag) {
   _highlight_fks = flag;
   _features->highlight_all_connections(flag);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------- UpdateLock -----------------------------------------------------------------------------------------
+
 ModelDiagramForm::UpdateLock::~UpdateLock() {
   if (_form->_update_count > 0)
     _form->_update_count--;
   if (_form->_update_count == 0)
     _form->_layer_tree->refresh();
 }
+
+//----------------------------------------------------------------------------------------------------------------------

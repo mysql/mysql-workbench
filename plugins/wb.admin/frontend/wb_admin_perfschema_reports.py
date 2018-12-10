@@ -74,7 +74,7 @@ class PSHelperViewTab(mforms.Box):
         self._owner = owner
         
         self.set_spacing(8)
-        if sys.platform == 'win32' or sys.platform == 'darwin':
+        if sys.platform == 'win32':
             self.set_back_color("#FFFFFF")
 
         self._refresh = None

@@ -25,6 +25,8 @@
 
 using namespace mforms;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 Label::Label(const std::string &text, bool right_align) {
   _label_impl = &ControlFactory::get_instance()->_label_impl;
 
@@ -35,28 +37,42 @@ Label::Label(const std::string &text, bool right_align) {
     set_text_align(MiddleRight);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 Label::Label() {
   _label_impl = &ControlFactory::get_instance()->_label_impl;
 
   _label_impl->create(this);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void Label::set_text(const std::string &text) {
   _label_impl->set_text(this, text);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void Label::set_color(const std::string &color) {
   _label_impl->set_color(this, color);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void Label::set_text_align(Alignment align) {
   _label_impl->set_text_align(this, align);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void Label::set_style(LabelStyle style) {
   _label_impl->set_style(this, style);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void Label::set_wrap_text(bool flag) {
   _label_impl->set_wrap_text(this, flag);
 }
+
+//----------------------------------------------------------------------------------------------------------------------

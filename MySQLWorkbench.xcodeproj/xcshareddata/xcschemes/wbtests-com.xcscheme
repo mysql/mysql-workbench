@@ -55,7 +55,7 @@
       launchAutomaticallySubstyle = "2">
       <RemoteRunnable
          runnableDebuggingMode = "0"
-         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/master/workbench/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
+         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/features2/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -68,7 +68,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only file_utilities_test"
+            argument = "only mforms_code_editor_test"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

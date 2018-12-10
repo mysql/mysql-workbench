@@ -143,6 +143,9 @@ static struct RegisterNotifDocs_ui_form {
                                                            "Sent when a control gets the input focus.", "", "");
     base::NotificationCenter::get()->register_notification(
       "GNColorsChanged", "application",
-      "Sent when either the color scheme or one of its colors was changed in the preferences.", "", "");
+      "Sent when colors or the theme changed in the preferences or when the system's appearance changed.", "", "");
+    base::NotificationCenter::get()->register_notification(
+      "GNBackingScaleChanged", "application",
+      "Sent when a window moved to a monitor with a different resolution (DPI).", "", "");
   }
 } initdocs_ui_form;

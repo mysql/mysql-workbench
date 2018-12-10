@@ -54,9 +54,6 @@ namespace mforms {
   enum HomeScreenAction {
     ActionNone,
 
-    ActionShortcut,
-    ActionRemoveShortcut,
-
     ActionOpenConnectionFromList,
     ActionNewConnection,
     ActionManageConnections,
@@ -113,20 +110,11 @@ namespace mforms {
 
   class MFORMS_EXPORT HomeScreenSettings {
   public:
+    static const char* HOME_TITLE_FONT;
+    static const char* HOME_NORMAL_FONT;
+    static const char* HOME_DETAILS_FONT;
 #ifdef __APPLE__
-    static const char* HOME_TITLE_FONT;
-    static const char* HOME_NORMAL_FONT;
-    static const char* HOME_DETAILS_FONT;
-    // Info font is only used on Mac.
-    static const char* HOME_INFO_FONT;
-#elif defined(_MSC_VER)
-    static const char* HOME_TITLE_FONT;
-    static const char* HOME_NORMAL_FONT;
-    static const char* HOME_DETAILS_FONT;
-#else
-    static const char* HOME_TITLE_FONT;
-    static const char* HOME_NORMAL_FONT;
-    static const char* HOME_DETAILS_FONT;
+    static const char* HOME_INFO_FONT; // Info font is only used on Mac.
 #endif
 
     static const int HOME_TITLE_FONT_SIZE = 20;
@@ -163,9 +151,8 @@ namespace mforms {
   protected:
     std::string _iconName;
 
-    base::Color _indicatorColor;
   public:
-    HomeScreenSection(const std::string &icon) : _iconName(icon), _indicatorColor("#ffffff") {
+    HomeScreenSection(const std::string &icon) : _iconName(icon) {
     }
     virtual ~HomeScreenSection() {
     }
@@ -188,8 +175,11 @@ namespace mforms {
     virtual bool canHandle(HomeScreenMenuType type) = 0;
     virtual void setContextMenu(mforms::Menu* menu, HomeScreenMenuType type) = 0;
     virtual void setContextMenuAction(mforms::Menu* menu, HomeScreenMenuType type) = 0;
+
+    virtual void updateColors() = 0;
+    virtual void updateIcons() = 0;
+
     std::function<void()> callback;
-    base::Color getIndicatorColor() { return _indicatorColor; };
   };
 
   // The following helpers are just temporary. They will be replaced by a cairo context class.

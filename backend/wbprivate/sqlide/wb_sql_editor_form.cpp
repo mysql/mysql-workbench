@@ -214,12 +214,12 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   }
 
   message =
-    "Your connection attempt failed for user '%user%' from your host to server at %server%:%port%:\n  %error%\n"
+    "Your connection attempt failed for user '%user%' to the MySQL server at %server%:%port%:\n  %error%\n"
     "\n"
     "Please:\n"
-    "1 Check that mysql is running on server %server%\n"
-    "2 Check that mysql is running on port %port% (note: 3306 is the default, but this can be changed)\n"
-    "3 Check the %user% has rights to connect to %server% from your address (mysql rights define what clients can "
+    "1 Check that MySQL is running on address %server%\n"
+    "2 Check that MySQL is reachable on port %port% (note: 3306 is the default, but this can be changed)\n"
+    "3 Check the user %user% has rights to connect to %server% from your address (MySQL rights define what clients can "
     "connect to the server and from which machines) \n"
     "4 Make sure you are both providing a password if needed and using the correct password for %server% connecting "
     "from the host address you're connecting from";
@@ -1224,8 +1224,7 @@ void SqlEditorForm::update_connected_state() {
  * Little helper to create a single html line used for info output.
  */
 std::string create_html_line(const std::string &name, const std::string &value) {
-  return "<div style=\"padding-left: 15px\"><span style=\"color: #717171\">" + name + "</span> <i>" + value +
-         "</i></div>";
+  return "<div class='line'><span class='name'>" + name + " </span><span class='value'>" + value + "</span></div>";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1258,9 +1257,9 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _connection_details["driverName"] = _connection->driver()->name();
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");
 
-    // Connection:
-    _connection_info = std::string("<html><body style=\"font-family:") + DEFAULT_FONT_FAMILY +
-                       "; font-size: 8pt\"><div style=\"color=#3b3b3b; font-weight:bold\">Connection:</div>";
+    // During the connection process create also a description about the connection details that can be shown
+    // in the SQL IDE.
+    _connection_info = "<body><div class='heading'>Connection:</div><br />";
     _connection_info.append(create_html_line("Name: ", _connection->name()));
     // Host:
     if (_connection->driver()->name() == "MysqlNativeSocket") {
@@ -1413,11 +1412,11 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       }
     }
 
-    _connection_info.append("</body></html>");
+    _connection_info.append("</body>");
     throw;
   }
 
-  _connection_info.append("</body></html>");
+  _connection_info.append("</body>");
   return grt::StringRef();
 }
 

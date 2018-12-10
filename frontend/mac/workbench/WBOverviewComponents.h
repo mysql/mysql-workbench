@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, ListMode) { ListModeLargeIcon, ListModeSmallIcon, Lis
   BOOL _resizing;
 }
 
-- (instancetype)initWithOverview:(WBOverviewPanel *)owner nodeId:(const bec::NodeId &)node NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithOverview: (WBOverviewPanel *)owner nodeId: (const bec::NodeId &)node NS_DESIGNATED_INITIALIZER;
 - (void)refreshChildren;
 
 - (void)buildChildren;
@@ -62,11 +62,11 @@ typedef NS_ENUM(NSInteger, ListMode) { ListModeLargeIcon, ListModeSmallIcon, Lis
   NSTabViewItem *_tabItem;
 }
 
-- (instancetype)initWithOverview:(WBOverviewPanel *)owner
-                          nodeId:(const bec::NodeId &)node
-                         tabItem:(NSTabViewItem *)tabItem NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithOverview: (WBOverviewPanel *)owner
+                          nodeId: (const bec::NodeId &)node
+                         tabItem: (NSTabViewItem *)tabItem NS_DESIGNATED_INITIALIZER;
 
-- (void)updateNodeId:(const bec::NodeId &)node;
+- (void)updateNodeId: (const bec::NodeId &)node;
 @property(readonly) bec::NodeId &nodeId;
 
 - (void)refreshChildren;

@@ -30,7 +30,7 @@
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-@property(readonly, copy) NSString *identifier;
+@property(readonly, copy) NSString *panelId;
 @property(weak, readonly) WBOverviewPanel *overview;
 @property(weak, readonly) WBModelSidebarController *sidebarController;
 

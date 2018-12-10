@@ -119,20 +119,6 @@ std::string IconManager::get_icon_path(const std::string &file) {
 #ifdef __APPLE__
     std::string mac_path;
 
-    if (mforms::App::get()->backing_scale_factor() > 1) {
-      mac_path = base::strip_extension(path) + "_mac@2x.png";
-      if (g_file_test(mac_path.c_str(), G_FILE_TEST_EXISTS)) {
-        _icon_paths[file] = mac_path;
-        return mac_path;
-      }
-
-      mac_path = base::strip_extension(path) + "@2x.png";
-      if (g_file_test(mac_path.c_str(), G_FILE_TEST_EXISTS)) {
-        _icon_paths[file] = mac_path;
-        return mac_path;
-      }
-    }
-
     mac_path = base::strip_extension(path) + "_mac.png";
     if (g_file_test(mac_path.c_str(), G_FILE_TEST_EXISTS)) {
       _icon_paths[file] = mac_path;

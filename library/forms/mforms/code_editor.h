@@ -23,11 +23,13 @@
 
 #pragma once
 
+#include <libxml/tree.h>
 #include "Scintilla.h"
 
-#include <mforms/view.h>
-#include <mforms/utilities.h>
-#include <libxml/tree.h>
+#include "base/notifications.h"
+
+#include "mforms/view.h"
+#include "mforms/utilities.h"
 
 /**
  * Provides a code editor with syntax highlighting for mforms.
@@ -44,9 +46,6 @@ namespace mforms {
 
   enum SyntaxHighlighterLanguage {
     LanguageNone,
-    LanguageMySQL50,
-    LanguageMySQL51,
-    LanguageMySQL55,
     LanguageMySQL56,
     LanguageMySQL57,
     LanguageMySQL80,
@@ -57,7 +56,7 @@ namespace mforms {
     LanguageJS,
     LanguageJson,
 
-    LanguageMySQL = LanguageMySQL57, // Always the latest (released) language.
+    LanguageMySQL = LanguageMySQL80, // Always the latest (released) language.
   };
 
   /**
@@ -184,12 +183,15 @@ namespace mforms {
     std::map<std::string, std::string> get_keywords() {
       return _keywords;
     };
+
     std::map<std::string, std::string> get_properties() {
       return _properties;
     };
+
     std::map<std::string, std::string> get_settings() {
       return _settings;
     };
+    
     std::map<int, std::map<std::string, std::string> > get_styles() {
       return _styles;
     };
@@ -213,15 +215,15 @@ namespace mforms {
 #endif
 #endif
 
-  class MFORMS_EXPORT CodeEditor : public View {
+  class MFORMS_EXPORT CodeEditor : public View, public base::Observer {
   public:
     enum EditorMargin { LineNumberMargin, MarkersMargin, FolderMargin, TextMargin };
 
     CodeEditor(void* host = NULL, bool showInfo = true);
     ~CodeEditor();
 
-    /** Apply default settings for the editor. */
-    void setup();
+    /** Set editor colors based on the current OS appearance. */
+    void updateColors();
 
     /** Set custom color and size of editor margins. */
     void setWidth(EditorMargin margin, int size, const std::string& adjustText = "");
@@ -255,7 +257,7 @@ namespace mforms {
      *  string in that case.
      */
     const std::string get_text(bool selection_only);
-    virtual std::string get_string_value() {
+    virtual std::string get_string_value() override {
       return get_text(false);
     }
 
@@ -329,7 +331,7 @@ namespace mforms {
     /** Returns the line number from the given character position. */
     size_t line_from_position(size_t position);
 
-    void set_font(const std::string& fontDescription); // e.g. "Trebuchet MS bold 9"
+    virtual void set_font(const std::string& fontDescription) override; // e.g. "Trebuchet MS bold 9"
 
     /** Enables or disables different features in the editor which have a yes/no behavior. */
     void set_features(CodeEditorFeature features, bool flag);
@@ -564,26 +566,31 @@ namespace mforms {
     void lost_focus();
     bool key_event(mforms::KeyCode code, mforms::ModifierKey modifier, const std::string& text);
 
-    virtual void resize();
+    virtual void resize() override;
 
 #endif
 #endif
-  protected:
+
+  private:
     CodeEditorImplPtrs* _code_editor_impl;
     Menu* _context_menu;
     FindPanel* _find_panel;
-    std::map<int, void*> _images; // Registered RGBA images.
+
+    std::map<int, std::map<std::string, std::string>> _currentStyles; // Loaded styles for the currently configured langugage.
+
     void* _host;
     bool _scroll_on_resize;
     bool _auto_indent;
 
     MarginSizes _marginSize;
 
-    void setup_marker(int marker, const std::string& name);
+    void setupMarker(int marker, const std::string& name);
     void handleMarkerDeletion(int position, int length);
     void handleMarkerMove(int position, int linesAdded);
+    bool ensureImage(std::string const& name);
 
-    void load_configuration(SyntaxHighlighterLanguage language);
+    void loadConfiguration(SyntaxHighlighterLanguage language);
+    virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) override;
 
     boost::signals2::signal<void(int, int, int, bool)> _change_event;
     boost::signals2::signal<void(int, int, mforms::ModifierKey)> _gutter_clicked_event;

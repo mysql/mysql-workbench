@@ -28,6 +28,8 @@ import mforms
 import time
 import wb_admin_monitor
 
+from workbench.notifications import NotificationCenter
+
 def stradd(table, y, label, value):
     t = mforms.newLabel(label + ":")
     t.set_name(label)
@@ -35,7 +37,6 @@ def stradd(table, y, label, value):
 
     t = mforms.newLabel(value)
     t.set_style(mforms.BoldStyle)
-    t.set_color("#555555")
     t.set_name(label + " Value")
     table.add(t, 1, 2, y, y+1, mforms.VFillFlag|mforms.HFillFlag)
     return t
@@ -83,7 +84,6 @@ class StateIcon(mforms.Box):
         if not self.text:
             self.text = mforms.newLabel(text)
             self.text.set_style(mforms.BoldStyle)
-            self.text.set_color("#555555")
             self.add(self.text, False, True)
         else:
             self.text.set_text(text)
@@ -170,8 +170,6 @@ class ConnectionInfo(mforms.Box):
             if icon:
                 self.icon.set_image(icon)
         self.resume_layout()
-
-
 
 #===============================================================================
 #
@@ -464,7 +462,6 @@ class WbAdminServerStatus(mforms.Box):
     def add_info_section_2(self, title, info, params):
         label = mforms.newLabel(title)
         label.set_style(mforms.BigBoldStyle)
-        label.set_color("#5f5f5f")
         self.content.add(label, False, True)
         sep = mforms.newBox(False)
         sep.set_back_color("#b2b2b2")
@@ -485,7 +482,6 @@ class WbAdminServerStatus(mforms.Box):
     def add_info_section(self, title, info, params):
         label = mforms.newLabel(title)
         label.set_style(mforms.BigBoldStyle)
-        label.set_color("#5f5f5f")
         self.content.add(label, False, True)
         sep = mforms.newBox(False)
         sep.set_back_color("#b2b2b2")
@@ -553,7 +549,6 @@ class WbAdminServerStatus(mforms.Box):
                     if label and label != '':
                         l2.set_name(label + " Value")
                     l2.set_style(mforms.BoldStyle)
-                    l2.set_color("#1c1c1c")
                     info_table.add(l2, 1, 2, i, i + 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
                     self.controls[label] = (l2, value_source)
         info_table.add(mforms.newLabel(""), 0, 1, len(info), len(info)+1, mforms.HFillFlag) # blank space
@@ -578,3 +573,4 @@ class WbAdminServerStatus(mforms.Box):
             self.ctrl_be.exec_query("SET @@GLOBAL.GTID_MODE = %s;" % new_value)
         except QueryError, e:
             log_error("Error update GTID mode: %s" % str(e))
+

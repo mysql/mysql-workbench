@@ -31,12 +31,36 @@
 extern const char *DEFAULT_CHARSET_CAPTION;
 extern const char *DEFAULT_COLLATION_CAPTION;
 
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface DbMysqlSchemaEditor () {
+  IBOutlet NSTabView *tabView; // this editor has a single Tab, but we put in a TabView for homegeneity
+  IBOutlet MTabSwitcher *tabSwitcher;
+
+  IBOutlet NSTextField *nameText;
+  IBOutlet NSPopUpButton *collationPopup;
+  IBOutlet NSPopUpButton *charsetPopup;
+
+  IBOutlet NSTextView *commentText;
+  IBOutlet NSButton *mRefactorButton;
+
+  MySQLSchemaEditorBE *mBackEnd; //!< schema editor backend
+
+  BOOL mChanging;
+}
+
+@end
+
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation DbMysqlSchemaEditor
 
 static void call_refresh(void *theEditor) {
   DbMysqlSchemaEditor *editor = (__bridge DbMysqlSchemaEditor *)theEditor;
   [editor performSelectorOnMainThread: @selector(refresh) withObject: nil waitUntilDone: YES];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithModule: (grt::Module *)module arguments: (const grt::BaseListRef &)args {
   self = [super initWithNibName: @"MySQLSchemaEditor" bundle: [NSBundle bundleForClass: [self class]]];
@@ -82,13 +106,19 @@ static void call_refresh(void *theEditor) {
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (instancetype)initWithNibName: (NSString *)nibNameOrNil bundle: (NSBundle *)nibBundleOrNil {
   return [self initWithModule: nil arguments: grt::BaseListRef()];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (instancetype)initWithCoder: (NSCoder *)coder {
   return [self initWithModule: nil arguments:grt::BaseListRef()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)reinitWithArguments: (const grt::BaseListRef &)args {
   [super reinitWithArguments: args];
@@ -120,9 +150,13 @@ static void call_refresh(void *theEditor) {
   [self notifyObjectSwitched];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)dealloc {
   delete mBackEnd;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Fetches object info from the backend and update the UI
@@ -149,20 +183,28 @@ static void call_refresh(void *theEditor) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)matchesIdentifierForClosingEditor: (NSString *)identifier {
   return mBackEnd->should_close_on_delete_of([identifier UTF8String]);
 }
 
-- (id)identifier {
+//----------------------------------------------------------------------------------------------------------------------
+
+- (id)panelId {
   // An identifier for this editor (just take the object id).
   return [NSString stringWithCPPString:mBackEnd->get_object().id()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)pluginDidShow: (id)sender {
   [[tabView window] makeFirstResponder:nameText];
 
   [super pluginDidShow:sender];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (IBAction)activateCharsetCollationPopup: (id)sender {
   if (sender == collationPopup) {
@@ -184,6 +226,8 @@ static void call_refresh(void *theEditor) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)controlTextDidEndEditing: (NSNotification *)aNotification {
   if ([aNotification object] == nameText) {
     // set name of the schema
@@ -193,6 +237,8 @@ static void call_refresh(void *theEditor) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)textDidEndEditing: (NSNotification *)aNotification {
   if ([aNotification object] == commentText) {
     // set comment for the schema
@@ -200,13 +246,19 @@ static void call_refresh(void *theEditor) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (bec::BaseEditor *)editorBE {
   return mBackEnd;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (IBAction)actionButtonClicked: (id)sender {
   mBackEnd->refactor_catalog();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)updateCollationPopup: (const char *)charset {
   MFillPopupButtonWithStrings(collationPopup, mBackEnd->get_charset_collation_list(charset));
@@ -216,3 +268,5 @@ static void call_refresh(void *theEditor) {
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

@@ -115,7 +115,7 @@ static void call_refresh(void *theEditor)
 }
 
 
-- (id)identifier
+- (id)panelId
 {
   // an identifier for this editor (just take the object id)
   return [NSString stringWithCPPString:mBackEnd->get_object().id()];

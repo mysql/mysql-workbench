@@ -110,22 +110,15 @@ SqlScriptReviewPage::SqlScriptReviewPage(grtui::WizardForm *form, GrtVersionRef 
     _sql_editor->set_language(mforms::LanguageMySQL);
   else {
     switch (version->minorNumber()) {
-      case 0:
-        _sql_editor->set_language(mforms::LanguageMySQL50);
-        break;
-      case 1:
-        _sql_editor->set_language(mforms::LanguageMySQL51);
-        break;
-      case 5:
-        _sql_editor->set_language(mforms::LanguageMySQL55);
-        break;
       case 6:
         _sql_editor->set_language(mforms::LanguageMySQL56);
         break;
+
       case 7:
         _sql_editor->set_language(mforms::LanguageMySQL57);
         break;
-      default: // Should not be called actually. All valid versions should be handled above.
+        
+      default:
         _sql_editor->set_language(mforms::LanguageMySQL);
     }
   }

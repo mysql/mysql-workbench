@@ -79,10 +79,12 @@ static void set_window_icons(Gtk::Window *window) {
 
 static Gdk::Color _sys_selection_color;
 
+const double defaultDpi = 96;
 //------------------------------------------------------------------------------
 // @ctx is passed from Program class, see Program::Program
 MainForm::MainForm() : _exiting(false) {
   setup_mforms_app();
+
 
   _ui = Gtk::Builder::create_from_file(bec::GRTManager::get()->get_data_file_path("wb.glade"));
   set_name("Main Tab Bar");
@@ -109,8 +111,15 @@ MainForm::MainForm() : _exiting(false) {
     status->pack_end(_progress_bar, false, false);
     _progress_bar.show();
   }
-
   _gui_locked = false;
+
+  Gdk::Screen::get_default()->property_resolution().signal_changed().connect([this]{
+	  base::NotificationCenter::get()->send("GNBackingScaleChanged", nullptr);
+  });
+
+  get_mainwindow()->property_scale_factor().signal_changed().connect([this]{
+	  base::NotificationCenter::get()->send("GNBackingScaleChanged", nullptr);
+  });
 
   //  switch_page(0, 0);
   mforms::gtk::FormImpl::init_main_form(this->get_mainwindow());
@@ -1611,6 +1620,18 @@ static void end_event_loop(mforms::App *, int rc) {
   }
 }
 
+static bool isDarkModeActive(mforms::App *) {
+	// On Linux we can't just say if theme is dark or light
+	return false;
+}
+
+static float backing_scale_factor(mforms::App *) {
+	auto window = get_mainwindow();
+    double dpi = Gdk::Screen::get_default()->get_resolution();
+	int scaleFactor = Gdk::Screen::get_default()->get_monitor_scale_factor(Gdk::Screen::get_default()->get_monitor_at_window(window->get_window()));
+	return dpi > 0 ? scaleFactor * dpi / defaultDpi : dpi;
+}
+
 void MainForm::setup_mforms_app() {
   mforms::ControlFactory *cf = mforms::ControlFactory::get_instance();
   g_assert(cf);
@@ -1624,6 +1645,8 @@ void MainForm::setup_mforms_app() {
   cf->_app_impl.get_application_bounds = &get_main_window_bounds;
   cf->_app_impl.enter_event_loop = &begin_event_loop;
   cf->_app_impl.exit_event_loop = &end_event_loop;
+  cf->_app_impl.backing_scale_factor = &backing_scale_factor;
+  cf->_app_impl.isDarkModeActive = &isDarkModeActive;
 }
 
 Gtk::Widget *MainForm::decorate_widget(Gtk::Widget *panel, bec::UIForm *form) {

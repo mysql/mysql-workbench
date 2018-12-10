@@ -28,6 +28,7 @@ from workbench.graphics.canvas import ImageFigure
 from wb_admin_perfschema_instrumentation_be import PSConfiguration, PSTimerType, PSObject, PSActor
 
 from workbench.log import log_info, log_error
+from workbench.notifications import nc
 
 from wb_admin_perfschema import WbAdminPSBaseTab
 
@@ -72,8 +73,8 @@ class BigSwitch(mforms.PyDrawBox):
         self.hovering_state = None
         self.mouse_pos = None, None
 
-        self.text_image = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_text.png"))
-        self.legend = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_legende.png"))
+        self.updateImage()
+        self.legend = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_legend.png"))
 
         self.state_images = []
         for item in ["fully", "custom", "default", "disabled"]:
@@ -110,7 +111,6 @@ class BigSwitch(mforms.PyDrawBox):
         self.legend.render(c)
 
 
-
     def set_state(self, state):
         self.state = state
         self.set_needs_repaint()
@@ -125,6 +125,12 @@ class BigSwitch(mforms.PyDrawBox):
         if self.hovering_state:
             self.callback(self.hovering_state)
 
+    def updateImage(self):
+        if mforms.App.get().isDarkModeActive():
+            self.text_image = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_text_dark.png"))
+        else:
+            self.text_image = ImageFigure(mforms.App.get().get_resource_path("ps_switcher_text_light.png"))
+
 
 class EasySetupPage(mforms.Box):
     def __init__(self, owner):
@@ -132,9 +138,10 @@ class EasySetupPage(mforms.Box):
         self.set_managed()
         self.set_release_on_add()
         self.set_spacing(12)
-        self.set_padding(12)
+        self.set_padding(20)
         self.owner = owner
 
+        nc.add_observer(self.updateColors, "GNColorsChanged")
         self.create_ui()
 
 
@@ -268,9 +275,14 @@ class EasySetupPage(mforms.Box):
         self.logo.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo.png"))
         self.add(self.logo, False, True)
 
+        label = mforms.newLabel("Performance Schema")
+        label.set_text_align(mforms.MiddleCenter)
+        label.set_style(mforms.VeryBigStyle)
+        self.add(label, False, True)
+
         self.switch_image = BigSwitch()
         self.switch_image.callback = self.change_instrumentation
-        self.switch_image.set_size(200, 152)
+        self.switch_image.set_size(105, 140)
         self.add(self.switch_image, False, True)
 
         image = mforms.newImageBox()
@@ -288,6 +300,8 @@ class EasySetupPage(mforms.Box):
         self.logo.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo_enabled.png" if state != "disabled" else "ps_easysetup_logo.png"))
         self.switch_image.set_state(state)
 
+    def updateColors(self, name, sender, info):
+        self.switch_image.updateImage()
 
 class SetupInstruments(mforms.Box):
     def __init__(self, owner, data):
@@ -1114,9 +1128,10 @@ class SetupOptions(mforms.Box):
         return "%ss        (%s)" % (timer.name.lower().capitalize(), description)
     
     def create_timer_row(self, table, offset):
-        table.add(mforms.newLabel("%s Events" % (self._timer_names[offset].capitalize()), True), 0, 1, offset, offset + 1, mforms.HFillFlag)
+        table.add(mforms.newLabel("%s Events" % (self._timer_names[offset].capitalize()), True), 0, 1, offset, offset + 1, mforms.HFillFlag | mforms.VFillFlag)
 
         selector = mforms.newSelector(mforms.SelectorPopup)
+        selector.set_name("Timer Option Selector")
         selector.add_items([self.get_timer_type_text(timer) for timer in self._timer_types])
 
         timer_name = self._timer_names[offset]
@@ -1129,7 +1144,7 @@ class SetupOptions(mforms.Box):
 
         self._controls[timer_name] = selector
 
-        table.add(selector, 1, 2, offset, offset + 1, mforms.VFillFlag|mforms.HFillFlag|mforms.HExpandFlag)
+        table.add(selector, 1, 2, offset, offset + 1, mforms.VFillFlag | mforms.HFillFlag | mforms.HExpandFlag)
 
         
     def create_ui(self):
@@ -1148,9 +1163,10 @@ class SetupOptions(mforms.Box):
                       "     - Overhead: Minimal number of cycles of overhead to obtain one timing.\n"\
                       "\n"\
                       "Here you can configure which timer will be used for each instrument type.\n\n"
-        vbox.add(mforms.newLabel(description), False, False)
+        vbox.add(mforms.newLabel(description), False, True)
 
         table = mforms.newTable()
+        table.set_name("Timer Options Table")
         table.set_padding(1)
         table.set_row_count(5)
         table.set_column_count(2)

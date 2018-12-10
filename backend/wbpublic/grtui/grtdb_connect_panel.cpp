@@ -46,33 +46,19 @@ using namespace base;
 using namespace grtui;
 using namespace mforms;
 
-/* Todo: Remove if not used.
-static bool is_ssh_driver(const std::string &driver_name)
-{
-  char *name = g_strdown(g_strdup(driver_name.c_str()));
-  if (name && g_strstr_len(name, strlen(name), "ssh"))
-  {
-    g_free(name);
-    return true;
-  }
-  g_free(name);
-  return false;
-}
-*/
-
 DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   : Box(false),
-    _connection(0),
+    _connection(nullptr),
     _tab(mforms::TabViewSystemStandard),
     _content(false),
     _params_panel(mforms::TransparentPanel),
-    _params_table(0),
+    _params_table(nullptr),
     _ssl_panel(mforms::TransparentPanel),
-    _ssl_table(0),
+    _ssl_table(nullptr),
     _advanced_panel(mforms::TransparentPanel),
-    _advanced_table(0),
+    _advanced_table(nullptr),
     _options_panel(mforms::TransparentPanel),
-    _options_table(0),
+    _options_table(nullptr),
     _create_group(false),
     _show_connection_combo((flags & DbConnectPanelShowConnectionCombo) != 0),
     _show_manage_connections((flags & DbConnectPanelShowManageConnections) != 0),

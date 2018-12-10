@@ -26,71 +26,79 @@
 
 static const float DEFAULT_HEIGHT = 24;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation WBMiniToolbar
 
-- (instancetype)initWithFrame:(NSRect)frame 
-{
+- (instancetype)initWithFrame: (NSRect)frame {
   frame.size.height = DEFAULT_HEIGHT;
   self = [super initWithFrame: frame];
-  if (self)
-  {
+  if (self != nil) {
     mOptionInfoList = [NSMutableArray array];
+
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(windowKeyChanged:)
+                                                 name: NSWindowDidBecomeMainNotification
+                                               object: nil];
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(windowKeyChanged:)
+                                                 name: NSWindowDidResignMainNotification
+                                               object: nil];
   }
   return self;
 }
 
-- (void)setGradient: (NSGradient*)gradient
-{
-  mGradient = gradient;
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)windowKeyChanged: (NSNotification*)notification {
+  [self setNeedsDisplay: YES];
 }
 
-- (NSSize)minimumSize
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSSize)minimumSize {
   return NSMakeSize(10, DEFAULT_HEIGHT);
 }
 
-- (BOOL)expandsOnLayoutVertically:(BOOL)vertically
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)expandsOnLayoutVertically: (BOOL)vertically {
   if (vertically)
     return NO;
   return YES;
 }
 
-- (void)resizeSubviewsWithOldSize:(NSSize)osize
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)resizeSubviewsWithOldSize: (NSSize)osize {
   [self tile];
   [super resizeSubviewsWithOldSize: osize];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)drawRect:(NSRect)rect 
-{
-  if (mGradient)
-    [mGradient drawInRect: self.bounds angle: 90];
-  else
-  {
-    [[NSColor colorWithDeviceWhite: 0xe4/256.0 alpha: 1.0] set];
-    NSRectFill(rect);
-  }
+- (void)drawRect: (NSRect)rect {
+  [NSColor.windowBackgroundColor set];
+  NSRectFill(rect);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)removeAllItems
-{
+- (void)removeAllItems {
   for (id view in [self.subviews reverseObjectEnumerator])
     [view removeFromSuperview];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)setDelegate:(id)delegate
-{
+- (void)setDelegate: (id)delegate {
   mDelegate= delegate;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)colorPopupChanged:(id)sender
-{
-  id info= mOptionInfoList[[sender tag]];
+- (void)colorPopupChanged: (id)sender {
+  id info = mOptionInfoList[[sender tag]];
   
   [mDelegate miniToolbar: self
             popupChanged: info[@"name"]
@@ -98,9 +106,9 @@ static const float DEFAULT_HEIGHT = 24;
                    value: [sender selectedItem].representedObject];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)popupChanged:(id)sender
-{
+- (void)popupChanged: (id)sender {
   id info= mOptionInfoList[[sender tag]];
   
   [mDelegate miniToolbar: self
@@ -109,16 +117,15 @@ static const float DEFAULT_HEIGHT = 24;
                    value: [sender titleOfSelectedItem]];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)tile
-{
-  float height= NSHeight(self.frame);
-  float x= 5;
+- (void)tile {
+  float height = NSHeight(self.frame);
+  float x = 5;
   float fixedWidth = 0;
   int expanderCount = 0;
 
-  for (id item in self.subviews)
-  {
+  for (id item in self.subviews) {
     if ([item class] == [NSView class] && NSHeight([item frame]) == 0)
       expanderCount++;
     else
@@ -126,27 +133,25 @@ static const float DEFAULT_HEIGHT = 24;
   }
   fixedWidth += 6 * (self.subviews.count-1);
 
-  for (id item in self.subviews)
-  {
-    NSRect frame= [item frame];
-    frame.origin.x= x;
-    frame.origin.y= (height - NSHeight(frame)) / 2;
-    if ([item class] == [NSView class] && NSHeight([item frame]) == 0)
-    {
+  for (id item in self.subviews) {
+    NSRect frame = [item frame];
+    frame.origin.x = x;
+    frame.origin.y = (height - NSHeight(frame)) / 2;
+    if ([item class] == [NSView class] && NSHeight([item frame]) == 0) {
       frame.size.width = (NSWidth(self.frame) - 10 - fixedWidth) / expanderCount;
     }   
     [item setFrame: frame];
-    x+= NSWidth(frame);
-    x+= 6;
+    x += NSWidth(frame);
+    x += 6;
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSButton*)addButtonWithTitle:(NSString*)title
-                         target:(id)target
-                         action:(SEL)action
-                            tag:(int)tag
-{
+- (NSButton*)addButtonWithTitle: (NSString*)title
+                         target: (id)target
+                         action: (SEL)action
+                            tag: (int)tag {
   NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
   [button setButtonType: NSMomentaryLightButton];
@@ -166,11 +171,12 @@ static const float DEFAULT_HEIGHT = 24;
   return button;
 }
 
-- (NSButton*)addButtonWithIcon:(NSImage*)icon
-                        target:(id)target
-                        action:(SEL)action
-                           tag:(int)tag
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSButton*)addButtonWithIcon: (NSImage*)icon
+                        target: (id)target
+                        action: (SEL)action
+                           tag: (int)tag {
   NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 18, 18)];
   
   [button setButtonType: NSMomentaryLightButton];
@@ -188,19 +194,18 @@ static const float DEFAULT_HEIGHT = 24;
   return button;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSSegmentedControl*)addSegmentedButtonsWithIconsAndTags:(NSArray*)iconsAndTags
-                                                    target:(id)target
-                                                    action:(SEL)action
-{
-  NSSegmentedControl *seg = [[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * (iconsAndTags.count/2), 24)];
+- (NSSegmentedControl*)addSegmentedButtonsWithIconsAndTags: (NSArray*)iconsAndTags
+                                                    target: (id)target
+                                                    action: (SEL)action {
+  NSSegmentedControl *seg = [[NSSegmentedControl alloc] initWithFrame: NSMakeRect(0, 0, 30 * (iconsAndTags.count / 2), 24)];
   seg.segmentCount = iconsAndTags.count / 2;
   seg.segmentStyle = NSSegmentStyleTexturedSquare;
   [seg.cell setTrackingMode: NSSegmentSwitchTrackingSelectAny];
-  for (NSUInteger i = 0; i < iconsAndTags.count/2; i++)
-  {
-    [seg setImage: iconsAndTags[i*2] forSegment: i];
-    [seg.cell setTag: [iconsAndTags[i*2+1] intValue] forSegment: i];
+  for (NSUInteger i = 0; i < iconsAndTags.count /2; i++) {
+    [seg setImage: iconsAndTags[i * 2] forSegment: i];
+    [seg.cell setTag: [iconsAndTags[i * 2 + 1] intValue] forSegment: i];
   }
 
   [self addSubview: seg];
@@ -209,8 +214,9 @@ static const float DEFAULT_HEIGHT = 24;
   return seg;
 }
 
-- (NSTextField*)addLabelWithTitle:(NSString*)title
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSTextField*)addLabelWithTitle: (NSString*)title {
   NSTextField *label = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
   label.stringValue = title;
@@ -226,15 +232,17 @@ static const float DEFAULT_HEIGHT = 24;
   return label;
 }
 
-- (void)addExpandingSpace
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)addExpandingSpace {
   NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
   [self addSubview: view];
   [view setHidden: YES];
 }
 
-- (void)addSeparator
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)addSeparator {
   NSBox *box= [[NSBox alloc] initWithFrame: NSMakeRect(0, 2, 1, 18)];
   box.titlePosition = NSNoTitle;
   box.boxType = NSBoxSeparator;
@@ -243,19 +251,20 @@ static const float DEFAULT_HEIGHT = 24;
   [self tile];
 }
 
-- (NSPopUpButton*)addSelectionPopUpWithItems:(NSArray*)items
-                            target:(id)target
-                            action:(SEL)action
-                      defaultValue: (NSString*)defaultValue
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSPopUpButton*)addSelectionPopUpWithItems: (NSArray*)items
+                                      target: (id)target
+                                      action: (SEL)action
+                                defaultValue: (NSString*)defaultValue {
   NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
-  for (NSString *title in items)
-  {
+  for (NSString *title in items) {
     if (title.length == 0)
       [popup.menu addItem: [NSMenuItem separatorItem]];
     else
       [popup addItemWithTitle: title];
   }
+
   popup.target = target;
   popup.action = action;
   popup.cell.controlSize = NSControlSizeSmall;
@@ -274,38 +283,37 @@ static const float DEFAULT_HEIGHT = 24;
   return popup;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSPopUpButton*)addSelectionPopUpWithItems:(NSArray*)items
-                              name: (NSString*)name
-                            option: (NSString*)option
-                      defaultValue: (NSString*)defaultValue
-{
+- (NSPopUpButton*)addSelectionPopUpWithItems: (NSArray*)items
+                                        name: (NSString*)name
+                                      option: (NSString*)option
+                                defaultValue: (NSString*)defaultValue {
   NSPopUpButton *popup = [self addSelectionPopUpWithItems: items
-                            target: self
-                            action: @selector(popupChanged:) 
-                      defaultValue: defaultValue];
+                                                   target: self
+                                                   action: @selector(popupChanged:)
+                                             defaultValue: defaultValue];
   
-  popup.tag = mOptionInfoList.count;  
-    
-  [mOptionInfoList addObject: @{@"name": name, 
-                               @"option": option}];
+  popup.tag = mOptionInfoList.count;
+
+  [mOptionInfoList addObject: @{@"name": name,  @"option": option}];
   
   return popup;
 }
 
-- (void)addSelectionPopUpWithColors:(NSArray*)colors
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)addSelectionPopUpWithColors: (NSArray*)colors
                                name: (NSString*)name
                              option: (NSString*)option
-                       defaultValue: (NSString*)defaultValue
-{
-  NSPopUpButton *popup= [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
-  NSMenu *menu= [[NSMenu alloc] initWithTitle: @""];
-  NSMenuItem *selected= nil;
+                       defaultValue: (NSString*)defaultValue {
+  NSPopUpButton *popup = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
+  NSMenu *menu = [[NSMenu alloc] initWithTitle: @""];
+  NSMenuItem *selected = nil;
   popup.cell.controlSize = NSControlSizeSmall;
-  for (NSColor *color in colors)
-  {
-    NSMenuItem *item= [[NSMenuItem alloc] init];
-    NSImage *image= [[NSImage alloc] initWithSize: NSMakeSize(24, 16)];
+  for (NSColor *color in colors) {
+    NSMenuItem *item = [[NSMenuItem alloc] init];
+    NSImage *image = [[NSImage alloc] initWithSize: NSMakeSize(24, 16)];
     [image lockFocus];
     [[NSColor lightGrayColor] set];
     NSFrameRect(NSMakeRect(1, 1, 22, 14));
@@ -329,9 +337,10 @@ static const float DEFAULT_HEIGHT = 24;
   popup.target = self;
   popup.action = @selector(colorPopupChanged:);
   [popup sizeToFit];
+
   { // fix the extra unneeded padding we get for some reason
     NSRect frame= popup.frame;
-    frame.size.width-= 24;
+    frame.size.width -= 24;
     popup.frame = frame;
   }
   [self addSubview: popup];
@@ -343,3 +352,5 @@ static const float DEFAULT_HEIGHT = 24;
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

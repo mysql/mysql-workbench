@@ -56,6 +56,8 @@ using namespace base;
 
 DEFAULT_LOG_DOMAIN("SqlResult")
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class ResultFormView::FieldView {
   mforms::Label _label;
 
@@ -85,6 +87,8 @@ public:
 
   virtual void set_value(const std::string &value, bool is_null) = 0;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class StringFieldView : public ResultFormView::FieldView {
   mforms::TextEntry *_entry;
@@ -123,6 +127,8 @@ public:
     _entry->set_value(value);
   }
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class SelectorFieldView : public ResultFormView::FieldView {
   mforms::Selector _selector;
@@ -206,6 +212,8 @@ public:
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class TextFieldView : public ResultFormView::FieldView {
   mforms::TextBox *_tbox;
 
@@ -240,6 +248,8 @@ public:
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class BlobFieldView : public ResultFormView::FieldView {
   mforms::Box _box;
   mforms::Label _blob;
@@ -270,6 +280,8 @@ public:
     _blob.set_text(is_null ? "NULL" : _type_desc);
   }
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 class GeomFieldView : public ResultFormView::FieldView {
   mforms::Box _box;
@@ -347,6 +359,8 @@ public:
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static std::list<std::string> parse_enum_definition(const std::string &full_type) {
   std::list<std::string> l;
   std::string::size_type b, e;
@@ -363,6 +377,8 @@ static std::list<std::string> parse_enum_definition(const std::string &full_type
   return l;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 inline std::string format_label(const std::string &label) {
   std::string flabel = label + ":";
 
@@ -371,6 +387,8 @@ inline std::string format_label(const std::string &label) {
 
   return flabel;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdbc_storage::FieldInfo &field,
                                                              const std::string &full_type, bool editable,
@@ -399,7 +417,7 @@ ResultFormView::FieldView *ResultFormView::FieldView::create(const Recordset_cdb
   return NULL;
 }
 
-//----------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void ResultFormView::navigate(mforms::ToolBarItem *item) {
   std::string name = item->getInternalName();
@@ -440,6 +458,8 @@ void ResultFormView::navigate(mforms::ToolBarItem *item) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ResultFormView::update_value(int column, const std::string &value) {
   Recordset::Ref rset(_rset.lock());
   if (rset) {
@@ -449,6 +469,8 @@ void ResultFormView::update_value(int column, const std::string &value) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ResultFormView::open_field_editor(int column, const std::string &type) {
   Recordset::Ref rset(_rset.lock());
   if (rset) {
@@ -457,6 +479,8 @@ void ResultFormView::open_field_editor(int column, const std::string &type) {
       rset->open_field_data_editor(row, column, type);
   }
 }
+
+//----------------- ResultFormView -------------------------------------------------------------------------------------
 
 ResultFormView::ResultFormView(bool editable)
   : mforms::AppView(false, "Result Form View", "ResultFormView", false),
@@ -561,6 +585,8 @@ ResultFormView::ResultFormView(bool editable)
   _table.set_column_spacing(8);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 ResultFormView::~ResultFormView() {
   if (_geom_type_item)
     _geom_type_item->release();
@@ -568,6 +594,8 @@ ResultFormView::~ResultFormView() {
   for (std::vector<FieldView *>::const_iterator i = _fields.begin(); i != _fields.end(); ++i)
     delete *i;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ResultFormView::geom_type_changed() {
   std::string type = _geom_type_item->get_text();
@@ -579,12 +607,16 @@ void ResultFormView::geom_type_changed() {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 int ResultFormView::display_record(RowId row_id) {
   Recordset::Ref rset(_rset.lock());
   if (rset)
     rset->set_edited_field(row_id, 0);
   return display_record();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 int ResultFormView::display_record() {
   Recordset::Ref rset(_rset.lock());
@@ -606,6 +638,8 @@ int ResultFormView::display_record() {
   }
   return 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string ResultFormView::get_full_column_type(SqlEditorForm *editor, const std::string &schema,
                                                  const std::string &table, const std::string &column) {
@@ -632,6 +666,8 @@ std::string ResultFormView::get_full_column_type(SqlEditorForm *editor, const st
   }
   return "";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *editor) {
   Recordset::Ref rset(rset_ptr.lock());
@@ -691,3 +727,11 @@ void ResultFormView::init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *
     _table.resume_layout();
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ResultFormView::updateColors() {
+  _spanel.set_back_color(base::Color::getSystemColor(base::TextBackgroundColor).to_html());
+}
+
+//----------------------------------------------------------------------------------------------------------------------

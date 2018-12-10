@@ -41,7 +41,7 @@ namespace mforms {
 - (void)setDefaultMenuBar:(mforms::MenuBar *)menu;
 
 @property(copy) NSString *title;
-@property(readonly, copy) NSString *identifier;
+@property(readonly, copy) NSString *panelId;
 @property(readonly, copy) NSImage *tabIcon;
 @property(readonly) mforms::AppView *appView;
 @property(readonly) bec::UIForm *formBE;

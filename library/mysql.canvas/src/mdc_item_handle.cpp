@@ -104,7 +104,7 @@ void ItemHandle::repaint(CairoCtx *cr) {
       cr->set_line_width(1);
       cr->rectangle(r);
       cr->fill_preserve();
-      cr->set_color(Color::Black());
+      cr->set_color(Color::black());
       cr->stroke();
     }
   }

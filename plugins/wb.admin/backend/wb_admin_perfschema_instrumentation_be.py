@@ -599,7 +599,7 @@ class PSTimers(ChangeNotifierDict):
         queries = []
 
         for key in changes:
-            queries.append("UPDATE performance_schema.setup_timers SET timer_name = '%s'  WHERE name = '%s'" % (changes[key][0][2], key))
+            queries.append("UPDATE performance_schema.setup_timers SET timer_name = '%s' WHERE name = '%s'" % (changes[key][0][2], key))
 
         return queries
 

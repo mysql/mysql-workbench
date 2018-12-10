@@ -46,8 +46,6 @@ namespace mforms {
     void (*set_text)(TextBox *self, const std::string &text);
     std::string (*get_text)(TextBox *self);
     void (*append_text)(TextBox *self, const std::string &text, bool scroll_to_end);
-    //    void (*append_text_with_attributes)(TextBox *self, const std::string &text, const TextAttributes &attr, bool
-    //    scroll_to_end);
     void (*set_padding)(TextBox *self, int pad); // TODO: not supported on Windows, should be removed.
     void (*set_monospaced)(TextBox *self, bool flag);
     void (*get_selected_range)(TextBox *self, int &start, int &end);

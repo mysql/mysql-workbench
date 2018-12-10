@@ -390,14 +390,6 @@ ToolBarItemWrapper::ToolBarItemWrapper(mforms::ToolBarItem *backend, mforms::Too
       break;
     }
 
-    case mforms::SwitcherItem: {
-      ToolStripButton ^ button = ToolBarItemWrapper::Create<ToolStripButton>(backend, this);
-      button->Click += gcnew System::EventHandler(eventTarget, &ToolbarItemEventTarget::OnItemActivation);
-      button->ForeColor = Conversions::GetApplicationColor(ApplicationColor::AppColorPanelToolbar, true);
-      item = button;
-      break;
-    }
-
     default:
       throw std::runtime_error(
         base::strfmt("Internal error: unimplemented toolbar item type requested (%i).", (int)type));

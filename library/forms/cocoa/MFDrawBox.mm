@@ -261,7 +261,7 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
     NSRectFill(bounds);
   }
 
-  CGContextRef cgref = (CGContextRef)NSGraphicsContext.currentContext.graphicsPort;
+  CGContextRef cgref = (CGContextRef)NSGraphicsContext.currentContext.CGContext;
 
   cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context(cgref, NSWidth(bounds), NSHeight(bounds));
 

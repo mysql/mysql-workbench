@@ -29,8 +29,9 @@
 
 static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 
-@interface MGridView()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface MGridView () {
   NSInteger mSelectedColumnIndex;
   NSInteger mSelectedRowIndex;
   NSInteger mOSelectedColumnIndex;
@@ -41,34 +42,36 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MGridView
 
 @synthesize actionDelegate;
 
-- (void)setRecordset: (Recordset*)rset
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setRecordset: (Recordset*)rset {
   mRecordset = rset;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)becomeFirstResponder
-{
+- (BOOL)becomeFirstResponder {
   [self setNeedsDisplay: YES];
   return [super becomeFirstResponder];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)resignFirstResponder
-{
+- (BOOL)resignFirstResponder {
   [self setNeedsDisplay: YES];
   return [super resignFirstResponder];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)mouseDown: (NSEvent*) event;
-{
-  NSPoint localPoint = [self convertPoint: event.locationInWindow
-                                 fromView: nil];
+- (void)mouseDown: (NSEvent*) event {
+  NSPoint localPoint = [self convertPoint: event.locationInWindow fromView: nil];
   NSInteger column= [self columnAtPoint: localPoint];
   
   if (column <= 0 || (event.modifierFlags & (NSEventModifierFlagShift | NSEventModifierFlagCommand)))
@@ -96,11 +99,10 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   [super mouseDown: event];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)copy:(id)sender
-{
-  if (mRecordset)
-  {
+- (void)copy: (id)sender {
+  if (mRecordset != nullptr) {
     if (self.selectedColumnIndex > 0)
       mRecordset->copy_field_to_clipboard(self.selectedRowIndex, self.selectedColumnIndex-1, false);
     else
@@ -108,56 +110,52 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)isEditable
-{
+- (BOOL)isEditable {
   return mRecordset && !mRecordset->is_readonly();
 }
 
-- (void)paste:(id)sender
-{
-  if (mRecordset)
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)paste: (id)sender {
+  if (mRecordset != nullptr)
     mRecordset->paste_rows_from_clipboard(self.selectedRowIndex);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)selectAll:(id)sender
-{
+- (void)selectAll: (id)sender {
   mSelectedColumnIndex = 0;
   [self setAllowsMultipleSelection: YES];
   [super selectAll: sender];
   [self setNeedsDisplay: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)editColumn:(NSInteger)columnIndex row:(NSInteger)rowIndex withEvent:(NSEvent *)theEvent select:(BOOL)flag
-{
+- (void)editColumn:(NSInteger)columnIndex row: (NSInteger)rowIndex withEvent: (NSEvent *)theEvent select: (BOOL)flag {
   [super editColumn: columnIndex row: rowIndex withEvent: theEvent select: flag];
-  [self selectRowIndexes: [NSIndexSet indexSetWithIndex: rowIndex]
-    byExtendingSelection: NO];
+  [self selectRowIndexes: [NSIndexSet indexSetWithIndex: rowIndex] byExtendingSelection: NO];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
-{
+- (void)selectRowIndexes: (NSIndexSet *)indexes byExtendingSelection: (BOOL)extend {
   if (indexes.count > 1)
     mSelectedColumnIndex = -1;
   
-  if (mSelectedColumnIndex <= 0)
-  {
+  if (mSelectedColumnIndex <= 0) {
     [super selectRowIndexes: indexes byExtendingSelection: extend];
     mSelectedRowIndex = indexes.lastIndex;
-  }
-  else
-  {
-    // if there's a column selected, then there can only be a single cell selected
+  } else {
+    // If there's a column selected, then there can only be a single cell selected.
     [super selectRowIndexes: indexes byExtendingSelection: NO];
     if (indexes.count > 0)
       mSelectedRowIndex = indexes.lastIndex;
     else
       mSelectedRowIndex = -1;
-    NSPoint localPoint = [self convertPoint: NSApp.currentEvent.locationInWindow
-                                   fromView: nil];
+    NSPoint localPoint = [self convertPoint: NSApp.currentEvent.locationInWindow fromView: nil];
     NSInteger column = [self columnAtPoint: localPoint];
     if (column > 0 && column < self.numberOfColumns)
       mSelectedColumnIndex = column;
@@ -167,44 +165,40 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     [actionDelegate actionTriggered];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)rightMouseDown: (NSEvent*)event
-{
-  if (self.selectedRowIndexes.count == 1)
-  {
-    NSPoint localPoint = [self convertPoint: event.locationInWindow
-                                   fromView: nil];
+- (void)rightMouseDown: (NSEvent*)event {
+  if (self.selectedRowIndexes.count == 1) {
+    NSPoint localPoint = [self convertPoint: event.locationInWindow fromView: nil];
     NSInteger row = [self rowAtPoint: localPoint];
     
-    [self selectRowIndexes: [NSIndexSet indexSetWithIndex: row]
-      byExtendingSelection: NO];
+    [self selectRowIndexes: [NSIndexSet indexSetWithIndex: row] byExtendingSelection: NO];
     [self setNeedsDisplay: YES];
   }
   [super rightMouseDown: event];
 }
 
-- (void)selectCellAtRow:(int)row column:(int)column
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)selectCellAtRow: (int)row column: (int)column {
   mSelectedColumnIndex = column;
   [self selectRowIndexes: [NSIndexSet indexSetWithIndex: row]
     byExtendingSelection: (column <= 0)];
   [self setNeedsDisplay:YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void) keyDown: (NSEvent*) event;
-{
+- (void)keyDown: (NSEvent*) event {
   unsigned short key = event.keyCode;
  
-  switch (key)
-  {
+  switch (key) {
     case 36: // Return
     case 76: // Enter
       if (mSelectedRowIndex >= 0 && mSelectedColumnIndex > 0 &&
         [[self delegate] tableView: self
              shouldEditTableColumn: self.tableColumns[mSelectedColumnIndex]
-                               row: mSelectedRowIndex])
-      {
+                               row: mSelectedRowIndex]) {
         // Start edit.
         [self editColumn: mSelectedColumnIndex
                      row: mSelectedRowIndex
@@ -213,43 +207,33 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
         return;
       }
       break;
-    case 48: // Tab (only called when there's no editing going on)
-    {
+
+    case 48: { // Tab (only called when there's no editing going on).
       NSUInteger modifiers = event.modifierFlags;
       bool shift = (modifiers & NSEventModifierFlagShift) != 0;
 
-      if (shift)
-      {
+      if (shift) {
         // Move backward.
         mSelectedColumnIndex--;
-        if (mSelectedColumnIndex < 1) // Column 0 is only the current-row-indicator.
-        {
+        if (mSelectedColumnIndex < 1) { // Column 0 is only the current-row-indicator.
           // Continue on the previous line if we reached the beginning of the current line.
-          if (mSelectedRowIndex > 0)
-          {
-            [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex-1]
-              byExtendingSelection: NO];
+          if (mSelectedRowIndex > 0) {
+            [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex-1] byExtendingSelection: NO];
             mSelectedColumnIndex = self.numberOfColumns - 1;
-          }
-          else
+          } else
             mSelectedColumnIndex++; // Restore previous column index. We cannot move further.
         }
         mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
-      }
-      else
-      {
+      } else {
         // Move forward.
         mSelectedColumnIndex++;
-        if (mSelectedColumnIndex == self.numberOfColumns)
-        {
+        if (mSelectedColumnIndex == self.numberOfColumns) {
           // Continue on the next line if we reached the end of the current line.
-          if (mSelectedRowIndex < self.numberOfRows - 1)
-          {
+          if (mSelectedRowIndex < self.numberOfRows - 1) {
             [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex+1]
               byExtendingSelection: NO];
             mSelectedColumnIndex = 1;
-          }
-          else
+          } else
             mSelectedColumnIndex--; // Restore previous column index. We cannot move further.
         }
         mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
@@ -260,24 +244,28 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
       
       break;
     }
+
     case 123: // Left
       mSelectedColumnIndex -= 1;
       mSelectedColumnIndex = MAX(mSelectedColumnIndex, 1);
       if (actionDelegate != nil)
         [actionDelegate actionTriggered];
       break;
+
     case 124: // Right
       mSelectedColumnIndex += 1;
       mSelectedColumnIndex = MIN(mSelectedColumnIndex, [self numberOfColumns] - 1);
       if (actionDelegate != nil)
         [actionDelegate actionTriggered];
       break;
+
     case 125: // Down
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: MIN(mSelectedRowIndex+1, [self numberOfRows]-1)]
         byExtendingSelection: NO];
       if (actionDelegate != nil)
         [actionDelegate actionTriggered];
       break;
+
     case 121: // PgDown
       if (actionDelegate != nil)
         [actionDelegate actionTriggered];
@@ -288,12 +276,14 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex]
         byExtendingSelection: NO];
       break;
+
     case 126: // Up
       if (actionDelegate != nil)
         [actionDelegate actionTriggered];
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: MAX(mSelectedRowIndex-1, 0)]
         byExtendingSelection: NO];
       break;
+
     case 116: // PgUp
       if (actionDelegate != nil)
         [actionDelegate actionTriggered];
@@ -302,6 +292,7 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
       [self selectRowIndexes: [NSIndexSet indexSetWithIndex: mSelectedRowIndex]
         byExtendingSelection: NO];
       break;
+
     case 51: // Backspace
       if (mSelectedRowIndex >= 0 && mSelectedColumnIndex > 0 &&
           [[self delegate] tableView: self
@@ -314,37 +305,35 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
                                  row: mSelectedRowIndex];
       }
       break;
+
     default:
       [super keyDown: event];
       break;
   }
   
-  if (key != 121 && key != 116) // except for page keys
-  {
+  if (key != 121 && key != 116) { // except for page keys
     [self scrollRowToVisible: mSelectedRowIndex];
     [self scrollColumnToVisible: mSelectedColumnIndex];
   }
   [self setNeedsDisplay: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)cancelOperation:(id)sender
-{
+- (void)cancelOperation: (id)sender {
   // Abort editing if Escape pressed
-  if ([self currentEditor])
-  {
+  if ([self currentEditor]) {
     [self abortEditing];
     [self.window makeFirstResponder: self];
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSCell *)preparedCellAtColumn:(NSInteger)column row:(NSInteger)row
-{
+- (NSCell *)preparedCellAtColumn: (NSInteger)column row: (NSInteger)row {
   NSCell *cell = [super preparedCellAtColumn: column row: row];
 
-  if (mSelectedColumnIndex > 0)
-  {
+  if (mSelectedColumnIndex > 0) {
     // clear highlight in the cell if a single cell is selected and this is not the one
     // this allows the tableview to have a grid like selection
     if (column != mSelectedColumnIndex && cell.highlighted
@@ -358,24 +347,23 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   return cell;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)textDidEndEditing:(NSNotification *)notification
-{
+- (void)textDidEndEditing: (NSNotification *)notification {
   // Let the ancestor do its job first (e.g. write the value back if needed).
   [super textDidEndEditing: notification];
 
   int textMovement = [notification.userInfo[@"NSTextMovement"] intValue];
-  if (textMovement == NSTabTextMovement)
-  {
+  if (textMovement == NSTabTextMovement) {
     [self.window makeFirstResponder: self];
     mSelectedColumnIndex++;
-    if (mSelectedColumnIndex == self.numberOfColumns)
-    {
+    if (mSelectedColumnIndex == self.numberOfColumns) {
       mSelectedColumnIndex = 1;
       mSelectedRowIndex++;
       if (mSelectedRowIndex > self.numberOfRows-1)
         mSelectedRowIndex = self.numberOfRows-1;
     }
+
     if (mSelectedRowIndex >= 0 && mSelectedColumnIndex >= 0 &&
         [[self delegate] tableView: self
              shouldEditTableColumn: self.tableColumns[mSelectedColumnIndex]
@@ -383,30 +371,28 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
     {
       [self editColumn: mSelectedColumnIndex row: mSelectedRowIndex withEvent: NSApp.currentEvent select: YES];
     }
-  }
-  else if (textMovement == NSBacktabTextMovement)
-  {
+  } else if (textMovement == NSBacktabTextMovement) {
     [self.window makeFirstResponder: self];
     mSelectedColumnIndex--;
-    if (mSelectedColumnIndex == 0)
-    {
+    if (mSelectedColumnIndex == 0) {
       mSelectedColumnIndex = self.numberOfColumns-1;
       mSelectedRowIndex--;
       if (mSelectedRowIndex < 0)
         mSelectedRowIndex = 0;
     }
+
     if (mSelectedRowIndex >= 0 && mSelectedColumnIndex >= 0 &&
         [[self delegate] tableView: self
              shouldEditTableColumn: self.tableColumns[mSelectedColumnIndex]
-                               row: mSelectedRowIndex])
-    {
+                               row: mSelectedRowIndex]) {
       [self editColumn: mSelectedColumnIndex row: mSelectedRowIndex withEvent: NSApp.currentEvent select: YES];
     }
   }
 }
 
-- (void) deleteSelectedRows;
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)deleteSelectedRows {
   std::vector<int> rows = get_indexes([self selectedRowIndexes], [self selectedRowIndex]);
   std::vector<bec::NodeId> nodes;
   for (std::vector<int>::reverse_iterator iter = rows.rbegin(); iter != rows.rend(); ++iter)
@@ -416,28 +402,30 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow);
   [self noteNumberOfRowsChanged];
 }
 
-- (int) selectedColumnIndex;
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (int)selectedColumnIndex {
   return (int)mSelectedColumnIndex;
 }
 
-- (int) selectedRowIndex;
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (int)selectedRowIndex {
   return (int)mSelectedRowIndex;
 }
 
-- (void)highlightSelectionInClipRect: (NSRect)clipRect
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)highlightSelectionInClipRect: (NSRect)clipRect {
   // Don't highlight the entire row.
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow)
-{
+static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow) {
   std::vector<int> indexes;
   NSUInteger index = iset.firstIndex;
-  while (index != NSNotFound)
-  {
+  while (index != NSNotFound) {
     indexes.push_back((int)index);
     index = [iset indexGreaterThanIndex: index];
   }
@@ -448,20 +436,18 @@ static std::vector<int> get_indexes(NSIndexSet *iset, NSInteger clickedRow)
   return indexes;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSMenu *)menuForEvent:(NSEvent *)theEvent
-{
-  if (mRecordset)
-  {      
+- (NSMenu *)menuForEvent: (NSEvent *)theEvent {
+  if (mRecordset != nullptr) {
     std::vector<int> rows = get_indexes(self.selectedRowIndexes, self.selectedRowIndex);
-    mRecordset->update_selection_for_menu(rows, self.selectedColumnIndex-1);
+    mRecordset->update_selection_for_menu(rows, self.selectedColumnIndex - 1);
 
     return mRecordset->get_context_menu()->get_data();
   }
   return [super menuForEvent: theEvent];
 }
 
-
 @end
 
-
+//----------------------------------------------------------------------------------------------------------------------

@@ -72,35 +72,36 @@ namespace mforms {
 
   class MFORMS_EXPORT DocumentsSection : public HomeScreenSection {
   private:
-    HomeScreen *_owner;
+    HomeScreen *_owner = nullptr;
 
-    cairo_surface_t *_model_icon;
-    cairo_surface_t *_sql_icon;
-    cairo_surface_t *_plus_icon;
-    cairo_surface_t *_schema_icon;
-    cairo_surface_t *_time_icon;
-    cairo_surface_t *_folder_icon;
-    cairo_surface_t *_size_icon;
-    cairo_surface_t *_close_icon;
-    cairo_surface_t *_open_icon;
-    cairo_surface_t *_action_icon;
-    float _backing_scale_when_icons_loaded;
+    cairo_surface_t *_model_icon = nullptr;
+    cairo_surface_t *_sql_icon = nullptr;
+    cairo_surface_t *_plus_icon = nullptr;
+    cairo_surface_t *_schema_icon = nullptr;
+    cairo_surface_t *_time_icon = nullptr;
+    cairo_surface_t *_folder_icon = nullptr;
+    cairo_surface_t *_size_icon = nullptr;
+    cairo_surface_t *_close_icon = nullptr;
+    cairo_surface_t *_open_icon = nullptr;
+    cairo_surface_t *_action_icon = nullptr;
 
-    ssize_t _entries_per_row;
+    base::Color _textColor;
+    
+    ssize_t _entries_per_row = 0;
 
-    bool _show_selection_message; // Additional info to let the user select a connection (when opening a script).
+    bool _show_selection_message = false; // Additional info to let the user select a connection (when opening a script).
     base::Rect _message_close_button_rect;
 
     typedef std::vector<DocumentEntry>::iterator DocumentIterator;
     std::vector<DocumentEntry> _documents;
     std::vector<DocumentEntry> _filtered_documents;
 
-    mforms::Menu *_model_context_menu;
-    mforms::Menu *_model_action_menu;
+    mforms::Menu *_model_context_menu = nullptr;
+    mforms::Menu *_model_action_menu = nullptr;
 
-    ssize_t _hot_entry;
-    ssize_t _active_entry;
-    enum DisplayMode { Nothing, ModelsOnly, ScriptsOnly, Mixed } _display_mode;
+    ssize_t _hot_entry = -1;
+    ssize_t _active_entry = -1;
+    enum DisplayMode { Nothing, ModelsOnly, ScriptsOnly, Mixed } _display_mode = ModelsOnly;
 
     HomeAccessibleButton _add_button;
     HomeAccessibleButton _open_button;
@@ -109,13 +110,14 @@ namespace mforms {
     base::Rect _close_button_rect;
     base::Rect _use_default_button_rect;
 
-    DisplayMode _hot_heading;
+    DisplayMode _hot_heading = Nothing;
     base::Rect _model_heading_rect;
     base::Rect _sql_heading_rect;
     base::Rect _mixed_heading_rect;
     std::string _pending_script;
 
     bool accessibleHandler(int x, int y);
+    void deleteIcons();
 
   public:
     const int DOCUMENTS_LEFT_PADDING = 40;
@@ -135,7 +137,6 @@ namespace mforms {
     const int POPUP_TIP_HEIGHT = 14;
 
     DocumentsSection(HomeScreen *owner);
-
     virtual ~DocumentsSection();
 
     std::size_t entry_from_point(int x, int y);
@@ -157,7 +158,9 @@ namespace mforms {
     virtual void setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) override;
     virtual void setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) override;
 
-    void load_icons();
+    virtual void updateColors() override;
+    virtual void updateIcons() override;
+
     virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
     void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();

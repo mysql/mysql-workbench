@@ -81,7 +81,7 @@ std::shared_ptr<WBContextUI> WBContextUI::get() {
 //--------------------------------------------------------------------------------------------------
 
 
-WBContextUI::WBContextUI() : _wb(new WBContext(false)), _launchersSection(nullptr), _command_ui(new CommandUI(_wb)) {
+WBContextUI::WBContextUI() : _wb(new WBContext(false)), _command_ui(new CommandUI(_wb)) {
   _shell_window = 0;
   _active_form = 0;
   _active_main_form = 0;
@@ -951,5 +951,7 @@ static struct RegisterNotifDocs_wb_context_ui {
 
     base::NotificationCenter::get()->register_notification("GNApplicationActivated", "application",
                                                            "Sent when the application was activated.", "", "");
+    base::NotificationCenter::get()->register_notification("GNApplicationDeactivated", "application",
+                                                           "Sent when the application lost the active status.", "", "");
   }
 } initdocs_wb_context_ui;

@@ -236,15 +236,15 @@ public:
     : TabSwitcherPimpl(owner), _up_arrow_y(0), _down_arrow_y(0), _first_visible(0), _last_visible(0), _collapsed(false) {
 #ifdef _MSC_VER
     if (base::Color::get_active_scheme() != base::ColorSchemeStandardWin7) {
-      _colors[TabInactiveBackground] = base::Color::get_application_color(base::AppColorPanelHeader, false);
-      _colors[TabInactiveForeground] = base::Color::get_application_color(base::AppColorPanelHeader, true);
-      _colors[TabActiveBackground] = base::Color::get_application_color(base::AppColorPanelHeaderFocused, false);
-      _colors[TabActiveForeground] = base::Color::get_application_color(base::AppColorPanelHeaderFocused, true);
+      _colors[TabInactiveBackground] = base::Color::getApplicationColor(base::AppColorPanelHeader, false);
+      _colors[TabInactiveForeground] = base::Color::getApplicationColor(base::AppColorPanelHeader, true);
+      _colors[TabActiveBackground] = base::Color::getApplicationColor(base::AppColorPanelHeaderFocused, false);
+      _colors[TabActiveForeground] = base::Color::getApplicationColor(base::AppColorPanelHeaderFocused, true);
     } else {
-      _colors[TabInactiveBackground] = base::Color::get_application_color(base::AppColorPanelHeader, false);
-      _colors[TabInactiveForeground] = base::Color::get_application_color(base::AppColorPanelHeader, true);
-      _colors[TabActiveBackground] = base::Color::get_application_color(base::AppColorMainBackground, false);
-      _colors[TabActiveForeground] = base::Color::get_application_color(base::AppColorPanelHeader, true);
+      _colors[TabInactiveBackground] = base::Color::getApplicationColor(base::AppColorPanelHeader, false);
+      _colors[TabInactiveForeground] = base::Color::getApplicationColor(base::AppColorPanelHeader, true);
+      _colors[TabActiveBackground] = base::Color::getApplicationColor(base::AppColorMainBackground, false);
+      _colors[TabActiveForeground] = base::Color::getApplicationColor(base::AppColorPanelHeader, true);
     }
 #else
     _colors[TabInactiveBackground] = Color(0x48 / 255.0, 0x48 / 255.0, 0x48 / 255.0, 1);

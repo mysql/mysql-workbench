@@ -117,22 +117,25 @@ static void util_open_url(const std::string &url)
   else {
     std::string fixedUrl = url;
     std::replace(fixedUrl.begin(), fixedUrl.end(), ' ', '+');
-    
-    NSURL *tmpUrl = [NSURL URLWithString: @(fixedUrl.c_str())];
-    NSRange range = [@(fixedUrl.c_str()) rangeOfString:@"?"];
-    NSString *safeUrl;
-    if (range.location != NSNotFound) {
-      safeUrl = [@(fixedUrl.c_str()) substringToIndex: range.location];
-    }
-    NSString *fragment = tmpUrl.fragment;
 
-    safeUrl = [safeUrl stringByAppendingString: [NSString stringWithFormat: @"?%@", [tmpUrl.query stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLQueryAllowedCharacterSet]]];
-    if (fragment != nil) {
-         safeUrl = [safeUrl stringByAppendingString: [fragment stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLFragmentAllowedCharacterSet]];
+    // See if the URL contains a query (and possible fragment). If so escape
+    NSString *urlString = @(fixedUrl.c_str());
+    NSURL *tmpUrl = [NSURL URLWithString: urlString];
+    NSRange range = [urlString rangeOfString: @"?"];
+
+    if (range.location != NSNotFound) {
+      urlString = [urlString substringToIndex: range.location];
+      urlString = [urlString stringByAppendingString: [NSString stringWithFormat: @"?%@",
+        [tmpUrl.query stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLQueryAllowedCharacterSet]]];
+
+      NSString *fragment = tmpUrl.fragment;
+      if (fragment != nil) {
+        urlString = [urlString stringByAppendingString: [fragment stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLFragmentAllowedCharacterSet]];
+      }
     }
- 
-    if (![[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: safeUrl]])
-      logError("Could not open URL %s\n", safeUrl.UTF8String);
+
+    if (![[NSWorkspace sharedWorkspace] openURL: [NSURL URLWithString: urlString]])
+      logError("Could not open URL %s\n", urlString.UTF8String);
   }
 }
 

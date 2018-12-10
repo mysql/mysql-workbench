@@ -31,43 +31,17 @@
 
 #include "mforms/utilities.h"
 #include "mforms/menu.h"
+#include "mforms/app.h"
 
 #include "grt/tree_model.h"
 
 using namespace mforms;
 using namespace base;
 
-#ifdef __APPLE__
-#define SNIPPET_DETAILS_FONT "Lucida Grande"
-#define SNIPPET_NORMAL_FONT "Tahoma"
-#elif _MSC_VER
-#define SNIPPET_DETAILS_FONT "Arial"
-#define SNIPPET_NORMAL_FONT "Tahoma"
-#else
-#define SNIPPET_DETAILS_FONT "Helvetica"
-#define SNIPPET_NORMAL_FONT "Tahoma"
-#endif
-
 #define SNIPPET_NORMAL_FONT_SIZE 11
 #define SNIPPET_DETAILS_FONT_SIZE 10
 
-//--------------------------------------------------------------------------------------------------
-// TODO: move this to a central cairo helper class.
-static int image_width(cairo_surface_t* image) {
-  if (image != NULL)
-    return cairo_image_surface_get_width(image);
-  return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-static int image_height(cairo_surface_t* image) {
-  if (image != NULL)
-    return cairo_image_surface_get_height(image);
-  return 0;
-}
-
-//----------------- Snippet ------------------------------------------------------------------------
+//----------------- Snippet --------------------------------------------------------------------------------------------
 
 class Snippet : public base::Accessible {
 private:
@@ -75,21 +49,22 @@ private:
   std::string _title;
   std::string _description;
   std::string _shortened_title; // Contains the description shortened and with ellipses if the
-  // full title doesn't fit into the available space.
+                                // full title doesn't fit into the available space.
   std::string _shortened_description; // Ditto for the description
   double _last_text_width;            // The last width for which the shortened description has been
-  // computed. Used to avoid unnecessary re-computation.
+                                      // computed. Used to avoid unnecessary re-computation.
   double _title_offset;       // Vertical position of the title.
   double _description_offset; // Ditto for description.
   double _title_width;        // Width of the (possibly shortened) title. For text decoration.
   base::Rect _bounds;         // The link's bounds when it was drawn the last time.
   int _text_height;
-  bool _enabled; // Draw the button in enabled or disabled state.
+  bool _enabled;
   std::function<void(int x, int y)> _defaultActionCb;
 
 public:
-  Snippet(cairo_surface_t* icon, const std::string& title, const std::string& description, bool enabled, const std::function<void(int x, int y)> &cb) {
-    _icon = (icon != NULL) ? cairo_surface_reference(icon) : NULL;
+  Snippet(cairo_surface_t* icon, const std::string& title, const std::string& description, bool enabled,
+    const std::function<void(int x, int y)> &cb) {
+    _icon = (icon != nullptr) ? cairo_surface_reference(icon) : nullptr;
     _title = title;
     setAccessibilityName(title);
     _description = description;
@@ -103,22 +78,22 @@ public:
     _defaultActionCb = cb;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual ~Snippet() {
     if (_icon != NULL)
       cairo_surface_destroy(_icon);
   }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-#define SNIPPET_PADDING 2      // Left and right padding.
-#define SNIPPET_ICON_SPACING 4 // Horizontal distance between icon and text.
-#define SNIPPET_TEXT_SPACING 4 // Vertical distance between title and description.
+#define SNIPPET_PADDING 4      // Left and right padding.
+#define SNIPPET_ICON_SPACING 8 // Horizontal distance between icon and text.
+#define SNIPPET_TEXT_SPACING 8 // Vertical distance between title and description.
 
   void layout(cairo_t* cr) {
     // Re-compute shortened title and its position.
-    cairo_select_font_face(cr, SNIPPET_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, DEFAULT_FONT_FAMILY, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, SNIPPET_NORMAL_FONT_SIZE);
 
     _shortened_title = Utilities::shorten_string(cr, _title, _last_text_width);
@@ -129,7 +104,7 @@ public:
     _title_width = title_extents.width;
 
     // Same for the description.
-    cairo_select_font_face(cr, SNIPPET_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(cr, DETAILS_FONT_FAMILIY, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, SNIPPET_DETAILS_FONT_SIZE);
 
     // Compress all consecutive non-printable chars into a single one and convert this then
@@ -170,14 +145,12 @@ public:
     _text_height = (int)ceil(title_extents.height + description_extents.height + SNIPPET_TEXT_SPACING);
   }
 
-  virtual void paint(cairo_t* cr, base::Rect bounds, bool hot, bool active) {
+  virtual void paint(cairo_t* cr, base::Rect bounds, bool selected) {
     _bounds = bounds;
     cairo_save(cr);
 
-    double icon_width = image_width(_icon);
-    double icon_height = image_height(_icon);
-
-    double new_width = bounds.size.width - 2 * SNIPPET_PADDING - icon_width - SNIPPET_ICON_SPACING;
+    Size iconSize = mforms::Utilities::getImageSize(_icon);
+    double new_width = bounds.size.width - 2 * SNIPPET_PADDING - iconSize.width - SNIPPET_ICON_SPACING;
 
     if (new_width != _last_text_width) {
       _last_text_width = new_width;
@@ -186,18 +159,18 @@ public:
 
     cairo_set_line_width(cr, 1);
 
-    // Fill a blue background if the item is active.
-    if (active && _enabled) {
-      cairo_set_source_rgb(cr, 0x5a / 255.0, 0x85 / 255.0, 0xdc / 255.0);
+    if (selected && _enabled) {
+      base::Color backgroundColor = Color::getSystemColor(base::SelectedControlColor);
+      cairo_set_source_rgb(cr, backgroundColor.red, backgroundColor.green, backgroundColor.blue);
       cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.size.width, bounds.size.height);
       cairo_fill(cr);
     } else {
-      // If not selected fill with the default background and draw a white separator line.
-      cairo_set_source_rgb(cr, 0xf2 / 255.0, 0xf2 / 255.0, 0xf2 / 255.0);
+      base::Color backgroundColor = Color::getSystemColor(base::WindowBackgroundColor);
+      cairo_set_source_rgb(cr, backgroundColor.red, backgroundColor.green, backgroundColor.blue);
       cairo_rectangle(cr, bounds.left(), bounds.top(), bounds.size.width, bounds.size.height);
       cairo_fill(cr);
 
-      cairo_set_source_rgb(cr, 1, 1, 1);
+      cairo_set_source_rgb(cr, 0xa7 / 255.0, 0xa7 / 255.0, 0xa7 / 255.0);
       cairo_move_to(cr, bounds.left(), bounds.bottom());
       cairo_line_to(cr, bounds.right(), bounds.bottom());
       cairo_stroke(cr);
@@ -205,7 +178,7 @@ public:
 
     if (_icon) {
       cairo_set_source_surface(cr, _icon, bounds.left() + SNIPPET_PADDING,
-                               bounds.top() + (int)ceil((bounds.height() - icon_height) / 2));
+                               bounds.top() + (int)ceil((bounds.height() - iconSize.height) / 2));
       if (_enabled)
         cairo_paint(cr);
       else
@@ -213,45 +186,33 @@ public:
     }
 
     int text_offset = (int)(bounds.height() - _text_height) / 2;
-    cairo_select_font_face(cr, SNIPPET_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, DEFAULT_FONT_FAMILY, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, SNIPPET_NORMAL_FONT_SIZE);
 
+
+    base::Color textColor;
+    if (selected) {
+      textColor = Color::getSystemColor(HighlightColor);
+    } else {
+      textColor = Color::getSystemColor(TextColor);
+    }
     if (!_enabled)
-      cairo_set_source_rgb(cr, 0.75, 0.75, 0.75);
-    else if (active)
-      cairo_set_source_rgb(cr, 1, 1, 1);
-    else if (hot)
-      cairo_set_source_rgb(cr, 90 / 255.0, 147 / 255.0, 220 / 255.0);
-    else
-      cairo_set_source_rgb(cr, 34 / 255.0, 34 / 255.0, 34 / 255.0);
-    double offset = bounds.left() + SNIPPET_PADDING + ((icon_width > 0) ? icon_width + SNIPPET_ICON_SPACING : 0);
+      textColor.alpha *= 0.5;
+
+
+    cairo_set_source_rgba(cr, textColor.red, textColor.green, textColor.blue, textColor.alpha);
+    double offset = bounds.left() + SNIPPET_PADDING + ((iconSize.width > 0) ? iconSize.width + SNIPPET_ICON_SPACING : 0);
 
     cairo_move_to(cr, offset, bounds.top() + _title_offset + text_offset);
     cairo_show_text(cr, _shortened_title.c_str());
     cairo_stroke(cr);
 
-    cairo_select_font_face(cr, SNIPPET_DETAILS_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_select_font_face(cr, DETAILS_FONT_FAMILIY, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, SNIPPET_DETAILS_FONT_SIZE);
-
-    if (!_enabled)
-      cairo_set_source_rgb(cr, 0.75, 0.75, 0.75);
-    else if (active)
-      cairo_set_source_rgb(cr, 1, 1, 1);
-    else
-      cairo_set_source_rgb(cr, 182 / 255.0, 182 / 255.0, 182 / 255.0);
 
     cairo_move_to(cr, offset, bounds.top() + _description_offset + text_offset);
     cairo_show_text(cr, _shortened_description.c_str());
     cairo_stroke(cr);
-
-    // Hot style implementation is currently done manually (draw a line).
-    // TODO: replace this with font decoration once pango is incorporated.
-    if (hot && _enabled) {
-      cairo_set_source_rgb(cr, 90 / 255.0, 147 / 255.0, 220 / 255.0);
-      cairo_move_to(cr, offset, bounds.top() + _title_offset + text_offset + 1.5);
-      cairo_line_to(cr, offset + _title_width, bounds.top() + _title_offset + text_offset + 1.5);
-      cairo_stroke(cr);
-    }
 
     cairo_restore(cr);
   }
@@ -302,7 +263,6 @@ public:
 
   //------------------------------------------------------------------------------------------------
 
-  // ------ Accesibility Methods -----
   virtual base::Accessible::Role getAccessibilityRole() {
     return base::Accessible::ListItem;
   }
@@ -340,9 +300,6 @@ BaseSnippetList::BaseSnippetList(const std::string& icon_name, bec::ListModel* m
   _right_spacing = 3;
   _bottom_spacing = 0;
 
-  _hot_snippet = nullptr;
-
-  _single_click = false;
   _selected_snippet = nullptr;
   _selected_index = -1;
   _last_mouse_button = MouseButtonNone;
@@ -393,8 +350,8 @@ void BaseSnippetList::refresh_snippets() {
 
 //------------------------------------------------------------------------------------------------
 
-#define SNIPPET_HEIGHT 34 // The height of a single action link.
-#define SNIPPET_SPACING 0 // Vertical distance between two snippets.
+#define SNIPPET_HEIGHT 50
+#define SNIPPET_SPACING 0
 
 void BaseSnippetList::repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) {
   layout();
@@ -404,7 +361,7 @@ void BaseSnippetList::repaint(cairo_t* cr, int areax, int areay, int areaw, int 
   Rect snippet_bounds(_left_spacing, _top_spacing, width - _left_spacing - _right_spacing, SNIPPET_HEIGHT);
 
   for (std::vector<Snippet*>::const_iterator iterator = _snippets.begin(); iterator != _snippets.end(); iterator++) {
-    (*iterator)->paint(cr, snippet_bounds, *iterator == _hot_snippet, *iterator == _selected_snippet);
+    (*iterator)->paint(cr, snippet_bounds, *iterator == _selected_snippet);
     snippet_bounds.pos.y += snippet_bounds.size.height + SNIPPET_SPACING;
   }
 }
@@ -422,9 +379,10 @@ void BaseSnippetList::layout() {
     if (_snippets.size() > 0)
       _layout_height += (int)_snippets.size() * SNIPPET_HEIGHT + ((int)_snippets.size() - 1) * SNIPPET_SPACING;
 
-    if (_image != NULL) {
+    if (_image != nullptr) {
       // If an image is set then this defines the minimal width.
-      _layout_width += SNIPPET_ICON_SPACING + image_width(_image);
+      Size size = mforms::Utilities::getImageSize(_image);
+      _layout_width += SNIPPET_ICON_SPACING + size.width;
     }
 
     if (_layout_height < SNIPPET_HEIGHT)
@@ -453,11 +411,6 @@ bool BaseSnippetList::mouse_leave() {
   if (DrawBox::mouse_leave())
     return true;
 
-  if (_hot_snippet != NULL) {
-    _hot_snippet = NULL;
-    set_needs_repaint();
-    return true;
-  }
   return false;
 }
 
@@ -467,14 +420,6 @@ bool BaseSnippetList::mouse_move(mforms::MouseButton button, int x, int y) {
   if (DrawBox::mouse_move(button, x, y))
     return true;
 
-  if (_single_click) {
-    Snippet* snippet = snippet_from_point(x, y);
-    if (snippet != _hot_snippet) {
-      _hot_snippet = snippet;
-      set_needs_repaint();
-      return true;
-    }
-  }
   return false;
 }
 

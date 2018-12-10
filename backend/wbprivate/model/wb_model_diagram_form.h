@@ -180,6 +180,7 @@ namespace wb {
 
     void setup_mini_view(mdc::CanvasView *view);
     void update_mini_view_size(int w, int h);
+    void setBackgroundColor(base::Color const& color);
 
     // events
     void handle_mouse_move(int x, int y, mdc::EventState state);

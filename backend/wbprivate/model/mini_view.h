@@ -33,8 +33,10 @@ namespace mdc {
 
 namespace wb {
   class MiniView : public mdc::Figure {
+  private:
     mdc::CanvasView *_canvas_view;
     model_DiagramRef _model_diagram;
+    base::Color _backgroundColor;
 
     base::Point _click_pos;
 
@@ -66,6 +68,7 @@ namespace wb {
 
     void update_size();
     void set_active_view(mdc::CanvasView *canvas_view, const model_DiagramRef &model_diagram);
+    void setBackgroundColor(base::Color const& color);
   };
 };
 

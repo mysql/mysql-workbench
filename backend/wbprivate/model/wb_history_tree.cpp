@@ -30,7 +30,7 @@ using namespace bec;
 using namespace grt;
 
 HistoryTree::HistoryTree(UndoManager *undom)
-  : mforms::TreeView(mforms::TreeFlatList | mforms::TreeSidebar | mforms::TreeNoHeader),
+  : mforms::TreeView(mforms::TreeFlatList | mforms::TreeSidebar | mforms::TreeNoHeader | mforms::TreeTranslucent),
     _undom(undom),
     _refresh_pending(false) {
   add_column(mforms::IconStringColumnType, "Action", 200);

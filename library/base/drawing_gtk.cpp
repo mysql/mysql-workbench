@@ -112,9 +112,9 @@ base::Color Color::getSystemColor(base::SystemColor type) {
       if (it != colors.end())
         ret = it->second;
       else {
-        Gtk::Entry e;
-        auto styleCtx = e.get_style_context();
-        ret = base::Color(rgba_color_to_mforms(styleCtx->get_background_color(Gtk::STATE_FLAG_NORMAL)));
+        // On Linux bg can be a gradient, so there's no realiable way of finding out the proper color.
+        // Instead we will hardcode the values.
+        ret = base::Color(1.0, 1.0, 1.0);
         colors[type] = ret;
       }
       break;
@@ -143,6 +143,7 @@ base::Color Color::getSystemColor(base::SystemColor type) {
       }
       break;
     }
+    case base::SystemColor::SelectedControlColor:
     case base::SystemColor::SelectedTextBackgroundColor: {
       Colors::const_iterator it = colors.find(type);
       if (it != colors.end())

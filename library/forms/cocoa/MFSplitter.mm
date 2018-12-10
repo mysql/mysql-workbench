@@ -25,61 +25,64 @@
 #import "MFMForms.h"
 #import "MFBox.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MFSplitterImpl
 
 static NSSize initialSize = { 10, 10 };
 
-- (instancetype)initWithObject: (mforms::Splitter*)aSplitter
-{
-  self= [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
-  if (self)
-  {
+- (instancetype)initWithObject: (mforms::Splitter*)aSplitter {
+  self = [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
+  if (self) {
     mOwner= aSplitter;
     mOwner->set_data(self);
     self.delegate = self;
     mRequestedPosition = -1;
     mResizable[0] = YES;
     mResizable[1] = YES;
-    self.dividerStyle = NSSplitViewDividerStyleThin;
   }
   return self;
 }
 
-- (mforms::Object*)mformsObject
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (mforms::Object*)mformsObject {
   return mOwner;
 }
 
-- (void)setHorizontal:(BOOL)flag
-{
-  mHorizontal= flag;
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setHorizontal: (BOOL)flag {
+  mHorizontal = flag;
   self.vertical = flag;
 }
 
-- (void)setPosition:(int)position
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setPosition: (int)position {
   // If our size is still the initial size, schedule the size to be set later (usually happens in tabviews before being shown).
   if (NSEqualSizes(self.frame.size, initialSize) || NSEqualSizes(self.frame.size, NSZeroSize))
     mRequestedPosition = position;
   else
-    [self setPosition:position ofDividerAtIndex:0];
+    [self setPosition:position ofDividerAtIndex: 0];
 }
 
-- (int)position
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (int)position {
   // If our size is still the initial size, return the requested position if set previously.
   if ((NSEqualSizes(self.frame.size, initialSize) || NSEqualSizes(self.frame.size, NSZeroSize))
-      && mRequestedPosition > -1)
+      && mRequestedPosition > -1) {
     return mRequestedPosition;
-  else
-  {
+  } else {
     NSRect frame = (self.subviews[0]).frame;
     return self.vertical ? NSMaxX(frame) : NSMaxY(frame);
   }
 }
 
-- (NSSize)minimumSize
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSSize)minimumSize {
   NSSize size, minSize;
   float maxSize = 0;
   int i = 0;
@@ -87,20 +90,15 @@ static NSSize initialSize = { 10, 10 };
   size.width = 0;
   size.height = 0;
   
-  for (NSView *subview in self.subviews)
-  {
-    if (!subview.isHidden)
-    {
+  for (NSView *subview in self.subviews) {
+    if (!subview.isHidden) {
       minSize = subview.minimumSize;
       
-      if (mHorizontal)
-      {
+      if (mHorizontal) {
         size.width += minSize.width;
         maxSize = MAX(maxSize, minSize.width);
         size.height = MAX(size.height, MAX(mMinSizes[i], minSize.height));
-      }
-      else
-      {
+      } else {
         size.width = MAX(size.width, MAX(mMinSizes[i], minSize.width));
         maxSize = MAX(maxSize, minSize.height);
         size.height += minSize.height;
@@ -109,87 +107,86 @@ static NSSize initialSize = { 10, 10 };
     i++;
   }
   minSize = super.minimumSize;
-  return { MAX(size.width, minSize.width), MAX(size.height, minSize.height) }; // No splitter width included. We use a thin splitter.
+  return { MAX(size.width, minSize.width) + self.dividerThickness, MAX(size.height, minSize.height) + self.dividerThickness };
 }
 
-- (void)resizeSubviewsWithOldSize: (NSSize)osize
-{
-  [super resizeSubviewsWithOldSize:osize];
+//----------------------------------------------------------------------------------------------------------------------
 
-  if (NSEqualSizes(osize, self.frame.size))
-  {
+- (void)resizeSubviewsWithOldSize: (NSSize)osize {
+  [super resizeSubviewsWithOldSize: osize];
+
+  if (NSEqualSizes(osize, self.frame.size)) {
     for (id sub in self.subviews)
       [sub resizeSubviewsWithOldSize: [sub frame].size];
   }
 
   if (!NSEqualSizes(self.frame.size, initialSize) && !NSEqualSizes(self.frame.size, NSZeroSize)
-      && mRequestedPosition > 0)
-  {
+      && mRequestedPosition > 0) {
     [self setPosition:mRequestedPosition ofDividerAtIndex:0];
     mRequestedPosition= -1;
   }
 }
 
-- (BOOL)splitView:(NSSplitView *)splitView canCollapseSubview:(NSView *)subview
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)splitView: (NSSplitView *)splitView canCollapseSubview: (NSView *)subview {
   return YES;
 }
 
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)splitView: (NSSplitView *)splitView shouldAdjustSizeOfSubview: (NSView *)subview {
   if (subview == splitView.subviews.lastObject)
     return mResizable[1];
   else
     return mResizable[0];
 }
 
-- (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex
-{
-  if (mHorizontal)
-  {
+//----------------------------------------------------------------------------------------------------------------------
+
+  - (CGFloat)splitView: (NSSplitView *)splitView
+constrainMaxCoordinate: (CGFloat)proposedMax
+           ofSubviewAt: (NSInteger)dividerIndex {
+  if (mHorizontal) {
     if (proposedMax > NSWidth(splitView.frame) - mMinSizes[1])
       proposedMax = NSWidth(splitView.frame) - mMinSizes[1];
-  }
-  else
-  {
+  } else {
     if (proposedMax > NSHeight(splitView.frame) - mMinSizes[1])
       proposedMax = NSHeight(splitView.frame) - mMinSizes[1];
   }
   return proposedMax;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMin ofSubviewAt:(NSInteger)dividerIndex
-{
+  - (CGFloat)splitView: (NSSplitView *)splitView
+constrainMinCoordinate: (CGFloat)proposedMin
+           ofSubviewAt: (NSInteger)dividerIndex {
   if (proposedMin < mMinSizes[0])
     proposedMin = mMinSizes[0];
   return proposedMin;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)splitViewDidResizeSubviews: (NSNotification *)notification
-{
+- (void)splitViewDidResizeSubviews: (NSNotification *)notification {
   mOwner->position_changed();
 }
 
-- (NSRect)splitView:(NSSplitView *)splitView
-      effectiveRect:(NSRect)proposedEffectiveRect 
-       forDrawnRect:(NSRect)drawnRect
-   ofDividerAtIndex:(NSInteger)dividerIndex
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSRect)splitView: (NSSplitView *)splitView
+      effectiveRect: (NSRect)proposedEffectiveRect
+       forDrawnRect: (NSRect)drawnRect
+   ofDividerAtIndex: (NSInteger)dividerIndex {
   // if the divider is too thin, increase effective rect by 2px to make it less impossible to drag
-  if (splitView.vertical)
-  {
-    if (proposedEffectiveRect.size.width < 2)
-    {
+  if (splitView.vertical) {
+    if (proposedEffectiveRect.size.width < 2) {
       proposedEffectiveRect.origin.x -= 1;
       proposedEffectiveRect.size.width += 2;
     }
-  }
-  else
-  {
-    if (proposedEffectiveRect.size.height < 2)
-    {
+  } else {
+    if (proposedEffectiveRect.size.height < 2) {
       proposedEffectiveRect.origin.y -= 1;
       proposedEffectiveRect.size.height += 2;
     }
@@ -197,8 +194,9 @@ static NSSize initialSize = { 10, 10 };
   return proposedEffectiveRect;
 }
 
-static bool splitter_create(::mforms::Splitter *self, bool horiz, bool thin)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool splitter_create(::mforms::Splitter *self, bool horiz, bool thin) {
   MFSplitterImpl *splitter = [[MFSplitterImpl alloc] initWithObject: self];
   
   [splitter setHorizontal: horiz ? YES : NO];
@@ -208,41 +206,31 @@ static bool splitter_create(::mforms::Splitter *self, bool horiz, bool thin)
   return true;  
 }
 
-static void splitter_set_divider_position(::mforms::Splitter *self, int pos)
-{
-  if ( self )
-  {
-    MFSplitterImpl* splitter = self->get_data();
-    
-    if ( splitter )
-    {
-      [splitter setPosition:pos];
-    }
+//----------------------------------------------------------------------------------------------------------------------
+
+static void splitter_set_divider_position(::mforms::Splitter *self, int pos) {
+  MFSplitterImpl* splitter = self->get_data();
+  if (splitter) {
+    [splitter setPosition: pos];
   }
 }
 
-static int splitter_get_divider_position(::mforms::Splitter *self)
-{
-  if ( self )
-  {
-    MFSplitterImpl* splitter = self->get_data();
-    
-    if ( splitter )
-    {
-      return [splitter position];
-    }
-  }
+//----------------------------------------------------------------------------------------------------------------------
+
+static int splitter_get_divider_position(::mforms::Splitter *self) {
+  MFSplitterImpl* splitter = self->get_data();
+  if (splitter)
+    return splitter.position;
+
   return 0;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-
-static void splitter_add(::mforms::Splitter *self, ::mforms::View *child, int minsize, bool fixed)
-{
+static void splitter_add(::mforms::Splitter *self, ::mforms::View *child, int minsize, bool fixed) {
   NSUInteger idx;
   MFSplitterImpl *impl = self->get_data();
-  if ((idx = impl.subviews.count) > 2)
-  {
+  if ((idx = impl.subviews.count) > 2) {
     NSLog(@"Attempt to add subview to splitter with 2 items already");
     return;
   }
@@ -251,89 +239,76 @@ static void splitter_add(::mforms::Splitter *self, ::mforms::View *child, int mi
   [impl addSubview: child->get_data()];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static void splitter_remove(::mforms::Splitter *self, ::mforms::View *child)
-{
+static void splitter_remove(::mforms::Splitter *self, ::mforms::View *child) {
   MFSplitterImpl *impl = self->get_data();
   if ([impl.subviews indexOfObject: child->get_data()] == 0)
     impl->mMinSizes[0] = impl->mMinSizes[1];
   [child->get_data() removeFromSuperview];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static void splitter_set_expanded(::mforms::Splitter *self, bool first, bool expand)
-{
+static void splitter_set_expanded(::mforms::Splitter *self, bool first, bool expand) {
   MFSplitterImpl *impl = self->get_data();
   
   NSView *view1  = impl.subviews[0];
 	NSView *view2 = impl.subviews[1];
 
-  [impl adjustSubviews];
-
-  if (first)
-  {
+  if (first) {
     if (!expand == [impl isSubviewCollapsed: view1])
       return;
     
-    if (expand)
-    {
+    if (expand) {
       [view1 setHidden: NO];
       NSRect frame = view1.frame;
       [impl setPosition: frame.size.width ofDividerAtIndex: 0];
-    }
-    else
-    {
+    } else {
       [view1 setHidden: YES];
-      [impl setPosition: [impl minPossiblePositionOfDividerAtIndex: 0] ofDividerAtIndex: 0];
+      [impl setPosition: 0 ofDividerAtIndex: 0];
     }
-  }
-  else
-  {
+  } else {
     if (!expand == [impl isSubviewCollapsed: view2])
       return;
     
-    if (expand)
-    {
+    if (expand) {
       [view2 setHidden: NO];
       CGFloat dividerThickness = impl.dividerThickness;
 
       NSRect frame1 = view1.frame;
       NSRect frame2 = view2.frame;
       
-      if (impl.vertical) // Is the splitter bar vertical (not the layout)?
-      {
+      if (impl.vertical) { // Is the splitter bar vertical (not the layout)?
         // Adjust left frame size.
         frame1.size.width = (frame1.size.width - frame2.size.width - dividerThickness);
         frame2.origin.x = frame1.size.width + dividerThickness;
         [view1 setFrameSize: frame1.size];
         view2.frame = frame2;
-      }
-      else
-      {
+      } else {
         // Adjust top frame size.
         frame1.size.height = (frame1.size.height - frame2.size.height - dividerThickness);
         frame2.origin.y = frame1.size.height + dividerThickness;
         [view1 setFrameSize: frame1.size];
         view2.frame = frame2;
       }
-    }
-    else
-    {
+    } else {
       NSRect frame1 = view1.frame;
       NSRect overallFrame = impl.frame;
       [view2 setHidden: YES];
-      if (impl.vertical)
+      if (impl.vertical) {
         [view1 setFrameSize: NSMakeSize(overallFrame.size.width, frame1.size.height)];
-      else
+      } else {
         [view1 setFrameSize: NSMakeSize(frame1.size.width, overallFrame.size.height)];
+      }
     }
   }
-  [impl display];
+  [impl setNeedsLayout: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-void cf_splitter_init()
-{
+void cf_splitter_init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
   
   f->_splitter_impl.create= &splitter_create;

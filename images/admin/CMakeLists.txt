@@ -28,9 +28,12 @@ set(IMAGE_FILES
 	admin_system_startup.png
 	dashboard_arrow_in_static.png
 	dashboard_arrow_out_static.png
-	dashboard_header_innodb.png
-	dashboard_header_mysql.png
-	dashboard_header_network.png
+	dashboard_header_innodb_light.png
+	dashboard_header_mysql_light.png
+	dashboard_header_network_light.png
+	dashboard_header_innodb_dark.png
+	dashboard_header_mysql_dark.png
+	dashboard_header_network_dark.png
 	dashboard_separator.png
 	mysql-logo-00.png
 	mysql-logo-50.png
@@ -59,8 +62,9 @@ set(IMAGE_FILES
 	ps_switcher_fully_hoover.png
 	ps_switcher_fully_off.png
 	ps_switcher_fully_on.png
-	ps_switcher_legende.png
-	ps_switcher_text.png
+	ps_switcher_legend.png
+	ps_switcher_text_light.png
+	ps_switcher_text_dark.png
 	title_backup.png
 	title_connections.png
 	title_dashboard.png

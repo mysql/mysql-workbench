@@ -92,7 +92,7 @@ private:
   void update_values();
 
   void show_colors_and_fonts();
-  void update_colors_and_fonts();
+  void updateColorsAndFonts();
 
   void createLogLevelSelectionPulldown(mforms::Box *content);
 

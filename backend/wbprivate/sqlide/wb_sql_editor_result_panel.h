@@ -21,8 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef __wb_sql_editor_result_tab__
-#define __wb_sql_editor_result_tab__
+#pragma once
+
+#include "base/notifications.h"
 
 #include "workbench/wb_backend_public_interface.h"
 
@@ -45,11 +46,12 @@ namespace mforms {
   class ContextMenu;
   class TreeView;
   class GridView;
+  class ScrollPanel;
 };
 
 class ResultFormView;
 
-class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::AppView {
+class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorResult : public mforms::AppView, public base::Observer {
   SqlEditorPanel *_owner;
   Recordset::Ptr _rset;
 
@@ -119,6 +121,7 @@ private:
 
   mforms::AppView *_column_info_box;
   mforms::AppView *_query_stats_box;
+  mforms::ScrollPanel *_query_stats_panel;
   mforms::AppView *_resultset_placeholder;
   mforms::AppView *_execution_plan_placeholder;
   ResultFormView *_form_result_view;
@@ -140,6 +143,9 @@ private:
   bool _spatial_view_initialized;
 
   bool _pinned;
+
+  void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
+  void updateColors();
 
   void update_selection_for_menu_extra(mforms::ContextMenu *menu, const std::vector<int> &rows, int column);
   void switch_tab();
@@ -169,5 +175,3 @@ private:
   void on_recordset_column_resized(int column);
   void onRecordsetColumnsResized(const std::vector<int> cols);
 };
-
-#endif /* __wb_sql_editor_result_tab__ */

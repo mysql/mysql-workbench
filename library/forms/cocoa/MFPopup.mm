@@ -28,48 +28,42 @@
 
 #pragma mark - PopupContentView
 
-@interface PopupContentView : NSView
-{
+@interface PopupContentView : NSView {
   mforms::Popup *mOwner;
 }
 @end
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation PopupContentView
 
-- (instancetype)initWithOwner: (mforms::Popup*)popup
-{
+- (instancetype)initWithOwner: (mforms::Popup*)popup {
   self = [self initWithFrame: NSMakeRect(0, 0, 10, 10)];
-  if (self)
-  {
+  if (self) {
     mOwner = popup;
   }
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)drawRect: (NSRect)rect
-{
+- (void)drawRect: (NSRect)rect {
   if (mOwner == nil)
     return;
   
   NSRect frame = self.frame;
   
   [[NSColor clearColor] set];
-  NSRectFill(self.frame);
+  NSRectFillUsingOperation(frame, NSCompositingOperationSourceOver);
 
-  CGContextRef cgref = (CGContextRef)[NSGraphicsContext currentContext].graphicsPort;
+  CGContextRef cgref = (CGContextRef)[NSGraphicsContext currentContext].CGContext;
   cairo_surface_t *surface = cairo_quartz_surface_create_for_cg_context(cgref, NSWidth(frame), NSHeight(frame));
   
   cairo_t *cr = cairo_create(surface);
-  try
-  {
+  try {
     mOwner->repaint(cr, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
   }
-  catch(...)
-  {
+  catch(...) {
     cairo_destroy(cr);
     cairo_surface_destroy(surface);
     throw;
@@ -78,22 +72,31 @@
   cairo_surface_destroy(surface);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)isFlipped
-{
+- (BOOL)isFlipped {
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)isOpaque {
+  return NO;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @end
 
 #pragma mark - MFPopupImpl
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MFPopupImpl
 
 @synthesize popupStyle = mStyle;
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithObject: (mforms::Popup*)popup style: (mforms::PopupStyle)aStyle
 {
@@ -104,8 +107,7 @@
                           styleMask: mask
                             backing: NSBackingStoreBuffered
                               defer: NO];
-  if (self)
-  {
+  if (self) {
     mResult = 0;
     mDone = NO;
     mOwner = popup;
@@ -119,10 +121,8 @@
     NSView* content = [[PopupContentView alloc] initWithOwner: popup];
     self.contentView = content;
 
-    switch (aStyle)
-    {
-      case mforms::PopupBezel:
-      {
+    switch (aStyle) {
+      case mforms::PopupBezel: {
         [self setHidesOnDeactivate: YES];
         [self setHasShadow : YES];
         NSRect windowFrame = self.frame;
@@ -144,29 +144,27 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)dealloc
-{
+- (void)dealloc {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
 }
-//--------------------------------------------------------------------------------------------------
 
-- (BOOL)isFlipped
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)isFlipped {
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)hidePopup
-{
+- (void)hidePopup {
   if (mOwner == nil) // Set to nil if we were called already (orderOut triggeres the resignKey event).
     return;
 
   mforms::Popup *owner = mOwner;
   mOwner = nil;
-  switch (self.popupStyle)
-  {
+  switch (self.popupStyle) {
     case mforms::PopupBezel:
       [NSAnimationContext currentContext].duration = 0.25;
       [self animator].alphaValue = 0;
@@ -182,27 +180,24 @@
   owner->closed();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)orderPopupOut
-{
+- (void)orderPopupOut {
   [self orderOut: nil];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Helper to avoid code duplication.
  */
-- (void)doMouseUp: (NSEvent*)event
-{
+- (void)doMouseUp: (NSEvent*)event {
   if (mOwner == nil)
     return;
   
   NSPoint p = [self.contentView convertPoint: event.locationInWindow fromView: nil];
   mforms::MouseButton mouseButton;
-  switch (event.buttonNumber)
-  {
+  switch (event.buttonNumber) {
     case NSEventTypeRightMouseDown:
       mouseButton = mforms::MouseButtonRight;
       break;
@@ -215,8 +210,7 @@
       mouseButton = mforms::MouseButtonLeft;
   }
   
-  switch (event.clickCount)
-  {
+  switch (event.clickCount) {
     case 1:
       mOwner->mouse_up(mouseButton, p.x, p.y);
       if (!mDone && mOwner != nil)
@@ -228,20 +222,18 @@
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Helper to avoid code duplication.
  */
-- (void)doMouseDown: (NSEvent*)event
-{
+- (void)doMouseDown: (NSEvent*)event {
   if (mOwner == nil)
     return;
   
   NSPoint p = [self.contentView convertPoint: event.locationInWindow fromView: nil];
   mforms::MouseButton mouseButton;
-  switch (event.buttonNumber)
-  {
+  switch (event.buttonNumber) {
     case NSEventTypeRightMouseDown:
       mouseButton = mforms::MouseButtonRight;
       break;
@@ -257,52 +249,45 @@
   mOwner->mouse_down(mouseButton, p.x, p.y);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)mouseDown: (NSEvent*)event
-{
+- (void)mouseDown: (NSEvent*)event {
   [self doMouseDown: event];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)mouseUp: (NSEvent*)event
-{
+- (void)mouseUp: (NSEvent*)event {
   [self doMouseUp: event];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)otherMouseDown: (NSEvent*)event
-{
+- (void)otherMouseDown: (NSEvent*)event {
   [self doMouseDown: event];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)otherMouseUp: (NSEvent*)event
-{
+- (void)otherMouseUp: (NSEvent*)event {
   [self doMouseUp: event];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void) rightMouseDown: (NSEvent*) event
-{
+- (void) rightMouseDown: (NSEvent*) event {
   [self doMouseDown: event];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)rightMouseUp: (NSEvent*)event
-{
+- (void)rightMouseUp: (NSEvent*)event {
   [self doMouseUp: event];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)mouseMoved: (NSEvent *)event
-{
+- (void)mouseMoved: (NSEvent *)event {
   if (mOwner == nil)
     return;
   
@@ -310,26 +295,23 @@
   mOwner->mouse_move(mforms::MouseButtonNone, p.x, p.y);
 }
 	
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)mouseEntered: (NSEvent *)event
-{
+- (void)mouseEntered: (NSEvent *)event {
   if (mOwner != nil)
     mOwner->mouse_enter();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)mouseExited: (NSEvent *)event
-{
+- (void)mouseExited: (NSEvent *)event {
   if (mOwner != nil)
     mOwner->mouse_leave();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)keyDown: (NSEvent *)event
-{
+- (void)keyDown: (NSEvent *)event {
   unsigned short code = event.keyCode;
   if (code == 53) // Esc
   {
@@ -339,24 +321,21 @@
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)acceptsFirstResponder
-{
+- (BOOL)acceptsFirstResponder {
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)canBecomeKeyWindow
-{
+- (BOOL)canBecomeKeyWindow {
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSInteger)runModalAtPosition: (NSPoint)position
-{
+- (NSInteger)runModalAtPosition: (NSPoint)position {
   // By design the window's upper right corner is to set at the given position.
   NSRect frame = self.frame;
   position.x -= frame.size.width;
@@ -370,8 +349,7 @@
   mDone = NO;
 
   // Local loop to simulate a modal window.
-  while (!mDone) 
-  {
+  while (!mDone) {
     NSEvent *theEvent = [self nextEventMatchingMask:
                          NSEventMaskMouseMoved
                          | NSEventMaskMouseEntered
@@ -386,13 +364,10 @@
                          | NSEventMaskKeyUp
                          ];
     if (theEvent.type == NSEventTypeLeftMouseUp &&
-        ![self.contentView mouse: theEvent.locationInWindow inRect:self.contentView.bounds])
-    {
+        ![self.contentView mouse: theEvent.locationInWindow inRect:self.contentView.bounds]) {
       [self hidePopup];
       mDone = YES;
-    }
-    else
-    {
+    } else {
       [self sendEvent: theEvent];
     }
   }
@@ -400,63 +375,57 @@
   return mResult;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)showAtPosition: (NSPoint)position
-{
+- (void)showAtPosition: (NSPoint)position {
   [self setFrameTopLeftPoint: position];
   [self makeKeyAndOrderFront: nil];
 
   mDone = NO;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)resignKeyWindow
-{
+- (void)resignKeyWindow {
   [super resignKeyWindow];
-  [self performSelector: @selector(hidePopup) withObject: nil afterDelay: 0
+  [self performSelector: @selector(hidePopup)
+             withObject: nil
+             afterDelay: 0
                 inModes: @[NSModalPanelRunLoopMode, NSDefaultRunLoopMode]];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static bool popup_create(mforms::Popup *self, mforms::PopupStyle style)
-{
+static bool popup_create(mforms::Popup *self, mforms::PopupStyle style) {
   return [[MFPopupImpl alloc] initWithObject: self style: style] != nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static void popup_destroy(mforms::Popup *self)
-{
+static void popup_destroy(mforms::Popup *self) {
   self->set_data(nil); // Should release the panel.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static void popup_set_needs_repaint(mforms::Popup *self)
-{
+static void popup_set_needs_repaint(mforms::Popup *self) {
   [[self->get_data() contentView] setNeedsDisplay: YES];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static void popup_set_size(mforms::Popup *self, int w, int h)
-{
+static void popup_set_size(mforms::Popup *self, int w, int h) {
   NSRect frame = [self->get_data() frame];
   frame.size.width = w;
   frame.size.height = h;
   [self->get_data() setFrame: frame display: YES];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static int popup_show(mforms::Popup *self, int x, int y)
-{
+static int popup_show(mforms::Popup *self, int x, int y) {
   MFPopupImpl *popup = (MFPopupImpl*)self->get_data();
-  switch (popup.popupStyle)
-  {
+  switch (popup.popupStyle) {
     case mforms::PopupBezel:
       return (int)[popup runModalAtPosition: NSMakePoint(x, y)];
       break;
@@ -468,28 +437,25 @@ static int popup_show(mforms::Popup *self, int x, int y)
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static base::Rect popup_get_content_rect(mforms::Popup *self)
-{
+static base::Rect popup_get_content_rect(mforms::Popup *self) {
   NSRect frame = [self->get_data() contentView].frame;
   return base::Rect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static void popup_set_modal_result(mforms::Popup *self, int result)
-{
+static void popup_set_modal_result(mforms::Popup *self, int result) {
   MFPopupImpl *popup = (MFPopupImpl*)self->get_data();
   popup->mResult = result;
   popup->mDone = YES;
   [popup hidePopup];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void cf_popup_init()
-{
+void cf_popup_init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
   
   f->_popup_impl.create = &popup_create;
@@ -500,6 +466,8 @@ void cf_popup_init()
   f->_popup_impl.get_content_rect = &popup_get_content_rect;
   f->_popup_impl.set_modal_result = &popup_set_modal_result;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @end
 

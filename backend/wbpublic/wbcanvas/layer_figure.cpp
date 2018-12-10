@@ -52,7 +52,7 @@ LayerAreaGroup::LayerAreaGroup(mdc::Layer *layer, FigureEventHub *hub, model_Obj
   _font = layer->get_view()->get_default_font();
   _font.weight = mdc::WBold;
 
-  _title_fore = Color::Black();
+  _title_fore = Color::black();
   _title_back = Color(0.85, 0.85, 0.85);
 
   _min_size.width = MIN_LAYER_SIZE;

@@ -66,6 +66,7 @@ public:
                                    const std::string &column);
 
   void init_for_resultset(Recordset::Ptr rset_ptr, SqlEditorForm *editor);
+  void updateColors();
 };
 
 #endif

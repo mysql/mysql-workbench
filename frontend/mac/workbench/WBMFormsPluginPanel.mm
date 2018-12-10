@@ -30,20 +30,19 @@
 
 @implementation WBMFormsPluginPanel
 
+//----------------------------------------------------------------------------------------------------------------------
 
-+ (WBMFormsPluginPanel*)panelOfAppView: (mforms::AppView*)view
-{
++ (WBMFormsPluginPanel*)panelOfAppView: (mforms::AppView*)view {
   return (__bridge WBMFormsPluginPanel*)view->get_frontend_data();
 }
 
-- (instancetype)initWithAppView:(mforms::AppView*)view
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (instancetype)initWithAppView:(mforms::AppView*)view {
   self = [super init];
-  if (self)
-  {
+  if (self != nil) {
     _owner = view;
-    if (view != NULL)
-    {
+    if (view != nullptr) {
       view->retain();
       view->set_frontend_data((__bridge void *)self);
       [[NSNotificationCenter defaultCenter] addObserver: self
@@ -55,13 +54,15 @@
   return self;
 }
 
--(instancetype)init
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+-(instancetype)init {
   return [self initWithAppView: NULL];
 }
 
-- (void) dealloc
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver: self];
   _owner->set_frontend_data(0);
   _owner->release();
@@ -69,82 +70,84 @@
     _defaultMenuBar->release();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)setDefaultMenuBar:(mforms::MenuBar*)menu
-{
+- (void)setDefaultMenuBar:(mforms::MenuBar*)menu {
   _defaultMenuBar = menu;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)windowDidUpdate:(NSNotification *)notification
-{
+- (void)windowDidUpdate:(NSNotification *)notification {
   if (_defaultMenuBar && NSApp.mainMenu == _defaultMenuBar->get_data() && self.topView.window.keyWindow)
     _defaultMenuBar->validate();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSMenu*)menuBar
-{
+- (NSMenu*)menuBar {
   NSMenu *menu = super.menuBar;
   if (!menu && _defaultMenuBar)
     return _defaultMenuBar->get_data();
   return menu;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSView*)topView
-{
+- (NSView*)topView {
   return nsviewForView(_owner);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)setTitle: (NSString*)title
-{
+- (void)setTitle: (NSString*)title {
   _title = title;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSString*)title
-{
+- (NSString*)title {
   return _title;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSString*)identifier
-{
+- (NSString*)panelId {
   if (_owner->identifier().empty())
     return  [NSString stringWithFormat: @"mformsview%p", _owner];
   else
     return  @(_owner->identifier().c_str());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSImage*)tabIcon
-{
+- (NSImage*)tabIcon {
   return nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (bec::UIForm*)formBE
-{
+- (bec::UIForm*)formBE {
   return _owner;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (mforms::AppView*)appView
-{
+- (mforms::AppView*)appView {
   return _owner;
 }
 
-- (BOOL)willClose
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)willClose {
   return _owner->on_close();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)didOpen
-{
+- (void)didOpen {
 }
 
-
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

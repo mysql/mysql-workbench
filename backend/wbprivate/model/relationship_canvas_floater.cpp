@@ -65,7 +65,7 @@ void RelationshipFloater::setup_pick_source() {
 void RelationshipFloater::add_column(const std::string &name) {
   mdc::TextFigure *text = new mdc::TextFigure(get_layer());
   text->set_text(name);
-  text->set_pen_color(Color::White());
+  text->set_pen_color(Color::white());
 
   _columns.push_back(text);
 

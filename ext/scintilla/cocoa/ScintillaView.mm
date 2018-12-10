@@ -1266,6 +1266,18 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
 
 //--------------------------------------------------------------------------------------------------
 
++ (NSImage *)flipImageHorizontally: (NSImage *)inputImage {
+
+  NSImage *result = [[NSImage alloc] initWithSize: inputImage.size];
+  for (NSBitmapImageRep *rep in inputImage.representations) {
+    CIImage *workImage = [CIImage imageWithCGImage: rep.CGImage];
+    CIImage *flipped = [workImage imageByApplyingTransform: CGAffineTransformMakeScale(-1, 1)];
+    NSBitmapImageRep *newRep = [[NSBitmapImageRep alloc] initWithCIImage: flipped];
+    [result addRepresentation: newRep];
+  }
+  return [result autorelease];
+}
+
 /**
  * Initialize custom cursor.
  */
@@ -1279,9 +1291,8 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
     NSImage* image = [[[NSImage alloc] initWithContentsOfFile: path] autorelease];
     waitCursor = [[NSCursor alloc] initWithImage: image hotSpot: NSMakePoint(2, 2)];
 
-    path = [bundle pathForResource: @"mac_cursor_flipped" ofType: @"tiff" inDirectory: nil];
-    image = [[[NSImage alloc] initWithContentsOfFile: path] autorelease];
-    reverseArrowCursor = [[NSCursor alloc] initWithImage: image hotSpot: NSMakePoint(12, 2)];
+    NSImage *reverseArrow = [ScintillaView flipImageHorizontally: NSCursor.arrowCursor.image];
+    reverseArrowCursor = [[NSCursor alloc] initWithImage: reverseArrow hotSpot: NSMakePoint(14, 2)];
   }
 }
 
@@ -1591,11 +1602,10 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
  */
 - (void) positionSubViews
 {
-  CGFloat scrollerWidth = [NSScroller scrollerWidthForControlSize:NSControlSizeRegular
-						scrollerStyle:NSScrollerStyleLegacy];
+  CGFloat infoBarHeight = 22;
 
   NSSize size = [self frame].size;
-  NSRect barFrame = {{0, size.height - scrollerWidth}, {size.width, scrollerWidth}};
+  NSRect barFrame = {{0, size.height - infoBarHeight}, {size.width, infoBarHeight}};
   BOOL infoBarVisible = mInfoBar != nil && ![mInfoBar isHidden];
 
   // Horizontal offset of the content. Almost always 0 unless the vertical scroller
@@ -1606,11 +1616,11 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
   // Info bar frame.
   if (infoBarVisible)
   {
-    scrollRect.size.height -= scrollerWidth;
+    scrollRect.size.height -= infoBarHeight;
     // Initial value already is as if the bar is at top.
     if (!mInfoBarAtTop)
     {
-      scrollRect.origin.y += scrollerWidth;
+      scrollRect.origin.y += infoBarHeight;
       barFrame.origin.y = 0;
     }
   }

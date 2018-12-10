@@ -23,6 +23,8 @@
 
 #pragma once
 
+// A variant of the global notification center which can take GRT objects in notifications.
+
 #include "grt.h"
 #include "base/notifications.h"
 
@@ -32,8 +34,7 @@ namespace grt {
     friend class GRTNotificationCenter;
     virtual void handle_grt_notification(const std::string &name, ObjectRef sender, DictRef info) = 0;
 
-    virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
-    }
+    virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) override;
 
   public:
     virtual ~GRTObserver() {

@@ -109,8 +109,18 @@ SidebarSection::~SidebarSection() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, Color &color, float alpha) {
-  cairo_set_source_rgba(cr, color.red, color.green, color.blue, alpha);
+void SidebarSection::updateColors() {
+  if (_owner->isDarkModeActive()) {
+    _indicatorColor = base::Color::parse("#282a2b");
+  } else {
+    _indicatorColor = base::Color::parse("#ffffff");
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void SidebarSection::drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, float alpha) {
+  cairo_set_source_rgba(cr, _indicatorColor.red, _indicatorColor.green, _indicatorColor.blue, alpha);
   cairo_move_to(cr, x2, y1 + abs(y2 - y1) / 3);
   cairo_line_to(cr, x1 + abs(x2 - x1) * 0.6, y1 + abs(y2 - y1) / 2);
   cairo_line_to(cr, x2, y2 - abs(y2 - y1) / 3);
@@ -140,7 +150,7 @@ void SidebarSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int a
 
       if (iterator.first == _activeEntry)
         drawTriangle(cr, get_width() - SIDEBAR_RIGHT_PADDING, yoffset, get_width(), yoffset + SIDEBAR_ROW_HEIGHT,
-                     iterator.first->indicatorColor, alpha);
+                     alpha);
 
       yoffset += SIDEBAR_ROW_HEIGHT + SIDEBAR_SPACING;
       if (yoffset >= height)
@@ -186,11 +196,6 @@ void SidebarSection::addEntry(const std::string &title, const std::string &icon_
   entry->owner = this;
   entry->title = title;
   entry->setAccessibilityName(title);
-
-  if (section)
-    entry->indicatorColor = section->getIndicatorColor();
-  else
-    entry->indicatorColor = Color("#ffffff");  // Use white as default indicator color
 
   entry->icon = mforms::Utilities::load_icon(icon_name, true);
   if (entry->icon == nullptr)
@@ -326,22 +331,18 @@ Accessible *SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
 
 //----------------- HomeScreen -----------------------------------------------------------------------------------------
 
-HomeScreen::HomeScreen(bool singleSection) : AppView(true, "Home", "home", true), _singleSection(singleSection) {
+HomeScreen::HomeScreen() : AppView(true, "Home", "home", true) {
   set_name("Home Screen");
   setInternalName("homeScreen");
-  if (!_singleSection) {
-    _sidebarSection = new SidebarSection(this);
-    _sidebarSection->set_name("Home Screen Sidebar");
-    _sidebarSection->setInternalName("homeScreenSideBar");
-    _sidebarSection->set_size(85, -1);
-    add(_sidebarSection, false, true);
-  } else
-    _sidebarSection = nullptr;
 
-  update_colors();
+  _sidebarSection = new SidebarSection(this);
+  _sidebarSection->set_name("homeScreenSideBar");
+  _sidebarSection->set_size(85, -1);
+  add(_sidebarSection, false, true);
 
   Box::scoped_connect(signal_resized(), std::bind(&HomeScreen::on_resize, this));
   NotificationCenter::get()->add_observer(this, "GNColorsChanged");
+  NotificationCenter::get()->add_observer(this, "GNBackingScaleChanged");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -355,15 +356,33 @@ HomeScreen::~HomeScreen() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void HomeScreen::update_colors() {
-  set_back_color("#ffffff");
-  if (_sidebarSection != nullptr)
+void HomeScreen::updateColors() {
+  _darkMode = mforms::App::get()->isDarkModeActive();
+  if (_darkMode) {
+    set_back_color("#282a2b");
+  } else {
+    set_back_color("#ffffff");
+  }
+  
 #ifdef __APPLE__
-    _sidebarSection->set_back_color("#323232");
+  _sidebarSection->set_back_color("#37393a");
 #else
-    _sidebarSection->set_back_color("#464646");
+  _sidebarSection->set_back_color("#464646");
 #endif
 
+  _sidebarSection->updateColors();
+
+  for (auto section: _sections) {
+    section->updateColors();
+    section->updateIcons(); // Also refresh icons, even though no resolution change happen (icon colors might change).
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void HomeScreen::updateIcons() {
+  for (auto section: _sections)
+    section->updateIcons();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -372,47 +391,36 @@ void HomeScreen::addSection(HomeScreenSection *section) {
   if (section == nullptr)
     throw std::runtime_error("Empty HomeScreenSection given");
 
-  if (_singleSection && !_sections.empty())
-    throw std::runtime_error("HomeScreen is in singleSection mode. Only one section allowed.");
-
   _sections.push_back(section);
 
-  if (_sidebarSection != nullptr) {
-    mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoAutoScroll));
-    scroll->set_name("Home Screen Main Panel");
-    scroll->setInternalName("HomeScreen Main Panel");
-    scroll->add(section->getContainer());
-    add(scroll, true, true);
+  mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoAutoScroll));
+  scroll->set_name("HomeScreen Main Panel");
+  scroll->setInternalName("HomeScreen Main Panel");
+  scroll->add(section->getContainer());
+  add(scroll, true, true);
 
-    scroll->show(false);
+  scroll->show(false);
 
-    bool isCallbackOnly = section->callback ? true : false;
-    _sidebarSection->addEntry(section->getTitle(), section->getIcon(), section, [this, isCallbackOnly, section]() {
-      if (isCallbackOnly)
-       section->callback();
-      else {
-        for (auto &it : _sections) {
-          if (it != section)
-           it->getContainer()->get_parent()->show(false);
-          else
-           it->getContainer()->get_parent()->show(true);
-        }
+  bool isCallbackOnly = section->callback ? true : false;
+  _sidebarSection->addEntry(section->getTitle(), section->getIcon(), section, [this, isCallbackOnly, section]() {
+    if (isCallbackOnly)
+      section->callback();
+    else {
+      for (auto &it : _sections) {
+        if (it != section)
+          it->getContainer()->get_parent()->show(false);
+        else
+          it->getContainer()->get_parent()->show(true);
       }
-    }, !isCallbackOnly);
-  } else {
-    add(section->getContainer(), true, true);
-    section->getContainer()->show(true);
-  }
+    }
+  }, !isCallbackOnly);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::addSectionEntry(const std::string &title, const std::string &icon_name, std::function<void()> callback,
                                  bool canSelect) {
-  if (_sidebarSection != nullptr)
-    _sidebarSection->addEntry(title, icon_name, nullptr, callback, canSelect);
-  else
-    throw std::runtime_error("HomeScreen is in single section mode");
+  _sidebarSection->addEntry(title, icon_name, nullptr, callback, canSelect);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -472,20 +480,15 @@ void HomeScreen::on_resize() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::setup_done() {
-  if (_sidebarSection != nullptr) {
-    if (_sidebarSection->getActive()) {
-      _sidebarSection->getActive()->setFocus();
-    }
-  } else {
-    if (!_sections.empty())
-      _sections.back()->setFocus();
+  if (_sidebarSection->getActive()) {
+    _sidebarSection->getActive()->setFocus();
   }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void HomeScreen::showSection(size_t index) {
-  if (index < _sections.size() && _sidebarSection != nullptr) {
+  if (index < _sections.size()) {
     _sidebarSection->setActive(_sections[index]);
     _sidebarSection->getActive()->setFocus();
   }
@@ -495,7 +498,9 @@ void HomeScreen::showSection(size_t index) {
 
 void HomeScreen::handle_notification(const std::string &name, void *sender, NotificationInfo &info) {
   if (name == "GNColorsChanged") {
-    update_colors();
+    updateColors();
+  } else if (name == "GNBackingScaleChanged") {
+    updateIcons();
   }
 }
 

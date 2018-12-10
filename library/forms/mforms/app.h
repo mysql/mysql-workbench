@@ -48,6 +48,7 @@ namespace mforms {
     void (*exit_event_loop)(App *app, int result);
 
     float (*backing_scale_factor)(App *app);
+    bool (*isDarkModeActive)(App *app);
   };
 #endif
 #endif
@@ -59,7 +60,7 @@ namespace mforms {
    */
   class MFORMS_EXPORT App : public DockingPoint {
   private:
-    App() : DockingPoint() {
+    App() : DockingPoint(), _app_impl(nullptr) {
     }
 
     App(DockingPointDelegate *delegate, bool delete_on_destroy);
@@ -104,7 +105,12 @@ namespace mforms {
     /** Exits from enter_event_loop() */
     void exit_event_loop(int retcode);
 
+    /** The scale factor for the current screen. Usually 1, but e.g. on macOS retina screens can be 2. */
     float backing_scale_factor();
+
+    /** Returns true if the OS currently shows in dark mode (Windows + macOS). */
+    bool isDarkModeActive();
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef SWIG
     void set_user_data_folder_path(const std::string &path) {

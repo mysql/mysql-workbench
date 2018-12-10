@@ -23,78 +23,104 @@
 
 #import "MStatusBar.h"
 
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MStatusBar
 
 - (instancetype)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
-    if (self) {
-      mGradient= [[NSGradient alloc] initWithColorsAndLocations:
-                  [NSColor colorWithCalibratedRed:197/256.0 green:197/256.0 blue:196/256.0 alpha:1.0],
-                  (CGFloat)0.0,
-                  [NSColor colorWithCalibratedRed:151/256.0 green:150/256.0 blue:149/256.0 alpha:1.0],
-                  (CGFloat)0.76,
-                  [NSColor colorWithCalibratedRed:148/256.0 green:147/256.0 blue:147/256.0 alpha:1.0],
-                  (CGFloat)1.0,
-                  nil];
-      
+    if (self != nil) {
       [[NSNotificationCenter defaultCenter] addObserver: self
-                                               selector:@selector(windowBecameKey:)
-                                                   name:NSWindowDidBecomeKeyNotification
-                                                 object:nil];
+                                               selector: @selector(windowBecameKey:)
+                                                   name: NSWindowDidBecomeKeyNotification
+                                                 object: nil];
       [[NSNotificationCenter defaultCenter] addObserver: self
-                                               selector:@selector(windowResignedKey:)
-                                                   name:NSWindowDidResignKeyNotification
-                                                 object:nil];
+                                               selector: @selector(windowResignedKey:)
+                                                   name: NSWindowDidResignKeyNotification
+                                                 object: nil];
     }
     return self;
 }
 
-- (void) dealloc
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void) dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
-- (void)windowBecameKey:(NSNotification*)notif
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)windowBecameKey:(NSNotification*)notif {
   if (notif.object == self.window)
-    [self setNeedsDisplay:YES];
+    [self setNeedsDisplay: YES];
 }
 
 
-- (void)windowResignedKey:(NSNotification*)notif
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)windowResignedKey:(NSNotification*)notif {
   if (notif.object == self.window)
-    [self setNeedsDisplay:YES];
+    [self setNeedsDisplay: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)drawRect:(NSRect)rect 
-{
-  if (self.window.keyWindow)
-  {
-    NSRect b= self.bounds;    
-            
-    [mGradient drawInRect:b angle: 270];
-
-    [[NSColor colorWithCalibratedRed:224/255.0 green:224/255.0 blue:224/255.0 alpha:1.0] set];
-    [NSBezierPath strokeLineFromPoint: NSMakePoint(0, NSHeight(b)-1.5) toPoint: NSMakePoint(NSWidth(b), NSHeight(b)-1.5)];
-
-    [[NSColor colorWithDeviceWhite: 81/255.0 alpha: 1.0] set];
-    [NSBezierPath strokeLineFromPoint: NSMakePoint(0, NSHeight(b)-0.5) toPoint: NSMakePoint(NSWidth(b), NSHeight(b)-0.5)];
+- (void)drawRect: (NSRect)rect {
+  BOOL dark = false;
+  if (@available(macOS 10.14, *)) {
+    dark = self.window.effectiveAppearance.name == NSAppearanceNameDarkAqua;
   }
-  else
-  {
-    [[NSColor controlColor] set];
-    NSRectFill(self.bounds);
+
+  NSRect b = self.bounds;
+  NSGradient *gradient;
+
+  if (self.window.keyWindow) {
+    if (dark) {
+      gradient = [[NSGradient alloc] initWithColorsAndLocations:
+                  [NSColor colorWithDeviceRed: 0x40 / 255.0 green: 0x40 / 255.0 blue: 0x40 / 255.0 alpha: 1.0],
+                  (CGFloat)0.0,
+                  [NSColor colorWithDeviceRed: 0x32 / 255.0 green: 0x32 / 255.0 blue: 0x32 / 255.0 alpha: 1.0],
+                  (CGFloat)1.0,
+                  nil];
+    } else {
+      gradient = [[NSGradient alloc] initWithColorsAndLocations:
+                  [NSColor colorWithDeviceRed: 0xdd / 255.0 green: 0xdd / 255.0 blue: 0xdd / 255.0 alpha: 1.0],
+                  (CGFloat)0.0,
+                  [NSColor colorWithDeviceRed: 0xc7 / 255.0 green: 0xc7 / 255.0 blue: 0xc7 / 255.0 alpha: 1.0],
+                  (CGFloat)1.0,
+                  nil];
+    }
+    [gradient drawInRect: b angle: 270];
+
+    if (dark) {
+      [[NSColor blackColor] set];
+    } else {
+      [[NSColor colorWithDeviceRed: 0xc1 / 255.0 green: 0xc1 / 255.0 blue: 0xc1 / 255.0 alpha: 1.0] set];
+    }
+    [NSBezierPath strokeLineFromPoint: NSMakePoint(0, NSHeight(b))
+                              toPoint: NSMakePoint(NSWidth(b), NSHeight(b))];
+  } else {
+    if (dark) {
+      [[NSColor colorWithDeviceRed: 0x29 / 255.0 green: 0x2d / 255.0 blue: 0x2b / 255.0 alpha: 1.0] set];
+      NSRectFill(b);
+      [[NSColor blackColor] set];
+    } else {
+      [[NSColor colorWithDeviceRed: 0xf6 / 255.0 green: 0xf6 / 255.0 blue: 0xf6 / 255.0 alpha: 1.0] set];
+      NSRectFill(b);
+      [[NSColor colorWithDeviceRed: 0xd1 / 255.0 green: 0xd1 / 255.0 blue: 0xd1 / 255.0 alpha: 1.0] set];
+    }
+    [NSBezierPath strokeLineFromPoint: NSMakePoint(0, NSHeight(b))
+                              toPoint: NSMakePoint(NSWidth(b), NSHeight(b))];
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)mouseDownCanMoveWindow
 {
   return YES;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 @end

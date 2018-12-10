@@ -330,7 +330,7 @@ void WizardProgressPage::set_status_text(const std::string &text, bool is_error)
   if (is_error)
     _status_text.set_color("#ff0000");
   else
-    _status_text.set_color("#000000");
+    _status_text.set_color(base::Color::getSystemColor(base::TextColor).to_html());
   _status_text.set_text(text);
 }
 

@@ -100,9 +100,18 @@ void App::exit_event_loop(int retcode) {
 //--------------------------------------------------------------------------------------------------
 
 float App::backing_scale_factor() {
-  if (_app_impl->backing_scale_factor != NULL)
+  if (_app_impl->backing_scale_factor != nullptr)
     return _app_impl->backing_scale_factor(this);
   return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool App::isDarkModeActive() {
+  if (_app_impl->isDarkModeActive != nullptr)
+    return _app_impl->isDarkModeActive(this);
+
+  return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -526,7 +526,7 @@ public:
 
   /**
    * Moves all triggers from source to target with the given timing and event, maintaining
-   *	 their relative order.
+   * their relative order.
    */
   void coalesce_triggers(grt::ListRef<db_mysql_Trigger> source, grt::ListRef<db_mysql_Trigger> target,
                          std::string timing, std::string event) {
@@ -644,7 +644,7 @@ public:
     for (size_t i = 0; i < 6; ++i) {
       mforms::TreeNodeRef node = _trigger_list.add_node();
       node->set_string(0, top_level_captions[i]);
-      node->set_attributes(0, mforms::TextAttributes("#303030", true, false));
+      //node->set_attributes(0, mforms::TextAttributes("#303030", true, false));
       node->expand();
     }
 
@@ -1287,9 +1287,9 @@ public:
     std::string source = trigger->sqlDefinition();
 
     Scanner scanner = _editor->_parserContext->createScanner();
-    std::string timingText = base::toupper(_selected_trigger->timing()) + "_SYMBOL";
+    std::string timingText = base::toupper(trigger->timing()) + "_SYMBOL";
     size_t timingToken = _editor->_parserServices->tokenFromString(_editor->_parserContext, timingText);
-    std::string eventText = base::toupper(_selected_trigger->event()) + "_SYMBOL";
+    std::string eventText = base::toupper(trigger->event()) + "_SYMBOL";
     size_t eventToken = _editor->_parserServices->tokenFromString(_editor->_parserContext, eventText);
     bool replace_done = false;
     sql += scanner.tokenText();

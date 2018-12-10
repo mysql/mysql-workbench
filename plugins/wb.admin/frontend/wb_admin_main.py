@@ -27,7 +27,7 @@ import grt
 
 from workbench.log import log_info, log_error, log_debug
 
-from mforms import App, Utilities, newTabView
+from mforms import App, Utilities, newTabView, Color, ControlBackgroundColor
 import mforms
 
 from workbench.notifications import nc
@@ -119,10 +119,8 @@ class AdministratorTab(mforms.AppView):
         self.old_active_tab             = None
         self.server_profile             = server_profile
 
-        # if we're in the Mac, we need to set the background color of the main view of the tab to white,
-        # so that MTabSwitcher will take the cue and set the tab color to white too
         if self.server_profile.host_os == wbaOS.darwin:
-            self.set_back_color("#ffffff")
+            self.set_back_color(Color.getSystemColor(ControlBackgroundColor).to_html())
 
         # Setup self
         self.set_managed()
@@ -131,6 +129,7 @@ class AdministratorTab(mforms.AppView):
         self.on_close(wb_admin_utils.weakcb(self, "handle_on_close"))
 
         nc.add_observer(self.handle_server_state_changed, "GRNServerStateChanged", editor)
+        nc.add_observer(self.updateColors, "GNColorsChanged")
 
         self.ctrl_be.add_me_for_event("server_started", self)
         self.ctrl_be.add_me_for_event("server_stopped", self)
@@ -158,6 +157,7 @@ class AdministratorTab(mforms.AppView):
             Utilities.cancel_timeout(self._timeout_tm)
             self._timeout_tm = None
         nc.remove_observer(self.handle_server_state_changed)
+        nc.remove_observer(self.updateColors)
 
         App.get().set_status_text("Closing Administator.")
         self.shutdown()
@@ -243,6 +243,11 @@ class AdministratorTab(mforms.AppView):
             self.ctrl_be.event_from_main("server_offline")
         else:
             self.ctrl_be.event_from_main("server_stopped")
+
+    #---------------------------------------------------------------------------
+    def updateColors(self, name, sender, info):
+        # Called when the system color scheme or a color setting was changed.
+        self.set_back_color(Color.getSystemColor(ControlBackgroundColor).to_html())
 
     #---------------------------------------------------------------------------
     def server_started_event(self):

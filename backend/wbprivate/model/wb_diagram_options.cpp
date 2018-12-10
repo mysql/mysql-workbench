@@ -96,11 +96,11 @@ public:
     cr->set_color(Color(0.5, 0.5, 0.5));
     cr->paint();
 
-    cr->set_color(Color::White());
+    cr->set_color(Color::white());
     cr->rectangle(0, 0, _mini_pw * xpages, _mini_ph * ypages);
     cr->fill();
 
-    cr->set_color(Color::Black());
+    cr->set_color(Color::black());
     for (double x = 0; x < bounds.width(); x += _mini_pw) {
       cr->move_to(x + .5, 0.5);
       cr->line_to(x + .5, bounds.height() - 0.5);

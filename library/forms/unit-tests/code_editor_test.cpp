@@ -38,9 +38,9 @@ END_TEST_DATA_CLASS;
 
 TEST_MODULE(mforms_code_editor_test, "mforms code editor testing");
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-TEST_FUNCTION(1) {
+TEST_FUNCTION(10) {
   // Copy a current version of the code editor configuration file to the test data folder.
   gchar *contents;
   gsize length;
@@ -82,15 +82,24 @@ TEST_FUNCTION(1) {
   ensure("Couldn't read styles", styles.size() > 0);
 
   // Pick some entries, just to check sub map.
-  std::map<std::string, std::string> values = styles[8]; // MySQL keyword.
-  ensure("Invalid style set for MySQL keywords", values.size() > 1);
-  ensure("Missing fore color style for MySQL keywords", !values["fore-color"].empty());
+  std::map<std::string, std::string> &values = styles[22]; // SCE_MYSQL_KEYWORD
+  ensure("Wrong number of style values found", values.size() > 0);
+  ensure("Old style color entry found", values["fore-color"].empty());
+  ensure("Missing bold style for MySQL keywords", !values["bold"].empty());
+
+  values = styles[22]; // SCE_MYSQL_PLACEHOLDER
+  ensure("Wrong number of style values found", values.size() >= 5);
+  ensure("Old style color entry found", values["fore-color"].empty());
+  ensure("Missing fore-color-light", !values["fore-color-light"].empty());
+  ensure("Missing fore-color-dark", !values["fore-color-dark"].empty());
+  ensure("Missing back-color-light", !values["back-color-light"].empty());
+  ensure("Missing back-color-dark", !values["back-color-dark"].empty());
   ensure("Missing bold style for MySQL keywords", !values["bold"].empty());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-TEST_FUNCTION(2) {
+TEST_FUNCTION(20) {
   // Another config check, this time for python.
   CodeEditorConfig config(mforms::LanguagePython);
   ensure("No language nodes found", config.get_languages().size() > 0);
@@ -118,9 +127,12 @@ TEST_FUNCTION(2) {
   // Pick some entries, just to check sub map.
   std::map<std::string, std::string> values = styles[8]; // Python class name.
   ensure("Invalid style set for Python class names", values.size() > 1);
-  ensure("Missing fore color style for Python class names", !values["fore-color"].empty());
+  ensure("Old style color entry found", values["fore-color"].empty());
+  ensure("Missing fore color style for Python class names", !values["fore-color-light"].empty());
   ensure("Missing bold style for Python class names", !values["bold"].empty());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
@@ -130,4 +142,4 @@ TEST_FUNCTION(99) {
 
 END_TESTS
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------

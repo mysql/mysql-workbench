@@ -50,6 +50,7 @@ namespace mforms {
 
 namespace wb {
   class SimpleSidebar;
+  class AdvancedSidebar;
 }
 
 class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorTreeController
@@ -75,7 +76,7 @@ private:
 
   SqlEditorForm *_owner;
 
-  wb::SimpleSidebar *_schema_side_bar;
+  wb::AdvancedSidebar *_schema_side_bar;
   wb::SimpleSidebar *_admin_side_bar;
   mforms::TabView *_task_tabview;
   mforms::Box *_taskbar_box;
@@ -87,7 +88,6 @@ private:
   GrtThreadedTask::Ref live_schema_fetch_task;
   GrtThreadedTask::Ref live_schemata_refresh_task;
   bool _is_refreshing_schema_tree;
-  bool _unified_mode;
 
   bool _use_show_procedure;
 
@@ -100,6 +100,8 @@ private:
 
   // Observer
   virtual void handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info);
+
+  void updateColors();
 
   // LiveSchemaTree::FetchDelegate
   virtual std::vector<std::string> fetch_schema_list();

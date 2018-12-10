@@ -212,6 +212,8 @@ namespace mdc {
       return base::Color(0.85, 0.5, 0.5, 0.8);
     }
 
+    void setBackgroundColor(base::Color const& color);
+
     inline CairoCtx *cairoctx() const {
       return _cairo;
     }

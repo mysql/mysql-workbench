@@ -178,9 +178,6 @@
     <ClCompile Include="home_screen_helpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="home_screen_launchers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -347,9 +344,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\home_screen_helpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mforms\home_screen_launchers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

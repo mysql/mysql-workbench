@@ -101,6 +101,14 @@ add_library(wbprivate
     ${PROJECT_SOURCE_DIR}/frontend/common/plugin_install_window.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/select_option_dialog.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/snippet_list.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/new_server_instance_wizard.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/grt_code_editor.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/server_instance_editor.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/grt_python_debugger.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/advanced_sidebar.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/snippet_popover.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/grt_plugin_wizard.cpp
+
 )
 
 target_compile_options(wbprivate PUBLIC ${WB_CXXFLAGS})

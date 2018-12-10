@@ -223,7 +223,7 @@ static NativeHandle windowOpenPlugin(grt::Module *ownerModule, const std::string
             id editor = [existingPanel pluginEditor];
 
             if ([editor respondsToSelector: @selector(reinitWithArguments:)]) {
-              id oldIdentifier = [editor identifier];
+              id oldIdentifier = [editor panelId];
 
               [controller closeBottomPanelWithIdentifier: oldIdentifier];
               [editor reinitWithArguments: args];
@@ -735,7 +735,7 @@ static void flush_main_thread() {
   _initFinished = YES;
   [[NSNotificationCenter defaultCenter] addObserver: self
                                            selector: @selector(windowDidBecomeKey:)
-                                               name:NSWindowDidBecomeKeyNotification
+                                               name: NSWindowDidBecomeKeyNotification
                                              object: nil];
 }
 
@@ -754,7 +754,12 @@ static void flush_main_thread() {
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
   base::NotificationInfo info;
-  base::NotificationCenter::get()->send("GNApplicationActivated", NULL, info);
+  base::NotificationCenter::get()->send("GNApplicationActivated", nullptr, info);
+}
+
+- (void)applicationDidResignActive:(NSNotification *)notification {
+  base::NotificationInfo info;
+  base::NotificationCenter::get()->send("GNApplicationDeactivated", nullptr, info);
 }
 
 static NSString *applicationSupportFolder() {

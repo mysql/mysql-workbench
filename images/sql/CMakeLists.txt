@@ -99,8 +99,6 @@ set(IMAGE_FILES
     title_schema_inspector.png
     title_table_inspector.png
     wb_item_overlay_autozoom.png
-    wb-sidebar-collapse.png
-    wb-sidebar-expand.png
     wb-sidebar-refresh.png
     wb_item_overlay_editor.png
     wb_item_overlay_execute.png

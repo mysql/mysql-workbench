@@ -110,7 +110,6 @@ class Canvas(object):
                 return f
         return None
 
-
     # event handling
     def mouse_down(self, button, x, y):
         fig = self.figure_at(x, y)
@@ -535,10 +534,12 @@ class ImageFigure(Figure):
         self.set_line_width(1)
 
         # if this is a @2x image (for hidpi), we need to scale it by half when painting on screen
+        # XXX: this implementation is nonsense, we never specify a @2x image (that is handled implicitly).
         if "@2x" in file:
             self._scale = 0.5
         else:
             self._scale = 1.0
+        self._file = file
         self._image = cairo_utils.ImageSurface.from_png(file)
         self._width = self._image.get_width() * self._scale
         self._height = self._image.get_height() * self._scale
@@ -549,6 +550,12 @@ class ImageFigure(Figure):
         self._width = self._image.get_width() * self._scale
         self._height = self._image.get_height() * self._scale
 
+    def switch_image_mode(self, dark):
+        if dark:
+            self._file = self._file.replace("light", "dark")
+        else:
+            self._file = self._file.replace("dark", "light")
+        self._image = cairo_utils.ImageSurface.from_png(self._file)
 
     def render(self, ctx):
         ctx.save()

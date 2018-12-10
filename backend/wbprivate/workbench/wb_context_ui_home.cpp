@@ -56,7 +56,6 @@
 #include "mforms/home_screen.h"
 #include "mforms/home_screen_connections.h"
 #include "mforms/home_screen_documents.h"
-#include "mforms/home_screen_launchers.h"
 #include <zip.h>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
@@ -313,6 +312,9 @@ void WBContextUI::show_home_screen() {
       _wb->add_new_plugin_window("wb.migration.open", "Migration Wizard");
     }, false);
 
+    _home_screen->updateColors();
+    _home_screen->updateIcons();
+
     // Setup context menus.
     mforms::Menu *menu;
     {
@@ -432,7 +434,6 @@ void WBContextUI::show_home_screen() {
   try {
     refresh_home_documents();
     refresh_home_connections();
-    refreshHomeStarters();
   } catch (const std::exception *exc) {
     error = exc->what();
   } catch (const std::exception &exc) {
@@ -768,29 +769,6 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
   switch (action) {
     case HomeScreenAction::ActionNone:
       break;
-
-    case HomeScreenAction::ActionShortcut: {
-      app_StarterRef starter;
-      if (!anyObject.isNull())
-        starter = anyObject;
-
-      if (starter.is_valid())
-        start_plugin(starter->title(), starter->command(), bec::ArgumentPool());
-    }
-
-    break;
-
-    case HomeScreenAction::ActionRemoveShortcut: {
-      app_StarterRef starter;
-      if (!anyObject.isNull())
-        starter = anyObject;
-
-      if (starter.is_valid()) {
-        _wb->get_root()->starters()->displayList()->remove(starter);
-        _wb->saveStarters();
-        refreshHomeStarters();
-      }
-    } break;
 
     case HomeScreenAction::ActionOpenConnectionFromList: {
       if (_processing_action_open_connection)
@@ -1163,17 +1141,3 @@ void WBContextUI::refresh_home_documents() {
 }
 
 //--------------------------------------------------------------------------------------------------
-
-
-void WBContextUI::refreshHomeStarters() {
-
-  if (_launchersSection == nullptr || _home_screen == nullptr)
-    return;
-
-  _launchersSection->clearLaunchers();
-
-  grt::ListRef<app_Starter> starters = _wb->get_root()->starters()->displayList();
-  for (grt::ListRef<app_Starter>::const_iterator it = starters.begin(); it != starters.end(); it++) {
-    _launchersSection->addLauncher((*it)->smallIcon(), (*it)->title(), (*it)->description(), base::any(*it));
-  }
-}

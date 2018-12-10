@@ -21,8 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _SNIPPET_POPOVER_H_
-#define _SNIPPET_POPOVER_H_
+#pragma once
+
+#include "base/notifications.h"
 
 #include "mforms/popover.h"
 #include "mforms/drawbox.h"
@@ -38,19 +39,21 @@ namespace mforms {
   class TextEntry;
   class Button;
   class Box;
+  class Panel;
 }
 
 namespace wb {
-  class SnippetPopover : public mforms::Popover {
+  class SnippetPopover : public mforms::Popover, public base::Observer {
   private:
-    mforms::Box* _content;
-    mforms::Box* _header;
-    mforms::CodeEditor* _editor;
-    mforms::Label* _heading_label;     // Non-editable heading text.
-    mforms::TextEntry* _heading_entry; // Editable heading text.
-    mforms::Button* _edit_button;
-    mforms::Button* _close_button;
-    mforms::Button* _revert_button;
+    mforms::Box *_content;
+    mforms::Box *_header;
+    mforms::CodeEditor *_editor;
+    mforms::Label *_heading_label;     // Non-editable heading text.
+    mforms::TextEntry *_heading_entry; // Editable heading text.
+    mforms::Button *_edit_button;
+    mforms::Button *_close_button;
+    mforms::Button *_revert_button;
+    mforms::Panel *_borderPanel;
 
     std::string _original_text;
     std::string _original_heading;
@@ -63,6 +66,7 @@ namespace wb {
     void close_clicked();
     void text_changed(int start_line, int lines_changed);
 
+    virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) override;
   public:
     SnippetPopover(mforms::View *owner);
     ~SnippetPopover();
@@ -81,5 +85,3 @@ namespace wb {
   };
 
 } // namespace wb
-
-#endif // _SNIPPET_POPOVER_H_

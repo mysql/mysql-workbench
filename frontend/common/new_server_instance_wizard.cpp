@@ -379,7 +379,7 @@ void HostAndRemoteTypePage::enter(bool advancing) {
 #ifdef _MSC_VER
       detected_os_type = "Windows";
 #elif defined(__APPLE__)
-      detected_os_type = "MacOS X";
+      detected_os_type = "macOS";
 #else
       detected_os_type = "Linux";
 #endif
@@ -1206,9 +1206,9 @@ bool PathsPage::skip_page() {
 //--------------------------------------------------------------------------------------------------
 
 void PathsPage::enter(bool advancing) {
-  _test_config_path_description.set_color("#000000");
+  _test_config_path_description.set_color(base::Color::getSystemColor(base::TextColor).to_html());
   _test_config_path_description.set_text(_("Click to test if your path is correct."));
-  _test_section_description.set_color("#000000");
+  _test_section_description.set_color(base::Color::getSystemColor(base::TextColor).to_html());
   _test_section_description.set_text(_("Click to test if your section is correct."));
 
   if (advancing) {

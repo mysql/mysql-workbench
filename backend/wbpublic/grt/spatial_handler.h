@@ -201,7 +201,7 @@ namespace spatial {
     void get_envelope(spatial::Envelope &env, const bool &screen_coords = false);
     void render(spatial::Converter *converter);
     void repaint(mdc::CairoCtx &cr, float scale, const base::Rect &clip_area,
-                 base::Color fill_color = base::Color::Invalid());
+                 base::Color fill_color = base::Color::invalid());
 
     int row_id() const {
       return _row_id;

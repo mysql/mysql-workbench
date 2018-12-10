@@ -38,8 +38,9 @@
 #import "MFView.h"
 #import "MContainerView.h"
 
-@interface WBModelOverviewPanel()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface WBModelOverviewPanel () {
   __weak IBOutlet WBOverviewPanel *overview;
   __weak IBOutlet NSSplitView *sideSplitview;
   __weak IBOutlet WBModelSidebarController *sidebarController;
@@ -52,109 +53,107 @@
 
 @end;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation WBModelOverviewPanel
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
-  if (self)
-  {
+  if (self != nil) {
+    NSMutableArray *temp;
+    if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &temp]) {
+      nibObjects = temp;
 
-    {
-      NSMutableArray *temp;
-      if ([NSBundle.mainBundle loadNibNamed: @"WBModelOverview" owner: self topLevelObjects: &temp])
-      {
-        nibObjects = temp;
+      [overview setupWithOverviewBE: wb::WBContextUI::get()->get_physical_overview()];
+      [sidebarController setupWithContext: wb::WBContextUI::get()->get_wb()->get_model_context()];
+      mSwitcherT.tabStyle = MSectionTabSwitcher;
+      mSwitcherB.tabStyle = MSectionTabSwitcher;
+      [descriptionController setup];
 
-        [editorTabView createDragger];
+      [overview performSelector: @selector(rebuildAll) withObject: nil afterDelay: 0.1];
 
+      self.splitView.autosaveName = @"modelSplitPosition";
 
-        [overview setupWithOverviewBE: wb::WBContextUI::get()->get_physical_overview()];
-        [sidebarController setupWithContext: wb::WBContextUI::get()->get_wb()->get_model_context()];
-        mSwitcherT.tabStyle = MPaletteTabSwitcherSmallText;
-        mSwitcherB.tabStyle = MPaletteTabSwitcherSmallText;
-        [descriptionController setup];
-
-        self.splitView.dividerThickness = 1;
-        self.splitView.backgroundColor = [NSColor colorWithDeviceWhite: 128 / 255.0 alpha: 1.0];
-
-        [overview performSelector: @selector(rebuildAll) withObject: nil afterDelay: 0.1];
-
-        self.splitView.autosaveName = @"modelSplitPosition";
-
-        [self restoreSidebarsFor: "ModelOverview" toolbar: wb::WBContextUI::get()->get_physical_overview()->get_toolbar()];
-      }
+      [self restoreSidebarsFor: "ModelOverview" toolbar: wb::WBContextUI::get()->get_physical_overview()->get_toolbar()];
     }
   }
+
   return self;
 }
 
-- (void)dealloc
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
   // Make sure scheduled rebuildAll won't blow up if it didn't exec yet.
   [NSObject cancelPreviousPerformRequestsWithTarget: overview];
 
   [sidebarController invalidate];
-  
 }
 
-- (NSString*)identifier
-{
-  return overview.identifier;
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString*)panelId {
+  return overview.panelId;
 }
 
-- (WBOverviewPanel*)overview
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (WBOverviewPanel*)overview {
   return overview;
 }
 
-- (NSString*)title
-{  
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString*)title {
   return overview.title;
 }
 
-- (bec::UIForm*)formBE
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (bec::UIForm*)formBE {
   return overview.formBE;
 }
 
-- (void)didActivate
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)didActivate {
   NSView *view = nsviewForView(wb::WBContextUI::get()->get_wb()->get_model_context()->shared_secondary_sidebar());
   if (view.superview)
     [view removeFromSuperview];
 
   [secondarySidebar addSubview: view];
-  view.autoresizingMask = NSViewWidthSizable|NSViewHeightSizable|NSViewMinXMargin|NSViewMinYMargin|NSViewMaxXMargin|NSViewMaxYMargin;
+  view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable | NSViewMinXMargin | NSViewMinYMargin
+    | NSViewMaxXMargin | NSViewMaxYMargin;
   view.frame = secondarySidebar.bounds;
 }
 
-- (BOOL)willClose
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)willClose {
   return overview.willClose;
 }
 
-- (void)selectionChanged
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)selectionChanged {
   [descriptionController updateForForm: self.formBE];
 }
 
-- (WBModelSidebarController*)sidebarController
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (WBModelSidebarController*)sidebarController {
   return sidebarController;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
-{
+- (BOOL)splitView: (NSSplitView *)splitView shouldAdjustSizeOfSubview: (NSView *)subview {
   if (subview == bottomContainer)
     return NO;
 
   return [super splitView: splitView shouldAdjustSizeOfSubview: subview];
 }
 
-//--------------------------------------------------------------------------------------------------
-
-
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

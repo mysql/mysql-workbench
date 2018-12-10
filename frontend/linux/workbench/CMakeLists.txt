@@ -70,13 +70,6 @@ add_executable(mysql-workbench-bin
     sqlide_form.cpp
     sqlide_output_view.cpp
     sqlide_main.cpp
-    ../../common/new_server_instance_wizard.cpp
-    ../../common/grt_code_editor.cpp
-    ../../common/server_instance_editor.cpp
-    ../../common/grt_python_debugger.cpp
-    ../../common/advanced_sidebar.cpp
-    ../../common/snippet_popover.cpp
-    ../../common/grt_plugin_wizard.cpp
 )
 
 

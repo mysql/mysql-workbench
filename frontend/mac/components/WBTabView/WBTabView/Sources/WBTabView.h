@@ -25,14 +25,7 @@
 
 @class WBRightClickThroughView;
 
-// Temporary solution until we are completely on XCode 8 or higher.
-#if MAC_OS_X_VERSION_MAX_ALLOWED > 101104
-@interface WBTabView : NSTabView<WBTabItemDelegateProtocol, CALayerDelegate>
-#else
-@interface WBTabView : NSTabView<WBTabItemDelegateProtocol>
-#endif
-
-{
+@interface WBTabView : NSTabView<WBTabItemDelegateProtocol, CALayerDelegate> {
   NSTabView* mTabView;
   ResponderLayer* mTabRowLayer;
   WBRightClickThroughView* mTabRowView;
@@ -46,22 +39,16 @@
   WBTabPlacement mTabPlacement;
 
   WBTabArrow* mLeftArrow;
-  NSImage* mLeftArrowIconImage;
   WBTabArrow* mRightArrow;
-  NSImage* mRightArrowIconImage;
   WBTabMenuLayer* mTabMenu;
-  NSImage* mTabMenuIconImage;
-  WBTabDraggerLayer* mDragger;
-  NSImage* mDraggerIconImage;
 
-  CGColorRef mColorActiveSelected;
-  CGColorRef mColorActiveNotSelected;
-  CGColorRef mColorNotActiveSelected;
-  CGColorRef mColorNotActiveNotSelected;
+  CALayer *tabMenuImage;
+  CALayer *leftArrowImage;
+  CALayer *rightArrowImage;
 
   BOOL mDoneCustomizing;
   BOOL mEnablAnimations;
-  //	BOOL mAllowsTabReordering;
+
   NSInteger mFirstVisibleTabIndex;
   NSInteger mLastVisibleTabIndex;
   NSInteger mLastSelectedTabIndex;
@@ -69,19 +56,12 @@
 }
 
 @property(readonly) CGFloat tabAreaHeight;
-//- (void) setAllowsTabReordering: (BOOL) yn;
 @property(readonly) NSSize contentSize;
-@property(readonly, strong) CALayer* shadowLayer;
+
 - (void)doCustomize;
 - (void)updateLabelForTabViewItem:(id)identifier;
 
-- (void)createDragger;
-
 - (void)setIcon:(NSImage*)icon forTabViewItem:(id)identifier;
-- (void)setColorActiveSelected:(CGColorRef)colorActiveSelected
-        colorActiveNotSelected:(CGColorRef)colorActiveNotSelected
-        colorNotActiveSelected:(CGColorRef)colorNotActiveSelected
-     colorNotActiveNotSelected:(CGColorRef)colorNotActiveNotSelected;
 
 @end
 
@@ -90,7 +70,5 @@
 - (BOOL)tabView:(NSTabView*)tabView willCloseTabViewItem:(NSTabViewItem*)tabViewItem;
 
 - (void)tabView:(NSTabView*)tabView draggedHandleAtOffset:(NSPoint)offset;
-
-- (void)tabViewDraggerClicked:(NSTabView*)tabView;
 
 @end

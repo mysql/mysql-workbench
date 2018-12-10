@@ -327,7 +327,7 @@ void model_Layer::ImplData::render_mini(mdc::CairoCtx *cr) {
   cr->set_color(Color::parse(*self()->_color), LAYER_ALPHA);
   cr->rectangle(floor(*self()->_left) + 0.5, floor(*self()->_top) + 0.5, ceil(*self()->_width), ceil(*self()->_height));
   cr->fill_preserve();
-  cr->set_color(Color::Black());
+  cr->set_color(Color::black());
   cr->stroke();
   cr->restore();
 }

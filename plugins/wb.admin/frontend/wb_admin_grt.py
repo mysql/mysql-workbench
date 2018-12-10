@@ -363,15 +363,9 @@ class AdministratorContext:
             else:
                 server_version = None
             self.shown_in_sidebar = True
-            first = True
             self.disabled_pages = {}
             for sname, saname, stitle, sitems in self.sidebar_sections:
                 flags = mforms.TaskSectionShowConfigButton if sname == "Instance" else mforms.TaskSectionPlain
-                if first:
-                    flags |= mforms.TaskSectionToggleModeButton
-                    first = False
-                if grt.root.wb.options.options['DbSqlEditor:SidebarModeCombined'] == 1:
-                    flags |= mforms.TaskSectionToggleModeButtonPreSelected
 
                 self.sidebar.add_section(sname, saname, stitle, flags)
                 for ident, ianame, ititle, icon_path in sitems:

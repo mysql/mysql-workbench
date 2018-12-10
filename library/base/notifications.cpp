@@ -31,6 +31,16 @@ using namespace base;
 
 static NotificationCenter *nc = 0;
 
+//----------------------------------------------------------------------------------------------------------------------
+
+Observer::~Observer() {
+  NotificationCenter *nc = NotificationCenter::get();
+  if (nc->is_registered(this))
+    logError("Notifications: Observer %p was deleted while still listening for notifications.\n", this);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void NotificationCenter::set_instance(NotificationCenter *center) {
   std::map<std::string, NotificationHelp> help;
 
@@ -42,21 +52,15 @@ void NotificationCenter::set_instance(NotificationCenter *center) {
   nc->_notification_help = help;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 NotificationCenter *NotificationCenter::get() {
   if (!nc)
     nc = new NotificationCenter();
   return nc;
 }
 
-//--------------------------------------------------------------------------------------------------
-
-Observer::~Observer() {
-  NotificationCenter *nc = NotificationCenter::get();
-  if (nc->is_registered(this))
-    logError("Notifications: Observer %p was deleted while still listening for notifications.\n", this);
-}
-
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 NotificationCenter::~NotificationCenter() {
   if (_observers.size() > 0) {
@@ -67,7 +71,7 @@ NotificationCenter::~NotificationCenter() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void NotificationCenter::register_notification(const std::string &name, const std::string &context,
                                                const std::string &general_info, const std::string &sender_info,
@@ -80,12 +84,16 @@ void NotificationCenter::register_notification(const std::string &name, const st
   _notification_help[name] = help;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void NotificationCenter::add_observer(Observer *observer, const std::string &name) {
   ObserverEntry entry;
   entry.observer = observer;
   entry.observed_notification = name;
   _observers.push_back(entry);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool NotificationCenter::remove_observer(Observer *observer, const std::string &name) {
   bool found = false;
@@ -98,12 +106,11 @@ bool NotificationCenter::remove_observer(Observer *observer, const std::string &
     }
     iter = next;
   }
-  if (!found)
-    logDebug("remove_observer: %p for %s failed to remove any observers\n", observer, name.c_str());
+
   return found;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool NotificationCenter::is_registered(Observer *observer) {
   for (std::list<ObserverEntry>::iterator next, iter = _observers.begin(); iter != _observers.end(); ++iter) {
@@ -114,7 +121,7 @@ bool NotificationCenter::is_registered(Observer *observer) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void NotificationCenter::send(const std::string &name, void *sender, NotificationInfo &info) {
   if (name.substr(0, 2) != "GN")
@@ -135,7 +142,11 @@ void NotificationCenter::send(const std::string &name, void *sender, Notificatio
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void NotificationCenter::send(const std::string &name, void *sender) {
   NotificationInfo info;
   send(name, sender, info);
 }
+
+//----------------------------------------------------------------------------------------------------------------------

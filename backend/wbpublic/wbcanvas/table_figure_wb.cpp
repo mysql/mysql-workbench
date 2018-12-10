@@ -50,7 +50,7 @@ WBTable::WBTable(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &
 
   set_draw_background(true);
   set_background_corners(mdc::CAll, 8.0);
-  set_background_color(Color::White());
+  set_background_color(Color::white());
   set_border_color(Color(0.5, 0.5, 0.5));
 
   _title.set_rounded(mdc::CTop);
@@ -62,12 +62,12 @@ WBTable::WBTable(mdc::Layer *layer, FigureEventHub *hub, const model_ObjectRef &
 
   _index_title.set_title("Indexes");
   _index_title.set_color(Color(0.77, 0.77, 0.77));
-  _index_title.set_text_color(Color::White());
+  _index_title.set_text_color(Color::white());
   _index_title.set_font(mdc::FontSpec("Helvetica", mdc::SNormal, mdc::WBold, 11));
 
   _trigger_title.set_title("Triggers");
   _trigger_title.set_color(Color(0.77, 0.77, 0.77));
-  _trigger_title.set_text_color(Color::White());
+  _trigger_title.set_text_color(Color::white());
   _trigger_title.set_font(mdc::FontSpec("Helvetica", mdc::SNormal, mdc::WBold, 11));
 
   _index_title.set_visible(false);

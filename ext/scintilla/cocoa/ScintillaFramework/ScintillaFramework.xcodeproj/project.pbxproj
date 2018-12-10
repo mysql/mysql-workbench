@@ -193,9 +193,7 @@
 		2791F3E30FC1A3AE009DBCF9 /* QuartzTextLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 2744E59F0FC168A100E85C33 /* QuartzTextLayout.h */; };
 		2791F3E40FC1A3AE009DBCF9 /* QuartzTextStyleAttribute.h in Headers */ = {isa = PBXBuildFile; fileRef = 2744E5A00FC168A100E85C33 /* QuartzTextStyleAttribute.h */; };
 		27D8FBFB1E72B344000F1B41 /* LexEDIFACT.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 27D8FBFA1E72B344000F1B41 /* LexEDIFACT.cxx */; };
-		27FEF4540FC1B413005E115A /* info_bar_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4510FC1B413005E115A /* info_bar_bg.png */; };
 		27FEF4550FC1B413005E115A /* mac_cursor_busy.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4520FC1B413005E115A /* mac_cursor_busy.png */; };
-		27FEF4560FC1B413005E115A /* mac_cursor_flipped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */; };
 		280056FB188DDD2C00F200AE /* SparseState.h in Headers */ = {isa = PBXBuildFile; fileRef = 280056F8188DDD2C00F200AE /* SparseState.h */; };
 		280056FC188DDD2C00F200AE /* StringCopy.h in Headers */ = {isa = PBXBuildFile; fileRef = 280056F9188DDD2C00F200AE /* StringCopy.h */; };
 		280056FD188DDD2C00F200AE /* SubStyles.h in Headers */ = {isa = PBXBuildFile; fileRef = 280056FA188DDD2C00F200AE /* SubStyles.h */; };
@@ -216,9 +214,7 @@
 		28B647111B54C0720009DC49 /* LexProps.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28B6470B1B54C0720009DC49 /* LexProps.cxx */; };
 		28BC38EC1B74C6AD008BF9EB /* Sci_Position.h in Headers */ = {isa = PBXBuildFile; fileRef = 28BC38EB1B74C6AD008BF9EB /* Sci_Position.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		28C40CA81CB7321200B089F2 /* LexJSON.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28C40CA71CB7321200B089F2 /* LexJSON.cxx */; };
-		28D516D81830FFCA0047C93D /* info_bar_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */; };
 		28D516D91830FFCA0047C93D /* mac_cursor_busy@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */; };
-		28D516DA1830FFCA0047C93D /* mac_cursor_flipped@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */; };
 		28FDA42119B6967B00BE27D7 /* LexBibTeX.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 28FDA42019B6967B00BE27D7 /* LexBibTeX.cxx */; };
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -415,9 +411,7 @@
 		2744E5B00FC168C500E85C33 /* ScintillaCocoa.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScintillaCocoa.mm; path = ../ScintillaCocoa.mm; sourceTree = "<group>"; };
 		2744E5B10FC168C500E85C33 /* ScintillaView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScintillaView.mm; path = ../ScintillaView.mm; sourceTree = "<group>"; };
 		27D8FBFA1E72B344000F1B41 /* LexEDIFACT.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexEDIFACT.cxx; path = ../../lexers/LexEDIFACT.cxx; sourceTree = "<group>"; };
-		27FEF4510FC1B413005E115A /* info_bar_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = info_bar_bg.png; sourceTree = "<group>"; };
 		27FEF4520FC1B413005E115A /* mac_cursor_busy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mac_cursor_busy.png; sourceTree = "<group>"; };
-		27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mac_cursor_flipped.png; sourceTree = "<group>"; };
 		280056F8188DDD2C00F200AE /* SparseState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SparseState.h; path = ../../lexlib/SparseState.h; sourceTree = "<group>"; };
 		280056F9188DDD2C00F200AE /* StringCopy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringCopy.h; path = ../../lexlib/StringCopy.h; sourceTree = "<group>"; };
 		280056FA188DDD2C00F200AE /* SubStyles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SubStyles.h; path = ../../lexlib/SubStyles.h; sourceTree = "<group>"; };
@@ -438,9 +432,7 @@
 		28B6470B1B54C0720009DC49 /* LexProps.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexProps.cxx; path = ../../lexers/LexProps.cxx; sourceTree = "<group>"; };
 		28BC38EB1B74C6AD008BF9EB /* Sci_Position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sci_Position.h; path = ../../include/Sci_Position.h; sourceTree = "<group>"; };
 		28C40CA71CB7321200B089F2 /* LexJSON.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexJSON.cxx; path = ../../lexers/LexJSON.cxx; sourceTree = "<group>"; };
-		28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info_bar_bg@2x.png"; sourceTree = "<group>"; };
 		28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mac_cursor_busy@2x.png"; sourceTree = "<group>"; };
-		28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mac_cursor_flipped@2x.png"; sourceTree = "<group>"; };
 		28FDA42019B6967B00BE27D7 /* LexBibTeX.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexBibTeX.cxx; path = ../../lexers/LexBibTeX.cxx; sourceTree = "<group>"; };
 		32DBCF5E0370ADEE00C91783 /* Scintilla_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scintilla_Prefix.pch; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -783,12 +775,8 @@
 		27FEF4500FC1B413005E115A /* res */ = {
 			isa = PBXGroup;
 			children = (
-				28D516D51830FFCA0047C93D /* info_bar_bg@2x.png */,
-				28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */,
-				28D516D71830FFCA0047C93D /* mac_cursor_flipped@2x.png */,
-				27FEF4510FC1B413005E115A /* info_bar_bg.png */,
 				27FEF4520FC1B413005E115A /* mac_cursor_busy.png */,
-				27FEF4530FC1B413005E115A /* mac_cursor_flipped.png */,
+				28D516D61830FFCA0047C93D /* mac_cursor_busy@2x.png */,
 			);
 			name = res;
 			path = ../res;
@@ -928,12 +916,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
-				27FEF4540FC1B413005E115A /* info_bar_bg.png in Resources */,
-				28D516D81830FFCA0047C93D /* info_bar_bg@2x.png in Resources */,
 				28D516D91830FFCA0047C93D /* mac_cursor_busy@2x.png in Resources */,
 				27FEF4550FC1B413005E115A /* mac_cursor_busy.png in Resources */,
-				27FEF4560FC1B413005E115A /* mac_cursor_flipped.png in Resources */,
-				28D516DA1830FFCA0047C93D /* mac_cursor_flipped@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

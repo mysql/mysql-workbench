@@ -641,15 +641,6 @@ void MySQLEditor::setServerVersion(GrtVersionRef version) {
     switch (version->majorNumber()) {
       case 5:
         switch (version->minorNumber()) {
-          case 0:
-            lang = mforms::LanguageMySQL50;
-            break;
-          case 1:
-            lang = mforms::LanguageMySQL51;
-            break;
-          case 5:
-            lang = mforms::LanguageMySQL55;
-            break;
           case 6:
             lang = mforms::LanguageMySQL56;
             break;

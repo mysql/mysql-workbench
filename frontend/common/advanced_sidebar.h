@@ -46,10 +46,11 @@ namespace wb {
 
   class SimpleSidebar;
   class AdvancedSidebar;
+  class SidebarSection;
 
   /**
     * The SidebarEntry class is a lean wrapper for an icon/label combination which can be used
-    * to trigger an action. It needs a container to be useful (here the class SidebarEntry).
+    * to trigger an action. It needs a container to be useful (here the class SidebarSection).
     */
   class SidebarEntry : public base::Accessible {
   private:
@@ -61,9 +62,12 @@ namespace wb {
     bool _enabled;
     boost::signals2::signal<void (const std::string &)> *_callback;
 
+    SidebarSection *_owner;
+
   public:
-    SidebarEntry(const std::string& name, const std::string& title, const std::string& accessibilityName, const std::string& icon,
-                 mforms::TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback);
+    SidebarEntry(SidebarSection *owner, const std::string& name, const std::string& title,
+                 const std::string& accessibilityName, const std::string& icon, mforms::TaskEntryType type,
+                 boost::signals2::signal<void (const std::string &)> *callback);
     virtual ~SidebarEntry();
 
     void set_title(const std::string& title);
@@ -107,6 +111,8 @@ namespace wb {
   };
 
   class SidebarSection : public mforms::DrawBox {
+    friend class SidebarEntry;
+    
   private:
     struct Button : public base::Accessible {
       cairo_surface_t* icon;
@@ -147,8 +153,8 @@ namespace wb {
     bool _expanded;
     bool _expand_text_active;
     bool _expandable;
+
     Button* _refresh_button;
-    Button* _toggle_mode_button;
     Button* _config_button;
 
     SidebarEntry* _selected_entry;
@@ -159,7 +165,7 @@ namespace wb {
     cairo_surface_t* _layout_surface;
     double _last_width;
 
-    SimpleSidebar* _owner;
+    SimpleSidebar *_owner;
 
   protected:
     void set_selected(SidebarEntry* entry);
@@ -195,8 +201,6 @@ namespace wb {
     }
     void toggle_expand();
 
-    void update_mode_button(bool active);
-
     std::string title() {
       return _title;
     }
@@ -223,16 +227,24 @@ namespace wb {
     }
   };
 
-  class SimpleSidebar : public mforms::TaskSidebar {
+  class SimpleSidebar : public mforms::TaskSidebar, public base::Observer {
+    friend class SidebarSection;
+    friend class SidebarEntry;
+    
   protected:
     std::vector<SidebarSection*> _sections;
 
+    base::Color _activeTextColor;
+    base::Color _inactiveTextColor;
     base::Color _selection_color;
 
     static mforms::TaskSidebar* create_instance();
     SimpleSidebar(); // Create the sidebar via its mforms alter ego TaskSidebar::create()
 
+    virtual void updateColors();
+    
     int find_section(const std::string& title);
+    void handle_notification(const std::string& name, void* sender, base::NotificationInfo& info) override;
     void add_items_from_list(mforms::MenuBase& menu, const bec::MenuItemList& items);
 
   public:
@@ -264,14 +276,12 @@ namespace wb {
     virtual std::string selected_entry() override;
     virtual void clear_selection() override;
 
-    virtual void update_mode_buttons(bool active);
-
   private:
     static bool __init;
     static bool init_factory_method();
   };
 
-  class AdvancedSidebar : public SimpleSidebar, public base::Observer {
+  class AdvancedSidebar : public SimpleSidebar {
   private:
     typedef boost::signals2::signal<void(const std::string&)> SearchBoxChangedSignal;
     typedef boost::signals2::signal<void(void)> TreeNodeSelected;
@@ -300,7 +310,7 @@ namespace wb {
     static mforms::TaskSidebar* create_instance();
 
     void setup_schema_tree();
-    void handle_notification(const std::string& name, void* sender, base::NotificationInfo& info);
+    virtual void updateColors() override;
     void on_show_menu(mforms::MenuItem* parent_item);
     void add_items_from_list(mforms::MenuBase& menu, const bec::MenuItemList& items);
     void handle_menu_command(const std::string& command);
@@ -312,31 +322,31 @@ namespace wb {
   public:
     virtual ~AdvancedSidebar();
 
-    virtual void mark_section_busy(const std::string& section_name, bool busy);
+    virtual void mark_section_busy(const std::string& section_name, bool busy) override;
 
-    virtual mforms::TreeView* get_schema_tree() {
+    virtual mforms::TreeView* get_schema_tree() override {
       return (_schema_model == _base_model) ? &_new_schema_tree : &_filtered_schema_tree;
     }
-    virtual mforms::TextEntry* get_filter_entry() {
+    virtual mforms::TextEntry* get_filter_entry() override {
       return &_schema_search_text;
     }
     void tool_action_clicked(const std::string& action);
-    virtual void set_schema_model(wb::LiveSchemaTree* model);
-    virtual void set_filtered_schema_model(wb::LiveSchemaTree* model);
-    virtual void enable_server_search(bool enabled) {
+    virtual void set_schema_model(wb::LiveSchemaTree* model) override;
+    virtual void set_filtered_schema_model(wb::LiveSchemaTree* model) override;
+    virtual void enable_server_search(bool enabled) override {
       _remote_search_enabled = enabled;
     }
 
-    virtual boost::signals2::signal<void(const std::string&)>* signal_filter_changed() {
+    virtual boost::signals2::signal<void(const std::string&)>* signal_filter_changed() override {
       return &_search_box_changed_signal;
     }
-    virtual boost::signals2::signal<void(void)>* tree_node_selected() {
+    virtual boost::signals2::signal<void(void)>* tree_node_selected() override {
       return &_tree_node_selected;
     };
 
-    virtual void expand_schema(int schema_index);
+    virtual void expand_schema(int schema_index) override;
 
-    virtual mforms::ContextMenu* get_context_menu() {
+    virtual mforms::ContextMenu* get_context_menu() override {
       return &_tree_context_menu;
     }
 

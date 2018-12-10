@@ -33,8 +33,9 @@
 #include "grtdb/dbobject_roles.h"
 #include "grtdb/role_tree_model.h"
 
-@interface DbPrivilegeEditorTab()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+@interface DbPrivilegeEditorTab () {
   bec::DBObjectEditorBE *_be;
 
   bec::ObjectRoleListBE *_rolesListBE;
@@ -53,22 +54,23 @@
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation DbPrivilegeEditorTab
 
 @synthesize view;
 
-- (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be
-{
-  self= [super init];
-  if (self)
+//----------------------------------------------------------------------------------------------------------------------
+
+- (instancetype)initWithObjectEditor: (bec::DBObjectEditorBE*)be {
+  self = [super init];
+  if (self != nil)
   {
     _be = be;
-    if (_be != NULL)
-    {
+    if (_be != nullptr) {
       NSBundle *bundle = [NSBundle bundleForClass: self.class];
       NSMutableArray *temp;
-      if ([bundle loadNibNamed: @"PrivilegesTab" owner: self topLevelObjects: &temp])
-      {
+      if ([bundle loadNibNamed: @"PrivilegesTab" owner: self topLevelObjects: &temp]) {
         nibObjects = temp;
         _rolesListBE = new bec::ObjectRoleListBE(be, get_rdbms_for_db_object(be->get_dbobject()));
         _roleTreeBE = new bec::RoleTreeBE(be->get_catalog());
@@ -87,55 +89,50 @@
   return self;
 }
 
-- (instancetype)init
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (instancetype)init {
   return [self initWithObjectEditor: NULL];
 }
 
-- (void)dealloc
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
   delete _rolesListBE;
   delete _roleTreeBE;
-
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-
-- (IBAction)addRole:(id)sender
-{
-  NSInteger row= [allRolesOutline selectedRow];
-  if (row >= 0)
-  {
-    bec::NodeId node= [allRolesDS nodeIdForItem:[allRolesOutline itemAtRow: row]];
-    if (node.is_valid())
-    {
+- (IBAction)addRole: (id)sender {
+  NSInteger row = [allRolesOutline selectedRow];
+  if (row >= 0) {
+    bec::NodeId node = [allRolesDS nodeIdForItem:[allRolesOutline itemAtRow: row]];
+    if (node.is_valid()) {
       _rolesListBE->add_role_for_privileges(_roleTreeBE->get_role_with_id(node));
       [assignedRolesTable reloadData];
     }
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (IBAction)deleteRole:(id)sender
-{
+- (IBAction)deleteRole:(id)sender {
   NSInteger row= [allRolesOutline selectedRow];
-  if (row >= 0)
-  {
+  if (row >= 0) {
     bec::NodeId node= [allRolesDS nodeIdForItem:[allRolesOutline itemAtRow: row]];
-    if (node.is_valid())
-    {
+    if (node.is_valid()) {
       _rolesListBE->remove_role_from_privileges(_roleTreeBE->get_role_with_id(node));
       [assignedRolesTable reloadData];
     }
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification
-{
-  if ([aNotification object] == assignedRolesTable)
-  {
-    NSInteger selected= [assignedRolesTable selectedRow];
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
+  if ([aNotification object] == assignedRolesTable) {
+    NSInteger selected = [assignedRolesTable selectedRow];
     if (selected < 0)
       _rolesListBE->select_role(bec::NodeId());
     else
@@ -145,30 +142,26 @@
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)outlineViewSelectionDidChange:(NSNotification *)notification
-{
-  if ([notification object] == allRolesOutline)
-  {
-    if ([allRolesOutline selectedRow] >= 0)
-    {
+- (void)outlineViewSelectionDidChange:(NSNotification *)notification {
+  if ([notification object] == allRolesOutline) {
+    if ([allRolesOutline selectedRow] >= 0) {
       [[view viewWithTag:10] setEnabled: YES];
       [[view viewWithTag:11] setEnabled: YES];
-    }
-    else
-    {
+    } else {
       [[view viewWithTag:10] setEnabled: NO];
       [[view viewWithTag:11] setEnabled: NO];
     }
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn
-              row:(NSInteger)rowIndex
-{
-  if (aTableView == privilegesTable)
-  {
+- (void)tableView: (NSTableView *)aTableView willDisplayCell: (id)aCell
+   forTableColumn: (NSTableColumn *)aTableColumn
+              row: (NSInteger)rowIndex {
+  if (aTableView == privilegesTable) {
     ssize_t enabled;
     std::string text;
     _privilegeListBE->get_field(bec::NodeId(rowIndex), (int)bec::ObjectPrivilegeListBE::Enabled, enabled);
@@ -179,23 +172,23 @@
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-
-- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
-  if (aTableView == privilegesTable)
-  {
-    if ([anObject isKindOfClass: [NSNumber class]])
-    {
-      _privilegeListBE->set_field(rowIndex, [[aTableColumn identifier] integerValue], [anObject integerValue]);
+- (void)tableView: (NSTableView *)aTableView
+   setObjectValue: (id)anObject
+   forTableColumn: (NSTableColumn *)aTableColumn
+              row: (NSInteger)rowIndex {
+  if (aTableView == privilegesTable) {
+    if ([anObject isKindOfClass: NSNumber.class]) {
+      _privilegeListBE->set_field(rowIndex, [aTableColumn.identifier integerValue], [anObject integerValue]);
       [assignedRolesTable reloadData];
     }
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
   if (aTableView == privilegesTable)
   {
     if (_privilegeListBE)
@@ -205,3 +198,5 @@
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

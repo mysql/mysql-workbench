@@ -27,10 +27,10 @@
 
 @interface NSObject (WBMiniToolbarDelegate)
 
-- (void)miniToolbar:(WBMiniToolbar *)sender
-       popupChanged:(NSString *)name
-             option:(NSString *)option
-              value:(NSString *)value;
+- (void)miniToolbar: (WBMiniToolbar *)sender
+       popupChanged: (NSString *)name
+             option: (NSString *)option
+              value: (NSString *)value;
 
 @end
 
@@ -40,40 +40,34 @@
   NSMutableArray *mOptionInfoList;
 }
 
-- (void)setGradient:(NSGradient *)gradient;
 - (void)tile;
-
 - (void)removeAllItems;
-
 - (void)setDelegate:(id)delegate;
 
-- (NSButton *)addButtonWithTitle:(NSString *)title target:(id)target action:(SEL)action tag:(int)tag;
+- (NSButton *)addButtonWithTitle: (NSString *)title target: (id)target action: (SEL)action tag: (int)tag;
+- (NSButton *)addButtonWithIcon: (NSImage *)icon target: (id)target action: (SEL)action tag: (int)tag;
+- (NSSegmentedControl *)addSegmentedButtonsWithIconsAndTags: (NSArray *)iconsAndTags
+                                                     target: (id)target
+                                                     action: (SEL)action;
 
-- (NSButton *)addButtonWithIcon:(NSImage *)icon target:(id)target action:(SEL)action tag:(int)tag;
-
-- (NSSegmentedControl *)addSegmentedButtonsWithIconsAndTags:(NSArray *)iconsAndTags
-                                                     target:(id)target
-                                                     action:(SEL)action;
-
-- (NSTextField *)addLabelWithTitle:(NSString *)title;
+- (NSTextField *)addLabelWithTitle: (NSString *)title;
 
 - (void)addSeparator;
-
 - (void)addExpandingSpace;
 
-- (NSPopUpButton *)addSelectionPopUpWithItems:(NSArray *)items
-                                         name:(NSString *)name
-                                       option:(NSString *)option
-                                 defaultValue:(NSString *)defaultValue;
+- (NSPopUpButton *)addSelectionPopUpWithItems: (NSArray *)items
+                                         name: (NSString *)name
+                                       option: (NSString *)option
+                                 defaultValue: (NSString *)defaultValue;
 
-- (NSPopUpButton *)addSelectionPopUpWithItems:(NSArray *)items
-                                       target:(id)target
-                                       action:(SEL)action
-                                 defaultValue:(NSString *)defaultValue;
+- (NSPopUpButton *)addSelectionPopUpWithItems: (NSArray *)items
+                                       target: (id)target
+                                       action: (SEL)action
+                                 defaultValue: (NSString *)defaultValue;
 
-- (void)addSelectionPopUpWithColors:(NSArray *)colors
-                               name:(NSString *)name
-                             option:(NSString *)option
-                       defaultValue:(NSString *)defaultValue;
+- (void)addSelectionPopUpWithColors: (NSArray *)colors
+                               name: (NSString *)name
+                             option: (NSString *)option
+                       defaultValue: (NSString *)defaultValue;
 
 @end

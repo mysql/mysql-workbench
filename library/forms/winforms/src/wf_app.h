@@ -68,6 +68,7 @@ namespace MySQL {
       static base::Rect get_application_bounds(mforms::App *app);
       static int enter_event_loop(mforms::App *app, float max_wait_time);
       static void exit_event_loop(mforms::App *app, int ret_code);
+      static bool isDarkModeActive(mforms::App *app);
 
     public:
       AppWrapper(ManagedApplication ^ managed);

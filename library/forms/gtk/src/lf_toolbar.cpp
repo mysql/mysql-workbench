@@ -136,7 +136,7 @@ void mforms::gtk::ToolBarImpl::insert_item(mforms::ToolBar *toolbar, int index, 
   if (index < 0 || index >= size)
     index = -1;
   if (impl && w) {
-    bool expand = item->get_expandable();
+    bool expand = false;
     bool fill = false;
     if (item->get_type() == mforms::ExpanderItem)
       expand = fill = true;
@@ -170,15 +170,12 @@ bool mforms::gtk::ToolBarImpl::create_tool_item(mforms::ToolBarItem *item, ToolB
   Gtk::Widget *w = 0;
   switch (type) {
     case mforms::TextActionItem:
-    case mforms::ActionItem:
-    case mforms::SwitcherItem: {
+    case mforms::ActionItem: {
       Gtk::Button *btn = Gtk::manage(new Gtk::Button());
       btn->set_focus_on_click(false);
       btn->set_border_width(0);
       btn->set_relief(Gtk::RELIEF_NONE);
       btn->signal_clicked().connect(sigc::bind(sigc::ptr_fun(process_ctrl_action), btn, item));
-      if (type == mforms::SwitcherItem)
-        btn->set_always_show_image(true);
       w = btn;
       break;
     }
@@ -335,14 +332,9 @@ void mforms::gtk::ToolBarImpl::set_item_text(mforms::ToolBarItem *item, const st
     case mforms::TextActionItem:
     case mforms::ActionItem:
     case mforms::SegmentedToggleItem:
-    case mforms::ToggleItem:
-    case mforms::SwitcherItem: {
+    case mforms::ToggleItem: {
       Gtk::Button *btn = cast<Gtk::Button *>(item->get_data_ptr());
-      if (type == mforms::SwitcherItem) {
-        btn->set_label(label);
-        btn->get_style_context()->add_class("SwitcherItem");
-      } else
-        btn->add_label(label);
+      btn->add_label(label);
       btn->set_name(label);
       break;
     }

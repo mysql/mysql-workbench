@@ -225,7 +225,7 @@ static void canvas_view_viewport_changed(void *self)
 
 - (void)drawRect:(NSRect)frame
 {
-  [[NSColor whiteColor] set];
+  [NSColor.textBackgroundColor set];
   NSRectFill(frame);
 }
 

@@ -22,7 +22,6 @@
  */
 
 @interface MStatusBar : NSView {
-  NSGradient *mGradient;
 }
 
 @end

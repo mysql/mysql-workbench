@@ -50,7 +50,7 @@ void Button::draw_contents(mdc::CairoCtx *cr) {
   cr->set_pattern(pat);
   cr->fill_preserve();
   cr->set_line_width(1);
-  cr->set_color(Color::Black());
+  cr->set_color(Color::black());
   cr->stroke();
   cairo_pattern_destroy(pat);
 
@@ -70,7 +70,7 @@ Floater::Floater(mdc::Layer *layer, const std::string &title)
     _title->set_title(title);
     _title->set_padding(6, 6);
     _title->set_font(mdc::FontSpec("helvetica", mdc::SNormal, mdc::WBold));
-    _title->set_color(Color::Black());
+    _title->set_color(Color::black());
     _title->set_text_color(Color(0.7, 0.7, 0.7));
     _title->set_rounded(mdc::CTop);
     add(_title, false, false);

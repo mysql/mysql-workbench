@@ -78,26 +78,10 @@ void DocumentEntry::accessibilityDoDefaultAction() {
     default_handler((int)bounds.center().x, (int)bounds.center().y);
 }
 
-//----------------- DocumentsSection ---------------------------------------------------------------
-
-bool DocumentsSection::accessibleHandler(int x, int y) {
-  mouse_move(MouseButtonLeft, x, y);
-  return mouse_click(MouseButtonLeft, x, y);
-}
+//----------------- DocumentsSection -----------------------------------------------------------------------------------
 
 DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSection("sidebar_modeling.png") {
   _owner = owner;
-  _model_context_menu = NULL;
-  _model_action_menu = NULL;
-  _hot_entry = -1;
-  _active_entry = -1;
-  _display_mode = ModelsOnly;
-  _hot_heading = Nothing;
-  _entries_per_row = 0;
-  _show_selection_message = false;
-  _backing_scale_when_icons_loaded = 0.0;
-
-  load_icons();
 
   _add_button.setAccessibilityName("Add Model");
   _add_button.title = "Add Model";
@@ -122,25 +106,16 @@ DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSectio
   };
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 DocumentsSection::~DocumentsSection() {
-  if (_model_context_menu != NULL)
+  if (_model_context_menu != nullptr)
     _model_context_menu->release();
 
-  deleteSurface(_plus_icon);
-  deleteSurface(_model_icon);
-  deleteSurface(_sql_icon);
-  deleteSurface(_schema_icon);
-  deleteSurface(_time_icon);
-  deleteSurface(_folder_icon);
-  deleteSurface(_size_icon);
-  deleteSurface(_close_icon);
-  deleteSurface(_open_icon);
-  deleteSurface(_action_icon);
+  deleteIcons();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::size_t DocumentsSection::entry_from_point(int x, int y) {
   int width = get_width();
@@ -174,7 +149,7 @@ std::size_t DocumentsSection::entry_from_point(int x, int y) {
   return -1;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Draws and icon followed by the given text. The given position is that of the upper left corner
@@ -192,13 +167,13 @@ void DocumentsSection::draw_icon_with_text(cairo_t *cr, int x, int y, cairo_surf
   cairo_text_extents_t extents;
   cairo_text_extents(cr, text.c_str(), &extents);
 
-  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_set_source_rgb(cr, _textColor.red, _textColor.green, _textColor.blue);
   cairo_move_to(cr, x, (int)(y + imageSize.height / 2.0 + extents.height / 2.0));
   cairo_show_text(cr, text.c_str());
   cairo_stroke(cr);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry, bool hot) {
   const int icon_top = 26;
@@ -207,7 +182,7 @@ void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry, bool 
 
   base::Size iconSize = mforms::Utilities::getImageSize(_model_icon);
 
-  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_set_source_rgb(cr, _textColor.red, _textColor.green, _textColor.blue);
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_NORMAL_FONT, CAIRO_FONT_SLANT_NORMAL,
                          CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SUBTITLE_FONT_SIZE);
@@ -219,17 +194,10 @@ void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry, bool 
     cairo_text_extents(cr, entry.title.c_str(), &extents);
     width = ceil(extents.width);
 
-    cairo_save(cr);
-    cairo_set_source_rgb(cr, 1, 1, 1);
-    textWithDecoration(cr, x - 1, y, entry.title.c_str(), true, width);
-    textWithDecoration(cr, x + 1, y, entry.title.c_str(), true, width);
-    textWithDecoration(cr, x, y - 1, entry.title.c_str(), true, width);
-    textWithDecoration(cr, x, y + 1, entry.title.c_str(), true, width);
-    cairo_restore(cr);
-
     textWithDecoration(cr, x, y, entry.title.c_str(), true, width);
-  } else
+  } else {
     textWithDecoration(cr, x, y, entry.title_shorted.c_str(), false, 0);
+  }
 
   x += (int)iconSize.width + 10;
 
@@ -242,11 +210,11 @@ void DocumentsSection::draw_entry(cairo_t *cr, const DocumentEntry &entry, bool 
   else
     draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + detail_spacing, _size_icon,
                         entry.size.empty() ? "--" : entry.size);
-  draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + (detail_spacing * 2), _time_icon,
+  draw_icon_with_text(cr, x, (int)entry.bounds.top() + icon_top + 2 * detail_spacing, _time_icon,
                       entry.last_accessed);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::update_filtered_documents() {
   _filtered_documents.clear();
@@ -274,7 +242,7 @@ void DocumentsSection::update_filtered_documents() {
   }
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::draw_selection_message(cairo_t *cr) {
   // Attach the message to the current active entry as this is what is used when
@@ -296,7 +264,7 @@ void DocumentsSection::draw_selection_message(cairo_t *cr) {
     message_rect.pos.y -= MESSAGE_HEIGHT + 2 * POPUP_TIP_HEIGHT + DOCUMENTS_ENTRY_HEIGHT - 10;
   }
 
-  cairo_set_source_rgba(cr, 0, 0, 0, 0.9);
+  cairo_set_source_rgba(cr, _textColor.red, _textColor.green, _textColor.blue, 0.9);
   cairo_rectangle(cr, message_rect.left(), message_rect.top(), MESSAGE_WIDTH, MESSAGE_HEIGHT);
   cairo_move_to(cr, message_rect.left(), message_rect.top());
   if (flipped) {
@@ -323,7 +291,7 @@ void DocumentsSection::draw_selection_message(cairo_t *cr) {
 
   int y = (int)(message_rect.top() + extents.height + 4);
 
-  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_set_source_rgb(cr, _textColor.red, _textColor.green, _textColor.blue);
   cairo_move_to(cr, message_rect.left() + 10, y);
   cairo_show_text(cr, _("Please select a connection"));
 
@@ -350,7 +318,7 @@ void DocumentsSection::draw_selection_message(cairo_t *cr) {
   cairo_paint(cr);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::layout(cairo_t *cr) {
   if (is_layout_dirty()) {
@@ -369,11 +337,11 @@ void DocumentsSection::layout(cairo_t *cr) {
     _add_button.bounds = base::Rect(heading_left, DOCUMENTS_TOP_BASELINE - imageHeight(_plus_icon),
                                     imageWidth(_plus_icon), imageHeight(_plus_icon));
 
-    _open_button.bounds = base::Rect(_add_button.bounds.right() + 10, DOCUMENTS_TOP_BASELINE - imageHeight(_open_icon),
+    _open_button.bounds = base::Rect(_add_button.bounds.right() + 4, DOCUMENTS_TOP_BASELINE - imageHeight(_open_icon),
                                      imageWidth(_open_icon), imageHeight(_open_icon));
 
     _action_button.bounds =
-      base::Rect(_open_button.bounds.right() + 10, DOCUMENTS_TOP_BASELINE - imageHeight(_action_icon),
+      base::Rect(_open_button.bounds.right() + 4, DOCUMENTS_TOP_BASELINE - imageHeight(_action_icon),
                  imageWidth(_action_icon), imageHeight(_action_icon));
 
     /* Disabled for now.
@@ -428,26 +396,26 @@ void DocumentsSection::layout(cairo_t *cr) {
   }
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 const char* DocumentsSection::getTitle() {
   return "Documents Section";
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::cancelOperation() {
   _pending_script = "";
   hide_connection_select_message();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::setFocus() {
   // pass
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool DocumentsSection::canHandle(HomeScreenMenuType type) {
   switch (type) {
@@ -462,7 +430,7 @@ bool DocumentsSection::canHandle(HomeScreenMenuType type) {
   return false;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType type) {
   if (canHandle(type) && type == HomeMenuDocumentModel) {
@@ -476,7 +444,7 @@ void DocumentsSection::setContextMenu(mforms::Menu *menu, HomeScreenMenuType typ
   }
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenuType type) {
   if (canHandle(type) && type == HomeMenuDocumentModelAction) {
@@ -490,67 +458,65 @@ void DocumentsSection::setContextMenuAction(mforms::Menu *menu, HomeScreenMenuTy
   }
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void DocumentsSection::load_icons() {
-  if (_backing_scale_when_icons_loaded != mforms::App::get()->backing_scale_factor()) {
-    // reload icons if the backing scale changed
-    if (_backing_scale_when_icons_loaded != 0) {
-      deleteSurface(_model_icon);
-      deleteSurface(_schema_icon);
-      deleteSurface(_time_icon);
-      deleteSurface(_folder_icon);
-    }
-    _model_icon = mforms::Utilities::load_icon("wb_doc_model.png", true);
-    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema.png", true);
-    _time_icon = mforms::Utilities::load_icon("wb_tile_time.png", true);
-    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini.png", true);
-
-    if (_backing_scale_when_icons_loaded == 0) {
-      _plus_icon = mforms::Utilities::load_icon("wb_tile_plus.png");
-      _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
-      _size_icon = mforms::Utilities::load_icon("wb_tile_number.png");
-      _close_icon = mforms::Utilities::load_icon("wb_close.png");
-      _open_icon = mforms::Utilities::load_icon("wb_tile_open.png");
-      _action_icon = mforms::Utilities::load_icon("wb_tile_more.png");
-    }
-
-    _backing_scale_when_icons_loaded = mforms::App::get()->backing_scale_factor();
+void DocumentsSection::updateColors() {
+  if (_owner->isDarkModeActive()) {
+    _textColor = base::Color::parse("#F4F4F4");
+  } else {
+    _textColor = base::Color::parse("#505050");
   }
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+void DocumentsSection::updateIcons() {
+  deleteIcons();
+
+  if (_owner->isDarkModeActive()) {
+    _model_icon = mforms::Utilities::load_icon("wb_doc_model.png", true);
+    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema_dark.png", true);
+    _time_icon = mforms::Utilities::load_icon("wb_tile_time_dark.png", true);
+    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini_dark.png", true);
+    _plus_icon = mforms::Utilities::load_icon("wb_tile_plus_dark.png");
+    _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
+    _size_icon = mforms::Utilities::load_icon("wb_tile_number_dark.png");
+    _close_icon = mforms::Utilities::load_icon("wb_close.png");
+    _open_icon = mforms::Utilities::load_icon("wb_tile_open_dark.png");
+    _action_icon = mforms::Utilities::load_icon("wb_tile_more_dark.png");
+  } else {
+    _model_icon = mforms::Utilities::load_icon("wb_doc_model.png", true);
+    _schema_icon = mforms::Utilities::load_icon("wb_tile_schema_light.png", true);
+    _time_icon = mforms::Utilities::load_icon("wb_tile_time_light.png", true);
+    _folder_icon = mforms::Utilities::load_icon("wb_tile_folder_mini_light.png", true);
+    _plus_icon = mforms::Utilities::load_icon("wb_tile_plus_light.png");
+    _sql_icon = mforms::Utilities::load_icon("wb_doc_sql.png");
+    _size_icon = mforms::Utilities::load_icon("wb_tile_number_light.png");
+    _close_icon = mforms::Utilities::load_icon("wb_close.png");
+    _open_icon = mforms::Utilities::load_icon("wb_tile_open_light.png");
+    _action_icon = mforms::Utilities::load_icon("wb_tile_more_light.png");
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
   int width = get_width();
   int height = get_height();
 
-  load_icons();
-
   cairo_set_line_width(cr, 1);
   cairo_select_font_face(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT, CAIRO_FONT_SLANT_NORMAL,
-                         CAIRO_FONT_WEIGHT_NORMAL);
+                         CAIRO_FONT_WEIGHT_BOLD);
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
 
   layout(cr);
-
-#ifdef __APPLE__
-  // On Mac we draw a radial background gradient as if the background is lit by a single light source.
-  cairo_pattern_t *pattern = cairo_pattern_create_radial(width / 2.0, -10, 10, width / 2.0, -10, 0.6 * width);
-  cairo_pattern_add_color_stop_rgba(pattern, 0, 1, 1, 1, 0.05);
-  cairo_pattern_add_color_stop_rgba(pattern, 1, 1, 1, 1, 0);
-  cairo_set_source(cr, pattern);
-  cairo_rectangle(cr, 0, 0, width, height);
-  cairo_fill(cr);
-  cairo_pattern_destroy(pattern);
-#endif
 
   width -= DOCUMENTS_LEFT_PADDING + DOCUMENTS_RIGHT_PADDING;
   cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE);
   int entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
 
   // Heading for switching display mode. Draw heading hot only when we support more sections.
-  cairo_set_source_rgb(cr, 0, 0, 0);
+  cairo_set_source_rgb(cr, _textColor.red, _textColor.green, _textColor.blue);
   textWithDecoration(cr, _model_heading_rect.left(), _model_heading_rect.top(), _("Models"),
                      false /*_hot_heading == ModelsOnly*/, _model_heading_rect.width());
 
@@ -600,7 +566,7 @@ void DocumentsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, int
     draw_selection_message(cr);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::add_document(const std::string &path, const time_t &time, const std::string schemas,
                                     long file_size) {
@@ -644,20 +610,20 @@ void DocumentsSection::add_document(const std::string &path, const time_t &time,
   set_layout_dirty(true);
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::clear_documents() {
   _documents.clear();
   set_layout_dirty(true);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool DocumentsSection::mouse_double_click(mforms::MouseButton button, int x, int y) {
   return this->mouse_click(button, x, y);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y) {
   switch (button) {
@@ -761,7 +727,7 @@ bool DocumentsSection::mouse_click(mforms::MouseButton button, int x, int y) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool DocumentsSection::mouse_leave() {
   if (_hot_heading != Nothing || _hot_entry > -1) {
@@ -773,7 +739,7 @@ bool DocumentsSection::mouse_leave() {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool DocumentsSection::mouse_move(mforms::MouseButton button, int x, int y) {
   bool result = false;
@@ -807,7 +773,7 @@ bool DocumentsSection::mouse_move(mforms::MouseButton button, int x, int y) {
   return result;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::handle_command(const std::string &command) {
   if (_active_entry > -1)
@@ -818,21 +784,21 @@ void DocumentsSection::handle_command(const std::string &command) {
   _active_entry = -1;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::show_connection_select_message() {
   _show_selection_message = true;
   set_needs_repaint();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentsSection::hide_connection_select_message() {
   _show_selection_message = false;
   set_needs_repaint();
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 size_t DocumentsSection::getAccessibilityChildCount() {
   // Initial value due to the add/open/create EER Model icons
@@ -842,7 +808,7 @@ size_t DocumentsSection::getAccessibilityChildCount() {
   return ret_val;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::Accessible *DocumentsSection::getAccessibilityChild(size_t index) {
   base::Accessible *accessible = NULL;
@@ -867,13 +833,13 @@ base::Accessible *DocumentsSection::getAccessibilityChild(size_t index) {
   return accessible;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::Accessible::Role DocumentsSection::getAccessibilityRole() {
   return Accessible::List;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::Accessible *DocumentsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible *accessible = NULL;
@@ -893,3 +859,27 @@ base::Accessible *DocumentsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
 
   return accessible;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool DocumentsSection::accessibleHandler(int x, int y) {
+  mouse_move(MouseButtonLeft, x, y);
+  return mouse_click(MouseButtonLeft, x, y);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void DocumentsSection::deleteIcons() {
+  deleteSurface(_plus_icon);
+  deleteSurface(_model_icon);
+  deleteSurface(_sql_icon);
+  deleteSurface(_schema_icon);
+  deleteSurface(_time_icon);
+  deleteSurface(_folder_icon);
+  deleteSurface(_size_icon);
+  deleteSurface(_close_icon);
+  deleteSurface(_open_icon);
+  deleteSurface(_action_icon);
+}
+
+//----------------------------------------------------------------------------------------------------------------------

@@ -55,7 +55,6 @@ namespace mforms {
     std::string title;       // Shorted title, depending on available space.
     base::Rect title_bounds; // Relative bounds of the title text.
     base::Rect acc_bounds;   // Bounds to be used for accessibility
-    base::Color indicatorColor; // Color of the indicator triangle
 
     SidebarEntry();
 
@@ -76,6 +75,8 @@ namespace mforms {
     SidebarEntry *_hotEntry;
     SidebarEntry *_activeEntry; // For the context menu.
 
+    base::Color _indicatorColor;
+
   public:
     const int SIDEBAR_LEFT_PADDING = 18;
     const int SIDEBAR_TOP_PADDING = 18; // The vertical offset of the first shortcut entry.
@@ -86,7 +87,9 @@ namespace mforms {
     SidebarSection(HomeScreen *owner);
     virtual ~SidebarSection();
 
-    void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, base::Color &color, float alpha);
+    void updateColors();
+
+    void drawTriangle(cairo_t *cr, int x1, int y1, int x2, int y2, float alpha);
     void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah);
     int shortcutFromPoint(int x, int y);
     void addEntry(const std::string &title, const std::string &icon_name, HomeScreenSection *section,
@@ -104,8 +107,7 @@ namespace mforms {
   };
 
   /**
-   * This class implements the main (home) screen in MySQL Workbench, containing
-   * sections for connections, plugins and documents.
+   * This class implements the main (home) screen in MySQL Workbench.
    */
   class MFORMS_EXPORT HomeScreen : public mforms::AppView, public base::Observer {
   private:
@@ -113,22 +115,20 @@ namespace mforms {
 
     std::string _pending_script; // The path to a script that should be opened next time a connection is opened.
     mforms::TabView _tabView;
-    bool _singleSection;
-
-    void update_colors();
+    bool _darkMode;
 
     std::vector<HomeScreenSection *> _sections;
 
   public:
-    HomeScreen(bool singleSection = false);
+    std::function<void(base::any, std::string)> handleContextMenu;
+    std::function<void(HomeScreenAction action, const base::any &object)> onHomeScreenAction;
+
+    HomeScreen();
     virtual ~HomeScreen();
 
     void addSection(HomeScreenSection *section);
     void addSectionEntry(const std::string &title, const std::string &icon_name, std::function<void()> callback,
                          bool canSelect);
-
-    std::function<void(base::any, std::string)> handleContextMenu;
-    std::function<void(HomeScreenAction action, const base::any &object)> onHomeScreenAction;
 
     void trigger_callback(HomeScreenAction action, const base::any &object);
 
@@ -139,6 +139,11 @@ namespace mforms {
     void on_resize();
     void setup_done();
     void showSection(size_t index);
+
+    bool isDarkModeActive() const { return _darkMode; };
+
+    void updateColors();
+    void updateIcons();
 
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info);
   };

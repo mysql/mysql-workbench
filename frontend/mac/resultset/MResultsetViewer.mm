@@ -455,7 +455,7 @@ static int onRefresh(void *viewer)
     forTableColumn: (NSTableColumn*) aTableColumn
                row: (NSInteger) rowIndex;
 {
-  if (aTableColumn.identifier && ![[aTableColumn identifier] isEqualToString: @""])
+  if (aTableColumn.identifier && ![aTableColumn.identifier isEqualToString: @""])
   {
     int columnIndex = aTableColumn.identifier.intValue;    
     

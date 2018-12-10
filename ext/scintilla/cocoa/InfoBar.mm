@@ -85,13 +85,6 @@
   self = [super initWithFrame: frame];
   if (self)
   {
-    NSBundle* bundle = [NSBundle bundleForClass: [InfoBar class]];
-
-    NSString* path = [bundle pathForResource: @"info_bar_bg" ofType: @"tiff" inDirectory: nil];
-    mBackground = [[NSImage alloc] initWithContentsOfFile: path];
-    if (![mBackground isValid])
-      NSLog(@"Background image for info bar is invalid.");
-
     mScaleFactor = 1.0;
     mCurrentCaretX = 0;
     mCurrentCaretY = 0;
@@ -229,7 +222,6 @@ static float BarFontSize = 10.0;
 
 - (void) dealloc
 {
-  [mBackground release];
   [super dealloc];
 }
 
@@ -240,30 +232,42 @@ static float BarFontSize = 10.0;
  */
 - (void) drawRect: (NSRect) rect
 {
-  // Since the background is seamless, we don't need to take care for the proper offset.
-  // Simply tile the background over the invalid rectangle.
-  NSPoint target = {rect.origin.x, 0};
-  while (target.x < rect.origin.x + rect.size.width)
-  {
-    [mBackground drawAtPoint: target fromRect: NSZeroRect operation: NSCompositeCopy fraction: 1];
-    target.x += mBackground.size.width;
+  bool darkMode = false;
+  NSAppearance * appearance = self.window.effectiveAppearance;
+  if (@available(macOS 10.14, *)) {
+    darkMode = appearance.name == NSAppearanceNameDarkAqua;
   }
 
-  // Draw separator lines between items.
-  NSRect verticalLineRect;
-  CGFloat component = 190.0 / 255.0;
-  NSColor* lineColor = [NSColor colorWithDeviceRed: component green: component blue: component alpha: 1];
+  NSGradient *background;
+  if (darkMode) {
+    background = [[NSGradient alloc] initWithColors: @[
+      [NSColor colorWithDeviceRed: 0x30 / 255.0 green: 0x32 / 255.0 blue: 0x34 / 255.0 alpha: 1.0],
+      [NSColor colorWithDeviceRed: 0x31 / 255.0 green: 0x32 / 255.0 blue: 0x35 / 255.0 alpha: 1.0],
+    ]];
+  } else {
+    background = [[NSGradient alloc] initWithColors: @[
+      [NSColor colorWithDeviceWhite: 0xf8 / 255.0 alpha: 1.0],
+      [NSColor colorWithDeviceWhite: 0xee / 255.0 alpha: 1.0]
+    ]];
+  }
+  [background drawInRect: rect angle: 270];
 
+  // Draw a top line and the separator lines between items.
+  NSRect verticalLineRect;
+  if (darkMode)
+    [[NSColor colorWithDeviceRed: 0x49 / 255.0 green: 0x4c / 255.0 blue: 0x4f / 255.0 alpha: 1.0] set];
+  else
+    [[NSColor colorWithDeviceWhite: 190.0 / 255.0 alpha: 1] set];
+
+  NSBezierPath.defaultLineWidth = 1;
+  [NSBezierPath strokeLineFromPoint: { NSMinX(rect), NSMaxY(rect) } toPoint: { NSMaxX(rect), NSMaxY(rect) }];
   if (mDisplayMask & IBShowZoom)
   {
     verticalLineRect = [mZoomPopup frame];
     verticalLineRect.origin.x += verticalLineRect.size.width + 1.0;
     verticalLineRect.size.width = 1.0;
     if (NSIntersectsRect(rect, verticalLineRect))
-    {
-      [lineColor set];
       NSRectFill(verticalLineRect);
-    }
   }
 
   if (mDisplayMask & IBShowCaretPosition)
@@ -272,10 +276,7 @@ static float BarFontSize = 10.0;
     verticalLineRect.origin.x += verticalLineRect.size.width + 1.0;
     verticalLineRect.size.width = 1.0;
     if (NSIntersectsRect(rect, verticalLineRect))
-    {
-      [lineColor set];
       NSRectFill(verticalLineRect);
-    }
   }
 }
 
@@ -324,9 +325,10 @@ static float BarFontSize = 10.0;
 
   if (mDisplayMask & IBShowStatusText)
   {
-    // The status text always takes the rest of the available space.
+    // The status text always takes the rest of the available space (with some padding).
     [mStatusTextLabel setHidden: NO];
-    currentBounds.size.width = [self frame].size.width - currentBounds.origin.x;
+    currentBounds.origin.x += 4;
+    currentBounds.size.width = [self frame].size.width - currentBounds.origin.x - 8;
     [mStatusTextLabel setFrame: currentBounds];
   }
   else

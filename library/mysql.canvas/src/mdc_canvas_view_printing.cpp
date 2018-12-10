@@ -260,7 +260,7 @@ int CanvasViewExtras::print_native(HDC hdc, int paper_width, int paper_height, i
       CairoCtx ctx(surface);
       ctx.check_state();
 
-      ctx.set_color(Color::White());
+      ctx.set_color(Color::white());
       ctx.paint();
 
       double scale = (paper_width / _page_width);
@@ -319,7 +319,7 @@ int CanvasViewExtras::render_pages(CairoCtx *cr, double render_scale, int page, 
           _view->set_printout_mode(true);
           cr->save();
           cr->set_font(header_font);
-          cr->set_color(base::Color::Black());
+          cr->set_color(base::Color::black());
           std::string text = header_text;
           base::replaceStringInplace(text, "$page", base::strfmt("%i", printed + 1));
           base::replaceStringInplace(text, "$total_pages", base::strfmt("%i", page < 0 ? xc * yc : 1));
@@ -336,7 +336,7 @@ int CanvasViewExtras::render_pages(CairoCtx *cr, double render_scale, int page, 
           _view->set_printout_mode(true);
           cr->save();
           cr->set_font(header_font);
-          cr->set_color(base::Color::Black());
+          cr->set_color(base::Color::black());
           std::string text = footer_text;
           base::replaceStringInplace(text, "$page", base::strfmt("%i", printed + 1));
           base::replaceStringInplace(text, "$total_pages", base::strfmt("%i", page < 0 ? xc * yc : 1));

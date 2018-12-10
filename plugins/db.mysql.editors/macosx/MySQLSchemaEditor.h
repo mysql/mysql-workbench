@@ -32,20 +32,6 @@
 // in schema_editor->moduleFunctionName("DbMysqlSchemaEditor")
 // This is the class that will be loaded and instantiated by Workbench
 @interface DbMysqlSchemaEditor : WBPluginEditorBase {
-  IBOutlet NSTabView *tabView; // this editor has a single Tab, but we put in a TabView for homegeneity
-  IBOutlet MTabSwitcher *tabSwitcher;
-
-  IBOutlet NSTextField *nameText;
-  IBOutlet NSPopUpButton *collationPopup;
-  IBOutlet NSPopUpButton *charsetPopup;
-
-  IBOutlet NSTextView *commentText;
-
-  IBOutlet NSButton *mRefactorButton;
-
-  MySQLSchemaEditorBE *mBackEnd; //!< schema editor backend
-
-  BOOL mChanging;
 }
 
 - (instancetype)initWithModule:(grt::Module *)module arguments:(const grt::BaseListRef &)args NS_DESIGNATED_INITIALIZER;

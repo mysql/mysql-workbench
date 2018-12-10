@@ -48,8 +48,6 @@ namespace mforms {
     TaskSectionPlain = 0,
     TaskSectionRefreshable = 1,
     TaskSectionCollapsible = 2,
-    TaskSectionToggleModeButton = 4,
-    TaskSectionToggleModeButtonPreSelected = 8,
     TaskSectionShowConfigButton = 0x10,
   };
 

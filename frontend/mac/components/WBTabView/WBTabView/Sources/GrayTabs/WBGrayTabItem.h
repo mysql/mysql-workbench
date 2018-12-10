@@ -26,6 +26,8 @@
 @interface WBGrayTabItem : WBTabItem {
 }
 
-+ (WBTabItem*)tabItemWithIdentifier:(id)identifier label:(NSString*)label;
++ (WBTabItem*)tabItemWithOwner: (WBTabView *)owner
+                    identifier: (id)identifier
+                         label: (NSString*)label;
 
 @end

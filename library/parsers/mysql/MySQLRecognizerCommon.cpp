@@ -21,8 +21,6 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "base/string_utilities.h"
-
 #include "MySQLLexer.h"
 #include "MySQLParser.h"
 
@@ -36,6 +34,17 @@ using namespace parsers;
 using namespace antlr4;
 using namespace antlr4::tree;
 using namespace antlr4::dfa;
+
+//---------------------------------------------------------------------------------------------------------------------
+
+static void replaceStringInplace(std::string &value, const std::string &search, const std::string &replacement) {
+  std::string::size_type next;
+
+  for (next = value.find(search); next != std::string::npos; next = value.find(search, next)) {
+    value.replace(next, search.length(), replacement);
+    next += replacement.length();
+  }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -151,7 +160,7 @@ std::string MySQLRecognizerCommon::sourceTextForRange(Token *start, Token *stop,
   if ((quoteChar == '"' || quoteChar == '`' || quoteChar == '\'') && quoteChar == result.back()) {
     if (quoteChar == '"' || quoteChar == '\'') {
       // Replace any double occurence of the quote char by a single one.
-      base::replaceStringInplace(result, std::string(2, quoteChar), std::string(1, quoteChar));
+      replaceStringInplace(result, std::string(2, quoteChar), std::string(1, quoteChar));
     }
 
     return result.substr(1, result.size() - 2);

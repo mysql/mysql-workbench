@@ -25,13 +25,29 @@
 
 using namespace grt;
 
+//----------------- GRTObserver ----------------------------------------------------------------------------------------
+
+void GRTObserver::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
+  // Map standard center notifications to GRT notifications.
+  grt::DictRef grtInfo(grt::Initialized);
+  for (auto &entry : info)
+    grtInfo.gset(entry.first, entry.second);
+  handle_grt_notification(name, grt::ObjectRef(), grtInfo);
+}
+
+//----------------- GRTNotificationCenter ------------------------------------------------------------------------------
+
 void GRTNotificationCenter::setup() {
   base::NotificationCenter::set_instance(new GRTNotificationCenter());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 GRTNotificationCenter *GRTNotificationCenter::get() {
   return dynamic_cast<GRTNotificationCenter *>(base::NotificationCenter::get());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void GRTNotificationCenter::add_grt_observer(GRTObserver *observer, const std::string &name, ObjectRef object) {
   GRTObserverEntry entry;
@@ -41,7 +57,11 @@ void GRTNotificationCenter::add_grt_observer(GRTObserver *observer, const std::s
   _grt_observers.push_back(entry);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool GRTNotificationCenter::remove_grt_observer(GRTObserver *observer, const std::string &name, ObjectRef object) {
+  bool foundInherited = NotificationCenter::remove_observer(observer);
+
   bool found = false;
   for (std::list<GRTObserverEntry>::iterator next, iter = _grt_observers.begin(); iter != _grt_observers.end();) {
     next = iter;
@@ -53,8 +73,11 @@ bool GRTNotificationCenter::remove_grt_observer(GRTObserver *observer, const std
     }
     iter = next;
   }
-  return found;
+
+  return found || foundInherited;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void GRTNotificationCenter::send_grt(const std::string &name, ObjectRef sender, DictRef info) {
   if (name.substr(0, 3) != "GRN")
@@ -69,3 +92,5 @@ void GRTNotificationCenter::send_grt(const std::string &name, ObjectRef sender, 
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------

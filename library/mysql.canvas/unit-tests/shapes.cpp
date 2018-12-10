@@ -67,98 +67,98 @@ TEST_FUNCTION(1) { // test rectangle rendering
 
   r[3].move_to(Point(100, 10));
   r[3].set_fixed_size(Size(80, 80));
-  r[3].set_pen_color(Color::Black());
+  r[3].set_pen_color(Color::black());
   r[3].set_filled(true);
   r[3].set_fill_color(Color(1, 0.5, 0.8));
   r[3].set_rounded_corners(10, CTopLeft | CBottomRight);
 
   r[4].move_to(Point(200, 10));
   r[4].set_fixed_size(Size(80, 80));
-  r[4].set_pen_color(Color::Black());
+  r[4].set_pen_color(Color::black());
   r[4].set_filled(true);
   r[4].set_fill_color(Color(1, 0.5, 0.8));
   r[4].set_rounded_corners(10, CTopRight | CBottomLeft);
 
   r[5].move_to(Point(300, 10));
   r[5].set_fixed_size(Size(80, 80));
-  r[5].set_pen_color(Color::Black());
+  r[5].set_pen_color(Color::black());
   r[5].set_filled(true);
   r[5].set_fill_color(Color(1, 0.5, 0.8));
   r[5].set_rounded_corners(10, CTop);
 
   r[6].move_to(Point(400, 10));
   r[6].set_fixed_size(Size(80, 80));
-  r[6].set_pen_color(Color::Black());
+  r[6].set_pen_color(Color::black());
   r[6].set_filled(true);
   r[6].set_fill_color(Color(1, 0.5, 0.8));
   r[6].set_rounded_corners(10, CBottom);
 
   r[7].move_to(Point(100, 300));
   r[7].set_fixed_size(Size(80, 80));
-  r[7].set_pen_color(Color::Black());
+  r[7].set_pen_color(Color::black());
   r[7].set_filled(true);
   r[7].set_fill_color(Color(1, 1, 0.8));
   r[7].set_rounded_corners(10, CAll);
 
   r[8].move_to(Point(100, 100));
   r[8].set_fixed_size(Size(80, 80));
-  r[8].set_pen_color(Color::Black());
+  r[8].set_pen_color(Color::black());
   r[8].set_filled(true);
   r[8].set_fill_color(Color(0.5, 0.5, 0.8));
   r[8].set_rounded_corners(10, CTopLeft);
 
   r[9].move_to(Point(200, 100));
   r[9].set_fixed_size(Size(80, 80));
-  r[9].set_pen_color(Color::Black());
+  r[9].set_pen_color(Color::black());
   r[9].set_filled(true);
   r[9].set_fill_color(Color(0.5, 0.5, 0.8));
   r[9].set_rounded_corners(10, CTopRight);
 
   r[10].move_to(Point(300, 100));
   r[10].set_fixed_size(Size(80, 80));
-  r[10].set_pen_color(Color::Black());
+  r[10].set_pen_color(Color::black());
   r[10].set_filled(true);
   r[10].set_fill_color(Color(0.5, 0.5, 0.8));
   r[10].set_rounded_corners(10, CBottomLeft);
 
   r[11].move_to(Point(400, 100));
   r[11].set_fixed_size(Size(80, 80));
-  r[11].set_pen_color(Color::Black());
+  r[11].set_pen_color(Color::black());
   r[11].set_filled(true);
   r[11].set_fill_color(Color(0.5, 0.5, 0.8));
   r[11].set_rounded_corners(10, CBottomRight);
 
   r[12].move_to(Point(100, 200));
   r[12].set_fixed_size(Size(80, 80));
-  r[12].set_pen_color(Color::Black());
+  r[12].set_pen_color(Color::black());
   r[12].set_filled(true);
   r[12].set_fill_color(Color(0.5, 0.8, 0.8));
   r[12].set_rounded_corners(10, (CornerMask)~CTopLeft);
 
   r[13].move_to(Point(200, 200));
   r[13].set_fixed_size(Size(80, 80));
-  r[13].set_pen_color(Color::Black());
+  r[13].set_pen_color(Color::black());
   r[13].set_filled(true);
   r[13].set_fill_color(Color(0.5, 0.8, 0.8));
   r[13].set_rounded_corners(10, (CornerMask)~CTopRight);
 
   r[14].move_to(Point(300, 200));
   r[14].set_fixed_size(Size(80, 80));
-  r[14].set_pen_color(Color::Black());
+  r[14].set_pen_color(Color::black());
   r[14].set_filled(true);
   r[14].set_fill_color(Color(0.5, 0.8, 0.8));
   r[14].set_rounded_corners(10, (CornerMask)~CBottomLeft);
 
   r[15].move_to(Point(400, 200));
   r[15].set_fixed_size(Size(80, 80));
-  r[15].set_pen_color(Color::Black());
+  r[15].set_pen_color(Color::black());
   r[15].set_filled(true);
   r[15].set_fill_color(Color(0.5, 0.8, 0.8));
   r[15].set_rounded_corners(10, (CornerMask)~CBottomRight);
 
   r[16].move_to(Point(200, 300));
   r[16].set_fixed_size(Size(80, 80));
-  r[16].set_pen_color(Color::Black());
+  r[16].set_pen_color(Color::black());
   r[16].set_filled(true);
   r[16].set_fill_color(Color(1, 1, 0.8));
   r[16].set_rounded_corners(10, CNone);

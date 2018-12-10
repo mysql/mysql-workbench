@@ -118,6 +118,12 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
 
 //--------------------------------------------------------------------------------------------------
 
+- (BOOL)isAccessibilityElement {
+  return YES;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 - (bool)handleMouseUp: (NSEvent *)event owner: (mforms::View *)mOwner {
   NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
 
@@ -389,7 +395,7 @@ struct PasteboardDataWrapper {
 }
 
 // Since drag initiation and data retrieval are now separated we need a temporary storage for the data.
-// Since this is category we would have to go the long way, or simply use a static var.
+// As this is a category we would have to go the long way, or simply use a static var.
 // No concurrency here as dd is per se safe (only one drag operation at a time possible).
 static NSString *dragText = nil;
 
@@ -987,18 +993,22 @@ static std::string view_get_front_color(::mforms::View *self) {
 }
 
 static void view_set_back_color(::mforms::View *self, const std::string &color) {
-  if ([self->get_data() respondsToSelector:@selector(setBackgroundColor:)]) {
-    [self->get_data() setBackgroundColor: [NSColor colorFromHexString: @(color.c_str())]];
-    if ([self->get_data() respondsToSelector: @selector(setDrawsBackground:)])
-      [self->get_data() setDrawsBackground:!color.empty()];
+  id view = self->get_data();
+  if ([view respondsToSelector:@selector(setBackgroundColor:)]) {
+    [view setBackgroundColor: [NSColor colorFromHexString: @(color.c_str())]];
+    if ([view respondsToSelector: @selector(setDrawsBackground:)])
+      [view setDrawsBackground: !color.empty()];
   }
 }
 
 static std::string view_get_back_color(::mforms::View *self) {
-  if ([self->get_data() respondsToSelector: @selector(backgroundColor)]) {
-    if ([self->get_data() respondsToSelector: @selector(drawsBackground)] && ![self->get_data() drawsBackground])
+  id view = self->get_data();
+  if ([view respondsToSelector: @selector(backgroundColor)]) {
+    if ([view respondsToSelector: @selector(drawsBackground)] && ![self->get_data() drawsBackground])
       return "";
-    return [self->get_data() backgroundColor].hexString.UTF8String;
+    if ([view backgroundColor] == nil)
+      return "";
+    return [view backgroundColor].hexString.UTF8String;
   }
   return "";
 }

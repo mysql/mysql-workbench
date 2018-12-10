@@ -69,8 +69,10 @@ using namespace mforms;
 
 //----------------- SidebarSection -----------------------------------------------------------------
 
-SidebarEntry::SidebarEntry(const string& name, const std::string& accessibilityName, const string& title,
-                           const string& icon, TaskEntryType type, boost::signals2::signal<void (const std::string &)> *callback) {
+SidebarEntry::SidebarEntry(SidebarSection *owner, const string& name, const std::string& accessibilityName,
+                           const string& title, const string& icon, TaskEntryType type,
+                           boost::signals2::signal<void (const std::string &)> *callback) {
+  _owner = owner;
   _name = name;
   setAccessibilityName(accessibilityName);
   _title = title;
@@ -136,12 +138,9 @@ void SidebarEntry::paint(cairo_t* cr, base::Rect bounds, bool hot, bool active, 
   cairo_select_font_face(cr, SIDEBAR_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(cr, SIDEBAR_ENTRY_FONT_SIZE);
 
-  if (active)
-    cairo_set_source_rgb(cr, 1, 1, 1);
-  else if (_enabled)
-    cairo_set_source_rgb(cr, 0, 0, 0);
-  else
-    cairo_set_source_rgb(cr, 0.6, 0.6, 0.6);
+  Color textColor = active ? _owner->_owner->_activeTextColor : _owner->_owner->_inactiveTextColor;
+  cairo_set_source_rgba(cr, textColor.red, textColor.green, textColor.blue, _enabled ? textColor.alpha : 0.5 * textColor.alpha);
+
   cairo_rel_move_to(cr, 0, (bounds.height() + SIDEBAR_ENTRY_FONT_SIZE) / 2 - 2);
   cairo_show_text(cr, _title.c_str());
 
@@ -283,7 +282,6 @@ SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& title, m
   _expand_text_active = false;
 
   _refresh_button = NULL;
-  _toggle_mode_button = NULL;
   _config_button = NULL;
 
   _layout_surface = NULL;
@@ -305,13 +303,6 @@ SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& title, m
 #endif
   }
 
-  if (flags & mforms::TaskSectionToggleModeButton) {
-    _toggle_mode_button = new Button("Toggle Mode", "wb-sidebar-collapse.png", "wb-sidebar-expand.png");
-    _enabled_buttons.push_back(_toggle_mode_button);
-    if (flags & TaskSectionToggleModeButtonPreSelected)
-      _toggle_mode_button->state = true;
-  }
-
   if (flags & mforms::TaskSectionShowConfigButton) {
     _config_button = new Button("Configuration", "wb_perform_config.png", "");
     _enabled_buttons.push_back(_config_button);
@@ -323,7 +314,6 @@ SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& title, m
 SidebarSection::~SidebarSection() {
   clear();
   delete _refresh_button;
-  delete _toggle_mode_button;
   delete _config_button;
 
   if (_layout_surface != NULL)
@@ -406,20 +396,9 @@ void SidebarSection::layout(cairo_t* cr) {
     _config_button->bounds_height = SECTION_HEADER_HEIGHT + SECTION_TOP_SPACING;
   }
 
-  if (_toggle_mode_button) {
-    _toggle_mode_button->move((int)bounds.size.width - _toggle_mode_button->bounds_width - SECTION_SIDE_SPACING,
-                              SECTION_TOP_SPACING);
-    _toggle_mode_button->bounds_width = SECTION_HEADER_HEIGHT;
-    _toggle_mode_button->bounds_height = SECTION_HEADER_HEIGHT;
-  }
-
   if (_refresh_button) {
-    if (_toggle_mode_button)
-      _refresh_button->move(_toggle_mode_button->x - _refresh_button->bounds_width - SECTION_ICON_SPACING,
-                            SECTION_TOP_SPACING);
-    else
-      _refresh_button->move((int)bounds.size.width - _refresh_button->bounds_width - SECTION_SIDE_SPACING,
-                            SECTION_TOP_SPACING);
+    _refresh_button->move((int)bounds.size.width - _refresh_button->bounds_width - SECTION_SIDE_SPACING,
+                          SECTION_TOP_SPACING);
     _refresh_button->bounds_width = SECTION_HEADER_HEIGHT;
     _refresh_button->bounds_height = SECTION_HEADER_HEIGHT;
   }
@@ -468,22 +447,13 @@ void SidebarSection::toggle_expand() {
 
 //--------------------------------------------------------------------------------------------------
 
-void SidebarSection::update_mode_button(bool active) {
-  if (_toggle_mode_button != NULL) {
-    _toggle_mode_button->state = active;
-    set_needs_repaint();
-  }
-}
-
-//--------------------------------------------------------------------------------------------------
-
 int SidebarSection::add_entry(const std::string& name, const std::string& accessibilityName, const std::string& title,
                               const std::string& icon, TaskEntryType type) {
   int result = find_entry(name);
   if (result > -1)
     return result;
 
-  SidebarEntry* entry = new SidebarEntry(name, accessibilityName, title, icon, type, _owner->on_section_command());
+  SidebarEntry* entry = new SidebarEntry(this, name, accessibilityName, title, icon, type, _owner->on_section_command());
   _entries.push_back(entry);
   set_layout_dirty(true);
 
@@ -579,13 +549,10 @@ Accessible* SidebarSection::getAccessibilityChild(size_t index) {
 base::Accessible* SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
   base::Accessible* accessible = NULL;
 
-  // if (_expand_text_active)
   if (_config_button && _config_button->check_hit(x, y))
     accessible = _config_button;
   else if (_refresh_button && _refresh_button->check_hit(x, y))
     accessible = _refresh_button;
-  else if (_toggle_mode_button && _toggle_mode_button->check_hit(x, y))
-    accessible = _toggle_mode_button;
   else
     accessible = entry_from_point(static_cast<double>(x), static_cast<double>(y));
 
@@ -594,23 +561,14 @@ base::Accessible* SidebarSection::accessibilityHitTest(ssize_t x, ssize_t y) {
 
 //--------------------------------------------------------------------------------------------------
 
-void draw_header_text(cairo_t* cr, Rect& bounds, const std::string& text, bool active) {
-  // Draw heading twice. Once like a white shadow and once normal.
-  cairo_set_source_rgb(cr, 1, 1, 1);
-  cairo_move_to(cr, bounds.left(), bounds.top() + 1);
-  cairo_show_text(cr, text.c_str());
-  cairo_stroke(cr);
-
-  if (active)
-    cairo_set_source_rgb(cr, 0x04 / 255.0, 0x7c / 255.0, 0xf2 / 255.0);
-  else
-    cairo_set_source_rgb(cr, 0x61 / 255.0, 0x70 / 255.0, 0x80 / 255.0);
+void draw_header_text(cairo_t* cr, Rect& bounds, const std::string& text, Color color) {
+  cairo_set_source_rgba(cr, color.red, color.green, color.blue, color.alpha);
   cairo_move_to(cr, bounds.left(), bounds.top());
   cairo_show_text(cr, text.c_str());
   cairo_stroke(cr);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SidebarSection::repaint(cairo_t* cr, int areax, int areay, int areaw, int areah) {
   double width = get_width();
@@ -624,16 +582,13 @@ void SidebarSection::repaint(cairo_t* cr, int areax, int areay, int areaw, int a
 
   cairo_select_font_face(cr, SIDEBAR_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
   cairo_set_font_size(cr, SIDEBAR_TITLE_FONT_SIZE);
-  draw_header_text(cr, bounds, _title, false);
+  draw_header_text(cr, bounds, _title, _owner->_inactiveTextColor);
 
   if (_config_button)
     _config_button->draw(cr);
 
   if (_refresh_button)
     _refresh_button->draw(cr);
-
-  if (_toggle_mode_button)
-    _toggle_mode_button->draw(cr);
 
   if (_expand_text_visible) {
     cairo_select_font_face(cr, SIDEBAR_FONT, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -643,7 +598,10 @@ void SidebarSection::repaint(cairo_t* cr, int areax, int areay, int areaw, int a
     Rect text_bounds = bounds;
     text_bounds.pos.x = width - _expand_text_width - SECTION_SIDE_SPACING;
     text_bounds.size.width = _expand_text_width;
-    draw_header_text(cr, text_bounds, expand_text, _expand_text_active);
+    if (_expand_text_active)
+      draw_header_text(cr, text_bounds, expand_text, _owner->_activeTextColor);
+    else
+      draw_header_text(cr, text_bounds, expand_text, _owner->_inactiveTextColor);
   }
 
   if (_expanded) {
@@ -667,7 +625,7 @@ bool SidebarSection::mouse_leave() {
     return true;
 
   if (_hot_entry != NULL || _expand_text_visible || _expand_text_active || (_config_button && _config_button->hot) ||
-      (_refresh_button && _refresh_button->hot) || (_toggle_mode_button && _toggle_mode_button->hot)) {
+      (_refresh_button && _refresh_button->hot)) {
     _hot_entry = NULL;
     _expand_text_visible = false;
     _expand_text_active = false;
@@ -682,10 +640,6 @@ bool SidebarSection::mouse_leave() {
       _refresh_button->hot = false;
     }
 
-    if (_toggle_mode_button) {
-      _toggle_mode_button->down = false;
-      _toggle_mode_button->hot = false;
-    }
     set_needs_repaint();
     return true;
   }
@@ -728,24 +682,13 @@ bool SidebarSection::mouse_move(mforms::MouseButton button, int x, int y) {
         need_refresh = true;
       }
     }
-
-    if (_toggle_mode_button) {
-      bool isHot = _toggle_mode_button->check_hit(x, y);
-      if (isHot != _toggle_mode_button->hot) {
-        _toggle_mode_button->hot = isHot;
-        need_refresh = true;
-      }
-    }
   } else {
-    if (_expand_text_visible || (_config_button && _config_button->hot) || (_refresh_button && _refresh_button->hot) ||
-        (_toggle_mode_button && _toggle_mode_button->hot)) {
+    if (_expand_text_visible || (_config_button && _config_button->hot) || (_refresh_button && _refresh_button->hot)) {
       _expand_text_visible = false;
       if (_config_button)
         _config_button->hot = false;
       if (_refresh_button)
         _refresh_button->hot = false;
-      if (_toggle_mode_button)
-        _toggle_mode_button->hot = false;
       need_refresh = true;
     }
 
@@ -783,10 +726,6 @@ bool SidebarSection::mouse_down(mforms::MouseButton button, int x, int y) {
       result = true;
     } else if (_refresh_button && _refresh_button->hot) {
       _refresh_button->down = true;
-      set_needs_repaint();
-      result = true;
-    } else if (_toggle_mode_button && _toggle_mode_button->hot) {
-      _toggle_mode_button->down = true;
       set_needs_repaint();
       result = true;
     } else if (_expand_text_visible) {
@@ -828,16 +767,6 @@ bool SidebarSection::mouse_click(mforms::MouseButton button, int x, int y) {
         AdvancedSidebar* aSidebar;
         if ((aSidebar = dynamic_cast<AdvancedSidebar*>(_owner)) != NULL)
           aSidebar->tool_action_clicked("refresh");
-      } else if (_toggle_mode_button != NULL && _toggle_mode_button->down) {
-        handled = true;
-        bool new_state = !_toggle_mode_button->state;
-        if (new_state)
-          (*_owner->on_section_command())("switch_mode_on");
-        else
-          (*_owner->on_section_command())("switch_mode_off");
-        _owner->update_mode_buttons(new_state);
-        _toggle_mode_button->down = false;
-        _toggle_mode_button->hot = false;
       }
 
       if (!handled) {
@@ -882,10 +811,6 @@ bool SidebarSection::mouse_up(mforms::MouseButton button, int x, int y) {
         result = true;
       }
 
-      if (_toggle_mode_button && _toggle_mode_button->down) {
-        _toggle_mode_button->down = false;
-        result = true;
-      }
       break;
 
     default:
@@ -930,24 +855,50 @@ bool SimpleSidebar::init_factory_method() {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 SimpleSidebar::SimpleSidebar() {
+  NotificationCenter::get()->add_observer(this, "GNColorsChanged");
+  NotificationCenter::get()->add_observer(this, "GNApplicationActivated");
+  NotificationCenter::get()->add_observer(this, "GNApplicationDeactivated");
+  updateColors();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+SimpleSidebar::~SimpleSidebar() {
+  NotificationCenter::get()->remove_observer(this);
+
+  for (size_t i = 0; i < _sections.size(); i++)
+    delete _sections[i];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void SimpleSidebar::updateColors() {
+  std::string backColor;
   switch (Color::get_active_scheme()) {
     case base::ColorSchemeHighContrast:
     case base::ColorSchemeStandardWin7:
     case base::ColorSchemeStandardWin8:
     case base::ColorSchemeStandardWin8Alternate:
-      set_back_color(base::Color::get_application_color_as_string(AppColorPanelContentArea, false));
+      backColor = base::Color::getApplicationColorAsString(AppColorPanelContentArea, false);
       break;
     default:
       Color systemColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor);
-      set_back_color(systemColor.to_html());
+      backColor = systemColor.to_html();
       break;
   }
+
+  float previousAlpha = _activeTextColor.alpha > 0 ? _activeTextColor.alpha : 1;
+  _activeTextColor = Color::getSystemColor(base::SystemColor::LabelColor);
+  _activeTextColor.alpha = previousAlpha;
+  _inactiveTextColor = Color::getSystemColor(base::SystemColor::LabelColor);
+  _inactiveTextColor.alpha = previousAlpha;
+  set_back_color(backColor);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 mforms::TaskSidebar* SimpleSidebar::create_instance() {
   return new SimpleSidebar();
@@ -955,12 +906,21 @@ mforms::TaskSidebar* SimpleSidebar::create_instance() {
 
 //--------------------------------------------------------------------------------------------------
 
-SimpleSidebar::~SimpleSidebar() {
-  for (size_t i = 0; i < _sections.size(); i++)
-    delete _sections[i];
+void SimpleSidebar::handle_notification(const std::string& name, void* sender, NotificationInfo& info) {
+  if (name == "GNColorsChanged")
+    updateColors();
+  else if (name == "GNApplicationActivated") {
+    _activeTextColor.alpha = 1;
+    _inactiveTextColor.alpha = 1;
+  } else if (name == "GNApplicationDeactivated") {
+    _activeTextColor.alpha = 0.5;
+    _inactiveTextColor.alpha = 0.5;
+  }
+
+  set_needs_repaint();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Find a section with the given name and return its index or -1 if there is none.
@@ -976,7 +936,9 @@ int SimpleSidebar::find_section(const std::string& name) {
 
 //--------------------------------------------------------------------------------------------------
 
-int SimpleSidebar::add_section(const std::string& name, const std::string& accessbilityName, const string& title, mforms::TaskSectionFlags flags) {
+int SimpleSidebar::add_section(const std::string& name, const std::string& accessbilityName, const string& title,
+  mforms::TaskSectionFlags flags) {
+
   int result = find_section(title);
   if (result > -1)
     return result;
@@ -984,7 +946,6 @@ int SimpleSidebar::add_section(const std::string& name, const std::string& acces
   SidebarSection* box = new SidebarSection(this, title, flags);
   box->set_name(accessbilityName);
   box->setInternalName(name);
-  box->set_back_color(get_back_color());
   _sections.push_back(box);
   add(box, false, true);
 
@@ -1005,8 +966,8 @@ void SimpleSidebar::remove_section(const std::string& section_name) {
 
 //--------------------------------------------------------------------------------------------------
 
-int SimpleSidebar::add_section_entry(const std::string& section_name, const std::string& name, const std::string& accessibilityName,
-                                     const std::string& title, const std::string& icon, TaskEntryType type) {
+int SimpleSidebar::add_section_entry(const std::string& section_name, const std::string& name,
+  const std::string& accessibilityName, const std::string& title, const std::string& icon, TaskEntryType type) {
   int index = find_section(section_name);
   if (index < 0)
     return -1;
@@ -1183,13 +1144,6 @@ void SimpleSidebar::clear_selection() {
     _sections[i]->clear_selection();
 }
 
-//--------------------------------------------------------------------------------------------------
-
-void SimpleSidebar::update_mode_buttons(bool active) {
-  for (size_t i = 0; i < _sections.size(); i++)
-    _sections[i]->update_mode_button(active);
-}
-
 //----------------- AdvancedSidebar ----------------------------------------------------------------
 
 // implicitly initialize the adv. sidebar
@@ -1204,8 +1158,8 @@ bool AdvancedSidebar::init_factory_method() {
 //--------------------------------------------------------------------------------------------------
 
 AdvancedSidebar::AdvancedSidebar()
-  : _new_schema_tree(TreeNoColumns | TreeNoBorder | TreeSidebar | TreeNoHeader | TreeCanBeDragSource | TreeColumnsAutoResize),
-    _filtered_schema_tree(TreeNoColumns | TreeNoBorder | TreeSidebar | TreeNoHeader | TreeCanBeDragSource | TreeColumnsAutoResize),
+  : _new_schema_tree(TreeNoColumns | TreeNoBorder | TreeSidebar | TreeNoHeader | TreeCanBeDragSource | TreeColumnsAutoResize | TreeTranslucent),
+    _filtered_schema_tree(TreeNoColumns | TreeNoBorder | TreeSidebar | TreeNoHeader | TreeCanBeDragSource | TreeColumnsAutoResize | TreeTranslucent),
     _schema_search_box(true),
     _schema_search_text(mforms::SmallSearchEntry),
     _remote_search_enabled(false),
@@ -1219,16 +1173,12 @@ AdvancedSidebar::AdvancedSidebar()
   _schema_search_warning.set_style(mforms::SmallHelpTextStyle);
   _schema_search_warning.set_text_align(mforms::MiddleCenter);
 
-  NotificationCenter::get()->add_observer(this, "GNColorsChanged");
-
   setup_schema_tree();
 }
 
 //--------------------------------------------------------------------------------------------------
 
 AdvancedSidebar::~AdvancedSidebar() {
-  NotificationCenter::get()->remove_observer(this);
-
   if (_is_model_owner)
     delete _schema_model;
 }
@@ -1266,7 +1216,7 @@ void AdvancedSidebar::setup_schema_tree() {
     case base::ColorSchemeStandardWin7:
     case base::ColorSchemeStandardWin8:
     case base::ColorSchemeStandardWin8Alternate:
-      background_color = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
+      background_color = base::Color::getApplicationColorAsString(AppColorPanelContentArea, false);
       break;
 
     default: {
@@ -1341,35 +1291,32 @@ void AdvancedSidebar::setup_schema_tree() {
 
 //--------------------------------------------------------------------------------------------------
 
-void AdvancedSidebar::handle_notification(const std::string& name, void* sender, NotificationInfo& info) {
-  if (name == "GNColorsChanged") {
-    std::string background_color; // Empty to indicate default color.
-    std::string toolbar_background_color;
-    switch (Color::get_active_scheme()) {
-      case base::ColorSchemeHighContrast:
-        toolbar_background_color = base::Color::get_application_color_as_string(AppColorPanelToolbar, false);
-        break;
+void AdvancedSidebar::updateColors() {
+  SimpleSidebar::updateColors();
 
-      case base::ColorSchemeStandardWin7:
-      case base::ColorSchemeStandardWin8:
-      case base::ColorSchemeStandardWin8Alternate:
-        background_color = base::Color::get_application_color_as_string(AppColorPanelContentArea, false);
-        toolbar_background_color = base::Color::get_application_color_as_string(AppColorPanelToolbar, false);
-        break;
+  std::string background_color;
+  switch (Color::get_active_scheme()) {
+    case base::ColorSchemeHighContrast:
+      break;
 
-      default:
-        Color systemColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor);
-        background_color = systemColor.to_html();
-        break;
-    }
+    case base::ColorSchemeStandardWin7:
+    case base::ColorSchemeStandardWin8:
+    case base::ColorSchemeStandardWin8Alternate:
+      background_color = base::Color::getApplicationColorAsString(AppColorPanelContentArea, false);
+      break;
 
-    _new_schema_tree.set_back_color(background_color);
-#ifndef __APPLE__
-    _filtered_schema_tree.set_back_color(background_color);
-    _schema_box.set_back_color(background_color);
-#endif
-    _schema_search_box.set_back_color(toolbar_background_color);
+    default:
+      Color systemColor = Color::getSystemColor(base::SystemColor::WindowBackgroundColor);
+      background_color = systemColor.to_html();
+      break;
   }
+
+#ifndef __APPLE__
+  _new_schema_tree.set_back_color(background_color);
+  _filtered_schema_tree.set_back_color(background_color);
+  _schema_box.set_back_color(background_color);
+#endif
+  _schema_search_box.set_back_color(background_color);
 }
 
 //--------------------------------------------------------------------------------------------------

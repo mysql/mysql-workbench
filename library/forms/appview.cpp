@@ -29,14 +29,15 @@
 
 using namespace mforms;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static int _serial = 0;
 
 #ifdef _MSC_VER
 
 AppView::AppView(bool horiz, const std::string &accessibilityName, const std::string &context_name, bool is_main)
-  : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main) {
+  : Box(horiz), _context_name(context_name), _menubar(nullptr), _toolbar(nullptr), _is_main(is_main) {
+
   _app_view_impl = &ControlFactory::get_instance()->_app_view_impl;
   if (_app_view_impl && _app_view_impl->create)
     _app_view_impl->create(this, horiz);
@@ -50,22 +51,17 @@ AppView::AppView(bool horiz, const std::string &accessibilityName, const std::st
 #else
 
 AppView::AppView(bool horiz, const std::string &accessibilityName, const std::string &context_name, bool is_main)
-  : Box(horiz), _context_name(context_name), _menubar(0), _toolbar(0), _is_main(is_main) {
+  : Box(horiz), _context_name(context_name), _menubar(nullptr), _toolbar(nullptr), _is_main(is_main) {
   set_name(accessibilityName);
   setInternalName(context_name);
-#ifdef __APPLE__
-  // default, empty toolbar for mac, to show the 3px bar under the top tabs
-  // TODO: move this to the platform layer. It doesn't belong here.
-  _toolbar = new mforms::ToolBar(mforms::MainToolBar);
-  set_back_color("#e8e8e8");
-#endif
+
   _identifier = base::strfmt("avid%i", ++_serial);
   _dpoint = 0;
 }
 
 #endif
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 AppView::~AppView() {
   if (_menubar)
@@ -74,13 +70,13 @@ AppView::~AppView() {
     _toolbar->release();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void AppView::set_containing_docking_point(mforms::DockingPoint *dpoint) {
   _dpoint = dpoint;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void AppView::set_menubar(mforms::MenuBar *menu) {
   if (_menubar != menu) {
@@ -97,7 +93,7 @@ void AppView::set_menubar(mforms::MenuBar *menu) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void AppView::set_toolbar(mforms::ToolBar *toolbar) {
   if (_toolbar != toolbar) {
@@ -114,7 +110,7 @@ void AppView::set_toolbar(mforms::ToolBar *toolbar) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void AppView::set_title(const std::string &title) {
   _title = title;
@@ -122,13 +118,13 @@ void AppView::set_title(const std::string &title) {
     _dpoint->set_view_title(this, title);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string AppView::get_title() {
   return _title;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool AppView::on_close() {
   if (_on_close_slot)
@@ -136,11 +132,11 @@ bool AppView::on_close() {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void AppView::close() {
   if (_dpoint)
     _dpoint->undock_view(this);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------

@@ -58,7 +58,7 @@ namespace mforms {
     bool bold;
     bool italic;
     base::Color color;
-    TextAttributes() : bold(false), italic(false), color(base::Color::Invalid()) {
+    TextAttributes() : bold(false), italic(false), color(base::Color::invalid()) {
     }
 #endif
     TextAttributes(const std::string &c, bool b, bool i) : bold(b), italic(i), color(base::Color::parse(c)) {

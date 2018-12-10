@@ -25,6 +25,7 @@
 
 #include "mforms/popover.h"
 
+// TODO: use NSPopover instead.
 @interface MFPopover : NSWindow {
   mforms::Popover *mOwner;
   NSView *mChildContentView;

@@ -50,10 +50,8 @@ protected:
   int _right_spacing;
   int _bottom_spacing;
 
-  bool _single_click;
   int _selected_index;
 
-  Snippet* _hot_snippet;
   Snippet* _selected_snippet;
   mforms::MouseButton _last_mouse_button;
 

@@ -21,13 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _BASE_NOTIFICATIONS_H_
-#define _BASE_NOTIFICATIONS_H_
+#pragma once
 
-// Global Notification Center
-
-// This can be easily misused so before using a new notification, discuss with others
-// to ensure it's the right way.
+// Global Notification Center - modelled after the Cocoa notification center.
 
 #include <list>
 #include <string>
@@ -93,5 +89,3 @@ namespace base {
     void send(const std::string &name, void *sender);
   };
 };
-
-#endif

@@ -169,7 +169,7 @@ mforms::TreeNodeRef CatalogTreeView::create_new_node(const ObjectType &otype, mf
 }
 
 CatalogTreeView::CatalogTreeView(ModelDiagramForm *owner)
-  : mforms::TreeView(mforms::TreeNoBorder | mforms::TreeSizeSmall | mforms::TreeCanBeDragSource | mforms::TreeIndexOnTag
+  : mforms::TreeView(mforms::TreeNoBorder | mforms::TreeCanBeDragSource | mforms::TreeIndexOnTag | mforms::TreeTranslucent
 #ifndef _MSC_VER
                      | mforms::TreeNoHeader
 #endif

@@ -118,19 +118,19 @@ DbSqlEditorContextHelp *DbSqlEditorContextHelp::get() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::string helpStyleSheet = "<style>\n"
-  "body { color: #404040; spacing: 5px; }\n"
+static std::string helpStyleSheetTemplate = "<style>\n"
+  "body { color: »textColor«; background-color: »mainBackground«; spacing: 5px; }\n"
   "emphasis {font-style: italic; font-size: 100%; font-weight: 400;}\n"
-  "literal { font-family: monospace; background-color: rgba(0, 0, 0, 0.07); color: black; }\n"
-  "literal[role='stmt'] { font-weight: 600; background-color: rgba(0, 0, 0, 0); }\n"
-  "literal[role='func'] { font-weight: 600; background-color: rgba(0, 0, 0, 0); }\n"
-  "literal[role='cfunc'] { color: #ba0099; background-color: rgba(0, 0, 0, 0); }\n"
-  "replaceable { font-style: italic; font-weight: 600; color: black; }\n"
+  "literal { font-family: monospace; background-color: »literalBackground«; color: »textColor«; }\n"
+  "literal[role='stmt'] { font-weight: 600; }\n"
+  "literal[role='func'] { font-weight: 600; }\n"
+  "literal[role='cfunc'] { color: #ba0099; }\n"
+  "replaceable { font-style: italic; font-weight: 600; color: »textColor«; }\n"
   "indexterm { display: none; }\n"
-  "userinput { color: #004480; font-weight: 600; }\n"
+  "userinput { color: »userInput«; font-weight: 600; }\n"
   "pre { margin-top: 0px; margin-bottom: 0px; margin-left: 6px; padding: 3px 8px; line-height: 1.5; }\n"
-  "pre.programlisting {margin-left: 6px; color: black; display: block; font-size: 95%; margin-bottom: 20px; border: 1px"
-    " solid #d9d9d9; background-color: #eee; padding: 3px 8px; }\n"
+  "pre.programlisting {margin: 6px; padding: 10px; color: »textColor«; display: block; font-size: 95%;"
+  " background-color: »userInputBackground«; }\n"
   "</style>";
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -214,13 +214,7 @@ std::string convertList(long version, JsonParser::JsonArray const &list) {
  * Creates the HTML formatted help text from the object that's passed in.
  */
 std::string DbSqlEditorContextHelp::createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
-#ifdef __linux__
-  std::string result = "<html><head></head><body>";
-#else
-  std::string result = "<html><head>" + helpStyleSheet + "</head><body>";
-#endif
-
-
+  std::string result = "<body>";
   std::string id = json.get("id");
   result += "<h3>" + id + " Syntax:</h3>";
 
@@ -273,7 +267,8 @@ std::string DbSqlEditorContextHelp::createHelpTextFromJson(long version, JsonPar
   if (iterator != pageMap.end())
     page = iterator->second;
   std::string url = base::strfmt("http://dev.mysql.com/doc/refman/%ld.%ld/en/%s.html", version / 100, version % 10, page.c_str());
-  result += "<b>See also: </>: <a href='" + url + "'>Online help " + page + "</a><br /><br /></body></html>";
+  result += "<b>See also: </>: <a href='" + url + "'>Online help " + page + "</a><br /><br /></body>";
+
   return result;
 }
 
@@ -352,12 +347,44 @@ bool DbSqlEditorContextHelp::topicExists(long serverVersion, const std::string &
 bool DbSqlEditorContextHelp::helpTextForTopic(HelpContext *context, const std::string &topic, std::string &text) {
   logDebug2("Looking up help topic: %s\n", topic.c_str());
 
-  if (!loaderThread.joinable() && !topic.empty()) {
+  // If help text is requested so quickly that loading the help content hasn't finished yet, wait here.
+  // Usually however, the content is loaded way before offline help is queried the first time.
+  waitForLoading();
+
+  if (!topic.empty()) {
     auto iterator = helpContent.find(context->serverVersion() / 100);
     if (iterator == helpContent.end())
       return false;
 
-    text = iterator->second[topic];
+    // Prepare style sheet depending on the OS theme.
+    std::string styleSheet;
+#ifndef __linux__
+    styleSheet = helpStyleSheetTemplate;
+
+    base::Color color;
+    if (mforms::App::get()->isDarkModeActive())
+      color = { 0x60 / 255.0, 0x60 / 255.0, 0x60 / 255.0 };
+    else
+      color = { 0xd0 / 255.0, 0xd0 / 255.0, 0xd0 / 255.0 };
+    base::replaceStringInplace(styleSheet, "»literalBackground«", color.to_html());
+
+    color = base::Color::getSystemColor(base::TextColor);
+    base::replaceStringInplace(styleSheet, "»textColor«", color.to_html());
+
+    color = base::Color::getSystemColor(base::SecondaryBackgroundColor);
+    base::replaceStringInplace(styleSheet, "»mainBackground«", color.to_html());
+
+    if (mforms::App::get()->isDarkModeActive())
+      color = base::Color::parse("#404040");
+    else
+      color = base::Color::parse("#ebebeb");
+    base::replaceStringInplace(styleSheet, "»userInputBackground«", color.to_html());
+
+    color = base::Color::parse("#004480");
+    base::replaceStringInplace(styleSheet, "»userInput«", color.to_html());
+#endif
+
+    text = "<html><head>" + styleSheet + "</head>" + iterator->second[topic] + "</html>";
     return true;
   }
   return false;

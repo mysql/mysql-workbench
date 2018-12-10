@@ -201,7 +201,7 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds) {
       _text_layout->render(cr, pos - Point(0, 1), size, _align);
       _text_layout->render(cr, pos + Point(0, 1), size, _align);
     } else if (_draw_outline) {
-      cr->set_color(base::Color::White());
+      cr->set_color(base::Color::white());
       _text_layout->render(cr, pos - Point(1, 0), size, _align);
       _text_layout->render(cr, pos + Point(1, 0), size, _align);
       _text_layout->render(cr, pos - Point(0, 1), size, _align);
@@ -258,7 +258,7 @@ void TextFigure::draw_contents(CairoCtx *cr, const Rect &bounds) {
       }
     }
     if (_draw_outline) {
-      cr->set_color(base::Color::White());
+      cr->set_color(base::Color::white());
       cr->move_to(text_pos + Point(1, 0));
       cr->show_text(text);
       cr->move_to(text_pos - Point(1, 0));

@@ -560,9 +560,6 @@ std::string DbDriverParams::validate() const {
 
 //----------------------------------------------------------------------
 
-// TODO: can this be removed?
-// static const char *DEFAULT_RDBMS_ID= "com.mysql.rdbms.mysql";
-
 DbConnection::DbConnection(const db_mgmt_ManagementRef &mgmt, const db_mgmt_DriverRef &driver, bool skip_schema)
   : _mgmt(mgmt), _active_driver(driver), _skip_schema(skip_schema) {
 }
@@ -658,24 +655,6 @@ sql::ConnectionWrapper DbConnection::get_dbc_connection() {
   sql::ConnectionWrapper dbc_conn = sql::DriverManager::getDriverManager()->getConnection(
     get_connection(),
     std::bind(&DbConnection::init_dbc_connection, this, std::placeholders::_1, std::placeholders::_2));
-
-  /* This is not used by modeling
-  if (dbc_conn.get() != NULL)
-  {
-    if (_active_driver.is_valid() && _active_driver->owner().is_valid() && (_active_driver->owner().id() ==
-  DEFAULT_RDBMS_ID))
-    {
-      // set SQL_MODE variable to be consistent with SQL stored in the model
-      bec::GRTManager *grtm= bec::GRTManager::get();
-      grt::ValueRef sql_mode_value= grtm->get_app_option("SqlMode");
-      if (sql_mode_value.is_valid() && grt::StringRef::can_wrap(sql_mode_value))
-      {
-        std::string sql_mode_string= base::toupper(grt::StringRef::cast_from(sql_mode_value));
-        std::shared_ptr<sql::Statement> stmt(dbc_conn->createStatement());
-        stmt->execute(base::strfmt("SET @DEFAULT_SQL_MODE=@@SQL_MODE, SQL_MODE='%s'", sql_mode_string.c_str()));
-      }
-    }
-  }*/
 
   return dbc_conn;
 }

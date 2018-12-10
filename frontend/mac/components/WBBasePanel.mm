@@ -25,19 +25,18 @@
 #include "mforms/../cocoa/MFMenuBar.h"
 #include "mforms/../cocoa/MFToolBar.h"
 
-@interface WBToolBarContainer : NSView
-{
+@interface WBToolBarContainer : NSView {
 }
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation WBToolBarContainer
 
-- (void)resizeSubviewsWithOldSize:(NSSize)size
-{
+- (void)resizeSubviewsWithOldSize:(NSSize)size {
   NSView *toolBar = self.subviews[0];
   NSView *content = self.subviews[1];
-  if (toolBar && content)
-  {
+  if (toolBar && content) {
     NSRect r = self.frame;
     NSRect frame = toolBar.frame;
     frame.origin = NSZeroPoint;
@@ -50,30 +49,30 @@
   }
 }
 
-- (BOOL)isFlipped
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)isFlipped {
   return YES;
 }
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation WBBasePanel
 
 @synthesize topView;
 
-- (NSView*)decoratedTopView
-{
+- (NSView*)decoratedTopView {
   bec::UIForm *form = self.formBE;
   mforms::ToolBar *tbar = form->get_toolbar();
-  if (form != NULL && tbar != NULL)
-  {
+  if (form != NULL && tbar != NULL) {
     NSView *tbview = nsviewForView(tbar);
-    if (tbview)
-    {
-      if (!decoratorView)
-      {
+    if (tbview) {
+      if (!decoratorView) {
         NSRect r = topView.frame;
-        WBToolBarContainer *container = [[WBToolBarContainer alloc] initWithFrame: NSMakeRect(0, 0, NSWidth(r), NSHeight(r) + NSHeight(tbview.frame))];
+        WBToolBarContainer *container = [[WBToolBarContainer alloc]
+          initWithFrame: NSMakeRect(0, 0, NSWidth(r), NSHeight(r) + NSHeight(tbview.frame))];
         decoratorView = container;
         [container addSubview: tbview];
         [topView removeFromSuperview];
@@ -86,11 +85,11 @@
   return topView;
 }
 
-- (NSMenu*)menuBar
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSMenu*)menuBar {
   bec::UIForm *form = self.formBE;
-  if (form)
-  {
+  if (form) {
     mforms::MenuBar *menubar = form->get_menubar();
     if (menubar)
       return menubar->get_data();
@@ -98,40 +97,56 @@
   return nil;
 }
 
-- (NSString*)title
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString*)title {
   bec::UIForm *form = self.formBE;
   if (form)
     return @(form->get_title().c_str());
   return @"";
 }
 
-- (NSString*)identifier
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString *)panelId {
   return nil;
 }
 
-- (bec::UIForm *)formBE
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (bec::UIForm *)formBE {
   return NULL;
 }
 
-- (NSImage*)tabIcon
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSImage*)tabIcon {
   return nil;
 }
 
-- (BOOL)willClose
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (BOOL)willClose {
   return YES;
 }
 
-- (void)didOpen
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)didOpen {
 }
 
-- (void)didActivate
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)didActivate {
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+-(BOOL)isDarkModeActive {
+  if (@available(macOS 10.14, *)) {
+    return topView.window.effectiveAppearance.name == NSAppearanceNameDarkAqua;
+  }
+  return NO;
 }
 
 @end

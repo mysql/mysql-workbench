@@ -24,17 +24,9 @@
 #import <Cocoa/Cocoa.h>
 
 @interface MTogglePane : NSView {
-  NSImageView *_header;
-  NSTextField *_label;
-  NSButton *_toggleButton;
-
-  NSView *_content;
-
-  NSMutableArray *_buttons;
-
-  BOOL _initializing;
-  BOOL _relayouting;
 }
+
+@property(strong) NSView *contentView;
 
 - (instancetype)initWithFrame:(NSRect)frame includeHeader:(BOOL)flag NS_DESIGNATED_INITIALIZER;
 
@@ -43,9 +35,6 @@
 - (void)setExpanded:(BOOL)flag;
 
 - (void)setLabel:(NSString *)label;
-@property(strong) NSView *contentView;
-
-- (void)relayout;
 
 - (NSButton *)addButton:(NSImage *)icon withAction:(SEL)selector target:(id)target;
 

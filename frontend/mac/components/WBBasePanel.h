@@ -30,7 +30,7 @@
 @property(weak) IBOutlet NSView *topView;
 
 @property(readonly) NSString *title;
-@property(readonly) NSString *identifier;
+@property(readonly) NSString *panelId;
 @property(readonly) NSImage *tabIcon;
 @property(readonly) bec::UIForm *formBE;
 @property(readonly) NSSize minimumSize;
@@ -40,5 +40,7 @@
 
 - (void)didOpen;
 - (void)didActivate;
+
+-(BOOL)isDarkModeActive;
 
 @end

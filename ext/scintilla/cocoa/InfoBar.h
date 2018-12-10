@@ -26,7 +26,6 @@
 @interface InfoBar : NSView <InfoBarCommunicator>
 {
 @private
-  NSImage* mBackground;
   IBDisplay mDisplayMask;
 
   float mScaleFactor;

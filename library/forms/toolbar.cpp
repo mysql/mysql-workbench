@@ -113,8 +113,7 @@ void ToolBar::remove_item(ToolBarItem *item) {
   }
 }
 
-ToolBarItem::ToolBarItem(ToolBarItemType type, const bool expandable)
-  : _type(type), _updating(false), _expandable(expandable) {
+ToolBarItem::ToolBarItem(ToolBarItemType type) : _type(type), _updating(false) {
   _impl = &mforms::ControlFactory::get_instance()->_tool_bar_impl;
   _impl->create_tool_item(this, type);
 }
