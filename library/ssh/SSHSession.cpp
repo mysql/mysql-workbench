@@ -279,8 +279,7 @@ namespace ssh {
     auto lock = lockSession();
     logDebug3("Session locked.\n");
     auto channel = std::unique_ptr<ssh::Channel, std::function<void(ssh::Channel *)>>(
-      new ssh::Channel(*_session), [](ssh::Channel *chan) { if (!chan->isClosed()) chan->close(); });
-
+        new ssh::Channel(*_session), [](ssh::Channel *chan) { chan->close(); delete chan; });
     if (!openChannel(channel.get())) {
       throw SSHTunnelException("Unable to open channel");
     }
@@ -314,6 +313,7 @@ namespace ssh {
       } catch (SshException &exc) {
         if (channel->isClosed())
           return std::make_tuple(so.str(), retError, channel->getExitStatus());
+
         throw SSHTunnelException(exc.getError());
       }
 
@@ -331,10 +331,16 @@ namespace ssh {
           std::string errorMsg(buff.data(), readErrLen);
           logError("Got error: %s\n", errorMsg.c_str());
           retError.append(errorMsg);
+          if (channel->isEof()) {
+            logDebug3("Got EOF.\n");
+            channel->close();
+            break;
+          }
         }
       } catch (SshException &exc) {
         if (channel->isClosed())
           return std::make_tuple(so.str(), retError, channel->getExitStatus());
+
         throw SSHTunnelException(exc.getError());
       }
 
@@ -367,7 +373,7 @@ namespace ssh {
     logDebug2("About to execute elevated command: %s\n", command.c_str());
     auto lock = lockSession();
     auto channel = std::unique_ptr<ssh::Channel, std::function<void(ssh::Channel *)>>(
-      new ssh::Channel(*_session), [](ssh::Channel *chan) { if (!chan->isClosed()) chan->close(); });
+            new ssh::Channel(*_session), [](ssh::Channel *chan) { chan->close(); delete chan; });
 
     if (!openChannel(channel.get())) {
       throw SSHTunnelException("Unable to open channel");

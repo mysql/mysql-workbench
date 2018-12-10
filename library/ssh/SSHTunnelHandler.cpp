@@ -119,21 +119,17 @@ namespace ssh {
         continue;
       }
 
-      auto tmpClientSocketList = _clientSocketList;
-
-      for (auto it = tmpClientSocketList.begin(); it != tmpClientSocketList.end() && !_stop; ++it) {
+      for (auto it = _clientSocketList.begin(); it != _clientSocketList.end() && !_stop;) {
         try {
-          transferDataFromClient(it->first, it->second);
-          transferDataToClient(it->first, it->second);
+          transferDataFromClient(it->first, it->second.get());
+          transferDataToClient(it->first, it->second.get());
+          ++it;
         } catch (SSHTunnelException &exc) {
-          auto elem = _clientSocketList.find(it->first);
-          if (elem != _clientSocketList.end()) {
-            ssh_event_remove_fd(_event, elem->first);
-            elem->second->close();
-            elem->second.reset();
-            wbCloseSocket(elem->first);
-            _clientSocketList.erase(elem);
-          }
+            ssh_event_remove_fd(_event, it->first);
+            it->second->close();
+            it->second.reset();
+            wbCloseSocket(it->first);
+            it = _clientSocketList.erase(it);
           logError("Error during data transfer: %s\n", exc.what());
         }
       }
@@ -169,7 +165,7 @@ namespace ssh {
     logDebug3("Accepted new connection.\n");
   }
 
-  void SSHTunnelHandler::transferDataFromClient(int sock, std::shared_ptr<ssh::Channel> &chan) {
+  void SSHTunnelHandler::transferDataFromClient(int sock, ssh::Channel *chan) {
     ssize_t readlen = 0;
     std::vector<char> buff(_session->getConfig().bufferSize, '\0');
 
@@ -188,7 +184,7 @@ namespace ssh {
     }
   }
 
-  void SSHTunnelHandler::transferDataToClient(int sock, std::shared_ptr<ssh::Channel> &chan) {
+  void SSHTunnelHandler::transferDataToClient(int sock, ssh::Channel *chan) {
     ssize_t readlen = 0;
     std::vector<char> buff(_session->getConfig().bufferSize, '\0');
     do {
@@ -216,20 +212,20 @@ namespace ssh {
     } while (!_stop && true);
   }
 
-  std::shared_ptr<ssh::Channel> SSHTunnelHandler::openTunnel() {
-    std::shared_ptr<ssh::Channel> channel(new ssh::Channel(*(_session->getSession())));
+  std::unique_ptr<ssh::Channel> SSHTunnelHandler::openTunnel() {
+    std::unique_ptr<ssh::Channel> channel(new ssh::Channel(*(_session->getSession())));
     ssh_channel_set_blocking(channel->getCChannel(), false);
 
     int rc = SSH_ERROR;
     std::size_t i = 0;
 
-    while (i < _session->getConfig().connectTimeout) {
+    while ((_session->getConfig().connectTimeout * 1000 - (i * 100))  > 0) {
       rc = channel->openForward(_session->getConfig().remotehost.c_str(), _session->getConfig().remoteport,
                               _session->getConfig().localhost.c_str(), _session->getConfig().localport);
       if (rc == SSH_AGAIN) {
         logDebug3("Unable to open channel, wait a moment and retry.\n");
         i++;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
       } else {
         logDebug("Channel successfully opened\n");
         break;
@@ -243,9 +239,9 @@ namespace ssh {
   }
 
   void SSHTunnelHandler::prepareTunnel(int clientSocket) {
-    std::shared_ptr<ssh::Channel> channel;
+    std::unique_ptr<ssh::Channel> channel;
     try {
-      channel = openTunnel();
+      channel = std::move(openTunnel());
     } catch (ssh::SSHTunnelException &exc) {
       wbCloseSocket(clientSocket);
       logError("Unable to open tunnel. Exception when opening tunnel: %s\n", exc.what());
@@ -259,14 +255,14 @@ namespace ssh {
     short events = POLLIN;
     if (ssh_event_add_fd(_event, clientSocket, events, onSocketEvent, this) != SSH_OK) {
       logError("Unable to open tunnel. Could not register event handler.\n");
-      channel->close();
+      channel.reset();
       wbCloseSocket(clientSocket);
       return;
     } else {
       logDebug("Tunnel created.\n");
     }
 
-    _clientSocketList.insert(std::make_pair(clientSocket, channel));
+    _clientSocketList.insert(std::make_pair(clientSocket, std::move(channel)));
     return;
   }
 

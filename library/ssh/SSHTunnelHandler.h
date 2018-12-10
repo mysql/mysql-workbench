@@ -46,10 +46,10 @@ namespace ssh {
 
     void handleConnection();
     void handleNewConnection(int incomingSocket);
-    void transferDataFromClient(int sock, std::shared_ptr<ssh::Channel> &chan);
-    void transferDataToClient(int sock, std::shared_ptr<ssh::Channel> &chan);
+    void transferDataFromClient(int sock, ssh::Channel *chan);
+    void transferDataToClient(int sock, ssh::Channel *chan);
 
-    std::shared_ptr<ssh::Channel> openTunnel();
+    std::unique_ptr<ssh::Channel> openTunnel();
     void prepareTunnel(int clientSocket);
 
   protected:
@@ -58,7 +58,7 @@ namespace ssh {
     std::shared_ptr<SSHSession> _session;
     uint16_t _localPort;
     int _localSocket;
-    std::map<int, std::shared_ptr<ssh::Channel>> _clientSocketList;
+    std::map<int, std::unique_ptr<ssh::Channel>> _clientSocketList;
     int _pollTimeout;
     ssh_event _event;
     std::vector<int> _sockRemovalList;
