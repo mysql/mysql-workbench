@@ -9,19 +9,24 @@ set(IMAGE_FILES
     sidebar_launchers.png
     wb_tile_folder.png
     wb_tile_folder_mini_dark.png
-  	wb_tile_folder_mini_light.png
+    wb_tile_folder_mini_light.png
     wb_tile_manage_dark.png
-  	wb_tile_manage_light.png
+    wb_tile_manage_light.png
+    wb_tile_more_light.png
     wb_tile_network_dark.png
-	  wb_tile_network_light.png
+    wb_tile_network_light.png
+    wb_tile_number_light.png
+    wb_tile_open_light.png
     wb_tile_plus_dark.png
-  	wb_tile_plus_light.png
+    wb_tile_plus_light.png
     wb_tile_sakila_dark.png
-	  wb_tile_sakila_light.png
+    wb_tile_sakila_light.png
+    wb_tile_schema_light.png
+    wb_tile_time_light.png
     wb_tile_user_dark.png
-  	wb_tile_user_light.png
+    wb_tile_user_light.png
     home_screen_close_dark.png
-	  home_screen_close_light.png
+    home_screen_close_light.png
 )
 
 install(FILES ${IMAGE_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/images)

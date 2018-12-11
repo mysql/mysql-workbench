@@ -22,6 +22,9 @@
  */
 
 #include "mforms/mforms.h"
+#include "base/log.h"
+
+DEFAULT_LOG_DOMAIN("mforms")
 
 using namespace mforms;
 using namespace base;
@@ -55,6 +58,8 @@ std::string App::get_resource_path(const std::string &file) {
   std::string ret;
   if (_app_impl->get_resource_path)
     ret = _app_impl->get_resource_path(this, file);
+  if (ret == "")
+      logWarning("Resource file not found: %s\n", file.c_str());
   return ret;
 }
 
