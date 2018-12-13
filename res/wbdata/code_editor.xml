@@ -60,8 +60,8 @@
     <style id="12" fore-color-light="#dd7a00" fore-color-dark="#f28600" /> <!-- SCE_MYSQL_SQSTRING -->
     <style id="13" fore-color-light="#dd7a00" fore-color-dark="#f28600" /> <!-- SCE_MYSQL_DQSTRING -->
 
-    <style id="7" bold="Yes" /> <!-- SCE_MYSQL_MAJORKEYWORD -->
-    <style id="8" bold="Yes" /> <!-- SCE_MYSQL_KEYWORD -->
+    <style id="7" bold="Yes" fore-color-light="#007FBF" /> <!-- SCE_MYSQL_MAJORKEYWORD -->
+    <style id="8" bold="Yes" fore-color-light="#007FBF" /> <!-- SCE_MYSQL_KEYWORD -->
     <style id="15" fore-color-light="#7d7d63" fore-color-dark="#7db27d" /> <!-- SCE_MYSQL_FUNCTION -->
     <style id="10" fore-color-light="#7d7d63" fore-color-dark="#7db27d" /> <!-- SCE_MYSQL_PROCEDUREKEYWORD -->
     <style id="14" bold="Yes" /> <!-- SCE_MYSQL_OPERATOR -->
