@@ -251,7 +251,7 @@ public:
     case Keys::Tab:
       code = mforms::KeyTab;
       break;
-    case Keys::Menu:
+    case Keys::Apps:
       code = mforms::KeyMenu;
       break;
     case  Keys::F1:
