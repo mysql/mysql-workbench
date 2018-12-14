@@ -48,10 +48,10 @@ GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY = u"SELECT * FROM mysql.tables_priv WHERE Ho
 #GET_ACCOUNT_IS_TABLE_PRIVS_QUERY = "SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='information_schema'"
 
 CREATE_USER_QUERY = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_STRING = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
-CREATE_USER_QUERY_PLUGIN = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = u"CREATE USER '%(user)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE = u"CREATE USER '%(user)s' IDENTIFIED WITH 'mysql_native_password' BY '%(password)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_STRING = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
+CREATE_USER_QUERY_PLUGIN = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH 'mysql_native_password' BY '%(password)s'"
 
 ALTER_USER_RESOURCES = u"ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
 GRANT_GLOBAL_PRIVILEGES_QUERY = u"GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
@@ -785,7 +785,10 @@ class AdminAccount(object):
                 if self.auth_string is None:
                     create_query = CREATE_USER_QUERY_PLUGIN
                 elif self.auth_plugin == 'mysql_native_password':
-                    create_query = CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE
+                    if (self._owner.ctrl_be.target_version and self._owner.ctrl_be.target_version < Version(5, 7, 0)):
+                        create_query = CREATE_USER_QUERY_PLUGIN
+                    else:
+                        create_query = CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE
                 elif self.auth_plugin == 'caching_sha2_password':
                     create_query = CREATE_USER_QUERY_PLUGIN_AUTH_CACHING
                 else:
