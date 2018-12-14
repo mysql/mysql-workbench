@@ -896,6 +896,7 @@ void SimpleSidebar::updateColors() {
   _inactiveTextColor = Color::getSystemColor(base::SystemColor::LabelColor);
   _inactiveTextColor.alpha = previousAlpha;
   set_back_color(backColor);
+  _selection_color = Color::getSystemColor(base::HighlightColor);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
