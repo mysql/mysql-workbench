@@ -123,8 +123,17 @@
   if (!owner.collectionView.allowsMultipleSelection || (!control && !shift && !command)) {
     if ([self.delegate respondsToSelector: @selector(clearSelection)])
       [self.delegate clearSelection];
+
     [self setSelected: YES];
-    [self.superview setNeedsDisplay: YES];
+    // We have to trigger refresh each of the other CollectionViewItemView
+    // as the superview setNeedsDisplay doesn't work anymore.
+    for (id view in self.superview.subviews) {
+      if ([view isKindOfClass: [MCollectionViewItemView class]]) {
+        [view setNeedsDisplay: YES];
+      } else if (view == self) { // Skip current as this has been triggered already.
+        continue;
+      }
+    }
   } else {
     // Add this item to the selection if shift is pressed (other modifiers are ignored in this case)
     // or toggle the selection state if control/command are held down (but no shift).
