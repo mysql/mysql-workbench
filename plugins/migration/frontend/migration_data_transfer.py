@@ -33,12 +33,14 @@ class SetupMainView(WizardPage):
     def _browse_files(self, option, title):
         form = mforms.newFileChooser(mforms.Form.main_form(), mforms.SaveFile)
         form.set_title(title)
-        form.set_path(getattr(self, option+"_entry").get_string_value())
+        ctrl_name = option.replace(" ", "")
+        form.set_path(getattr(self, ctrl_name + "_entry").get_string_value())
         if form.run_modal():
-            getattr(self, option+"_entry").set_value(form.get_path())
-            setattr(self, option+"_check_duplicate", False)
+            getattr(self, ctrl_name + "_entry").set_value(form.get_path())
+            setattr(self, ctrl_name + "_check_duplicate", False)
 
     def _add_script_radiobutton_option(self, box, name, caption, path_caption, browser_caption, label_caption, rid):
+        ctrl_name = name.replace(" ", "")
         holder = mforms.newBox(False)
         holder.set_spacing(4)
         radio = mforms.newRadioButton(rid)
@@ -54,7 +56,7 @@ class SetupMainView(WizardPage):
         file_box.add(path_label, False, True)
         file_entry = mforms.newTextEntry()
         file_entry.set_name(name + " Value")
-        file_entry.add_changed_callback(lambda self=self, option=name: setattr(self, name+"_check_duplicate", True))
+        file_entry.add_changed_callback(lambda self=self, option=name: setattr(self, ctrl_name + "_check_duplicate", True))
         file_box.add(file_entry, True, True)
         radio.add_clicked_callback(self._script_radio_option_callback)
         button = mforms.newButton()
@@ -70,8 +72,6 @@ class SetupMainView(WizardPage):
         vbox.set_enabled(False)
         holder.add(vbox, False, True)
         box.add(holder, False, True)
-
-        ctrl_name = name.replace(" ", "")
         setattr(self, ctrl_name + "_check_duplicate", False)
         setattr(self, ctrl_name + "_radiobutton", radio)
         setattr(self, ctrl_name + "_entry", file_entry)
