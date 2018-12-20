@@ -169,6 +169,11 @@ public:
   int count;
 };
 
+Semaphore::Semaphore() {
+  _d = new Private();
+  _d->count = 0;
+}
+
 Semaphore::Semaphore(int initialCount) {
   _d = new Private();
   _d->count = initialCount;

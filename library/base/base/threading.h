@@ -140,8 +140,10 @@ namespace base {
   // how many resources are available (and hence how many threads can use them at the same time).
   struct BASELIBRARY_PUBLIC_FUNC Semaphore {
   public:
+    Semaphore();
     Semaphore(int initialCount);
     ~Semaphore();
+    Semaphore& operator=(const Semaphore& other) = delete;
 
     void post();
     void wait();
