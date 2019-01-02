@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -475,42 +475,54 @@ namespace mforms {
       get_outer()->signal_drag_begin().connect(sigc::mem_fun(this, &ViewImpl::slot_drag_begin));
 
       get_outer()->signal_focus_in_event().connect([this](GdkEventFocus *evt) {
-        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
-        if (ownerView != nullptr)
-          return ownerView->focusIn();
+        if (!owner->is_destroying()) {
+          ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+          if (ownerView != nullptr)
+            return ownerView->focusIn();
+        }
         return false;
       });
 
       get_outer()->signal_focus_out_event().connect([this](GdkEventFocus *evt) {
-        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
-        if (ownerView != nullptr)
-          return ownerView->focusOut();
+        if (!owner->is_destroying()) {
+          ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+          if (ownerView != nullptr)
+            return ownerView->focusOut();
+        }
         return false;
       });
 
       get_outer()->signal_enter_notify_event().connect_notify([this](GdkEventCrossing *event) {
-        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
-        if (ownerView != nullptr)
-          ownerView->mouse_enter();
+        if (!owner->is_destroying()) {
+          ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+          if (ownerView != nullptr)
+            ownerView->mouse_enter();
+        }
       });
 
       get_outer()->signal_leave_notify_event().connect_notify([this](GdkEventCrossing *event) {
-        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
-        if (ownerView != nullptr)
-          ownerView->mouse_leave();
+        if (!owner->is_destroying()) {
+          ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+          if (ownerView != nullptr)
+            ownerView->mouse_leave();
+        }
       });
 
       get_outer()->signal_key_press_event().connect([this](GdkEventKey *event) {
-        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
-        if (ownerView != nullptr)
-          return ownerView->keyPress(GetKeys(event->keyval), GetModifiers(event->state, event->keyval));
+        if (!owner->is_destroying()) {
+          ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+          if (ownerView != nullptr)
+            return ownerView->keyPress(GetKeys(event->keyval), GetModifiers(event->state, event->keyval));
+        }
         return false;
       });
 
       get_outer()->signal_key_release_event().connect([this](GdkEventKey *event) {
-        ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
-        if (ownerView != nullptr)
-          return ownerView->keyRelease(GetKeys(event->keyval), GetModifiers(event->state, event->keyval));
+        if (!owner->is_destroying()) {
+          ::mforms::View *ownerView = dynamic_cast< ::mforms::View *>(owner);
+          if (ownerView != nullptr)
+            return ownerView->keyRelease(GetKeys(event->keyval), GetModifiers(event->state, event->keyval));
+        }
         return false;
       });
 
