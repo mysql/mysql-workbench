@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -403,9 +403,17 @@ class AdminSecurity(object):
     def delete_account(self, account):
         if account.is_commited:
             self.do_delete_account(account.username, account.host)
-        del self._account_info_cache[account.username+"@"+account.host]
-        if (account.username, account.host) in self._accounts:
-          self._accounts.remove((account.username, account.host))
+            
+        if self._account_info_cache.has_key((account.username, account.host, True)):
+            del self._account_info_cache[account.username+"@"+account.host]
+            
+        if self.is_zombie(account.username, account.host):
+            del self._zombie_privs[(account.username, account.host, True)]
+    
+        if (account.username, account.host, True) in self._accounts:
+            self._accounts.remove((account.username, account.host, True))
+            
+    
 
     def revert_account(self, account, backup):
         try:
@@ -448,11 +456,11 @@ class AdminSecurity(object):
 
 
     def is_zombie(self, user, host):
-        return self._zombie_privs.has_key((user,host))
+        return self._zombie_privs.has_key((user,host, True))
 
 
     def get_zombie_privs(self, user, host):
-        return self._zombie_privs.get((user,host), None)
+        return self._zombie_privs.get((user,host, True), None)
 
 
     def async_get_account(self, callback, name, host):

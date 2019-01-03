@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -1751,8 +1751,14 @@ class SecurityAccount(mforms.Box):
             if user:
                 username, host = eval(user.get_tag())
                 try:
+                    class tmpuser(object):
+                        pass
+                    t = tmpuser()
+                    t.username = username
+                    t.host = host
+                    t.is_commited = True
                     user.remove_from_parent()
-                    self.owner.secman.do_delete_account(username, host)
+                    self.owner.secman.delete_account(t)
                 except Exception, e:
                     log_error("Exception while removing zombi account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
