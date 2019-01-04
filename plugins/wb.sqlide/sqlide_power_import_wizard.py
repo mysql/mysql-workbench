@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -595,17 +595,17 @@ class SelectDestinationPage(WizardPage):
                     continue
                 db_list.append(dbname)
                 ok = rset.nextRow()
-            
-            rset = self.main.editor.executeManagementQuery(u"SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
-            if rset:
-                ok = rset.goToFirstRow()
-                while ok:
-                    if rset.stringFieldValue(1) == "BASE TABLE":
-                        table_name = to_unicode(rset.stringFieldValue(0)) if not compare_in_lowercase else to_unicode(rset.stringFieldValue(0)).lower()
-                        full_name = u"%s.%s" % (self.main.destination_table['schema'], table_name)
-                        self.table_list[full_name] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
-                        
-                    ok = rset.nextRow()
+            if self.main.destination_table['schema']:
+                rset = self.main.editor.executeManagementQuery(u"SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
+                if rset:
+                    ok = rset.goToFirstRow()
+                    while ok:
+                        if rset.stringFieldValue(1) == "BASE TABLE":
+                            table_name = to_unicode(rset.stringFieldValue(0)) if not compare_in_lowercase else to_unicode(rset.stringFieldValue(0)).lower()
+                            full_name = u"%s.%s" % (self.main.destination_table['schema'], table_name)
+                            self.table_list[full_name] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
+                            
+                        ok = rset.nextRow()
             
             self.destination_table_sel.clear()
             self.destination_table_sel.add_items(self.table_list.keys())
