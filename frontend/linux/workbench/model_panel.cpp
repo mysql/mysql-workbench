@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -33,9 +33,6 @@
 #include "mforms/../gtk/lf_menubar.h"
 #include "mforms/../gtk/lf_view.h"
 #include "documentation_box.h"
-#ifdef COMMERCIAL_CODE
-#include "validation_panel.h"
-#endif
 
 #define _(s) s
 
@@ -75,12 +72,7 @@ ModelPanel::ModelPanel(GtkBox *cobject, const Glib::RefPtr<Gtk::Builder> &xml)
     _secondary_sidebar(0),
     _history_tree(0),
     _usertypes_box(0),
-    _documentation_box(0)
-#ifdef COMMERCIAL_CODE
-    ,
-    _validation_panel(0)
-#endif
-    ,
+    _documentation_box(0),
     _builder(xml) {
   _pending_rebuild_overview = false;
 }
@@ -137,11 +129,6 @@ void ModelPanel::post_construct(wb::OverviewBE *overview) {
   label = Gtk::manage(new Gtk::Label(_("<small>History</small>")));
   note->append_page(*mforms::widget_for_view(_history_tree), *label);
   label->set_use_markup(true);
-
-#ifdef COMMERCIAL_CODE
-  _validation_panel = Gtk::manage(new ValidationPanel());
-  note->append_page(*_validation_panel, *_validation_panel->notebook_label());
-#endif
 
   _sig_restore_layout.disconnect();
   // restore widths of sidebars when shown

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -37,10 +37,6 @@
 #include "navigator_box.h"
 #include "documentation_box.h"
 #include "base/string_utilities.h"
-
-#ifdef COMMERCIAL_CODE
-#include "validation_panel.h"
-#endif
 
 #include "gtk_helpers.h"
 
@@ -267,12 +263,7 @@ ModelDiagramPanel::ModelDiagramPanel(GtkPaned *paned, const Glib::RefPtr<Gtk::Bu
     _usertypes_list(0),
     _history_list(0),
     _documentation_box(0),
-    _properties_tree(0)
-#ifdef COMMERCIAL_CODE
-    ,
-    _validation_panel(0)
-#endif
-    ,
+    _properties_tree(0),
     _xml(builder) {
 }
 
@@ -332,13 +323,6 @@ void ModelDiagramPanel::init(const std::string &view_id) {
     label = Gtk::manage(new Gtk::Label(_("<small>Navigator</small>")));
     note->append_page(*_navigator_box, *label);
     label->set_use_markup(true);
-
-#ifdef COMMERCIAL_CODE
-    _validation_panel = Gtk::manage(new ValidationPanel());
-    Gtk::Box *hbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL));
-    note->append_page(*_validation_panel, *hbox);
-    _validation_panel->notebook_label(hbox);
-#endif
 
     _xml->get_widget("side_model_note1", note);
 

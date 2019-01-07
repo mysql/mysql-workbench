@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -81,9 +81,6 @@ private:
   mforms::TreeView *_history_tree;
   mforms::TreeView *_usertypes_box;
   DocumentationBox *_documentation_box;
-#ifdef COMMERCIAL_CODE
-  ValidationPanel *_validation_panel;
-#endif
   Glib::RefPtr<Gtk::Builder> _builder;
   bool _pending_rebuild_overview;
 

@@ -66,7 +66,6 @@ add_executable(mysql-workbench-bin
     navigator_box.cpp
     documentation_box.cpp
     diagram_size_form.cpp
-    validation_panel.cpp
     sqlide_form.cpp
     sqlide_output_view.cpp
     sqlide_main.cpp

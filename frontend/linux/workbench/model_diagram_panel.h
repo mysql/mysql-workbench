@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -97,9 +97,6 @@ class ModelDiagramPanel : public Gtk::Paned, public FormViewBase {
   mforms::TreeView *_history_list;
   DocumentationBox *_documentation_box;
   PropertiesTree *_properties_tree;
-#ifdef COMMERCIAL_CODE
-  ValidationPanel *_validation_panel;
-#endif
   Glib::RefPtr<Gtk::Builder> _xml;
 
   bool drag_drop(const Glib::RefPtr<Gdk::DragContext> &context, int x, int y, guint time);
