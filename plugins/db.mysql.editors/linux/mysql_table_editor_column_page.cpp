@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -95,6 +95,7 @@ DbMySQLTableEditorColumnPage::DbMySQLTableEditorColumnPage(DbMySQLTableEditor* o
 
 //------------------------------------------------------------------------------
 DbMySQLTableEditorColumnPage::~DbMySQLTableEditorColumnPage() {
+  sigQueryTooltip.disconnect();
 }
 
 //------------------------------------------------------------------------------
@@ -129,12 +130,19 @@ void DbMySQLTableEditorColumnPage::refill_completions() {
 }
 
 //--------------------------------------------------------------------------------
+
+const static std::map<std::string, std::string> titleMap = { { "PK", "Primary Key" },    { "NN", "Not Null" },
+                                                  { "UQ", "Unique" },         { "BIN", "Binary" },
+                                                  { "UN", "Unsigned" },       { "ZF", "Zero Fill" },
+                                                  { "AI", "Auto Increment" }, { "G", "Generated" } };
+
 void DbMySQLTableEditorColumnPage::refill_columns_tv() {
   std::auto_ptr<Gtk::TreeView> new_tv(new Gtk::TreeView());
 
   // Replace old treeview with  newly created treeview
   _tv_holder->remove();
 
+  sigQueryTooltip.disconnect();
   if (_tv)
     _tv->remove_all_columns();
   delete _tv;
@@ -142,6 +150,29 @@ void DbMySQLTableEditorColumnPage::refill_columns_tv() {
   _tv = new_tv.get();
   _tv->set_enable_tree_lines(true);
   _tv->get_selection()->set_mode(Gtk::SELECTION_MULTIPLE);
+  _tv->set_has_tooltip(true);
+
+  sigQueryTooltip = _tv->signal_query_tooltip().connect([&] (int x, int y, bool keyboard, const Glib::RefPtr<Gtk::Tooltip>& tooltip) {
+    Gtk::TreeIter iter;
+    _tv->get_tooltip_context_iter(x, y, keyboard, iter);
+    Gtk::TreePath path(iter);
+    std::vector<Gtk::TreeViewColumn*> cols = _tv->get_columns();
+    for (const auto &it: cols) {
+      if (x >= it->get_x_offset() && x <= (it->get_x_offset() + it->get_width())) {
+        auto name = titleMap.find(it->get_title());
+        if (name != titleMap.end()) {
+          tooltip->set_text(name->second);
+          _tv->set_tooltip_row(tooltip, path);
+          return true;
+        }
+        return false;
+
+      }
+    }
+
+    return true;
+  });
+
 
   Glib::RefPtr<ListModelWrapper> model =
     ListModelWrapper::create(_be->get_columns(), _tv, "DbMySQLTableEditorColumnPage");
@@ -158,7 +189,6 @@ void DbMySQLTableEditorColumnPage::refill_columns_tv() {
   model->model().append_check_column(MySQLTableColumnsListBE::IsAutoIncrement, "AI", EDITABLE);
   model->model().append_check_column(MySQLTableColumnsListBE::IsGenerated, "G", EDITABLE);
   model->model().append_string_column(MySQLTableColumnsListBE::Default, "Default / Expression", EDITABLE);
-
   _model = model;
   new_tv.release();
 
