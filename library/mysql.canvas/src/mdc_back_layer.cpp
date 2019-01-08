@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -51,11 +51,11 @@ void BackLayer::set_color(const Color &color) {
 
   // Compute grid colors that play well with the background (which can be dark or light).
   if (_fill_color.brightness() < 0.5) {
-    _line1_color = Color(1.1 * _fill_color.red, 1.1 * _fill_color.green, 1.1 * _fill_color.blue);
-    _line2_color = Color(1.15 * _fill_color.red, 1.15 * _fill_color.green, 1.15 * _fill_color.blue);
+    _line2_color = _fill_color.brighten(2.4f);
+    _line1_color = _fill_color.brighten(3.6f);
   } else {
-    _line1_color = Color(0.9 * _fill_color.red, 0.9 * _fill_color.green, 0.9 * _fill_color.blue);
-    _line2_color = Color(0.95 * _fill_color.red, 0.95 * _fill_color.green, 0.95 * _fill_color.blue);
+    _line2_color = _fill_color.darken(0.05f);
+    _line1_color = _fill_color.darken(0.10f);
   }
 }
 

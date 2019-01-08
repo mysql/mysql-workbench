@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -145,6 +145,8 @@ namespace base {
     bool is_valid() const;
     Color invert() const;
     double brightness() const;
+    Color brighten(float fraction) const;
+    Color darken(float fraction) const;
 
     static Color parse(const std::string &color);
 

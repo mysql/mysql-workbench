@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -326,6 +326,55 @@ double Color::brightness() const {
     return 0.2126 * red + 0.7152 * green + 0.0722 * blue; // ITU BT.709
 
   return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Color Color::brighten(float fraction) const {
+  if (is_valid()) {
+    double newRed = red + red * fraction;
+    if (newRed > 1.0)
+      newRed = 1.0;
+    else if (newRed < 0.0)
+      newRed = 0.0;
+    double newGreen = green + green * fraction;
+    if (newGreen > 1.0)
+      newGreen = 1.0;
+    else if (newGreen < 0.0)
+      newGreen = 0.0;
+    double newBlue = blue + blue * fraction;
+    if (newBlue > 1.0)
+      newBlue = 1.0;
+    else if (newBlue < 0.0)
+      newBlue = 0.0;
+    return Color(newRed, newGreen, newBlue, alpha);
+  }
+  return Color();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Color Color::darken(float fraction) const {
+  if (is_valid()) {
+    double newRed = red - red * fraction;
+    if (newRed > 1.0)
+      newRed = 1.0;
+    else if (newRed < 0.0)
+      newRed = 0.0;
+    double newGreen = green - green * fraction;
+    if (newGreen > 1.0)
+      newGreen = 1.0;
+    else if (newGreen < 0.0)
+      newGreen = 0.0;
+    double newBlue = blue - blue * fraction;
+    if (newBlue > 1.0)
+      newBlue = 1.0;
+    else if (newBlue < 0.0)
+      newBlue = 0.0;
+
+    return Color( newRed, newGreen, newBlue, alpha);
+  }
+  return Color();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
