@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -251,8 +251,8 @@ class QueryPlanTab(mforms.Box):
         self.toolbar.add_item(l)
 
         btn = newToolBarItem(mforms.ToggleItem)
-        btn.set_icon(get_resource_path("qe_sql-editor-tb-icon_word-wrap-off.png"))
-        btn.set_alt_icon(get_resource_path("qe_sql-editor-tb-icon_word-wrap-on.png"))
+        btn.set_icon(get_resource_path("statusbar_output.png"))
+        btn.set_alt_icon(get_resource_path("statusbar_output.png"))
         btn.add_activated_callback(self.switch_to_raw)
         btn.set_tooltip("View the raw JSON explain data.")
         self.toolbar.add_item(btn)
@@ -277,9 +277,8 @@ class QueryPlanTab(mforms.Box):
         # textbox to view the json data
         self._raw_explain = mforms.CodeEditor()
         self._raw_explain.set_value(json_text)
-        #self._raw_explain.enable_folding(True)
-        self._raw_explain.set_language(mforms.LanguagePython)
-        self._raw_explain.set_features(mforms.FeatureReadOnly, True)
+        self._raw_explain.set_language(mforms.LanguageJson)
+        self._raw_explain.set_features(mforms.FeatureReadOnly | mforms.FeatureFolding, True)
         self.add(self._raw_explain, True, True)
         self._raw_explain.show(False)
 

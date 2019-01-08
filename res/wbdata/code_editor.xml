@@ -609,11 +609,11 @@
     <keywords name="Preprocessor definitions">
     </keywords>
 
-    <style id="4" fore-color-light="#FF0000" /> <!-- SCE_C_NUMBER -->
-    <style id="6" fore-color-light="#ff9933" /> <!-- SCE_C_STRING -->
-    <style id="10" fore-color-light="#000000" bold="YES" /> <!-- SCE_C_OPERATOR -->
-    <style id="11" fore-color-light="#0000ff" /> <!-- SCE_C_IDENTIFIER -->
-    <style id="20" fore-color-light="#ff9933" /> <!-- SCE_C_STRINGRAW -->
+    <style id="4" fore-color-light="#ff3e5a" fore-color-dark="#ff3e5a" /> <!-- SCE_C_NUMBER -->
+    <style id="6" fore-color-light="#ff9933" fore-color-dark="#ff9933" /> <!-- SCE_C_STRING -->
+    <style id="10" fore-color-light="#000000" fore-color-dark="#FFFFFF" bold="YES" /> <!-- SCE_C_OPERATOR -->
+    <style id="11" fore-color-light="#3133ff" fore-color-dark="#3133ff" /> <!-- SCE_C_IDENTIFIER -->
+    <style id="20" fore-color-light="#ff5c33" fore-color-dark="#ff5c33" /> <!-- SCE_C_STRINGRAW -->
 
   </language>
 
