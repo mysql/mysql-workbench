@@ -100,6 +100,12 @@ wb_rel_1n.png
 wb_rel_1n_nonid.png
 wb_rel_1n_pick.png
 wb_rel_nm.png
+wb_rel_11_dark.png
+wb_rel_11_nonid_dark.png
+wb_rel_1n_dark.png
+wb_rel_1n_nonid_dark.png
+wb_rel_1n_pick_dark.png
+wb_rel_nm_dark.png
 wb_rubber.png
 wb_toolbar_pages_18x18.png
 )

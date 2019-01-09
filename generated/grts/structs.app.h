@@ -1095,6 +1095,7 @@ class app_ToolbarItem : public app_CommandItem {
 public:
   app_ToolbarItem(grt::MetaClass *meta = 0)
     : app_CommandItem(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name())),
+      _darkIcon(""),
       _altIcon(""),
       _icon(""),
       _initialState(0),
@@ -1108,6 +1109,28 @@ public:
   static std::string static_class_name() {
     return "app.ToolbarItem";
   }
+
+  /** Getter for attribute darkIcon
+
+
+   \par In Python:
+value = obj.darkIcon
+   */
+  grt::StringRef darkIcon() const {
+    return _darkIcon;
+  }
+  /** Setter for attribute darkIcon
+
+
+    \par In Python:
+obj.darkIcon = value
+   */
+  virtual void darkIcon(const grt::StringRef &value) {
+    grt::ValueRef ovalue(_darkIcon);
+    _darkIcon = value;
+    member_changed("darkIcon", ovalue, value);
+  }
+
 
   /** Getter for attribute altIcon
 
@@ -1236,6 +1259,7 @@ obj.accessibilityName = value
   }
 
 protected:
+  grt::StringRef _darkIcon;
   grt::StringRef _altIcon;
   grt::StringRef _icon;
   grt::IntegerRef _initialState;
@@ -1254,6 +1278,11 @@ public:
     if (!meta)
       throw std::runtime_error("error initializing grt object class, metaclass not found");
     meta->bind_allocator(&app_ToolbarItem::create);
+    {
+      void (app_ToolbarItem::*setter)(const grt::StringRef &) = &app_ToolbarItem::darkIcon;
+      grt::StringRef (app_ToolbarItem::*getter)() const = &app_ToolbarItem::darkIcon;
+      meta->bind_member("darkIcon", new grt::MetaClass::Property<app_ToolbarItem, grt::StringRef>(getter, setter));
+    }
     {
       void (app_ToolbarItem::*setter)(const grt::StringRef &) = &app_ToolbarItem::altIcon;
       grt::StringRef (app_ToolbarItem::*getter)() const = &app_ToolbarItem::altIcon;

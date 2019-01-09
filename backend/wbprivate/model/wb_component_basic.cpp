@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -86,29 +86,61 @@ void WBComponentBasic::setup_canvas_tool(ModelDiagramForm *view, const std::stri
   void *data = 0;
 
   if (tool == WB_TOOL_SELECT) {
-    view->set_cursor("select");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("select_dark");
+    } else {
+      view->set_cursor("select");
+    }
     _wb->_frontendCallbacks->show_status_text("");
   } else if (tool == WB_TOOL_HAND) {
     data = new HandToolContext;
-    view->set_cursor("hand");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("hand_dark");
+    } else {
+      view->set_cursor("hand");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Drag the canvas to move it around."));
   } else if (tool == WB_TOOL_DELETE) {
-    view->set_cursor("rubber");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("rubber_dark");
+    } else {
+      view->set_cursor("rubber");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Click the object to delete."));
   } else if (tool == WB_TOOL_LAYER) {
-    view->set_cursor("layer");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("layer_dark");
+    } else {
+      view->set_cursor("layer");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Select an area for the new layer."));
   } else if (tool == WB_TOOL_NOTE) {
-    view->set_cursor("note");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("note_dark");
+    } else {
+      view->set_cursor("note");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Select an area for a text object."));
   } else if (tool == WB_TOOL_IMAGE) {
-    view->set_cursor("image");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("image_dark");
+    } else {
+      view->set_cursor("image");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Select a location for the image object."));
   } else if (tool == WB_TOOL_ZOOM_IN) {
-    view->set_cursor("zoom_in");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("zoom_in_dark");
+    } else {
+      view->set_cursor("zoom_in");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Left-click anywhere on the diagram to zoom in."));
   } else if (tool == WB_TOOL_ZOOM_OUT) {
-    view->set_cursor("zoom_out");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("zoom_out_dark");
+    } else {
+      view->set_cursor("zoom_out");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Left-click anywhere on the diagram to zoom out."));
   } else {
     _wb->_frontendCallbacks->show_status_text("Invalid tool " + tool);

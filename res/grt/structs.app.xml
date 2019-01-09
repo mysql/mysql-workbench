@@ -157,6 +157,7 @@
       <members>
         <member name="icon" type="string"/>
         <member name="altIcon" type="string"/>
+        <member name="darkIcon" type="string"/>
         <member name="itemType" type="string" attr:desc="type of button (action, separator, toggle, segmentedToggle, radio, label, dropdown)"/>
         <member name="tooltip" type="string"/>
         <member name="accessibilityName" type="string"/>

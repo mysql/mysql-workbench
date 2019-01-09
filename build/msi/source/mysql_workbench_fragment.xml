@@ -435,6 +435,12 @@
                     <File Id="file6043" Name="wb_rel_1n_nonid.png"/>
                     <File Id="file6044" Name="wb_rel_1n_pick.png"/>
                     <File Id="file6045" Name="wb_rel_nm.png"/>
+                    <File Id="file6040d" Name="wb_rel_11_dark.png"/>
+                    <File Id="file6041d" Name="wb_rel_11_nonid_dark.png"/>
+                    <File Id="file6042d" Name="wb_rel_1n_dark.png"/>
+                    <File Id="file6043d" Name="wb_rel_1n_nonid_dark.png"/>
+                    <File Id="file6044d" Name="wb_rel_1n_pick_dark.png"/>
+                    <File Id="file6045d" Name="wb_rel_nm_dark.png"/>
                     <File Id="file6046" Name="wb_rubber.png"/>
                     <File Id="file6047" Name="mini_error.png"/>
                     <File Id="file6048" Name="mini_warning.png"/>

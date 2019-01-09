@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -212,7 +212,14 @@ mforms::ToolBar *ModelDiagramForm::get_tools_toolbar() {
         else {
           item = mforms::manage(new mforms::ToolBarItem(mforms::ToggleItem));
 
-          item->set_icon(IconManager::get_instance()->get_icon_path(*titem->icon()));
+          std::string iconName = *titem->icon();
+          std::string darkIcon = *titem->darkIcon();
+          if (mforms::App::get()->isDarkModeActive() && !darkIcon.empty()) {
+            item->set_icon(IconManager::get_instance()->get_icon_path(darkIcon));
+          } else {
+            item->set_icon(IconManager::get_instance()->get_icon_path(iconName));
+          }
+
           item->set_name(*titem->accessibilityName());
           item->setInternalName(base::split(*titem->command(), ":").back());
           scoped_connect(item->signal_activated(), std::bind(&ModelDiagramForm::set_tool, this, item->getInternalName()));

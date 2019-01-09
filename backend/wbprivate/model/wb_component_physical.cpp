@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -2529,36 +2529,72 @@ void WBComponentPhysical::setup_canvas_tool(ModelDiagramForm *view, const std::s
   bool relationship = false;
 
   if (tool == WB_TOOL_PTABLE) {
-    view->set_cursor("table");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("table_dark");
+    } else {
+      view->set_cursor("table");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Select location for new table."));
   } else if (tool == WB_TOOL_PVIEW) {
-    view->set_cursor("view");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("view_dark");
+    } else {
+      view->set_cursor("view");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Select location for new view."));
   } else if (tool == WB_TOOL_PROUTINEGROUP) {
-    view->set_cursor("routine");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("routine_dark");
+    } else {
+      view->set_cursor("routine");
+    }
     _wb->_frontendCallbacks->show_status_text(_("Select location for new routine group."));
   } else if (tool == WB_TOOL_PREL11) {
-    view->set_cursor("rel11");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("rel11_dark");
+    } else {
+      view->set_cursor("rel11");
+    }
     data = start_relationship(view, Point(), Relationship11Id);
     relationship = true;
   } else if (tool == WB_TOOL_PREL1n) {
-    view->set_cursor("rel1n");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("rel1n_dark");
+    } else {
+      view->set_cursor("rel1n");
+    }
     data = start_relationship(view, Point(), Relationship1nId);
     relationship = true;
   } else if (tool == WB_TOOL_PRELnm) {
-    view->set_cursor("relnm");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("relnm_dark");
+    } else {
+      view->set_cursor("relnm");
+    }
     data = start_relationship(view, Point(), RelationshipnmId);
     relationship = true;
   } else if (tool == WB_TOOL_PREL11_NOID) {
-    view->set_cursor("rel11");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("rel11_dark");
+    } else {
+      view->set_cursor("rel11");
+    }
     data = start_relationship(view, Point(), Relationship11NonId);
     relationship = true;
   } else if (tool == WB_TOOL_PREL1n_NOID) {
-    view->set_cursor("rel1n");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("rel1n_dark");
+    } else {
+      view->set_cursor("rel1n");
+    }
     data = start_relationship(view, Point(), Relationship1nNonId);
     relationship = true;
   } else if (tool == WB_TOOL_PREL_PICK) {
-    view->set_cursor("rel1n");
+    if (mforms::App::get()->isDarkModeActive()) {
+      view->set_cursor("rel1n_dark");
+    } else {
+      view->set_cursor("rel1n");
+    }
     data = start_relationship(view, Point(), RelationshipPick);
     relationship = true;
   } else {

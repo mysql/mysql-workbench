@@ -52,6 +52,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="name">tool/rel11_noid</value>
         <value type="string" key="icon">wb_rel_11_nonid.png</value>
+        <value type="string" key="darkIcon">wb_rel_11_nonid_dark.png</value>
         <value type="string" key="tooltip">Place a New 1:1 Non-Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel11_noid</value>
@@ -62,6 +63,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="name">tool/rel1n_noid</value>
         <value type="string" key="icon">wb_rel_1n_nonid.png</value>
+        <value type="string" key="darkIcon">wb_rel_1n_nonid_dark.png</value>
         <value type="string" key="tooltip">Place a New 1:n Non-Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel1n_noid</value>
@@ -72,6 +74,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="name">tool/rel11</value>
         <value type="string" key="icon">wb_rel_11.png</value>
+        <value type="string" key="darkIcon">wb_rel_11_dark.png</value>
         <value type="string" key="tooltip">Place a New 1:1 Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel11</value>
@@ -82,6 +85,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="name">tool/rel1n</value>
         <value type="string" key="icon">wb_rel_1n.png</value>
+        <value type="string" key="darkIcon">wb_rel_1n_dark.png</value>
         <value type="string" key="tooltip">Place a New 1:n Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/rel1n</value>
@@ -92,6 +96,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="name">tool/relnm</value>
         <value type="string" key="icon">wb_rel_nm.png</value>
+        <value type="string" key="darkIcon">wb_rel_nm_dark.png</value>
         <value type="string" key="tooltip">Place a New n:m Identifying Relationship</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/relnm</value>
@@ -108,6 +113,7 @@
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.toolbar.tools.physical</link>
         <value type="string" key="name">tool/relpick</value>
         <value type="string" key="icon">wb_rel_1n_pick.png</value>
+        <value type="string" key="darkIcon">wb_rel_1n_pick_dark.png</value>
         <value type="string" key="tooltip">Place a Relationship Using Existing Columns</value>
         <value type="string" key="itemType">radio</value>
         <value type="string" key="command">tool:physical/relpick</value>
