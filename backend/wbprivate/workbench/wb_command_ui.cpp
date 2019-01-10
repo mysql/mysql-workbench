@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -988,13 +988,18 @@ bool CommandUI::activate_command(const std::string &command, bec::ArgumentPool a
   return false;
 }
 
+static const std::vector<std::string> clipboardCommands = {"builtin:paste", "builtin:copy", "builtin:delete"};
+
 void CommandUI::activate_command(const std::string &command) {
   if (command.empty() || !_wb->user_interaction_allowed())
     return;
 
   // Finish any ongoing editing task before starting a new one.
-  _wb->request_refresh(RefreshType::RefreshFinishEdits, "");
-  _wb->flush_idle_tasks(true);
+  
+  if (std::find(clipboardCommands.begin(), clipboardCommands.end(), command) == clipboardCommands.end()) {
+    _wb->request_refresh(RefreshType::RefreshFinishEdits, "");
+    _wb->flush_idle_tasks(true);
+  }
 
   ParsedCommand cmdparts(command);
 
