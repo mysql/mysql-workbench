@@ -340,23 +340,24 @@
       as none
     </keywords>
 
-    <style id="0" fore-color-light="#000000" /> <!-- SCE_P_DEFAULT -->
+    <style id="0" fore-color-light="#000000"  fore-color-dark="#808a8c"/> <!-- SCE_P_DEFAULT -->
 
     <style id="12" fore-color-light="#097BF7" /> <!-- SCE_P_COMMENTBLOCK -->
     <style id="1" fore-color-light="#097BF7" /> <!-- SCE_P_COMMENTLINE -->
 
-    <style id="2" fore-color-light="#3EAAFF" /> <!-- SCE_P_NUMBER -->
-    <style id="3" fore-color-light="#3EAAFF" /> <!-- SCE_P_STRING -->
+    <style id="2" fore-color-light="#3EAAFF" fore-color-dark="#736ca3"/> <!-- SCE_P_NUMBER -->
+    <style id="3" fore-color-light="#3EAAFF" fore-color-dark="#ffff3f"/> <!-- SCE_P_STRING -->
     <style id="4" fore-color-light="#3EAAFF" /> <!-- SCE_P_CHARACTER -->
     <style id="6" fore-color-light="#3EAAFF" /> <!-- SCE_P_TRIPLE -->
     <style id="7" fore-color-light="#6D4A27" /> <!-- SCE_P_TRIPLEDOUBLE -->
 
-    <style id="5" fore-color-light="#C00000" bold="Yes"/> <!-- SCE_P_WORD -->
-    <style id="8" fore-color-light="#003690" bold="Yes" /> <!-- SCE_P_CLASSNAME -->
-    <style id="9" fore-color-light="#7F0000" bold="Yes" /> <!-- SCE_P_DEFNAME -->
-    <style id="10" fore-color-light="#000000" bold="Yes" /> <!-- SCE_P_OPERATOR -->
+    <style id="5" fore-color-light="#C00000" bold="Yes" fore-color-dark="#a46f3f"/> <!-- SCE_P_WORD -->
+    <style id="8" fore-color-light="#003690" bold="Yes" fore-color-dark="#a0d975" /> <!-- SCE_P_CLASSNAME -->
+    <style id="9" fore-color-light="#7F0000" bold="Yes" fore-color-dark="#a0d975" /> <!-- SCE_P_DEFNAME -->
 
-    <style id="11" fore-color-light="#000000" /> <!-- SCE_P_IDENTIFIER -->
+    <style id="10" fore-color-light="#000000" bold="Yes" fore-color-dark="#a46f3f"/> <!-- SCE_P_OPERATOR -->
+
+    <style id="11" fore-color-light="#000000" fore-color-dark="#FFFFFF"/> <!-- SCE_P_IDENTIFIER -->
 
   </language>
 
