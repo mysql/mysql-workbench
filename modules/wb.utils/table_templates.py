@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -30,6 +30,19 @@ class TemplateEditor(mforms.Form):
     def __init__(self, owner):
         mforms.Form.__init__(self, None, mforms.FormDialogFrame|mforms.FormResizable|mforms.FormMinimizable)
         self.owner = owner
+        
+        # We need to have some default catalog and schema so parser is happy
+        self.tmpCatalog = grt.classes.db_mysql_Catalog()
+        self.tmpCatalog.name = 'tmpCatalog'
+        self.tmpCatalog.oldName = self.tmpCatalog.name
+        self.tmpCatalog.simpleDatatypes.extend(grt.root.wb.rdbmsMgmt.rdbms[0].simpleDatatypes)
+
+        self.tmpSchema= grt.classes.db_mysql_Schema()
+        self.tmpSchema.name = "tmpSchema"
+        self.tmpSchema.oldName = self.tmpSchema.name
+        self.tmpSchema.owner = self.tmpCatalog
+        self.tmpCatalog.schemata.append(self.tmpSchema)
+        
         self.tables_by_id = {}
 
         self.set_title("Table Templates")
@@ -130,8 +143,11 @@ class TemplateEditor(mforms.Form):
     def add_templ(self):
         table = grt.classes.db_mysql_Table()
         table.name = "template %i" % (len(self.owner.templates)+1)
+        table.owner = self.tmpSchema
+        self.tmpSchema.tables.append(table)
         self.tables_by_id[table.__id__] = table
         self.owner.templates.append(table)
+        
 
         node = self.template_list.add_node()
         node.set_icon_path(0, mforms.App.get().get_resource_path("db.Table.16x16.png"))
@@ -147,6 +163,7 @@ class TemplateEditor(mforms.Form):
             table = self.tables_by_id[node.get_tag()]
             del self.tables_by_id[node.get_tag()]
             self.owner.templates.remove(table)
+            self.tmpSchema.tables.remove(table)
             node.remove_from_parent()
 
 
@@ -154,7 +171,8 @@ class TemplateEditor(mforms.Form):
         orig = self.selected_table()
 
         table = self.owner.copy_table(orig)
-
+        table.owner = self.tmpSchema
+        self.tmpSchema.tables.append(table)
         self.tables_by_id[table.__id__] = table
         self.owner.templates.append(table)
 
@@ -204,6 +222,8 @@ class TemplateEditor(mforms.Form):
             node.set_icon_path(0, icon)
             node.set_string(0, table.name)
             node.set_tag(table.__id__)
+            table.owner = self.tmpSchema
+            self.tmpSchema.tables.append(table)
             self.tables_by_id[table.__id__] = table
 
 
@@ -287,7 +307,6 @@ class TemplateEditor(mforms.Form):
     def flag_checked(self, check, flag):
         column = self.selected_column()
         if column:
-            print check.get_active(), flag, column.flags
             if check.get_active():
                 if flag not in column.flags:
                     column.flags.append(flag)
@@ -309,7 +328,7 @@ class TemplateEditor(mforms.Form):
 
 
     def column_edited(self, node, tree_column, new_value):
-        table = self.selected_table()
+        table = self.selected_table() 
         if not table or node.get_string(0) == new_value:
             return
         if node.get_tag() == "placeholder":
@@ -379,7 +398,6 @@ class TableTemplateManager:
         dlg = mforms.FileChooser(mforms.SaveFile)
         dlg.set_title("Export Table Templates")
         if dlg.run_modal():
-            print dlg.get_path()
             grt.serialize(self.templates, dlg.get_path())
 
 
