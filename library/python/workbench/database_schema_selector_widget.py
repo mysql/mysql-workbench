@@ -196,7 +196,7 @@ class DatabaseSchemaSelector(mforms.Box):
                     parent_node = node.get_parent()
                     is_catalog = parent_node == self.schema_list_tree.root_node()
                     catalog_name = node.get_string(1) if is_catalog else parent_node.get_string(1)
-                    schema_count = len(self._schemata[catalog_name])
+                    schema_count = len(self._schemata[catalog_name.encode(encoding='UTF-8',errors='strict')])
                     if is_catalog:
                         for idx in range(schema_count):
                             node.get_child(idx).set_bool(0, checked)
