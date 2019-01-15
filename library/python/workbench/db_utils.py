@@ -1,4 +1,4 @@
-# Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -33,6 +33,12 @@ def strip_password(s):
     import re
     while True:
         ss = re.sub(r"(.*PASSWORD.*\(')(.*)('\).*)", r"\1XXXXXX\3", s)
+        if s == ss:
+            break
+        s = ss
+        
+    while True:
+        ss = re.sub(r"(.*IDENTIFIED (BY|WITH).*(\'|\"))(.*)((\'|\").*)",r"\1xxxxxxx\5", s)
         if s == ss:
             break
         s = ss
