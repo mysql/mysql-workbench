@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -3166,6 +3166,13 @@ bool WBContext::uninstall_module(grt::Module *module) {
   if (module->is_bundle())
     path = module->bundle_path();
 
+  auto ext = base::extension(path);
+  if (ext == ".py") {
+    std::string pyc = path + "c";
+    // For python, we need to also remove the pyc file
+    if (base::file_exists(pyc))
+      mforms::Utilities::move_to_trash(pyc);
+  }
   mforms::Utilities::move_to_trash(path);
 
   return false;
