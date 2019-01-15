@@ -484,7 +484,7 @@ class ExplainTab(mforms.AppView):
         else:
             raise Exception("Unknown "+new_view)
 
-        source = item.get_name()
+        source = item.getInternalName()
         # switch back the selector
         if source == "visual_explain_switcher":
           item.set_text("Visual Explain")
