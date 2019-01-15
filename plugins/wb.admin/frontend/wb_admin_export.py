@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -2045,8 +2045,10 @@ class WbAdminExportOptionsTab(mforms.Box):
                             log_debug("Skip option %s because it's deprecated in mysqldump %s\n" % (optname, max_version))
                             continue
 
+                exlude = ['column-statistics']
                 # get the default value from mysqldump --help, if we don't have that data, use the stored default
-                default = defaults_from_mysqldump.get(optname, default)
+                if optname not in exlude or get_mysqldump_version() == target_version:
+                    default = defaults_from_mysqldump.get(optname, default)
 
                 if option_type == "BOOL":
                     checkbox = newCheckBox()
