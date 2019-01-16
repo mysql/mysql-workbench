@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -463,10 +463,11 @@ namespace sql {
         connection_init_slot(conn.get(), connectionProperties);
 
       //  We could set this on the parameters, but we wouldn't know the server version
-      if( conn->getMetaData()->getDatabaseMajorVersion() >= 8 ) {
-        conn.get()->createStatement()->executeUpdate("set character_set_client = utf8mb4");
-        conn.get()->createStatement()->executeUpdate("set character_set_connection = utf8mb4");
-        conn.get()->createStatement()->executeUpdate("set character_set_results = utf8mb4");
+      std::unique_ptr<sql::ResultSet> res(conn.get()->createStatement()->executeQuery("show character set where charset = 'utf8mb4'"));
+      if (res->rowsCount() >= 1) {
+        conn.get()->createStatement()->executeUpdate("SET NAMES 'utf8mb4'");
+      } else {
+        conn.get()->createStatement()->executeUpdate("SET NAMES 'utf8'");
       }
       
       std::string def_schema = parameter_values.get_string("schema", "");
