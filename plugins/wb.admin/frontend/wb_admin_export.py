@@ -919,22 +919,20 @@ class WbAdminSchemaListTab(mforms.Box):
 
     def get_mysql_password(self, reset_password=False):
         parameterValues = self.server_profile.db_connection_params.parameterValues
-        pwd = parameterValues["password"]
-        if not pwd or reset_password:
-            username = parameterValues["userName"]
-            host = self.server_profile.db_connection_params.hostIdentifier
-            title = self.is_importing and "Import" or "Export"
-            if self.bad_password_detected:
-                title += ' (type the correct password)'
-                self.bad_password_detected = False
+        username = parameterValues["userName"]
+        host = self.server_profile.db_connection_params.hostIdentifier
+        title = self.is_importing and "Import" or "Export"
+        if self.bad_password_detected:
+            title += ' (type the correct password)'
+            self.bad_password_detected = False
 
-            if not reset_password and not self.bad_password_detected:
-                pwd = self.owner.ctrl_be.get_mysql_password()
+        if not reset_password and not self.bad_password_detected:
+            pwd = self.owner.ctrl_be.get_mysql_password()
 
-            if pwd is None:
-                accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, reset_password)
-                if not accepted:
-                    return None
+        if pwd is None:
+            accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, reset_password)
+            if not accepted:
+                return None
         return pwd
 
     def stop(self):
@@ -1644,7 +1642,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 extra_args = []
             DumpThread.TaskData.__init__(self,title, len(views), ["--skip-triggers", " --no-data" ," --no-create-db"] + extra_args + args, [schema] + views, None, make_pipe)
 
-    def dump_to_folder(self, schemaname, tablename):
+    def dump_to_folder(self, schemaname, tablename, include_schema):
         self.close_pipe()
         path = os.path.join(self.path, normalize_filename(schemaname) + "_" + normalize_filename(tablename) + '.sql')
         i = 0
@@ -1652,7 +1650,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         while os.path.exists(path):
             path = os.path.join(self.path, normalize_filename(schemaname) + "_" + normalize_filename(tablename) + ('%i.sql'%i))
         self.out_pipe = open(path,"w")
-        if self.include_schema_check.get_active():
+        if include_schema:
             data = self.table_list_model.get_schema_sql(schemaname)
             if type(data) is unicode:
                 data = data.encode("utf-8")
@@ -1750,10 +1748,11 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         if skip_column_statistics:
                             args.append('--column-statistics=0')
 
+                        include_schema = self.include_schema_check.get_active()
                         if skip_data:
-                            task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
+                            task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table, include_schema))
                         else:
-                            task = self.TableDumpData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
+                            task = self.TableDumpData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table, include_schema))
                         operations.append(task)
                 # dump everything non-tables to file for routines
                 #if views:
@@ -1820,7 +1819,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         params.append("--skip-triggers")
 
                     # description, object_count, pipe_factory, extra_args, objects
-                    task = DumpThread.TaskData(title, len(tables), params, objects, tables_to_ignore, lambda schema=schema:self.dump_to_file([schema]))
+                    include_schema = self.include_schema_check.get_active()
+                    task = DumpThread.TaskData(title, len(tables), params, objects, tables_to_ignore, lambda schema=schema:self.dump_to_file([schema], include_schema))
                     operations.append(task)
 #                    operations.append((title, len(tables), lambda schema=schema:self.dump_to_file([schema]), params, objects))
             else:
@@ -1844,7 +1844,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 
                 # --databases includes CREATE DATABASE info, so it's not needed for dump_to_file()
                 # description, object_count, pipe_factory, extra_args, objects
-                task = DumpThread.TaskData(title, count, params, schema_names, tables_to_ignore, lambda:self.dump_to_file([]))
+                include_schema = self.include_schema_check.get_active()
+                task = DumpThread.TaskData(title, count, params, schema_names, tables_to_ignore, lambda:self.dump_to_file([], include_schema))
                 operations.append(task)
 #                operations.append((title, count, lambda:self.dump_to_file([]), params, schema_names))
 
@@ -1922,10 +1923,10 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             self._update_progress_tm = None
         return r
 
-    def dump_to_file(self, schemanames):
+    def dump_to_file(self, schemanames, include_schema):
         if self.out_pipe == None:
             self.out_pipe = open(self.path,"w")
-        if self.include_schema_check.get_active():
+        if include_schema:
             for schema in schemanames:
                 self.out_pipe.write(self.table_list_model.get_schema_sql(schema).encode('utf-8'))
             self.out_pipe.flush()

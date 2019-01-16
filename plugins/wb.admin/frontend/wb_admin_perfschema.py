@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -259,13 +259,11 @@ class HelperInstallPanel(mforms.Table):
     def start(self):
         server_profile = self.owner.ctrl_be.server_profile
         parameterValues = server_profile.db_connection_params.parameterValues
-        pwd = parameterValues["password"]
-        if not pwd:
-            username = parameterValues["userName"]
-            host = server_profile.db_connection_params.hostIdentifier
-            accepted, pwd = mforms.Utilities.find_or_ask_for_password("Install sys Schema", host, username, False)
-            if not accepted:
-                return
+        username = parameterValues["userName"]
+        host = server_profile.db_connection_params.hostIdentifier
+        accepted, pwd = mforms.Utilities.find_or_ask_for_password("Install sys Schema", host, username, False)
+        if not accepted:
+            return
         self.importer.set_password(pwd)
       
         syspath = mforms.App.get().get_resource_path("sys")

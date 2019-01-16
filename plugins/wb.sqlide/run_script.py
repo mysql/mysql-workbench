@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -153,16 +153,14 @@ class RunPanel(mforms.Table):
 
     def start(self, what, default_db, default_charset):
         parameterValues = self.editor.connection.parameterValues
-        pwd = parameterValues["password"]
-        if not pwd:
-            username = parameterValues["userName"]
-            host = self.editor.connection.hostIdentifier
+        username = parameterValues["userName"]
+        host = self.editor.connection.hostIdentifier
 
-            ok, pwd = mforms.Utilities.find_cached_password(host, username)
-            if not ok:
-                accepted, pwd = mforms.Utilities.find_or_ask_for_password("Run SQL Script", host, username, False)
-                if not accepted:
-                    return
+        ok, pwd = mforms.Utilities.find_cached_password(host, username)
+        if not ok:
+            accepted, pwd = mforms.Utilities.find_or_ask_for_password("Run SQL Script", host, username, False)
+            if not accepted:
+                return
         self.importer.set_password(pwd)
 
         self._worker = Thread(target = self.work, args = (what, default_db, default_charset))
