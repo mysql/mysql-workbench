@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -600,14 +600,12 @@ class ImportProgressPage(WizardProgressPage):
 
     def get_mysql_password(self, connection):
         parameterValues = connection.parameterValues
-        pwd = parameterValues["password"]
-        if not pwd:
-            username = parameterValues["userName"]
-            host = connection.hostIdentifier
-            title = "MySQL password for File Import"
-            accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, False)
-            if not accepted:
-                return None
+        username = parameterValues["userName"]
+        host = connection.hostIdentifier
+        title = "MySQL password for File Import"
+        accepted, pwd = mforms.Utilities.find_or_ask_for_password(title, host, username, False)
+        if not accepted:
+            return None
         return pwd
     
     def page_activated(self, advancing):
