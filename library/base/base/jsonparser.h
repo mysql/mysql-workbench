@@ -225,7 +225,9 @@ namespace JsonParser {
   };
 
 #ifndef HAS_NOEXCEPT
-  #if defined(_MSC_VER) || defined(__APPLE__)
+  #if defined(_MSC_VER) 
+    #define NOEXCEPT noexcept
+  #elif defined(__APPLE__)
     #define NOEXCEPT _NOEXCEPT
   #else
     #ifndef _GLIBCXX_USE_NOEXCEPT
