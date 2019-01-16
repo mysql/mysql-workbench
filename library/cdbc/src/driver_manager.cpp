@@ -463,11 +463,12 @@ namespace sql {
         connection_init_slot(conn.get(), connectionProperties);
 
       //  We could set this on the parameters, but we wouldn't know the server version
-      std::unique_ptr<sql::ResultSet> res(conn.get()->createStatement()->executeQuery("show character set where charset = 'utf8mb4'"));
+      std::unique_ptr<sql::Statement> stmt(conn.get()->createStatement());
+      std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("show character set where charset = 'utf8mb4'"));
       if (res->rowsCount() >= 1) {
-        conn.get()->createStatement()->executeUpdate("SET NAMES 'utf8mb4'");
+        stmt->executeUpdate("SET NAMES 'utf8mb4'");
       } else {
-        conn.get()->createStatement()->executeUpdate("SET NAMES 'utf8'");
+        stmt->executeUpdate("SET NAMES 'utf8'");
       }
       
       std::string def_schema = parameter_values.get_string("schema", "");
