@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -808,6 +808,19 @@ class DeleteSQLPrettifier(SQLPrettifier):
         text += indent("")+self.default_handler(node_direct_child_named(node, "expr"))
         return text
 
+class TriggerSQLPrettifier(SQLPrettifier):
+    def sym_TRIGGER_SYM(self, node):
+        return "\n"+indent(self.default_handler(node))
+    
+    def sym_sp_name(self, node):
+        return " " + self.default_handler(node) + "\n"
+    
+    def sym_definer(self, node):
+        self._has_args = True
+        return "\n"+indent(self.default_handler(node))
+    
+    def sym_sp_proc_stmt(self, node):
+        return "\n"+indent(self.default_handler(node))
 
 class ViewSQLPrettifier(SQLPrettifier):
     _has_args = False
@@ -863,6 +876,8 @@ def formatter_for_statement_ast(ast):
             # recursively look for VIEW_SYM 
             if find_child_node(object, "VIEW_SYM"):
                 return ViewSQLPrettifier
+            if find_child_node(object, "TRIGGER_SYM"):
+                return TriggerSQLPrettifier
         # SPs and functions not supported for now (esp. because comments are not maintained by parser)
 
 
