@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -350,7 +350,7 @@ class AdministratorContext:
         self.page_titles[page_class.identifier()] = title
 
         self.admin_pages[page_class.identifier()] = (page_class, needs_remote_access)
-        icon_path = page_class.identifier()+".png"
+        icon_path = page_class.identifier() + ".png"
         for sname, saname, stitle, sitems in self.sidebar_sections:
             if sname == section_id:
                 sitems.append((page_class.identifier(), accessibilityName, title, icon_path))

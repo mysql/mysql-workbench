@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -32,6 +32,8 @@
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 // Need to override the clipview so that the layout methods can get called by content
 @implementation MFClipView
 
@@ -48,6 +50,7 @@
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MFScrollPanelImpl
 
@@ -74,16 +77,18 @@
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)relayout
 {
   [self.contentView resizeSubviewsWithOldSize: self.frame.size];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)minimumSize
 {
@@ -97,26 +102,34 @@ STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
   return { MAX(minSize.width, contentMinSize.width), MAX(minSize.height, contentMinSize.height) };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setBackgroundColor: (NSColor*) color
 {
   super.backgroundColor = color;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void) scrollIntoView: (NSView*) view
 {
   [view scrollRectToVisible: view.bounds];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setEnabled:(BOOL)flag
 {
   [self.documentView setEnabled: flag];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityScrollAreaRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool scrollpanel_create(::mforms::ScrollPanel *self, mforms::ScrollPanelFlags flags)
 {
@@ -124,6 +137,8 @@ static bool scrollpanel_create(::mforms::ScrollPanel *self, mforms::ScrollPanelF
                                           bordered: flags & mforms::ScrollPanelBordered
                                    drawsBackground: flags & mforms::ScrollPanelDrawBackground] != nil;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void scrollpanel_add(mforms::ScrollPanel *self, mforms::View *child)
 {
@@ -135,6 +150,7 @@ static void scrollpanel_add(mforms::ScrollPanel *self, mforms::View *child)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void scrollpanel_remove(mforms::ScrollPanel *self)
 {
@@ -143,6 +159,7 @@ static void scrollpanel_remove(mforms::ScrollPanel *self)
     [panel setDocumentView:nil];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void scrollpanel_set_visible_scrollers(mforms::ScrollPanel *self, bool vertical, bool horizontal)
 {
@@ -152,6 +169,7 @@ static void scrollpanel_set_visible_scrollers(mforms::ScrollPanel *self, bool ve
   panel.hasHorizontalScroller = horizontal;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void scrollpanel_set_autohide_scrollers(mforms::ScrollPanel *self, bool flag)
 {
@@ -160,12 +178,16 @@ static void scrollpanel_set_autohide_scrollers(mforms::ScrollPanel *self, bool f
   panel.autohidesScrollers = flag;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void scrollpanel_scroll_to_view(mforms::ScrollPanel *self, mforms::View *child)
 {
   MFScrollPanelImpl *panel= self->get_data();
   if (panel)
     [panel scrollIntoView: child->get_data()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static base::Rect scrollpanel_get_content_rect(mforms::ScrollPanel *self)
 {
@@ -182,6 +204,7 @@ static base::Rect scrollpanel_get_content_rect(mforms::ScrollPanel *self)
   return result;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void scrollpanel_scroll_to(mforms::ScrollPanel *self, int x, int y)
 {
@@ -189,6 +212,8 @@ static void scrollpanel_scroll_to(mforms::ScrollPanel *self, int x, int y)
   if (panel)
     [panel.documentView scrollPoint: NSMakePoint(x, y)];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_scrollpanel_init()
 {
@@ -204,6 +229,4 @@ void cf_scrollpanel_init()
   f->_spanel_impl.scroll_to = &scrollpanel_scroll_to;
 }
 
-
 @end
-

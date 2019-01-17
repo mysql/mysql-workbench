@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -462,10 +462,7 @@ void SqlEditorForm::restore_last_workspace() {
   if (_tabdock->view_count() == 0)
     new_sql_scratch_area(false);
 
-  // immediate autosave after openingls
-  auto_save();
-
-  // Gets the title for a NEW editor
+  // Gets the title for a NEW editor.
   _title = create_title();
   title_changed();
 }

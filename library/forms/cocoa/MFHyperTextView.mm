@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -29,6 +29,8 @@
 #import "NSColor_extras.h"
 
 @implementation MFHyperTextView
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithObject:(mforms::HyperText *)ht {
   self = [super initWithFrame:NSMakeRect(0, 0, 50, 50)];
@@ -63,21 +65,37 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setBackgroundColor:(NSColor *)color {
   super.backgroundColor = color;
   mTextView.backgroundColor = color;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)textView:(NSTextView *)aTextView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex {
   mOwner->handle_url_click([link absoluteString].UTF8String);
   return YES;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityTextAreaRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool ht_create(mforms::HyperText *ht) {
   return [[MFHyperTextView alloc] initWithObject:ht] != nil;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void ht_set_markup(mforms::HyperText *ht, const std::string &text) {
   MFHyperTextView *htv = ht->get_data();
@@ -106,6 +124,8 @@ static void ht_set_markup(mforms::HyperText *ht, const std::string &text) {
                                           }
                                documentAttributes: nil]];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_hypertext_init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();

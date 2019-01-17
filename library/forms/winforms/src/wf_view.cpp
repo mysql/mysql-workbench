@@ -684,14 +684,14 @@ int ViewWrapper::get_preferred_height(mforms::View *backend) {
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_x(mforms::View *backend) {
+int ViewWrapper::get_x(const mforms::View *backend) {
   Control ^ control = GetManagedObject<Control>(backend);
   return control->Location.X;
 }
 
 //-------------------------------------------------------------------------------------------------
 
-int ViewWrapper::get_y(mforms::View *backend) {
+int ViewWrapper::get_y(const mforms::View *backend) {
   Control ^ control = GetManagedObject<Control>(backend);
   return control->Location.Y;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -31,7 +31,7 @@
 
 - (instancetype)initWithObject:(::mforms::ImageBox*)aImage
 {
-  self= [super initWithFrame:NSMakeRect(10,10,10,10)];
+  self= [super initWithFrame: NSMakeRect(10, 10, 10, 10)];
   if (self)
   {
     self.imageFrameStyle = NSImageFrameNone;
@@ -42,12 +42,14 @@
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (mforms::Object*)mformsObject
 {
   return mOwner;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)minimumSize
 {
@@ -57,15 +59,26 @@
   return minSize;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSSize)preferredSize: (NSSize)proposal {
   return [self minimumSize];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityImageRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool imagebox_create(mforms::ImageBox *image)
 {
   return [[MFImageBoxImpl alloc] initWithObject: image] != nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void imagebox_set_image(mforms::ImageBox *self, const std::string &file)
 {
@@ -80,6 +93,7 @@ static void imagebox_set_image(mforms::ImageBox *self, const std::string &file)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void imagebox_set_image_data(mforms::ImageBox *self, const char *data, size_t length)
 {
@@ -98,6 +112,8 @@ static void imagebox_set_image_data(mforms::ImageBox *self, const char *data, si
       [impl.superview relayout];
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void imagebox_set_alignment(mforms::ImageBox *self, mforms::Alignment alignment)
 {
@@ -139,6 +155,7 @@ static void imagebox_set_alignment(mforms::ImageBox *self, mforms::Alignment ali
   }  
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void imagebox_set_scale(mforms::ImageBox *self, bool flag)
 {
@@ -148,6 +165,8 @@ static void imagebox_set_scale(mforms::ImageBox *self, bool flag)
     impl->mScale= flag;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_imagebox_init()
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -168,7 +168,7 @@ TEST_FUNCTION(95)
   privileges = grt::StringListRef::cast_from(result["privileges"]);
   ensure("95.39", privileges.is_valid());
   ensure_equals("95.40", *grt::StringRef::cast_from(privileges[0]), "insert (a)");
-  ensure_equals("95.41", *grt::StringRef::cast_from(privileges[7]), "create temporary tables");
+  ensure_equals("95.41", *grt::StringRef::cast_from(privileges[7]), "create\t\t\t temporary      tables");
   ensure_equals("95.42", *grt::StringRef::cast_from(privileges[11]), "drop");
   ensure_equals("95.43", *grt::StringRef::cast_from(privileges[15]), "grant option");
   ensure_equals("95.44", *grt::StringRef::cast_from(privileges[18]), base::wstring_to_string(L"insert (a, b, c, d, ⌚️, ♨️)"));

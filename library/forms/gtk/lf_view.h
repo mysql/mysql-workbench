@@ -72,8 +72,8 @@ namespace mforms {
       virtual int get_preferred_width();
       static int get_preferred_height(::mforms::View *self);
       virtual int get_preferred_height();
-      static int get_x(::mforms::View *self);
-      static int get_y(::mforms::View *self);
+      static int get_x(const ::mforms::View *self);
+      static int get_y(const ::mforms::View *self);
       static void set_size(::mforms::View *self, int w, int h);
       virtual void set_size(int width, int height);
       static void set_min_size(::mforms::View *self, int w, int h);

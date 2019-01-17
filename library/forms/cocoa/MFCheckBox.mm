@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -28,21 +28,20 @@
 
 @implementation MFCheckBoxImpl
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (instancetype)initWithObject:(::mforms::CheckBox*)aCheckBox square:(BOOL)square
-{
-  self= [super initWithObject:aCheckBox buttonType: ::mforms::PushButton];
-  if (self)
-  {
+- (instancetype)initWithObject: (mforms::CheckBox*)aCheckBox square: (BOOL)square {
+  self = [super initWithObject: aCheckBox buttonType: mforms::PushButton];
+  if (self != nil) {
     [self setButtonType: square ? NSPushOnPushOffButton : NSSwitchButton];
     if (square)
       self.bezelStyle = NSShadowlessSquareBezelStyle;
     else
       self.bezelStyle = NSRegularSquareBezelStyle;
 
-    mTopLeftOffset= NSMakePoint(0, 0);
-    mBottomRightOffset= NSMakePoint(0, 0);
-    mAddPadding= NO;
+    mTopLeftOffset = NSMakePoint(0, 0);
+    mBottomRightOffset = NSMakePoint(0, 0);
+    mAddPadding = NO;
     
     self.target = self;
     self.action = @selector(performCallback:);
@@ -50,55 +49,58 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)performCallback:(id)sender
-{
+- (void)performCallback: (id)sender {
   mOwner->callback();
 }
 
-- (NSSize)minimumSize
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSSize)minimumSize {
   // We have to explicitly add space for the check box. No idea why this isn't done by cocoa implicitly.
   NSSize result = super.minimumSize;
   result.width += 4; // Seems only the spacing is missing.
   return result;
 }
 
-static bool checkbox_create(::mforms::CheckBox *self, bool square)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityCheckBoxRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool checkbox_create(mforms::CheckBox *self, bool square) {
   return [[MFCheckBoxImpl alloc] initWithObject: self square: square] != nil;
 }
 
-static void checkbox_set_active(::mforms::CheckBox *self, bool flag)
-{
-  if ( self )
-  {
-    MFCheckBoxImpl* checkbox = self->get_data();
-    
-    if ( checkbox )
-    {
-      checkbox.state = flag ? NSOnState : NSOffState;
-    }
+//----------------------------------------------------------------------------------------------------------------------
+
+static void checkbox_set_active(mforms::CheckBox *self, bool flag) {
+  MFCheckBoxImpl* checkbox = self->get_data();
+
+  if (checkbox != nullptr) {
+    checkbox.state = flag ? NSOnState : NSOffState;
   }
 }
 
-static bool checkbox_get_active(::mforms::CheckBox *self)
-{
-  if ( self )
-  {
-    MFCheckBoxImpl* checkbox = self->get_data();
-    
-    if ( checkbox )
-    {
-      return checkbox.state == NSOnState;
-    }
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool checkbox_get_active(::mforms::CheckBox *self) {
+  MFCheckBoxImpl* checkbox = self->get_data();
+
+  if (checkbox != nullptr) {
+    return checkbox.state == NSOnState;
   }
+
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-void cf_checkbox_init()
-{
+void cf_checkbox_init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
   
   f->_checkbox_impl.create= &checkbox_create;

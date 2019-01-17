@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -62,7 +62,7 @@
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void) handleCommand: (NSMenuItem*) sender
 {
@@ -70,7 +70,13 @@
   mOwner->handle_action(command.UTF8String);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityMenuRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool menu_create(mforms::Menu *self)
 {
@@ -78,7 +84,7 @@ static bool menu_create(mforms::Menu *self)
   return menu != nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void menu_remove_item(mforms::Menu *self, int i)
 {
@@ -86,7 +92,7 @@ static void menu_remove_item(mforms::Menu *self, int i)
   [menu removeItemAtIndex: i];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static int menu_add_item(mforms::Menu *self, const std::string &caption, const std::string &action)
 {
@@ -105,7 +111,7 @@ static int menu_add_item(mforms::Menu *self, const std::string &caption, const s
   return (int)menu.numberOfItems - 1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static int menu_add_separator(mforms::Menu *self)
 {
@@ -117,7 +123,7 @@ static int menu_add_separator(mforms::Menu *self)
   return (int)menu.numberOfItems - 1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mforms::Menu *submenu)
 {
@@ -134,7 +140,7 @@ static int menu_add_submenu(mforms::Menu *self, const std::string &caption, mfor
   return (int)menu.numberOfItems - 1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void menu_set_item_enabled(mforms::Menu *self, int i, bool flag)
 {
@@ -143,7 +149,7 @@ static void menu_set_item_enabled(mforms::Menu *self, int i, bool flag)
   [menu itemAtIndex: i].enabled = flag;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void menu_popup_at(mforms::Menu *self, mforms::Object *control, int x, int y)
 {
@@ -175,7 +181,7 @@ static void menu_popup_at(mforms::Menu *self, mforms::Object *control, int x, in
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void menu_clear(mforms::Menu *self)
 {
@@ -186,7 +192,7 @@ static void menu_clear(mforms::Menu *self)
     [menu removeItemAtIndex: 0];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_menu_init()
 {
@@ -204,9 +210,11 @@ void cf_menu_init()
 
 @end
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 NSMenu *nsmenuForMenu(mforms::Menu *menu)
 {
   return menu->get_data();
 }
+
+//----------------------------------------------------------------------------------------------------------------------

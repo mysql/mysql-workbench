@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -88,6 +88,10 @@ public:
     }
 
     // ------ Accesibility Methods -----
+    virtual std::string getAccessibilityDescription() override {
+      return title;
+    }
+
     virtual Accessible::Role getAccessibilityRole() override {
       return Accessible::ListItem;
     }
@@ -179,7 +183,6 @@ public:
 
     });
 
-    item->setAccessibilityName(title);
     item->title = title;
     item->sub_title = sub_title;
     item->icon = Utilities::load_icon(icon_path, true);

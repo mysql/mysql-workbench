@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -134,7 +134,7 @@ namespace mforms {
     ConnectionsWelcomeScreen *_welcomeScreen;
     mforms::Box *_container;
 
-    ConnectionVector &displayed_connections();
+    ConnectionVector const& displayed_connections() const;
 
     virtual void updateColors() override;
     virtual void updateIcons() override;
@@ -142,8 +142,8 @@ namespace mforms {
     void on_search_text_changed();
     void on_search_text_action(mforms::TextEntryAction action);
     ssize_t calculate_index_from_point(int x, int y);
-    std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y);
-    std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index);
+    std::shared_ptr<ConnectionEntry> entry_from_point(int x, int y) const;
+    std::shared_ptr<ConnectionEntry> entry_from_index(ssize_t index) const;
     base::Rect bounds_for_entry(size_t index, size_t width);
     std::string connectionIdFromIndex(ssize_t index);
 
@@ -163,11 +163,12 @@ namespace mforms {
 
     void change_to_folder(std::shared_ptr<FolderEntry> folder);
 
+    virtual std::string getAccessibilityTitle() override;
     virtual size_t getAccessibilityChildCount() override;
-    virtual Accessible *getAccessibilityChild(size_t index) override;
+    virtual Accessible* getAccessibilityChild(size_t index) override;
     virtual Accessible::Role getAccessibilityRole() override;
 
-    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y) override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
     bool do_tile_drag(ssize_t index, int x, int y);
 
     mforms::DragOperation drag_over(View *sender, base::Point p, mforms::DragOperation allowedOperations,
@@ -209,7 +210,7 @@ namespace mforms {
                        const std::string &user, const std::string &schema);
 
     void updateFocusableAreas();
-    bool setFocusOnEntry(ConnectionEntry *entry);
+    bool setFocusOnEntry(ConnectionEntry const* entry);
 
     virtual mforms::View *getContainer() override;
     virtual mforms::View *get_parent() const override;

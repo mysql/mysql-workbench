@@ -111,7 +111,7 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <clipView key="contentView" drawsBackground="NO" id="eBq-Ra-vIS">
                                     <rect key="frame" x="1" y="1" width="631" height="57"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" smartInsertDelete="YES" id="27">
                                             <rect key="frame" x="0.0" y="0.0" width="631" height="57"/>
@@ -728,7 +728,7 @@
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" smartInsertDelete="YES" id="106">
-                                                    <rect key="frame" x="0.0" y="0.0" width="228" height="103"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="232" height="103"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -94,7 +94,7 @@ void check_fwd_engineer(WBTester &wbt, std::string &modelfile, std::string &expe
 
   tut::ensure(expected_sql, ref.is_open());
 
-  std::string error_msg("Forward engineer of:");
+  std::string error_msg("Forward engineer of ");
   error_msg += modelfile;
   error_msg += " and ";
   error_msg += expected_sql;

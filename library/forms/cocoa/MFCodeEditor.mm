@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@
 using namespace mforms;
 
 @implementation MFCodeEditor
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithFrame: (NSRect)frame codeEditor: (CodeEditor*)codeEditor {
   self = [super initWithFrame:frame];
@@ -71,11 +73,13 @@ using namespace mforms;
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)destroy {
-  mOwner = NULL; // Keeps async processes (e.g. layout) from accessing an invalid owner.
+  mOwner = nullptr; // Keeps async processes (e.g. layout) from accessing an invalid owner.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 // standard focus handling is not enough
 // STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
@@ -85,10 +89,14 @@ using namespace mforms;
   return [self.window makeFirstResponder: [self content]];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 // for MVerticalLayoutView
 - (BOOL)expandsOnLayoutVertically: (BOOL)flag {
   return YES;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSMenu*)menuForEvent: (NSEvent*)theEvent {
   mforms::Menu* menu = mOwner->get_context_menu();
@@ -98,6 +106,8 @@ using namespace mforms;
   }
   return nil;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)keyDown: (NSEvent*)event {
   // Since we cannot self get the first responder (our content view does) this event
@@ -124,7 +134,7 @@ using namespace mforms;
   mOwner->key_event(code, modifiers, input.UTF8String);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)notification: (SCNotification*)notification {
   [super notification:notification];
@@ -132,14 +142,14 @@ using namespace mforms;
     mOwner->on_notify(notification);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)command: (int)code {
   if (mOwner != NULL && !mOwner->is_destroying())
     mOwner->on_command(code);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)showFindPanel: (bool)doReplace;
 {
@@ -147,7 +157,13 @@ using namespace mforms;
     mOwner->show_find_panel(doReplace);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityTextAreaRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool ce_create(CodeEditor* self, bool showInfo) {
   MFCodeEditor* editor = [[MFCodeEditor alloc] initWithFrame: NSMakeRect(0, 0, 100, 100) codeEditor: self];
@@ -182,7 +198,7 @@ static void ce_set_status_text(CodeEditor* self, const std::string& text) {
 //--------------------------------------------------------------------------------------------------
 
 void cf_codeeditor_init() {
-  ::mforms::ControlFactory* f = ::mforms::ControlFactory::get_instance();
+  ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
   f->_code_editor_impl.create = ce_create;
   f->_code_editor_impl.send_editor = ce_send_editor;

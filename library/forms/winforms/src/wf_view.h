@@ -52,8 +52,8 @@ namespace MySQL {
       static int get_height(const mforms::View *backend);
       static int get_preferred_width(mforms::View *backend);
       static int get_preferred_height(mforms::View *backend);
-      static int get_x(mforms::View *backend);
-      static int get_y(mforms::View *backend);
+      static int get_x(const mforms::View *backend);
+      static int get_y(const mforms::View *backend);
       static void set_size(mforms::View *backend, int w, int h);
       static void set_min_size(mforms::View *backend, int w, int h);
       static void set_padding(mforms::View *backend, int left, int top, int right, int bottom);

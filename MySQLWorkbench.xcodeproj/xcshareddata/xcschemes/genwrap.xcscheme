@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2B240383101BC6CC00079580"
-               BuildableName = "wbtests"
-               BlueprintName = "wbtests-com"
+               BlueprintIdentifier = "2731DE5921A2CDA0002EEE8A"
+               BuildableName = "genwrap"
+               BlueprintName = "genwrap"
                ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2B240383101BC6CC00079580"
-            BuildableName = "wbtests"
-            BlueprintName = "wbtests-com"
+            BlueprintIdentifier = "2731DE5921A2CDA0002EEE8A"
+            BuildableName = "genwrap"
+            BlueprintName = "genwrap"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -46,8 +46,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "$PROJECT_DIR/testing/tut"
+      useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "NO"
       debugServiceExtension = "internal"
@@ -55,40 +54,17 @@
       launchAutomaticallySubstyle = "2">
       <RemoteRunnable
          runnableDebuggingMode = "0"
-         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/master/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
+         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/master/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/genwrap">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2B240383101BC6CC00079580"
-            BuildableName = "wbtests"
-            BlueprintName = "wbtests-com"
+            BlueprintIdentifier = "2731DE5921A2CDA0002EEE8A"
+            BuildableName = "genwrap"
+            BlueprintName = "genwrap"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "only db_mysql_sql_export"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "MWB_DATA_DIR"
-            value = "$BUILT_PRODUCTS_DIR/MySQLWorkbench.app/Contents/Resources"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "TEST_MODULES_DIR"
-            value = "$BUILT_PRODUCTS_DIR/MySQLWorkbench.app/Contents/Plugins"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "JSON_CONFIG_FILE"
-            value = "config.json"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -102,9 +78,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2B240383101BC6CC00079580"
-            BuildableName = "wbtests"
-            BlueprintName = "wbtests-com"
+            BlueprintIdentifier = "2731DE5921A2CDA0002EEE8A"
+            BuildableName = "genwrap"
+            BlueprintName = "genwrap"
             ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

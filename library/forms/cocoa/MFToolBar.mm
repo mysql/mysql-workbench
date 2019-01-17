@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -79,6 +79,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityMenuBarItemRole;
+}
+
 @end
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -150,6 +156,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
 
 - (ToolBarItemType)itemType {
   return mOwner->get_type();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityMenuBarItemRole;
 }
 
 @end
@@ -308,8 +320,16 @@ static NSColor* colorFromHexString(const char* hexcolor) {
   [self sizeToFit];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString*)stringValue {
   return self.title;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityButtonRole;
 }
 
 @end
@@ -383,6 +403,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
   [mToolbar resizeSubviewsWithOldSize: NSZeroSize];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityStaticTextRole;
+}
+
 @end
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -435,6 +461,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
 - (void)setImage:(NSImage*)image {
   super.image = image;
   [self setFrameSize: image.size];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityImageRole;
 }
 
 @end
@@ -493,6 +525,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
   mOwner->callback();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityTextFieldRole;
+}
+
 @end
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -538,6 +576,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
 
 - (ToolBarItem*)toolBarItem {
   return mOwner;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityTextFieldRole;
 }
 
 @end
@@ -611,6 +655,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
     [self selectItemAtIndex: [self indexOfItemWithRepresentedObject: value]];
   else
     [self selectItemWithTitle: value];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityPopUpButtonRole;
 }
 
 @end
@@ -923,6 +973,12 @@ static NSColor* colorFromHexString(const char* hexcolor) {
 
 - (void)destroy {
   [self removeFromSuperview];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityMenuBarRole;
 }
 
 @end

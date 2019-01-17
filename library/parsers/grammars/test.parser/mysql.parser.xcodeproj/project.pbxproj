@@ -269,7 +269,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}/..\nif [ ! -f ../mysql/MySQLParser.h ]; then ./build-parsers-mac mysql; fi\nif [ ! -f ../mysql/MySQLParser.cpp ]; then ./build-parsers-mac mysql; fi\nif [ ! -f ../mysql/MySQLLexer.h ]; then ./build-parsers-mac mysql; fi\nif [ ! -f ../mysql/MySQLLexer.cpp ]; then ./build-parsers-mac mysql; fi\n\nif [ MySQLParser.g4 -nt ../mysql/MySQLParser.cpp ]; then\n./build-parsers-mac mysql;\nfi\nif [ MySQLLexer.g4 -nt ../mysql/MySQLLexer.cpp ]; then\n./build-parsers-mac mysql;\nfi";
+			shellScript = "cd ${SRCROOT}/..\nif [ ! -f ../mysql/MySQLParser.h ]; then ./build-parsers-mac mysql; fi\nif [ ! -f ../mysql/MySQLParser.cpp ]; then ./build-parsers-mac mysql; fi\nif [ ! -f ../mysql/MySQLLexer.h ]; then ./build-parsers-mac mysql; fi\nif [ ! -f ../mysql/MySQLLexer.cpp ]; then ./build-parsers-mac mysql; fi\n\nif [ MySQLParser.g4 -nt ../mysql/MySQLParser.cpp ]; then\n./build-parsers-mac mysql;\nfi\nif [ MySQLLexer.g4 -nt ../mysql/MySQLLexer.cpp ]; then\n./build-parsers-mac mysql;\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

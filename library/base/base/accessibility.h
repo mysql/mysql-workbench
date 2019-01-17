@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,20 +45,16 @@ namespace base {
 
     virtual ~Accessible();
 
-    virtual void setAccessibilityName(const std::string &name) {
-      _accessibilityName = name;
-    }
-
-    // Name + role are mandatory.
-    virtual std::string getAccessibilityName() {
-        return _accessibilityName;
-    }
+    // Description + role are mandatory. The first is often referred to as "name".
+    virtual std::string getAccessibilityDescription() = 0;
     virtual Role getAccessibilityRole() = 0;
+
+    // The identifier is merely informative and not supported on all platforms.
+    virtual std::string getAccessibilityIdentifier();
 
     // The rest of the accessible methods are optional, but it is strongly recommended to implement them
     // in all descendants for property accessibility + testing support.
-    virtual std::string getAccessibilityTitle();
-    virtual std::string getAccessibilityDescription();
+    virtual std::string getAccessibilityTitle();  
     virtual std::string getAccessibilityValue();
     virtual size_t getAccessibilityChildCount();
     virtual Accessible* getAccessibilityChild(size_t index);
@@ -68,6 +64,7 @@ namespace base {
     virtual void accessibilityDoDefaultAction();
     virtual void accessibilityShowMenu();
     virtual bool accessibilityGrabFocus();
+
     std::function <void(Accessible*)> onDestroy;
   };
 

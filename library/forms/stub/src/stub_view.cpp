@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -63,11 +63,11 @@ namespace mforms {
       return 0;
     }
 
-    int ViewWrapper::get_x(mforms::View *self) {
+    int ViewWrapper::get_x(const mforms::View *self) {
       return 0;
     }
 
-    int ViewWrapper::get_y(mforms::View *self) {
+    int ViewWrapper::get_y(const mforms::View *self) {
       return 0;
     }
 

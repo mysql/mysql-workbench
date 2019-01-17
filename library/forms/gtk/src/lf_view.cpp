@@ -281,7 +281,7 @@ namespace mforms {
       return natural;
     }
 
-    int ViewImpl::get_x(::mforms::View *self) {
+    int ViewImpl::get_x(const ::mforms::View *self) {
       ViewImpl *view = self->get_data<ViewImpl>();
       if (view) {
         Gtk::Widget *widget = view->get_outer();
@@ -290,7 +290,7 @@ namespace mforms {
       return 0;
     }
 
-    int ViewImpl::get_y(::mforms::View *self) {
+    int ViewImpl::get_y(const ::mforms::View *self) {
       ViewImpl *view = self->get_data<ViewImpl>();
       if (view) {
         Gtk::Widget *widget = view->get_outer();

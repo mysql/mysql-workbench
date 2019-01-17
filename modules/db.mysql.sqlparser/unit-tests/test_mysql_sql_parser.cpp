@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -38,6 +38,8 @@
 
 using namespace parsers;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 BEGIN_TEST_DATA_CLASS(highlevel_mysql_parser_test)
 protected:
   WBTester *_tester;
@@ -50,11 +52,8 @@ protected:
   DictRef _options;
   void test_import_sql(size_t test_no, const char *old_schema_name = NULL, const char *new_schema_name= NULL);
 
-  TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test) : _sqlFacade(nullptr), _context(nullptr), _services(nullptr)
-  {
-
+  TEST_DATA_CONSTRUCTOR(highlevel_mysql_parser_test) : _sqlFacade(nullptr), _context(nullptr), _services(nullptr) {
     _tester = new WBTester();
-    // init datatypes
     populate_grt(*_tester);
 
     auto rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/rdbms"));
@@ -64,12 +63,13 @@ protected:
 
 END_TEST_DATA_CLASS
 
+//----------------------------------------------------------------------------------------------------------------------
+
 TEST_MODULE(highlevel_mysql_parser_test, "High level MySQL parser tests");
 
-TEST_FUNCTION(10)
-{
+//----------------------------------------------------------------------------------------------------------------------
 
-
+TEST_FUNCTION(10) {
   _options = DictRef(true);
   _options.set("gen_fk_names_when_empty", IntegerRef(0));
 
@@ -80,11 +80,10 @@ TEST_FUNCTION(10)
   _context = _services->createParserContext(_tester->get_rdbms()->characterSets(), _tester->get_rdbms()->version(), "", false);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_no, const char *old_schema_name,
-  const char *new_schema_name)
-{
+  const char *new_schema_name) {
   static const char* TEST_DATA_DIR = "data/modules_grt/wb_mysql_import/sql/";
 
   // Set filenames & messages based on test number.
@@ -96,15 +95,13 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_
   // 
   // The old parser has some inflexibilities (e.g. regarding key/column ordering in a CREATE TABLE)
   // so some tests fail for it now, as we use more complex sql for the new parser. Ignore those for the old parser.
-  if (test_no != 8 && test_no != 9 && test_no != 16)
-  {
+  if (test_no != 8 && test_no != 9 && test_no != 16) {
   // /*
     std::string test_message = "SQL old (" + number_string + ")";
     std::string test_catalog_state_filename = TEST_DATA_DIR + number_string + ".xml";
     std::string res_catalog_state_filename = TEST_DATA_DIR + number_string + "_res.xml";
 
-    if (g_file_test(test_catalog_state_filename.c_str(), G_FILE_TEST_EXISTS)) // Some newer tests are only done for the new parser.
-    {
+    if (g_file_test(test_catalog_state_filename.c_str(), G_FILE_TEST_EXISTS)) { // Some newer tests are only done for the new parser.
       db_mysql_CatalogRef res_catalog(grt::Initialized);
       res_catalog->version(_tester->get_rdbms()->version());
       res_catalog->defaultCharacterSetName("utf8");
@@ -147,7 +144,7 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_
     grt::replace_contents(res_catalog->simpleDatatypes(), _tester->get_rdbms()->simpleDatatypes());
 
     std::string sql = base::getTextFileContent(test_sql_filename);
-    tut::ensure("Query failed to parse (" + number_string + "):\n" + sql +"\n",
+    tut::ensure("Script failed to parse (" + number_string + "):\n" + sql +"\n",
       _services->parseSQLIntoCatalog(_context, res_catalog, sql, _options) == 0);
 
     // Rename the schema if asked.
@@ -167,49 +164,42 @@ void Test_object_base<highlevel_mysql_parser_test>::test_import_sql(size_t test_
 }
 
 // Table
-TEST_FUNCTION(20)
-{
+TEST_FUNCTION(20) {
   for (int i = 0; i <= 18; ++i)
     test_import_sql(i);
 }
 
 // Index
-TEST_FUNCTION(30)
-{
+TEST_FUNCTION(30) {
   for (size_t i : { 50, 51 })
     test_import_sql(i);
 }
 
 // View
-TEST_FUNCTION(40)
-{
+TEST_FUNCTION(40) {
   for (size_t i : { 100, 101 })
     test_import_sql(i);
 }
 
 // Routines
-TEST_FUNCTION(50)
-{
+TEST_FUNCTION(50) {
   for (size_t i : { 150, 151, 152 })
     test_import_sql(i);
 }
 
 // Triggers
-TEST_FUNCTION(60)
-{
+TEST_FUNCTION(60) {
   test_import_sql(200);
 }
 
 // Events
-TEST_FUNCTION(70)
-{
+TEST_FUNCTION(70) {
   for (size_t i : { 250, 251, 252, 253 })
     test_import_sql(i);
 }
 
 // Other language constructs.
-TEST_FUNCTION(80)
-{
+TEST_FUNCTION(80) {
   // Logfile group + table space
   test_import_sql(300);
 
@@ -227,8 +217,7 @@ TEST_FUNCTION(80)
 }
 
 // Real world schemata (many objects) + other tasks.
-TEST_FUNCTION(90)
-{
+TEST_FUNCTION(90) {
   // sakila-db: schema structures (except of triggers).
   test_import_sql(700);
 
@@ -247,8 +236,7 @@ TEST_FUNCTION(90)
 
 // Due to the tut nature, this must be executed as a last test always,
 // we can't have this inside of the d-tor.
-TEST_FUNCTION(99)
-{
+TEST_FUNCTION(99) {
   auto rdbms = db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/rdbms"));
   rdbms->version(_oldVersion);
   _context.reset(); // TODO: find out what the context is using from the tester, so that we have to release it first.

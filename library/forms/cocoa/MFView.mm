@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -30,11 +30,15 @@
 #import "NSColor_extras.h"
 #import <Carbon/Carbon.h>
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation NSView (MForms)
 
 - (id)innerView {
   return self;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static const char *minimumSizeKey = "minimumSizeKey";
 
@@ -43,9 +47,13 @@ static const char *minimumSizeKey = "minimumSizeKey";
   return value.sizeValue;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setMinimumSize:(NSSize)size {
   objc_setAssociatedObject(self, minimumSizeKey, [NSValue valueWithSize: size], OBJC_ASSOCIATION_RETAIN);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static const char *viewFlagsKey = "viewFlagsKey";
 
@@ -54,9 +62,13 @@ static const char *viewFlagsKey = "viewFlagsKey";
   return (ViewFlags)value.intValue;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setViewFlags:(ViewFlags)value {
   objc_setAssociatedObject(self, viewFlagsKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static const char *lastDragOperationKey = "lastDragOperationKey";
 
@@ -65,9 +77,13 @@ static const char *lastDragOperationKey = "lastDragOperationKey";
   return (mforms::DragOperation)value.intValue;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setLastDragOperation: (mforms::DragOperation)value {
   objc_setAssociatedObject(self, lastDragOperationKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static const char *allowedDragOperationsKey = "allowedDragOperationsKey";
 
@@ -76,15 +92,21 @@ static const char *allowedDragOperationsKey = "allowedDragOperationsKey";
   return (mforms::DragOperation)value.intValue;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setAllowedDragOperations: (mforms::DragOperation)value {
   objc_setAssociatedObject(self, allowedDragOperationsKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static const char *acceptableDropFormatsKey = "acceptableDropFormats";
 
 - (NSArray *)acceptableDropFormats {
   return objc_getAssociatedObject(self, acceptableDropFormatsKey);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setAcceptableDropFormats: (NSArray *)formats {
   objc_setAssociatedObject(self, acceptableDropFormatsKey, formats, OBJC_ASSOCIATION_RETAIN);
@@ -94,6 +116,8 @@ static const char *acceptableDropFormatsKey = "acceptableDropFormats";
     [self unregisterDraggedTypes];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static const char *dropDelegateKey = "dropDelegate";
 
 - (mforms::DropDelegate *)dropDelegate {
@@ -101,9 +125,13 @@ static const char *dropDelegateKey = "dropDelegate";
   return (mforms::DropDelegate *)value.unsignedIntegerValue;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setDropDelegate: (mforms::DropDelegate *)delegate {
   objc_setAssociatedObject(self, dropDelegateKey, @((NSUInteger)delegate), OBJC_ASSOCIATION_RETAIN);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static const char *lastDropPositionKey = "lastDropPositionKey";
 
@@ -112,11 +140,13 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   return (mforms::DropPosition)value.intValue;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setLastDropPosition:(mforms::DropPosition)value {
   objc_setAssociatedObject(self, lastDropPositionKey, @(value), OBJC_ASSOCIATION_RETAIN);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)isAccessibilityElement {
   return YES;
@@ -158,7 +188,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   return handled;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleMouseDown: (NSEvent *)event owner: (mforms::View *)mOwner {
   NSPoint p = [self convertPoint: event.locationInWindow fromView: nil];
@@ -181,7 +211,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   return mOwner->mouse_down(mouseButton, p.x, p.y);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleMouseMove: (NSEvent *)event owner: (mforms::View *)mOwner {
   // We have to map mouseDragged to mouseMoved as other platforms don't do this separation.
@@ -198,43 +228,45 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   return mOwner->mouse_move(mouseButton, p.x, p.y);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleMouseEntered: (NSEvent *)event owner: (mforms::View *)mOwner {
   // NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
   return mOwner->mouse_enter();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleMouseExited: (NSEvent *)event owner: (mforms::View *)mOwner {
   // NSPoint p = [self convertPoint: [event locationInWindow] fromView: nil];
   return mOwner->mouse_leave();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (bool)handleBecomeFirstResponder: (mforms::View *)mOwner {
   return mOwner->focusIn();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleResignFirstResponder: (mforms::View *)mOwner {
   return mOwner->focusOut();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleKeyUp:(NSEvent *)event owner:(mforms::View *)mOwner {
   return mOwner->keyRelease([self keyFromEvent: event], [self modifiersFromEvent: event]);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (bool)handleKeyDown:(NSEvent *)event owner:(mforms::View *)mOwner {
   return mOwner->keyPress([self keyFromEvent: event], [self modifiersFromEvent: event]);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * To be called by all controls that want mouse events for dragging (from updateTrackingAreas).
@@ -253,7 +285,7 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   return currentArea;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the view's preferred size. Since a raw view doesn't know anything about its content
@@ -264,9 +296,13 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   return { MAX(self.minimumSize.width, proposal.width), MAX(self.minimumSize.height, proposal.height) };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)relayout {
   [self resizeSubviewsWithOldSize: self.frame.size];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)drawBounds: (NSRect)rect {
   NSFrameRect(rect);
@@ -275,6 +311,8 @@ static const char *lastDropPositionKey = "lastDropPositionKey";
   [NSBezierPath strokeLineFromPoint: NSMakePoint(NSMinX(rect), NSMaxY(rect))
                             toPoint: NSMakePoint(NSMaxX(rect), NSMinY(rect))];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #pragma mark - Drag/drop support
 
@@ -287,6 +325,8 @@ struct PasteboardDataWrapper {
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (mforms::DropDelegate *)determineDropDelegate {
   mforms::DropDelegate *delegate = self.dropDelegate;
   if (delegate == NULL) {
@@ -295,6 +335,8 @@ struct PasteboardDataWrapper {
   }
   return delegate;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSDragOperation)draggingUpdated: (id<NSDraggingInfo>)sender {
   mforms::DropDelegate *delegate = [self determineDropDelegate];
@@ -338,6 +380,8 @@ struct PasteboardDataWrapper {
 
   return result;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)performDragOperation: (id<NSDraggingInfo>)sender {
   mforms::DropDelegate *delegate = [self determineDropDelegate];
@@ -390,9 +434,13 @@ struct PasteboardDataWrapper {
   return NO;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)draggingEnded:(id<NSDraggingInfo>)sender {
   self.lastDropPosition = mforms::DropPositionUnknown;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // Since drag initiation and data retrieval are now separated we need a temporary storage for the data.
 // As this is a category we would have to go the long way, or simply use a static var.
@@ -473,6 +521,8 @@ static NSString *dragText = nil;
   return self.lastDragOperation;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void *dragData = NULL;
 static bool dragInProgress = NO;
 
@@ -543,13 +593,15 @@ static bool dragInProgress = NO;
   return self.lastDragOperation;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)draggingSession: (NSDraggingSession *)session
            endedAtPoint: (NSPoint)screenPoint
               operation: (NSDragOperation)operation {
   dragInProgress = NO;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type {
   if ([type isEqualTo:NSStringPboardType])
@@ -558,7 +610,7 @@ static bool dragInProgress = NO;
     [sender writeNativeData: dragData typeAsString: type];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSDragOperation)draggingSession: (NSDraggingSession *)session
   sourceOperationMaskForDraggingContext: (NSDraggingContext)context;
@@ -580,6 +632,8 @@ static bool dragInProgress = NO;
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (mforms::ModifierKey)modifiersFromEvent:(NSEvent *)event {
   NSUInteger modifiers = event.modifierFlags;
   mforms::ModifierKey mforms_modifiers = mforms::ModifierNoModifier;
@@ -595,6 +649,8 @@ static bool dragInProgress = NO;
 
   return mforms_modifiers;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (mforms::KeyCode)keyFromEvent:(NSEvent *)event {
   std::vector<int> letters = {kVK_ANSI_A, kVK_ANSI_S, kVK_ANSI_D, kVK_ANSI_F, kVK_ANSI_H, kVK_ANSI_G, kVK_ANSI_Z,
@@ -686,17 +742,17 @@ static bool dragInProgress = NO;
   return code;
 }
 
-//--------------------------------------------------------------------------------------------------
-
 @end
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 NSView *nsviewForView(mforms::View *view) {
   id obj = view->get_data();
 
   return obj;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #pragma mark -
 
@@ -725,6 +781,8 @@ NSView *nsviewForView(mforms::View *view) {
   return NULL;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void *)nativeDataForTypeAsChar: (const char *)type {
   NSString *format = @(type);
   return [self nativeDataForTypeAsString: format];
@@ -732,9 +790,11 @@ NSView *nsviewForView(mforms::View *view) {
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 #pragma mark - Static functions
 
-static void view_destroy(::mforms::View *self) {
+static void view_destroy(mforms::View *self) {
   id view = self->get_data();
   SEL selector = NSSelectorFromString(@"destroy");
   if (view && [view respondsToSelector: selector])
@@ -744,7 +804,9 @@ static void view_destroy(::mforms::View *self) {
     [view removeFromSuperview];
 }
 
-static int view_get_x(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static int view_get_x(const mforms::View *self) {
   id view = self->get_data();
   if (view) {
     NSView *widget = view;
@@ -753,7 +815,9 @@ static int view_get_x(::mforms::View *self) {
   return 0;
 }
 
-static int view_get_y(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static int view_get_y(const mforms::View *self) {
   id view = self->get_data();
   if (view) {
     NSView *widget = view;
@@ -762,7 +826,9 @@ static int view_get_y(::mforms::View *self) {
   return 0;
 }
 
-static void view_set_size(::mforms::View *self, int w, int h) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_size(mforms::View *self, int w, int h) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     NSView *view = frontend;
@@ -794,7 +860,9 @@ static void view_set_size(::mforms::View *self, int w, int h) {
   }
 }
 
-static void view_set_min_size(::mforms::View *self, int w, int h) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_min_size(mforms::View *self, int w, int h) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     NSView *view = frontend;
@@ -816,12 +884,16 @@ static void view_set_min_size(::mforms::View *self, int w, int h) {
   }
 }
 
-static void view_set_position(::mforms::View *self, int x, int y) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_position(mforms::View *self, int x, int y) {
   NSView *view = self->get_data();
   view.frameOrigin = {(CGFloat)x, (CGFloat)y};
 }
 
-static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, int y) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::pair<int, int> view_client_to_screen(mforms::View *self, int x, int y) {
   id view = self->get_data();
   if (view) {
     NSRect rect = NSMakeRect(x, y, 0, 0);
@@ -831,6 +903,8 @@ static std::pair<int, int> view_client_to_screen(::mforms::View *self, int x, in
   }
   return std::make_pair(0, 0);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int y) {
   id view = self->get_data();
@@ -843,7 +917,9 @@ static std::pair<int, int> view_screen_to_client(mforms::View *self, int x, int 
   return std::make_pair(0, 0);
 }
 
-static void view_set_enabled(::mforms::View *self, bool flag) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_enabled(mforms::View *self, bool flag) {
   id view = self->get_data();
   if (view) {
     if ([view respondsToSelector: @selector(setEnabled:)])
@@ -851,7 +927,9 @@ static void view_set_enabled(::mforms::View *self, bool flag) {
   }
 }
 
-static bool view_is_enabled(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool view_is_enabled(mforms::View *self) {
   id view = self->get_data();
   if (view) {
     if ([view respondsToSelector: @selector(isEnabled)])
@@ -859,6 +937,8 @@ static bool view_is_enabled(::mforms::View *self) {
   }
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static int view_get_width(const mforms::View *self) {
   id view = self->get_data();
@@ -870,6 +950,8 @@ static int view_get_width(const mforms::View *self) {
   return 0;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static int view_get_height(const mforms::View *self) {
   id frontend = self->get_data();
   if (frontend != nil) {
@@ -880,7 +962,9 @@ static int view_get_height(const mforms::View *self) {
   return 0;
 }
 
-static int view_get_preferred_width(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static int view_get_preferred_width(mforms::View *self) {
   id frontend = self->get_data();
   if (frontend != nil) {
     NSSize size = [frontend preferredSize: [frontend frame].size];
@@ -889,7 +973,9 @@ static int view_get_preferred_width(::mforms::View *self) {
   return 0;
 }
 
-static int view_get_preferred_height(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static int view_get_preferred_height(mforms::View *self) {
   id frontend = self->get_data();
   if (frontend != nil) {
     NSSize size = [frontend preferredSize: [frontend frame].size];
@@ -897,6 +983,8 @@ static int view_get_preferred_height(::mforms::View *self) {
   }
   return 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void view_show(mforms::View *self, bool show) {
   id frontend = self->get_data();
@@ -915,14 +1003,18 @@ static void view_show(mforms::View *self, bool show) {
   }
 }
 
-static bool view_is_shown(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool view_is_shown(mforms::View *self) {
   id view = self->get_data();
   if (view)
     return ![view isHidden];
   return false;
 }
 
-static bool view_is_fully_visible(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool view_is_fully_visible(mforms::View *self) {
   NSView *view = self->get_data();
   if (view) {
     if (view.window == nil)
@@ -933,14 +1025,18 @@ static bool view_is_fully_visible(::mforms::View *self) {
   return false;
 }
 
-static void view_set_tooltip(::mforms::View *self, const std::string &text) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_tooltip(mforms::View *self, const std::string &text) {
   id view = self->get_data();
   if (view) {
     [view setToolTip:wrap_nsstring(text)];
   }
 }
 
-static void view_set_font(::mforms::View *self, const std::string &fontDescription) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_font(mforms::View *self, const std::string &fontDescription) {
   id view = self->get_data();
   if (view && [view respondsToSelector:@selector(setFont:)]) {
     std::string name;
@@ -960,39 +1056,53 @@ static void view_set_font(::mforms::View *self, const std::string &fontDescripti
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void view_set_name(mforms::View *self, const std::string &name) {
   NSView *view = self->get_data();
-  view.accessibilityTitle = [NSString stringWithUTF8String: name.c_str()];
+  view.accessibilityLabel = [NSString stringWithUTF8String: name.c_str()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void view_relayout(mforms::View *self) {
   id view = self->get_data();
   [view performSelectorOnMainThread: @selector(relayout) withObject: nil waitUntilDone: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void view_set_needs_repaint(mforms::View *self) {
   [self->get_data() setNeedsDisplay: YES];
 }
 
-static void view_suspend_layout(::mforms::View *self, bool flag) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_suspend_layout(mforms::View *self, bool flag) {
   if ([self->get_data() respondsToSelector:@selector(setFreezeRelayout:)])
     [self->get_data() setFreezeRelayout: flag];
 }
 
-static void view_set_front_color(::mforms::View *self, const std::string &color) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_front_color(mforms::View *self, const std::string &color) {
   // Foreground color means text color, so that is supported only by text storage and text layer controls.
   if ([self->get_data() respondsToSelector:@selector(setTextColor:)])
     [self->get_data() setTextColor:[NSColor colorFromHexString:@(color.c_str())]];
 }
 
-static std::string view_get_front_color(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::string view_get_front_color(mforms::View *self) {
   if ([self->get_data() respondsToSelector:@selector(textColor)]) {
     return [self->get_data() textColor].hexString.UTF8String;
   }
   return "";
 }
 
-static void view_set_back_color(::mforms::View *self, const std::string &color) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_back_color(mforms::View *self, const std::string &color) {
   id view = self->get_data();
   if ([view respondsToSelector:@selector(setBackgroundColor:)]) {
     [view setBackgroundColor: [NSColor colorFromHexString: @(color.c_str())]];
@@ -1001,7 +1111,9 @@ static void view_set_back_color(::mforms::View *self, const std::string &color) 
   }
 }
 
-static std::string view_get_back_color(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::string view_get_back_color(mforms::View *self) {
   id view = self->get_data();
   if ([view respondsToSelector: @selector(backgroundColor)]) {
     if ([view respondsToSelector: @selector(drawsBackground)] && ![self->get_data() drawsBackground])
@@ -1013,20 +1125,28 @@ static std::string view_get_back_color(::mforms::View *self) {
   return "";
 }
 
-static void view_set_back_image(::mforms::View *self, const std::string &path, mforms::Alignment align) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_back_image(mforms::View *self, const std::string &path, mforms::Alignment align) {
   if ([self->get_data() respondsToSelector: @selector(setBackgroundImage:withAlignment:)])
     [self->get_data() setBackgroundImage: wrap_nsstring(path) withAlignment: align];
 }
 
-static void view_flush_events(::mforms::View *) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_flush_events(mforms::View *) {
 }
 
-static void view_set_padding(::mforms::View *self, int left, int top, int right, int bottom) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_set_padding(mforms::View *self, int left, int top, int right, int bottom) {
   if ([self->get_data() respondsToSelector:@selector(setPaddingLeft:right:top:bottom:)])
     [self->get_data() setPaddingLeft: left right: right top: top bottom: bottom];
 }
 
-static void view_focus(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static void view_focus(mforms::View *self) {
   id frontend = self->get_data();
   if ([frontend isKindOfClass: NSView.class]) {
     [[frontend window] makeKeyAndOrderFront: frontend];
@@ -1035,7 +1155,9 @@ static void view_focus(::mforms::View *self) {
     [frontend makeKeyAndOrderFront: frontend];
 }
 
-static bool view_has_focus(::mforms::View *self) {
+//----------------------------------------------------------------------------------------------------------------------
+
+static bool view_has_focus(mforms::View *self) {
   id view = self->get_data();
   id firstResponder = [view window].firstResponder;
   if (firstResponder == view)
@@ -1044,6 +1166,8 @@ static bool view_has_focus(::mforms::View *self) {
     return true;
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void register_drop_formats(mforms::View *self, mforms::DropDelegate *target,
                                   const std::vector<std::string> &formats) {
@@ -1062,10 +1186,14 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
   view.dropDelegate = target;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static mforms::DragOperation view_drag_text(mforms::View *self, mforms::DragDetails details, const std::string &text) {
   NSView *view = self->get_data();
   return [view startDragWithText: @(text.c_str()) details: details];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDetails details, void *data,
                                             const std::string &format) {
@@ -1073,13 +1201,17 @@ static mforms::DragOperation view_drag_data(mforms::View *self, mforms::DragDeta
   return [view startDragWithData:data details:details format:@(format.c_str())];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static mforms::DropPosition view_get_drop_position(mforms::View *self) {
   NSView *view = self->get_data();
   return view.lastDropPosition;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void cf_view_init() {
-  ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
+  mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
   f->_view_impl.destroy = &view_destroy;
 
@@ -1126,3 +1258,5 @@ void cf_view_init() {
   f->_view_impl.drag_data = &view_drag_data;
   f->_view_impl.get_drop_position = &view_get_drop_position;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

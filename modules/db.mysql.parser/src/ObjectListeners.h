@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -185,7 +185,12 @@ namespace parsers {
     LogfileGroupListener(antlr4::tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_DatabaseObjectRef anObject, bool caseSensitive);
 
     virtual void exitCreateLogfileGroup(MySQLParser::CreateLogfileGroupContext *ctx) override;
-    virtual void exitLogfileGroupOption(MySQLParser::LogfileGroupOptionContext *ctx) override;
+    virtual void exitTsOptionInitialSize(MySQLParser::TsOptionInitialSizeContext *ctx) override;
+    virtual void exitTsOptionUndoRedoBufferSize(MySQLParser::TsOptionUndoRedoBufferSizeContext *ctx) override;
+    virtual void exitTsOptionNodegroup(MySQLParser::TsOptionNodegroupContext *ctx) override;
+    virtual void exitTsOptionEngine(MySQLParser::TsOptionEngineContext *ctx) override;
+    virtual void exitTsOptionWait(MySQLParser::TsOptionWaitContext *ctx) override;
+    virtual void exitTsOptionComment(MySQLParser::TsOptionCommentContext *ctx) override;
   };
 
   // Used for SF, SP and UDF.
@@ -265,7 +270,17 @@ namespace parsers {
 
     virtual void exitCreateTablespace(MySQLParser::CreateTablespaceContext *ctx) override;
     virtual void exitLogfileGroupRef(MySQLParser::LogfileGroupRefContext *ctx) override;
-    virtual void exitTablespaceOption(MySQLParser::TablespaceOptionContext *ctx) override;
+    virtual void exitTsDataFile(MySQLParser::TsDataFileContext *ctx) override;
+    virtual void exitTsOptionInitialSize(MySQLParser::TsOptionInitialSizeContext *ctx) override;
+    virtual void exitTsOptionAutoextendSize(MySQLParser::TsOptionAutoextendSizeContext *ctx) override;
+    virtual void exitTsOptionMaxSize(MySQLParser::TsOptionMaxSizeContext *ctx) override;
+    virtual void exitTsOptionExtentSize(MySQLParser::TsOptionExtentSizeContext *ctx) override;
+    virtual void exitTsOptionNodegroup(MySQLParser::TsOptionNodegroupContext *ctx) override;
+    virtual void exitTsOptionEngine(MySQLParser::TsOptionEngineContext *ctx) override;
+    virtual void exitTsOptionWait(MySQLParser::TsOptionWaitContext *ctx) override;
+    virtual void exitTsOptionComment(MySQLParser::TsOptionCommentContext *ctx) override;
+    virtual void exitTsOptionFileblockSize(MySQLParser::TsOptionFileblockSizeContext *ctx) override;
+    virtual void exitTsOptionEncryption(MySQLParser::TsOptionEncryptionContext *ctx) override;
   };
   
   class EventListener : public ObjectListener {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -32,13 +32,19 @@
   return mTabView;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize {
   self.subviews.lastObject.frame = {{ 0, 0 }, self.frame.size };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setEnabled: (BOOL)flag {
   [self.subviews.lastObject setEnabled: flag];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)minimumSize {
   // A tabview item usually has only one subview attached (the content view), so use this
@@ -51,7 +57,15 @@
   return { MAX(minSize.width, childMinSize.width), MAX(minSize.height, childMinSize.height) };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityPageRole;
+}
+
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @interface DraggingTabView : NSTabView {
   mforms::TabView *mOwner;
@@ -59,6 +73,8 @@
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation DraggingTabView
 
@@ -70,14 +86,14 @@
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add standard mouse handling.
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 
-//--------------------------------------------------------------------------------------------------
-
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MFTabViewImpl
 
@@ -166,15 +182,23 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (mforms::Object *)mformsObject {
   return mOwner;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSTabView *)tabView {
   return mTabView;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)minimumSize {
   if (mOwner == NULL || mOwner->is_destroying())
@@ -194,6 +218,8 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
 
   return minSize;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // necessary or rebuilding the UI won't work (test case: connection editor)
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize {
@@ -219,12 +245,16 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     [item.view resizeSubviewsWithOldSize:oldBoundsSize];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setEnabled: (BOOL)flag {
   for (NSTabViewItem *item in mTabView.tabViewItems) {
     MFTabViewItemView *itemView = (MFTabViewItemView *)item.view;
     [itemView setEnabled: flag];
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)isClosable {
   return
@@ -233,25 +263,35 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
     || mOwner->get_type() == mforms::TabViewDocumentClosable;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)tabView: (NSTabView *)tabView didSelectTabViewItem: (NSTabViewItem *)tabViewItem {
   if (!mOwner->is_destroying())
     (*mOwner->signal_tab_changed())();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)tabView: (NSTabView *)tabView didReorderTabViewItem: (NSTabViewItem *)tabViewItem toIndex: (NSInteger)index {
   MFTabViewItemView *itemView = (MFTabViewItemView *)tabViewItem.view;
   mOwner->reordered(itemView->mOwner, (int)index);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)tabView: (NSTabView *)tabView willDisplayMenu: (NSMenu *)menu forTabViewItem: (NSTabViewItem *)tabViewItem {
   mOwner->set_menu_tab((int)[tabView indexOfTabViewItem:tabViewItem]);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)tabView: (NSTabView *)tabView itemIsPinned: (NSTabViewItem *)item {
   if (mOwner->is_pinned)
     return mOwner->is_pinned((int)[tabView indexOfTabViewItem:item]);
   return NO;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)tabView: (NSTabView *)tabView itemHasCloseButton: (NSTabViewItem *)item {
   if ([self isClosable]) {
@@ -264,11 +304,15 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return NO;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)tabView: (NSTabView *)tabView itemPinClicked: (NSTabViewItem *)item {
   int i = (int)[tabView indexOfTabViewItem:item];
   mOwner->pin_changed(i, !mOwner->is_pinned(i));
   [self setNeedsDisplay:YES];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)tabView: (NSTabView *)tabView willCloseTabViewItem: (NSTabViewItem *)item {
   if ([self isClosable]) {
@@ -276,6 +320,14 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   }
   return NO;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityGroupRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool tabview_create(::mforms::TabView *self, ::mforms::TabViewType tabType) {
   return [[MFTabViewImpl alloc] initWithObject:self tabType:tabType] != nil;

@@ -75,6 +75,11 @@
               <member name="undoFile" type="string"/>
               <member name="initialSize" type="int"/>
               <member name="undoBufferSize" type="int"/>
+              <member name="redoBufferSize" type="int"/>
+              <member name="initialSize" type="int"/>
+              <member name="nodeGroup" type="int"/>
+              <member name="engine" type="string"/>
+              <member name="wait" type="int"/>
           </members>
       </gstruct>
 
@@ -82,9 +87,14 @@
           <members>
               <member name="dataFile" type="string"/>
               <member name="initialSize" type="int"/>
-              <member name="extentSize" type="int"/>
               <member name="autoExtendSize" type="int"/>
               <member name="maxSize" type="int"/>
+              <member name="extentSize" type="int"/>
+              <member name="nodeGroup" type="int"/>
+              <member name="engine" type="string"/>
+              <member name="wait" type="int"/>
+              <member name="fileBlockSize" type="int"/>
+              <member name="encryption" type="string"/>
               <member name="logFileGroup" type="object" struct-name="db.LogFileGroup" attr:caption="Log File Group" attr:desc="the log file group that is used for this tablespace"/>
           </members>
       </gstruct>
@@ -322,6 +332,7 @@
               <member name="descend" type="int"/>
               <member name="referencedColumn" attr:dontdiff="1" struct-name="db.Column" type="object"/>
               <member name="comment" type="string"/>
+			  <member name="expression" type="string" attr:desc="used when no referenced column is defined"/>
           </members>
       </gstruct>
 

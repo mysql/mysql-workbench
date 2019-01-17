@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -34,11 +34,38 @@
 
 #include <glib/gstdio.h>
 
+#include <chrono>
+
 DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
 using namespace grt;
 
 // XXX: convert to using C++11 and streams.
+
+static std::string copyright =
+  "/*\n"
+  " * Copyright (c) 2011, " + std::string("%year%") +
+  ", Oracle and/or its affiliates. All rights reserved.\n"
+  " *\n"
+  " * This program is free software; you can redistribute it and/or modify\n"
+  " * it under the terms of the GNU General Public License, version 2.0,\n"
+  " * as published by the Free Software Foundation.\n"
+  " *\n"
+  " * This program is also distributed with certain software (including\n"
+  " * but not limited to OpenSSL) that is licensed under separate terms, as\n"
+  " * designated in a particular file or component or in included license\n"
+  " * documentation.  The authors of MySQL hereby grant you an additional\n"
+  " * permission to link the program and your derivative works with the\n"
+  " * separately licensed software that they have included with MySQL.\n"
+  " * This program is distributed in the hope that it will be useful, but\n"
+  " * WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+  " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See\n"
+  " * the GNU General Public License, version 2.0, for more details.\n"
+  " *\n"
+  " * You should have received a copy of the GNU General Public License\n"
+  " * along with this program; if not, write to the Free Software Foundation, Inc.,\n"
+  " * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA\n"
+  " */\n\n";
 
 //--------------------------------------------------------------------------------------------------
 
@@ -216,7 +243,7 @@ struct ClassImplGenerator {
   }
 
   void output_constructor_init_list(FILE *f) {
-    fprintf(f, "  : %s(meta ? meta : grt::GRT::get()->get_metaclass(static_class_name()))", pname.c_str());
+    fprintf(f, "    : %s(meta != nullptr ? meta : grt::GRT::get()->get_metaclass(static_class_name()))", pname.c_str());
     for (std::map<std::string, MetaClass::Member>::const_iterator mem = members.begin(); mem != members.end(); ++mem) {
       if (mem->second.calculated || mem->second.overrides)
         continue;
@@ -226,65 +253,67 @@ struct ClassImplGenerator {
       switch (mem->second.type.base.type) {
         case ListType:
         case DictType:
-          fprintf(f, ",\n    _%s(this, %s)", mem->first.c_str(), mem->second.null_content_allowed ? "true" : "false");
+          fprintf(f, ",\n      _%s(this, %s)", mem->first.c_str(), mem->second.null_content_allowed ? "true" : "false");
           break;
         case StringType:
-          fprintf(f, ",\n     _%s(\"%s\")", mem->first.c_str(), defval.c_str());
+          fprintf(f, ",\n      _%s(\"%s\")", mem->first.c_str(), defval.c_str());
           break;
         case IntegerType:
-          fprintf(f, ",\n     _%s(%s)", mem->first.c_str(), defval.empty() ? "0" : defval.c_str());
+          fprintf(f, ",\n      _%s(%s)", mem->first.c_str(), defval.empty() ? "0" : defval.c_str());
           break;
         case DoubleType:
-          fprintf(f, ",\n     _%s(%s)", mem->first.c_str(), defval.empty() ? "0.0" : defval.c_str());
+          fprintf(f, ",\n      _%s(%s)", mem->first.c_str(), defval.empty() ? "0.0" : defval.c_str());
           break;
         default:
           break;
       }
     }
+
     if (!gstruct->get_attribute("simple-impl-data").empty())
-      fprintf(f, ",\n    _data(nullptr), _release_data(nullptr)");
+      fprintf(f, ",\n      _data(nullptr), _release_data(nullptr)");
     else if ((needs_body && gstruct->impl_data()))
-      fprintf(f, ",\n    _data(nullptr)");
-    fprintf(f, "\n");
+      fprintf(f, ",\n      _data(nullptr)");
   }
 
   void generate_class_doc(FILE *f) {
     std::string doc = gstruct->get_attribute("desc", false);
     if (!doc.empty())
-      fprintf(f, "  /** %s */\n", doc.c_str());
+      fprintf(f, "/** %s */\n", doc.c_str());
   }
 
   void generate_getter_doc(FILE *f, const MetaClass::Member &member) {
     std::string doc = gstruct->get_member_attribute(member.name, "desc", false);
 
-    fprintf(f, "  /** Getter for attribute %s%s\n", member.name.c_str(), member.read_only ? " (read-only)" : "");
-    fprintf(f, "   \n");
-    fprintf(f, "    %s\n", doc.c_str());
-    fprintf(f, "   \\par In Python:\nvalue = obj.%s\n", member.name.c_str());
+    fprintf(f, "  /**\n");
+    fprintf(f, "   * Getter for attribute %s%s\n", member.name.c_str(), member.read_only ? " (read-only)" : "");
+    fprintf(f, "   *\n");
+    fprintf(f, "   * %s\n", doc.c_str());
+    fprintf(f, "   * \\par In Python:\n   *    value = obj.%s\n", member.name.c_str());
     fprintf(f, "   */\n");
   }
 
   void generate_setter_doc(FILE *f, const MetaClass::Member &member) {
     std::string doc = gstruct->get_member_attribute(member.name, "desc", false);
 
-    fprintf(f, "  /** Setter for attribute %s\n", member.name.c_str());
-    fprintf(f, "   \n");
-    fprintf(f, "    %s\n", doc.c_str());
-    fprintf(f, "    \\par In Python:\nobj.%s = value\n", member.name.c_str());
+    fprintf(f, "  /**\n");
+    fprintf(f, "   * Setter for attribute %s\n", member.name.c_str());
+    fprintf(f, "   * \n");
+    fprintf(f, "   * %s\n", doc.c_str());
+    fprintf(f, "   * \\par In Python:\n   *   obj.%s = value\n", member.name.c_str());
     fprintf(f, "   */\n");
   }
 
   void generate_method_doc(FILE *f, const MetaClass::Method &method) {
     std::string doc = gstruct->get_member_attribute(method.name, "desc", false);
 
-    fprintf(f, "  /** Method. %s\n", doc.c_str());
+    fprintf(f, "  /**\n");
+    fprintf(f, "   * Method. %s\n", doc.c_str());
     for (ArgSpecList::const_iterator arg = method.arg_types.begin(); arg != method.arg_types.end(); ++arg) {
-      fprintf(f, "  \\param %s %s\n", arg->name.c_str(),
+      fprintf(f, "   * \\param %s %s\n", arg->name.c_str(),
               gstruct->get_member_attribute(method.name + ":" + arg->name, "desc").c_str());
     }
     doc = gstruct->get_member_attribute(method.name + ":return", "desc", false);
-    fprintf(f, "  \\return %s\n", doc.c_str());
-    fprintf(f, "\n");
+    fprintf(f, "   * \\return %s\n", doc.c_str());
     fprintf(f, "   */\n");
   }
 
@@ -304,9 +333,8 @@ struct ClassImplGenerator {
     }
 
     generate_class_doc(f);
-    fprintf(f, "class %s %s : public %s\n", needs_body ? dll_export.c_str() : "", cname.c_str(), pname.c_str());
-    fprintf(f, "{\n");
-    fprintf(f, "  typedef %s super;\n", pname.c_str());
+    fprintf(f, "class %s %s : public %s {\n", needs_body ? dll_export.c_str() : "", cname.c_str(), pname.c_str());
+    fprintf(f, "  typedef %s super;\n\n", pname.c_str());
     fprintf(f, "public:\n");
     std::string klass = gstruct->get_attribute("simple-impl-data");
     if (gstruct->impl_data() || !klass.empty()) {
@@ -322,7 +350,7 @@ struct ClassImplGenerator {
     for (std::map<std::string, MetaClass::Method>::const_iterator iter = methods.begin(); iter != methods.end();
          ++iter) {
       if (iter->second.constructor) {
-        fprintf(f, "  %s(%s%s, grt::MetaClass *meta=0);\n", cname.c_str(), iter->second.arg_types.empty() ? "" : ", ",
+        fprintf(f, "  %s(%s%s, grt::MetaClass *meta = nullptr);\n", cname.c_str(), iter->second.arg_types.empty() ? "" : ", ",
                 format_arg_list(iter->second.arg_types).c_str());
 
         if (iter->second.arg_types.empty())
@@ -331,11 +359,11 @@ struct ClassImplGenerator {
     }
 
     if (!default_ctor_created) {
-      fprintf(f, "  %s(grt::MetaClass *meta=0)\n", cname.c_str());
+      fprintf(f, "  %s(grt::MetaClass *meta = nullptr)\n", cname.c_str());
 
       output_constructor_init_list(f);
 
-      fprintf(f, "\n  {\n");
+      fprintf(f, " {\n");
       // reinit overridden lists
       output_overriden_list_reset_code(f);
       fprintf(f, "  }\n");
@@ -346,18 +374,17 @@ struct ClassImplGenerator {
       if (gstruct->get_attribute("simple-impl-data").empty())
         fprintf(f, "  virtual ~%s();\n\n", cname.c_str());
       else {
-        fprintf(f, "  virtual ~%s() { if (_release_data && _data) _release_data(_data);  }\n\n", cname.c_str());
+        fprintf(f, "  virtual ~%s() {\n    if (_release_data && _data)\n      _release_data(_data);\n  }\n\n", cname.c_str());
       }
     }
 
-    fprintf(f, "  static std::string static_class_name() { return \"%s\"; }\n", gstruct->name().c_str());
-    fprintf(f, "\n");
+    fprintf(f, "  static std::string static_class_name() {\n    return \"%s\";\n  }\n\n", gstruct->name().c_str());
 
     // generate signal access methods
     for (MetaClass::SignalList::const_iterator iter = gstruct->get_signals_partial().begin();
          iter != gstruct->get_signals_partial().end(); ++iter) {
       fprintf(f, "  // args: %s\n", format_signal_names(iter->arg_types).c_str());
-      fprintf(f, "  boost::signals2::signal<void (%s) >* signal_%s() { return &_signal_%s; }\n",
+      fprintf(f, "  boost::signals2::signal<void (%s)>* signal_%s() { return &_signal_%s; }\n",
               format_signal_args(iter->arg_types).c_str(), iter->name.c_str(), iter->name.c_str());
     }
 
@@ -397,13 +424,14 @@ struct ClassImplGenerator {
           fprintf(f, "  %s %s() const { return _%s; }\n", format_type_cpp(iter->second.type).c_str(),
                   iter->second.name.c_str(), iter->second.name.c_str());
       }
+      fprintf(f, "\n");
 
       // setter
-
       if (iter->second.read_only)
-        fprintf(f, "private: // the next attribute is read-only\n");
+        fprintf(f, "\nprivate: // The next attribute is read-only.\n");
       else
         generate_setter_doc(f, iter->second);
+
       if (iter->second.overrides) {
         if (overrides_with_same_type) {
           // check if the override is for overriding the setter
@@ -428,10 +456,9 @@ struct ClassImplGenerator {
         if (iter->second.delegate_set) {
           fprintf(f, "  virtual void %s(const %s &value);\n", iter->second.name.c_str(),
                   format_type_cpp(iter->second.type).c_str());
-        } else // read-only vars need setter for unserialization  if (!iter->second.read_only)
-        {
+        } else { // read-only vars need setter for unserialization  if (!iter->second.read_only)
           if (!iter->second.calculated) {
-            fprintf(f, "  virtual void %s%s(const %s &value)\n  {\n",
+            fprintf(f, "  virtual void %s%s(const %s &value) {\n",
                     /*iter->second.read_only?"__":*/ "", iter->second.name.c_str(),
                     format_type_cpp(iter->second.type).c_str());
 
@@ -440,16 +467,17 @@ struct ClassImplGenerator {
               // if member is owned by this object, we have to mark/unmark it as global
               // in case we're in the global tree as well (done in owned_member_changed)
               fprintf(f, "\n");
-              fprintf(f, "    _%s= value;\n", iter->second.name.c_str());
+              fprintf(f, "    _%s = value;\n", iter->second.name.c_str());
               fprintf(f, "    owned_member_changed(\"%s\", ovalue, value);\n", iter->second.name.c_str());
             } else {
-              fprintf(f, "   _%s= value;\n", iter->second.name.c_str());
+              fprintf(f, "    _%s = value;\n", iter->second.name.c_str());
               fprintf(f, "    member_changed(\"%s\", ovalue, value);\n", iter->second.name.c_str());
             }
             fprintf(f, "  }\n");
           }
         }
       }
+
       if (iter->second.read_only)
         fprintf(f, "public:\n");
       fprintf(f, "\n");
@@ -460,7 +488,7 @@ struct ClassImplGenerator {
          ++iter) {
       generate_method_doc(f, iter->second);
       if (iter->second.abstract)
-        fprintf(f, "  virtual %s %s(%s)= 0;\n", format_type_cpp(iter->second.ret_type, true).c_str(),
+        fprintf(f, "  virtual %s %s(%s) = 0;\n", format_type_cpp(iter->second.ret_type, true).c_str(),
                 iter->second.name.c_str(), format_arg_list(iter->second.arg_types).c_str());
       else
         fprintf(f, "  virtual %s %s(%s);\n", format_type_cpp(iter->second.ret_type, true).c_str(),
@@ -475,8 +503,7 @@ struct ClassImplGenerator {
           fprintf(f, "  void set_data(ImplData *data);\n");
         } else {
           fprintf(f, "\n  ImplData *get_data() const { return _data; }\n\n");
-          fprintf(f, "  void set_data(ImplData *data, void (*release)(ImplData*))\n");
-          fprintf(f, "  {\n");
+          fprintf(f, "  void set_data(ImplData *data, void (*release)(ImplData*)) {\n");
           fprintf(f, "    if (_data == data) return;\n");
           fprintf(f, "    if (_data && _release_data) _release_data(_data);\n");
           fprintf(f, "    _data= data;\n");
@@ -506,23 +533,21 @@ struct ClassImplGenerator {
     }
 
     // signals
-    for (MetaClass::SignalList::const_iterator iter = gstruct->get_signals_partial().begin();
-         iter != gstruct->get_signals_partial().end(); ++iter) {
-      fprintf(f, "  boost::signals2::signal<void (%s) > _signal_%s;\n", format_signal_args(iter->arg_types).c_str(),
+    for (auto iter = gstruct->get_signals_partial().begin(); iter != gstruct->get_signals_partial().end(); ++iter) {
+      fprintf(f, "  boost::signals2::signal<void (%s)> _signal_%s;\n", format_signal_args(iter->arg_types).c_str(),
               iter->name.c_str());
     }
-
     fprintf(f, "\n");
 
     // generate member variables
-    for (std::map<std::string, MetaClass::Member>::const_iterator iter = members.begin(); iter != members.end();
-         ++iter) {
+    for (auto iter = members.begin(); iter != members.end(); ++iter) {
       if (!iter->second.calculated && !iter->second.overrides)
         fprintf(f, "  %s _%s;%s\n", format_type_cpp(iter->second.type).c_str(), iter->second.name.c_str(),
                 iter->second.owned_object ? "// owned" : "");
     }
+    fprintf(f, "\n");
 
-    fprintf(f, "private: // wrapper methods for use by grt\n");
+    fprintf(f, "private: // Wrapper methods for use by the grt.\n");
     if ((needs_body && gstruct->impl_data()) || !gstruct->get_attribute("simple-impl-data").empty()) {
       fprintf(f, "  ImplData *_data;\n");
       if (!gstruct->get_attribute("simple-impl-data").empty())
@@ -531,16 +556,14 @@ struct ClassImplGenerator {
     }
     // function to create the object
     if (!gstruct->is_abstract()) {
-      fprintf(f, "  static grt::ObjectRef create()\n");
-      fprintf(f, "  {\n");
+      fprintf(f, "  static grt::ObjectRef create() {\n");
       fprintf(f, "    return grt::ObjectRef(new %s());\n", cname.c_str());
       fprintf(f, "  }\n");
       fprintf(f, "\n");
     }
 
     // generate method wrappers for grt
-    for (std::map<std::string, MetaClass::Method>::const_iterator iter = methods.begin(); iter != methods.end();
-         ++iter) {
+    for (auto iter = methods.begin(); iter != methods.end(); ++iter) {
       if (!iter->second.constructor) {
         if (iter->second.ret_type.base.type == UnknownType)
           fprintf(f,
@@ -557,17 +580,16 @@ struct ClassImplGenerator {
         fprintf(f, "\n");
       }
     }
-    fprintf(f, "\n");
-    // class registration
+
+    // Class registration.
     fprintf(f, "public:\n");
-    fprintf(f, "  static void grt_register()\n");
-    fprintf(f, "  {\n");
-    fprintf(f, "    grt::MetaClass *meta= grt::GRT::get()->get_metaclass(static_class_name());\n");
+    fprintf(f, "  static void grt_register() {\n");
+    fprintf(f, "    grt::MetaClass *meta = grt::GRT::get()->get_metaclass(static_class_name());\n");
     fprintf(f,
-            "    if (!meta) throw std::runtime_error(\"error initializing grt object class, metaclass not found\");\n");
+            "    if (meta == nullptr)\n      throw std::runtime_error(\"error initializing grt object class, metaclass not found\");\n");
 
     if (gstruct->is_abstract())
-      fprintf(f, "    meta->bind_allocator(0);\n");
+      fprintf(f, "    meta->bind_allocator(nullptr);\n");
     else
       fprintf(f, "    meta->bind_allocator(&%s::create);\n", cname.c_str());
 
@@ -575,55 +597,56 @@ struct ClassImplGenerator {
          ++iter) {
       if (iter->second.calculated) {
         if (!iter->second.delegate_set)
-          fprintf(f, "    meta->bind_member(\"%s\", new grt::MetaClass::Property<%s,%s >(&%s::%s));\n",
+          fprintf(f, "    meta->bind_member(\"%s\", new grt::MetaClass::Property<%s,%s>(&%s::%s));\n",
                   iter->second.name.c_str(), cname.c_str(), format_type_cpp(iter->second.type).c_str(), cname.c_str(),
                   iter->second.name.c_str());
         else {
           fprintf(f, "    {\n");
-          fprintf(f, "      void (%s::*setter)(const %s &)= &%s::%s%s;\n", cname.c_str(),
+          fprintf(f, "      void (%s::*setter)(const %s &) = &%s::%s%s;\n", cname.c_str(),
                   format_type_cpp(iter->second.type).c_str(), cname.c_str(), /*iter->second.read_only?"__":*/ "",
                   iter->second.name.c_str());
-          fprintf(f, "      %s (%s::*getter)() const= &%s::%s;\n", format_type_cpp(iter->second.type).c_str(),
+          fprintf(f, "      %s (%s::*getter)() const = &%s::%s;\n", format_type_cpp(iter->second.type).c_str(),
                   cname.c_str(), cname.c_str(), iter->second.name.c_str());
 
-          fprintf(f, "      meta->bind_member(\"%s\", new grt::MetaClass::Property<%s,%s >(getter, setter));\n",
+          fprintf(f, "      meta->bind_member(\"%s\", new grt::MetaClass::Property<%s,%s>(getter, setter));\n",
                   iter->second.name.c_str(), cname.c_str(), format_type_cpp(iter->second.type).c_str());
           fprintf(f, "    }\n");
         }
       } else {
         fprintf(f, "    {\n");
         if (iter->second.overrides) {
-          if (iter->second.delegate_set)
-            fprintf(f, "      void (%s::*setter)(const %s &)= &%s::%s%s;\n", cname.c_str(),
+          if (iter->second.delegate_set) {
+            fprintf(f, "      void (%s::*setter)(const %s &) = &%s::%s%s;\n", cname.c_str(),
                     format_type_cpp(iter->second.type).c_str(), cname.c_str(), /*iter->second.read_only?"__":*/ "",
                     iter->second.name.c_str());
-          else
-            fprintf(f, "      void (%s::*setter)(const %s &)= 0;\n", cname.c_str(),
+          } else {
+            fprintf(f, "      void (%s::*setter)(const %s &) = 0;\n", cname.c_str(),
                     format_type_cpp(iter->second.type).c_str());
-        } else // read-only members should still have a setter for unserialization
-        {
-          fprintf(f, "      void (%s::*setter)(const %s &)= &%s::%s%s;\n", cname.c_str(),
+          }
+        } else { // read-only members should still have a setter for unserialization
+          fprintf(f, "      void (%s::*setter)(const %s &) = &%s::%s%s;\n", cname.c_str(),
                   format_type_cpp(iter->second.type).c_str(), cname.c_str(), /*iter->second.read_only?"__":*/ "",
                   iter->second.name.c_str());
         }
 
         if (iter->second.overrides) {
           if (iter->second.delegate_get)
-            fprintf(f, "      %s (%s::*getter)() const= &%s::%s;\n", format_type_cpp(iter->second.type).c_str(),
+            fprintf(f, "      %s (%s::*getter)() const = &%s::%s;\n", format_type_cpp(iter->second.type).c_str(),
                     cname.c_str(), cname.c_str(), iter->second.name.c_str());
           else
-            fprintf(f, "      %s (%s::*getter)() const= 0;\n", format_type_cpp(iter->second.type).c_str(),
+            fprintf(f, "      %s (%s::*getter)() const = 0;\n", format_type_cpp(iter->second.type).c_str(),
                     cname.c_str());
         } else {
-          fprintf(f, "      %s (%s::*getter)() const= &%s::%s;\n", format_type_cpp(iter->second.type).c_str(),
+          fprintf(f, "      %s (%s::*getter)() const = &%s::%s;\n", format_type_cpp(iter->second.type).c_str(),
                   cname.c_str(), cname.c_str(), iter->second.name.c_str());
         }
 
-        fprintf(f, "      meta->bind_member(\"%s\", new grt::MetaClass::Property<%s,%s >(getter,setter));\n",
+        fprintf(f, "      meta->bind_member(\"%s\", new grt::MetaClass::Property<%s,%s>(getter, setter));\n",
                 iter->second.name.c_str(), cname.c_str(), format_type_cpp(iter->second.type).c_str());
         fprintf(f, "    }\n");
       }
     }
+
     for (std::map<std::string, MetaClass::Method>::const_iterator iter = methods.begin(); iter != methods.end();
          ++iter) {
       fprintf(f, "    meta->bind_method(\"%s\", &%s::call_%s);\n", iter->second.name.c_str(), cname.c_str(),
@@ -631,8 +654,7 @@ struct ClassImplGenerator {
     }
     fprintf(f, "  }\n");
 
-    fprintf(f, "};\n");
-    fprintf(f, "\n\n");
+    fprintf(f, "};\n\n");
   }
 
   //------------------------------------------------------------------------------------------------
@@ -643,20 +665,20 @@ struct ClassImplGenerator {
     fprintf(f, "%s", separator);
 
     if (gstruct->impl_data()) {
-      fprintf(f, "class %s::ImplData\n{\n", cname.c_str());
+      fprintf(f, "class %s::ImplData {\n", cname.c_str());
       fprintf(f, "};\n\n");
 
       fprintf(f, "%s", separator);
-      fprintf(f, "void %s::init()\n{\n  if (!_data) _data= new %s::ImplData();\n}\n\n", cname.c_str(), cname.c_str());
+      fprintf(f, "void %s::init() {\n  if (!_data) _data= new %s::ImplData();\n}\n\n", cname.c_str(), cname.c_str());
       fprintf(f, "%s", separator);
-      fprintf(f, "%s::~%s()\n{\n  delete _data;\n}\n\n", cname.c_str(), cname.c_str());
+      fprintf(f, "%s::~%s() {\n  delete _data;\n}\n\n", cname.c_str(), cname.c_str());
       fprintf(f, "%s", separator);
-      fprintf(f, "void %s::set_data(ImplData *data)\n{\n}\n\n", cname.c_str());
+      fprintf(f, "void %s::set_data(ImplData *data) {\n}\n\n", cname.c_str());
       fprintf(f, "%s", separator);
     } else {
-      fprintf(f, "void %s::init()\n{\n\n}\n\n", cname.c_str());
+      fprintf(f, "void %s::init() {\n\n}\n\n", cname.c_str());
       fprintf(f, "%s", separator);
-      fprintf(f, "%s::~%s()\n{\n  \n}\n\n", cname.c_str(), cname.c_str());
+      fprintf(f, "%s::~%s() {\n  \n}\n\n", cname.c_str(), cname.c_str());
       fprintf(f, "%s", separator);
     }
 
@@ -677,23 +699,23 @@ struct ClassImplGenerator {
         continue;
 
       if (iter->second.delegate_get) {
-        fprintf(f, "%s %s::%s() const\n{\n // add code here\n}\n\n", format_type_cpp(iter->second.type).c_str(),
+        fprintf(f, "%s %s::%s() const {\n // add code here\n}\n\n", format_type_cpp(iter->second.type).c_str(),
                 cname.c_str(), iter->second.name.c_str());
         fprintf(f, "%s", separator);
       }
 
       if (!iter->second.read_only && iter->second.delegate_set) {
-        fprintf(f, "void %s::%s(const %s &value)\n{\n", cname.c_str(), iter->second.name.c_str(),
+        fprintf(f, "void %s::%s(const %s &value) {\n", cname.c_str(), iter->second.name.c_str(),
                 format_type_cpp(iter->second.type).c_str());
         fprintf(f, "  grt::ValueRef ovalue(_%s);\n", iter->second.name.c_str());
         if (iter->second.owned_object) {
           fprintf(f, "  // this member is owned by this object\n");
           fprintf(f, "// add code here\n");
-          fprintf(f, "  _%s= value;\n", iter->second.name.c_str());
+          fprintf(f, "  _%s = value;\n", iter->second.name.c_str());
           fprintf(f, "  owned_member_changed(\"%s\", ovalue, value);\n", iter->second.name.c_str());
         } else {
           fprintf(f, "// add code here\n");
-          fprintf(f, "  _%s= value;\n", iter->second.name.c_str());
+          fprintf(f, "  _%s = value;\n", iter->second.name.c_str());
           fprintf(f, "  member_changed(\"%s\", ovalue, value);\n", iter->second.name.c_str());
         }
 
@@ -705,22 +727,22 @@ struct ClassImplGenerator {
     }
 
     if (gstruct->watch_lists()) {
-      fprintf(f, "void %s::owned_list_item_added(grt::internal::OwnedList *list, const grt::ValueRef &value)\n",
+      fprintf(f, "void %s::owned_list_item_added(grt::internal::OwnedList *list, const grt::ValueRef &value) ",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
       fprintf(f, "%s", separator);
-      fprintf(f, "void %s::owned_list_item_removed(grt::internal::OwnedList *list, const grt::ValueRef &value)\n",
+      fprintf(f, "void %s::owned_list_item_removed(grt::internal::OwnedList *list, const grt::ValueRef &value) ",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
       fprintf(f, "%s", separator);
     }
 
     if (gstruct->watch_dicts()) {
-      fprintf(f, "void %s::owned_dict_item_set(grt::internal::OwnedDict *dict, const std::string &key)\n",
+      fprintf(f, "void %s::owned_dict_item_set(grt::internal::OwnedDict *dict, const std::string &key) ",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
       fprintf(f, "%s", separator);
-      fprintf(f, "void %s::owned_dict_item_removed(grt::internal::OwnedDict *dict, const std::string &key)\n",
+      fprintf(f, "void %s::owned_dict_item_removed(grt::internal::OwnedDict *dict, const std::string &key) ",
               cname.c_str());
       fprintf(f, "{\n}\n\n");
       fprintf(f, "%s", separator);
@@ -730,7 +752,7 @@ struct ClassImplGenerator {
     for (std::map<std::string, MetaClass::Method>::const_iterator iter = methods.begin(); iter != methods.end();
          ++iter) {
       if (!iter->second.abstract && !iter->second.constructor)
-        fprintf(f, "%s %s::%s(%s)\n{\n  // add code here\n}\n\n", format_type_cpp(iter->second.ret_type, true).c_str(),
+        fprintf(f, "%s %s::%s(%s) {\n  // add code here\n}\n\n", format_type_cpp(iter->second.ret_type, true).c_str(),
                 cname.c_str(), iter->second.name.c_str(), format_arg_list(iter->second.arg_types).c_str());
       fprintf(f, "%s", separator);
     }
@@ -805,7 +827,7 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
                                        const std::string &imploutpath,
                                        const std::multimap<std::string, std::string> &requires_orig) {
   std::map<std::string, FILE *> files;
-  std::map<std::string, std::set<std::string> > foreign_classes; // packagename -> class list
+  std::map<std::string, std::set<std::string>> foreign_classes; // packagename -> class list
   std::multimap<std::string, std::string> requires;
   const std::list<MetaClass *> &meta(grt::GRT::get()->get_metaclasses());
 
@@ -885,9 +907,14 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
         g_free(path);
         throw grt::os_error(path, errno);
       }
-      g_print("create file %s\n", path);
+      g_print("Creating file %s\n", path);
       g_free(path);
 
+      time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+      auto time = localtime(&now);
+      base::replaceStringInplace(copyright, "%year%", std::to_string(1900 + time->tm_year));
+
+      fprintf(fhdr, "%s", copyright.c_str());
       fprintf(fhdr, "#pragma once\n\n");
       fprintf(fhdr, "#ifndef _MSC_VER\n");
       fprintf(fhdr, "  #pragma GCC diagnostic push\n");
@@ -913,7 +940,7 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
         std::string tmp(r->second, 0, r->second.rfind('.'));
         fprintf(fhdr, "#include \"grts/%s.h\"\n", tmp.c_str());
       }
-      fprintf(fhdr, "\n\n");
+      fprintf(fhdr, "\n");
 
       // forward declare all classes
       for (std::list<MetaClass *>::const_iterator jter = meta.begin(); jter != meta.end(); ++jter) {
@@ -996,8 +1023,7 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
       const char *sname = name.c_str();
 
       // output code to register all classes in this file
-      fprintf(iter->second, "\n\ninline void register_%s()\n", sname);
-      fprintf(iter->second, "{\n");
+      fprintf(iter->second, "\n\ninline void register_%s() {\n", sname);
       for (std::list<MetaClass *>::const_iterator jter = meta.begin(); jter != meta.end(); ++jter) {
         if ((*jter)->source() == iter->first) {
           std::string cname = cppize_class_name((*jter)->name());
@@ -1008,7 +1034,7 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
       fprintf(iter->second, "}\n");
       fprintf(iter->second, "\n");
       fprintf(iter->second, "#ifdef AUTO_REGISTER_GRT_CLASSES\n");
-      fprintf(iter->second, "static struct _autoreg__%s { _autoreg__%s() { register_%s(); } } __autoreg__%s;\n", sname,
+      fprintf(iter->second, "static struct _autoreg__%s {\n  _autoreg__%s() {\n    register_%s();\n  }\n} __autoreg__%s;\n", sname,
               sname, sname, sname);
       fprintf(iter->second, "#endif\n\n");
 
@@ -1033,55 +1059,49 @@ static const char *module_base_template_h =
   "class %module_class_name% : public %parent_module_class_name% {\n"
   "protected:\n"
   "  friend class grt::GRT;\n"
-  "  %module_class_name%(grt::Module *module)\n"
-  "  : %parent_module_class_name%(module) {}\n"
+  "  %module_class_name%(grt::Module *module) : %parent_module_class_name%(module) {\n  }\n"
   "\n"
   "public:\n"
-  "  static const char *static_get_name() { return \"%module_name%\"; }\n";
+  "  static const char *static_get_name() {\n    return \"%module_name%\";\n  }\n\n";
 
-static const char *module_base_template_f = "};\n";
+static const char *module_base_template_f = "};\n\n";
 
 static const char *module_function_template_void =
-  "  void %function_name%(%args%)\n"
-  "  {\n"
+  "  void %function_name%(%args%) {\n"
   "    grt::BaseListRef args(true);\n"
   "%make_args%\n"
   "    _module->call_function(\"%function_name%\", args);\n"
   "  }\n";
 
 static const char *module_function_template_int =
-  "  ssize_t %function_name%(%args%)\n"
-  "  {\n"
-  "    grt::BaseListRef args(AnyType);\n"
+  "  ssize_t %function_name%(%args%) {\n"
+  "    grt::BaseListRef args(grt::AnyType);\n"
   "%make_args%\n"
-  "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
+  "    grt::ValueRef ret = _module->call_function(\"%function_name%\", args);\n"
   "    return *grt::IntegerRef::cast_from(ret);\n"
   "  }\n";
 
 static const char *module_function_template_double =
-  "  double %function_name%(%args%)\n"
-  "  {\n"
-  "    grt::BaseListRef args(AnyType);\n"
+  "  double %function_name%(%args%) {\n"
+  "    grt::BaseListRef args(grt::AnyType);\n"
   "%make_args%\n"
-  "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
-  "    return (double)DoubleRef::cast_from(ret);\n"
+  "    grt::ValueRef ret = _module->call_function(\"%function_name%\", args);\n"
+  "    return *DoubleRef::cast_from(ret);\n"
   "  }\n";
 
 static const char *module_function_template_string =
-  "  std::string %function_name%(%args%)\n"
-  "  {\n"
-  "    grt::BaseListRef args(AnyType);\n"
+  "  std::string %function_name%(%args%) {\n"
+  "    grt::BaseListRef args(grt::AnyType);\n"
   "%make_args%\n"
-  "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
-  "    return (std::string)StringRef::cast_from(ret);\n"
+  "    grt::ValueRef ret = _module->call_function(\"%function_name%\", args);\n"
+  "    return *grt::StringRef::cast_from(ret);\n"
   "  }\n";
 
 static const char *module_function_template =
-  "  %return_type% %function_name%(%args%)\n"
-  "  {\n"
-  "    grt::BaseListRef args(AnyType);\n"
+  "  %return_type% %function_name%(%args%) {\n"
+  "    grt::BaseListRef args(grt::AnyType);\n"
   "%make_args%\n"
-  "    grt::ValueRef ret= _module->call_function(\"%function_name%\", args);\n"
+  "    grt::ValueRef ret = _module->call_function(\"%function_name%\", args);\n"
   "    return %return_type%::cast_from(ret);\n"
   "  }\n";
 
@@ -1184,8 +1204,12 @@ void grt::helper::generate_module_wrappers(const std::string &outpath, const std
   std::string header_name = base::basename(outpath);
   base::replaceStringInplace(header_name, ".", "_");
 
-  fprintf(f, "#ifndef __%s__\n", header_name.c_str());
-  fprintf(f, "#define __%s__\n", header_name.c_str());
+  time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  auto time = localtime(&now);
+  base::replaceStringInplace(copyright, "%year%", std::to_string(1900 + time->tm_year));
+
+  fprintf(f, "%s", copyright.c_str());
+  fprintf(f, "#pragma once\n\n");
   fprintf(f, "%s", module_wrapper_head);
 
   for (std::vector<Module *>::const_iterator module = modules.begin(); module != modules.end(); ++module) {
@@ -1210,7 +1234,6 @@ void grt::helper::generate_module_wrappers(const std::string &outpath, const std
     fprintf(f, "%s", module_base_template_f);
   }
 
-  fprintf(f, "#endif\n");
   fclose(f);
 }
 

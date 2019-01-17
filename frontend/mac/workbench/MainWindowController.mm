@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -172,8 +172,19 @@ public:
 // mforms integration
 void setup_mforms_app(MainWindowController *mwin);
 
+@interface StatusText : NSTextField
+@end
+
+@implementation StatusText
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityStaticTextRole;
+}
+
+@end
+
 @interface MainWindowController () {
-  IBOutlet NSTextField *statusBarText;
+  IBOutlet StatusText *statusBarText;
   IBOutlet NSTabView *topTabView;
   IBOutlet MTabSwitcher *tabSwitcher;
 

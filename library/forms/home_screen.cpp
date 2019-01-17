@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -52,14 +52,8 @@ SidebarEntry::SidebarEntry() : owner(nullptr), canSelect(false), icon(nullptr) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string SidebarEntry::getAccessibilityTitle() {
-  return title;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 std::string SidebarEntry::getAccessibilityDescription() {
-  return "Homescreen sidebar button";
+  return title;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -195,7 +189,6 @@ void SidebarSection::addEntry(const std::string &title, const std::string &icon_
   entry->canSelect = canSelect;
   entry->owner = this;
   entry->title = title;
-  entry->setAccessibilityName(title);
 
   entry->icon = mforms::Utilities::load_icon(icon_name, true);
   if (entry->icon == nullptr)
@@ -394,8 +387,8 @@ void HomeScreen::addSection(HomeScreenSection *section) {
   _sections.push_back(section);
 
   mforms::ScrollPanel *scroll = mforms::manage(new mforms::ScrollPanel(mforms::ScrollPanelNoAutoScroll));
-  scroll->set_name("HomeScreen Main Panel");
-  scroll->setInternalName("HomeScreen Main Panel");
+  scroll->set_name("Home Screen Main Panel");
+  scroll->setInternalName("Home Screen Main Panel");
   scroll->add(section->getContainer());
   add(scroll, true, true);
 

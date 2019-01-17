@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -45,10 +45,14 @@ static NSMenuItem *defaultEditMenu = nil;
   return [super initWithCoder: decoder];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (instancetype)initWithTitle: (NSString *)string action: (nullable SEL)selector keyEquivalent: (NSString *)charCode
 {
   return [self initWithTitle: string slot: std::function<void ()>()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithTitle:(NSString*)title slot:(std::function<void ()>)aslot
 {
@@ -61,11 +65,14 @@ static NSMenuItem *defaultEditMenu = nil;
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)callSlot:(id)sender
 {
   slot();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)menuWillOpen:(NSMenu *)menu
 {
@@ -73,10 +80,15 @@ static NSMenuItem *defaultEditMenu = nil;
     dynamic_cast<mforms::MenuBar*>(item->get_top_menu())->will_show_submenu_from(item);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityMenuItemRole;
+}
+
 @end
 
-
-
+//----------------------------------------------------------------------------------------------------------------------
 
 @interface MFContextMenu : NSMenu <NSMenuDelegate>
 {
@@ -85,6 +97,8 @@ static NSMenuItem *defaultEditMenu = nil;
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MFContextMenu
 
@@ -98,16 +112,26 @@ static NSMenuItem *defaultEditMenu = nil;
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)menuNeedsUpdate:(NSMenu *)menu
 {
   cmenu->will_show();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityMenuRole;
+}
+
 @end
 
-
+//----------------------------------------------------------------------------------------------------------------------
 
 using namespace mforms;
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool create_menu_bar(MenuBar *aitem)
 {
@@ -117,6 +141,7 @@ static bool create_menu_bar(MenuBar *aitem)
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool create_context_menu(ContextMenu *aitem)
 {
@@ -126,6 +151,8 @@ static bool create_context_menu(ContextMenu *aitem)
   aitem->set_data(menu);
   return true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItemType type)
 {
@@ -143,11 +170,15 @@ static bool create_menu_item(MenuItem *aitem, const std::string &title, MenuItem
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void set_title(MenuItem *aitem, const std::string &title)
 {
   NSMenuItem *item = aitem->get_data();
   item.title = wrap_nsstring(title);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string get_title(MenuItem *aitem)
 {
@@ -155,11 +186,15 @@ static std::string get_title(MenuItem *aitem)
   return item.title.UTF8String ?: "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void set_name(MenuItem *aitem, const std::string &name)
 {
   NSMenuItem *item = aitem->get_data();
   item.accessibilityLabel = [NSString stringWithUTF8String: name.c_str()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
 {
@@ -275,11 +310,15 @@ static void set_shortcut(MenuItem *aitem, const std::string &shortcut)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void set_enabled(MenuBase *aitem, bool enabled)
 {
   NSMenuItem *item = aitem->get_data();
   item.enabled = enabled;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool get_enabled(MenuBase *aitem)
 {
@@ -287,17 +326,23 @@ static bool get_enabled(MenuBase *aitem)
   return item.enabled;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void set_checked(MenuItem *aitem, bool flag)
 {
   NSMenuItem *item = aitem->get_data();
   item.state = flag ? NSOnState : NSOffState;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool get_checked(MenuItem *aitem)
 {
   NSMenuItem *item = aitem->get_data();
   return item.state == NSOnState;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void insert_item(MenuBase *aitem, int index, MenuItem *asubitem)
 {  
@@ -326,6 +371,8 @@ static void insert_item(MenuBase *aitem, int index, MenuItem *asubitem)
     [submenu insertItem: subitem atIndex: is_context ? index : index+1];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void remove_item(MenuBase *aitem, MenuItem *asubitem)
 {
   NSMenu *submenu;
@@ -345,6 +392,8 @@ static void remove_item(MenuBase *aitem, MenuItem *asubitem)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void popup_at(ContextMenu *menu, View *owner, base::Point location)
 {
   [NSMenu popUpContextMenu: menu->get_data()
@@ -352,6 +401,8 @@ static void popup_at(ContextMenu *menu, View *owner, base::Point location)
                    forView: owner->get_data()];
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static NSMenuItem *swappedEditMenu = nil;
 
@@ -366,6 +417,8 @@ void cf_swap_edit_menu()
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void cf_unswap_edit_menu()
 {
   if (swappedEditMenu)
@@ -379,6 +432,8 @@ void cf_unswap_edit_menu()
     }
   }  
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_menubar_init()
 {
@@ -415,4 +470,4 @@ void cf_menubar_init()
   f->_menu_item_impl.popup_at = popup_at;
 }
 
-
+//----------------------------------------------------------------------------------------------------------------------

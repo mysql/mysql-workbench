@@ -19,7 +19,7 @@ MySQL Workbench is brought to you by the MySQL team at Oracle.
 
 # Overview
 
-[MySQL Workbench](https://mysqlworkbench.org) is a graphical tool for working with MySQL servers and databases. MySQL Workbench fully supports MySQL server versions 5.5 and higher.
+[MySQL Workbench](https://mysqlworkbench.org) is a graphical tool for working with MySQL servers and databases. MySQL Workbench fully supports MySQL server versions 5.6 and higher.
 
 MySQL Workbench functionality covers five main topics:
 

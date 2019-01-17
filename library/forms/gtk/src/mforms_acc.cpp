@@ -393,7 +393,7 @@ namespace mforms {
       auto mformsGtkAcc = FromAccessible(accessible);
       if (mformsGtkAcc != nullptr && mformsGtkAcc->_mformsAcc != nullptr) {
         if (mformsGtkAcc->_name.empty())
-          mformsGtkAcc->_name = mformsGtkAcc->_mformsAcc->getAccessibilityName();
+          mformsGtkAcc->_name = mformsGtkAcc->_mformsAcc->getAccessibilityDescription();
 
         if (!mformsGtkAcc->_name.empty())
           return mformsGtkAcc->_name.c_str();

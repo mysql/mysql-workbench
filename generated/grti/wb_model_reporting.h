@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -11,9 +11,9 @@
  * documentation.  The authors of MySQL hereby grant you an additional
  * permission to link the program and your derivative works with the
  * separately licensed software that they have included with MySQL.
- * This program is distributed in the hope that it will be useful,  but
+ * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
  * the GNU General Public License, version 2.0, for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -23,29 +23,34 @@
 
 #pragma once
 
+// Automatically generated GRT module wrapper. Do not edit.
+
+using namespace grt;
+
 class WbModelReportingInterfaceWrapper : public grt::ModuleWrapper {
 protected:
   friend class grt::GRT;
-  WbModelReportingInterfaceWrapper(grt::Module* module) : grt::ModuleWrapper(module) {
+  WbModelReportingInterfaceWrapper(grt::Module *module) : grt::ModuleWrapper(module) {
   }
 
 public:
-  static const char* static_get_name() {
+  static const char *static_get_name() {
     return "WbModelReportingInterface";
   }
+
   ssize_t getAvailableReportingTemplates(const grt::StringListRef& param0) {
     grt::BaseListRef args(grt::AnyType);
     args.ginsert(param0);
     grt::ValueRef ret = _module->call_function("getAvailableReportingTemplates", args);
     return *grt::IntegerRef::cast_from(ret);
   }
-  std::string getTemplateDirFromName(const std::string& param0) {
+  std::string getTemplateDirFromName(const std::string & param0) {
     grt::BaseListRef args(grt::AnyType);
     args.ginsert(grt::StringRef(param0));
     grt::ValueRef ret = _module->call_function("getTemplateDirFromName", args);
-    return (std::string)grt::StringRef::cast_from(ret);
+    return *grt::StringRef::cast_from(ret);
   }
-  workbench_model_reporting_TemplateInfoRef getReportingTemplateInfo(const std::string& param0) {
+  workbench_model_reporting_TemplateInfoRef getReportingTemplateInfo(const std::string & param0) {
     grt::BaseListRef args(grt::AnyType);
     args.ginsert(grt::StringRef(param0));
     grt::ValueRef ret = _module->call_function("getReportingTemplateInfo", args);

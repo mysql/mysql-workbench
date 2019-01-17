@@ -186,6 +186,15 @@
 		2725786F2062B20900BC6E5E /* db_reverse_engineer_script.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */; };
 		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		272E57321FA0726E002541F5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2774A4C41C92D31200D1E037 /* Cocoa.framework */; };
+		2731DE6221A2CE17002EEE8A /* genwrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2731DE6121A2CE15002EEE8A /* genwrap.cpp */; };
+		2731DE6421A2CE39002EEE8A /* genobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2731DE6321A2CE37002EEE8A /* genobj.cpp */; };
+		2731DE6921A2D121002EEE8A /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
+		2731DE6A21A2D14E002EEE8A /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
+		2731DE6D21A2D1B4002EEE8A /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
+		2731DE7221A2D1F2002EEE8A /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
+		2731DE7321A2D1FB002EEE8A /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
+		2731DE7D21A2FC2F002EEE8A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
+		2731DE8021A2FF17002EEE8A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		27327BA1172FAFC800DE65D7 /* python_copy_data_source.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */; };
 		27327BA5172FB2E200DE65D7 /* wb_tile_open_light.png in Resources */ = {isa = PBXBuildFile; fileRef = 27327BA4172FB2B300DE65D7 /* wb_tile_open_light.png */; };
 		27327BA6172FB2E400DE65D7 /* wb_tile_more_light.png in Resources */ = {isa = PBXBuildFile; fileRef = 27327BA3172FB2B300DE65D7 /* wb_tile_more_light.png */; };
@@ -2299,8 +2308,6 @@
 		2BD9E79B185FFF8500A7252B /* title_schema_inspector@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD9E795185FFF8500A7252B /* title_schema_inspector@2x.png */; };
 		2BD9E79C185FFF8500A7252B /* title_table_inspector.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD9E796185FFF8500A7252B /* title_table_inspector.png */; };
 		2BD9E79D185FFF8500A7252B /* title_table_inspector@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD9E797185FFF8500A7252B /* title_table_inspector@2x.png */; };
-		2BD9E7A21860004400A7252B /* MFNative.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9E7A01860004400A7252B /* MFNative.h */; };
-		2BD9E7A31860004400A7252B /* MFNative.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9E7A11860004400A7252B /* MFNative.mm */; };
 		2BD9E7A51860011000A7252B /* native.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD9E7A41860011000A7252B /* native.cpp */; };
 		2BD9E7A71860012000A7252B /* native.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9E7A61860012000A7252B /* native.h */; };
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
@@ -2816,6 +2823,34 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2B7510D70E8799D00003120A;
 			remoteInfo = wbpublic.be;
+		};
+		2731DE7721A2E4D2002EEE8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
+			remoteInfo = MySQLWorkbench;
+		};
+		2731DE7921A2F148002EEE8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B825D280E0B59A100BE52DF;
+			remoteInfo = base;
+		};
+		2731DE7E21A2FF0C002EEE8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2B825D280E0B59A100BE52DF;
+			remoteInfo = base;
+		};
+		2731DE8121A31552002EEE8A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
+			remoteInfo = MySQLWorkbench;
 		};
 		27323B451DF1833F00CA4E1B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3713,6 +3748,24 @@
 			name = "Copy Files (executables)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2731DE4D21A2CD70002EEE8A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		2731DE5821A2CDA0002EEE8A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		278A083B19BC836F0084C2F4 /* Copy Files (python plugins) */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4327,6 +4380,12 @@
 		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
 		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
 		2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_reverse_engineer_script.h; path = plugins/db.mysql/frontend/db_reverse_engineer_script.h; sourceTree = "<group>"; };
+		2731DE4F21A2CD70002EEE8A /* genobj */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genobj; sourceTree = BUILT_PRODUCTS_DIR; };
+		2731DE5A21A2CDA0002EEE8A /* genwrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genwrap; sourceTree = BUILT_PRODUCTS_DIR; };
+		2731DE6121A2CE15002EEE8A /* genwrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = genwrap.cpp; path = tools/genwrap/genwrap.cpp; sourceTree = "<group>"; };
+		2731DE6321A2CE37002EEE8A /* genobj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = genobj.cpp; path = tools/genobj/genobj.cpp; sourceTree = "<group>"; };
+		2731DE6521A2CF48002EEE8A /* genobj_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = genobj_prefix.h; path = prefix/genobj_prefix.h; sourceTree = "<group>"; };
+		2731DE6621A2CF5E002EEE8A /* genwrap_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = genwrap_prefix.h; path = prefix/genwrap_prefix.h; sourceTree = "<group>"; };
 		27327B9F172FAFC800DE65D7 /* python_copy_data_source.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = python_copy_data_source.cpp; path = plugins/migration/copytable/python_copy_data_source.cpp; sourceTree = "<group>"; };
 		27327BA0172FAFC800DE65D7 /* python_copy_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = python_copy_data_source.h; path = plugins/migration/copytable/python_copy_data_source.h; sourceTree = "<group>"; };
 		27327BA2172FB2B300DE65D7 /* wb_tile_manage_light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_tile_manage_light.png; path = images/home/wb_tile_manage_light.png; sourceTree = "<group>"; };
@@ -6394,8 +6453,6 @@
 		2BD9E795185FFF8500A7252B /* title_schema_inspector@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "title_schema_inspector@2x.png"; path = "images/sql/title_schema_inspector@2x.png"; sourceTree = "<group>"; };
 		2BD9E796185FFF8500A7252B /* title_table_inspector.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = title_table_inspector.png; path = images/sql/title_table_inspector.png; sourceTree = "<group>"; };
 		2BD9E797185FFF8500A7252B /* title_table_inspector@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "title_table_inspector@2x.png"; path = "images/sql/title_table_inspector@2x.png"; sourceTree = "<group>"; };
-		2BD9E7A01860004400A7252B /* MFNative.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFNative.h; path = library/forms/cocoa/MFNative.h; sourceTree = "<group>"; };
-		2BD9E7A11860004400A7252B /* MFNative.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFNative.mm; path = library/forms/cocoa/MFNative.mm; sourceTree = "<group>"; };
 		2BD9E7A41860011000A7252B /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = native.cpp; path = library/forms/native.cpp; sourceTree = "<group>"; };
 		2BD9E7A61860012000A7252B /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = native.h; path = library/forms/mforms/native.h; sourceTree = "<group>"; };
 		2BDAE46911139B3B00AC1D7A /* file_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_functions.h; path = library/base/base/file_functions.h; sourceTree = "<group>"; };
@@ -6778,6 +6835,27 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2731DE4C21A2CD70002EEE8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2731DE7D21A2FC2F002EEE8A /* libwbbase.dylib in Frameworks */,
+				2731DE7321A2D1FB002EEE8A /* libwbpublic.be.dylib in Frameworks */,
+				2731DE7221A2D1F2002EEE8A /* libgrt.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2731DE5721A2CDA0002EEE8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2731DE8021A2FF17002EEE8A /* libwbbase.dylib in Frameworks */,
+				2731DE6D21A2D1B4002EEE8A /* libwbpublic.be.dylib in Frameworks */,
+				2731DE6921A2D121002EEE8A /* libgrt.dylib in Frameworks */,
+				2731DE6A21A2D14E002EEE8A /* libpcre.1.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		27467EBB154A96CB00021708 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -7517,6 +7595,8 @@
 				4401E1971D994DA50027AD13 /* libmtemplate.dylib */,
 				8EF3D31C205823A400FCF385 /* wbtests */,
 				278DFF0620A2F2AC00D7E439 /* libwbssh.dylib */,
+				2731DE4F21A2CD70002EEE8A /* genobj */,
+				2731DE5A21A2CDA0002EEE8A /* genwrap */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -7949,6 +8029,33 @@
 			name = db.mysql.parser;
 			sourceTree = "<group>";
 		};
+		2731DE4821A2CBF9002EEE8A /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				2731DE4A21A2CC52002EEE8A /* genwrap */,
+				2731DE4921A2CC4A002EEE8A /* genobj */,
+			);
+			name = Tools;
+			sourceTree = "<group>";
+		};
+		2731DE4921A2CC4A002EEE8A /* genobj */ = {
+			isa = PBXGroup;
+			children = (
+				2731DE6521A2CF48002EEE8A /* genobj_prefix.h */,
+				2731DE6321A2CE37002EEE8A /* genobj.cpp */,
+			);
+			name = genobj;
+			sourceTree = "<group>";
+		};
+		2731DE4A21A2CC52002EEE8A /* genwrap */ = {
+			isa = PBXGroup;
+			children = (
+				2731DE6621A2CF5E002EEE8A /* genwrap_prefix.h */,
+				2731DE6121A2CE15002EEE8A /* genwrap.cpp */,
+			);
+			name = genwrap;
+			sourceTree = "<group>";
+		};
 		2744E6790FC1831900E85C33 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -8260,6 +8367,7 @@
 				2B825EBF0E0B690400BE52DF /* Plugins */,
 				2BCFD7BA0E88BA6000D2A0CB /* WBExtras */,
 				2B825EBC0E0B68D900BE52DF /* Workbench */,
+				2731DE4821A2CBF9002EEE8A /* Tools */,
 				2B2637590E932F9300933149 /* Resource Files */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
@@ -10439,8 +10547,6 @@
 				2B15AF2112D7B3FC006567D6 /* MFMenuBar.mm */,
 				2B3D49030F3E3FCA009238A7 /* MFMForms.h */,
 				2B3D49040F3E3FCA009238A7 /* MFMForms.mm */,
-				2BD9E7A01860004400A7252B /* MFNative.h */,
-				2BD9E7A11860004400A7252B /* MFNative.mm */,
 				2B3D49050F3E3FCA009238A7 /* MFPanel.h */,
 				2B3D49060F3E3FCA009238A7 /* MFPanel.mm */,
 				2B83FCE21419C64500A2C82B /* MFPopover.h */,
@@ -12133,7 +12239,6 @@
 				2B4CAD5610ABA9F000D5F19E /* menu.h in Headers */,
 				27A5768A10FE065000A948A6 /* fs_object_selector.h in Headers */,
 				2773B87E11006A21000CA2F9 /* splitter.h in Headers */,
-				2BD9E7A21860004400A7252B /* MFNative.h in Headers */,
 				2773B88511006B53000CA2F9 /* MFSplitter.h in Headers */,
 				27C08A551CB79792001A0ECC /* home_screen.h in Headers */,
 				278874861189DA8500E477EF /* webbrowser.h in Headers */,
@@ -12381,6 +12486,45 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2731DE4E21A2CD70002EEE8A /* genobj */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2731DE5321A2CD70002EEE8A /* Build configuration list for PBXNativeTarget "genobj" */;
+			buildPhases = (
+				2731DE4B21A2CD70002EEE8A /* Sources */,
+				2731DE4C21A2CD70002EEE8A /* Frameworks */,
+				2731DE4D21A2CD70002EEE8A /* CopyFiles */,
+				2731DE7521A2D4E4002EEE8A /* Copy some binaries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2731DE8221A31552002EEE8A /* PBXTargetDependency */,
+			);
+			name = genobj;
+			productName = genobj;
+			productReference = 2731DE4F21A2CD70002EEE8A /* genobj */;
+			productType = "com.apple.product-type.tool";
+		};
+		2731DE5921A2CDA0002EEE8A /* genwrap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2731DE5E21A2CDA0002EEE8A /* Build configuration list for PBXNativeTarget "genwrap" */;
+			buildPhases = (
+				2731DE5621A2CDA0002EEE8A /* Sources */,
+				2731DE5721A2CDA0002EEE8A /* Frameworks */,
+				2731DE5821A2CDA0002EEE8A /* CopyFiles */,
+				2731DE7621A2D50E002EEE8A /* Copy some binaries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2731DE7F21A2FF0C002EEE8A /* PBXTargetDependency */,
+				2731DE7821A2E4D2002EEE8A /* PBXTargetDependency */,
+			);
+			name = genwrap;
+			productName = genwrap;
+			productReference = 2731DE5A21A2CDA0002EEE8A /* genwrap */;
+			productType = "com.apple.product-type.tool";
+		};
 		27467EBC154A96CB00021708 /* parsers */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 27467EC0154A96EA00021708 /* Build configuration list for PBXNativeTarget "parsers" */;
@@ -13069,6 +13213,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				2731DE7A21A2F148002EEE8A /* PBXTargetDependency */,
 			);
 			name = mtemplate;
 			productName = base;
@@ -13179,6 +13324,12 @@
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
+					2731DE4E21A2CD70002EEE8A = {
+						CreatedOnToolsVersion = 10.1;
+					};
+					2731DE5921A2CDA0002EEE8A = {
+						CreatedOnToolsVersion = 10.1;
+					};
 					27D8079D1A3F262D00EDCA8F = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -13207,6 +13358,8 @@
 				2B2E91C8158915DE0078D08A /* wbcopytables */,
 				2B240383101BC6CC00079580 /* wbtests-com */,
 				8EF3D28A205823A400FCF385 /* wbtests-gpl */,
+				2731DE5921A2CDA0002EEE8A /* genwrap */,
+				2731DE4E21A2CD70002EEE8A /* genobj */,
 				2B825D280E0B59A100BE52DF /* base */,
 				4401E1621D994DA50027AD13 /* mtemplate */,
 				2B825D910E0B604400BE52DF /* grt */,
@@ -14272,6 +14425,44 @@
 			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH_CE=${SRCROOT}/3rd-party-ce\nRES_SOURCE_PATH_SE=${SRCROOT}/3rd-party-se\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file is it doesnt exist or is newer\nfunction copy() {\n    from=$1\n    to=$2/`basename $from`\n    if [ ! -f $to ] || [ $from -nt $to ]; then\n        cp -f $from $to\n    fi\n}\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH_CE}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/License*.txt\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/README*.txt\n\ncopy ${RES_SOURCE_PATH_SE}/bin/ogrinfo ${EXEPATH}\ncopy ${RES_SOURCE_PATH_SE}/bin/ogr2ogr ${EXEPATH}\n\ncopy ${RES_SOURCE_PATH_SE}/lib/libproj.0.dylib ${NEWLIBPATH}\n\n# Use commercial libs if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying libraries for standard edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_SE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying libraries for community edition\"\n    copy ${RES_SOURCE_PATH_CE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_CE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\nCHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n";
 			showEnvVarsInLog = 0;
 		};
+		2731DE7521A2D4E4002EEE8A /* Copy some binaries */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy some binaries";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cp ${BUILT_PRODUCTS_DIR}/genobj ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
+			showEnvVarsInLog = 0;
+		};
+		2731DE7621A2D50E002EEE8A /* Copy some binaries */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy some binaries";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# The test binary must be in the MacOS folder to find its resource paths.\ncp ${BUILT_PRODUCTS_DIR}/genwrap ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
+			showEnvVarsInLog = 0;
+		};
 		27A00CF41BF0B3FA0087684B /* Copy some binaries */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -14430,6 +14621,22 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2731DE4B21A2CD70002EEE8A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2731DE6421A2CE39002EEE8A /* genobj.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2731DE5621A2CDA0002EEE8A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2731DE6221A2CE17002EEE8A /* genwrap.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		27467EBA154A96CB00021708 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -15037,7 +15244,6 @@
 				2B3D49210F3E3FCA009238A7 /* MFForm.mm in Sources */,
 				27C08A481CB79775001A0ECC /* home_screen_documents.cpp in Sources */,
 				2BD9E7A51860011000A7252B /* native.cpp in Sources */,
-				2BD9E7A31860004400A7252B /* MFNative.mm in Sources */,
 				2B3D49230F3E3FCA009238A7 /* MFLabel.mm in Sources */,
 				2B3D49250F3E3FCA009238A7 /* MFMForms.mm in Sources */,
 				2B3D49270F3E3FCA009238A7 /* MFPanel.mm in Sources */,
@@ -15534,6 +15740,26 @@
 			isa = PBXTargetDependency;
 			target = 2B7510D70E8799D00003120A /* wbpublic.be */;
 			targetProxy = 27257469191BBD7600094162 /* PBXContainerItemProxy */;
+		};
+		2731DE7821A2E4D2002EEE8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D1107260486CEB800E47090 /* MySQLWorkbench */;
+			targetProxy = 2731DE7721A2E4D2002EEE8A /* PBXContainerItemProxy */;
+		};
+		2731DE7A21A2F148002EEE8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B825D280E0B59A100BE52DF /* base */;
+			targetProxy = 2731DE7921A2F148002EEE8A /* PBXContainerItemProxy */;
+		};
+		2731DE7F21A2FF0C002EEE8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2B825D280E0B59A100BE52DF /* base */;
+			targetProxy = 2731DE7E21A2FF0C002EEE8A /* PBXContainerItemProxy */;
+		};
+		2731DE8221A31552002EEE8A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D1107260486CEB800E47090 /* MySQLWorkbench */;
+			targetProxy = 2731DE8121A31552002EEE8A /* PBXContainerItemProxy */;
 		};
 		27323B461DF1833F00CA4E1B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -16231,6 +16457,168 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2731DE5421A2CD70002EEE8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rd-party-ce/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Wno-documentation",
+				);
+			};
+			name = Debug;
+		};
+		2731DE5521A2CD70002EEE8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rd-party-ce/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Wno-documentation",
+				);
+			};
+			name = Release;
+		};
+		2731DE5F21A2CDA0002EEE8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/generated",
+					"$(PROJECT_DIR)/modules",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rd-party-ce/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Wno-documentation",
+				);
+			};
+			name = Debug;
+		};
+		2731DE6021A2CDA0002EEE8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/generated",
+					"$(PROJECT_DIR)/modules",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/3rd-party-ce/lib",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"$(inherited)",
+					"-Wno-documentation",
+				);
+			};
+			name = Release;
+		};
 		27467EBE154A96CC00021708 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -18799,6 +19187,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2731DE5321A2CD70002EEE8A /* Build configuration list for PBXNativeTarget "genobj" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2731DE5421A2CD70002EEE8A /* Debug */,
+				2731DE5521A2CD70002EEE8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2731DE5E21A2CDA0002EEE8A /* Build configuration list for PBXNativeTarget "genwrap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2731DE5F21A2CDA0002EEE8A /* Debug */,
+				2731DE6021A2CDA0002EEE8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		27467EC0154A96EA00021708 /* Build configuration list for PBXNativeTarget "parsers" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

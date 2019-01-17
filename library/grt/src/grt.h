@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1220,10 +1220,15 @@ namespace grt {
     ListRef() {
     }
 
-    ListRef(bool allow_null) : BaseListRef(ObjectType, O::static_class_name(), 0, allow_null) {
+    ListRef(bool allow_null)
+      : BaseListRef(ObjectType, O::static_class_name(), 0, allow_null) {
     }
 
     ListRef(internal::Object *owner, bool allow_null = true)
+      : BaseListRef(ObjectType, O::static_class_name(), owner, allow_null) {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
       : BaseListRef(ObjectType, O::static_class_name(), owner, allow_null) {
     }
 
@@ -1328,7 +1333,15 @@ namespace grt {
     ListRef() {
     }
 
-    ListRef(CreateMode mode, internal::Object *owner = 0, bool allow_null = true)
+    ListRef(bool allow_null)
+      : BaseListRef(IntegerType, "", 0, allow_null) {
+    }
+
+    ListRef(internal::Object *owner, bool allow_null = true)
+      : BaseListRef(IntegerType, "", owner, allow_null) {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
       : BaseListRef(IntegerType, "", owner, allow_null) {
     }
 
@@ -1398,7 +1411,15 @@ namespace grt {
     ListRef() {
     }
 
-    ListRef(CreateMode mode, internal::Object *owner = 0, bool allow_null = true)
+    ListRef(bool allow_null)
+      : BaseListRef(DoubleType, "", 0, allow_null) {
+    }
+
+    ListRef(internal::Object *owner, bool allow_null = true)
+      : BaseListRef(DoubleType, "", owner, allow_null) {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
       : BaseListRef(DoubleType, "", owner, allow_null) {
     }
 
@@ -1469,6 +1490,14 @@ namespace grt {
     typedef TypedListConstReverseIterator<internal::String> const_reverse_iterator;
 
     ListRef() {
+    }
+
+    ListRef(bool allow_null)
+      : BaseListRef(StringType, "", 0, allow_null) {
+    }
+
+    ListRef(internal::Object *owner, bool allow_null = true)
+      : BaseListRef(StringType, "", owner, allow_null) {
     }
 
     ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
@@ -1736,7 +1765,15 @@ namespace grt {
     ListRef() {
     }
 
-    ListRef(CreateMode mode, internal::Object *owner = 0, bool allow_null = true)
+    ListRef(bool allow_null)
+      : BaseListRef(DictType, "", 0, allow_null) {
+    }
+
+    ListRef(internal::Object *owner, bool allow_null = true)
+      : BaseListRef(DictType, "", owner, allow_null) {
+    }
+
+    ListRef(CreateMode mode, internal::Object *owner = nullptr, bool allow_null = true)
       : BaseListRef(DictType, "", owner, allow_null) {
     }
 

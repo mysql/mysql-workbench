@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -25,6 +25,8 @@
 #import "MFMForms.h"
 #import "MFLabel.h"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 struct CellEntry {
   NSView *view;
   bool isVisible;
@@ -38,6 +40,8 @@ struct CellEntry {
   bool horizontalFill;
   bool verticalFill;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @interface MFTableImpl ()  {
   float mRowSpacing;
@@ -54,6 +58,8 @@ struct CellEntry {
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MFTableImpl
 
 - (instancetype)initWithObject:(::mforms::Table*)aTable
@@ -67,38 +73,46 @@ struct CellEntry {
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (mforms::Object*)mformsObject
 {
   return mOwner;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)isFlipped
 {
   return YES;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setHomogeneous:(bool)flag
 {
   mHomogeneous= flag;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setRowSpacing:(float)spacing
 {
   mRowSpacing= spacing;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setColumnSpacing:(float)spacing
 {
   mColumnSpacing= spacing;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #if 0
 - (void)drawRect:(NSRect)rect
@@ -148,7 +162,7 @@ static void applyBounds(std::vector<CellEntry> &list)
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Computes the entire layout of the table. This includes size and position of client views.
@@ -495,13 +509,15 @@ static void applyBounds(std::vector<CellEntry> &list)
   return proposedSize;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)preferredSize: (NSSize)proposedSize
 {
   self.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
   return [self computeLayout: proposedSize resizeChildren: NO];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize
 {
@@ -548,16 +564,21 @@ static void applyBounds(std::vector<CellEntry> &list)
     [self relayout];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setRowCount:(int)count
 {
   mRowCount= count;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setColumnCount:(int)count
 {
   mColumnCount= count;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setPaddingLeft: (float)lpad right: (float)rpad top: (float)tpad bottom: (float)bpad
 {
@@ -570,11 +591,20 @@ static void applyBounds(std::vector<CellEntry> &list)
   mVerticalCenter = (tpad < 0 && bpad < 0);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityTableRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool table_create(::mforms::Table *self)
 {
   return [[MFTableImpl alloc] initWithObject: self] != nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_set_homogeneous(::mforms::Table *self, bool flag)
 {
@@ -589,6 +619,7 @@ static void table_set_homogeneous(::mforms::Table *self, bool flag)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_set_row_spacing(::mforms::Table *self, int spacing)
 {
@@ -603,6 +634,7 @@ static void table_set_row_spacing(::mforms::Table *self, int spacing)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_set_column_spacing(::mforms::Table *self, int spacing)
 {
@@ -617,6 +649,7 @@ static void table_set_column_spacing(::mforms::Table *self, int spacing)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_set_row_count(::mforms::Table *self, int count)
 {
@@ -631,6 +664,7 @@ static void table_set_row_count(::mforms::Table *self, int count)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_set_column_count(::mforms::Table *self, int count)
 {
@@ -645,6 +679,7 @@ static void table_set_column_count(::mforms::Table *self, int count)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_add(::mforms::Table *self, ::mforms::View *child, int left, int right, int top, int bottom, int flags)
 {
@@ -659,12 +694,14 @@ static void table_add(::mforms::Table *self, ::mforms::View *child, int left, in
                          flags: (mforms::TableItemFlags)flags];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void table_remove(::mforms::Table *self, ::mforms::View *child)
 {
   [child->get_data() removeFromSuperview];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_table_init()
 {
@@ -681,3 +718,5 @@ void cf_table_init()
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

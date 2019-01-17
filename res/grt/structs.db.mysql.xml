@@ -118,13 +118,13 @@
 
     <gstruct name="db.mysql.Index" parent="db.Index">
         <members>
-            <member name="indexKind" type="string" attr:desc="one of BTREE, RTREE and HASH"/>
-            <member name="keyBlockSize" type="int"/>
-            <member name="withParser" type="string"/>
-            <member name="algorithm" type="string" attr:desc = "one of DEFAULT, INPLACE and COPY"/>
-            <member name="lockOption" type="string" attr:desc = "one of DEFAULT, NONE, SHARED and EXCLUSIVE"/>
-            <member name="columns" type="list" content-type="object" content-struct-name="db.mysql.IndexColumn" overrides="db.IndexColumn" owned="1"/>
-            <member name="visible" type="int"/>
+            <member name="indexKind" type="string" attr:desc="one of BTREE, RTREE and HASH" />
+            <member name="keyBlockSize" type="int" />
+            <member name="withParser" type="string" />
+            <member name="algorithm" type="string" attr:desc = "one of DEFAULT, INPLACE and COPY" />
+            <member name="lockOption" type="string" attr:desc = "one of DEFAULT, NONE, SHARED and EXCLUSIVE" />
+            <member name="columns" type="list" content-type="object" content-struct-name="db.mysql.IndexColumn" overrides="db.IndexColumn" owned="1" />
+            <member name="visible" type="int" default="1" />
         </members>
     </gstruct>
 

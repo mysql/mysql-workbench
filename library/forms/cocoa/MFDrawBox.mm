@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -26,6 +26,8 @@
 #import "MFDrawBox.h"
 #import "MFMForms.h"
 #include <cairo/cairo-quartz.h>
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // TODO: move the accessibility helper to a base lib platform file.
 static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
@@ -72,6 +74,8 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   return nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation AccChildImpl
 
 - (id)initWithObject: (base::Accessible *)acc parent: (mforms::View *)parentAcc {
@@ -85,47 +89,67 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)accessibilityRole {
   return convertAccessibleRole(mformsAcc->getAccessibilityRole());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (id)accessibilityParent {
   return parent->get_data();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)accessibilityPerformPress {
   mformsAcc->accessibilityDoDefaultAction();
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)accessibilityPerformShowMenu {
   mformsAcc->accessibilityShowMenu();
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)accessibilityIdentifier {
-  std::string name = mformsAcc->getAccessibilityName();
+  std::string name = mformsAcc->getAccessibilityIdentifier();
   return [NSString stringWithUTF8String: name.c_str()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSString *)accessibilityLabel {
   std::string label = mformsAcc->getAccessibilityDescription();
   return [NSString stringWithUTF8String: label.c_str()];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)accessibilityTitle {
   std::string title = mformsAcc->getAccessibilityTitle();
   return [NSString stringWithUTF8String: title.c_str()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSString *)accessibilityValue {
   std::string value = mformsAcc->getAccessibilityValue();
   return [NSString stringWithUTF8String: value.c_str()];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)isAccessibilityElement {
   return convertAccessibleRole(mformsAcc->getAccessibilityRole()) != NSAccessibilityUnknownRole;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSRect)accessibilityFrame {
   base::Rect accBounds = mformsAcc->getAccessibilityBounds();
@@ -133,8 +157,10 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   return NSMakeRect(point.first, point.second - accBounds.height(), accBounds.width(), accBounds.height());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (id)accessibilityHitTest: (NSPoint)point {
-  std::pair<int, int> p = ((mforms::View *)mformsAcc)->screen_to_client(point.x, point.y);
+  std::pair<int, int> p = dynamic_cast<mforms::View *>(mformsAcc)->screen_to_client(point.x, point.y);
 
   base::Accessible *acc = mformsAcc->accessibilityHitTest(p.first, p.second);
   if (acc != nullptr) {
@@ -146,13 +172,15 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
       return it->second;
     
     AccChildImpl *accChild = [[AccChildImpl alloc] initWithObject: acc parent: parent];
-    accChildList.insert({acc, accChild});
+    accChildList.insert({ acc, accChild });
     return accChild;
   }
   return self;
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MFDrawBoxImpl
 
@@ -168,17 +196,25 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)dealloc {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (mforms::Object *)mformsObject {
   return mOwner;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)isFlipped {
   return YES;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setBackgroundColor:(NSColor *)value {
   if (mBackgroundColor != value) {
@@ -187,6 +223,8 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setDrawsBackground: (BOOL)flag {
   if (mDrawsBackground != flag) {
     mDrawsBackground = flag;
@@ -194,9 +232,13 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)isAccessibilityElement {
   return convertAccessibleRole(mOwner->getAccessibilityRole()) != NSAccessibilityUnknownRole;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (id)accessibilityHitTest: (NSPoint)point {
   std::pair<int, int> p = mOwner->screen_to_client(point.x, point.y);
@@ -213,24 +255,34 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)accessibilityRole {
   return convertAccessibleRole(mOwner->getAccessibilityRole());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)accessibilityIdentifier {
-  std::string name = mOwner->getAccessibilityName();
+  std::string name = mOwner->getAccessibilityIdentifier();
   return [NSString stringWithUTF8String:name.c_str()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSString *)accessibilityLabel {
   std::string description = mOwner->getAccessibilityDescription();
   return [NSString stringWithUTF8String:description.c_str()];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (NSString *)accessibilityTitle {
   std::string title = mOwner->getAccessibilityTitle();
   return [NSString stringWithUTF8String:title.c_str()];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSArray *)accessibilityChildren {
   NSMutableArray *children = [[super accessibilityChildren] mutableCopy];
@@ -249,9 +301,13 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   return children;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)cancelOperation: (id)sender {
   mOwner->cancel_operation();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)drawRect: (NSRect)rect {
   NSRect bounds = self.bounds;
@@ -277,25 +333,25 @@ static NSString *convertAccessibleRole(base::Accessible::Role be_role) {
   cairo_surface_destroy(surface);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 STANDARD_MOUSE_HANDLING(self) // Add handling for mouse events.
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 STANDARD_KEYBOARD_HANDLING(self)
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)invalidate {
   [self setNeedsDisplay: YES];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)invalidateRect :(NSString *)rectStr {
   [self setNeedsDisplayInRect: NSRectFromString(rectStr)];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)preferredSize:(NSSize)proposal {
   if (mOwner == NULL || mOwner->is_destroying())
@@ -307,7 +363,7 @@ STANDARD_KEYBOARD_HANDLING(self)
   return {MAX(size.width, self.minimumSize.width), MAX(size.height, self.minimumSize.height)};
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setPaddingLeft: (float)left right: (float)right top: (float)top bottom: (float)bottom {
   mPaddingLeft = left;
@@ -316,7 +372,7 @@ STANDARD_KEYBOARD_HANDLING(self)
   mPaddingBottom = bottom;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize {
   if (!mOwner->is_destroying()) {
@@ -387,20 +443,20 @@ STANDARD_KEYBOARD_HANDLING(self)
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool drawbox_create(mforms::DrawBox *self) {
   return [[MFDrawBoxImpl alloc] initWithObject: self] != nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void drawbox_set_needs_repaint(mforms::DrawBox *self) {
   // Invalidate the draw box in a thread safe manner.
   [self->get_data() performSelectorOnMainThread: @selector(invalidate) withObject: nil waitUntilDone: NO];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void drawbox_set_needs_repaint_area(mforms::DrawBox *self, int x, int y, int w, int h) {
   // Invalidate the draw box in a thread safe manner.
@@ -410,7 +466,7 @@ static void drawbox_set_needs_repaint_area(mforms::DrawBox *self, int x, int y, 
                                   waitUntilDone: NO];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void drawbox_add(mforms::DrawBox *self, mforms::View *view, mforms::Alignment alignment) {
   MFDrawBoxImpl *box = self->get_data();
@@ -420,7 +476,7 @@ static void drawbox_add(mforms::DrawBox *self, mforms::View *view, mforms::Align
   [box resizeSubviewsWithOldSize: box.frame.size];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void drawbox_remove(mforms::DrawBox *self, mforms::View *view) {
   MFDrawBoxImpl *box = self->get_data();
@@ -430,7 +486,7 @@ static void drawbox_remove(mforms::DrawBox *self, mforms::View *view) {
   [box resizeSubviewsWithOldSize: box.frame.size];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void drawbox_move(mforms::DrawBox *self, mforms::View *view, int x, int y) {
   MFDrawBoxImpl *box = self->get_data();
@@ -438,6 +494,8 @@ static void drawbox_move(mforms::DrawBox *self, mforms::View *view, int x, int y
   NSView *child = view->get_data();
   [child setFrameOrigin: NSMakePoint(x, y)];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void drawbox_drawFocus(mforms::DrawBox *self, cairo_t *cr, const base::Rect r) {
   auto bounds = r;
@@ -449,7 +507,7 @@ static void drawbox_drawFocus(mforms::DrawBox *self, cairo_t *cr, const base::Re
   [NSGraphicsContext restoreGraphicsState];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_drawbox_init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
@@ -464,3 +522,5 @@ void cf_drawbox_init() {
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

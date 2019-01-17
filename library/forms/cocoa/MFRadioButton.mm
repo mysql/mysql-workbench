@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -30,6 +30,7 @@
 
 @implementation MFRadioButtonImpl
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithObject:(::mforms::RadioButton*)aRadioButton
 {
@@ -49,6 +50,8 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (instancetype)initWithObject: (mforms::Button *)button buttonType: (mforms::ButtonType)type
 {
   mforms::RadioButton *radio = dynamic_cast<mforms::RadioButton *>(button);
@@ -57,10 +60,14 @@
   return [self initWithObject: radio];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)performCallback:(id)sender
 {
   dynamic_cast<mforms::RadioButton*>(mOwner)->callback();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)minimumSize
 {
@@ -68,11 +75,20 @@
   return { MAX(self.cell.cellSize.width, size.width), MAX(self.cell.cellSize.height, size.height) };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityRadioButtonRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool radiobutton_create(::mforms::RadioButton *self, int)
 {
   return [[MFRadioButtonImpl alloc] initWithObject: self] != nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void radiobutton_set_active(::mforms::RadioButton *self, bool flag)
 {
@@ -86,6 +102,8 @@ static void radiobutton_set_active(::mforms::RadioButton *self, bool flag)
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool radiobutton_get_active(::mforms::RadioButton *self)
 {
@@ -101,6 +119,7 @@ static bool radiobutton_get_active(::mforms::RadioButton *self)
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_radiobutton_init()
 {
@@ -111,6 +130,4 @@ void cf_radiobutton_init()
   f->_radio_impl.get_active= &radiobutton_get_active;
 }
 
-
 @end
-

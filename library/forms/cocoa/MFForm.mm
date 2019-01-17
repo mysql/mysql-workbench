@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -31,6 +31,8 @@
   NSMenu *mOriginalMenu;
 }
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 @implementation MFFormImpl
 
@@ -75,19 +77,25 @@
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)dealloc {
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (mforms::Object *)mformsObject {
   return mOwner;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)isHidden {
   return !self.visible;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setHidden: (BOOL)flag {
   if (!flag) {
@@ -96,7 +104,7 @@
     [self orderOut:nil];
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Computes the entire layout of the form.
@@ -117,29 +125,37 @@
   return proposedSize;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)preferredSize: (NSSize)proposedSize {
   return [self computeLayout: proposedSize resizeChildren: NO];
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)resizeSubviewsWithOldSize: (NSSize)oldBoundsSize {
   [self computeLayout: self.frame.size resizeChildren: YES];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)relayout {
   [self resizeSubviewsWithOldSize:self.frame.size];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)setFrameSize: (NSSize)size {
   [self setContentSize: size];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (BOOL)windowShouldClose: (id)sender {
   return mOwner->can_close();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)windowWillClose: (NSNotification *)notification {
   [self makeFirstResponder:nil];
@@ -155,6 +171,8 @@
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)doCommandBySelector: (SEL)aSelector {
   if (aSelector == @selector(cancel:)) {
     // Don't close windows on Escape for non-modal windows
@@ -164,6 +182,8 @@
 
   [super doCommandBySelector:aSelector];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSInteger)runModal {
   NSInteger ret;
@@ -190,9 +210,13 @@
   return ret;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)endModal: (BOOL)ok {
   [NSApp stopModalWithCode: (ok ? NSModalResponseOK : NSModalResponseCancel)];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)destroy {
   [self setContentView: nil];
@@ -200,6 +224,8 @@
   [self close];
   //  [self release];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)windowDidBecomeKey: (NSNotification *)notification {
   if (mOwner->get_menubar()) {
@@ -210,6 +236,8 @@
     mOwner->activated();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)windowDidResignKey: (NSNotification *)notification {
   if (mOriginalMenu) {
     NSApp.mainMenu = mOriginalMenu;
@@ -219,11 +247,21 @@
     mOwner->deactivated();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityWindowRole;
+}
+
 @end
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool form_create(mforms::Form *self, mforms::Form *owner, mforms::FormFlag flags) {
   return [[MFFormImpl alloc] initWithObject: self owner: owner flags: flags] != nil;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void form_set_title(mforms::Form *self, const std::string &title) {
   id form = self->get_data();
@@ -232,11 +270,15 @@ static void form_set_title(mforms::Form *self, const std::string &title) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void show_modal_button_action(void *form, mforms::Button *btn) {
   [(__bridge id)form makeFirstResponder: nil];
   if (form != NULL)
     [(__bridge id)form close];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void form_show_modal(mforms::Form *self, mforms::Button *accept, mforms::Button *cancel) {
   id form = self->get_data();
@@ -253,6 +295,8 @@ static void form_show_modal(mforms::Form *self, mforms::Button *accept, mforms::
     /// XXX this should not block
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool form_run_modal(mforms::Form *self, mforms::Button *accept, mforms::Button *cancel) {
   MFFormImpl *form = self->get_data();
@@ -284,10 +328,14 @@ static bool form_run_modal(mforms::Form *self, mforms::Button *accept, mforms::B
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void form_end_modal(mforms::Form *self, bool result) {
   [self->get_data() makeFirstResponder: nil];
   [self->get_data() endModal: result];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void form_close(mforms::Form *self) {
   id form = self->get_data();
@@ -296,6 +344,8 @@ static void form_close(mforms::Form *self) {
     [form close];
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void form_set_content(mforms::Form *self, mforms::View *child) {
   id form = self->get_data();
@@ -314,6 +364,8 @@ static void form_set_content(mforms::Form *self, mforms::View *child) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void form_center(mforms::Form *self) {
   id form = self->get_data();
   if (form) {
@@ -321,12 +373,18 @@ static void form_center(mforms::Form *self) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void form_flush_events(mforms::Form *self) {
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void form_set_menubar(mforms::Form *self, mforms::MenuBar *menubar) {
   // nop
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_form_init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -196,7 +196,7 @@ void SqlEditorTreeController::finish_init() {
 
   // Left hand sidebar tabview with admin and schema tree pages.
   _task_tabview = new mforms::TabView(mforms::TabViewSelectorSecondary);
-  _task_tabview->set_name("SQL IDE Live Schema Tree View");
+  _task_tabview->set_name("SQL IDE Sidebar Tabview");
   _schema_side_bar = dynamic_cast<wb::AdvancedSidebar *>(mforms::TaskSidebar::create("SchemaTree"));
   scoped_connect(_schema_side_bar->on_section_command(),
                  std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
@@ -205,7 +205,7 @@ void SqlEditorTreeController::finish_init() {
                  std::bind(&SqlEditorTreeController::sidebar_action, this, std::placeholders::_1));
   
   _admin_side_bar->set_name("Administration Page");
-  _schema_side_bar->set_name("Schemas Page");
+  _schema_side_bar->set_name("Schema Page");
 
   mforms::TaskSectionFlags flags = mforms::TaskSectionRefreshable;
   _schema_side_bar->add_section("SchemaTree", "Schema Tree", _("SCHEMAS"), flags);
@@ -229,7 +229,7 @@ void SqlEditorTreeController::finish_init() {
   int initial_splitter_pos =
     (int)bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SidebarInitialSplitterPos", 500);
   _side_splitter = mforms::manage(new mforms::Splitter(false, false));
-  _side_splitter->set_name("SQL IDE Live Schema Sidebar");
+  _side_splitter->set_name("SQL IDE Sidebar Splitter");
 
 #ifdef _MSC_VER
   mforms::Panel *panel;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -965,7 +965,8 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
           default:
             return tokenToTopic[showContext->value->getType()];
         }
-        break;  //  This should never fall here...just to avoid gcc to complain about it
+
+        break;
       }
 
       case MySQLParser::RuleTableConstraintDef: {
@@ -1075,7 +1076,6 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
 
       case MySQLParser::RuleAlterStatement: {
         auto alterContext = dynamic_cast<MySQLParser::AlterStatementContext *>(context);
-        std::string topic = "ALTER ";
         if (alterContext->alterTable() != nullptr)
           return "ALTER TABLE";
         if (alterContext->alterDatabase() != nullptr)
@@ -1096,10 +1096,75 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
         break;
       }
 
-      default:
-        if (contextToTopic.count(ruleIndex) > 0)
-          return contextToTopic[ruleIndex];
+      case MySQLParser::RuleCreateStatement: {
+        auto createContext = dynamic_cast<MySQLParser::CreateStatementContext *>(context);
+        if (createContext->createDatabase() != nullptr)
+          return "CREATE DATABASE";
+        if (createContext->createTable() != nullptr)
+          return "CREATE TABLE";
+        if (createContext->createFunction() != nullptr)
+          return "CREATE FUNCTION";
+        if (createContext->createProcedure() != nullptr)
+          return "CREATE PROCEDURE";
+        if (createContext->createUdf() != nullptr)
+          return "CREATE FUNCTION UDF";
+        if (createContext->createLogfileGroup() != nullptr)
+          return "CREATE TABLESPACE";
+        if (createContext->createView() != nullptr)
+          return "CREATE VIEW";
+        if (createContext->createTrigger() != nullptr)
+          return "CREATE TRIGGER";
+        if (createContext->createIndex() != nullptr)
+          return "CREATE INDEX";
+        if (createContext->createServer() != nullptr)
+          return "CREATE SERVER";
+        if (createContext->createTablespace() != nullptr)
+          return "CREATE TABLESPACE";
+        if (createContext->createEvent() != nullptr)
+          return "CREATE EVENT";
+        if (createContext->createRole() != nullptr)
+          return "CREATE ROLE";
+        if (createContext->createSpatialReference() != nullptr)
+          return "CREATE SPATIALREFERENCE SYSTEM";
+        if (createContext->createUndoTablespace() != nullptr)
+          return "CREATE TABLESPACE";
+
         break;
+      }
+
+      case MySQLParser::RuleDropStatement: {
+        auto dropContext = dynamic_cast<MySQLParser::DropStatementContext *>(context);
+        if (dropContext->dropDatabase() != nullptr)
+          return "DROP DATABASE";
+        if (dropContext->dropEvent() != nullptr)
+          return "DROP EVENT";
+        if (dropContext->dropFunction() != nullptr) // We cannot make a distinction between FUNCTION and FUNCTION UDF.
+          return "DROP FUNCTION";
+        if (dropContext->dropProcedure() != nullptr)
+          return "DROP PROCEDURE";
+        if (dropContext->dropIndex() != nullptr)
+          return "DROP INDEX";
+        if (dropContext->dropLogfileGroup() != nullptr)
+          return "DROP LOGFILE GROUP";
+        if (dropContext->dropServer() != nullptr)
+          return "DROP SERVER";
+        if (dropContext->dropTable() != nullptr)
+          return "DROP TABLE";
+        if (dropContext->dropTableSpace() != nullptr)
+          return "DROP TABLESPACE";
+        if (dropContext->dropTrigger() != nullptr)
+          return "DROP TRIGGER";
+        if (dropContext->dropView() != nullptr)
+          return "DROP VIEW";
+        if (dropContext->dropRole() != nullptr)
+          return "DROP ROLE";
+        if (dropContext->dropSpatialReference() != nullptr)
+          return "DROP SPATIALREFERENCE SYSTEM";
+        if (dropContext->dropUndoTablespace() != nullptr)
+          return "DROP TABLESPACE";
+
+        break;
+      }
     }
 
     tree = tree->parent;

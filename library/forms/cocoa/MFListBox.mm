@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -99,38 +99,49 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setEnabled: (BOOL)flag
 {
   mTable.enabled = flag;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSInteger)numberOfRowsInTableView: (NSTableView *)aTableView
 {
   return mContents.count;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
   return mContents[rowIndex];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
   mOwner->selection_changed();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)setViewFlags: (ViewFlags)flags
 {
   mTable.viewFlags = ViewFlags(flags);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (ViewFlags)viewFlags
 {
   return mTable.viewFlags;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)resizeSubviewsWithOldSize:(NSSize)oldSize
 {
@@ -138,13 +149,20 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   [mTable tableColumnWithIdentifier: @"0"].width = NSWidth(mTable.frame);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityListRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool listbox_create(::mforms::ListBox *self, bool multi_select)
 {
   return [[MFListBoxImpl alloc] initWithObject: self] != nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void listbox_clear(::mforms::ListBox *self)
 {
@@ -159,6 +177,8 @@ static void listbox_clear(::mforms::ListBox *self)
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void listbox_add_items(::mforms::ListBox *self, const std::list<std::string> &items)
 {
@@ -177,6 +197,7 @@ static void listbox_add_items(::mforms::ListBox *self, const std::list<std::stri
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static size_t listbox_add_item(::mforms::ListBox *self, const std::string &item)
 {
@@ -194,6 +215,7 @@ static size_t listbox_add_item(::mforms::ListBox *self, const std::string &item)
   return -1;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void listbox_remove_indices(mforms::ListBox *self, const std::vector<size_t> &indices)
 {
@@ -211,6 +233,7 @@ static void listbox_remove_indices(mforms::ListBox *self, const std::vector<size
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void listbox_remove_index(::mforms::ListBox *self, size_t index)
 {
@@ -226,6 +249,7 @@ static void listbox_remove_index(::mforms::ListBox *self, size_t index)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string listbox_get_text(::mforms::ListBox *self)
 {
@@ -242,6 +266,7 @@ static std::string listbox_get_text(::mforms::ListBox *self)
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void listbox_set_index(::mforms::ListBox *self, ssize_t index)
 {
@@ -259,6 +284,7 @@ static void listbox_set_index(::mforms::ListBox *self, ssize_t index)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static ssize_t listbox_get_index(::mforms::ListBox *self)
 {
@@ -274,6 +300,8 @@ static ssize_t listbox_get_index(::mforms::ListBox *self)
   return -1;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static size_t listbox_get_count(::mforms::ListBox *self)
 {
   if (self)
@@ -287,6 +315,8 @@ static size_t listbox_get_count(::mforms::ListBox *self)
   }
   return 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string listbox_get_string_value_from_index(::mforms::ListBox *self, size_t index)
 {
@@ -302,6 +332,8 @@ static std::string listbox_get_string_value_from_index(::mforms::ListBox *self, 
   }
   return "";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::vector<size_t> listbox_get_selected_indices(::mforms::ListBox *self)
 {
@@ -326,6 +358,8 @@ static std::vector<size_t> listbox_get_selected_indices(::mforms::ListBox *self)
 }
 
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void listbox_set_heading(::mforms::ListBox *self, const std::string &text)
 {
   if (self)
@@ -341,7 +375,7 @@ static void listbox_set_heading(::mforms::ListBox *self, const std::string &text
   }
 }
 
-
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_listbox_init()
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -535,16 +535,17 @@ TEST_FUNCTION(70) {
 
   tut::ensure(expected_sql, ref.is_open());
 
-  std::string error_msg("Forward engineer of:");
+  std::string error_msg("Forward engineer of: ");
   error_msg += modelfile;
   error_msg += " and ";
   error_msg += expected_sql;
-  error_msg += " failed";
+  error_msg += " failed in line ";
 
+  size_t i = 0;
   while (ref.good() && ss.good()) {
     getline(ref, refline);
     getline(ss, line);
-    tut::ensure_equals(error_msg, line, refline);
+    tut::ensure_equals(error_msg + std::to_string(i++), line, refline);
   }
 
   tester->wb->close_document();

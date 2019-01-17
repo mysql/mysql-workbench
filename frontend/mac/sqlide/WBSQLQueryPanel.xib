@@ -44,6 +44,7 @@
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="26" id="zW3-az-Ldw"/>
                                             </constraints>
+                                            <accessibility description="Editor Tabswitcher"/>
                                             <connections>
                                                 <outlet property="delegate" destination="-2" id="NmM-nP-Qp5"/>
                                                 <outlet property="mTabView" destination="381" id="552"/>
@@ -53,6 +54,7 @@
                                         <tabView type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="381">
                                             <rect key="frame" x="0.0" y="0.0" width="1126" height="438"/>
                                             <font key="font" metaFont="system"/>
+                                            <accessibility description="Editor Tabview"/>
                                             <connections>
                                                 <outlet property="delegate" destination="551" id="554"/>
                                             </connections>
@@ -67,6 +69,7 @@
                                         <constraint firstItem="551" firstAttribute="top" secondItem="550" secondAttribute="top" id="t3c-Bh-TNz"/>
                                         <constraint firstAttribute="trailing" secondItem="551" secondAttribute="trailing" id="ui6-ZO-aAT"/>
                                     </constraints>
+                                    <accessibility description="Editor Tabs Container"/>
                                 </customView>
                             </subviews>
                             <holdingPriorities>
@@ -85,6 +88,7 @@
                                     <constraints>
                                         <constraint firstAttribute="height" constant="26" id="XhY-Rh-xg3"/>
                                     </constraints>
+                                    <accessibility description="Output Toolbar"/>
                                 </customView>
                                 <tabView type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="430" userLabel="Output Tab View">
                                     <rect key="frame" x="0.0" y="0.0" width="1126" height="228"/>
@@ -210,25 +214,26 @@
                                                     <constraint firstAttribute="bottom" secondItem="434" secondAttribute="bottom" id="cFX-Um-zIQ"/>
                                                     <constraint firstItem="434" firstAttribute="leading" secondItem="433" secondAttribute="leading" id="tJT-RK-V70"/>
                                                 </constraints>
+                                                <accessibility description="Action Output Pane"/>
                                             </view>
                                         </tabViewItem>
                                         <tabViewItem identifier="text" id="431">
                                             <view key="view" id="461" customClass="MColoredView">
-                                                <rect key="frame" x="0.0" y="0.0" width="1126" height="231"/>
-                                                <autoresizingMask key="autoresizingMask"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="1126" height="228"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="462">
-                                                        <rect key="frame" x="0.0" y="0.0" width="1126" height="231"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="1126" height="228"/>
                                                         <clipView key="contentView" drawsBackground="NO" id="ihn-O1-2F2">
-                                                            <rect key="frame" x="0.0" y="0.0" width="1126" height="231"/>
-                                                            <autoresizingMask key="autoresizingMask"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="1126" height="228"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="panel" smartInsertDelete="YES" id="463">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="1126" height="231"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="1126" height="228"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                                    <size key="minSize" width="1126" height="231"/>
+                                                                    <size key="minSize" width="1126" height="228"/>
                                                                     <size key="maxSize" width="1793" height="10000000"/>
                                                                     <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                 </textView>
@@ -239,7 +244,7 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                         <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="465">
-                                                            <rect key="frame" x="1110" y="0.0" width="16" height="231"/>
+                                                            <rect key="frame" x="1110" y="0.0" width="16" height="228"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                     </scrollView>
@@ -250,21 +255,22 @@
                                                     <constraint firstItem="462" firstAttribute="leading" secondItem="461" secondAttribute="leading" id="idl-zC-kwK"/>
                                                     <constraint firstAttribute="trailing" secondItem="462" secondAttribute="trailing" id="l6g-tz-19D"/>
                                                 </constraints>
+                                                <accessibility description="Text Output Pane"/>
                                             </view>
                                         </tabViewItem>
                                         <tabViewItem identifier="history" id="478">
                                             <view key="view" id="479" customClass="MColoredView">
-                                                <rect key="frame" x="0.0" y="0.0" width="1126" height="231"/>
-                                                <autoresizingMask key="autoresizingMask"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="1126" height="228"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <scrollView autohidesScrollers="YES" horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="218">
-                                                        <rect key="frame" x="0.0" y="0.0" width="100" height="231"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="100" height="228"/>
                                                         <clipView key="contentView" id="ZeU-03-y0E">
-                                                            <rect key="frame" x="1" y="0.0" width="98" height="230"/>
-                                                            <autoresizingMask key="autoresizingMask"/>
+                                                            <rect key="frame" x="1" y="0.0" width="98" height="227"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" rowHeight="16" headerView="222" id="221" customClass="MTableView">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="98" height="213"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="98" height="210"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -305,13 +311,13 @@
                                                         </tableHeaderView>
                                                     </scrollView>
                                                     <scrollView horizontalLineScroll="18" horizontalPageScroll="10" verticalLineScroll="18" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="236">
-                                                        <rect key="frame" x="108" y="0.0" width="1019" height="231"/>
+                                                        <rect key="frame" x="108" y="0.0" width="1019" height="228"/>
                                                         <clipView key="contentView" id="3jm-fV-XkL">
-                                                            <rect key="frame" x="1" y="0.0" width="1017" height="230"/>
-                                                            <autoresizingMask key="autoresizingMask"/>
+                                                            <rect key="frame" x="1" y="0.0" width="1017" height="227"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
                                                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" autosaveColumns="NO" rowHeight="16" headerView="240" id="239">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="1017" height="213"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="1017" height="210"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <size key="intercellSpacing" width="3" height="2"/>
                                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -357,7 +363,7 @@
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                         <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="237">
-                                                            <rect key="frame" x="1002" y="17" width="16" height="213"/>
+                                                            <rect key="frame" x="1002" y="17" width="16" height="210"/>
                                                             <autoresizingMask key="autoresizingMask"/>
                                                         </scroller>
                                                         <tableHeaderView key="headerView" id="240">
@@ -376,9 +382,11 @@
                                                     <constraint firstItem="236" firstAttribute="leading" secondItem="218" secondAttribute="trailing" constant="8" symbolic="YES" id="lQr-3C-9us"/>
                                                     <constraint firstItem="236" firstAttribute="leading" secondItem="479" secondAttribute="leading" constant="108" id="xau-xj-Ii7"/>
                                                 </constraints>
+                                                <accessibility description="History Pane"/>
                                             </view>
                                         </tabViewItem>
                                     </tabViewItems>
+                                    <accessibility description="Output Tabview"/>
                                 </tabView>
                                 <popUpButton translatesAutoresizingMaskIntoConstraints="NO" id="509" userLabel="Output Selector">
                                     <rect key="frame" x="0.0" y="230" width="120" height="22"/>
@@ -397,6 +405,7 @@
                                             </items>
                                         </menu>
                                     </popUpButtonCell>
+                                    <accessibility description="Output Selector"/>
                                     <connections>
                                         <action selector="activateCollectionItem:" target="-2" id="522"/>
                                     </connections>
@@ -413,12 +422,14 @@
                                 <constraint firstItem="509" firstAttribute="leading" secondItem="508" secondAttribute="leading" id="xpt-fa-hII"/>
                                 <constraint firstAttribute="bottom" secondItem="430" secondAttribute="bottom" id="yKV-XS-dBf"/>
                             </constraints>
+                            <accessibility description="Output Pane"/>
                         </customView>
                     </subviews>
                     <holdingPriorities>
                         <real value="250"/>
                         <real value="250"/>
                     </holdingPriorities>
+                    <accessibility description="Query Panel"/>
                     <connections>
                         <outlet property="delegate" destination="-2" id="592"/>
                     </connections>
@@ -427,10 +438,11 @@
             <holdingPriorities>
                 <real value="250"/>
             </holdingPriorities>
+            <accessibility description="IDE Page"/>
             <connections>
                 <outlet property="delegate" destination="-2" id="548"/>
             </connections>
-            <point key="canvasLocation" x="-47" y="176.5"/>
+            <point key="canvasLocation" x="314" y="158"/>
         </splitView>
         <menu autoenablesItems="NO" id="556" userLabel="Tab Menu">
             <items>

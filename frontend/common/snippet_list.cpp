@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -66,7 +66,6 @@ public:
     const std::function<void(int x, int y)> &cb) {
     _icon = (icon != nullptr) ? cairo_surface_reference(icon) : nullptr;
     _title = title;
-    setAccessibilityName(title);
     _description = description;
     _last_text_width = 0;
 
@@ -85,7 +84,7 @@ public:
       cairo_surface_destroy(_icon);
   }
 
-//----------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
 #define SNIPPET_PADDING 4      // Left and right padding.
 #define SNIPPET_ICON_SPACING 8 // Horizontal distance between icon and text.
@@ -144,6 +143,8 @@ public:
     // Determine overall text height. This is used to center the text during paint.
     _text_height = (int)ceil(title_extents.height + description_extents.height + SNIPPET_TEXT_SPACING);
   }
+
+  //--------------------------------------------------------------------------------------------------------------------
 
   virtual void paint(cairo_t* cr, base::Rect bounds, bool selected) {
     _bounds = bounds;
@@ -217,69 +218,81 @@ public:
     cairo_restore(cr);
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   bool contains(double x, double y) {
     return _bounds.contains(x, y);
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   bool enabled() {
     return _enabled;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   base::Rect bounds() {
     return _bounds;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   std::string title() {
     return _title;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void title(const std::string& text) {
     _title = text;
     _last_text_width = 0;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   std::string description() {
     return _description;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void description(const std::string& text) {
     _description = text;
     _last_text_width = 0;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
-  virtual base::Accessible::Role getAccessibilityRole() {
+  virtual std::string getAccessibilityDescription() override {
+    return _title;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual base::Accessible::Role getAccessibilityRole() override {
     return base::Accessible::ListItem;
   }
-  virtual base::Rect getAccessibilityBounds() {
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual base::Rect getAccessibilityBounds() override {
     return _bounds;
   }
 
-  virtual std::string getAccessibilityDefaultAction() {
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual std::string getAccessibilityDefaultAction() override {
     return "click";
   }
 
-  virtual void accessibilityDoDefaultAction() {
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual void accessibilityDoDefaultAction() override {
     if (_defaultActionCb)
       _defaultActionCb((int)_bounds.center().x, (int)_bounds.center().y);
   }
 
-  // End of internal class Snippets.
 };
 
 //----------------- SnippetList --------------------------------------------------------------------

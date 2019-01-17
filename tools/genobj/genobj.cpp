@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -25,8 +25,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif // _MSC_VER
+#include <iostream>
 
-#include <glib.h>
+#include "base/log.h"
 
 #include "grt.h"
 #include "grtpp_helper.h"
@@ -35,10 +36,12 @@
 
 int main(int argc, char **argv) {
   if (argc < 5) {
-    g_print("\nNot enough parameters given. Syntax:\n");
-    g_print("  genobj <structs-file> <structs-dir> <output-dir> <impl-output-dir>\n");
+    std::cout << "\nNot enough parameters given. Syntax:\n" << std::endl;
+    std::cout << "  genobj <structs-file> <structs-dir> <output-dir> <impl-output-dir>\n" << std::endl;
     return -1;
   }
+
+  base::Logger(".");
 
   std::string structs_file = argv[1];
   std::string structs_dir = argv[2];
@@ -47,7 +50,7 @@ int main(int argc, char **argv) {
 
   std::multimap<std::string, std::string> requires;
 
-  g_print("Reading structs from '%s', outputing classes to '%s'\n", structs_dir.c_str(), output_dir.c_str());
+  std::cout << "Reading structs from '" << structs_dir << "', outputing classes to '" << output_dir << "'\n" << std::endl;
 
   grt::GRT::get()->scan_metaclasses_in(structs_dir, &requires);
   grt::GRT::get()->end_loading_metaclasses(false);

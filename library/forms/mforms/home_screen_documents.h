@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -58,11 +58,11 @@ namespace mforms {
     bool operator<(const DocumentEntry &other) const;
 
     void setTitle(const std::string &t);
-    //------ Accessibility Methods -----
-    virtual std::string getAccessibilityName() override;
-    virtual std::string getAccessibilityDescription() override;
 
+    //------ Accessibility Methods -----
+    virtual std::string getAccessibilityDescription() override;
     virtual Accessible::Role getAccessibilityRole() override;
+
     virtual base::Rect getAccessibilityBounds() override;
     virtual std::string getAccessibilityDefaultAction() override;
     virtual void accessibilityDoDefaultAction() override;
@@ -139,7 +139,7 @@ namespace mforms {
     DocumentsSection(HomeScreen *owner);
     virtual ~DocumentsSection();
 
-    std::size_t entry_from_point(int x, int y);
+    std::size_t entry_from_point(int x, int y) const;
 
     /**
      * Draws and icon followed by the given text. The given position is that of the upper left corner
@@ -164,17 +164,21 @@ namespace mforms {
     virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
     void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();
+
+    virtual void set_size(int width, int height) override;
     virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
     virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
     virtual bool mouse_leave() override;
     virtual bool mouse_move(mforms::MouseButton button, int x, int y) override;
+
     void handle_command(const std::string &command);
     void show_connection_select_message();
     void hide_connection_select_message();
+
     virtual size_t getAccessibilityChildCount() override;
-    virtual Accessible *getAccessibilityChild(size_t index) override;
+    virtual Accessible* getAccessibilityChild(size_t index) override;
     virtual Accessible::Role getAccessibilityRole() override;
-    virtual base::Accessible *accessibilityHitTest(ssize_t x, ssize_t y) override;
+    virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;
   };
 
 } /* namespace wb */

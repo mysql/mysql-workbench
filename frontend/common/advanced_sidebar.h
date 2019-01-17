@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -55,6 +55,7 @@ namespace wb {
   class SidebarEntry : public base::Accessible {
   private:
     std::string _name;
+    std::string _accessibilityName;
     std::string _title;
     cairo_surface_t* _icon;
     mforms::TaskEntryType _type;
@@ -95,15 +96,22 @@ namespace wb {
     }
 
     // ------ Accesibility Methods -----
+    virtual std::string getAccessibilityDescription() override {
+      return _accessibilityName;
+    }
+
     virtual base::Accessible::Role getAccessibilityRole() override {
       return base::Accessible::PushButton;
     }
+
     virtual base::Rect getAccessibilityBounds() override {
       return _bounds;
     }
+
     virtual std::string getAccessibilityDefaultAction() override {
         return "click";
     }
+
     virtual void accessibilityDoDefaultAction() override {
         execute();
     }
@@ -115,6 +123,7 @@ namespace wb {
     
   private:
     struct Button : public base::Accessible {
+      std::string _name;
       cairo_surface_t* icon;
       cairo_surface_t* alt_icon;
       std::string iconName, altIconName;
@@ -135,9 +144,14 @@ namespace wb {
       bool check_hit(ssize_t x, ssize_t y);
 
       // ------ Accesibility Methods -----
+      virtual std::string getAccessibilityDescription() {
+        return _name;
+      }
+
       virtual base::Accessible::Role getAccessibilityRole() {
         return base::Accessible::PushButton;
       }
+
       virtual base::Rect getAccessibilityBounds() {
         return base::Rect(x, y, bounds_width, bounds_height);
       }
@@ -213,9 +227,14 @@ namespace wb {
     virtual bool mouse_up(mforms::MouseButton button, int x, int y) override;
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
 
+    virtual std::string getAccessibilityDescription() override {
+      return _title;
+    }
+
     virtual base::Accessible::Role getAccessibilityRole() override {
       return base::Accessible::OutlineItem;
     }
+
     virtual size_t getAccessibilityChildCount() override;
     virtual Accessible* getAccessibilityChild(size_t index) override;
     virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;

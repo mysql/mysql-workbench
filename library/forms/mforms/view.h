@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -204,8 +204,8 @@ namespace mforms {
     void (*set_min_size)(View *self, int, int);
     void (*set_padding)(View *self, int, int, int, int); // left, top, right, bottom
 
-    int (*get_x)(View *self);
-    int (*get_y)(View *self);
+    int (*get_x)(const View *self);
+    int (*get_y)(const View *self);
     void (*set_position)(View *self, int, int);
     std::pair<int, int> (*client_to_screen)(View *self, int, int);
     std::pair<int, int> (*screen_to_client)(View *self, int, int);
@@ -294,8 +294,8 @@ namespace mforms {
     virtual int get_height() const;
     virtual int get_preferred_width();
     virtual int get_preferred_height();
-    virtual int get_x();
-    virtual int get_y();
+    virtual int get_x() const;
+    virtual int get_y() const;
     virtual void set_position(int x, int y);
     virtual void set_size(int width, int height);
     virtual void set_min_size(int width, int height);

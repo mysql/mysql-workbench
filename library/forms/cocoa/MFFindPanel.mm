@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -56,6 +56,8 @@ using namespace mforms;
 
 @synthesize findText;
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (instancetype)initWithOwner: (mforms::FindPanel*)owner
 {
   if (owner == nil)
@@ -110,22 +112,28 @@ using namespace mforms;
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 -(instancetype)initWithFrame: (NSRect)frame
 {
   return [self initWithOwner: nil];
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 -(instancetype)initWithCoder: (NSCoder *)coder
 {
   return [self initWithOwner: nil];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)expandsOnLayoutVertically:(BOOL)flag
 {
   return NO;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (void)enableReplaceInFindPanel: (BOOL)flag
 {
@@ -150,6 +158,7 @@ using namespace mforms;
     [(id)self.superview relayout];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSSize)minimumSize
 {
@@ -159,6 +168,8 @@ using namespace mforms;
     return NSMakeSize(100, 46);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 - (void)focusFindPanel
 {
   mFindLabel.stringValue = @"";
@@ -166,6 +177,7 @@ using namespace mforms;
   [findText selectText: nil];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)findNext:(BOOL)backwards
 {
@@ -183,6 +195,7 @@ using namespace mforms;
                                                        true, backwards);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (BOOL)replaceAndFind:(BOOL)findFirst
 {
@@ -209,6 +222,7 @@ using namespace mforms;
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (int)replaceAll
 {
@@ -227,6 +241,7 @@ using namespace mforms;
                                                           flags, true);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (IBAction)findActionClicked:(id)sender
 {
@@ -282,6 +297,8 @@ using namespace mforms;
       break;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (int)performFindAction:(FindPanelAction)action
 {
@@ -343,13 +360,22 @@ using namespace mforms;
   return 0;       
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityGroupRole;
+}
+
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool find_create(FindPanel *fp)
 {
   return [[MFFindPanel alloc] initWithOwner: fp] != nil;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static size_t find_perform_action(FindPanel *fp, FindPanelAction action)
 {
@@ -358,6 +384,7 @@ static size_t find_perform_action(FindPanel *fp, FindPanelAction action)
   return [self performFindAction: action];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void find_focus(FindPanel *fp)
 {
@@ -365,6 +392,7 @@ static void find_focus(FindPanel *fp)
   [panel.findText.window makeFirstResponder: panel.findText];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void find_enable_replace(FindPanel *fp, bool flag)
 {
@@ -373,6 +401,7 @@ static void find_enable_replace(FindPanel *fp, bool flag)
   [self enableReplaceInFindPanel: flag];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_findpanel_init()
 {

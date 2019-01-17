@@ -120,7 +120,7 @@ WBControlAccessibleObject::WBControlAccessibleObject(Control ^ owner, base::Acce
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBControlAccessibleObject::Name::get() {
-  return CppStringToNativeRaw(backend->getAccessibilityName());
+  return CppStringToNativeRaw(backend->getAccessibilityDescription());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ WBAccessibleObject::WBAccessibleObject(base::Accessible *backendOwner, WBControl
 //--------------------------------------------------------------------------------------------------
 
 String ^ WBAccessibleObject::Name::get() {
-  return CppStringToNativeRaw(backend->getAccessibilityName());
+  return CppStringToNativeRaw(backend->getAccessibilityDescription());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -50,6 +50,25 @@ static std::string getIdentifierList(MySQLParser::IdentifierListContext *ctx) {
   }
 
   return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static size_t numberValue(std::string value) {
+  // Value can have a suffix. And it can be a hex number.
+  size_t factor = 1;
+  switch (::tolower(value[value.size() - 1])) {
+      // All cases fall through.
+    case 'g':
+      factor *= 1024;
+    case 'm':
+      factor *= 1024;
+    case 'k':
+      factor *= 1024;
+      value[value.size() - 1] = 0;
+  }
+
+  return factor * std::stoull(value);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -144,25 +163,54 @@ static void columnNamesFromKeyList(MySQLParser::KeyListContext *ctx, DbObjectRef
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static void parseKeyList(MySQLParser::KeyListContext *ctx, db_mysql_TableRef table, db_mysql_IndexRef index,
+static void parseKeyList(ParserRuleContext *ctx, db_mysql_TableRef table, db_mysql_IndexRef index,
                          DbObjectsRefsCache &refCache) {
   DbObjectReferences references(index);
   references.table = table;
   index->columns().remove_all();
 
-  for (auto &part : ctx->keyPart()) {
-    db_mysql_IndexColumnRef indexColumn(grt::Initialized);
-    indexColumn->owner(index);
-    indexColumn->name(base::unquote(part->identifier()->getText()));
-    references.index->columns().insert(indexColumn);
+  auto variantExpression = dynamic_cast<MySQLParser::KeyListVariantsContext *>(ctx);
+  auto keyList = variantExpression != nullptr ? variantExpression->keyList()
+    : dynamic_cast<MySQLParser::KeyListContext *>(ctx);
+  if (keyList != nullptr) {
+    for (auto &part : keyList->keyPart()) {
+      db_mysql_IndexColumnRef indexColumn(grt::Initialized);
+      indexColumn->owner(index);
+      indexColumn->name(base::unquote(part->identifier()->getText()));
+      references.index->columns().insert(indexColumn);
 
-    if (part->fieldLength() != nullptr) {
-      auto child = dynamic_cast<tree::ParseTree *>(part->fieldLength()->children[1]);
-      indexColumn->columnLength((size_t)std::stoull(child->getText()));
+      if (part->fieldLength() != nullptr) {
+        auto child = dynamic_cast<tree::ParseTree *>(part->fieldLength()->children[1]);
+        indexColumn->columnLength((size_t)std::stoull(child->getText()));
+      }
+
+      if (part->direction() != nullptr)
+        indexColumn->descend(part->direction()->DESC_SYMBOL() != nullptr);
     }
+  } else {
+    for (auto &keyPartOrExpression : variantExpression->keyListWithExpression()->keyPartOrExpression()) {
+      db_mysql_IndexColumnRef indexColumn(grt::Initialized);
+      indexColumn->owner(index);
+      if (keyPartOrExpression->keyPart() != nullptr) {
+        auto part = keyPartOrExpression->keyPart();
+        indexColumn->name(base::unquote(part->identifier()->getText()));
 
-    if (part->direction() != nullptr)
-      indexColumn->descend(part->direction()->DESC_SYMBOL() != nullptr);
+        if (part->fieldLength() != nullptr) {
+          auto child = dynamic_cast<tree::ParseTree *>(part->fieldLength()->children[1]);
+          indexColumn->columnLength((size_t)std::stoull(child->getText()));
+        }
+
+        if (part->direction() != nullptr)
+          indexColumn->descend(part->direction()->DESC_SYMBOL() != nullptr);
+      } else {
+        auto expression = MySQLBaseLexer::sourceTextForContext(keyPartOrExpression->exprWithParentheses()->expr());
+        indexColumn->expression(expression);
+        if (keyPartOrExpression->direction() != nullptr)
+          indexColumn->descend(keyPartOrExpression->direction()->DESC_SYMBOL() != nullptr);
+      }
+
+      references.index->columns().insert(indexColumn);
+    }
   }
 
   refCache.push_back(references);
@@ -266,16 +314,15 @@ public:
     if (ctx->AS_SYMBOL() != nullptr) {
       // Only there for generated columns.
       column->generated(1);
-      column->expression(MySQLBaseLexer::sourceTextForContext(ctx->expr()));
+      column->expression(MySQLBaseLexer::sourceTextForContext(ctx->exprWithParentheses()->expr()));
 
       if (ctx->VIRTUAL_SYMBOL() != nullptr)
         column->generatedStorage("VIRTUAL");
       if (ctx->STORED_SYMBOL() != nullptr)
         column->generatedStorage("STORED");
 
-      if (ctx->COLLATE_SYMBOL() != nullptr) // Collation clause for generated columns.
-      {
-        auto info = detailsForCollation(ctx->collationName()->getText(), _table->defaultCollationName());
+      if (ctx->collate() != nullptr) { // Collation clause for generated columns.
+        auto info = detailsForCollation(ctx->collate()->collationName()->getText(), _table->defaultCollationName());
         column->characterSetName(info.first);
         column->collationName(info.second);
       }
@@ -286,6 +333,13 @@ public:
     if (ctx->nullLiteral() != nullptr) {
       column->isNotNull(ctx->NOT_SYMBOL() != nullptr);
       _explicitNullValue = true;
+      return;
+    }
+
+    if (ctx->collate() != nullptr) {
+      auto info = detailsForCollation(ctx->collate()->collationName()->getText(), _table->defaultCollationName());
+      column->characterSetName(info.first);
+      column->collationName(info.second);
       return;
     }
 
@@ -394,13 +448,6 @@ public:
       case MySQLLexer::COMMENT_SYMBOL:
         column->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
         break;
-
-      case MySQLLexer::COLLATE_SYMBOL: {
-        auto info = detailsForCollation(ctx->collationName()->getText(), _table->defaultCollationName());
-        column->characterSetName(info.first);
-        column->collationName(info.second);
-        break;
-      }
 
       case MySQLLexer::COLUMN_FORMAT_SYMBOL: // Ignored by the server, so we ignore it here too.
         break;
@@ -536,7 +583,7 @@ public:
     }
 
     if (!isForeignKey) {
-      parseKeyList(ctx->keyList(), _table, _currentIndex, _refCache);
+      parseKeyList(ctx->keyListVariants(), _table, _currentIndex, _refCache);
       _currentIndex->name(constraintName);
       _currentIndex->oldName(constraintName);
       _table->indices().insert(_currentIndex);
@@ -974,15 +1021,11 @@ void TableListener::exitSubPartitions(MySQLParser::SubPartitionsContext *ctx) {
 
 static void evaluatePartitionOption(db_mysql_PartitionDefinitionRef definition,
                                     MySQLParser::PartitionOptionContext *ctx) {
-  if (ctx->option == nullptr)
-    return;
-
   switch (ctx->option->getType()) {
     case MySQLLexer::TABLESPACE_SYMBOL:
       definition->tableSpace(ctx->identifier()->getText());
       break;
 
-    case MySQLLexer::STORAGE_SYMBOL:
     case MySQLLexer::ENGINE_SYMBOL:
       definition->engine(ctx->engineRef()->getText());
       break;
@@ -1317,58 +1360,47 @@ void LogfileGroupListener::exitCreateLogfileGroup(MySQLParser::CreateLogfileGrou
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LogfileGroupListener::exitLogfileGroupOption(MySQLParser::LogfileGroupOptionContext *ctx) {
+void LogfileGroupListener::exitTsOptionInitialSize(MySQLParser::TsOptionInitialSizeContext *ctx) {
   db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
+  group->initialSize(numberValue(ctx->sizeNumber()->getText()));
+}
 
-  switch (ctx->option->getType()) {
-    case MySQLLexer::INITIAL_SIZE_SYMBOL:
-    case MySQLLexer::UNDO_BUFFER_SIZE_SYMBOL:
-    case MySQLLexer::REDO_BUFFER_SIZE_SYMBOL: {
-      std::string value = ctx->sizeNumber()->getText();
+//----------------------------------------------------------------------------------------------------------------------
 
-      // Value can have a suffix. And it can be a hex number.
-      size_t factor = 1;
-      switch (::tolower(value[value.size() - 1])) {
-        // All cases fall through.
-        case 'g':
-          factor *= 1024;
-        case 'm':
-          factor *= 1024;
-        case 'k':
-          factor *= 1024;
-          value[value.size() - 1] = 0;
-      }
-      if (ctx->option->getType() == MySQLLexer::INITIAL_SIZE_SYMBOL)
-        group->initialSize(factor * (size_t)std::stoull(value));
-      else
-        group->undoBufferSize(factor * (size_t)std::stoull(value));
+void LogfileGroupListener::exitTsOptionUndoRedoBufferSize(MySQLParser::TsOptionUndoRedoBufferSizeContext *ctx) {
+  db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
+  if (ctx->UNDO_BUFFER_SIZE_SYMBOL() != nullptr)
+    group->undoBufferSize(numberValue(ctx->sizeNumber()->getText()));
+  else
+    group->redoBufferSize(numberValue(ctx->sizeNumber()->getText()));
+}
 
-      break;
-    }
+//----------------------------------------------------------------------------------------------------------------------
 
-    case MySQLLexer::NODEGROUP_SYMBOL:
-      // An integer or hex number (no suffix).
-      group->nodeGroupId((size_t)std::stoull(ctx->real_ulong_number()->getText()));
-      break;
+void LogfileGroupListener::exitTsOptionNodegroup(MySQLParser::TsOptionNodegroupContext *ctx) {
+  db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
+  group->nodeGroupId(static_cast<size_t>(std::stoull(ctx->real_ulong_number()->getText())));
+}
 
-    case MySQLLexer::WAIT_SYMBOL:
-      group->wait(true);
-      break;
-    case MySQLLexer::NO_WAIT_SYMBOL:
-      group->wait(false);
-      break;
+//----------------------------------------------------------------------------------------------------------------------
 
-    case MySQLLexer::COMMENT_SYMBOL:
-      group->comment(MySQLBaseLexer::sourceTextForContext(ctx->textLiteral()));
-      break;
+void LogfileGroupListener::exitTsOptionEngine(MySQLParser::TsOptionEngineContext *ctx) {
+  db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
+  group->engine(base::unquote(ctx->engineRef()->getText()));
+}
 
-    case MySQLLexer::ENGINE_SYMBOL:
-      group->engine(MySQLBaseLexer::sourceTextForContext(ctx->engineRef()));
-      break;
+//----------------------------------------------------------------------------------------------------------------------
 
-    default:
-      break;
-  }
+void LogfileGroupListener::exitTsOptionWait(MySQLParser::TsOptionWaitContext *ctx) {
+  db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
+  group->wait(ctx->WAIT_SYMBOL() != nullptr);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void LogfileGroupListener::exitTsOptionComment(MySQLParser::TsOptionCommentContext *ctx) {
+  db_mysql_LogFileGroupRef group = db_mysql_LogFileGroupRef::cast_from(_object);
+  group->comment(base::unquote(ctx->textLiteral()->getText()));
 }
 
 //----------------- RoutineListener ------------------------------------------------------------------------------------
@@ -1541,7 +1573,7 @@ void IndexListener::exitCreateIndexTarget(MySQLParser::CreateIndexTargetContext 
     table = find_named_object_in_list(schema->tables(), listener.parts.back(), _caseSensitive);
     if (table.is_valid()) {
       index->owner(table);
-      parseKeyList(ctx->keyList(), table, index, _refCache);
+      parseKeyList(ctx->keyListVariants(), table, index, _refCache);
     }
   }
 }
@@ -1780,8 +1812,6 @@ void TablespaceListener::exitCreateTablespace(MySQLParser::CreateTablespaceConte
 
   IdentifierListener listener(ctx->tablespaceName());
   tablespace->name(listener.parts.back());
-
-  tablespace->dataFile(base::unquote(ctx->textLiteral()->getText()));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1796,76 +1826,80 @@ void TablespaceListener::exitLogfileGroupRef(MySQLParser::LogfileGroupRefContext
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void TablespaceListener::exitTablespaceOption(MySQLParser::TablespaceOptionContext *ctx) {
+void TablespaceListener::exitTsDataFile(MySQLParser::TsDataFileContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->dataFile(base::unquote(ctx->textLiteral()->getText()));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void TablespaceListener::exitTsOptionInitialSize(MySQLParser::TsOptionInitialSizeContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->initialSize(numberValue(ctx->sizeNumber()->getText()));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void TablespaceListener::exitTsOptionAutoextendSize(MySQLParser::TsOptionAutoextendSizeContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->autoExtendSize(numberValue(ctx->sizeNumber()->getText()));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void TablespaceListener::exitTsOptionMaxSize(MySQLParser::TsOptionMaxSizeContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->maxSize(numberValue(ctx->sizeNumber()->getText()));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void TablespaceListener::exitTsOptionExtentSize(MySQLParser::TsOptionExtentSizeContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->extentSize(numberValue(ctx->sizeNumber()->getText()));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void TablespaceListener::exitTsOptionNodegroup(MySQLParser::TsOptionNodegroupContext *ctx) {
   db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
 
-  switch (ctx->option->getType()) {
-    case MySQLLexer::INITIAL_SIZE_SYMBOL:
-    case MySQLLexer::AUTOEXTEND_SIZE_SYMBOL:
-    case MySQLLexer::MAX_SIZE_SYMBOL:
-    case MySQLLexer::EXTENT_SIZE_SYMBOL: {
-      std::string value = ctx->sizeNumber()->getText();
+  // An integer or hex number (no suffix).
+  tablespace->nodeGroupId(numberValue(ctx->real_ulong_number()->getText()));
+}
 
-      // Value can have a suffix. And it can be a hex number.
-      size_t factor = 1;
-      switch (::tolower(value[value.size() - 1])) {
-        // All cases fall through.
-        case 'g':
-          factor *= 1024;
-        case 'm':
-          factor *= 1024;
-        case 'k':
-          factor *= 1024;
-          value[value.size() - 1] = 0;
-      }
+//----------------------------------------------------------------------------------------------------------------------
 
-      size_t number = factor * std::stoull(value);
-      switch (ctx->option->getType()) {
-        case MySQLLexer::INITIAL_SIZE_SYMBOL:
-          tablespace->initialSize(number);
-          break;
-        case MySQLLexer::AUTOEXTEND_SIZE_SYMBOL:
-          tablespace->autoExtendSize(number);
-          break;
-        case MySQLLexer::MAX_SIZE_SYMBOL:
-          tablespace->maxSize(number);
-          break;
-        case MySQLLexer::EXTENT_SIZE_SYMBOL:
-          tablespace->extentSize(number);
-          break;
-      }
+void TablespaceListener::exitTsOptionEngine(MySQLParser::TsOptionEngineContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->engine(base::unquote(ctx->engineRef()->getText()));
+}
 
-      break;
-    }
+//----------------------------------------------------------------------------------------------------------------------
 
-    case MySQLLexer::NODEGROUP_SYMBOL:
-      // An integer or hex number (no suffix).
-      tablespace->nodeGroupId((size_t)std::stoull(ctx->real_ulong_number()->getText()));
+void TablespaceListener::exitTsOptionWait(MySQLParser::TsOptionWaitContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->wait(ctx->WAIT_SYMBOL() != nullptr);
+}
 
-      break;
+//----------------------------------------------------------------------------------------------------------------------
 
-    case MySQLLexer::WAIT_SYMBOL:
-      tablespace->wait(true);
-      break;
-    case MySQLLexer::NO_WAIT_SYMBOL:
-      tablespace->wait(false);
-      break;
+void TablespaceListener::exitTsOptionComment(MySQLParser::TsOptionCommentContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->comment(base::unquote(ctx->textLiteral()->getText()));
+}
 
-    case MySQLLexer::COMMENT_SYMBOL:
-      tablespace->comment(base::unquote(ctx->textLiteral()->getText()));
-      break;
+//----------------------------------------------------------------------------------------------------------------------
 
-    case MySQLLexer::ENGINE_SYMBOL:
-      tablespace->engine(base::unquote(ctx->engineRef()->getText()));
-      break;
+void TablespaceListener::exitTsOptionFileblockSize(MySQLParser::TsOptionFileblockSizeContext *ctx) {
+  db_mysql_TablespaceRef tablespace = db_mysql_TablespaceRef::cast_from(_object);
+  tablespace->fileBlockSize(static_cast<size_t>(std::stoull(ctx->sizeNumber()->getText())));
+}
 
-    case MySQLLexer::FILE_BLOCK_SIZE_SYMBOL:
-      // TODO: tablespace->fileBlockSize(std::stoull(ctx->sizeNumber()->getText()));
-      break;
+//----------------------------------------------------------------------------------------------------------------------
 
-    default:
-      break;
-  }
+void TablespaceListener::exitTsOptionEncryption(MySQLParser::TsOptionEncryptionContext *ctx) {
+
 }
 
 //----------------- EventListener --------------------------------------------------------------------------------------

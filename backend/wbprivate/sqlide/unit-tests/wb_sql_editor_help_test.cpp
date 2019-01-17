@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -57,7 +57,7 @@ public:
 
 void checkTopics(size_t start, const std::vector<HelpTestEntry> entries) {
   for (size_t i = start; i < entries.size(); i++) {
-    // Ignore disabled test cases or those defined a different server version.
+    // Ignore disabled test cases or those defined for a different server version.
     if (entries[i].lowVersion > _version || entries[i].highVersion < _version)
       continue;
 
@@ -668,8 +668,8 @@ static std::vector<HelpTestEntry> multiTokenTests = {
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create function sakila.f1 (a int)", 20, "CREATE FUNCTION", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create function f1 returns string", 0, "CREATE FUNCTION UDF", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create aggregate function f1 returns string soname 'blah'", 10, "CREATE FUNCTION UDF", __LINE__ },
-  { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create online index", 0, "CREATE INDEX", __LINE__ },
-  { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create offline index", 18, "CREATE INDEX", __LINE__ },
+  { MYSQL_VERSION_LOWER, MYSQL_VERSION_5_6, "create online index", 0, "CREATE INDEX", __LINE__ },
+  { MYSQL_VERSION_LOWER, MYSQL_VERSION_5_6, "create offline index", 18, "CREATE INDEX", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create procedure sakila.p1 (in a int)", 0, "CREATE PROCEDURE", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create procedure sakila.p1 (in a int)", 20, "CREATE PROCEDURE", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create server a", 0, "CREATE SERVER", __LINE__ },
@@ -700,8 +700,8 @@ static std::vector<HelpTestEntry> multiTokenTests = {
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop function if exists a.b", 26, "DROP FUNCTION", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop function if exit a.b", 20, "DROP FUNCTION", __LINE__ },
   { MYSQL_VERSION_HIGHER, MYSQL_VERSION_HIGHER, "", 0, "DROP FUNCTION UDF", __LINE__ }, // Syntax is the same as for a normal drop function.
-  { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop offline index a on b", 0, "DROP INDEX", __LINE__ },
-  { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop online index a on b", 16, "DROP INDEX", __LINE__ },
+  { MYSQL_VERSION_LOWER, MYSQL_VERSION_5_6, "drop offline index a on b", 0, "DROP INDEX", __LINE__ },
+  { MYSQL_VERSION_LOWER, MYSQL_VERSION_5_6, "drop online index a on b", 16, "DROP INDEX", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop procedure a.b", 0, "DROP PROCEDURE", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop procedure if exists a.b", 7, "DROP PROCEDURE", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "drop server 'a'", 0, "DROP SERVER", __LINE__ },

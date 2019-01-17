@@ -1,7 +1,7 @@
 lexer grammar MySQLLexer;
 
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -24,7 +24,7 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [3179f4438b3] (13. March 2018).
+ * Merged in all changes up to mysql-trunk git revision [ea0a6870d34] (8. January 2019).
  *
  * MySQL grammar for ANTLR 4.5+ with language features from MySQL 5.5.0 up to MySQL 8.0.
  * The server version in the generated parser can be switched at runtime, making it so possible
@@ -68,7 +68,7 @@ tokens {
 //-------------------------------------------------------------------------------------------------
 
 @header {/*
- * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -971,7 +971,7 @@ GROUPING_SYMBOL:                 G R O U P I N G                             {se
 PERSIST_ONLY_SYMBOL:             P E R S I S T '_' O N L Y                   {serverVersion >= 80000}?; // MYSQL
 HISTOGRAM_SYMBOL:                H I S T O G R A M                           {serverVersion >= 80000}?; // MYSQL
 BUCKETS_SYMBOL:                  B U C K E T S                               {serverVersion >= 80000}?; // MYSQL
-REMOTE_SYMBOL:                   R E M O T E                                 {serverVersion >= 80000}?; // MYSQL
+REMOTE_SYMBOL:                   R E M O T E                                 {serverVersion >= 80003 && serverVersion < 80014}?; // MYSQL
 CLONE_SYMBOL:                    C L O N E                                   {serverVersion >= 80000}?; // MYSQL
 CUME_DIST_SYMBOL:                C U M E '_' D I S T                         {serverVersion >= 80000}?; // SQL-2003-R
 DENSE_RANK_SYMBOL:               D E N S E '_' R A N K                       {serverVersion >= 80000}?; // SQL-2003-R
@@ -1018,6 +1018,18 @@ DEFINITION_SYMBOL:               D E F I N I T I O N                         {se
 DESCRIPTION_SYMBOL:              D E S C R I P T I O N                       {serverVersion >= 80011}?;
 ORGANIZATION_SYMBOL:             O R G A N I Z A T I O N                     {serverVersion >= 80011}?;
 REFERENCE_SYMBOL:                R E F E R E N C E                           {serverVersion >= 80011}?;
+
+OPTIONAL_SYMBOL:                O P T I O N A L                              {serverVersion >= 80013}?;
+SECONDARY_SYMBOL:               S E C O N D A R Y                            {serverVersion >= 80013}?;
+SECONDARY_ENGINE_SYMBOL:        S E C O N D A R Y '_' E N G I N E            {serverVersion >= 80013}?;
+SECONDARY_LOAD_SYMBOL:          S E C O N D A R Y '_' L O A D                {serverVersion >= 80013}?;
+SECONDARY_UNLOAD_SYMBOL:        S E C O N D A R Y '_' U N L O A D            {serverVersion >= 80013}?;
+
+ACTIVE_SYMBOL:                  A C T I V E                                  {serverVersion >= 80014}?;
+INACTIVE_SYMBOL:                I N A C T I V E                              {serverVersion >= 80014}?;
+LATERAL_SYMBOL:                 L A T E R A L                                {serverVersion >= 80014}?;
+RETAIN_SYMBOL:                  R E T A I N                                  {serverVersion >= 80014}?;
+OLD_SYMBOL:                     O L D                                        {serverVersion >= 80014}?;
 
 // $antlr-format groupedAlignments on, alignTrailers off, alignLexerCommands on
 

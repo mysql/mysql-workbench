@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -30,48 +30,43 @@
 
 using namespace mforms;
 
-//----------------- DocumentEntry ---------------------------------------------------------------
+//----------------- DocumentEntry --------------------------------------------------------------------------------------
 
 bool DocumentEntry::operator<(const DocumentEntry &other) const {
   return other.timestamp < timestamp; // Sort from newest do oldest.
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentEntry::setTitle(const std::string &t) {
-    title = t;
-    setAccessibilityName(t);
+  title = t;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-std::string DocumentEntry::getAccessibilityName() {
+std::string DocumentEntry::getAccessibilityDescription() {
   return title;
 }
 
-//------------------------------------------------------------------------------------------------
-
-std::string DocumentEntry::getAccessibilityDescription() {
-  return base::strfmt("schemas:%s;last_accessed:%s;size:%s", schemas.c_str(), last_accessed.c_str(), size.c_str());
-}
-
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::Accessible::Role DocumentEntry::getAccessibilityRole() {
   return Accessible::ListItem;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::Rect DocumentEntry::getAccessibilityBounds() {
   return bounds;
 }
 
-//------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string DocumentEntry::getAccessibilityDefaultAction() {
   return "Open Model";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void DocumentEntry::accessibilityDoDefaultAction() {
   if (default_handler)
@@ -83,21 +78,18 @@ void DocumentEntry::accessibilityDoDefaultAction() {
 DocumentsSection::DocumentsSection(mforms::HomeScreen *owner) : HomeScreenSection("sidebar_modeling.png") {
   _owner = owner;
 
-  _add_button.setAccessibilityName("Add Model");
   _add_button.title = "Add Model";
   _add_button.description = "Create new model button";
   _add_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionNewEERModel, base::any());
   };
 
-  _open_button.setAccessibilityName("Open Model");
   _open_button.title = "Open Model";
   _open_button.description = "Open existing model button";
   _open_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionOpenEERModel, base::any());
   };
 
-  _action_button.setAccessibilityName("Model Options");
   _action_button.title = "Create Model Options";
   _action_button.description = "Open model options menu button";
   _action_button.defaultHandler = [this]() {
@@ -117,7 +109,7 @@ DocumentsSection::~DocumentsSection() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::size_t DocumentsSection::entry_from_point(int x, int y) {
+std::size_t DocumentsSection::entry_from_point(int x, int y) const {
   int width = get_width();
   if (x < DOCUMENTS_LEFT_PADDING || x > (width - DOCUMENTS_RIGHT_PADDING) || y < DOCUMENTS_TOP_PADDING)
     return -1; // Outside the entries area.
@@ -128,8 +120,6 @@ std::size_t DocumentsSection::entry_from_point(int x, int y) {
   if ((y % (DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING)) > DOCUMENTS_ENTRY_HEIGHT)
     return -1; // Within the vertical spacing between two entries.
 
-  width -= DOCUMENTS_LEFT_PADDING + DOCUMENTS_RIGHT_PADDING;
-  _entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
   if (x >= _entries_per_row * DOCUMENTS_ENTRY_WIDTH)
     return -1; // After the last entry in a row.
 
@@ -619,6 +609,15 @@ void DocumentsSection::clear_documents() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void DocumentsSection::set_size(int width, int height) {
+  HomeScreenSection::set_size(width, height);
+
+  width -= DOCUMENTS_LEFT_PADDING + DOCUMENTS_RIGHT_PADDING;
+  _entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bool DocumentsSection::mouse_double_click(mforms::MouseButton button, int x, int y) {
   return this->mouse_click(button, x, y);
 }
@@ -810,8 +809,8 @@ size_t DocumentsSection::getAccessibilityChildCount() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-base::Accessible *DocumentsSection::getAccessibilityChild(size_t index) {
-  base::Accessible *accessible = NULL;
+base::Accessible* DocumentsSection::getAccessibilityChild(size_t index) {
+  base::Accessible* accessible = nullptr;
   switch (index) {
     case 0:
       accessible = &_add_button;
@@ -841,8 +840,8 @@ base::Accessible::Role DocumentsSection::getAccessibilityRole() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-base::Accessible *DocumentsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
-  base::Accessible *accessible = NULL;
+base::Accessible* DocumentsSection::accessibilityHitTest(ssize_t x, ssize_t y) {
+  base::Accessible* accessible = nullptr;
 
   if (_add_button.bounds.contains(static_cast<double>(x), static_cast<double>(y)))
     accessible = &_add_button;

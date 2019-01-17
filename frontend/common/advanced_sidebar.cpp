@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -74,7 +74,7 @@ SidebarEntry::SidebarEntry(SidebarSection *owner, const string& name, const std:
                            boost::signals2::signal<void (const std::string &)> *callback) {
   _owner = owner;
   _name = name;
-  setAccessibilityName(accessibilityName);
+  _accessibilityName = accessibilityName;
   _title = title;
   _callback = callback;
   if (!icon.empty())
@@ -96,7 +96,7 @@ SidebarEntry::~SidebarEntry() {
 
 void SidebarEntry::set_title(const std::string& title) {
   _title = title;
-  setAccessibilityName(title);
+  _accessibilityName = title;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ bool SidebarEntry::contains(double x, double y) {
 
 SidebarSection::Button::Button(std::string const& name, std::string const& icon_name, std::string const& alt_icon_name)
   : icon(nullptr), alt_icon(nullptr), hot(false), down(false), state(false) {
-  setAccessibilityName(name);
+  _name = name;
   iconName = icon_name;
   altIconName = alt_icon_name;
 
@@ -304,7 +304,7 @@ SidebarSection::SidebarSection(SimpleSidebar* owner, const std::string& title, m
   }
 
   if (flags & mforms::TaskSectionShowConfigButton) {
-    _config_button = new Button("Configuration", "wb_perform_config.png", "");
+    _config_button = new Button("Launch Connections Editor", "wb_perform_config.png", "");
     _enabled_buttons.push_back(_config_button);
   }
 }

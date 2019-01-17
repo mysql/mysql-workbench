@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -41,8 +41,8 @@ namespace mforms {
       static void set_min_size(mforms::View *self, int w, int h);
       static void set_padding(View *self, int, int, int, int);
 
-      static int get_x(mforms::View *self);
-      static int get_y(mforms::View *self);
+      static int get_x(const mforms::View *self);
+      static int get_y(const mforms::View *self);
       static void set_position(mforms::View *self, int x, int y);
       static std::pair<int, int> client_to_screen(View *self, int, int);
       static std::pair<int, int> screen_to_client(View *self, int, int);

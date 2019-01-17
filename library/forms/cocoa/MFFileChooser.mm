@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -27,6 +27,8 @@
 #import "MFMForms.h"
 
 @implementation MFFileChooserImpl
+
+//----------------------------------------------------------------------------------------------------------------------
 
 - (instancetype)initWithObject: (mforms::FileChooser*) chooser type: (mforms::FileChooserType) type showHidden: (BOOL) showHidden
 {
@@ -78,6 +80,7 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSPopUpButton*)addSelectorOption: (NSArray*)values label: (NSString*)label
 {
@@ -118,8 +121,7 @@
   return pop;
 }
 
-
-
+//----------------------------------------------------------------------------------------------------------------------
 
 - (NSString *)panel:(id)sender userEnteredFilename:(NSString *)filename confirmed:(BOOL)okFlag
 {
@@ -133,6 +135,13 @@
   return filename;  
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityGroupRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool filechooser_create(mforms::FileChooser *self, mforms::Form *owner, mforms::FileChooserType type, bool show_hidden)
 {
@@ -141,6 +150,7 @@ static bool filechooser_create(mforms::FileChooser *self, mforms::Form *owner, m
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void filechooser_set_title(mforms::FileChooser *self, const std::string &title)
 {
@@ -151,6 +161,7 @@ static void filechooser_set_title(mforms::FileChooser *self, const std::string &
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool filechooser_run_modal(mforms::FileChooser *self)
 {
@@ -171,6 +182,8 @@ static bool filechooser_run_modal(mforms::FileChooser *self)
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static void filechooser_set_directory(mforms::FileChooser *self, const std::string &path)
 {
   MFFileChooserImpl *chooser= self->get_data();
@@ -180,6 +193,7 @@ static void filechooser_set_directory(mforms::FileChooser *self, const std::stri
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string filechooser_get_directory(mforms::FileChooser *self)
 {
@@ -191,6 +205,7 @@ static std::string filechooser_get_directory(mforms::FileChooser *self)
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string filechooser_get_path(mforms::FileChooser *self)
 {
@@ -200,6 +215,7 @@ static std::string filechooser_get_path(mforms::FileChooser *self)
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void filechooser_set_path(mforms::FileChooser *self, const std::string &path)
 {
@@ -224,6 +240,7 @@ static void filechooser_set_path(mforms::FileChooser *self, const std::string &p
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void filechooser_set_extensions(mforms::FileChooser *self, const std::string &extensions, const std::string &default_extension, bool allow_all_file_types = true)
 {
@@ -253,6 +270,7 @@ static void filechooser_set_extensions(mforms::FileChooser *self, const std::str
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void filechooser_add_selector_option(mforms::FileChooser *self, const std::string &name, const std::string &label, const std::vector<std::pair<std::string, std::string> > &options)
 {
@@ -272,6 +290,7 @@ static void filechooser_add_selector_option(mforms::FileChooser *self, const std
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::string filechooser_get_selector_option_value(mforms::FileChooser *self, const std::string &name)
 {
@@ -285,6 +304,7 @@ static std::string filechooser_get_selector_option_value(mforms::FileChooser *se
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 void cf_filechooser_init()
 {

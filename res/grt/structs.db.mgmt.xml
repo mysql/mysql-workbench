@@ -105,8 +105,8 @@
                   <return type="dict" attr:desc="command output"/>
               </method>
               <method name="executeSudoCommand" attr:desc="execute command on the remote server using sudo">
-                  <argument name="text" type="string" attr:desc="the command to be executed on the server"/>
-                  <argument name="text" type="string" attr:desc="the user which should execute the command"/>
+                  <argument name="command" type="string" attr:desc="the command to be executed on the server"/>
+                  <argument name="user" type="string" attr:desc="the user which should execute the command"/>
                   <return type="dict" attr:desc="command output"/>
               </method>
               <method name="connect"  attr:desc="make connection to remote server">

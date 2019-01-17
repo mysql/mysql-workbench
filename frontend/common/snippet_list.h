@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -56,6 +56,7 @@ protected:
   mforms::MouseButton _last_mouse_button;
 
   mforms::Menu* _context_menu;
+  std::string _name;
 
   boost::signals2::signal<void()> _selection_changed_signal;
   std::function<void(int x, int y)> _defaultSnippetActionCb;
@@ -97,11 +98,17 @@ public:
 
   // ------ Accesibility Methods -----
   virtual void set_name(const std::string &name) override {
-    setAccessibilityName(name);
+    _name = name;
   }
+
+  virtual std::string getAccessibilityDescription() override {
+    return _name;
+  }
+
   virtual base::Accessible::Role getAccessibilityRole() override {
     return base::Accessible::List;
   }
+
   virtual size_t getAccessibilityChildCount() override;
   virtual Accessible* getAccessibilityChild(size_t index) override;
   virtual base::Accessible* accessibilityHitTest(ssize_t x, ssize_t y) override;

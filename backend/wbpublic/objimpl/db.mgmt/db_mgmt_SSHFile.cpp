@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019 Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +17,8 @@
  * 02110-1301  USA
  */
 
-#include <grts/structs.db.mgmt.h>
+#include "grts/structs.db.mgmt.h"
+
 #include "db_mgmt_SSHFile.h"
 #include "grtpp_util.h"
 
@@ -60,7 +61,7 @@ grt::StringRef db_mgmt_SSHFile::getPath() {
 
 //------------------------------------------------------------------------------------------------
 
-grt::StringRef db_mgmt_SSHFile::read(const size_t length) {
+grt::StringRef db_mgmt_SSHFile::read(ssize_t length) {
   if (_data)
     return _data->read(length);
   return "";
@@ -76,7 +77,7 @@ grt::StringRef db_mgmt_SSHFile::readline() {
 
 //------------------------------------------------------------------------------------------------
 
-grt::IntegerRef db_mgmt_SSHFile::seek(const size_t offset) {
+grt::IntegerRef db_mgmt_SSHFile::seek(ssize_t offset) {
   if (_data)
     return _data->seek(offset);
   return -1;
@@ -91,4 +92,3 @@ grt::IntegerRef db_mgmt_SSHFile::tell() {
 }
 
 //------------------------------------------------------------------------------------------------
-

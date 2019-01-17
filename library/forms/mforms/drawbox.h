@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -91,11 +91,17 @@ namespace mforms {
     virtual void cancel_operation(){}
 
     virtual void set_name(const std::string &name) override {
-        setAccessibilityName(name);
+      _name = name;
     }
+
     virtual base::Rect getAccessibilityBounds() override {
       return base::Rect(get_x(), get_y(), get_width(), get_height());
     }
+
+    virtual std::string getAccessibilityDescription() override {
+      return _name;
+    }
+
     virtual Role getAccessibilityRole() override {
       return base::Accessible::RoleNone;
     }
@@ -112,7 +118,9 @@ namespace mforms {
 
 #endif
 #endif
-  protected:
+
+  private:
     DrawBoxImplPtrs *_drawbox_impl;
+    std::string _name;
   };
 };

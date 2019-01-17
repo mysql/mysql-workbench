@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -43,17 +43,27 @@
   return self;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 - (mforms::Object*)mformsObject
 {
   return mOwner;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityProgressIndicatorRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool progressbar_create(mforms::ProgressBar *image)
 {
   return [[MFProgressBarImpl alloc] initWithObject: image] != nil;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void progressbar_set_value(mforms::ProgressBar *self, float pct)
 {
@@ -75,6 +85,7 @@ static void progressbar_set_value(mforms::ProgressBar *self, float pct)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void progressbar_set_started(mforms::ProgressBar *self, bool flag)
 {
@@ -88,6 +99,7 @@ static void progressbar_set_started(mforms::ProgressBar *self, bool flag)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static void progressbar_set_indeterminate(mforms::ProgressBar *self, bool flag)
 {
@@ -98,6 +110,8 @@ static void progressbar_set_indeterminate(mforms::ProgressBar *self, bool flag)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void cf_progressbar_init()
 {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
@@ -107,8 +121,5 @@ void cf_progressbar_init()
   f->_progressbar_impl.set_started= &progressbar_set_started;
   f->_progressbar_impl.set_indeterminate= &progressbar_set_indeterminate;
 }
-
-
-
 
 @end

@@ -29,7 +29,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="24"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="6">
+                            <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" id="6" customClass="StatusText">
                                 <rect key="frame" x="6" y="0.0" width="1114" height="20"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Label" id="59">
@@ -40,11 +40,12 @@
                                 <accessibility description="Status Text" help="Short info about the last executed action" identifier="statusLabel"/>
                             </textField>
                         </subviews>
+                        <accessibility description="Status Bar"/>
                     </customView>
                     <customView id="313" customClass="MTabSwitcher">
                         <rect key="frame" x="0.0" y="676" width="1024" height="24"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                        <accessibility description="Custom main tabs" identifier="mainTabSwitcher"/>
+                        <accessibility description="Main Tab View" identifier="mainTabSwitcher"/>
                         <connections>
                             <outlet property="delegate" destination="-2" id="aU7-Jy-Jjs"/>
                             <outlet property="mTabView" destination="11" id="328"/>
