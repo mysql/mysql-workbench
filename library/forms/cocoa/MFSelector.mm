@@ -90,6 +90,13 @@ STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder sta
   return NSAccessibilityPopUpButtonRole;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString *)accessibilityValue {
+    std::string value = mOwner->get_string_value();
+    return [NSString stringWithUTF8String: value.c_str()];
+}
+
 @end
 
 //----------------------------------------------------------------------------------------------------------------------

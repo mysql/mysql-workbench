@@ -72,6 +72,12 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+- (nullable NSNumber *)accessibilityValue {
+    return @(mOwner->get_int_value());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool checkbox_create(mforms::CheckBox *self, bool square) {
   return [[MFCheckBoxImpl alloc] initWithObject: self square: square] != nil;
 }
