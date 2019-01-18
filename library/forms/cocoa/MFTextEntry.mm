@@ -234,6 +234,19 @@ STANDARD_TEXT_ENTRY_HANDLING
   return NSAccessibilityTextFieldRole;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString *)accessibilityValue {
+    std::string value = mOwner->get_string_value();
+    return [NSString stringWithUTF8String: value.c_str()];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setAccessibilityValue: (NSString*)value {
+    mOwner->set_value(value.UTF8String);
+}
+
 @end
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -270,6 +283,19 @@ STANDARD_TEXT_ENTRY_HANDLING
 
 - (NSAccessibilityRole)accessibilityRole {
   return NSAccessibilityTableRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString *)accessibilityValue {
+    std::string value = mOwner->get_string_value();
+    return [NSString stringWithUTF8String: value.c_str()];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setAccessibilityValue: (NSString*)value {
+    mOwner->set_value(value.UTF8String);
 }
 
 @end

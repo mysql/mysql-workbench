@@ -83,6 +83,13 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+- (nullable NSNumber *)accessibilityValue {
+    MFRadioButtonImpl* radiobutton = mOwner->get_data();
+    return @(radiobutton.state == NSOnState);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 static bool radiobutton_create(::mforms::RadioButton *self, int)
 {
   return [[MFRadioButtonImpl alloc] initWithObject: self] != nil;
