@@ -85,7 +85,12 @@
 
 - (nullable NSNumber *)accessibilityValue {
     MFRadioButtonImpl* radiobutton = mOwner->get_data();
-    return @(radiobutton.state == NSOnState);
+    short int value = 0;
+    if(radiobutton.state == NSOnState)
+        value = 1;
+    else if (radiobutton.state == NSMixedState)
+        value = 2;
+    return @(value);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

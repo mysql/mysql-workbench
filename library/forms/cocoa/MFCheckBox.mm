@@ -73,7 +73,13 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 - (nullable NSNumber *)accessibilityValue {
-    return @(mOwner->get_int_value());
+    MFCheckBoxImpl* checkbox = mOwner->get_data();
+    short int value = 0;
+    if(checkbox.state == NSOnState)
+        value = 1;
+    else if (checkbox.state == NSMixedState)
+        value = 2;
+    return @(value);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
