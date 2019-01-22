@@ -200,13 +200,14 @@ class MainView(WizardPage):
 
         self._lock_check = mforms.newCheckBox()
         self._lock_check.set_text("Lock edited SQL")
+        self._lock_check.set_name("Lock Edited SQL")
         self._lock_check.set_tooltip("Lock the SQL code to the edited one, preventing automatic regenerations from discarding changes made directly to the SQL script.")
         self._lock_check.add_clicked_callback(self._lock_clicked)
         vbox.add(self._lock_check, False, True)
 
         self._comment_check = mforms.newCheckBox()
         self._comment_check.set_text("Comment out")
-        self._comment_check.set_name("Commet Out")
+        self._comment_check.set_name("Comment Out")
         self._comment_check.set_tooltip("Mark the object to be commented out on the generated script, making it not get created in the target server.")
         self._comment_check.add_clicked_callback(self._comment_clicked)
         vbox.add(self._comment_check, False, True)
@@ -218,11 +219,13 @@ class MainView(WizardPage):
 
         self._revert_btn = mforms.newButton()
         self._revert_btn.set_text("Discard Changes")
+        self._revert_btn.set_name("Discard Changes")
         vbox.add_end(self._revert_btn, False, True)
         self._revert_btn.add_clicked_callback(self._discard_clicked)
 
         self._apply_btn = mforms.newButton()
         self._apply_btn.set_text("Apply Changes")
+        self._apply_btn.set_name("Apply Changes")
         vbox.add_end(self._apply_btn, False, True)
         self._apply_btn.add_clicked_callback(self._apply_clicked)
         box.add(vbox, False, True)

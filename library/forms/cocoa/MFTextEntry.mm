@@ -282,7 +282,7 @@ STANDARD_TEXT_ENTRY_HANDLING
 //----------------------------------------------------------------------------------------------------------------------
 
 - (NSAccessibilityRole)accessibilityRole {
-  return NSAccessibilityTableRole;
+  return NSAccessibilityTextFieldRole;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
