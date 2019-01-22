@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -41,12 +41,12 @@ struct Semaphores {
 };
 
 gpointer thread_function1(gpointer data) {
-  base::Semaphore *semaphore = static_cast<base::Semaphore *>(data);
+  Semaphores *semaphores = static_cast<Semaphores*>(data);
 
   //Thread is created now, we can awake main thread.
-  semaphore->post();
+  semaphores->auxiliary.post();
   g_usleep(20 * BASE_TIME);
-  semaphore->wait();
+  semaphores->primary.wait();
 
   // We now can do some work. The main thread is waiting meanwhile.
   // Total time 200ms.
@@ -54,7 +54,7 @@ gpointer thread_function1(gpointer data) {
     g_usleep(20 * BASE_TIME);
 
   // Done with work. Awake the main thread.
-  semaphore->post();
+  semaphores->auxiliary.post();
 
   // We need here at least some wait time. If release and alloc follow too close to each other
   // the other thread might not awake and the logic here doesn't work.
@@ -62,13 +62,13 @@ gpointer thread_function1(gpointer data) {
   g_usleep(BASE_TIME);
 
   // Immediately allocate the semaphore again and wait a moment.
-  semaphore->wait();
+  semaphores->primary.wait();
   g_usleep(1000 * BASE_TIME);
 
   // Do some final work.
   while (++counter < 15)
     g_usleep(20 * BASE_TIME);
-  semaphore->post();
+  semaphores->auxiliary.post();
 
   return NULL;
 }
@@ -78,35 +78,34 @@ gpointer thread_function1(gpointer data) {
  * Intentional synchronization of two threads.
  */
 TEST_FUNCTION(10) {
-  base::Semaphore semaphore(0);
+  Semaphores semaphores(0, 0);
   counter = 0;
 
   GError *error = NULL;
-  GThread *thread = create_thread(thread_function1, &semaphore, &error);
+  GThread *thread = base::create_thread(thread_function1, static_cast<gpointer>(&semaphores), &error, "thread_function1");
   if (thread == NULL) {
     const gchar *tmp = (error != NULL) ? error->message : "out of mem?";
     fail(std::string("Thread creation failed: ") + tmp);
   }
 
   // We wait untill thread created.
-  semaphore.wait();
+  semaphores.auxiliary.wait();
   ensure("Test counter was changed", counter == 0);
 
   // Awake the thread and go to sleep.
-  semaphore.post();
+  semaphores.primary.post();
   g_usleep(50 * BASE_TIME); // Wait here. The thread starts working but needs longer than this time.
-  semaphore.wait();         // The thread awakes us here.
+  semaphores.auxiliary.wait();       // The thread awakes us here.
 
   ensure_equals("Test counter value", counter, 10);
-  semaphore.post();          // Give the semaphore back so the thread can continue.
+  semaphores.primary.post();        // Give the semaphore back so the thread can continue.
   g_usleep(100 * BASE_TIME); // Wait a moment so that the thread actually gets CPU time.
+  semaphores.auxiliary.wait();
 
   // Wait for the thread to finish (will also release the semaphore).
   g_thread_join(thread);
 
   ensure_equals("Test counter value", counter, 15);
-
-  semaphore.post();
 }
 
 gpointer thread_function2(gpointer data) {
