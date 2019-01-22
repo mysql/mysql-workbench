@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -20,6 +20,8 @@
  * along with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
+
+#include <unordered_set>
 
 #include "base/log.h"
 #include "base/drawing.h"
@@ -196,7 +198,7 @@ CodeEditorConfig::CodeEditorConfig(SyntaxHighlighterLanguage language) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CodeEditorConfig::~CodeEditorConfig() {
   if (_xmlDocument != nullptr)
@@ -204,7 +206,7 @@ CodeEditorConfig::~CodeEditorConfig() {
   _xmlDocument = nullptr;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditorConfig::parse_properties() {
   auto current = _xmlLanguageElement->children;
@@ -219,7 +221,7 @@ void CodeEditorConfig::parse_properties() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditorConfig::parse_settings() {
   auto current = _xmlLanguageElement->children;
@@ -234,7 +236,7 @@ void CodeEditorConfig::parse_settings() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditorConfig::parse_keywords() {
   auto current = _xmlLanguageElement->children;
@@ -249,7 +251,7 @@ void CodeEditorConfig::parse_keywords() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditorConfig::parse_styles() {
   auto current = _xmlLanguageElement->children;
@@ -278,7 +280,7 @@ void CodeEditorConfig::parse_styles() {
   }
 }
 
-//----------------- CodeEditor ---------------------------------------------------------------------
+//----------------- CodeEditor -----------------------------------------------------------------------------------------
 
 CodeEditor::CodeEditor(void* host, bool showInfo) : _host(host) {
   _code_editor_impl = &ControlFactory::get_instance()->_code_editor_impl;
@@ -305,9 +307,9 @@ CodeEditor::CodeEditor(void* host, bool showInfo) : _host(host) {
   // Margin 0: line numbers.
   _code_editor_impl->send_editor(this, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
 #if defined(__APPLE__)
-  _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, (sptr_t)10);
+  _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, static_cast<sptr_t>(10));
 #else
-  _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, (sptr_t)8);
+  _code_editor_impl->send_editor(this, SCI_STYLESETSIZE, STYLE_LINENUMBER, static_cast<sptr_t>(8));
 #endif
   sptr_t lineNumberStyleWidth =
   _code_editor_impl->send_editor(this, SCI_TEXTWIDTH, STYLE_LINENUMBER, (sptr_t) "_9999");
@@ -333,7 +335,7 @@ CodeEditor::CodeEditor(void* host, bool showInfo) : _host(host) {
   _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_CIRCLEMINUSCONNECTED);
   _code_editor_impl->send_editor(this, SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_TCORNERCURVE);
 
-  // Maring 3: empty, to provide some spacing between the folder margin and the text.
+  // Margin 3: empty, to provide some spacing between the folder margin and the text.
   _code_editor_impl->send_editor(this, SCI_SETMARGINTYPEN, 3, SC_MARGIN_BACK);
   _code_editor_impl->send_editor(this, SCI_SETMARGINWIDTHN, 3, 5);
   _code_editor_impl->send_editor(this, SCI_SETMARGINSENSITIVEN, 3, 0);
@@ -367,7 +369,7 @@ CodeEditor::CodeEditor(void* host, bool showInfo) : _host(host) {
   updateColors();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 CodeEditor::~CodeEditor() {
   base::NotificationCenter::get()->remove_observer(this);
@@ -376,7 +378,7 @@ CodeEditor::~CodeEditor() {
   auto_completion_cancel();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::updateColors() {
   bool darkMode = App::get()->isDarkModeActive();
@@ -467,7 +469,7 @@ void CodeEditor::updateColors() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::setWidth(EditorMargin margin, int size, const std::string& adjustText) {
   if (!adjustText.empty())
@@ -490,7 +492,7 @@ void CodeEditor::setWidth(EditorMargin margin, int size, const std::string& adju
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::setColor(EditorMargin margin, base::Color color, bool foreground) {
   switch (margin) {
@@ -515,7 +517,7 @@ void CodeEditor::setColor(EditorMargin margin, base::Color color, bool foregroun
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::showMargin(EditorMargin margin, bool show) {
   sptr_t size = 0;
@@ -570,19 +572,19 @@ void CodeEditor::showMargin(EditorMargin margin, bool show) {
     setWidth(margin, (int)size);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::setMarginText(const std::string& str) {
   setMarginText(str, line_count() - 1);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::setScrollWidth(size_t width) {
   _code_editor_impl->send_editor(this, SCI_SETSCROLLWIDTH, width, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::setMarginText(const std::string& str, size_t line) {
   sptr_t size = _code_editor_impl->send_editor(this, SCI_GETMARGINWIDTHN, 3, 0);
@@ -594,19 +596,19 @@ void CodeEditor::setMarginText(const std::string& str, size_t line) {
   _code_editor_impl->send_editor(this, SCI_MARGINSETTEXT, line, (sptr_t)str.c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_text(const char* text) {
   _code_editor_impl->send_editor(this, SCI_SETTEXT, 0, (sptr_t)text);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 int CodeEditor::getLineHeight(int line) {
   return (int)_code_editor_impl->send_editor(this, SCI_TEXTHEIGHT, line, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_value(const std::string& value) {
   // When passing text as std::string we have a length and can hence use a different
@@ -615,7 +617,7 @@ void CodeEditor::set_value(const std::string& value) {
   _code_editor_impl->send_editor(this, SCI_APPENDTEXT, value.size(), (sptr_t)value.c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_text_keeping_state(const char* text) {
   sptr_t caret_position = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
@@ -631,13 +633,13 @@ void CodeEditor::set_text_keeping_state(const char* text) {
   _code_editor_impl->send_editor(this, SCI_SETFIRSTVISIBLELINE, first_line, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::append_text(const char* text, size_t length) {
   _code_editor_impl->send_editor(this, SCI_APPENDTEXT, length, (sptr_t)text);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::replace_selected_text(const std::string& text) {
   std::size_t start, length;
@@ -648,7 +650,7 @@ void CodeEditor::replace_selected_text(const std::string& text) {
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONEND, start + text.length(), 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 const std::string CodeEditor::get_text(bool selection_only) {
   char* text;
@@ -673,7 +675,7 @@ const std::string CodeEditor::get_text(bool selection_only) {
   return "";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 const std::string CodeEditor::get_text_in_range(size_t start, size_t end) {
   Sci_TextRange range;
@@ -695,7 +697,7 @@ const std::string CodeEditor::get_text_in_range(size_t start, size_t end) {
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::pair<const char*, std::size_t> CodeEditor::get_text_ptr() {
   std::pair<const char*, std::size_t> result;
@@ -705,28 +707,28 @@ std::pair<const char*, std::size_t> CodeEditor::get_text_ptr() {
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_selection(std::size_t start, std::size_t length) {
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONSTART, start, 0);
   _code_editor_impl->send_editor(this, SCI_SETSELECTIONEND, start + length, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::clear_selection() {
   sptr_t current_pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
   _code_editor_impl->send_editor(this, SCI_SETEMPTYSELECTION, current_pos, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::get_selection(std::size_t& start, std::size_t& length) {
   start = _code_editor_impl->send_editor(this, SCI_GETSELECTIONSTART, 0, 0);
   length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) - start;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::get_range_of_line(ssize_t line, ssize_t& start, ssize_t& end) {
   start = _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, line, 0);
@@ -735,7 +737,7 @@ bool CodeEditor::get_range_of_line(ssize_t line, ssize_t& start, ssize_t& end) {
   return start < 0 || end < 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::setupMarker(int marker, const std::string& name) {
   if (base::hasSuffix(name, ".xpm")) {
@@ -757,17 +759,17 @@ void CodeEditor::setupMarker(int marker, const std::string& name) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Called before lines are removed. Need to record disappearing markers.
  */
-void CodeEditor::handleMarkerDeletion(int position, int length) {
+void CodeEditor::handleMarkerDeletion(size_t position, size_t length) {
   if (length == 0)
     return;
 
   LineMarkupChangeset changeset;
-  if (length == _code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0)) {
+  if (length == static_cast<size_t>(_code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0))) {
     // Clean editor? Send empty changeset to signal that all markers can go.
     _marker_changed_event(changeset, true);
     return;
@@ -794,12 +796,12 @@ void CodeEditor::handleMarkerDeletion(int position, int length) {
     _marker_changed_event(changeset, true);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Called after an edit action took place. We have to record markers that got moved by that action.
  */
-void CodeEditor::handleMarkerMove(int position, int linesAdded) {
+void CodeEditor::handleMarkerMove(size_t position, int linesAdded) {
   if (linesAdded == 0)
     return;
 
@@ -816,7 +818,7 @@ void CodeEditor::handleMarkerMove(int position, int linesAdded) {
   }
 
   // Ignore the first line if it has been edited after the line start.
-  if (position > _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, currentLine, 0))
+  if (position > static_cast<size_t>(_code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, currentLine, 0)))
     ++currentLine;
 
   currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine, LineMarkupAll);
@@ -830,6 +832,43 @@ void CodeEditor::handleMarkerMove(int position, int linesAdded) {
 
   if (!changeset.empty())
     _marker_changed_event(changeset, false);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+char32_t CodeEditor::getCharAt(size_t position) {
+  return _code_editor_impl->send_editor(this, SCI_GETCHARAT, position, 0);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static const std::unordered_set<char32_t> braces = { '(', '{', '[', '<', ')', '}', ']', '>' };
+
+void CodeEditor::updateBraceHighlighting() {
+  size_t caretPos = get_caret_pos();
+  ssize_t brace1Pos = INVALID_POSITION;
+  ssize_t brace2Pos = INVALID_POSITION;
+
+  // Highlight an opening brace regardless of the side the caret is, unless another opening brace follows directly
+  // (and similary for closing braces).
+  char32_t c = getCharAt(caretPos);
+
+  if (braces.count(c) > 0)
+    brace1Pos = caretPos;
+  else if (caretPos > 0) {
+    c = getCharAt(caretPos - 1);
+    if (braces.count(c) > 0)
+      brace1Pos = caretPos - 1;
+  }
+
+  if (brace1Pos > INVALID_POSITION) {
+    brace2Pos = _code_editor_impl->send_editor(this, SCI_BRACEMATCH, brace1Pos, 0);
+    if (brace2Pos == INVALID_POSITION)
+      _code_editor_impl->send_editor(this, SCI_BRACEBADLIGHT, brace1Pos, 0);
+    else
+      _code_editor_impl->send_editor(this, SCI_BRACEHIGHLIGHT, brace1Pos, brace2Pos);
+  } else
+    _code_editor_impl->send_editor(this, SCI_BRACEHIGHLIGHT, brace1Pos, brace2Pos);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1002,7 +1041,7 @@ void CodeEditor::set_language(SyntaxHighlighterLanguage language) {
   loadConfiguration(language);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::show_markup(LineMarkup markup, size_t line) {
   // The marker mask contains one bit for each set marker (0..31).
@@ -1037,7 +1076,7 @@ void CodeEditor::show_markup(LineMarkup markup, size_t line) {
     _code_editor_impl->send_editor(this, SCI_MARKERADDSET, line, new_marker_mask);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::remove_markup(LineMarkup markup, ssize_t line) {
   if (markup == mforms::LineMarkupAll || line < 0) {
@@ -1061,7 +1100,7 @@ void CodeEditor::remove_markup(LineMarkup markup, ssize_t line) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::has_markup(LineMarkup markup, size_t line) {
   sptr_t markers = _code_editor_impl->send_editor(this, SCI_MARKERGET, line, 0);
@@ -1072,7 +1111,7 @@ bool CodeEditor::has_markup(LineMarkup markup, size_t line) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::show_indicator(RangeIndicator indicator, size_t start, size_t length) {
   // Scintilla supports a model that not only sets an indicator in a given range but additionally
@@ -1093,7 +1132,7 @@ void CodeEditor::show_indicator(RangeIndicator indicator, size_t start, size_t l
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 RangeIndicator CodeEditor::indicator_at(size_t position) {
   sptr_t result = _code_editor_impl->send_editor(this, SCI_INDICATORVALUEAT, ERROR_INDICATOR, position);
@@ -1103,7 +1142,7 @@ RangeIndicator CodeEditor::indicator_at(size_t position) {
   return mforms::RangeIndicatorNone;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::remove_indicator(RangeIndicator indicator, size_t start, size_t length) {
   switch (indicator) {
@@ -1117,31 +1156,31 @@ void CodeEditor::remove_indicator(RangeIndicator indicator, size_t start, size_t
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 size_t mforms::CodeEditor::line_count() {
   return _code_editor_impl->send_editor(this, SCI_GETLINECOUNT, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 size_t CodeEditor::text_length() {
   return _code_editor_impl->send_editor(this, SCI_GETLENGTH, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 size_t CodeEditor::position_from_line(size_t line_number) {
   return _code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, line_number, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 size_t CodeEditor::line_from_position(size_t position) {
   return _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_font(const std::string& fontDescription) {
   // Set this font for all styles.
@@ -1172,7 +1211,7 @@ void CodeEditor::set_font(const std::string& fontDescription) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Converts scintilla key modifier codes to mforms codes.
@@ -1189,7 +1228,7 @@ mforms::ModifierKey getModifiers(int scintilla_modifiers) {
   return modifiers;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::on_notify(SCNotification* notification) {
   switch (notification->nmhdr.code) {
@@ -1251,6 +1290,7 @@ void CodeEditor::on_notify(SCNotification* notification) {
         case SC_UPDATE_CONTENT: // Contents, styling or markers have been changed.
           break;
         case SC_UPDATE_SELECTION: // Selection has been changed or the caret moved.
+          updateBraceHighlighting();
           NotificationCenter::get()->send("GNTextSelectionChanged", this);
           break;
         case SC_UPDATE_V_SCROLL: // Scrolled vertically.
@@ -1291,13 +1331,14 @@ void CodeEditor::on_notify(SCNotification* notification) {
       break;
   }
 }
-//--------------------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::on_command(int command) {
   // TODO: removal candidate.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::key_event(KeyCode code, ModifierKey modifier, const std::string& text) {
   // Return true if the key event can be further processed by the sender.
@@ -1308,7 +1349,7 @@ bool CodeEditor::key_event(KeyCode code, ModifierKey modifier, const std::string
   return *_key_event_signal(code, modifier, text);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_features(CodeEditorFeature features, bool flag) {
   if ((features & mforms::FeatureWrapText) != 0) {
@@ -1359,7 +1400,7 @@ void CodeEditor::set_features(CodeEditorFeature features, bool flag) {
     _auto_indent = true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::toggle_features(CodeEditorFeature features) {
   // Toggling a feature involves querying its current state which is sometimes not possible with a
@@ -1402,43 +1443,43 @@ void CodeEditor::toggle_features(CodeEditorFeature features) {
     _auto_indent = !_auto_indent;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_read_only(bool flag) {
   _code_editor_impl->send_editor(this, SCI_SETREADONLY, flag, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::reset_undo_stack() {
   _code_editor_impl->send_editor(this, SCI_EMPTYUNDOBUFFER, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::reset_dirty() {
   _code_editor_impl->send_editor(this, SCI_SETSAVEPOINT, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::is_dirty() {
   return _code_editor_impl->send_editor(this, SCI_GETMODIFY, 0, 0) != 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 size_t CodeEditor::get_caret_pos() {
   return _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_caret_pos(size_t position) {
   _code_editor_impl->send_editor(this, SCI_GOTOPOS, position, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::get_line_column_pos(size_t position, size_t& line, size_t& column) {
   line = _code_editor_impl->send_editor(this, SCI_LINEFROMPOSITION, position, 0);
@@ -1446,43 +1487,43 @@ void CodeEditor::get_line_column_pos(size_t position, size_t& line, size_t& colu
   ;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::can_undo() {
   return _code_editor_impl->send_editor(this, SCI_CANUNDO, 0, 0) != 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::undo() {
   _code_editor_impl->send_editor(this, SCI_UNDO, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::can_redo() {
   return _code_editor_impl->send_editor(this, SCI_CANREDO, 0, 0) != 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::redo() {
   _code_editor_impl->send_editor(this, SCI_REDO, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::can_cut() {
   return can_copy() && can_delete();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::cut() {
   _code_editor_impl->send_editor(this, SCI_CUT, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::can_copy() {
   sptr_t length = _code_editor_impl->send_editor(this, SCI_GETSELECTIONEND, 0, 0) -
@@ -1490,43 +1531,43 @@ bool CodeEditor::can_copy() {
   return length > 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::copy() {
   _code_editor_impl->send_editor(this, SCI_COPY, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::can_paste() {
   return _code_editor_impl->send_editor(this, SCI_CANPASTE, 0, 0) != 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::paste() {
   _code_editor_impl->send_editor(this, SCI_PASTE, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::can_delete() {
   return can_copy() && _code_editor_impl->send_editor(this, SCI_GETREADONLY, 0, 0) == 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::do_delete() {
   replace_selected_text("");
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::select_all() {
   _code_editor_impl->send_editor(this, SCI_SELECTALL, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_status_text(const std::string& text) {
   // Optional implementation.
@@ -1534,7 +1575,7 @@ void CodeEditor::set_status_text(const std::string& text) {
     _code_editor_impl->set_status_text(this, text);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::show_find_panel(bool replace) {
   if (_find_panel == NULL)
@@ -1546,7 +1587,7 @@ void CodeEditor::show_find_panel(bool replace) {
   _find_panel->focus();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::hide_find_panel() {
   if (_find_panel == NULL)
@@ -1557,13 +1598,13 @@ void CodeEditor::hide_find_panel() {
   focus();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_show_find_panel_callback(std::function<void(CodeEditor*, bool)> callback) {
   _show_find_panel = callback;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::find_and_highlight_text(const std::string& search_text, FindFlags flags, bool scroll_to,
                                          bool backwards) {
@@ -1625,7 +1666,7 @@ bool CodeEditor::find_and_highlight_text(const std::string& search_text, FindFla
   return (result >= 0) ? true : false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Searches the given text and replaces it by new_text. Returns the number of replacements performed.
@@ -1694,7 +1735,7 @@ size_t CodeEditor::find_and_replace_text(const std::string& search_text, const s
   return replace_count;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::jump_to_next_placeholder() {
   sptr_t current_pos = _code_editor_impl->send_editor(this, SCI_GETCURRENTPOS, 0, 0);
@@ -1736,7 +1777,7 @@ void CodeEditor::jump_to_next_placeholder() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_show(size_t chars_entered, const std::vector<std::pair<int, std::string> >& entries) {
   if (entries.size() == 0)
@@ -1753,7 +1794,7 @@ void CodeEditor::auto_completion_show(size_t chars_entered, const std::vector<st
   _code_editor_impl->send_editor(this, SCI_AUTOCSHOW, chars_entered, (sptr_t)list.str().c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_show(size_t chars_entered, const std::vector<std::string>& entries) {
   std::stringstream list;
@@ -1765,13 +1806,13 @@ void CodeEditor::auto_completion_show(size_t chars_entered, const std::vector<st
   _code_editor_impl->send_editor(this, SCI_AUTOCSHOW, chars_entered, (sptr_t)list.str().c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_cancel() {
   _code_editor_impl->send_editor(this, SCI_AUTOCCANCEL, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_options(bool ignore_case, bool choose_single, bool auto_hide, bool drop_rest_of_word,
                                          bool cancel_at_start) {
@@ -1782,14 +1823,14 @@ void CodeEditor::auto_completion_options(bool ignore_case, bool choose_single, b
   _code_editor_impl->send_editor(this, SCI_AUTOCSETCANCELATSTART, cancel_at_start, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_max_size(int width, int height) {
   _code_editor_impl->send_editor(this, SCI_AUTOCSETMAXHEIGHT, height, 0);
   _code_editor_impl->send_editor(this, SCI_AUTOCSETMAXWIDTH, width, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_register_images(const std::vector<std::pair<int, std::string> > &images) {
   for (auto &image : images) {
@@ -1806,25 +1847,25 @@ void CodeEditor::auto_completion_register_images(const std::vector<std::pair<int
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool CodeEditor::auto_completion_active() {
   return _code_editor_impl->send_editor(this, SCI_AUTOCACTIVE, 0, 0) != 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_stops(const std::string& stops) {
   _code_editor_impl->send_editor(this, SCI_AUTOCSTOPS, 0, (sptr_t)stops.c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::auto_completion_fillups(const std::string& fillups) {
   _code_editor_impl->send_editor(this, SCI_AUTOCSETFILLUPS, 0, (sptr_t)fillups.c_str());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::show_calltip(bool show, size_t position, const std::string& value) {
   if (show)
@@ -1833,7 +1874,7 @@ void CodeEditor::show_calltip(bool show, size_t position, const std::string& val
     _code_editor_impl->send_editor(this, SCI_CALLTIPCANCEL, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::set_eol_mode(mforms::EndOfLineMode mode, bool convert) {
   _code_editor_impl->send_editor(this, SCI_SETEOLMODE, mode, 0);
@@ -1841,23 +1882,23 @@ void CodeEditor::set_eol_mode(mforms::EndOfLineMode mode, bool convert) {
     _code_editor_impl->send_editor(this, SCI_CONVERTEOLS, mode, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 sptr_t CodeEditor::send_editor(unsigned int message, uptr_t wParam, sptr_t lParam) {
   return _code_editor_impl->send_editor(this, message, wParam, lParam);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::lost_focus() {
   _signal_lost_focus();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void CodeEditor::resize() {
   if (_scroll_on_resize)
     _code_editor_impl->send_editor(this, SCI_SCROLLCARET, 0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------

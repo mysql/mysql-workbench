@@ -98,6 +98,9 @@
 
     <style id="82" fore-color-light="#007F00" back-color-light="#F0F0F0" fore-color-dark="#00b200" back-color-dark="#404040" bold="yes"/> <!-- SCE_MYSQL_USER1 -->
 
+    <!-- Various other styles -->
+    <style id="34" back-color-light="#ffee55" back-color-dark="#ffee55" /> <!-- STYLE_BRACELIGHT -->
+    <style id="35" back-color-light="#ff7855" back-color-dark="#ff7855" /> <!-- STYLE_BRACELBAD -->
   </language>
 
   <language name="SCLEX_MYSQL_56">
@@ -359,6 +362,9 @@
 
     <style id="11" fore-color-light="#000000" fore-color-dark="#FFFFFF"/> <!-- SCE_P_IDENTIFIER -->
 
+    <!-- Various other styles -->
+    <style id="34" back-color-light="#ffee55" back-color-dark="#ffee55" /> <!-- STYLE_BRACELIGHT -->
+    <style id="35" back-color-light="#ff7855" back-color-dark="#ff7855" /> <!-- STYLE_BRACELBAD -->
   </language>
 
   <language name="SCLEX_HTML">
@@ -425,6 +431,10 @@
     <style id="125" fore-color-light="#F77B09" /> <!-- SCE_HPHP_COMMENTLINE -->
     
     <style id="121" fore-color-light="#C00000" bold="Yes"/> <!-- SCE_HPHP_WORD -->
+
+    <!-- Various other styles -->
+    <style id="34" back-color-light="#ffee55" back-color-dark="#ffee55" /> <!-- STYLE_BRACELIGHT -->
+    <style id="35" back-color-light="#ff7855" back-color-dark="#ff7855" /> <!-- STYLE_BRACELBAD -->
   </language>
 
   <language name="SCLEX_CPP">
@@ -493,6 +503,9 @@
     <style id="23" fore-color-light="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENT -->
     <style id="24" fore-color-light="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENTDOC -->
 
+    <!-- Various other styles -->
+    <style id="34" back-color-light="#ffee55" back-color-dark="#ffee55" /> <!-- STYLE_BRACELIGHT -->
+    <style id="35" back-color-light="#ff7855" back-color-dark="#ff7855" /> <!-- STYLE_BRACELBAD -->
   </language>
 	
 	<language name="SCLEX_CPP_JS">
@@ -587,6 +600,9 @@
     <style id="23" fore-color-light="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENT -->
     <style id="24" fore-color-light="#000000" /> <!-- SCE_C_PREPROCESSORCOMMENTDOC -->
 
+    <!-- Various other styles -->
+    <style id="34" back-color-light="#ffee55" back-color-dark="#ffee55" /> <!-- STYLE_BRACELIGHT -->
+    <style id="35" back-color-light="#ff7855" back-color-dark="#ff7855" /> <!-- STYLE_BRACELBAD -->
   </language>
 
   <language name="SCLEX_CPP_JSON">
@@ -616,6 +632,9 @@
     <style id="11" fore-color-light="#3133ff" fore-color-dark="#3133ff" /> <!-- SCE_C_IDENTIFIER -->
     <style id="20" fore-color-light="#ff5c33" fore-color-dark="#ff5c33" /> <!-- SCE_C_STRINGRAW -->
 
+    <!-- Various other styles -->
+    <style id="34" back-color-light="#ffee55" back-color-dark="#ffee55" /> <!-- STYLE_BRACELIGHT -->
+    <style id="35" back-color-light="#ff7855" back-color-dark="#ff7855" /> <!-- STYLE_BRACELBAD -->
   </language>
 
 </languages>

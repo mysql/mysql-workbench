@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -53,6 +53,7 @@ typedef int ssize_t;
 #include <sstream>
 #include <string>
 #include <assert.h>
+#include <unordered_set>
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-Win32.h>

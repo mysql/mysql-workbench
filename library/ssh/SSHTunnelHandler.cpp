@@ -231,9 +231,10 @@ namespace ssh {
         break;
       }
     }
+
     // If we're here and it's still not ok, we throw exception as we can't open the channel.
     if (rc != SSH_OK)
-      throw SSHTunnelException("Unable to open channel\n");
+      throw SSHTunnelException("Unable to open channel");
 
     return channel;
   }

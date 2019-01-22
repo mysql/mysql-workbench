@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -274,16 +274,16 @@ namespace mforms {
      *  for short term tasks (e.g. error parsing, direct search etc.).
      *  Don't change the text in any way or the editor might get out of sync.
      */
-    std::pair<const char*, std::size_t> get_text_ptr();
+    std::pair<const char*, size_t> get_text_ptr();
 
     /** Selects the text at the given range. If length is 0 it will just move the caret.
      * NOTE: Scintilla uses bytes everywhere when a position or length is set or read. So be very
      *       careful when doing char maths (we use utf-8 with a variable code length per character).
      */
-    void set_selection(std::size_t start, std::size_t length);
+    void set_selection(size_t start, size_t length);
 
     /** Gets the current selection range. */
-    void get_selection(std::size_t& start, std::size_t& length);
+    void get_selection(size_t& start, size_t& length);
 
     /** Removes the current selection without moving the caret. */
     void clear_selection();
@@ -492,7 +492,7 @@ namespace mforms {
      *    The number of lines which have been added (if positive) or removed (if negative).
      *    True if text was inserted.
      */
-    boost::signals2::signal<void(int, int, int, bool)>* signal_changed() {
+    boost::signals2::signal<void(size_t, size_t, int, bool)>* signal_changed() {
       return &_change_event;
     }
 
@@ -502,7 +502,7 @@ namespace mforms {
      *    The line in which this happened.
      *    The modifier keys that were pressed.
      */
-    boost::signals2::signal<void(int, int, mforms::ModifierKey)>* signal_gutter_clicked() {
+    boost::signals2::signal<void(size_t, size_t, mforms::ModifierKey)>* signal_gutter_clicked() {
       return &_gutter_clicked_event;
     }
 
@@ -512,7 +512,7 @@ namespace mforms {
      *    The start position of the word being completed. Only used with AutoCompletionSelection.
      *    The text of the selection.
      */
-    boost::signals2::signal<void(AutoCompletionEventType, int, const std::string&)>* signal_auto_completion() {
+    boost::signals2::signal<void(AutoCompletionEventType, size_t, const std::string&)>* signal_auto_completion() {
       return &_auto_completion_event;
     };
 
@@ -585,16 +585,18 @@ namespace mforms {
     MarginSizes _marginSize;
 
     void setupMarker(int marker, const std::string& name);
-    void handleMarkerDeletion(int position, int length);
-    void handleMarkerMove(int position, int linesAdded);
+    void handleMarkerDeletion(size_t position, size_t length);
+    void handleMarkerMove(size_t position, int linesAdded);
+    char32_t getCharAt(size_t position);
+    void updateBraceHighlighting();
     bool ensureImage(std::string const& name);
 
     void loadConfiguration(SyntaxHighlighterLanguage language);
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) override;
 
-    boost::signals2::signal<void(int, int, int, bool)> _change_event;
-    boost::signals2::signal<void(int, int, mforms::ModifierKey)> _gutter_clicked_event;
-    boost::signals2::signal<void(AutoCompletionEventType, int, const std::string&)> _auto_completion_event;
+    boost::signals2::signal<void(size_t, size_t, int, bool)> _change_event;
+    boost::signals2::signal<void(size_t, size_t, mforms::ModifierKey)> _gutter_clicked_event;
+    boost::signals2::signal<void(AutoCompletionEventType, size_t, const std::string&)> _auto_completion_event;
     boost::signals2::signal<void(bool, size_t, int, int)> _dwell_event;
     boost::signals2::signal<void(int)> _char_added_event;
     boost::signals2::signal<void()> _signal_lost_focus;
