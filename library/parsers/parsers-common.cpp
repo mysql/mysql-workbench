@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -29,7 +29,7 @@
 using namespace parsers;
 using namespace antlr4;
 
-//----------------- Scanner ------------------------------------------------------------------------
+//----------------- Scanner --------------------------------------------------------------------------------------------
 
 Scanner::Scanner(BufferedTokenStream *input) {
   _index = 0;
@@ -38,7 +38,7 @@ Scanner::Scanner(BufferedTokenStream *input) {
                                 // at least as long as the scanner class that holds references to the stream's tokens.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Advances to the next token.
@@ -55,7 +55,7 @@ bool Scanner::next(bool skipHidden) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns to the previous token.
@@ -72,7 +72,7 @@ bool Scanner::previous(bool skipHidden) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Advances to the token that covers the given line and char offset. The line number is one-based
@@ -115,7 +115,7 @@ bool Scanner::advanceToPosition(size_t line, size_t offset) {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Advances to the next token with the given lexical type.
@@ -134,7 +134,7 @@ bool Scanner::advanceToType(size_t type) {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Steps over a number of tokens and positions.
@@ -172,7 +172,7 @@ bool Scanner::skipTokenSequence(size_t startToken, ...) {
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the type of the next token without changing the internal state.
@@ -188,7 +188,7 @@ size_t Scanner::lookAhead(bool skipHidden) {
   return ParserToken::INVALID_TYPE;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Look back in the stream (physical order) what was before the current token, without
@@ -205,7 +205,14 @@ size_t Scanner::lookBack(bool skipHidden) {
   return ParserToken::INVALID_TYPE;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+void Scanner::seek(size_t index) {
+  if (index < _tokens.size())
+    _index = index;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Resets the walker to be at the original location.
@@ -216,7 +223,7 @@ void Scanner::reset() {
     _tokenStack.pop();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Store the current node on the stack, so we can easily come back when needed.
@@ -225,7 +232,7 @@ void Scanner::push() {
   _tokenStack.push(_index);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns to the location at the top of the token stack (if any).
@@ -239,7 +246,7 @@ bool Scanner::pop() {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Removes the current top of stack entry without restoring the internal state.
@@ -250,7 +257,7 @@ void Scanner::removeTos() {
     _tokenStack.pop();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns true if the current token is of the given type.
@@ -259,7 +266,7 @@ bool Scanner::is(size_t type) const {
   return _tokens[_index]->getType() == type;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the textual expression of the token.
@@ -268,7 +275,7 @@ std::string Scanner::tokenText(bool keepQuotes) const {
   return _tokens[_index]->getText();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the type of the current token. Same as the type you can specify in advance_to().
@@ -277,7 +284,7 @@ size_t Scanner::tokenType() const {
   return _tokens[_index]->getType();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the (one-base) line number of the token.
@@ -286,7 +293,7 @@ size_t Scanner::tokenLine() const {
   return _tokens[_index]->getLine();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the (zero-based) character offset of the token on its line.
@@ -295,7 +302,7 @@ size_t Scanner::tokenStart() const {
   return _tokens[_index]->getCharPositionInLine();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the (zero-based) index of the current token within the input.
@@ -304,7 +311,7 @@ size_t Scanner::tokenIndex() const {
   return _tokens[_index]->getTokenIndex(); // Usually the same as _index.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the offset of the token in its source string.
@@ -313,7 +320,7 @@ size_t Scanner::tokenOffset() const {
   return _tokens[_index]->getStartIndex();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the length of the token in bytes.
@@ -324,7 +331,7 @@ size_t Scanner::tokenLength() const {
   return token->getStopIndex() - token->getStartIndex() + 1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the channel of the current token.
@@ -333,7 +340,7 @@ size_t Scanner::tokenChannel() const {
   return _tokens[_index]->getChannel();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * This is a special purpose function to return all the input text from the current token to the end.
@@ -343,4 +350,4 @@ std::string Scanner::tokenSubText() const {
   return cs->getText(misc::Interval((ssize_t)_tokens[_index]->getStartIndex(), std::numeric_limits<ssize_t>::max()));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------

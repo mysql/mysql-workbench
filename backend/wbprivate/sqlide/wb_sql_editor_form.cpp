@@ -2741,6 +2741,7 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
           }
         }
       }
+
       for (auto view : *views) {
         ViewSymbol *viewSymbol = _databaseSymbols.addNewSymbol<ViewSymbol>(schemaSymbol, view);
 
@@ -2762,6 +2763,16 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
       for (auto function : *functions) {
         _databaseSymbols.addNewSymbol<StoredRoutineSymbol>(schemaSymbol, function, nullptr);
       }
+
+      if (statement != nullptr) {
+        std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(
+          "SELECT VARIABLE_NAME FROM performance_schema.user_variables_by_thread"));
+
+        while (rs->next()) {
+          _databaseSymbols.addNewSymbol<UserVariableSymbol>(nullptr, "@" + rs->getString(1), nullptr);
+        }
+      }
+
       return;
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -52,7 +52,7 @@ using namespace antlr4;
 
 DEFAULT_LOG_DOMAIN("MySQL code completion");
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 struct TableReference {
   std::string schema;
@@ -64,16 +64,16 @@ struct TableReference {
 struct AutoCompletionContext {
   CandidatesCollection completionCandidates;
 
-  // A hierarchical view of all table references in the code, updated constantly during the match process.
+  // A hierarchical view of all table references in the code, updated by visiting all relevant FROM clauses after
+  // the candidate collection.
   // Organized as stack to be able to easily remove sets of references when changing nesting level.
+  // Implemented as deque however, to allow iterating it.
   std::deque<std::vector<TableReference>> referencesStack;
 
-  // A flat list of possible references. Kinda snapshot of the references stack at the point when collection
-  // begins (the stack is cleaned up while bubbling up, after the collection process).
-  // Additionally, it gets also all references after the caret.
+  // A flat list of possible references for easier lookup.
   std::vector<TableReference> references;
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   void collectCandidates(MySQLParser *parser, Scanner &scanner, size_t caretOffset, size_t caretLine) {
     CodeCompletionCore c3(parser);
@@ -199,23 +199,11 @@ struct AutoCompletionContext {
 
     c3.showResult = false;
     c3.showDebugOutput = false;
-    referencesStack.emplace_back(); // For the root level of table references.
+    referencesStack.emplace_front(); // For the root level of table references.
 
     parser->reset();
     ParserRuleContext *context = parser->query();
-    /*
-    tree::ParseTree *tree = parser->contextFromPosition(context, { caretOffset, caretLine });
-    if (tree->parent) {
-      tree = tree->parent;
-    }
-    if (tree != nullptr) {
-      context = dynamic_cast<ParserRuleContext *>(tree->parent);
-      if (context != nullptr) {
-        startTokenIndex = context->start->getTokenIndex();
-        ruleIndex = context->getRuleIndex();
-      }
-    }
-*/
+
     completionCandidates = c3.collectCandidates(caretIndex, context);
 
     // Post processing some entries.
@@ -229,8 +217,10 @@ struct AutoCompletionContext {
     // If a column reference is required then we have to continue scanning the query for table references.
     for (auto ruleEntry : completionCandidates.rules) {
       if (ruleEntry.first == MySQLParser::RuleColumnRef) {
+        collectLeadingTableReferences(parser, scanner, caretIndex);
+        takeReferencesSnapshot();
         collectRemainingTableReferences(parser, scanner);
-        takeReferencesSnapshot(); // Move references from stack to the ref map.
+        takeReferencesSnapshot();
         break;
       }
     }
@@ -238,7 +228,7 @@ struct AutoCompletionContext {
     return;
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
 private:
   // A listener to handle references as we traverse a parse tree.
@@ -255,7 +245,7 @@ private:
       if (_done)
         return;
 
-      if (_level == 0) {
+      if (!_fromClauseMode || _level == 0) {
         TableReference reference;
         if (ctx->qualifiedIdentifier() != nullptr) {
           reference.table = base::unquote(ctx->qualifiedIdentifier()->identifier()->getText());
@@ -276,10 +266,10 @@ private:
       if (_done)
         return;
 
-      // TODO: derived tables aren't handled yet. Need extra stack checks for that here, to avoid a crash.
-      // Once handled we can remove everything but the level check.
       if (_level == 0 && !_context.referencesStack.empty() && !_context.referencesStack.front().empty()) {
-        // Appears after a single table or subquery.
+        // Appears after a single or derived table.
+        // Since derived tables can be very complex it is not possible here to determine possible columns for
+        // completion, hence we just walk over them and thus have no field where to store the found alias.
         _context.referencesStack.front().back().alias = base::unquote(ctx->identifier()->getText());
       }
     }
@@ -291,7 +281,7 @@ private:
       if (_fromClauseMode)
         ++_level;
       else
-        _context.referencesStack.emplace_back();
+        _context.referencesStack.emplace_front();
     }
 
     virtual void exitSubquery(MySQLParser::SubqueryContext *ctx) override {
@@ -301,21 +291,12 @@ private:
       if (_fromClauseMode)
         --_level;
       else
-        _context.referencesStack.pop_back();
-    }
-
-    virtual void visitTerminal(tree::TerminalNode *node) override {
-      if (_done)
-        return;
-
-      if (!_fromClauseMode) {
-        // TODO: finish from clause scanning in nested selects.
-      }
+        _context.referencesStack.pop_front();
     }
 
   private:
-    bool _done = false;
-    size_t _level = 0; // Only used in FROM clause traversal.
+    bool _done = false; // Only used in full mode.
+    size_t _level = 0;  // Only used in FROM clause traversal.
     AutoCompletionContext &_context;
     bool _fromClauseMode;
   };
@@ -323,61 +304,131 @@ private:
   //--------------------------------------------------------------------------------------------------------------------
 
   /**
-   * Called if one of the candidates is a column reference.
+   * Called if one of the candidates is a column reference, for table references *before* the caret.
+   * SQL code must be valid up to the caret, so we can check nesting strictly.
+   */
+  void collectLeadingTableReferences(MySQLParser *parser, Scanner &scanner, size_t caretIndex) {
+    scanner.push();
+    scanner.seek(0);
+
+    size_t level = 0;
+    while (true) {
+      bool found = scanner.tokenType() == MySQLLexer::FROM_SYMBOL;
+      while (!found) {
+        if (!scanner.next() || scanner.tokenIndex() >= caretIndex)
+          break;
+
+        switch (scanner.tokenType()) {
+          case MySQLLexer::OPEN_PAR_SYMBOL:
+            ++level;
+            referencesStack.emplace_front();
+
+            break;
+
+          case MySQLLexer::CLOSE_PAR_SYMBOL:
+            if (level == 0) {
+              scanner.pop();
+              return; // We cannot go above the initial nesting level.
+            }
+
+            --level;
+            referencesStack.pop_front();
+
+            break;
+
+          case MySQLLexer::FROM_SYMBOL:
+            found = true;
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      if (!found) {
+        scanner.pop();
+        return; // No more FROM clause found.
+      }
+
+      parseTableReferences(scanner.tokenSubText(), parser);
+      if (scanner.tokenType() == MySQLLexer::FROM_SYMBOL)
+        scanner.next();
+    }
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * Called if one of the candidates is a column reference, for table references *after* the caret.
    * The function attempts to get table references together with aliases where possible. This is the only place
    * where we actually look beyond the caret and hence different rules apply: the query doesn't need to be valid
    * beyond that point. We simply scan forward until we find a FROM keyword and work from there. This makes it much
    * easier to work on incomplete queries, which nonetheless need e.g. columns from table references.
-   * Because inner queries can use table references from outer queries we can simply scan for the next FROM clause,
-   * provided we don't go deeper. This way the query doesn't need to be error free, just the FROM clauses must.
+   * Because inner queries can use table references from outer queries we can simply scan for all outer FROM clauses
+   * (skip over subqueries).
    */
-  void collectRemainingTableReferences(Parser *parser, Scanner &scanner) {
-    // First advance to the next FROM keyword on the same level as the caret is (no subselects etc.).
+  void collectRemainingTableReferences(MySQLParser *parser, Scanner &scanner) {
+    scanner.push();
+
+    // Continously scan forward to all FROM clauses on the current or any higher nesting level.
     // With certain syntax errors this can lead to a wrong FROM clause (e.g. if parentheses don't match).
     // But that is acceptable.
     size_t level = 0;
-    bool found = scanner.tokenType() == MySQLLexer::FROM_SYMBOL;
-    while (!found) {
-      if (!scanner.next())
-        break;
-
-      switch (scanner.tokenType()) {
-        case MySQLLexer::OPEN_PAR_SYMBOL: // Skip anything within parentheses. It's not relevant for references and this
-                                          // way we don't include subqueries.
-          ++level;
+    while (true) {
+      bool found = scanner.tokenType() == MySQLLexer::FROM_SYMBOL;
+      while (!found) {
+        if (!scanner.next())
           break;
 
-        case MySQLLexer::CLOSE_PAR_SYMBOL:
-          if (level > 0)
-            --level;
-          break;
+        switch (scanner.tokenType()) {
+          case MySQLLexer::OPEN_PAR_SYMBOL:
+            ++level;
+            break;
 
-        case MySQLLexer::FROM_SYMBOL:
-          if (level == 0)
-            found = true;
-          break;
+          case MySQLLexer::CLOSE_PAR_SYMBOL:
+            if (level > 0)
+              --level;
+            break;
 
-        default:
-          break;
+          case MySQLLexer::FROM_SYMBOL:
+            // Open and close parentheses don't need to match, if we come from within a subquery.
+            if (level == 0)
+              found = true;
+            break;
+
+          default:
+            break;
+        }
       }
+
+      if (!found) {
+        scanner.pop();
+        return; // No more FROM clause found.
+      }
+
+      parseTableReferences(scanner.tokenSubText(), parser);
+      if (scanner.tokenType() == MySQLLexer::FROM_SYMBOL)
+        scanner.next();
     }
+  }
 
-    if (!found)
-      return; // No FROM clause found.
+  //--------------------------------------------------------------------------------------------------------------------
 
+  /**
+   * Parses the given FROM clause text using a local parser and collects all found table references.
+   */
+  void parseTableReferences(std::string const& fromClause, MySQLParser *parserTemplate) {
     // We use a local parser just for the FROM clause to avoid messing up tokens on the autocompletion
     // parser (which would affect the processing of the found candidates).
-    std::string subSQL = scanner.tokenSubText();
-    MySQLRecognizerCommon *recognizer = dynamic_cast<MySQLRecognizerCommon *>(parser);
-    ANTLRInputStream input(subSQL);
+    ANTLRInputStream input(fromClause);
     MySQLLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
     MySQLParser fromParser(&tokens);
 
-    lexer.serverVersion = recognizer->serverVersion;
-    lexer.sqlMode = recognizer->sqlMode;
-    fromParser.serverVersion = recognizer->serverVersion;
-    fromParser.sqlMode = recognizer->sqlMode;
+    lexer.serverVersion = parserTemplate->serverVersion;
+    lexer.sqlMode = parserTemplate->sqlMode;
+    fromParser.serverVersion = parserTemplate->serverVersion;
+    fromParser.sqlMode = parserTemplate->sqlMode;
     fromParser.setBuildParseTree(true);
 
     fromParser.removeErrorListeners();
@@ -387,7 +438,7 @@ private:
     tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   /**
    * Copies the current references stack into the references map.
@@ -395,16 +446,17 @@ private:
   void takeReferencesSnapshot() {
     // Don't clear the references map here. Can happen we have to take multiple snapshots.
     // We automatically remove duplicates by using a map.
-    for (size_t level = 0; level < referencesStack.size(); ++level) {
-      for (size_t entry = 0; entry < referencesStack[level].size(); ++entry)
-        references.push_back(referencesStack[level][entry]);
+    for (auto &entry : referencesStack) {
+      for (auto &reference : entry)
+        references.push_back(reference);
     }
   }
 
-  //------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
+
 };
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 enum ObjectFlags {
   // For 3 part identifiers.
@@ -416,6 +468,8 @@ enum ObjectFlags {
   ShowFirst = 1 << 3,
   ShowSecond = 1 << 4,
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Determines the qualifier used for a qualified identifier with up to 2 parts (id or id.id).
@@ -470,7 +524,7 @@ static ObjectFlags determineQualifier(Scanner &scanner, MySQLLexer *lexer, size_
   return ShowSecond;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Enhanced variant of the previous function that determines schema and table qualifiers for
@@ -540,7 +594,7 @@ static ObjectFlags determineSchemaTableQualifier(Scanner &scanner, MySQLLexer *l
   return ObjectFlags(ShowTables | ShowColumns); // Schema only valid for tables. Columns must use default schema.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 struct CompareAcEntries {
   bool operator()(const std::pair<int, std::string> &lhs, const std::pair<int, std::string> &rhs) const {
@@ -550,7 +604,7 @@ struct CompareAcEntries {
 
 typedef std::set<std::pair<int, std::string>, CompareAcEntries> CompletionSet;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void insertSchemas(SymbolTable &symbolTable, CompletionSet &set) {
   auto symbols = symbolTable.getSymbolsOfType<SchemaSymbol>();
@@ -558,7 +612,7 @@ static void insertSchemas(SymbolTable &symbolTable, CompletionSet &set) {
     set.insert({ AC_SCHEMA_IMAGE, symbol->name });
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void insertTables(SymbolTable &symbolTable, CompletionSet &set, std::set<std::string> &schemas) {
 
@@ -573,7 +627,7 @@ static void insertTables(SymbolTable &symbolTable, CompletionSet &set, std::set<
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void insertViews(SymbolTable &symbolTable, CompletionSet &set, const std::set<std::string> &schemas) {
 
@@ -589,7 +643,7 @@ static void insertViews(SymbolTable &symbolTable, CompletionSet &set, const std:
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void insertRoutines(SymbolTable &symbolTable, CompletionSet &set, std::string const &schema) {
 
@@ -601,7 +655,7 @@ static void insertRoutines(SymbolTable &symbolTable, CompletionSet &set, std::st
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static void insertColumns(SymbolTable &symbolTable, CompletionSet &set, const std::set<std::string> &schemas,
                           const std::set<std::string> &tables) {
@@ -626,12 +680,11 @@ static void insertColumns(SymbolTable &symbolTable, CompletionSet &set, const st
 
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine, size_t caretOffset,
-                                                               const std::string &defaultSchema, bool uppercaseKeywords,
-                                                               MySQLParser *parser,
-                                                               parsers::SymbolTable &symbolTable) {
+  const std::string &defaultSchema, bool uppercaseKeywords, MySQLParser *parser, parsers::SymbolTable &symbolTable) {
+
   logDebug("Invoking code completion\n");
 
   AutoCompletionContext context;
@@ -898,7 +951,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
 
         // Try limiting what to show to the smallest set possible.
         // If we have table references show columns only from them.
-        // Show columns from the default schema only if there are no references.
+        // Show columns from the default schema only if there are no _
         std::string schema, table;
         ObjectFlags flags = determineSchemaTableQualifier(scanner, lexer, schema, table);
         if ((flags & ShowSchemas) != 0)
@@ -1040,7 +1093,9 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
       case MySQLParser::RuleUserVariable: {
         logDebug3("Adding user variables\n");
 
-        userVarEntries.insert({ AC_USER_VAR_IMAGE, "<user variables>" });
+        auto symbols = symbolTable.getSymbolsOfType<UserVariableSymbol>();
+        for (auto &symbol : symbols)
+          userVarEntries.insert({ AC_USER_VAR_IMAGE, symbol->name });
         break;
       }
 
@@ -1141,4 +1196,4 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
