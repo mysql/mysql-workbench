@@ -1443,7 +1443,7 @@
                         <value type="string" key="lookupValueMethod"></value>
                         <value type="string" key="lookupValueModule"></value>
                         <value type="string" key="name">sshCompressionLevel</value>
-                        <link type="object" key="owner">om.mysql.rdbms.mysql.driver.native_sshtun</link>
+                        <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native_sshtun</link>
                         <value type="string" key="paramType">int</value>
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
