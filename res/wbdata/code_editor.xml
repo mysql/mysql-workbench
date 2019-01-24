@@ -245,7 +245,7 @@
     </keywords>
 
     <keywords name="Keywords">
-      accessible account action add adddate admin after against aggregate algorithm all always analyse and any as asc ascii asensitive at
+      accessible account action active add adddate admin after against aggregate algorithm all always analyse and any as asc ascii asensitive at
         autoextend_size auto_increment avg_row_length avg alter analyze
       backup before between bigint binary bin_num bit_and bit_or bit bit_xor blob block boolean bool both btree by byte
         begin binlog buckets
@@ -268,12 +268,12 @@
         grant grouping groups get_master_public_key geomcollection
       hash having high_priority host hosts hour_microsecond hour_minute hour_second hour handler help histogram
         history
-      identified if ignore ignore_server_ids import indexes index infile initial_size inner innodb inout insensitive
+      identified if ignore ignore_server_ids import inactive indexes index infile initial_size inner innodb inout insensitive
         insert_method integer interval into int int1 int2 int3 int4 int8 invisible invoker in io_after_gtids
         io_before_gtids io_thread io ipc is isolation issuer iterate insert install
       join json json_objectagg_symbol json_arrayagg_symbol json_table
       keys key_block_size key kill
-      language last leading leaves leave left less level like limit linear lines linestring list localtime
+      language last lateral leading leaves leave left less level like limit linear lines linestring list localtime
         localtimestamp local locator locks logfile logs longblob longtext long_num long loop low_priority load lock
         locked lag last last_value lead
       master_auto_position master_bind master_connect_retry master_delay master_host master_log_file master_log_pos
@@ -286,7 +286,7 @@
         master_public_key_path
       names name national natural nchar_string nchar ndb ndbcluster neg never new next nodegroup none nonblocking not
         now no no_wait no_write_to_binlog null number numeric nvarchar nowait nth_value ntile nulls nested
-      offline offset on one_shot one online only open optimizer_costs options option optionally order or outer outfile
+      offline offset old on one_shot one online only open optimizer_costs option optional optionally options order or outer outfile
         out owner optimize of others over ordinality organization
       pack_keys page param_marker parser partial partitioning partitions password persist phase plugins plugin_dir
         plugin point polygon port position precedes precision preserve prev primary privileges procedure process
@@ -295,12 +295,13 @@
       range reads read_only read read_write real rebuild recover redofile redo_buffer_size redundant reference references regexp
         relay relaylog relay_log_file relay_log_pos relay_thread reload remove reorganize repeatable repeat replication
         replicate_do_db replicate_ignore_db replicate_do_table replicate_ignore_table replicate_wild_do_table
-        replicate_wild_ignore_table replicate_rewrite_db require resignal restore restrict resume returned_sqlstate
+        replicate_wild_ignore_table replicate_rewrite_db require resignal restore restrict resume retain returned_sqlstate
         returns return reverse right rlike role rollup routine rows row_count row_format row rtree release rename repair
         replace reset restart revoke rollback recursive remote rank respect row_number reuse resource
-      schedule schema schema_name schemas second_microsecond second security sensitive separator serializable serial
-        session server server_options session_user set_var share shutdown signal signed simple slave slow smallint
-        snapshot socket soname sounds source spatial specific sqlexception sqlstate sqlwarning sql_after_gtids
+      schedule schema schema_name schemas second_microsecond second secondary secondary_engine secondary_load
+        secondary_unload security sensitive separator serializable serial session server server_options session_user
+        set_var share shutdown signal signed simple slave slow smallint snapshot socket soname sounds source spatial
+        specific sqlexception sqlstate sqlwarning sql_after_gtids
         sql_after_mts_gaps sql_before_gtids sql_big_result sql_buffer_result sql_cache sql_calc_found_rows
         sql_no_cache sql_small_result sql sql_thread sql_tsi_frac_second sql_tsi_second sql_tsi_minute sql_tsi_hour
         sql_tsi_day sql_tsi_week sql_tsi_month sql_tsi_quarter sql_tsi_year ssl stacked starting starts
