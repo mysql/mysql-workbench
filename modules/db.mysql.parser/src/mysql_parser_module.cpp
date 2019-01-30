@@ -281,7 +281,7 @@ private:
     parser.setBuildParseTree(!fast);
 
     // First parse with the bail error strategy to get quick feedback for correct queries.
-    parser.setErrorHandler(std::make_shared<BailErrorStrategy>());
+    parser.setErrorHandler(std::shared_ptr<BailErrorStrategy>(new BailErrorStrategy()));
     parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
 
     ParseTree *tree;
