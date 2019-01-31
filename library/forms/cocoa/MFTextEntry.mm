@@ -146,9 +146,8 @@
     { @selector(cancelOperation:), mforms::EntryEscape }, \
     { 0 } \
   }; \
- \
-  for (int i = 0; events[i].selector != 0; i++) \
-  { \
+  \
+  for (int i = 0; events[i].selector != 0; i++) {\
     if (aSelector == events[i].selector) \
     { \
       mOwner->action(events[i].action); \
@@ -187,6 +186,31 @@
 
 STANDARD_FOCUS_HANDLING(self) // Notify backend when getting first responder status.
 STANDARD_TEXT_ENTRY_HANDLING
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilityRole {
+  return NSAccessibilityTextFieldRole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSAccessibilityRole)accessibilitySubrole {
+  return NSAccessibilitySecureTextFieldSubrole;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (NSString *)accessibilityValue {
+  std::string value = mOwner->get_string_value();
+  return [NSString stringWithUTF8String: value.c_str()];
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)setAccessibilityValue: (NSString*)value {
+  mOwner->set_value(value.UTF8String);
+}
 
 @end
 
