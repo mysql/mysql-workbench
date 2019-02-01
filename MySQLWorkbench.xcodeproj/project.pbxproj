@@ -165,7 +165,7 @@
 		27189E5B209B2CE5002EC0D4 /* libglib-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		27189E5C209B2CEA002EC0D4 /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */; };
 		27189E5E209B2CF3002EC0D4 /* libmysqlclient.21.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.21.dylib */; };
-		27189E5F209B2D0D002EC0D4 /* libmysqlcppconn.7.8.0.14.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib */; };
+		27189E5F209B2D0D002EC0D4 /* libmysqlcppconn.7.8.0.15.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib */; };
 		27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
 		27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */; };
 		27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */; };
@@ -579,7 +579,7 @@
 		27D6EE2C2099D6AD0050B26B /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
 		27D6EE2F2099D7170050B26B /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		27D6EE302099D7220050B26B /* libgmodule-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */; };
-		27D6EE342099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib */; };
+		27D6EE342099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib */; };
 		27D6EE372099D8210050B26B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE362099D8210050B26B /* libcairo.2.dylib */; };
 		27D6EE382099D83E0050B26B /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		27D6EE3A2099D8DC0050B26B /* libantlr4-runtime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */; };
@@ -595,7 +595,7 @@
 		27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE362099D8210050B26B /* libcairo.2.dylib */; };
 		27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
 		27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
-		27D6EE4B2099E3E90050B26B /* libmysqlcppconn.7.8.0.14.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib */; };
+		27D6EE4B2099E3E90050B26B /* libmysqlcppconn.7.8.0.15.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib */; };
 		27D6EE512099E43E0050B26B /* libzip.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE502099E43D0050B26B /* libzip.4.dylib */; };
 		27D6EE522099E6030050B26B /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		27D6EE532099E6080050B26B /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
@@ -4039,7 +4039,7 @@
 				27189E6B209B2E9E002EC0D4 /* libiconv.2.dylib in Copy Files (dylibs) */,
 				27189E6C209B2EA2002EC0D4 /* libintl.8.dylib in Copy Files (dylibs) */,
 				27189E5E209B2CF3002EC0D4 /* libmysqlclient.21.dylib in Copy Files (dylibs) */,
-				27189E5F209B2D0D002EC0D4 /* libmysqlcppconn.7.8.0.14.dylib in Copy Files (dylibs) */,
+				27189E5F209B2D0D002EC0D4 /* libmysqlcppconn.7.8.0.15.dylib in Copy Files (dylibs) */,
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
@@ -4654,7 +4654,7 @@
 		27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libglib-2.0.0.dylib"; path = "3rd-party-ce/lib/libglib-2.0.0.dylib"; sourceTree = "<group>"; };
 		27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgmodule-2.0.0.dylib"; path = "3rd-party-ce/lib/libgmodule-2.0.0.dylib"; sourceTree = "<group>"; };
 		27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcre.1.dylib; path = "3rd-party-ce/lib/libpcre.1.dylib"; sourceTree = "<group>"; };
-		27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.8.0.14.dylib; path = "3rd-party-ce/lib/libmysqlcppconn.7.8.0.14.dylib"; sourceTree = "<group>"; };
+		27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.8.0.15.dylib; path = "3rd-party-ce/lib/libmysqlcppconn.7.8.0.15.dylib"; sourceTree = "<group>"; };
 		27D6EE362099D8210050B26B /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.2.dylib; path = "3rd-party-ce/lib/libcairo.2.dylib"; sourceTree = "<group>"; };
 		27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libantlr4-runtime.dylib"; path = "3rd-party-ce/lib/libantlr4-runtime.dylib"; sourceTree = "<group>"; };
 		27D6EE402099E2070050B26B /* libgdal.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.1.dylib; path = "3rd-party-ce/lib/libgdal.1.dylib"; sourceTree = "<group>"; };
@@ -7084,7 +7084,7 @@
 			files = (
 				443D2B901C6CAF1A00C7FC85 /* libwbbase.dylib in Frameworks */,
 				2B750E6A0E87851B0003120A /* libgrt.dylib in Frameworks */,
-				27D6EE342099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib in Frameworks */,
+				27D6EE342099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib in Frameworks */,
 				27D6EE2F2099D7170050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				27D6EE302099D7220050B26B /* libgmodule-2.0.0.dylib in Frameworks */,
 			);
@@ -7233,7 +7233,7 @@
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */,
-				27D6EE4B2099E3E90050B26B /* libmysqlcppconn.7.8.0.14.dylib in Frameworks */,
+				27D6EE4B2099E3E90050B26B /* libmysqlcppconn.7.8.0.15.dylib in Frameworks */,
 				2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */,
 				27D6EE512099E43E0050B26B /* libzip.4.dylib in Frameworks */,
 				275256491D9517DB0028ACAB /* Python in Frameworks */,
@@ -9767,7 +9767,7 @@
 				27189E69209B2E84002EC0D4 /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				270124232099F9D100FE448E /* libmysqlclient.21.dylib */,
-				27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.14.dylib */,
+				27D6EE332099D77C0050B26B /* libmysqlcppconn.7.8.0.15.dylib */,
 				27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */,
 				2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */,
 				27189E55209B28B4002EC0D4 /* libpixman-1.0.dylib */,
