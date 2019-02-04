@@ -1696,6 +1696,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         
         skip_data = True if sel_index == 2 else False
         skip_table_structure = True if sel_index == 1 else False
+        # For mysqldump >= 8.0.2 there is column-statistic arg that cause issue while executing on MySQL Server version <= 5.7.
+        # To avoid that we force add '--column-statistics=0' to mysqldump args.
+        skip_column_statistics = True if get_mysqldump_version() > Version(8, 0, 2) and self.owner.ctrl_be.target_version < Version(8, 0, 0) else False
         
         dump_routines = self.dump_routines_check.get_active()
         dump_events = self.dump_events_check.get_active()
@@ -1743,6 +1746,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                             
                         if skip_table_structure:
                             args.append('--no-create-info')
+                        
+                        if skip_column_statistics:
+                            args.append('--column-statistics=0')
 
                         if skip_data:
                             task = self.TableDumpNoData(schema,table, args, lambda schema=schema,table=table:self.dump_to_folder(schema, table))
@@ -1803,6 +1809,9 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
                     if skip_data or not tables:
                         params.append("--no-data")
+                    
+                    if skip_column_statistics:
+                        args.append('--column-statistics=0')
 
                     if not tables or skip_table_structure:
                         params.append("--no-create-info=TRUE")
@@ -1825,6 +1834,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                     params.append("--events")
                 if skip_data:
                     params.append("--no-data")
+                if skip_column_statistics:
+                    args.append('--column-statistics=0')
                 
                 if single_transaction:
                     params += ["--single-transaction=TRUE", "--databases"]
