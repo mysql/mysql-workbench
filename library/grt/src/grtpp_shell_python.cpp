@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -47,7 +47,7 @@ void PythonShell::print_welcome() {
     print("\nType '?' for help.\n");
   else
     print("Type '?' for help. Type 'quit' to exit the shell.\n");
-  print("Python Shell initialized. (Use Preferences -> General to set language)\n");
+  print("Python Shell initialized.\n");
 }
 
 std::string PythonShell::get_prompt() {
