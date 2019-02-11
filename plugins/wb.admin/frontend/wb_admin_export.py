@@ -1811,7 +1811,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         params.append("--no-data")
                     
                     if skip_column_statistics:
-                        args.append('--column-statistics=0')
+                        params.append('--column-statistics=0')
 
                     if not tables or skip_table_structure:
                         params.append("--no-create-info=TRUE")
@@ -1835,7 +1835,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 if skip_data:
                     params.append("--no-data")
                 if skip_column_statistics:
-                    args.append('--column-statistics=0')
+                    params.append('--column-statistics=0')
                 
                 if single_transaction:
                     params += ["--single-transaction=TRUE", "--databases"]
