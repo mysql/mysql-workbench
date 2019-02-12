@@ -61,16 +61,24 @@
                 <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
                 <File Id="ssleay32.dll" Name="ssleay32.dll"/>
-                <File Id="libeay32.dll" Name="libeay32.dll"/>
+                <File Id="libeay32.dll" Name="libeay32.dll"/>               
+                <?if $(var.SETUP_TYPE) = "debug" ?>
+                <File Id="file1035d" Name="libpng16d.dll"/>
+                <?else ?>
                 <File Id="file1035" Name="libpng16.dll"/>
+                <?endif ?>
                 <File Id="file1036" Name="libxml2.dll"/>
                 <File Id="file1030" Name="glib.dll"/>
                 <File Id="file1031" Name="gmodule.dll"/>
                 <File Id="file1032" Name="gobject.dll"/>
                 <File Id="file1033" Name="gthread.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
-                <File Id="file1065" Name="zip.dll"/>
+                <File Id="file1065" Name="zip.dll"/>              
+                <?if $(var.SETUP_TYPE) = "debug" ?>
+                <File Id="file1083d" Name="zlibd1.dll"/>
+                <?else ?>
                 <File Id="file1083" Name="zlib1.dll"/>
+                <?endif ?>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
                 <File Id="file1099d" Name="python27_d.dll"/>
@@ -84,8 +92,13 @@
                 <File Id="file1103" Name="mysql_system_status.vbs"/>
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
+                <?if $(var.LICENSE_TYPE) = "debug"?>
+                <File Id="pcred.dll" Name="pcred.dll"/>
+                <File Id="pcrecppd.dll" Name="pcrecppd.dll"/>
+                <?else ?>
                 <File Id="pcre.dll" Name="pcre.dll"/>
                 <File Id="pcrecpp.dll" Name="pcrecpp.dll"/>
+                <?endif ?>
                 <File Id="file68725" Name="sqlite3.dll"/>
                 <File Id="gdal.dll" Name="gdal.dll"/>
                 <File Id="ogrinfo.exe" Name="ogrinfo.exe"/>
@@ -951,7 +964,11 @@
                     <?else ?>
                     <File Id="file68009" Name="_sqlite3.pyd"/>
                     <?endif ?>
-                    <!--                    <File Id="file68010" Name="_ssl.pyd"/> -->
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="file68009ddll" Name="sqlite3_d.dll"/>
+                    <?else ?>
+                    <File Id="file68009dll" Name="sqlite3.dll"/>
+                    <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
                     <File Id="file68013d" Name="pyexpat_d.pyd"/>

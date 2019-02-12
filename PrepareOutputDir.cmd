@@ -128,7 +128,7 @@ if %2 == Debug ( set DEBUG_PREFIX=_d)
 if not %2 == Debug ( set EXCLUDE_CMD=/xf *_d.* )
 robocopy %PYTHON_DIR% %TARGET_DIR% python27%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
-robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc.pyd
+robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
 
 rem =========== Python ============================
 
@@ -155,14 +155,14 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\importlib %TARGET_DIR%\python\lib\importli
 rem xcopy /i /y /d %PYTHON_DLLS_DIR%\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nul
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
+robocopy %PYTHON_DIR%\ %TARGET_DIR%\python\DLLs *sqlite3*%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 
 rem site packages that are release type independent
 rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\paramiko %TARGET_DIR%\python\site-packages\paramiko 1> nul 2> nul
 rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\ecdsa %TARGET_DIR%\python\site-packages\ecdsa 1> nul 2> nul
 
 rem site packages for debug/release types
-rem xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\Crypto %TARGET_DIR%\python\site-packages\Crypto 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_DIR%\pysqlite2\*.pyd %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
+robocopy %PYTHON_DIR%\pysqlite2 %TARGET_DIR%\python\site-packages\pysqlite2 *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
 xcopy /i /s /y /d %PYTHON_DIR%\pysqlite2\*.py %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\*.pyd %TARGET_DIR%\python\site-packages\ 1> nul 2> nul
 
