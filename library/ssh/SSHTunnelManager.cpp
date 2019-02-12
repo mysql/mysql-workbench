@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -169,8 +169,7 @@ namespace ssh {
     wbCloseSocket(clientSock);
   }
 
-
-  void SSHTunnelManager::localSocketHandler() {
+  std::vector<pollfd> SSHTunnelManager::getSocketList() {
     std::vector<pollfd> socketList;
     {
       auto sockLock = lockSocketList();
@@ -181,12 +180,18 @@ namespace ssh {
         socketList.push_back(p);
       }
     }
+
     {
       pollfd p;
       p.fd = _wakeupSocket;
       p.events = POLLIN;
       socketList.push_back(p);
     }
+    return socketList;
+  }
+
+  void SSHTunnelManager::localSocketHandler() {
+    auto socketList = getSocketList();
     int rc = 0;
     do {
       auto pollSocketList = socketList;  // We need to duplicate this as we will be changing it later, so we could loose other socket data.
@@ -218,22 +223,7 @@ namespace ssh {
           if (_stop)
             break;
 
-          {
-            auto sockLock = lockSocketList();
-            for (auto &it : _socketList) {
-              pollfd p;
-              p.fd = it.second->getLocalSocket();
-              p.events = POLLIN;
-              socketList.push_back(p);
-            }
-          }
-
-          {
-            pollfd p;
-            p.fd = _wakeupSocket;
-            p.events = POLLIN;
-            socketList.push_back(p);
-          }
+          socketList = getSocketList();
           continue;
         } else { // This is a new connection, we need to handle it.
           auto sockLock = lockSocketList();
@@ -249,6 +239,10 @@ namespace ssh {
                 found = true;
                 break;
               }
+            }
+
+            if (found) { // We have to reload the socket list here.
+              socketList = getSocketList();
             }
 
             if (!found) {
