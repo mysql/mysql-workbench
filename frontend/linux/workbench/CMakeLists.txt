@@ -1,7 +1,3 @@
-if (CMAKE_COMPILER_IS_GNUCXX)
-	add_definitions(-rdynamic)
-endif()
-
 set(WORKBENCH_DATA_FILES
     res/wb.glade
     res/model_view.glade
@@ -18,43 +14,6 @@ set(utilities_cmd   "")
 configure_file(mysql-workbench.in mysql-workbench @ONLY)
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/mysql-workbench DESTINATION ${WB_INSTALL_BIN_DIR})
 
-include_directories(.
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/backend
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
-    ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic/grt
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate
-    ${PROJECT_SOURCE_DIR}/frontend/linux/
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/cdbc/src
-    ${PROJECT_SOURCE_DIR}/library/forms/gtk
-    ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
-    ${PROJECT_SOURCE_DIR}/generated/grti
-    ${PROJECT_SOURCE_DIR}/modules/wb.model/src
-    ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/ext
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${LIBZIP_INCLUDE_DIRS}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
-SET(CMAKE_INSTALL_RPATH "${WB_INSTALL_LIB_DIR}")
 add_executable(mysql-workbench-bin
     main.cpp
     program.cpp
@@ -71,8 +30,21 @@ add_executable(mysql-workbench-bin
     sqlide_main.cpp
 )
 
+target_include_directories(mysql-workbench-bin
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+    ${PROJECT_SOURCE_DIR}/modules
+)
 
-target_compile_options(mysql-workbench-bin PUBLIC ${WB_CXXFLAGS})
+target_include_directories(mysql-workbench-bin
+ SYSTEM
+  PRIVATE
+    ${GTKMM_INCLUDE_DIRS}
+)
+
+
+target_compile_options(linux_utilities PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
+target_compile_options(mysql-workbench-bin PRIVATE ${WB_CXXFLAGS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_options(mysql-workbench-bin PUBLIC -fPIE)
@@ -81,41 +53,31 @@ else()
 endif()
 
 if (KEYRING_DEFINITION)
-	set_target_properties(mysql-workbench-bin PROPERTIES
-		COMPILE_DEFINITIONS "${KEYRING_DEFINITION}"
-	)
+  target_compile_definitions(mysql-workbench-bin PRIVATE HAVE_LIBSECRET_KEYRING)
 endif()
 
 target_link_libraries(mysql-workbench-bin
+  PRIVATE
     mforms
     linux_utilities
     sqlide
     wbprivate
     wbpublic
-    wbbase
-    grt
     cdbc
-    wbscintilla
     mdcanvasgtk
     mdcanvas
     parsers
-    mtemplate
-    ${MySQLCppConn_LIBRARIES}
     ${X11_LIBRARIES}
     ${GTK3_LIBRARIES}
-    ${SIGC++_LIBRARIES}
-    ${GRT_LIBRARIES}
+    ${GTKMM_LIBRARIES}
+    ${GMODULE_LIBRARIES}
     ${PCRE_LIBRARIES}
-    ${CAIRO_LIBRARIES}
     ${LIBZIP_LIBRARIES}
     ${MySQL_LIBRARIES}
-    ${SQLITE3_LIBRARIES}
-    ${GNOME_KEYRING_LIBRARIES}
-    ${OPENSSL_CRYPTO_LIBRARY}
 )
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(mysql-workbench-bin gcov)
+if(GCOV_BUILD)
+  target_link_libraries(mysql-workbench-bin PRIVATE gcov)
 endif()
 
 if(COMMAND cotire)

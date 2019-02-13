@@ -1,10 +1,3 @@
-include_directories(.
-    ../include
-    ../src
-    ../lexlib
-    ${GTK3_INCLUDE_DIRS}
-)
-
 set(SCINTILLA_SOURCES
     scintilla-marshal.c
     PlatGTK.cxx
@@ -157,6 +150,26 @@ set(SCINTILLA_SOURCES
 add_library(wbscintilla
   ${SCINTILLA_SOURCES})
 
+target_include_directories(wbscintilla
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../lexlib
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
+
+target_include_directories(wbscintilla
+  SYSTEM
+  PRIVATE
+    ${GTK3_INCLUDE_DIRS}
+)
+
+add_library(wbscintilla_Iface INTERFACE)
+add_library(wbscintilla::wbscintilla ALIAS wbscintilla_Iface)
+target_include_directories(wbscintilla_Iface INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+)
+
+
 set(SCI_VERSION_FILE ../win32/ScintRes.rc)
 file(STRINGS ${SCI_VERSION_FILE} SCI_VERSION_LINE REGEX "#define VERSION_SCINTILLA \"[0-9.]+\"")
 if (SCI_VERSION_LINE)
@@ -173,10 +186,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND NEW_WB_CFLAGS -DNO_CXX11_REGEX)
 endif()
 target_compile_options(wbscintilla PRIVATE ${NEW_WB_CFLAGS})
-target_link_libraries(wbscintilla ${GTK3_LIBRARIES})
+target_link_libraries(wbscintilla PUBLIC wbscintilla_Iface PRIVATE ${GTK3_LIBRARIES})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wbscintilla gcov)
+if(GCOV_BUILD)
+  target_link_libraries(wbscintilla PRIVATE gcov)
 endif()
 
 set_target_properties(wbscintilla

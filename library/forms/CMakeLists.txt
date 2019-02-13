@@ -6,32 +6,6 @@ set(DATA_FILES
 
 install(FILES ${DATA_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR})
 
-include_directories(.
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${GNOME_KEYRING_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${PROJECT_SOURCE_DIR}
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${LIBSECRET_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/base/base
-    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-if (UNIX)
-    ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
-endif()
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(mforms
     app.cpp
     appview.cpp
@@ -121,25 +95,59 @@ add_library(mforms
     home_screen_helpers.cpp
 )
 
+target_include_directories(mforms 
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/mforms
+)
+
+target_include_directories(mforms 
+ SYSTEM
+  PRIVATE
+    ${LIBSECRET_INCLUDE_DIRS}
+)
+
+
 if (KEYRING_DEFINITION)
-	set_target_properties(mforms PROPERTIES
-		COMPILE_DEFINITIONS "${KEYRING_DEFINITION}"
-	)
-endif()
-if (CMAKE_COMPILER_IS_GNUCXX)
-	set_target_properties(mforms PROPERTIES
-	  COMPILE_FLAGS "-DSCI_NAMESPACE"
-	)
+  target_compile_definitions(mforms PRIVATE HAVE_LIBSECRET_KEYRING)
 endif()
 
-target_compile_options(mforms PUBLIC ${WB_CXXFLAGS})
+target_compile_definitions(mforms PRIVATE $<$<CXX_COMPILER_ID:GNU>:SCI_NAMESPACE> __STDC_FORMAT_MACROS)
+target_compile_options(mforms PRIVATE ${WB_CXXFLAGS})
 
-target_link_libraries(mforms linux_utilities mdcanvasgtk mdcanvas wbscintilla wbbase ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES} ${LIBSECRET_LIBRARIES})
+if (HAVE_PRCTL)
+  target_compile_definitions(mforms PRIVATE HAVE_PRCTL_H)
+endif()
+
+
+target_link_libraries(mforms
+  PUBLIC
+    mforms_Iface
+  PRIVATE 
+    linux_utilities 
+    wbpublic::wbpublic
+    mdcanvasgtk 
+    mdcanvas
+    parsers::parsers
+)
+
+add_library(mforms_Iface INTERFACE)
+add_library(mforms::mforms ALIAS mforms_Iface)
+target_include_directories(mforms_Iface INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<$<PLATFORM_ID:Linux>:${PROJECT_SOURCE_DIR}/library/forms/gtk/src>
+)
+
+target_link_libraries(mforms_Iface INTERFACE
+    ${LIBSECRET_LIBRARIES}
+    wbbase
+    wbscintilla
+)
+
 
 set_source_files_properties(gtk/src/mforms_acc.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(mforms gcov)
+if(GCOV_BUILD)
+  target_link_libraries(mforms PRIVATE gcov)
 endif()
 
 set_target_properties(mforms

@@ -22,7 +22,7 @@
  */
 
 #include "image_cache.h"
-#include "linux_utilities/plugin_editor_base.h"
+#include "plugin_editor_base.h"
 #include "../backend/wb_editor_image.h"
 #include <gtkmm/image.h>
 #include <gtkmm/button.h>

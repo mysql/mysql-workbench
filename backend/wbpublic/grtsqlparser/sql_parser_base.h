@@ -28,6 +28,16 @@
 #include "grt.h"
 #include "grts/structs.db.h"
 
+#ifndef THROW
+#ifdef _MSC_VER
+#define THROW(...)
+#else
+#define THROW(...) throw(__VA_ARGS__)
+#endif
+#endif
+
+
+
 /** Encapsulates generic DBMS agnostic functionality for processing of SQL statements/scripts:
  * <li>definition of enumeration types and callbacks
  * <li>handling of errors

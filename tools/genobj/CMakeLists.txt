@@ -1,28 +1,34 @@
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/generated
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_executable(genobj
     genobj.cpp
 )
 
-target_compile_options(genobj PUBLIC ${WB_CXXFLAGS})
+target_include_directories(genobj
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+)
+
+target_include_directories(genobj
+ SYSTEM
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+    ${GTK3_INCLUDE_DIRS}
+    ${GLIB_INCLUDE_DIRS}
+    ${GTKMM_INCLUDE_DIRS}
+    ${SIGC++_INCLUDE_DIRS}
+    ${PCRE_INCLUDE_DIRS}
+)
+
+
+target_compile_options(genobj PRIVATE ${WB_CXXFLAGS})
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_options(genobj PRIVATE -fPIE)
 else()
   target_compile_options(genobj PRIVATE -fPIE -pie)
 endif()
 
-target_link_libraries(genobj grt wbbase ${GRT_LIBRARIES} ${PCRE_LIBRARIES})
+target_link_libraries(genobj PUBLIC Boost::boost PRIVATE grt wbbase ${GTKMM_LIBRARIES} ${GTK3_LIBRARIES} ${GLIB_LIBRARIES} ${PCRE_LIBRARIES})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(genobj gcov)
+if(GCOV_BUILD)
+  target_link_libraries(genobj PRIVATE gcov)
 endif()

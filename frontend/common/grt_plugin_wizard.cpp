@@ -34,6 +34,7 @@
 #include "mforms/label.h"
 #include "mforms/tabview.h"
 #include "mforms/box.h"
+#include "workbench/wb_version.h"
 
 #define PYTHON_SCRIPT_TEMPLATE                 \
   "# -*- coding: utf-8 -*-\n"                  \

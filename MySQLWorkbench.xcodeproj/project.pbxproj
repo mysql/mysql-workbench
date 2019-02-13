@@ -17832,6 +17832,17 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/ext",
+					"$(PROJECT_DIR)/library/base",
+					"$(PROJECT_DIR)/backend/wbprivate",
+					"$(PROJECT_DIR)/3rd-party-ce/include",
+					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
+					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
+					"$(PROJECT_DIR)/3rd-party-ce/include/cairo",
+					/usr/include/python2.7,
+					/usr/include/libxml2,
+				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -17846,6 +17857,17 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/ext",
+					"$(PROJECT_DIR)/library/base",
+					"$(PROJECT_DIR)/backend/wbprivate",
+					"$(PROJECT_DIR)/3rd-party-ce/include",
+					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
+					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
+					"$(PROJECT_DIR)/3rd-party-ce/include/cairo",
+					/usr/include/python2.7,
+					/usr/include/libxml2,
+				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;

@@ -1,16 +1,3 @@
-if (GRT_DEFINITIONS)
-	add_definitions(${GRT_DEFINITIONS})
-endif()
-include_directories(. 
-    .. 
-    ${PROJECT_SOURCE_DIR}/generated 
-    SYSTEM ${GRT_INCLUDE_DIRS} 
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS})
-
-#TODO: Set compiler flags 
-#set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} "-Wall -Wsign-compare ${CAIRO_CFLAGS}")
-
 add_library(grt
     grt.cpp
     grtpp_helper.cpp
@@ -39,13 +26,49 @@ add_library(grt
     python_module.cpp
 )
 
-target_compile_options(grt PUBLIC ${WB_CXXFLAGS})
+target_include_directories(grt
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+)
 
-target_link_libraries(grt wbbase ${GLIB_LIBRARIES} ${GMODULE_LIBRARIES} ${GRT_LIBRARIES} ${UUID_LIBRARIES})
+
+target_include_directories(grt
+ SYSTEM
+  PRIVATE
+    ${MySQLCppConn_INCLUDE_DIRS}
+)
+
+
+target_compile_options(grt PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(grt
+  PUBLIC 
+    wbbase 
+    grt_Iface
+    ${LIBXML2_LIBRARIES}
+    ${UUID_LIBRARIES}
+  PRIVATE 
+    ${MySQLCppConn_LIBRARIES}
+    ${PYTHON_LIBRARIES}
+)
+
+add_library(grt_Iface INTERFACE)
+add_library(grt::grt ALIAS grt_Iface)
+
+target_include_directories(grt_Iface INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/diff>
+)
+
+target_include_directories(grt_Iface
+ SYSTEM INTERFACE
+    $<BUILD_INTERFACE:${LIBXML2_INCLUDE_DIR}>
+)
+
 
 set_source_files_properties(python_grtlist.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
-if(BUILD_FOR_TESTS)
-  target_link_libraries(grt gcov)
+if(GCOV_BUILD)
+  target_link_libraries(grt PRIVATE gcov)
 endif()
 
 set_target_properties(grt

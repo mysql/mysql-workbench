@@ -1,11 +1,3 @@
-include_directories(.
-    SYSTEM ${Boost_INCLUDE_DIRS}
-    SYSTEM ${MYSQLNG_INCLUDE_DIR}
-    SYSTEM ${LIBXML2_INCLUDE_DIR}
-    
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
-)
-
 add_library(wbbase 
     accessibility.cpp
     util_functions.cpp 
@@ -30,14 +22,48 @@ add_library(wbbase
     xml_functions.cpp
 )
 
-target_compile_options(wbbase PUBLIC ${WB_CXXFLAGS})
+target_include_directories(wbbase 
+ SYSTEM
+  PRIVATE
+    ${GTKMM_INCLUDE_DIRS}
 
-target_link_libraries(wbbase ${CAIRO_LIBRARIES} ${GLIB_LIBRARIES} ${MySQL_LIBRARIES} ${MYSQLNG_LIBRARY} ${GTHREAD_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
+)
+
+target_compile_options(wbbase PRIVATE ${WB_CXXFLAGS})
+target_compile_definitions(wbbase PUBLIC __STDC_FORMAT_MACROS)
+
+target_link_libraries(wbbase
+  PUBLIC
+    wbbase::wbbase
+  PRIVATE
+    wbprivate::wbprivate
+    ${GLIB_LIBRARIES}
+    ${GTK3_LIBRARIES}
+    ${GTKMM_LIBRARIES}
+) 
+
+add_library(wbbase_Iface INTERFACE)
+add_library(wbbase::wbbase ALIAS wbbase_Iface)
+target_include_directories(wbbase_Iface INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/library/base>
+)
+
+target_include_directories(wbbase_Iface 
+ SYSTEM INTERFACE
+    ${PYTHON_INCLUDE_DIRS}
+    ${GLIB_INCLUDE_DIRS}
+    ${LIBXML2_INCLUDE_DIR}
+)
+target_link_libraries(wbbase_Iface
+  INTERFACE
+    Boost::boost
+) 
+
 
 set_source_files_properties(drawing_gtk.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wbbase gcov)
+if(GCOV_BUILD)
+  target_link_libraries(wbbase PRIVATE gcov)
 endif()
 
 if(COMMAND cotire)

@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "string_utilities.h"
+#include "base/string_utilities.h"
 #include "base/log.h"
 #include "mforms/mforms.h"
 

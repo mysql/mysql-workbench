@@ -1,7 +1,3 @@
-if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	add_definitions(-DSCI_LEXER -DSCI_NAMESPACE)
-endif()
-
 set(TEXT_BASIC_FILES
     res/wb_model_reporting/Text_Basic.tpl/preview_basic.png
     res/wb_model_reporting/Text_Basic.tpl/report.txt.tpl
@@ -53,45 +49,38 @@ set(HTML_DETAILED_FRAMES_IMAGES_FILES
 )
 install(FILES ${HTML_DETAILED_FRAMES_IMAGES_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data/wb_model_reporting/HTML_Detailed_Frames.tpl/images)
 
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/base/base
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/library/grt/src/diff
-    ${PROJECT_SOURCE_DIR}/library/sql-parser/include
-    ${PROJECT_SOURCE_DIR}/library/sql-parser/source
-    ${PROJECT_SOURCE_DIR}/library/sql-parser/source/linux
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/src
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/lexlib
-    ${PROJECT_SOURCE_DIR}/ext
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlide/src
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${MySQL_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(wb.model.grt
     src/reporting.cpp 
     src/wb_model.cpp
 )
 
-target_compile_options(wb.model.grt PUBLIC ${WB_CXXFLAGS})
+target_include_directories(wb.model.grt
+  PRIVATE 
+    ${PROJECT_SOURCE_DIR}/generated
+    ${PROJECT_SOURCE_DIR}/modules
+    ${PROJECT_SOURCE_DIR}/library
+    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
+    ${PROJECT_SOURCE_DIR}/ext/scintilla/src
+    ${PROJECT_SOURCE_DIR}/ext/scintilla/lexlib
+)
 
-target_link_libraries(wb.model.grt grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${MYSQL_LIBRARIES})
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  target_compile_definitions(wb.model.grt PRIVATE -DSCI_LEXER -DSCI_NAMESPACE)
+endif()
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wb.model.grt gcov)
+target_compile_options(wb.model.grt PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(wb.model.grt 
+  PRIVATE 
+    grt
+    mforms
+    parsers
+    mtemplate
+    wbpublic::wbpublic
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(wb.model.grt PRIVATE gcov)
 endif()
 
 set_target_properties(wb.model.grt

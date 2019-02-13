@@ -26,7 +26,7 @@
 
 #include "mforms/toolbar.h"
 #include "sqlide/wb_sql_editor_form.h"
-#include "sqlide/grid_view.h"
+#include "grid_view.h"
 #include <glib.h>
 
 #include <gtkmm/box.h>

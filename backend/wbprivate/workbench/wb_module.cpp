@@ -50,6 +50,7 @@
 #include "base/util_functions.h"
 #include "grtdb/db_helpers.h"
 #include "SSHSessionWrapper.h"
+#include "wb_version.h"
 
 using namespace wb;
 using namespace grt;

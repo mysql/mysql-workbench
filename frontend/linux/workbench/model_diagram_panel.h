@@ -29,7 +29,7 @@
 #ifndef _MODEL_VIEW_PANEL_H_
 #define _MODEL_VIEW_PANEL_H_
 
-#include "linux_utilities/form_view_base.h"
+#include "form_view_base.h"
 #include <gtkmm/paned.h>
 #include <gtkmm/box.h>
 #include <gtkmm/notebook.h>

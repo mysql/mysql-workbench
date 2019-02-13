@@ -1,40 +1,42 @@
-include_directories(${LIBXML2_INCLUDE_DIR}
-    .
-    ./src
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/library/parsers   
-    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/generated
-    SYSTEM ${Boost_INCLUDE_DIRS}
-    SYSTEM ${ANTLR4_INCLUDE_DIRS}
-)
-
 add_library(db.mysql.parser.grt
     src/mysql_parser_module.cpp
     src/ObjectListeners.cpp
 )
 
+target_include_directories(db.mysql.parser.grt
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+)
+
+target_include_directories(db.mysql.parser.grt
+ SYSTEM
+  PRIVATE
+    ${LIBXML2_INCLUDE_DIR}
+    ${GLIB_INCLUDE_DIRS}
+)
+
 
 set_source_files_properties(src/mysql_parser_module.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 set_source_files_properties(src/ObjectListeners.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
-target_compile_options(db.mysql.parser.grt PUBLIC ${WB_CXXFLAGS})
+target_compile_options(db.mysql.parser.grt PRIVATE ${WB_CXXFLAGS})
 
+target_link_libraries(db.mysql.parser.grt 
+  PRIVATE 
+   parsers
+   wbbase::wbbase
+   wbpublic::wbpublic
+   grt::grt
+)
 add_dependencies(db.mysql.parser.grt parsers)
 
 set_target_properties(db.mysql.parser.grt PROPERTIES
-#	LINK_FLAGS "-module"
 	PREFIX ""
   VERSION   ${WB_VERSION}
   SOVERSION ${WB_VERSION}
 )
 
-
-
-# target_link_libraries(db.mysql.parser.grt ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
-
-if(BUILD_FOR_TESTS)
-  target_link_libraries(db.mysql.parser.grt gcov)
+if(GCOV_BUILD)
+  target_link_libraries(db.mysql.parser.grt PRIVATE gcov)
 endif()
 
 if(COMMAND cotire)

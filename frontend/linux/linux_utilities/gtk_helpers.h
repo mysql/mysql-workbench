@@ -48,7 +48,7 @@ namespace Gtk {
 #include <gtkmm/treemodelcolumn.h>
 #include <vector>
 #include <string>
-#include <grt/tree_model.h>
+#include "base/ui_form.h"
 
 #include <sigc++/sigc++.h>
 

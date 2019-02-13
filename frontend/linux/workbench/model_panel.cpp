@@ -25,7 +25,7 @@
 #include "overview_panel.h"
 #include "model/wb_context_model.h"
 #include "workbench/wb_context.h"
-#include "linux_utilities/gtk_helpers.h"
+#include "gtk_helpers.h"
 #include <gtkmm/alignment.h>
 #include <gtkmm/notebook.h>
 #include <gtk/gtkpaned.h>

@@ -184,7 +184,7 @@ binary-arch: build install
 	dh_installdeb
 	dh_shlibdeps \
           --dpkg-shlibdeps-params=--ignore-missing-info \
-          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+          -l$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH):$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/plugins:$(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

@@ -33,14 +33,6 @@
 #include "grts/structs.db.mgmt.h"
 #include <cppconn/connection.h>
 
-#ifndef THROW
-#ifdef _MSC_VER
-#define THROW(...)
-#else
-#define THROW(...) throw(__VA_ARGS__)
-#endif
-#endif
-
 namespace sql {
   typedef std::shared_ptr<Connection> ConnectionPtr;
 
@@ -120,7 +112,7 @@ namespace sql {
     }
     AuthenticationError(const std::string &what, Authentication::Ref auth) : grt::db_login_error(what), _authobj(auth) {
     }
-    virtual ~AuthenticationError() THROW() {
+    virtual ~AuthenticationError() {
     }
 
     Authentication::Ref authentication() {

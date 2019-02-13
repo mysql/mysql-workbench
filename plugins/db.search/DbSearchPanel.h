@@ -24,7 +24,7 @@
 #ifndef _DB_SEARCH_PANEL_H_
 #define _DB_SEARCH_PANEL_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 #include "grt/grt_manager.h"
 #include "grtui/db_conn_be.h"
 

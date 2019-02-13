@@ -31,7 +31,7 @@
 #include <gtkmm/box.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/builder.h>
-#include "linux_utilities/form_view_base.h"
+#include "form_view_base.h"
 
 #include "workbench/wb_overview.h"
 

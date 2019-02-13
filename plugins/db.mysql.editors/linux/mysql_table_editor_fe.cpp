@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "linux_utilities/image_cache.h"
+#include "image_cache.h"
 #include "grtdb/db_object_helpers.h"
 #include "treemodel_wrapper.h"
 #include "mysql_table_editor_column_page.h"

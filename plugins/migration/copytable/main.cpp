@@ -52,6 +52,10 @@
 
 #include "SSHTunnelManager.h"
 
+void *get_mainwindow_impl() {
+    return 0;
+}
+
 class input_error : public std::runtime_error {
 public:
   input_error(const std::string &what) : std::runtime_error(what) {}

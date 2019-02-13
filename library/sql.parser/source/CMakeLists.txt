@@ -1,19 +1,3 @@
-include_directories(. 
-    ../include 
-    ${PROJECT_SOURCE_DIR}/modules/db.mysql.sqlparser/src 
-    SYSTEM ${MySQL_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS})
-
-if (UNIX)
-	include_directories(./linux)
-  add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
-endif ()
-
-#TODO: Set other compiler flags - doesn't work in gcc 4.6
-#if(CMAKE_COMPILER_IS_GNUCXX)
-#    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas)
-#endif ()
-
 add_library(sqlparser
     charset-def.cpp
     charset.cpp
@@ -57,8 +41,23 @@ add_library(sqlparser
     xml.cpp
 )
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(sqlparser gcov)
+target_include_directories(sqlparser
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:$<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_SOURCE_DIR}/linux>>
+  PRIVATE
+    $<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_SOURCE_DIR}/linux>
+)
+
+if (UNIX)
+  target_compile_definitions(sqlparser PRIVATE -DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
+endif ()
+
+target_link_libraries(sqlparser PUBLIC db.mysql.sqlparser.grt::db.mysql.sqlparser.grt)
+
+if(GCOV_BUILD)
+  target_link_libraries(sqlparser PRIVATE gcov)
 endif()
 
 
@@ -67,7 +66,7 @@ set_source_files_properties(myx_unicode_scanner.cpp PROPERTIES COMPILE_FLAGS "-W
 set_source_files_properties(ctype-utf8.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 set_source_files_properties(myx_statement_parser.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 
-target_compile_options(sqlparser PUBLIC ${WB_CXXFLAGS})
+target_compile_options(sqlparser PRIVATE ${WB_CXXFLAGS})
 
 set_target_properties(sqlparser
                       PROPERTIES VERSION   ${WB_VERSION}

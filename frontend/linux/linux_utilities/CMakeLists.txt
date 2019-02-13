@@ -1,32 +1,3 @@
-if (CMAKE_COMPILER_IS_GNUCXX)
-	add_definitions(-rdynamic)
-endif()
-
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/frontend/linux/workbench
-    ${PROJECT_SOURCE_DIR}/frontend/linux/sqlide
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${PROJECT_SOURCE_DIR}/ext
-    
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/forms/gtk
-    ${PROJECT_SOURCE_DIR}/library/forms/gtk/src
-    ${PROJECT_SOURCE_DIR}/generated/grti
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(linux_utilities
     listmodel_wrapper.cpp
     form_view_base.cpp
@@ -43,12 +14,45 @@ add_library(linux_utilities
     main_app.cpp
 )
 
-target_compile_options(linux_utilities PUBLIC ${WB_CXXFLAGS})
+target_include_directories(linux_utilities
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+)
 
-target_link_libraries(linux_utilities grt ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${GRT_LIBRARIES} ${SIGC++_LIBRARIES})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(linux_utilities gcov)
+
+target_compile_options(linux_utilities PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
+target_compile_options(linux_utilities PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(linux_utilities 
+  PUBLIC 
+    linux_utilities_Iface
+  PRIVATE
+    wbbase::wbbase
+    wbpublic::wbpublic
+    mforms::mforms
+    parsers::parsers
+    wbscintilla::wbscintilla
+)
+
+add_library(linux_utilities_Iface INTERFACE)
+add_library(linux_utilities::linux_utilities ALIAS linux_utilities_Iface)
+
+target_include_directories(linux_utilities_Iface INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_include_directories(linux_utilities_Iface
+ SYSTEM INTERFACE
+    ${GTKMM_INCLUDE_DIRS}
+)
+
+target_link_libraries(linux_utilities_Iface INTERFACE grt)
+
+
+
+if(GCOV_BUILD)
+  target_link_libraries(linux_utilities PRIVATE gcov)
 endif()
 
 set_target_properties(linux_utilities

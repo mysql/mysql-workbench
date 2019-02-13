@@ -1,30 +1,29 @@
-include_directories(.
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${GDAL_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(utilities.grt
     src/utilities.cpp
 )
 
-target_compile_options(utilities.grt PUBLIC ${WB_CXXFLAGS})
+target_include_directories(utilities.grt
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+)
+
+target_include_directories(utilities.grt
+ SYSTEM
+  PRIVATE
+   ${GDAL_INCLUDE_DIRS}
+)
+
+target_compile_options(utilities.grt PRIVATE ${WB_CXXFLAGS})
 
 set_target_properties(utilities.grt PROPERTIES
 #	LINK_FLAGS "-module"
 	PREFIX ""
 )
 
-target_link_libraries(utilities.grt grt ${GRT_LIBRARIES} ${GDAL_LIBRARIES})
+target_link_libraries(utilities.grt PRIVATE grt wbpublic mdcanvas ${GDAL_LIBRARIES})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(utilities.grt gcov)
+if(GCOV_BUILD)
+  target_link_libraries(utilities.grt PRIVATE gcov)
 endif()
 
 set_target_properties(utilities.grt

@@ -24,7 +24,7 @@
 #ifndef _LF_FORM_H_
 #define _LF_FORM_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 #include <boost/signals2.hpp>
 #include <sigc++/sigc++.h>
 

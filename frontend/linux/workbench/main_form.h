@@ -35,7 +35,7 @@
 #include <gtkmm/progressbar.h>
 #include <gtkmm/builder.h>
 
-#include "mforms.h"
+#include "mforms/mforms.h"
 #include "mforms/dockingpoint.h"
 #include "base/notifications.h"
 

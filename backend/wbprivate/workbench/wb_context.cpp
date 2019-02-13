@@ -3024,8 +3024,7 @@ grt::DictRef WBContext::get_wb_options() {
 }
 
 // XXX: we have mforms::Utilities::perform_from_main_thread.
-void WBContext::execute_in_main_thread(const std::string &name, const std::function<void()> &function, bool wait)
-  THROW(grt::grt_runtime_error) {
+void WBContext::execute_in_main_thread(const std::string &name, const std::function<void()> &function, bool wait) {
   _grtManager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
 

@@ -25,7 +25,7 @@
 #include "../sqlide/recordset_view.h"
 #include "sqlide/recordset_be.h"
 #include "mforms/menubar.h"
-#include "library/forms/gtk/lf_native.h"
+#include "gtk/lf_native.h"
 
 using namespace mforms;
 

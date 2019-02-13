@@ -1,38 +1,3 @@
-add_definitions(${USE_BUNDLED_MYSQLDUMP})
-
-include_directories(.
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${LIBZIP_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${ANTLR4_INCLUDE_DIRS}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${LibSSH_INCLUDE_DIRS}
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${GDAL_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
-    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/library/ssh
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/frontend/common
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench 
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic/grt 
-    ${PROJECT_SOURCE_DIR}/library/cdbc/src
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-)
-
 add_library(wbprivate
     model/canvas_floater.cpp
     model/mini_view.cpp
@@ -90,49 +55,67 @@ add_library(wbprivate
     workbench/SSHSessionWrapper.cpp
     workbench/SSHFileWrapper.cpp
     workbench/license_view.cpp
+    ${PROJECT_SOURCE_DIR}/frontend/common/new_server_instance_wizard.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/preferences_form.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/new_connection_wizard.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/document_properties_form.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/user_defined_type_editor.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/grt_shell_window.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/grt_code_editor.cpp
-    ${PROJECT_SOURCE_DIR}/frontend/common/grt_python_debugger.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/plugin_manager_window.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/plugin_install_window.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/select_option_dialog.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/snippet_list.cpp
-    ${PROJECT_SOURCE_DIR}/frontend/common/new_server_instance_wizard.cpp
-    ${PROJECT_SOURCE_DIR}/frontend/common/grt_code_editor.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/server_instance_editor.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/grt_python_debugger.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/advanced_sidebar.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/snippet_popover.cpp
     ${PROJECT_SOURCE_DIR}/frontend/common/grt_plugin_wizard.cpp
-
 )
 
-target_compile_options(wbprivate PUBLIC ${WB_CXXFLAGS})
+target_compile_definitions(wbprivate PRIVATE USE_BUNDLED_MYSQLDUMP)
+
+target_include_directories(wbprivate
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+    ${PROJECT_SOURCE_DIR}/modules
+    ${PROJECT_SOURCE_DIR}/frontend/common/
+)
+
+target_compile_options(wbprivate PRIVATE ${WB_CXXFLAGS})
 
 target_link_libraries(wbprivate
+  PUBLIC
+    ${GDAL_LIBRARIES}
+    wbprivate_Iface
+  PRIVATE
     grt
     mdcanvas
-    wbbase
     wbssh
+    cdbc
+    parsers
     mforms
-    ${CAIRO_LIBRARIES}
-    ${GTK3_LIBRARIES}
-    ${SIGC++_LIBRARIES}
-    ${LIBZIP_LIBRARIES}
-    ${PCRE_LIBRARIES}
-    ${GDAL_LIBRARIES}
-    ${LibSSH_LIBRARIES}
+    wbpublic::wbpublic
+)
+
+add_library(wbprivate_Iface INTERFACE)
+add_library(wbprivate::wbprivate ALIAS wbprivate_Iface)
+
+target_include_directories(wbprivate_Iface INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
+
+target_include_directories(wbprivate_Iface
+ SYSTEM INTERFACE
+    ${VSQLITE_INCLUDE_DIRS}
+    ${GDAL_INCLUDE_DIRS}
 )
 
 add_dependencies(wbprivate generate_parser_mysql)
 
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wbprivate gcov)
+if(GCOV_BUILD)
+  target_link_libraries(wbprivate PRIVATE gcov)
 endif()
 
 set_target_properties(wbprivate

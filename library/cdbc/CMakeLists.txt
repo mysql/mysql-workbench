@@ -1,29 +1,34 @@
-include_directories(${PROJECT_SOURCE_DIR}/backend
-    ${PROJECT_SOURCE_DIR}/generated 
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/ext
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
-#TODO: Set other compiler flags
-#if(CMAKE_COMPILER_IS_GNUCXX)
-#    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas)
-#endif ()
-
 add_library(cdbc
     src/driver_manager.cpp
     src/sql_batch_exec.cpp
 )
 
-target_compile_options(cdbc PUBLIC ${WB_CXXFLAGS})
+target_include_directories(cdbc
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/generated>
+)
 
-target_link_libraries(cdbc ${MySQLCppConn_LIBRARIES} ${GMODULE_LIBRARIES})
+target_include_directories(cdbc
+ SYSTEM
+  PUBLIC
+    $<BUILD_INTERFACE:${MySQLCppConn_INCLUDE_DIRS}>
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(cdbc gcov)
+)
+
+target_compile_options(cdbc PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(cdbc 
+  PUBLIC 
+    ${MySQLCppConn_LIBRARIES}
+  PRIVATE
+    Boost::boost
+    grt::grt
+    wbbase::wbbase
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(cdbc PRIVATE gcov)
 endif()
 
 set_target_properties(cdbc

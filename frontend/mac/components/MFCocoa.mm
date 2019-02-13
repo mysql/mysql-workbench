@@ -23,7 +23,7 @@
 
 #import "MFCocoa.h"
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 
 
 NSView *NSViewForMFormsView(mforms::View *view)

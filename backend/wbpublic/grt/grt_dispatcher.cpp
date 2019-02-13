@@ -719,7 +719,7 @@ void GRTDispatcher::wait_task(const GRTTaskBase::Ref task) {
 
 //--------------------------------------------------------------------------------------------------
 
-grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) THROW(grt::grt_runtime_error) {
+grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) {
 #if 0
   if (is_busy())
   {
@@ -748,8 +748,7 @@ grt::ValueRef GRTDispatcher::add_task_and_wait(const GRTTaskBase::Ref task) THRO
 //--------------------------------------------------------------------------------------------------
 
 grt::ValueRef GRTDispatcher::execute_sync_function(const std::string &name,
-                                                   const std::function<grt::ValueRef()> &function)
-  THROW(grt::grt_runtime_error) {
+                                                   const std::function<grt::ValueRef()> &function) {
   GRTSimpleTask::Ref task(GRTSimpleTask::create_task(name, shared_from_this(), function));
   add_task_and_wait(task);
 
@@ -758,8 +757,7 @@ grt::ValueRef GRTDispatcher::execute_sync_function(const std::string &name,
 
 //--------------------------------------------------------------------------------------------------
 
-void GRTDispatcher::execute_async_function(const std::string &name, const std::function<grt::ValueRef()> &function)
-  THROW(grt::grt_runtime_error) {
+void GRTDispatcher::execute_async_function(const std::string &name, const std::function<grt::ValueRef()> &function) {
   add_task(GRTSimpleTask::create_task(name, shared_from_this(), function));
 }
 

@@ -1,43 +1,33 @@
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/modules/
-    ${PROJECT_SOURCE_DIR}/library/grt/src/diff
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/cdbc/src
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(db.search.wbp MODULE
     DbSearchFilterPanel.cpp
     DbSearchPanel.cpp
     register_plugin.cpp
 )
 
-target_compile_options(db.search.wbp PUBLIC ${WB_CXXFLAGS})
+target_include_directories(db.search.wbp 
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/modules/
+)
+
+target_compile_options(db.search.wbp PRIVATE ${WB_CXXFLAGS})
 
 set_target_properties(db.search.wbp PROPERTIES
-#	LINK_FLAGS "-module"
-	PREFIX ""
+  PREFIX ""
   VERSION   ${WB_VERSION}
   SOVERSION ${WB_VERSION}
 )
 
-#target_link_libraries(db.mysql.wbp linux_utilities wbscintilla)
+target_link_libraries(db.search.wbp
+  PRIVATE
+    wbbase
+    wbpublic
+    mforms
+    cdbc
+    grt
+)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(db.search.wbp gcov)
+if(GCOV_BUILD)
+  target_link_libraries(db.search.wbp PRIVATE gcov)
 endif()
 
 if(COMMAND cotire)

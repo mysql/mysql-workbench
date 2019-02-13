@@ -23,10 +23,10 @@
 
 
 
-#include "linux_utilities/plugin_editor_base.h"
+#include "plugin_editor_base.h"
 #include "../backend/mysql_schema_editor.h"
 #include "grtdb/db_object_helpers.h"
-#include "linux_utilities/image_cache.h"
+#include "image_cache.h"
 #include <gtkmm/image.h>
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/textview.h>

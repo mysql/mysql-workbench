@@ -22,10 +22,9 @@
  */
 
 #include "gtk/lf_mforms.h"
-
-#include "lf_wizard.h"
-#include "lf_utilities.h"
-#include <mforms/mforms.h>
+#include "gtk/lf_wizard.h"
+#include "gtk/lf_utilities.h"
+#include "mforms/mforms.h"
 #include <gtkmm.h>
 #include <stdio.h>
 #include <sys/wait.h>

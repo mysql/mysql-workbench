@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "linux_utilities/plugin_editor_base.h"
+#include "plugin_editor_base.h"
 #include "../backend/wb_editor_layer.h"
 #include "gtk_helpers.h"
 #include <gtkmm/entry.h>

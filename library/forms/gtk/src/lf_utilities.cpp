@@ -44,6 +44,7 @@
 #include "gtk_helpers.h"
 #include "mforms.h"
 #include "main_app.h"
+#include "grt.h"
 
 namespace mforms {
   namespace gtk {

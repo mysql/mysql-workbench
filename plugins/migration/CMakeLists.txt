@@ -1,16 +1,3 @@
-include_directories(
-    SYSTEM ${ODBC_INCLUDE_DIRS} 
-    SYSTEM ${PYTHON_INCLUDE_DIRS} 
-    SYSTEM ${MySQL_INCLUDE_DIRS} 
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate
-    SYSTEM ${Boost_INCLUDE_DIRS}
-    SYSTEM ${LibSSH_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/library/ssh
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
-)
-
-add_definitions(${ODBC_DEFINITIONS})
-
 if (UNIX)
   configure_file(wbcopytables.in wbcopytables)
   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/wbcopytables DESTINATION ${WB_INSTALL_BIN_DIR})
@@ -23,7 +10,7 @@ if (UNIX)
   )
 
   target_compile_options(wbcopytables-bin PUBLIC ${WB_CXXFLAGS})
-
+  target_compile_options(wbcopytables-bin PRIVATE ${ODBC_DEFINITIONS})
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(wbcopytables-bin PUBLIC -fPIE)
   else()
@@ -32,17 +19,28 @@ if (UNIX)
 
   target_link_libraries(
       wbcopytables-bin 
+    PRIVATE
       wbbase 
       wbssh
+      wbprivate
+      wbpublic
+      ${GMODULE_LIBRARIES}
       ${MySQL_LIBRARIES} 
       ${ODBC_LIBRARIES} 
-      ${PCRE_LIBRARIES} 
-      ${PYTHON_LIBRARIES} 
-      ${LibSSH_LIBRARIES}
+      ${PYTHON_LIBRARIES}
+      ${LIBXML2_LIBRARIES} 
+      ${LIBZIP_LIBRARIES}
+  )
+  
+  target_include_directories(wbcopytables-bin
+   SYSTEM
+    PRIVATE
+      ${ODBC_INCLUDE_DIRS}  
+      ${MySQL_INCLUDE_DIRS} 
   )
 
-  if(BUILD_FOR_TESTS)
-    target_link_libraries(wbcopytables-bin gcov)
+  if(GCOV_BUILD)
+    target_link_libraries(wbcopytables-bin PRIVATE gcov)
   endif()
    if(COMMAND cotire)
        set_target_properties(wbcopytables-bin PROPERTIES
@@ -59,7 +57,14 @@ else()
       copytable/converter.cpp
   )
 
-  target_compile_options(wbcopytables PUBLIC ${WB_CXXFLAGS})
+  target_compile_options(wbcopytables PRIVATE ${WB_CXXFLAGS})
+  target_compile_options(wbcopytables PRIVATE ${ODBC_DEFINITIONS})
+  target_include_directories(wbcopytables
+   SYSTEM
+    PRIVATE
+     ${ODBC_INCLUDE_DIRS}  
+     ${MySQL_INCLUDE_DIRS} 
+  )
 
   if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(wbcopytables PUBLIC -fPIE)
@@ -67,9 +72,23 @@ else()
     target_compile_options(wbcopytables PUBLIC -fPIE -pie)
   endif()
 
-   target_link_libraries(wbcopytables wbbase ${MySQL_LIBRARIES} ${ODBC_LIBRARIES} ${PCRE_LIBRARIES} ${PYTHON_LIBRARIES})
-   if(BUILD_FOR_TESTS)
-    target_link_libraries(wbcopytables gcov)
+   target_link_libraries(
+      wbcopytables 
+    PRIVATE
+      wbbase 
+      wbssh
+      wbprivate
+      wbpublic
+      ${GMODULE_LIBRARIES}
+      ${MySQL_LIBRARIES} 
+      ${ODBC_LIBRARIES} 
+      ${PYTHON_LIBRARIES}
+      ${LIBXML2_LIBRARIES} 
+      ${LIBZIP_LIBRARIES}
+  )
+   
+   if(GCOV_BUILD)
+    target_link_libraries(wbcopytables PRIVATE gcov)
    endif()
    if(COMMAND cotire)
        set_target_properties(wbcopytables PROPERTIES

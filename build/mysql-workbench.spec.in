@@ -65,7 +65,11 @@ Source : %{name}-%{version}-src.tar.gz
 BuildRoot    : %{_tmppath}/%{name}-%{version}-root
 
 BuildRequires: pcre-devel >= 3.9
-BuildRequires: cmake >= 2.8
+%if 0%{?rhel} == 7
+BuildRequires: cmake3 >= 3.6
+%else
+BuildRequires: cmake >= 3.6
+%endif
 BuildRequires: libzip-devel libxml2-devel
 BuildRequires: python-devel >= 2.6
 BuildRequires: gtk3-devel
@@ -152,7 +156,12 @@ fi
 %build
 %undefine _hardened_build #need to undefine because of some memory problems
 # CMAKE_INSTALL_PREFIX etc is handled by the cmake macro
-%cmake -DCMAKE_BUILD_TYPE=Release \
+%if 0%{?rhel} == 7
+%cmake3 \
+%else
+%cmake \
+%endif
+       -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
 %if %{defined mysql_home}
        -DMySQL_CONFIG_PATH=%{mysql_home}/bin/mysql_config \
@@ -172,7 +181,7 @@ fi
        -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.7.1-complete.jar \
        -DLibSSH_INCLUDE_DIR=%{bundles_path}/include \
        -DLibSSH_LIBRARIES="-L%{bundles_path}/lib -lssh" \
-       -DBOOST_ROOT=%{bundles_path}/include \
+       -DBOOST_ROOT=%{bundles_path}/include 
 
 make %{?_smp_mflags}
 

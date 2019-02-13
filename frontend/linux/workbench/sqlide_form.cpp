@@ -21,10 +21,10 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "editor_base.h"
+#include "grt/editor_base.h"
 #include "gtk/lf_mforms.h"
 #include "sqlide_form.h"
-#include "linux_utilities/gtk_helpers.h"
+#include "gtk_helpers.h"
 #include "base/util_functions.h"
 #include "base/wb_iterators.h"
 #include "base/log.h"

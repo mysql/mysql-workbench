@@ -18,6 +18,7 @@ export GDK_BACKEND=x11
 destdir="$WB_DEST_DIR"
 
 wblibdir="$destdir@WB_INSTALL_LIB_DIR@"
+wbpluginsdir="$destdir@WB_INSTALL_LIB_DIR@/plugins"
 
 # Check if PROJSO env is set and file exists, if not, try to handle this on our own
 if [[ -z "${PROJSO}" ]]; then
@@ -64,9 +65,9 @@ fi
 
 
 if test "$LD_LIBRARY_PATH" != ""; then
-    export LD_LIBRARY_PATH="$wblibdir:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="$wblibdir:$wbpluginsdir:$LD_LIBRARY_PATH"
 else
-    export LD_LIBRARY_PATH="$wblibdir"
+    export LD_LIBRARY_PATH="$wblibdir:$wbpluginsdir"
 fi
 
 if test "$PYTHONPATH" != ""; then

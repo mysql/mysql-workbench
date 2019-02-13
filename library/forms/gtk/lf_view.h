@@ -24,7 +24,7 @@
 #ifndef _LF_VIEW_H_
 #define _LF_VIEW_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 #include <gdkmm/event.h>
 
 #include "lf_base.h"

@@ -1,20 +1,3 @@
-include_directories(.
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/backend
-    ${PROJECT_SOURCE_DIR}/library/base
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
-#if (UNIX)
-#	include_directories(./linux)
-#endif ()
-
-#TODO: Set other compiler flags
-#if(CMAKE_COMPILER_IS_GNUCXX)
-#    set(CMAKE_CXX_FLAGS  ${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas)
-#endif ()
-
 add_library(mdcanvas
     mdc_algorithms.cpp
     mdc_area_group.cpp
@@ -53,12 +36,30 @@ add_library(mdcanvas
     mdc_box_side_magnet.cpp
 )
 
-target_compile_options(mdcanvas PUBLIC ${WB_CXXFLAGS})
+target_include_directories(mdcanvas
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
-target_link_libraries(mdcanvas wbbase ${CAIRO_LIBRARIES})
+target_include_directories(mdcanvas
+ SYSTEM
+  PRIVATE
+    ${CAIRO_INCLUDE_DIRS}
+)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(mdcanvas gcov)
+
+target_compile_options(mdcanvas PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(mdcanvas
+  PUBLIC
+    ${CAIRO_LIBRARIES}
+  PRIVATE 
+    wbbase 
+    ${OPENGL_LIBRARIES}
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(mdcanvas PRIVATE gcov)
 endif()
 
 set_target_properties(mdcanvas        
@@ -71,18 +72,32 @@ if(COMMAND cotire)
   cotire(mdcanvas)
 endif()
 
-include_directories(./gtk)
-
 add_library(mdcanvasgtk
     gtk/mdc_gtk_canvas_view.cpp
     gtk/mdc_gtk_canvas_scroller.cpp
 )
 
-target_compile_options(mdcanvasgtk PUBLIC ${WB_CXXFLAGS})
-target_link_libraries(mdcanvasgtk mdcanvas wbbase ${CAIRO_LIBRARIES} ${GTK3_LIBRARIES})
+target_include_directories(mdcanvasgtk
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(mdcanvasgtk gcov)
+target_include_directories(mdcanvasgtk
+ SYSTEM
+  PRIVATE
+    ${GTKMM_INCLUDE_DIRS}
+)
+
+
+target_compile_options(mdcanvasgtk PRIVATE ${WB_CXXFLAGS})
+target_link_libraries(mdcanvasgtk 
+  PRIVATE 
+    mdcanvas 
+    wbbase 
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(mdcanvasgtk PRIVATE gcov)
 endif()
 
 set_target_properties(mdcanvasgtk

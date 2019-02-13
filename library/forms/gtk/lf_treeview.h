@@ -24,7 +24,7 @@
 #ifndef _LF_TREEVIEW_H_
 #define _LF_TREEVIEW_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 
 #include "lf_view.h"
 #include "base/string_utilities.h"

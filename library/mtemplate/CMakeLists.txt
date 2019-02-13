@@ -1,8 +1,3 @@
-
-include_directories(${PROJECT_SOURCE_DIR}/library/base
-                    SYSTEM ${Boost_INCLUDE_DIRS}
-                   )
-
 add_library(mtemplate
             template.cpp
             dictionary.cpp
@@ -11,11 +6,16 @@ add_library(mtemplate
             output.cpp
            )
 
-target_compile_options(mtemplate PUBLIC ${WB_CXXFLAGS})
+target_include_directories(mtemplate
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
-target_link_libraries(mtemplate wbbase)
-if(BUILD_FOR_TESTS)
-  target_link_libraries(mtemplate gcov)
+target_compile_options(mtemplate PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(mtemplate PRIVATE wbbase ${GLIB_LIBRARIES})
+if(GCOV_BUILD)
+  target_link_libraries(mtemplate PRIVATE gcov)
 endif()
 
 set_target_properties(mtemplate

@@ -36,7 +36,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "mysql_parser_services.h"
+#include "grtsqlparser/mysql_parser_services.h"
 
 using namespace grt;
 

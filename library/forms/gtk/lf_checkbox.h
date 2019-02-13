@@ -24,7 +24,7 @@
 #ifndef _LF_CHECKBOX_H_
 #define _LF_CHECKBOX_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 
 #include "lf_button.h"
 

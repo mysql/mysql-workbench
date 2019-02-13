@@ -1,37 +1,28 @@
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/plugins
-    ${PROJECT_SOURCE_DIR}/ext
-    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/plugins/wb.printing/backend
-    ${PROJECT_SOURCE_DIR}/frontend/linux
-    ${PROJECT_SOURCE_DIR}/frontend/linux/linux_utilities
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(wb.printing.wbp MODULE
     ../backend/wb_module_printing.cpp
     ../backend/wb_printing.cpp
     wb_printing_linux.cpp
 )
 
-target_compile_options(wb.printing.wbp PUBLIC ${WB_CXXFLAGS})
+target_include_directories(wb.printing.wbp
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../backend
+    ${PROJECT_SOURCE_DIR}/modules
+)
 
-target_link_libraries(wb.printing.wbp linux_utilities ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${GRT_LIBRARIES})
+target_compile_options(wb.printing.wbp PRIVATE ${WB_CXXFLAGS})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wb.printing.wbp gcov)
+target_link_libraries(wb.printing.wbp 
+  PRIVATE 
+    linux_utilities
+    wbbase
+    mdcanvas
+    grt
+    wbpublic
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(wb.printing.wbp PRIVATE gcov)
 endif()
 
 set_target_properties(wb.printing.wbp

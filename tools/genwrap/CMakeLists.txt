@@ -1,18 +1,23 @@
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/grt/src
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/generated
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_executable(genwrap
     genwrap.cpp
 )
 
-target_compile_options(genwrap PUBLIC ${WB_CXXFLAGS})
+target_include_directories(genwrap
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+    ${PROJECT_SOURCE_DIR}/modules
+)
+
+target_include_directories(genwrap
+ SYSTEM
+  PRIVATE
+   ${GLIB_INCLUDE_DIRS}
+   ${GRT_INCLUDE_DIRS}
+   ${PCRE_INCLUDE_DIRS}
+)
+
+
+target_compile_options(genwrap PRIVATE ${WB_CXXFLAGS})
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   target_compile_options(genwrap PRIVATE -fPIE)
@@ -20,8 +25,8 @@ else()
   target_compile_options(genwrap PRIVATE -fPIE -pie)
 endif()
 
-target_link_libraries(genwrap grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})
+target_link_libraries(genwrap PUBLIC Boost::boost PRIVATE grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(genwrap gcov)
+if(GCOV_BUILD)
+  target_link_libraries(genwrap PRIVATE gcov)
 endif()

@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "linux_utilities/plugin_editor_base.h"
+#include "plugin_editor_base.h"
 #include "grtdb/editor_user_role.h"
 #include "grtdb/db_object_helpers.h"
 #include "treemodel_wrapper.h"

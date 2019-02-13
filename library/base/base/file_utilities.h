@@ -70,7 +70,7 @@ namespace base {
       NotLocked,
     };
 
-    LockFile(const std::string &path) throw(std::invalid_argument, std::runtime_error, file_locked_error);
+    LockFile(const std::string &path);
     ~LockFile();
 #undef check // there's a #define check in osx
     static LockStatus check(const std::string &path);

@@ -2215,7 +2215,7 @@ static const unsigned char *skipLeadingWhitespace(const unsigned char *head, con
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool isLineBreak(const unsigned char *head, const unsigned char *line_break) {
+static bool isLineBreak(const unsigned char *head, const unsigned char *line_break) {
   if (*line_break == '\0')
     return false;
 
@@ -2338,7 +2338,7 @@ size_t MySQLParserServicesImpl::determineStatementRanges(const char *sql, size_t
       case '\'':
       case '`': { // Quoted string/id. Skip this in a local loop.
         haveContent = true;
-        char quote = *tail++;
+        unsigned char quote = *tail++;
         while (tail < end && *tail != quote) {
           // Skip any escaped character too.
           if (*tail == '\\')

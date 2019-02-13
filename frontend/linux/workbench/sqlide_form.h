@@ -26,11 +26,10 @@
 
 #include "mforms/toolbar.h"
 #include "sqlide/wb_sql_editor_form.h"
-#include "linux_utilities/gtk_helpers.h"
-#include "linux_utilities/form_view_base.h"
-#include "linux_utilities/notebook_dockingpoint.h"
+#include "gtk_helpers.h"
+#include "form_view_base.h"
+#include "notebook_dockingpoint.h"
 #include "overview_panel.h"
-//#include "gtk_helpers.h"
 #include "active_label.h"
 #include "sqlide_output_view.h"
 #include <glib.h>

@@ -25,7 +25,7 @@
 #define __WB_MYSQL_TABLE_EDITOR_H__
 
 #include <gtkmm/notebook.h>
-#include "linux_utilities/plugin_editor_base.h"
+#include "plugin_editor_base.h"
 #include "../backend/mysql_table_editor.h"
 
 #include <gtkmm/notebook.h>

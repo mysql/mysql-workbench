@@ -25,7 +25,7 @@
 #include "sqlide_form.h"
 #include "workbench/wb_context_ui.h"
 #include "workbench/wb_context.h"
-#include "linux_utilities/plugin_editor_base.h"
+#include "plugin_editor_base.h"
 #include "sqlide_main.h"
 
 class ToolbarManager;

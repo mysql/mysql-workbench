@@ -24,7 +24,7 @@
 #ifndef _LF_UTILITIES_H_
 #define _LF_UTILITIES_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 #include <sigc++/sigc++.h>
 
 #include "gtk_helpers.h"

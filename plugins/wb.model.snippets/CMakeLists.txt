@@ -1,41 +1,27 @@
-include_directories(.
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/backend
-    ${PROJECT_SOURCE_DIR}/ext
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/modules/
-    ${PROJECT_SOURCE_DIR}/library/grt/src/diff
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/plugins
-    ../backend
-    ${PROJECT_SOURCE_DIR}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(wb.model.snippets.wbp MODULE
     include_model_wizard.cpp
     merge_model.cpp
     register_plugin.cpp
 )
 
-target_compile_options(wb.model.snippets.wbp PUBLIC ${WB_CXXFLAGS})
+include_directories(wb.model.snippets.wbp
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/modules/
+    ../backend
+)
 
-target_link_libraries(wb.model.snippets.wbp wbscintilla)
+target_compile_options(wb.model.snippets.wbp PRIVATE ${WB_CXXFLAGS})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wb.model.snippets.wbp gcov)
+target_link_libraries(wb.model.snippets.wbp 
+  PRIVATE
+    wbbase
+    grt
+    mforms
+    wbpublic
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(wb.model.snippets.wbp PRIVATE gcov)
 endif()
 
 set_target_properties(wb.model.snippets.wbp

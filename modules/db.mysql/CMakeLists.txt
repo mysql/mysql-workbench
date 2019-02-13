@@ -17,30 +17,6 @@ set(BASIC_FILES
 )
 install(FILES ${BASIC_FILES} DESTINATION ${WB_PACKAGE_SHARED_DIR}/modules/data/db_mysql_catalog_reporting/Basic_Text.tpl)
 
-
-include_directories(.
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/base/base
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/library/grt/src/diff 
-    ${PROJECT_SOURCE_DIR}/library/sql-parser/include
-    ${PROJECT_SOURCE_DIR}/library/sql-parser/source
-    ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(db.mysql.grt
     src/db_mysql_catalog_report.cpp
     src/db_mysql_diffsqlgen.cpp
@@ -48,10 +24,26 @@ add_library(db.mysql.grt
     src/module_db_mysql.cpp
 )
 
-target_link_libraries(db.mysql.grt wbpublic ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${PCRE_LIBRARIES} ${SIGC++_LIBRARIES})
+target_include_directories(db.mysql.grt
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/library
+    ${PROJECT_SOURCE_DIR}/modules
+)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(db.mysql.grt gcov)
+target_link_libraries(db.mysql.grt 
+  PRIVATE 
+    wbpublic
+    grt
+    wbbase
+    parsers
+    mtemplate
+    Boost::boost
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(db.mysql.grt PRIVATE gcov)
 endif()
 
 set_target_properties(db.mysql.grt

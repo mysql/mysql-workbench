@@ -1,35 +1,3 @@
-include_directories(.
-    SYSTEM ${CAIRO_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIRS}
-    SYSTEM ${MySQL_INCLUDE_DIRS}
-    SYSTEM ${SQLITE3_INCLUDE_DIRS}
-    SYSTEM ${OPENGL_INCLUDE_DIRS}
-    SYSTEM ${VSQLITE_INCLUDE_DIR}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    SYSTEM ${ANTLR4_INCLUDE_DIRS}
-    SYSTEM ${GDAL_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/library
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/base/base
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms
-    ${PROJECT_SOURCE_DIR}/library/cdbc/src
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    ${PROJECT_SOURCE_DIR}/library/parsers/mysql
-    ${PROJECT_SOURCE_DIR}/library/mysql.canvas/src
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/ext/scintilla/include
-    ./grtsqlparser
-)
-
 add_library(wbpublic
     grt/refresh_ui.cpp
     grt/editor_base.cpp
@@ -177,19 +145,50 @@ add_library(wbpublic
     grtui/inserts_export_form.cpp
 )
 
-#if (CMAKE_COMPILER_IS_GNUCXX)
-#	set_target_properties(wbpublic PROPERTIES
-#		COMPILE_FLAGS "-fpermissive"  # For things like the extra qualification in sqlide/sql_editor_be.cpp:116
-#	)
-#endif()
+target_include_directories(wbpublic
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/modules
+    ${PROJECT_SOURCE_DIR}/library
+)
 
-target_compile_options(wbpublic PUBLIC ${WB_CXXFLAGS})
+target_include_directories(wbpublic
+ SYSTEM
+  PRIVATE
+    ${GLIB_INCLUDE_DIRS}
+    ${MySQLCppConn_INCLUDE_DIRS}
+    ${GDAL_INCLUDE_DIRS}
+)
 
-target_link_libraries(wbpublic wbbase mdcanvas mforms cdbc grt mtemplate ${VSQLITE_LIBRARIES} wbscintilla parsers ${CAIRO_LIBRARIES} ${GNOME_KEYRING_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wbpublic gcov)
+target_compile_options(wbpublic PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(wbpublic
+  PUBLIC
+    ${VSQLITE_LIBRARIES}
+    ${ANTLR4_LIBRARIES}
+    wbpublic_Iface
+  PRIVATE 
+    wbbase mdcanvas mforms cdbc grt mtemplate parsers 
+    ${CAIRO_LIBRARIES} ${OPENGL_LIBRARIES} ${PCRE_LIBRARIES} ${GDAL_LIBRARIES})
+
+add_library(wbpublic_Iface INTERFACE)
+add_library(wbpublic::wbpublic ALIAS wbpublic_Iface)
+target_include_directories(wbpublic_Iface INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/generated>
+)
+
+target_include_directories(wbpublic_Iface
+ SYSTEM INTERFACE
+    $<BUILD_INTERFACE:${VSQLITE_INCLUDE_DIR}>
+)
+
+
+if(GCOV_BUILD)
+  target_link_libraries(wbpublic PRIVATE gcov)
 endif()
+set_source_files_properties(sqlide/recordset_be.cpp
+          PROPERTIES COMPILE_FLAGS "-Wno-nonnull-compare")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set_source_files_properties(sqlide/grammar-parser/ANTLRv3Lexer.c

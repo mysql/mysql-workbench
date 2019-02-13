@@ -1,28 +1,18 @@
-include_directories(.
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/modules/db.mysql/src
-    ${PROJECT_SOURCE_DIR}/library/cdbc/src
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 add_library(db.mysql.query.grt
     src/dbquery.cpp
 )
 
-target_compile_options(db.mysql.query.grt PUBLIC ${WB_CXXFLAGS})
+target_include_directories(db.mysql.query.grt
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
-target_link_libraries(db.mysql.query.grt grt cdbc ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${MySQLCppConn_LIBRARIES})
+target_compile_options(db.mysql.query.grt PRIVATE ${WB_CXXFLAGS})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(db.mysql.query.grt gcov)
+target_link_libraries(db.mysql.query.grt PRIVATE grt cdbc ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${MySQLCppConn_LIBRARIES})
+
+if(GCOV_BUILD)
+  target_link_libraries(db.mysql.query.grt PRIVATE gcov)
 endif()
 
 set_target_properties(db.mysql.query.grt

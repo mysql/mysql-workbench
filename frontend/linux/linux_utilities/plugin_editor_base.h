@@ -30,7 +30,7 @@
 #define _PLUGIN_EDITOR_BASE_H_
 
 #include "gtk_helpers.h"
-#include "grt/grt_manager.h"
+#include "grt.h"
 #include "grtui/gui_plugin_base.h"
 #include <gtkmm/frame.h>
 #include <gtkmm/notebook.h>

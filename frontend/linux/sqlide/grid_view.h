@@ -24,7 +24,7 @@
 #ifndef __GRID_VIEW_H__
 #define __GRID_VIEW_H__
 
-#include "sqlide/grid_view_model.h"
+#include "grid_view_model.h"
 namespace mforms {
   class Menu;
 };

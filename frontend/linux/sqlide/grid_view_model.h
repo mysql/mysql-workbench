@@ -24,7 +24,7 @@
 #ifndef __GRID_VIEW_MODEL_H__
 #define __GRID_VIEW_MODEL_H__
 
-#include "linux_utilities/listmodel_wrapper.h"
+#include "listmodel_wrapper.h"
 #include "grt/tree_model.h"
 
 class GridView;

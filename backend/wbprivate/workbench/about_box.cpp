@@ -27,6 +27,7 @@
 #include "about_box.h"
 
 #include "wb_context.h"
+#include "wb_version.h"
 
 using namespace wb;
 

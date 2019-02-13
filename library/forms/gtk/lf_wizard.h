@@ -24,7 +24,7 @@
 #ifndef _LF_WIZARD_H_
 #define _LF_WIZARD_H_
 
-#include <mforms/mforms.h>
+#include "mforms/mforms.h"
 
 #include "lf_base.h"
 #include "lf_form.h"

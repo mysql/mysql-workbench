@@ -1,35 +1,3 @@
-include_directories(.
-    ./src
-    ${PROJECT_SOURCE_DIR}
-    ${PROJECT_SOURCE_DIR}/generated
-    ${PROJECT_SOURCE_DIR}/backend/wbpublic
-    ${PROJECT_SOURCE_DIR}/library/grt/src 
-    ${PROJECT_SOURCE_DIR}/library/grt/src/diff 
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/library/forms
-    ${PROJECT_SOURCE_DIR}/library/sql.parser/include
-    ${PROJECT_SOURCE_DIR}/library/sql.parser/source
-    ${PROJECT_SOURCE_DIR}/library/sql.parser/source/linux
-    ${PROJECT_SOURCE_DIR}/modules
-    ${PROJECT_SOURCE_DIR}/modules/interfaces
-    ${PROJECT_SOURCE_DIR}/library/parsers
-    SYSTEM ${VSQLITE_INCLUDE_DIRS}
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${SIGC++_INCLUDE_DIRS}
-    SYSTEM ${GRT_INCLUDE_DIRS}
-    SYSTEM ${PCRE_INCLUDE_DIR}
-    SYSTEM ${MySQL_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
-if (MYSQL_DEFINITIONS)
-	add_definitions(${MYSQL_DEFINITIONS})
-endif()
-
-if (UNIX)
-  add_definitions(-DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
-endif()
-
 add_library(db.mysql.sqlparser.grt
     src/db.mysql.sqlparser.cpp
     src/mysql_invalid_sql_parser.cpp
@@ -48,20 +16,54 @@ add_library(db.mysql.sqlparser.grt
     src/mysql_sql_statement_decomposer.cpp
 )
 
-target_compile_options(db.mysql.sqlparser.grt PUBLIC ${WB_CXXFLAGS})
+target_include_directories(db.mysql.sqlparser.grt
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/generated
+)
 
-#We need to wait for parsers, because we're including some antlr headers which parser depends on
-add_dependencies(db.mysql.sqlparser.grt parsers sqlparser)
+target_include_directories(db.mysql.sqlparser.grt
+ SYSTEM
+  PRIVATE
+    ${VSQLITE_INCLUDE_DIRS}
+    ${GLIB_INCLUDE_DIRS}
+)
 
 
-target_link_libraries(db.mysql.sqlparser.grt sqlparser ${GRT_LIBRARIES} ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${PCRE_LIBRARIES})
+target_compile_options(db.mysql.sqlparser.grt PRIVATE ${WB_CXXFLAGS})
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(db.mysql.sqlparser.grt gcov)
+if (MYSQL_DEFINITIONS)
+  target_compile_definitions(db.mysql.sqlparser.grt PRIVATE ${MYSQL_DEFINITIONS})
+endif()
+
+if (UNIX)
+  target_compile_definitions(db.mysql.sqlparser.grt PRIVATE -DHAVE_MEMCPY=1 -DHAVE_MEMMOVE=1 -DUSE_MB=1 -DUSE_MB_IDENT=1 -DHAVE_STRTOUL=1)
+endif()
+
+add_dependencies(db.mysql.sqlparser.grt parsers)
+
+target_link_libraries(db.mysql.sqlparser.grt 
+  PUBLIC
+    db.mysql.sqlparser.grt_Iface
+  PRIVATE 
+    sqlparser
+    wbpublic
+    grt
+    Boost::boost
+  )
+
+add_library(db.mysql.sqlparser.grt_Iface INTERFACE)
+add_library(db.mysql.sqlparser.grt::db.mysql.sqlparser.grt ALIAS db.mysql.sqlparser.grt_Iface)
+
+target_include_directories(db.mysql.sqlparser.grt_Iface INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+)
+
+
+if(GCOV_BUILD)
+  target_link_libraries(db.mysql.sqlparser.grt PRIVATE gcov)
 endif()
 
 set_source_files_properties(src/mysql_sql_parser_utils.cpp PROPERTIES COMPILE_FLAGS -Wno-varargs)
-
 
 set_target_properties(db.mysql.sqlparser.grt
                       PROPERTIES PREFIX    ""

@@ -55,12 +55,6 @@
 #define MYSQLGRT_PUBLIC
 #endif
 
-#ifdef _MSC_VER
-#define THROW(...)
-#else
-#define THROW(...) throw(__VA_ARGS__)
-#endif
-
 #include <set>
 
 #define GRT_VERSION "4.1.0"
@@ -106,8 +100,6 @@ namespace grt {
 
   class MYSQLGRT_PUBLIC bad_item : public std::logic_error {
   public:
-    //    virtual ~bad_item() THROW() {};
-
     bad_item(size_t index, size_t count) : std::logic_error("Index out of range.") {
     }
     bad_item(const std::string &name) : std::logic_error("Invalid item name '" + name + "'.") {
@@ -132,7 +124,7 @@ namespace grt {
       : std::runtime_error(exc), detail(adetail), fatal(afatal) {
     }
 
-    virtual ~grt_runtime_error() THROW() {
+    virtual ~grt_runtime_error() {
     }
   };
 
@@ -141,7 +133,7 @@ namespace grt {
     std::string inner;
     module_error(const std::string &exc, const std::string &ainner = "") : std::runtime_error(exc), inner(ainner) {
     }
-    virtual ~module_error() THROW() {
+    virtual ~module_error() {
     }
   };
 
@@ -159,7 +151,7 @@ namespace grt {
     }
     server_denied(const std::string &exc, int err) : std::runtime_error(exc), errNo(err) {
     }
-    virtual ~server_denied() THROW() {
+    virtual ~server_denied() {
     }
   };
 
@@ -1512,7 +1504,7 @@ namespace grt {
       return true;
     }
 
-    static ListRef<internal::String> cast_from(const ValueRef &value) THROW(type_error) {
+    static ListRef<internal::String> cast_from(const ValueRef &value) {
       return ListRef<internal::String>(value);
     }
 
@@ -1520,21 +1512,15 @@ namespace grt {
       content().insert_unchecked(value, index);
     }
 
-    /*
-    inline Reference operator[](size_t index) THROW (bad_item)
-    {
-//      return
-    }*/
-
     inline StringRef operator[](size_t index) const {
       return get(index);
     }
 
-    inline StringRef get(size_t index) const THROW(bad_item) {
+    inline StringRef get(size_t index) const {
       return StringRef::cast_from(content().get(index));
     }
 
-    inline void set(size_t index, const StringRef &value) THROW(bad_item, std::invalid_argument) {
+    inline void set(size_t index, const StringRef &value) {
       content().set_unchecked(index, value);
     }
 

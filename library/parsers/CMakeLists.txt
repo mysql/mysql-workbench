@@ -1,14 +1,3 @@
-add_definitions(-Wno-sign-compare -Wno-type-limits -Wno-unused
--Wno-missing-field-initializers)
-
-include_directories(.
-    ./mysql
-    SYSTEM ${GTK3_INCLUDE_DIRS}
-    SYSTEM ${ANTLR4_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/library/base
-    SYSTEM ${Boost_INCLUDE_DIRS}
-)
-
 set(GENERATED_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLLexer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mysql/MySQLParserBaseListener.cpp
@@ -60,19 +49,44 @@ add_library(parsers
   ${PARSERS_SOURCES}
 )
 
+
+
+target_compile_options(parsers PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-sign-compare -Wno-type-limits -Wno-unused -Wno-missing-field-initializers -Wno-implicit-fallthrough>)
+
 set(NEW_WB_CFLAGS ${WB_CFLAGS})
 list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
-target_compile_options(parsers PUBLIC ${NEW_WB_CFLAGS})
+target_compile_options(parsers PRIVATE ${NEW_WB_CFLAGS})
 
 add_dependencies(parsers
-    generate_parser_mysql
+    generate_parser_mysql)
+
+target_link_libraries(parsers 
+  PUBLIC 
+   parsers_Iface
+  PRIVATE 
+   wbbase::wbbase
+   ${GTK3_LIBRARIES})
+
+if(GCOV_BUILD)
+  target_link_libraries(parsers PRIVATE gcov)
+endif()
+
+add_library(parsers_Iface INTERFACE)
+add_library(parsers::parsers ALIAS parsers_Iface)
+
+target_include_directories(parsers_Iface INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(parsers ${GTK3_LIBRARIES} ${ANTLR4_LIBRARIES})
+target_include_directories(parsers_Iface
+ SYSTEM INTERFACE
+    ${ANTLR4_INCLUDE_DIRS}
+)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(parsers gcov)
-endif()
+target_link_libraries(parsers_Iface INTERFACE
+   ${ANTLR4_LIBRARIES}
+) 
+
 
 set_target_properties(parsers
                       PROPERTIES VERSION   ${WB_VERSION}

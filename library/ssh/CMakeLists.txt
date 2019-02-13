@@ -1,10 +1,3 @@
-include_directories(.
-    SYSTEM ${LibSSH_INCLUDE_DIRS}
-    SYSTEM ${Boost_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/library/base
-    ${PROJECT_SOURCE_DIR}/backend/wbprivate/workbench
-)
-
 add_library(wbssh 
     SSHSftp.cpp
     SSHCommon.cpp
@@ -13,12 +6,29 @@ add_library(wbssh
     SSHTunnelManager.cpp
 )
 
-target_compile_options(wbssh PUBLIC ${WB_CXXFLAGS})
+target_include_directories(wbssh
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
-target_link_libraries(wbssh wbbase ${LibSSH_LIBRARIES})
+target_include_directories(wbssh
+ SYSTEM
+  PUBLIC
+    $<BUILD_INTERFACE:${LibSSH_INCLUDE_DIRS}>
+)
 
-if(BUILD_FOR_TESTS)
-  target_link_libraries(wbssh gcov)
+
+target_compile_options(wbssh PRIVATE ${WB_CXXFLAGS})
+
+target_link_libraries(wbssh 
+  PUBLIC 
+    ${LibSSH_LIBRARIES} 
+  PRIVATE 
+    wbbase
+)
+
+if(GCOV_BUILD)
+  target_link_libraries(wbssh PRIVATE gcov)
 endif()
 
 if(COMMAND cotire)

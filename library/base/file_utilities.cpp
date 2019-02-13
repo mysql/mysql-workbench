@@ -206,8 +206,7 @@ namespace base {
     }
   }
 #else
-  LockFile::LockFile(const std::string &apath) throw(std::invalid_argument, std::runtime_error, file_locked_error)
-    : path(apath) {
+  LockFile::LockFile(const std::string &apath) : path(apath) {
     if (path.empty())
       throw std::invalid_argument("invalid path");
 
