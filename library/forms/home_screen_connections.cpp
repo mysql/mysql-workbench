@@ -1398,6 +1398,9 @@ void ConnectionsSection::updateFocusableAreas() {
       fArea.getBounds = [it]() { return it->getAccessibilityBounds(); };
       fArea.showContextMenu = [it, this]() {
         const auto bounds = it->getAccessibilityBounds();
+        // We need to set the _entry_for_menu otherwise,
+        // some options may crash the app.
+        _entry_for_menu = entry_from_point(bounds.center().x, bounds.center().y);
         it->context_menu()->popup_at(this, bounds.center().x, bounds.center().y);
       };
       addFocusableArea(fArea);
@@ -1410,6 +1413,9 @@ void ConnectionsSection::updateFocusableAreas() {
       fArea.getBounds = [it]() { return it->getAccessibilityBounds(); };
       fArea.showContextMenu = [it, this]() {
         const auto bounds = it->getAccessibilityBounds();
+        // We need to set the _entry_for_menu otherwise,
+        // some options may crash the app.
+        _entry_for_menu = entry_from_point(bounds.center().x, bounds.center().y);
         it->context_menu()->popup_at(this, bounds.center().x, bounds.center().y);
       };
       addFocusableArea(fArea);

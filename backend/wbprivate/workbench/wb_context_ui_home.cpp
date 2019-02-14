@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -585,6 +585,10 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
   } else if (action == "delete_connection") {
     db_mgmt_ConnectionRef connection = getConnectionById(object.as<std::string>());
 
+    if (!connection.is_valid()) {
+      logError("Invalid connection has been found during action: %s\n", action.c_str());
+      return;
+    }
     std::string name = connection->name();
     std::string title;
     std::string warning;
@@ -604,21 +608,37 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
     // with the name of the group. For connections it's the connection ref.
     // Similar for the other move_* actions.
     db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
+    if (!val.is_valid()) {
+      logError("Invalid connection has been found during action: %s\n", action.c_str());
+      return;
+    }
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveTop);
     refresh_home_connections(false);
   } else if (action == "move_connection_up") {
     grt::ValueRef val = getConnectionById(object.as<std::string>());
+    if (!val.is_valid()) {
+      logError("Invalid connection has been found during action: %s\n", action.c_str());
+      return;
+    }
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveUp);
     refresh_home_connections(false);
   } else if (action == "move_connection_down") {
     db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
+    if (!val.is_valid()) {
+      logError("Invalid connection has been found during action: %s\n", action.c_str());
+      return;
+    }
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveDown);
     refresh_home_connections(false);
   } else if (action == "move_connection_to_end") {
     db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
+    if (!val.is_valid()) {
+      logError("Invalid connection has been found during action: %s\n", action.c_str());
+      return;
+    }
     grt::ListRef<db_mgmt_Connection> connections(_wb->get_root()->rdbmsMgmt()->storedConns());
     bec::move_list_ref_item<db_mgmt_Connection>(connections, val, MoveBottom);
     refresh_home_connections(false);
@@ -628,6 +648,10 @@ void WBContextUI::handle_home_context_menu(const base::any &object, const std::s
     // Create the available groups for the movement...
     std::vector<std::string> groups;
     db_mgmt_ConnectionRef val = getConnectionById(object.as<std::string>());
+    if (!val.is_valid()) {
+      logError("Invalid connection has been found during action: %s\n", action.c_str());
+      return;
+    }
     get_groups_for_movement<db_mgmt_Connection>(connections, val, groups);
 
     SelectOptionDialog dialog(_("Move To Group"), _("Pick a group to move the selected connection "
