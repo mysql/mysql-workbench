@@ -481,7 +481,7 @@ bool WheelMessageFilter::PreFilterMessage(Message % m) {
     Drawing::Point point = panel->PointToClient(Drawing::Point(cursorPoint.x, cursorPoint.y));
     if (panel->ClientRectangle.Contains(point)) {
       panel->WndProc(m);
-      return true;
+      return false;
     }
   }
 
