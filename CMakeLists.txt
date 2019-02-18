@@ -217,7 +217,7 @@ endif()
 set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
     message ("Enable GCOV due to BUILD_FOR_GCOV")
     set(WB_CXXFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage)
     set(WB_CFLAGS ${WB_CFLAGS} -fprofile-arcs -ftest-coverage)
