@@ -102,7 +102,7 @@
                 </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.file.closesql">
                     <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.file</link>
-                    <value type="string" key="accessibilityName">Close Tab</value>
+                    <value type="string" key="accessibilityName">Close Connection Tab</value>
                     <value type="string" key="name">closetab</value>
                     <value type="string" key="caption">_Close Connection Tab</value>
                     <value type="string" key="context">*query</value>
