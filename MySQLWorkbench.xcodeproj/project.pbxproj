@@ -184,6 +184,8 @@
 		2720518E111847920013E88B /* message_wb_lock.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720518D111847920013E88B /* message_wb_lock.png */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2725786F2062B20900BC6E5E /* db_reverse_engineer_script.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */; };
+		27273AE0220DDDAD008B2F44 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
+		27273AE1220DDE0D008B2F44 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		27276AFF19406D050019FB0E /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		272E57321FA0726E002541F5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2774A4C41C92D31200D1E037 /* Cocoa.framework */; };
 		2731DE6221A2CE17002EEE8A /* genwrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2731DE6121A2CE15002EEE8A /* genwrap.cpp */; };
@@ -1243,7 +1245,6 @@
 		2B2DF874105EA06700F267F9 /* libcdbc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B750DAF0E877D030003120A /* libcdbc.dylib */; };
 		2B2DF875105EA06700F267F9 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2B2DF88C105EA1A900F267F9 /* db.mysql.query.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B2DF86D105EA04400F267F9 /* db.mysql.query.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		2B2DFAB3105FD13200F267F9 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		2B2E91EE1589165C0078D08A /* copytable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E91ED1589165C0078D08A /* copytable.cpp */; };
 		2B2E92F20FC475F9001F9022 /* charset-def.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E92D00FC475F9001F9022 /* charset-def.cpp */; };
 		2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
@@ -2369,7 +2370,6 @@
 		2BE680710F8E487F00E00A97 /* XML.tpl in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BE680600F8E482100E00A97 /* XML.tpl */; };
 		2BE733210EFAFBF600287AE0 /* db_mysql_catalog_report.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733150EFAFBF600287AE0 /* db_mysql_catalog_report.cpp */; };
 		2BE733230EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE733170EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp */; };
-		2BE733260EFAFBF600287AE0 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		2BE733290EFAFBF600287AE0 /* module_db_mysql.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331D0EFAFBF600287AE0 /* module_db_mysql.cpp */; };
 		2BE733360EFAFCB500287AE0 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2BE733660EFAFE6300287AE0 /* db.mysql.grt.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2BE733040EFAFB8B00287AE0 /* db.mysql.grt.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -14933,9 +14933,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27273AE0220DDDAD008B2F44 /* db_mysql_params.cpp in Sources */,
 				2B5286360F1C1ED1005FBF7C /* register_plugin.cpp in Sources */,
 				2B5286370F1C1ED1005FBF7C /* wb_module_validation_mysql.cpp in Sources */,
-				2B2DFAB3105FD13200F267F9 /* db_mysql_params.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15525,7 +15525,7 @@
 			files = (
 				2BE733210EFAFBF600287AE0 /* db_mysql_catalog_report.cpp in Sources */,
 				2BE733230EFAFBF600287AE0 /* db_mysql_diffsqlgen.cpp in Sources */,
-				2BE733260EFAFBF600287AE0 /* db_mysql_params.cpp in Sources */,
+				27273AE1220DDE0D008B2F44 /* db_mysql_params.cpp in Sources */,
 				2BE733290EFAFBF600287AE0 /* module_db_mysql.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
