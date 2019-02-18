@@ -341,7 +341,11 @@ protected:
   //--------------------------------------------------------------------------------------------------------------------
 
   virtual std::string getAccessibilityDescription() override {
-      return "Connection Group";
+    return "Connection Group";
+  }
+
+  virtual std::string getAccessibilityTitle() override {
+    return title;
   }
 
   //--------------------------------------------------------------------------------------------------------------------
