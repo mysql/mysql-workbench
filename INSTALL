@@ -56,8 +56,8 @@ For complete and up-to-date instructions, visit http://wb.mysql.com/?page_id=152
 Note about swig:
 - You will need swig 3.0 to build WB
 
-Note about antlr:
-- ANTLR 4.6 should be needed only if you'd like to play with parser.File antlr-4.6-complete.jar can be downloaded from http://www.antlr.org/download.html.
+Note about ANTLR:
+- ANTLR 4.7 is required to generate the files for the MySQL Parser. Download antlr-4.7.2-complete.jar from http://www.antlr.org/download.html.
   Then you'll need to pass it as cmake argument:
    -DWITH_ANTLR_JAR=<path_to_your_antlr_complete_file>
 
@@ -85,17 +85,16 @@ To Build:
 
 
 
-Buiding on Mac OS X
+Buiding on macOS
 -------------------
 
-To Build:
 - Go to http://rudix.org/ and download and install the following packages
   gettext, glib, libpng, libsigc++, lua, pkg-config, pcre, libzip, cairo, pixman
-- Install MySQL 5.5.x 32bit (64bit will not work), make sure /usr/local/mysql
-  points to the correct installation
-- Install MySQL Connector/C++, vsqlite++
-- Install Xcode 4.1.0 or later and open the MySQLWorkbench.xcodeproj file
-- Select the OS X 10.6 and Debug or Release and build
+- Install a recent MySQL server (64bit). The installer will link /usr/local/mysql
+  to the correct installation.
+- Install the latest MySQL Connector/C++ and vsqlite++.
+- Install the latest Xcode and open the MySQLWorkbench.xcodeproj file.
+- In the target dropdown pick MySQLWorkbench and build it.
 
 ==============================================================================
 
