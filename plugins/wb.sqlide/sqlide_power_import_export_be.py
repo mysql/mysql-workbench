@@ -343,7 +343,8 @@ class csv_module(base_module):
         self.title = self.name
         self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t','|':'|',';':';', ':':':', ',':','}, 'value':';', 'entry': None},
                 'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None}, 
-                'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None}};
+                'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None},
+                'nullwordaskeyword': {'description':'null and NULL word as SQL keyword', 'type':'select', 'opts':{'YES':'y', 'NO':'n'}, 'value':'y', 'entry': None}};
         
         self._extension = ["Comma Separated Values (*.csv)|*.csv", "csv"]
         self._allow_remote = True 
@@ -496,7 +497,11 @@ class csv_module(base_module):
                                 val = datetime.datetime.strptime(row[col_name], self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             if hasattr(val, "replace"):
                                 val = val.replace("\\", "\\\\").replace("'", "\\'")
-                            self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+
+                            if self.options['nullwordaskeyword']['value'] == "y" and val.upper() == "NULL":
+                                self._editor.executeManagementCommand("""SET @a%d = NULL """ % (i), 0)
+                            else:
+                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -558,8 +563,9 @@ class csv_module(base_module):
                     for col_value in row_line:
                         self._columns.append({'name': self.fix_column_name(col_value) , 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
                         
-                    for i, row in enumerate(reader): #we will read only first few rows
-                        if i < 5:
+                    ii = -1
+                    for ii, row in enumerate(reader): #we will read only first few rows
+                        if ii < 5:
                             for j, col_value in enumerate(row):
                                 try:
                                     json_value = json.loads(col_value)
@@ -570,8 +576,13 @@ class csv_module(base_module):
                                     self._columns[j]['value'].append(col_value)
                         else:
                             break
-                        
-                    if not self.has_header and i == 1: # This means there were one line which was consumed as a header we need to copy it to use as values
+
+                    # We hit here an edge case, enumerate didn't run but row_line contains something, 
+                    # we will assume this means that there's just one line
+                    if ii == -1 and len(row_line) > 0:
+                        ii = 1
+
+                    if not self.has_header and ii == 1: # This means there were one line which was consumed as a header we need to copy it to use as values
                         log_warning("File: %s, probably has got only one line, using it as a header and data\n" % self._filepath)
                         for j, col_value in enumerate(row_line):
                             try:
@@ -585,6 +596,7 @@ class csv_module(base_module):
                     for col in self._columns:
                         # Means the file is missing some data or is mallformed
                         if len(col['value']) == 0:
+                            log_error("Error analyzing file, we have no values.")
                             return False
 
                         gtype = self.guess_type(col['value'])
