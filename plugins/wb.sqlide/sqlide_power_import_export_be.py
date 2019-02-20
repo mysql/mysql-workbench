@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -28,6 +28,7 @@ import sys, os, csv
 
 import datetime
 import json
+import base64
 from workbench.utils import Version
 
 from workbench.log import log_debug3, log_debug2, log_error, log_warning
@@ -109,6 +110,29 @@ class base_module:
         self.is_running = False
         self.progress_info = None
         self.item_count = 0
+        self._columnNames = {}
+
+    def reset_column_fix(self):
+        self._columnNames = {}
+
+    def fix_column_duplication(self, name):
+        # Just to be on the safe side if the column name is not a plain string so python is happy
+        bname = base64.b64encode(name)
+        if bname in self._columnNames:
+            name = "%s_[%d]" % (name, self._columnNames[bname])
+            self._columnNames[bname] += 1
+        else:
+            self._columnNames[bname] = 0
+        return name
+
+    def fix_column_name(self, name):
+        if name is None:
+            name = ""
+        name = name.strip()
+        if len(name) == 0:
+            name = "MyUnknownColumn"
+
+        return self.fix_column_duplication(name)
 
     def guess_type(self, vals):
         def is_json(v):
@@ -239,7 +263,6 @@ class base_module:
     
     def prepare_new_table(self):
         try:
-            
             self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col["type"]) for col in self._mapping if col['active'] is True])), 1)
             self.update_progress(0.0, "Prepared new table")
             # wee need to setup dest_col for each row, as the mapping is empty if we're creating new table
@@ -464,7 +487,7 @@ class csv_module(base_module):
                                 val = """ST_GeomFromText("%s")""" % row[col_name]
                             else:
                                 val = """GeomFromText("%s")""" % row[col_name]
-                                
+
                             self._editor.executeManagementCommand("""SET @a%d = %s """ % (i, val), 0)
                         else:
                             if col_type[col] == 'double':
@@ -494,6 +517,7 @@ class csv_module(base_module):
         return result
 
     def analyze_file(self):
+        self.reset_column_fix()
         with open(self._filepath, 'rb') as csvfile:
             if self.dialect is None:
                 csvsample = []
@@ -501,14 +525,14 @@ class csv_module(base_module):
                     line = csvfile.readline()
                     if len(line) > 0:
                         csvsample.append(line)
-                
+
                 csvsample_len = len(csvsample)
                 csvsample = "".join(csvsample)
                 self.dialect = csv.Sniffer().sniff(csvsample)
                 self.has_header = csv.Sniffer().has_header(csvsample)
                 if self.has_header and csvsample_len == 1:
                     self.has_header = False
-                    
+
                 csvfile.seek(0)
                 self.options['filedseparator']['value'] = self.dialect.delimiter 
                 self.options['lineseparator']['value'] = self.dialect.lineterminator 
@@ -517,6 +541,7 @@ class csv_module(base_module):
                 self.dialect.delimiter = self.options['filedseparator']['value']
                 self.dialect.lineterminator = self.options['lineseparator']['value']
                 self.dialect.quotechar = self.options['encolsestring']['value']
+
                 csvfile.seek(0)
                 
             try:
@@ -531,7 +556,7 @@ class csv_module(base_module):
                 
                 if row_line:
                     for col_value in row_line:
-                        self._columns.append({'name': col_value, 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
+                        self._columns.append({'name': self.fix_column_name(col_value) , 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
                         
                     for i, row in enumerate(reader): #we will read only first few rows
                         if i < 5:
