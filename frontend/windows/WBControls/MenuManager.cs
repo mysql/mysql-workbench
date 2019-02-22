@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 using MySQL.Base;
@@ -44,6 +45,9 @@ namespace MySQL.Utilities
       menu.Show(parent, new System.Drawing.Point(x, y), ToolStripDropDownDirection.BelowRight);
       return menu;
     }
+
+    [DllImport("user32.dll")]
+    static extern int MapVirtualKey(uint uCode, uint uMapType);
 
     public static Keys convertShortcut(String shortcut)
     {
@@ -74,6 +78,14 @@ namespace MySQL.Utilities
               break;
             case "Slash":
               shortcutString = "Divide";
+              Keys key = (Keys)Enum.Parse(typeof(Keys), "Oem2", true);
+              // 2 is used to translate into an unshifted character value 
+              int nonVirtualKey = MapVirtualKey((uint)key, 2);
+              char mappedChar = Convert.ToChar(nonVirtualKey);
+              if (mappedChar == '/') {
+                result |= key;
+                return result;
+              }
               break;
             default:
               shortcutString = k;
@@ -106,6 +118,7 @@ namespace MySQL.Utilities
       foreach (MySQL.Base.MenuItem subitem in menuItems)
       {
         Keys shortcut = convertShortcut(subitem.get_shortcut());
+
 
         switch (subitem.get_type())
         {
