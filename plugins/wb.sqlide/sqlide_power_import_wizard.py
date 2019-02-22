@@ -815,6 +815,7 @@ class PowerImportWizard(WizardForm):
         WizardForm.__init__(self, mforms.Form.main_form())
 
         self.editor = editor
+        self.set_min_size(-1, 650)
         
         self.formats = []
         self.formats.append(create_module("csv", editor, True))
