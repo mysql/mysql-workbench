@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -215,7 +215,7 @@ namespace mforms {
      * @return true if user presses ok or false if its canceled.
      */
     static bool request_input(const std::string &title, const std::string &description,
-                              const std::string &default_value, std::string &ret_value);
+                              const std::string &default_value, std::string &ret_value /*out*/);
 
     /** Prompts the user for a password and whether it should be stored.
      * @param title - the title of the password dialog

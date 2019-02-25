@@ -390,11 +390,11 @@ static void on_request_action(mforms::TextEntryAction action, mforms::Button *bt
 
 //--------------------------------------------------------------------------------------------------
 
-bool Utilities::request_input(const std::string &title, const std::string &description,
-                              const std::string &default_value, std::string &ret_value) {
+static void *_request_input_main(const std::string &title, const std::string &description,
+                                 const std::string &default_value, std::string *ret_value) {
   // In order to avoid trouble with window z-ordering we explicitly ask to hide any wait window
   // that could get in the way. Same for the splash screen.
-  hide_wait_message();
+  Utilities::hide_wait_message();
 
   mforms::Form input_form(NULL, (FormFlag)(FormDialogFrame | FormStayOnTop));
   mforms::Table content;
@@ -439,9 +439,27 @@ bool Utilities::request_input(const std::string &title, const std::string &descr
   edit.focus();
   bool result = input_form.run_modal(&ok_button, &cancel_button);
   if (result)
-    ret_value = edit.get_string_value();
+    *ret_value = edit.get_string_value();
 
-  return result;
+  return (void *)result;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static bool _request_input(const std::string &title, const std::string &description, const std::string &default_value,
+                           std::string &ret_value) {
+  if (Utilities::in_main_thread())
+    return _request_input_main(title, description, default_value, &ret_value) != nullptr;
+  else
+    return Utilities::perform_from_main_thread(
+             std::bind(&_request_input_main, title, description, default_value, &ret_value)) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+bool Utilities::request_input(const std::string &title, const std::string &description,
+                              const std::string &default_value, std::string &ret_value /*out*/) {
+  return _request_input(title, description, default_value, ret_value);
 }
 
 //--------------------------------------------------------------------------------------------------
