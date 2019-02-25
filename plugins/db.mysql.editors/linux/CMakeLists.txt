@@ -61,7 +61,7 @@ target_link_libraries(db.mysql.editors.wbp
     wbprivate::wbprivate
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.editors.wbp PRIVATE gcov)
 endif()
 

@@ -21,7 +21,7 @@ set_target_properties(db.mysql.diff.reporting.wbp PROPERTIES
 target_link_libraries(db.mysql.diff.reporting.wbp 
   PRIVATE wbpublic grt mforms wbscintilla cdbc db.mysql.wbp)
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.diff.reporting.wbp PRIVATE gcov)
 endif()
 

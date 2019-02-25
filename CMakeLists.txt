@@ -21,7 +21,7 @@ project(WORKBENCH LANGUAGES C CXX)
 
 option(ENABLE_COTIRE "Enable cotire to generate precompiled headers" OFF)
 option(TEST_BUILD "Enable building additonal debug libs" OFF)
-option(GCOV_BUILD "Enable gcov instrumentation" OFF)
+option(BUILD_FOR_GCOV "Enable gcov instrumentation" OFF)
 option(USE_BUNDLED_MYSQL "Use bundled MySQL tools" OFF)
 
 

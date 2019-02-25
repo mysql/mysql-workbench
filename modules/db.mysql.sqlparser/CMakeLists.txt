@@ -59,7 +59,7 @@ target_include_directories(db.mysql.sqlparser.grt_Iface INTERFACE
 )
 
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.sqlparser.grt PRIVATE gcov)
 endif()
 

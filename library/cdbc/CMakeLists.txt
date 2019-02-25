@@ -27,7 +27,7 @@ target_link_libraries(cdbc
     wbbase::wbbase
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(cdbc PRIVATE gcov)
 endif()
 

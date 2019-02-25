@@ -67,7 +67,7 @@ target_link_libraries(parsers
    wbbase::wbbase
    ${GTK3_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(parsers PRIVATE gcov)
 endif()
 

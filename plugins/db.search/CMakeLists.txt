@@ -26,7 +26,7 @@ target_link_libraries(db.search.wbp
     grt
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.search.wbp PRIVATE gcov)
 endif()
 

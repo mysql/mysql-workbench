@@ -114,7 +114,7 @@ target_include_directories(wbprivate_Iface
 add_dependencies(wbprivate generate_parser_mysql)
 
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(wbprivate PRIVATE gcov)
 endif()
 

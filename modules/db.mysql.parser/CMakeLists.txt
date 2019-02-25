@@ -35,7 +35,7 @@ set_target_properties(db.mysql.parser.grt PROPERTIES
   SOVERSION ${WB_VERSION}
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.parser.grt PRIVATE gcov)
 endif()
 

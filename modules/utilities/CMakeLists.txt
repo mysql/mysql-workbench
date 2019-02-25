@@ -22,7 +22,7 @@ set_target_properties(utilities.grt PROPERTIES
 
 target_link_libraries(utilities.grt PRIVATE grt wbpublic mdcanvas ${GDAL_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(utilities.grt PRIVATE gcov)
 endif()
 

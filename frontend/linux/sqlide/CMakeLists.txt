@@ -30,7 +30,7 @@ target_link_libraries(sqlide
    wbpublic::wbpublic
  ${GTK3_LIBRARIES} ${CAIRO_LIBRARIES} ${SIGC++_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(sqlide PRIVATE gcov)
 endif()
 

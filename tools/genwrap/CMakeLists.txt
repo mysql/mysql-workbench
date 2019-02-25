@@ -27,6 +27,6 @@ endif()
 
 target_link_libraries(genwrap PUBLIC Boost::boost PRIVATE grt wbbase wbpublic mtemplate ${X11_LIBRARIES} ${PCRE_LIBRARIES} ${MySQL_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(genwrap PRIVATE gcov)
 endif()

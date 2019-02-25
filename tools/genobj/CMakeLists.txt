@@ -29,6 +29,6 @@ endif()
 
 target_link_libraries(genobj PUBLIC Boost::boost PRIVATE grt wbbase ${GTKMM_LIBRARIES} ${GTK3_LIBRARIES} ${GLIB_LIBRARIES} ${PCRE_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(genobj PRIVATE gcov)
 endif()

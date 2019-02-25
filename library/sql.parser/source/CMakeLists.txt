@@ -56,7 +56,7 @@ endif ()
 
 target_link_libraries(sqlparser PUBLIC db.mysql.sqlparser.grt::db.mysql.sqlparser.grt)
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(sqlparser PRIVATE gcov)
 endif()
 

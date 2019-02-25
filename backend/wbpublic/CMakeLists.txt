@@ -184,7 +184,7 @@ target_include_directories(wbpublic_Iface
 )
 
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(wbpublic PRIVATE gcov)
 endif()
 set_source_files_properties(sqlide/recordset_be.cpp

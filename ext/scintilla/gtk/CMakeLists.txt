@@ -188,7 +188,7 @@ endif()
 target_compile_options(wbscintilla PRIVATE ${NEW_WB_CFLAGS})
 target_link_libraries(wbscintilla PUBLIC wbscintilla_Iface PRIVATE ${GTK3_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(wbscintilla PRIVATE gcov)
 endif()
 

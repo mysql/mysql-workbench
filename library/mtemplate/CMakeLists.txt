@@ -14,7 +14,7 @@ target_include_directories(mtemplate
 target_compile_options(mtemplate PRIVATE ${WB_CXXFLAGS})
 
 target_link_libraries(mtemplate PRIVATE wbbase ${GLIB_LIBRARIES})
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(mtemplate PRIVATE gcov)
 endif()
 

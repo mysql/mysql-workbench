@@ -58,7 +58,7 @@ target_link_libraries(mdcanvas
     ${OPENGL_LIBRARIES}
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(mdcanvas PRIVATE gcov)
 endif()
 
@@ -96,7 +96,7 @@ target_link_libraries(mdcanvasgtk
     wbbase 
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(mdcanvasgtk PRIVATE gcov)
 endif()
 

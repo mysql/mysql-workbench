@@ -11,7 +11,7 @@ target_compile_options(db.mysql.query.grt PRIVATE ${WB_CXXFLAGS})
 
 target_link_libraries(db.mysql.query.grt PRIVATE grt cdbc ${GTK3_LIBRARIES} ${SIGC++_LIBRARIES} ${MySQLCppConn_LIBRARIES})
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.query.grt PRIVATE gcov)
 endif()
 

@@ -21,7 +21,7 @@ target_link_libraries(wb.printing.wbp
     wbpublic
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(wb.printing.wbp PRIVATE gcov)
 endif()
 

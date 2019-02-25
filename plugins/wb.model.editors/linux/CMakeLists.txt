@@ -40,7 +40,7 @@ target_link_libraries(wb.model.editors.wbp
     parsers
   )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(wb.model.editors.wbp PRIVATE gcov)
 endif()
 

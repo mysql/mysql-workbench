@@ -42,7 +42,7 @@ target_link_libraries(db.mysql.grt
     Boost::boost
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.grt PRIVATE gcov)
 endif()
 

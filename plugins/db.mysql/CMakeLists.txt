@@ -33,9 +33,9 @@ target_include_directories(db.mysql.wbp
 
 target_compile_options(db.mysql.wbp PRIVATE ${WB_CXXFLAGS})
 target_link_libraries(db.mysql.wbp PUBLIC db.mysql.wbp_Iface PRIVATE wbpublic grt cdbc db.mysql.grt parsers mforms)
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(db.mysql.wbp PRIVATE gcov)
-endif(GCOV_BUILD)
+endif(BUILD_FOR_GCOV)
 
 add_library(db.mysql.wbp_Iface INTERFACE)
 add_library(db.mysql.wbp::db.mysql.wbp ALIAS db.mysql.wbp_Iface)

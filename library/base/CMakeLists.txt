@@ -62,7 +62,7 @@ target_link_libraries(wbbase_Iface
 
 set_source_files_properties(drawing_gtk.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(wbbase PRIVATE gcov)
 endif()
 

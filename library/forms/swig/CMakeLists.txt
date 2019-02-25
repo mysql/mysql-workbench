@@ -96,7 +96,7 @@ if(CMAKE_VERSION VERSION_LESS 3.8)
 else()
   swig_add_library(mforms LANGUAGE python SOURCES mforms.i)
 endif()
-swig_link_libraries(mforms PRIVATE Boost::boost mforms wbscintilla wbbase::wbbase wbpublic::wbpublic grt::grt ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
+swig_link_libraries(mforms Boost::boost mforms wbscintilla wbbase::wbbase wbpublic::wbpublic grt::grt ${GTK3_LIBRARIES} ${LIBXML2_LIBRARIES})
 set_source_files_properties(${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS ${SOURCE_FILE_COMPILE_FLAGS})
 
 target_compile_options(_mforms PRIVATE ${WB_CXXFLAGS})
@@ -131,8 +131,9 @@ set_target_properties(_cairo
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
-if(GCOV_BUILD)
-  target_link_libraries(_cairo PRIVATE gcov)
+if(BUILD_FOR_GCOV)
+  target_link_libraries(_cairo gcov)
+  target_link_libraries(_mforms gcov)
 endif()                                 
                                  
 install(TARGETS _mforms _cairo DESTINATION ${WB_PYTHON_MODULES_DIR})

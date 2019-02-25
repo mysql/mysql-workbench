@@ -146,7 +146,7 @@ target_link_libraries(mforms_Iface INTERFACE
 
 set_source_files_properties(gtk/src/mforms_acc.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(mforms PRIVATE gcov)
 endif()
 

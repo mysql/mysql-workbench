@@ -76,7 +76,7 @@ target_link_libraries(mysql-workbench-bin
     ${MySQL_LIBRARIES}
 )
 
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(mysql-workbench-bin PRIVATE gcov)
 endif()
 

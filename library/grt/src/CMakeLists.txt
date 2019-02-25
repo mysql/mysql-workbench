@@ -67,7 +67,7 @@ target_include_directories(grt_Iface
 
 
 set_source_files_properties(python_grtlist.cpp PROPERTIES COMPILE_FLAGS -Wno-pragmas)
-if(GCOV_BUILD)
+if(BUILD_FOR_GCOV)
   target_link_libraries(grt PRIVATE gcov)
 endif()
 

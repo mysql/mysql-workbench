@@ -39,7 +39,7 @@ if (UNIX)
       ${MySQL_INCLUDE_DIRS} 
   )
 
-  if(GCOV_BUILD)
+  if(BUILD_FOR_GCOV)
     target_link_libraries(wbcopytables-bin PRIVATE gcov)
   endif()
    if(COMMAND cotire)
@@ -87,7 +87,7 @@ else()
       ${LIBZIP_LIBRARIES}
   )
    
-   if(GCOV_BUILD)
+   if(BUILD_FOR_GCOV)
     target_link_libraries(wbcopytables PRIVATE gcov)
    endif()
    if(COMMAND cotire)
