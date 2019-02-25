@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -594,12 +594,136 @@ class CheckForUpdateThread(threading.Thread):
         try:
             import urllib2
             import json
-            urllib2.install_opener(urllib2.build_opener(urllib2.ProxyHandler()))
+            import base64
+
+            class LoginForm(mforms.Form):
+                def __init__(self):
+                    mforms.Form.__init__(self, None)
+
+                    self.set_title("Apply Changes to MySQL configuration File")
+                    content = mforms.newBox(False)
+                    content.set_padding(12)
+                    content.set_spacing(12)
+
+                    button_box = mforms.newBox(True)
+                    button_box.set_spacing(12)
+                    self.apply_btn = mforms.newButton()
+                    self.apply_btn.set_text("Apply")
+
+                    self.cancel_btn = mforms.newButton()
+                    self.cancel_btn.set_text("Cancel")
+                    self.cancel_btn.add_clicked_callback(self.cancel_clicked)
+
+                    content.add(button_box, False, True)
+                    self.set_content(content)
+                    self.set_size(640, 480)
+                    
+                    self.apply_btn.add_clicked_callback(self.apply_clicked)
+                    self.cancel_btn.add_clicked_callback(self.cancel_clicked)
+
+                def show(self):
+                    self.run_modal(self.apply_btn, self.cancel_btn)
+                def apply_clicked(self):
+                    self.close()
+
+                def cancel_clicked(self):
+                    self.close()
+
+            class ProxyAuthenticationHandler(urllib2.AbstractBasicAuthHandler, urllib2.BaseHandler):
+
+                auth_header = 'Proxy-authorization'
+                attempts = 0
+                
+                class ProxyAuthenticationForm(mforms.Form):
+                    def __init__(self):
+                        mforms.Form.__init__(self, None, mforms.FormDialogFrame)
+                        self.set_size(400, -1)
+
+                        box = mforms.newBox(False)
+                        box.set_spacing(12)
+                        box.set_padding(12)
+
+                        self.set_content(box)
+                        self.set_title("Proxy Authentication")
+
+                        content = mforms.newTable()
+
+                        content.set_padding(12);
+                        content.set_row_count(2);
+                        content.set_row_spacing(10);
+                        content.set_column_count(2);
+                        content.set_column_spacing(10);
+
+                        self.username = mforms.newTextEntry()
+                        self.password = mforms.newTextEntry(mforms.PasswordEntry)
+
+                        content.add(mforms.newLabel("User Name:"), 0, 1, 0, 1, mforms.HFillFlag | mforms.VFillFlag);
+                        content.add(self.username, 1, 2, 0, 1, mforms.HFillFlag | mforms.HExpandFlag);
+                        content.add(mforms.newLabel("Password:"), 0, 1, 1, 2, mforms.HFillFlag | mforms.VFillFlag);
+                        content.add(self.password, 1, 2, 1, 2, mforms.HFillFlag | mforms.HExpandFlag);
+
+                        box.add(content, True, True)
+
+                        self.ok = mforms.newButton()
+                        self.ok.set_text("OK")
+                        self.cancel = mforms.newButton()
+                        self.cancel.set_text("Cancel")
+                        button_box = mforms.newBox(True)
+                        mforms.Utilities.add_end_ok_cancel_buttons(button_box, self.ok, self.cancel)
+                        box.add_end(button_box, False, True)
+
+                        self.ok.add_clicked_callback(self.accepted)
+                        self.cancel.add_clicked_callback(self.canceled)
+                    def run(self):
+                        return self.run_modal(None, self.cancel)
+                    
+                    def accepted(self):
+                        self.end_modal(True)
+                    def canceled(self):
+                        self.end_modal(False)
+
+
+                def request_authentication(self):
+                    dialog = self.ProxyAuthenticationForm()
+                    self.result = dialog.run()
+                    self.username = dialog.username.get_string_value()
+                    self.password = dialog.password.get_string_value()
+
+                def http_error_407(self, req, fp, code, msg, headers):
+                    authority = req.host
+
+                    if self.attempts > 0:
+                        mforms.Utilities.show_error('Proxy Authentication', 'The proxy authentication was incorrect. Please try again.', "OK", "", "")
+
+                    mforms.Utilities.perform_from_main_thread(self.request_authentication, True)
+
+                    if self.result == False:
+                        return None
+
+                    self.attempts = self.attempts + 1
+
+                    raw = "%s:%s" % (self.username, self.password)
+                    auth = "Basic " + base64.b64encode(raw.encode()).decode("ascii")
+                    if req.get_header(self.auth_header, None) == auth:
+                        return None
+                    req.add_unredirected_header(self.auth_header, auth)
+
+                    return self.parent.open(req, timeout=req.timeout)
+
+            proxy_handler = urllib2.ProxyHandler()
+            proxy_auth_handler = ProxyAuthenticationHandler()
+
+            opener = urllib2.build_opener()
+            opener.add_handler(proxy_handler)
+            opener.add_handler(proxy_auth_handler)
+
+            urllib2.install_opener(opener)
+
             self.json = json.load(urllib2.urlopen("http://workbench.mysql.com/current-release")) 
         except Exception, error:
 
             self.json = None
-            self.error = "%s\n\nPlease verify your internet connection is available." % str(error)        
+            self.error = "%s\n\nPlease verify that your internet connection is available." % str(error)        
     
     def checkForUpdatesCallback(self):
         if self.isAlive():
