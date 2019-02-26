@@ -126,6 +126,15 @@ public:
     member_changed("owner", ovalue, value);
   }
 
+  /**
+   * Getter for attribute guid (read-only)
+   *
+   * Internal object Global Unique Identifier
+   * \par In Python:
+   *    value = obj.guid
+   */
+  grt::StringRef guid() const { return _id; }
+
 protected:
 
   grt::StringRef _name;
@@ -152,6 +161,7 @@ public:
       GrtObjectRef (GrtObject::*getter)() const = &GrtObject::owner;
       meta->bind_member("owner", new grt::MetaClass::Property<GrtObject,GrtObjectRef>(getter, setter));
     }
+    meta->bind_member("guid", new grt::MetaClass::Property<GrtObject,grt::StringRef>(&GrtObject::guid));
   }
 };
 

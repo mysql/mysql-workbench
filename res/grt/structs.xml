@@ -8,6 +8,7 @@
           <members>
               <member name="name" type="string" attr:desc="the object's name"/>
               <member name="owner" type="object" struct-name="GrtObject" attr:dontdiff="1" attr:desc="the object that owns this object" attr:editas="hide"/>
+              <member name="guid" type="string" attr:dontdiff="1" read-only="1" calculated="1" delegate-get="1" attr:desc="Internal object Global Unique Identifier"/>
           </members>
       </gstruct>
 

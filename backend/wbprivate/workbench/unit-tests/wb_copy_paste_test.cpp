@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -49,6 +49,8 @@ static bool match_member(const grt::MetaClass::Member *member, const grt::Object
   if (!grt::is_simple_type(member->type.base.type))
     return true;
 
+  if (member->name == "guid") // it's always true, as it's unique per GrtObject
+    return true;
   grt::ValueRef value1;
   grt::ValueRef value2;
 

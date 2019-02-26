@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -350,10 +350,10 @@ TEST_FUNCTION(30) // Property
 
   std::string s;
 
-  insp->get_field(NodeId(6), ValueInspectorBE::Name, s);
+  insp->get_field(NodeId(7), ValueInspectorBE::Name, s);
   ensure_equals("node for name", s, "name");
 
-  bool flag = insp->set_field(NodeId(6), ValueInspectorBE::Value, "hello");
+  bool flag = insp->set_field(NodeId(7), ValueInspectorBE::Value, "hello");
   ensure("rename value", flag);
   check_only_one_undo_added();
 
