@@ -70,17 +70,25 @@ Note about gdal:
 Building on Windows
 -------------------
 
-To build on Windows, you need Visual Studio 2010 with C++ and C# support.
-You also need the latest mysql-workbench-externals-1.0-win32 package, which
-contains pre-compiled binaries of all the 3rd party libraries that Workbench 
-depends on.
+To build on Windows, you need Visual Studio 2017 with C++ and C# support.
+You also need to prepare pre-compiled binaries for all the 3rd party libraries that Workbench 
+depends on. You can use a C++ package manager for Windows, Linux and MacOS 
+https://docs.microsoft.com/en-us/cpp/vcpkg?view=vs-2017
 
 To Build:
-- Unpack mysql-gui-win-res in the same top directory as Workbench itself
+- Create folder bundle or similar and put there all 3dpart libs. Folder should look like:
+     * bin
+     * include
+     * lib
+     * debug
+      ** bin
+      ** include
+      ** lib
+     * python
+- Create in system environoment variable which point to folder where 3rd party libs are located WB_3DPARTY_LIB=<libs and headers files directory>
 - Go to the mysql-workbench directory
 - Open MySQLWorkbench.sln solution file
 - Select Release_OSS or the Debug Configuration
-- Select x86 as the Platform
 - Build Project
 
 
