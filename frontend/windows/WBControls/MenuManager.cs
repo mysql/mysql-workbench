@@ -47,9 +47,13 @@ namespace MySQL.Utilities
     }
 
     [DllImport("user32.dll")]
-    static extern int MapVirtualKey(uint uCode, uint uMapType);
+    public static extern int ToUnicode(uint virtualKeyCode, uint scanCode,
+                                       byte[] keyboardState,
+                                       [Out, MarshalAs(UnmanagedType.LPWStr, SizeConst = 64)] System.Text.StringBuilder receivingBuffer,
+                                       int bufferSize, uint flags);
 
-    public static Keys convertShortcut(String shortcut)
+
+        public static Keys convertShortcut(String shortcut)
     {
       Keys result = Keys.None;
 
@@ -79,10 +83,11 @@ namespace MySQL.Utilities
             case "Slash":
               shortcutString = "Divide";
               Keys key = (Keys)Enum.Parse(typeof(Keys), "Oem2", true);
-              // 2 is used to translate into an unshifted character value 
-              int nonVirtualKey = MapVirtualKey((uint)key, 2);
-              char mappedChar = Convert.ToChar(nonVirtualKey);
-              if (mappedChar == '/') {
+
+              var mappedString = new System.Text.StringBuilder(256);
+              ToUnicode((uint)key, 0, new byte[256], mappedString, 256, 0);
+
+              if (mappedString.ToString() == "/") {
                 result |= key;
                 return result;
               }
