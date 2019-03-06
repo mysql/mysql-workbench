@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -150,6 +150,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
   _top_hbox.add(&_stored_connection_list, false, true);
 
   _content_box.set_spacing(8);
+  _content_box.set_name("Connection Specification");
 
   {
     mforms::Box *hbox = mforms::manage(new mforms::Box(true));
@@ -175,7 +176,9 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
 
   _connect_panel->init(_mgmt);
   _connect_panel->set_padding(12);
+  _tabview.set_name("Options");
   _tabview.add_page(_connect_panel, _("Connection"));
+
 
   // Remote management
   {
@@ -396,6 +399,7 @@ ServerInstanceEditor::ServerInstanceEditor(const db_mgmt_ManagementRef &mgmt)
   _move_down_button.set_text(_("Move Down"));
   scoped_connect(_move_down_button.signal_clicked(), std::bind(&ServerInstanceEditor::reorder_instance, this, false));
 
+  _bottom_hbox.set_name("Button Bar");
   _bottom_hbox.add(&_add_inst_button, false, true);
   _bottom_hbox.add(&_del_inst_button, false, true);
   _bottom_hbox.add(&_dup_inst_button, false, true);

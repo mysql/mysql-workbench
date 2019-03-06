@@ -145,7 +145,7 @@ DbConnectPanel::DbConnectPanel(DbConnectPanelFlags flags)
   _table.add(&_driver_sel, 1, 2, row, row + 1, mforms::HExpandFlag | mforms::HFillFlag | mforms::VFillFlag);
   _table.add(&_desc3, 2, 3, row, row + 1, mforms::HFillFlag);
 
-  _tab.set_name("Connection");
+  _tab.set_name("Connection Details");
   _params_panel.set_name("Parameters");
   _ssl_panel.set_name("SSL");
   _advanced_panel.set_name("Advanced");
