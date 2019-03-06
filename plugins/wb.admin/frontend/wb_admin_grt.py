@@ -575,14 +575,17 @@ class PasswordExpiredDialog(mforms.Form):
         vbox.add(hbox, False, True)
 
         self.old_password = mforms.newTextEntry(mforms.PasswordEntry)
+        self.old_password.set_name("Old Password")
         box.add(newLabel("Old Password:", True), 0, 1, 0, 1, mforms.HFillFlag|mforms.VFillFlag)
         box.add(self.old_password, 1, 2, 0, 1, mforms.HFillFlag|mforms.HExpandFlag)
 
         self.password = mforms.newTextEntry(mforms.PasswordEntry)
+        self.password.set_name("New Password")
         box.add(newLabel("New Password:", True), 0, 1, 1, 2, mforms.HFillFlag|mforms.VFillFlag)
         box.add(self.password, 1, 2, 1, 2, mforms.HFillFlag|mforms.HExpandFlag)
 
         self.confirm = mforms.newTextEntry(mforms.PasswordEntry)
+        self.confirm.set_name("Confirm Password")
         box.add(newLabel("Confirm:", True), 0, 1, 2, 3, mforms.HFillFlag|mforms.VFillFlag)
         box.add(self.confirm, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
 
