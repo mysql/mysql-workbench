@@ -423,6 +423,7 @@ createDatabase:
 createDatabaseOption:
     defaultCharset
     | defaultCollation
+    | {serverVersion >= 80016}? defaultEncryption
 ;
 
 createTable:
@@ -3260,6 +3261,10 @@ ternaryOption:
 
 defaultCollation:
     DEFAULT_SYMBOL? COLLATE_SYMBOL EQUAL_OPERATOR? collationName
+;
+
+defaultEncryption:
+	DEFAULT_SYMBOL? ENCRYPTION_SYMBOL EQUAL_OPERATOR? textStringLiteral
 ;
 
 defaultCharset:

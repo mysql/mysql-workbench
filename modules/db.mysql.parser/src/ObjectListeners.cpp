@@ -861,6 +861,12 @@ void SchemaListener::exitCollationName(MySQLParser::CollationNameContext *ctx) {
   schema->defaultCollationName(info.second);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+void SchemaListener::exitDefaultEncryption(MySQLParser::DefaultEncryptionContext *ctx) {
+  //TODO: implement
+}
+
 //----------------- TableListener --------------------------------------------------------------------------------------
 
 TableListener::TableListener(tree::ParseTree *tree, db_mysql_CatalogRef catalog, db_mysql_SchemaRef schema,
