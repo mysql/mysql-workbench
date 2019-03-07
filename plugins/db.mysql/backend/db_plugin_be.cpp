@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -196,7 +196,7 @@ void Db_plugin::load_schemata(std::vector<std::string> &schemata) {
   int current = 0;
   while (rset->next()) {
     std::string name = rset->getString("name");
-    if (name != "mysql" && name != "information_schema" && name != "performance_schema") {
+    if (name != "mysql" && name != "information_schema" && name != "performance_schema" && name != "sys") {
       _schemata.push_back(name);
       _schemata_ddl[name] = rset->getString("ddl");
     }
