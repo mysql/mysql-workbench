@@ -1,15 +1,29 @@
 
 import os
 import sys
+import codecs
+import datetime
+import time
+import re
 
 rootdir = ""
-force = False
+create = False
 simulation = True # This will create files with *.headers_tmp instead of replacing the real files
 fixCommercial = False
 
+#
+# Usage:
+#   python file_headers.py [options] [path]
+#
+#   Options:
+#      --create      creates missing headers
+#      --real        Change the original files
+#      --commercial  deals with commercial files
+#
+
 for arg in sys.argv[1:]:
-    if arg == '--force':
-        force = True
+    if arg == '--create':
+        create = True
     elif arg == '--real':
         simulation = False
     elif arg == '--commercial':
@@ -20,10 +34,13 @@ for arg in sys.argv[1:]:
 cppTemplate=None
 pythonTemplate=None
 dirCount = 0
-usedFiles=[]
+updatedFiles=[]
 ignoredFiles=[]
 commercialFiles=[]
 headerAdded=[]
+eolChanged=[]
+bomRemoved=[]
+unchangedFiles=[]
 parsableFiles=['h', 'cpp', 'py', 'm', 'mm', 'cs']
 ignoreList = []
 comercialList = []
@@ -68,11 +85,18 @@ class Parser:
         return self.startLine is None and self.endLine is not None and self.creationYear is None
       
 class CParser(Parser):
+    def __init__(self):
+        self.startLine = None
+        self.creationYear = None
+        self.updateYear = None
+        self.endLine = None
+        
     def getHeader(self, currentYear):
-        return cppTemplate.replace('<ORIG_YEAR>', self.creationYear).replace('<CURRENT_YEAR>', currentYear)
+        #print('creation year: %s, current year: %s\n%s' % (self.creationYear, currentYear, cppTemplate))
+        return cppTemplate.replace('<ORIG_YEAR>', str(self.creationYear)).replace('<CURRENT_YEAR>', str(currentYear))
 
     def getCommercialHeader(self, currentYear):
-        return cppCommercialTemplate.replace('<ORIG_YEAR>', self.creationYear).replace('<CURRENT_YEAR>', currentYear)
+        return cppCommercialTemplate.replace('<ORIG_YEAR>', str(self.creationYear)).replace('<CURRENT_YEAR>', str(currentYear))
 
     def detectHeader(self, contentsArray, filename):
         inComment = False
@@ -104,22 +128,26 @@ class CParser(Parser):
             
             for str in copyrightStrings:
                 if (inComment or inlineComment) and text.startswith(str):
-                    text = text.replace(str, '').replace(',', '')
-                    words = text.split()
-                    self.creationYear = words[0]
+                    years = map(int, re.findall(r'\d+', text))
+                    self.creationYear = years[0]
+                    self.updateYear = years[-1]
             
             if self.hasHeader:
                 break
 
-        #if self.endLine and len(contentsArray) > self.endLine + 1 and contentsArray[self.endLine + 1].strip() == '':
-            #self.endLine = self.endLine + 1
-
 class PythonParser(Parser):
+    def __init__(self):
+        self.shebang = None
+        self.startLine = None
+        self.creationYear = None
+        self.updateYear = None
+        self.endLine = None
+        
     def getHeader(self, currentYear):
-        return pythonTemplate.replace('<ORIG_YEAR>', self.creationYear).replace('<CURRENT_YEAR>', currentYear)
+        return pythonTemplate.replace('<ORIG_YEAR>', str(self.creationYear)).replace('<CURRENT_YEAR>', str(currentYear))
 
     def getCommercialHeader(self, currentYear):
-        return pythonCommercialTemplate.replace('<ORIG_YEAR>', self.creationYear).replace('<CURRENT_YEAR>', currentYear)
+        return pythonCommercialTemplate.replace('<ORIG_YEAR>', str(self.creationYear)).replace('<CURRENT_YEAR>', str(currentYear))
 
     def detectHeader(self, contentsArray, filename):
         max = 25
@@ -128,13 +156,18 @@ class PythonParser(Parser):
         
         for line in range(0, max):
             text = contentsArray[line].strip()
-            #print(text)
-            if text.startswith('# Copyright (c) '):
-                #print("found header")
-                self.startLine = line
-                text = text.replace('# Copyright (c) ', '').replace(',', '')
-                words = text.split()
-                self.creationYear = words[0]
+            if text.startswith('#!'):
+                self.shebang = text
+                if self.startLine == None:
+                    self.startLine = line
+            elif text.startswith('# Copyright (c) '):
+                if self.startLine == None:
+                    self.startLine = line
+                
+                years = map(int, re.findall(r'\d+', text))
+                self.creationYear = years[0]
+                self.updateYear = years[-1]
+                    
             elif line == 0 and text.find('# Copyright (c) ') > -1:
                 print("    BOM problem?  %s" % filename)
             elif self.startLine is not None and self.creationYear is not None and not text.startswith('#'):
@@ -197,6 +230,20 @@ def browseDirectory(directory):
                 exit(1)
             
             fileContents = getFileContents(fullFilename)
+            
+            needsUpdate = False
+            
+            if fileContents.startswith(codecs.BOM_UTF8):
+                fileContents = fileContents.decode('utf-8-sig')
+                bomRemoved.append(fullFilename)
+                needsUpdate = True
+            
+            if not fileContents == fileContents.replace('\r\n', '\n'):
+                fileContents = fileContents.replace('\r\n', '\n')
+                eolChanged.append(fullFilename)
+                needsUpdate = True
+                
+            modification_year = time.strftime('%Y', time.localtime(os.path.getmtime(fullFilename)))
 
             contentsArray = fileContents.split('\n')
             newHeader = None
@@ -207,42 +254,53 @@ def browseDirectory(directory):
             elif fileExtension in ['py']:
                 parser = PythonParser()
 
-            #if filename != 'os_utils.py':
-                #continue
-
             parser.detectHeader(contentsArray, fullFilename)
             
             if not parser.hasHeader:
-                
-                if force:
+                # Header does not exist...we need to create one
+                if create:
                     headerAdded.append([parser.startLine, parser.endLine, parser.creationYear, fullFilename])
                     #headerAdded.append(fullFilename)
                     #print("Adding header to file: %s" % fullFilename)
                     parser.startLine = 0
                     parser.endLine = 0
-                    parser.creationYear = "2009"
+                    parser.creationYear = 2009
+                    parser.updateYear = 2009
+                    needsUpdate = True
                 else:
                     failedFiles.append([parser.startLine, parser.endLine, parser.creationYear, fullFilename])
                     #failedFiles.append(fullFilename)
-                    continue
-            #print(parser)
+                    #continue
+            
+            # Check if the modification date is superior then the year set in the copyright
+            if int(parser.updateYear) < int(modification_year):
+                needsUpdate = True
             
             if parser.endLine > 0:
+                # Full header was detected
                 for line in range(parser.startLine, parser.endLine + 1):
                     del contentsArray[parser.startLine]
                     
                 while len(contentsArray) > parser.startLine and contentsArray[parser.startLine].strip() == '':
                     del contentsArray[parser.startLine]
 
-            #print("%s - %s" % (filename, str(parser)))
-            newHeader = parser.getHeader('2018')
+            newHeader = parser.getHeader(modification_year)
             if fixCommercial and commercialHeader(fullFilename):
-                newHeader = parser.getCommercialHeader('2018')
-                commercialFiles.append(fullFilename)
+                newHeader = parser.getCommercialHeader(modification_year)
+                if needsUpdate:
+                    commercialFiles.append(fullFilename)
             
-            writeFile(fullFilename, newHeader,  '\n'.join(contentsArray))
+            # Add the shebang before the copyright
+            if fileExtension in ['py'] and parser.shebang:
+                newHeader = parser.shebang + '\n' + newHeader
             
-            usedFiles.append(fullFilename)
+            # Update the file only if it needs to
+            if needsUpdate:
+                writeFile(fullFilename, newHeader,  '\n'.join(contentsArray))
+                updatedFiles.append(fullFilename)
+            else:
+                unchangedFiles.append(fullFilename)
+            
             
 
 
@@ -265,9 +323,17 @@ for index in range(0, len(commercialList)):
         commercialList[index] = os.path.join(os.path.realpath(rootdir), commercialList[index])
 
 
+def listDiff(first, second):
+    second = set(second)
+    return [item for item in first if item not in second]
+
 browseDirectory(os.path.realpath(rootdir))
 
-print('Parsed %d dirs and %d files' % (dirCount, len(usedFiles)))
+print('Parsed %d dirs and %d files' % (dirCount, len(updatedFiles)))
+
+print("\n\nAll updated files (%d):" % len(updatedFiles))
+for file in updatedFiles:
+    print(file)
 
 print("\n\nFailed files (%d):" % len(failedFiles))
 for file in failedFiles:
@@ -280,4 +346,16 @@ for file in commercialFiles:
 print("\n\nAdded headers (%d):" % len(headerAdded))
 for file in headerAdded:
     print(file[3])
+
+print("\n\nEOL Changed (%d):" % len(eolChanged))
+for file in eolChanged:
+    print(file)
+
+print("\n\nBOM removed (%d):" % len(bomRemoved))
+for file in bomRemoved:
+    print(file)
+
+#print("\n\nUnchanged (%d):" % len(unchangedFiles))
+#for file in unchangedFiles:
+    #print(file)
 

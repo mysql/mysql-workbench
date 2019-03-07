@@ -8,6 +8,8 @@ po
 res
 samples
 wb-build
+testing/tut/build
+testing/tut2
 tools
 .git
 .git-mysql
