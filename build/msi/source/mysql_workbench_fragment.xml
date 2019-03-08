@@ -144,7 +144,6 @@
                 <?if $(var.SETUP_TYPE) != "community" ?>
                 <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
                 <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
-                <File Id="file1079" Name="wb.validation.grt.dll"/>
                 <?endif ?>
                 <File Id="file1076" Name="wb.printing.wbp.be.dll"/>
                 <File Id="file1077" Name="wb.printing.wbp.fe.dll"/>

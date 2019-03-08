@@ -1568,68 +1568,6 @@
                     <value type="string" key="itemType">separator</value>
                     <value type="string" key="accessibilityName">Separator</value>
                 </value>
-                <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation/SE">
-                    <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model</link>
-                    <value type="string" key="accessibilityName">Validation</value>
-                    <value type="string" key="name">validation</value>
-                    <value type="string" key="caption">Validation</value>
-                    <value type="string" key="itemType">cascade</value>
-                    <value type="list" key="subItems" content-type="object" content-struct-name="app.MenuItem">
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateAll/SE">
-                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation/SE</link>
-                            <value type="string" key="accessibilityName">Validate All</value>
-                            <value type="string" key="caption">Validate All</value>
-                            <value type="string" key="name">all_validation</value>
-                            <value type="string" key="command">plugin:db.plugin.wb.validate:All</value>
-                            <value type="string" key="itemType">action</value>
-                            <value type="string" key="shortcut">Modifier+Alt+V</value>
-                        </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.separator.view.sep/SE">
-                            <value type="string" key="itemType">separator</value>
-                            <value type="string" key="accessibilityName">Separator</value>
-                        </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateEmptyContent/SE">
-                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation/SE</link>
-                            <value type="string" key="accessibilityName">Check for Empty Content</value>
-                            <value type="string" key="caption">Check for Empty Content</value>
-                            <value type="string" key="name">empty_content_validation</value>
-                            <value type="string" key="command">plugin:db.plugin.wb.validate:EmptyContent</value>
-                            <value type="string" key="itemType">action</value>
-                        </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateTableEfficiency/SE">
-                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation/SE</link>
-                            <value type="string" key="accessibilityName">Check Table Efficiency</value>
-                            <value type="string" key="caption">Check Table Efficiency</value>
-                            <value type="string" key="name">empty_content_validation</value>
-                            <value type="string" key="command">plugin:db.plugin.wb.validate:TableEfficiency</value>
-                            <value type="string" key="itemType">action</value>
-                        </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateDuplicateIdentifiers/SE">
-                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation/SE</link>
-                            <value type="string" key="accessibilityName">Check Duplicated Identifiers</value>
-                            <value type="string" key="caption">Check Duplicated Identifiers</value>
-                            <value type="string" key="name">empty_content_validation</value>
-                            <value type="string" key="command">plugin:db.plugin.wb.validate:DuplicateIdentifiers</value>
-                            <value type="string" key="itemType">action</value>
-                        </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateConsistency/SE">
-                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation/SE</link>
-                            <value type="string" key="accessibilityName">Check Consistency</value>
-                            <value type="string" key="caption">Check Consistency</value>
-                            <value type="string" key="name">empty_content_validation</value>
-                            <value type="string" key="command">plugin:db.plugin.wb.validate:Consistency</value>
-                            <value type="string" key="itemType">action</value>
-                        </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateLogic/SE">
-                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation/SE</link>
-                            <value type="string" key="accessibilityName">Check Logic Errors</value>
-                            <value type="string" key="caption">Check Logic Errors</value>
-                            <value type="string" key="name">empty_content_validation</value>
-                            <value type="string" key="command">plugin:db.plugin.wb.validate:Logic</value>
-                            <value type="string" key="itemType">action</value>
-                        </value>
-                    </value>
-                </value>
                 <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation_mysql/SE">
                     <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model</link>
                     <value type="string" key="accessibilityName">Validation MySQL</value>
@@ -1666,12 +1604,44 @@
                             <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:Syntax</value>
                             <value type="string" key="itemType">action</value>
                         </value>
-                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validation.validateDuplicatesAdditions/SE">
+                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validationmysql.validateEmptyContent/SE">
+                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation_mysql/SE</link>
+                            <value type="string" key="accessibilityName">Check for Empty Content</value>
+                            <value type="string" key="caption">Check for Empty Content</value>
+                            <value type="string" key="name">empty_content_validation</value>
+                            <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:EmptyContent</value>
+                            <value type="string" key="itemType">action</value>
+                        </value>
+                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validationmysql.validateTableEfficiency/SE">
+                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation_mysql/SE</link>
+                            <value type="string" key="accessibilityName">Check Table Efficiency</value>
+                            <value type="string" key="caption">Check Table Efficiency</value>
+                            <value type="string" key="name">table_efficiency_validation</value>
+                            <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:TableEfficiency</value>
+                            <value type="string" key="itemType">action</value>
+                        </value>
+                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validationmysql.validateDuplicateIdentifiers/SE">
                             <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation_mysql/SE</link>
                             <value type="string" key="accessibilityName">Check Duplicated Identifiers</value>
-                            <value type="string" key="caption">Check Duplicated Identifiers (Additions)</value>
-                            <value type="string" key="name">duplicate_identifiers_add_validation</value>
-                            <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:DuplicatesAdditions</value>
+                            <value type="string" key="caption">Check Duplicated Identifiers</value>
+                            <value type="string" key="name">duplicated_identifiers_validation</value>
+                            <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:DuplicateIdentifiers</value>
+                            <value type="string" key="itemType">action</value>
+                        </value>
+                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validationmysql.validateConsistency/SE">
+                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation_mysql/SE</link>
+                            <value type="string" key="accessibilityName">Check Consistency</value>
+                            <value type="string" key="caption">Check Consistency</value>
+                            <value type="string" key="name">consistency_validation</value>
+                            <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:Consistency</value>
+                            <value type="string" key="itemType">action</value>
+                        </value>
+                        <value type="object" struct-name="app.MenuItem" id="com.mysql.wb.menu.model.validationmysql.validateLogic/SE">
+                            <link type="object" key="owner" struct-name="app.MenuItem">com.mysql.wb.menu.model.validation_mysql/SE</link>
+                            <value type="string" key="accessibilityName">Check Logic Errors</value>
+                            <value type="string" key="caption">Check Logic Errors</value>
+                            <value type="string" key="name">logic_errors_validation</value>
+                            <value type="string" key="command">plugin:db.mysql.plugin.wb.validate:Logic</value>
                             <value type="string" key="itemType">action</value>
                         </value>
                     </value>

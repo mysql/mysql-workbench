@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -963,7 +963,7 @@ ColumnTypeCompareResult ColumnHelper::compare_column_types(const db_ColumnRef &f
 }
 
 void ColumnHelper::set_default_value(db_ColumnRef column, const std::string &value) {
-  column->defaultValueIsNull(base::string_compare(value, "NULL", false) ? 0 : 1);
+  column->defaultValueIsNull(base::same_string(value, "NULL", false) ? 1 : 0);
   column->defaultValue(value.c_str());
 
   // If a default value of NULL was set then the column can no longer be a not-null column.

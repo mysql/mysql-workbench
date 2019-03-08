@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -37,20 +37,22 @@ namespace bec {
 
   public:
     Reporter();
+    virtual ~Reporter() {};
 
-    inline bool is_tracking() const;
-    inline void start_tracking() const;
+    virtual bool is_tracking() const;
+    virtual void start_tracking() const;
 
-    void flush() const;
+    virtual void flush() const;
 
-    void report_warning(const char* format, ...) const;
-    void report_error(const char* format, ...) const;
-    void report_info(const char* format, ...) const;
+    virtual void report_warning(const char* format, ...) const;
+    virtual void report_error(const char* format, ...) const;
+    virtual void report_info(const char* format, ...) const;
+    virtual void report_heading(const char* format, ...) const;
 
-    void report_summary(const char* operation_name) const;
+    virtual void report_summary(const char* operation_name) const;
 
-    inline int error_count() const;
-    inline int warning_count() const;
+    virtual int error_count() const;
+    virtual int warning_count() const;
   };
 
   class WBPUBLICBACKEND_PUBLIC_FUNC SummaryCentry {
