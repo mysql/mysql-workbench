@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -29,6 +29,7 @@ FindPanel::FindPanel(CodeEditor *editor) {
   _find_impl = &ControlFactory::get_instance()->_findpanel_impl;
   _editor = editor;
   _find_impl->create(this);
+  set_name("Find and Replace");
 }
 
 size_t FindPanel::perform_action(FindPanelAction action) {
