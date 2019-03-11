@@ -367,13 +367,16 @@ public:
           if (!existingDefault.empty())
             newDefault += " " + existingDefault;
           column->defaultValue(newDefault);
-        } else {
-          // signed literal
+        } else if (ctx->signedLiteral() != nullptr) {
           std::string newDefault = MySQLBaseLexer::sourceTextForContext(ctx->signedLiteral(), true);
           column->defaultValue(newDefault);
 
           if (base::same_string(newDefault, "NULL", false))
             column->defaultValueIsNull(true);
+        } else {
+          // Expressions in parentheses.
+          auto expression = ctx->exprWithParentheses()->expr();
+          column->defaultValue(MySQLBaseLexer::sourceTextForContext(expression, true));
         }
 
         _explicitDefaultValue = true;
