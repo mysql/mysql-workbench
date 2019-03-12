@@ -109,7 +109,7 @@ DocumentsSection::~DocumentsSection() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::size_t DocumentsSection::entry_from_point(int x, int y) const {
+std::size_t DocumentsSection::entry_from_point(int x, int y) {
   int width = get_width();
   if (x < DOCUMENTS_LEFT_PADDING || x > (width - DOCUMENTS_RIGHT_PADDING) || y < DOCUMENTS_TOP_PADDING)
     return -1; // Outside the entries area.
@@ -120,6 +120,8 @@ std::size_t DocumentsSection::entry_from_point(int x, int y) const {
   if ((y % (DOCUMENTS_ENTRY_HEIGHT + DOCUMENTS_VERTICAL_SPACING)) > DOCUMENTS_ENTRY_HEIGHT)
     return -1; // Within the vertical spacing between two entries.
 
+  width -= DOCUMENTS_LEFT_PADDING + DOCUMENTS_RIGHT_PADDING;
+  _entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
   if (x >= _entries_per_row * DOCUMENTS_ENTRY_WIDTH)
     return -1; // After the last entry in a row.
 
@@ -605,15 +607,6 @@ void DocumentsSection::add_document(const std::string &path, const time_t &time,
 void DocumentsSection::clear_documents() {
   _documents.clear();
   set_layout_dirty(true);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void DocumentsSection::set_size(int width, int height) {
-  HomeScreenSection::set_size(width, height);
-
-  width -= DOCUMENTS_LEFT_PADDING + DOCUMENTS_RIGHT_PADDING;
-  _entries_per_row = width / DOCUMENTS_ENTRY_WIDTH;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

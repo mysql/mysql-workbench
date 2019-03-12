@@ -139,7 +139,7 @@ namespace mforms {
     DocumentsSection(HomeScreen *owner);
     virtual ~DocumentsSection();
 
-    std::size_t entry_from_point(int x, int y) const;
+    std::size_t entry_from_point(int x, int y);
 
     /**
      * Draws and icon followed by the given text. The given position is that of the upper left corner
@@ -165,7 +165,6 @@ namespace mforms {
     void add_document(const std::string &path, const time_t &time, const std::string schemas, long file_size);
     void clear_documents();
 
-    virtual void set_size(int width, int height) override;
     virtual bool mouse_double_click(mforms::MouseButton button, int x, int y) override;
     virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
     virtual bool mouse_leave() override;
