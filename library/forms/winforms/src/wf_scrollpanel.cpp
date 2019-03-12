@@ -199,10 +199,8 @@ public:
       Control ^ content = Controls[0];
       maxSize = content->Size;
     }
-
     int scrollAmount;
-    double wheelFactor = (m.WParam.ToInt64() >> 16) / (double)WHEEL_DELTA;
-
+    double wheelFactor = GET_WHEEL_DELTA_WPARAM(m.WParam.ToInt64()) / WHEEL_DELTA;
     DWORD scrollLines;
     SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
     if (maxSize.Height > ClientSize.Height) {
