@@ -1104,8 +1104,6 @@ void MainForm::lock_gui_becb(bool lock) {
 
 //------------------------------------------------------------------------------
 void MainForm::switch_page(Gtk::Widget *, guint pagenum) {
-  if (_gui_locked)
-    return;
   Gtk::Notebook *note = get_upper_note();
   Gtk::Widget *page = note->get_nth_page(pagenum);
   if (page) {
