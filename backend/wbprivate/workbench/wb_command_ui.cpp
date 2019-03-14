@@ -399,6 +399,14 @@ void CommandUI::add_recent_menu(mforms::MenuItem *parent) {
   grt::StringListRef strlist(_wb->get_root()->options()->recentFiles());
 
   mforms::MenuItem *item;
+  if (strlist.count() == 0) {
+    // We need at least one entry in the Open Recent menu
+    // so the menu_will_show function gets called.
+    item = mforms::manage(new mforms::MenuItem("", mforms::SeparatorMenuItem));
+    item->set_name("Separator");
+    parent->add_item(item);
+    return;
+  }
   for (size_t c = min(strlist.count(), (size_t)10), i = 0; i < c; i++) {
     std::string caption;
     if (i < 9) {
