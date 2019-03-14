@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -60,7 +60,7 @@ class SnippetListView : public BaseSnippetList {
 private:
   friend class QuerySidePalette;
 
-  wb::SnippetPopover *_snippet_popover;
+  wb::SnippetPopover *_snippetPopover;
   bool _user_snippets_active;
   bool _shared_snippets_active;
 
@@ -70,10 +70,10 @@ private:
   }
 
   void popover_closed() {
-    if (_snippet_popover->has_changed()) {
-      std::string title = _snippet_popover->get_heading();
+    if (getPopover()->has_changed()) {
+      std::string title = getPopover()->get_heading();
       model()->set_field(bec::NodeId(_selected_index), DbSqlEditorSnippets::Description, title);
-      std::string sub_title = _snippet_popover->get_text();
+      std::string sub_title = getPopover()->get_text();
       model()->set_field(bec::NodeId(_selected_index), DbSqlEditorSnippets::Script, sub_title);
       if (_selected_snippet)
         set_snippet_info(_selected_snippet, title, sub_title);
@@ -136,13 +136,9 @@ private:
   //--------------------------------------------------------------------------------------------------------------------
 
 public:
-  SnippetListView(const std::string &icon_name) : BaseSnippetList(icon_name, DbSqlEditorSnippets::get_instance()) {
+  SnippetListView(const std::string &icon_name) : BaseSnippetList(icon_name, DbSqlEditorSnippets::get_instance()), _snippetPopover(nullptr) {
     _user_snippets_active = false;
     _shared_snippets_active = false;
-
-    _snippet_popover = new wb::SnippetPopover(this);
-    _snippet_popover->set_size(376, 257);
-    _snippet_popover->signal_closed()->connect(std::bind(&SnippetListView::popover_closed, this));
 
     _defaultSnippetActionCb = [&](int x, int y) {
        Snippet *snippet = snippet_from_point(x, y);
@@ -152,14 +148,27 @@ public:
        }
     };
 
-
     prepare_context_menu();
   }
 
   //--------------------------------------------------------------------------------------------------------------------
 
+  wb::SnippetPopover* getPopover() {
+    if (_snippetPopover != nullptr) {
+      return _snippetPopover;
+    }
+
+    _snippetPopover = new wb::SnippetPopover(this);
+    _snippetPopover->set_size(376, 257);
+    _snippetPopover->signal_closed()->connect(std::bind(&SnippetListView::popover_closed, this));
+
+    return _snippetPopover;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
   ~SnippetListView() {
-    delete _snippet_popover;
+    delete _snippetPopover;
     _context_menu->release();
   }
 
@@ -170,7 +179,7 @@ public:
       _selected_index = 0;
       _selected_snippet = _snippets.front();
       edit_snippet(_selected_snippet);
-      _snippet_popover->set_read_only(false);
+      getPopover()->set_read_only(false);
     }
   }
 
@@ -212,11 +221,12 @@ public:
     std::string title, description;
     get_snippet_info(snippet, title, description);
 
-    _snippet_popover->set_heading(title);
-    _snippet_popover->set_read_only(false);
-    _snippet_popover->set_text(description);
-    _snippet_popover->set_read_only(true);
-    _snippet_popover->show(left_top.first, left_top.second, mforms::StartLeft);
+
+    getPopover()->set_heading(title);
+    getPopover()->set_read_only(false);
+    getPopover()->set_text(description);
+    getPopover()->set_read_only(true);
+    getPopover()->show(left_top.first, left_top.second, mforms::StartLeft);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -239,7 +249,10 @@ public:
   //--------------------------------------------------------------------------------------------------------------------
 
   void close_popover() {
-    _snippet_popover->close();
+    // Check if it's at least created cause maybe we don't need to close it.
+    if (_snippetPopover != nullptr) {
+      getPopover()->close();
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
