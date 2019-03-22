@@ -567,8 +567,8 @@ class TransferMainView(WizardProgressPage):
 REM Set the location for wbcopytables.exe in this variable
 set "wbcopytables_path=""" + os.getcwd() + """"
 
-if not ["%wbcopytables_path%"] == [] set "wbcopytables_path=%wbcopytables_path%\"\
-set "wbcopytables=%wbcopytables_path%wbcopytables.exe"
+if not [%wbcopytables_path%] == [] set wbcopytables_path=%wbcopytables_path%
+set wbcopytables=%wbcopytables_path%\\wbcopytables.exe
 
 if not exist "%wbcopytables%" (
 	echo "wbcopytables.exe doesn't exist in the supplied path. Please set 'wbcopytables_path' with the proper path(e.g. to Workbench binaries)"
