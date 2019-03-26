@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -399,7 +399,7 @@ class VariablesViewer(mforms.Box):
 
     def cat_menu_will_show(self, item):
         node = self.tree.get_selected_node()
-        self.cat_menu.find_item("delete").set_enabled(True if node and node.get_string(0) in self.user_groups.content and node.get_tag().startswith("Custom: ") else False)
+        self.cat_menu.find_item("Delete").set_enabled(True if node and node.get_string(0) in self.user_groups.content and node.get_tag().startswith("Custom: ") else False)
 
     def menu_will_show(self, item):
         self.menu.remove_all()
