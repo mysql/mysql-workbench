@@ -733,8 +733,12 @@ class FirewallCommands:
         if not query_result:
             return False
         
-        query_result.nextRow()
-        result = to_unicode(query_result.stringByIndex(1))
+        result = ""
+        
+        if query_result.nextRow():
+            data = query_result.stringByIndex(1)
+            if data:
+                result = to_unicode(data)
         
         if result == "":
             return False
