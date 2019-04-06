@@ -1164,6 +1164,12 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
     item->set_enabled(rows.size() > 0);
 
     item = _context_menu->add_item_with_title(
+      "Copy Row (with names, tab separated)",
+      std::bind(&Recordset::activate_menu_item, this, "copy_row_with_names_tabsep", rows, clicked_column), 
+      "Copy Row With Names and Tab Separated", "copy_row_with_names_tabsep");
+    
+
+    item = _context_menu->add_item_with_title(
       "Copy Field", std::bind(&Recordset::activate_menu_item, this, "copy_field", rows, clicked_column), "Copy Field", "copy_field");
     item->set_enabled(clicked_column >= 0 && rows.size() == 1);
 
@@ -1247,6 +1253,10 @@ void Recordset::activate_menu_item(const std::string &action, const std::vector<
   } else if (action == "copy_row_tabsep") {
     if (rows.size() > 0) {
       copy_rows_to_clipboard(rows, "\t", false);
+    }
+  } else if (action == "copy_row_with_names_tabsep") {
+    if (rows.size() > 0) {
+      copy_rows_to_clipboard(rows, "\t", false, true);
     }
   } else if (action == "copy_field") {
     if (rows.size() == 1 && clicked_column >= 0) {
