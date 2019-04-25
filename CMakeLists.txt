@@ -214,8 +214,8 @@ endif()
 
 
 
-set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
-set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated)
+set(WB_CXXFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-deprecated-copy)
+set(WB_CFLAGS -Werror -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-deprecated-copy)
 
 if(BUILD_FOR_GCOV)
     message ("Enable GCOV due to BUILD_FOR_GCOV")
