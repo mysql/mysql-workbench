@@ -2722,7 +2722,7 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
   std::unique_ptr<sql::Statement> statement;
   RecMutexLock usr_dbc_conn_mutex(ensure_valid_usr_connection());
   if (_usr_dbc_conn->ref.get() != nullptr)
-    statement.reset(_usr_dbc_conn->ref.get()->createStatement());
+    statement.reset(_usr_dbc_conn->ref->createStatement());
 
   auto schemaSymbols = _databaseSymbols.getSymbolsOfType<SchemaSymbol>();
   for (SchemaSymbol *schemaSymbol : schemaSymbols) {
@@ -2765,11 +2765,16 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
       }
 
       if (statement != nullptr) {
-        std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(
-          "SELECT VARIABLE_NAME FROM performance_schema.user_variables_by_thread"));
+        auto metaInfo = _usr_dbc_conn->ref->getMetaData();
+        if (metaInfo->getDatabaseMajorVersion() > 7
+            || (metaInfo->getDatabaseMajorVersion() == 5 && metaInfo->getDatabaseMinorVersion() > 6)) {
+          std::auto_ptr<sql::ResultSet> rs(
+            statement->executeQuery("SELECT VARIABLE_NAME FROM performance_schema.user_variables_by_thread")
+          );
 
-        while (rs->next()) {
-          _databaseSymbols.addNewSymbol<UserVariableSymbol>(nullptr, "@" + rs->getString(1), nullptr);
+          while (rs->next()) {
+            _databaseSymbols.addNewSymbol<UserVariableSymbol>(nullptr, "@" + rs->getString(1), nullptr);
+          }
         }
       }
 
