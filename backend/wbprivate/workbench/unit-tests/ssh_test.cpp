@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -79,7 +79,7 @@ TEST_FUNCTION(2) {
     retVal = session->connect(config, credentials);
     ensure_true("fingerprint unknown", std::get<0>(retVal) == ssh::SSHReturnType::FINGERPRINT_UNKNOWN);
     session->disconnect();
-  } catch (std::runtime_error &exc) {
+  } catch (std::runtime_error &) {
     session->disconnect();
     throw;
   }

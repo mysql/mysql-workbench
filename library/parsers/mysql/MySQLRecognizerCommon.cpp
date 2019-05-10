@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -24,11 +24,11 @@
 #include "MySQLLexer.h"
 #include "MySQLParser.h"
 
-#include "symbol-data.h"
 #include "SymbolTable.h"
 
 #include "MySQLRecognizerCommon.h"
 
+using namespace base;
 using namespace parsers;
 
 using namespace antlr4;
@@ -337,33 +337,18 @@ ParseTree* MySQLRecognizerCommon::contextFromPosition(ParseTree *root, size_t po
 
 //----------------------------------------------------------------------------------------------------------------------
 
-SymbolTable *parsers::functionSymbolsForVersion(size_t version) {
-  // The expected versions should be only major + minor, but be flexible here.
-  if (version > 999)
-    version /= 100;
+SymbolTable *parsers::functionSymbolsForVersion(MySQLVersion version) {
+  static std::map<MySQLVersion, SymbolTable> functionSymbols;
 
-  if (version < 505)
-    version = 501;
-  else if (version < 506)
-    version = 505;
-  else if (version < 507)
-    version = 506;
-  else if (version < 800)
-    version = 507;
-  else
-    version = 800;
-
-  static std::map<size_t, SymbolTable> symbolsPerVersion;
-  auto iterator = symbolsPerVersion.find(version);
-  if (iterator == symbolsPerVersion.end()) {
-    auto &functions = systemFunctions[version];
-    SymbolTable &symbolTable = symbolsPerVersion[version];
+  if (functionSymbols.count(version) == 0) {
+    auto &functions = MySQLSymbolInfo::systemFunctionsForVersion(version);
+    SymbolTable &symbolTable = functionSymbols[version]; // Creates the new symbol table.
 
     for (auto function : functions) {
       symbolTable.addNewSymbol<RoutineSymbol>(nullptr, function, nullptr);
     }
   }
-  return &symbolsPerVersion[version];
+  return &functionSymbols[version];
 }
 
 //----------------------------------------------------------------------------------------------------------------------

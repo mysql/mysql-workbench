@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "base/symbol-info.h"
+
 #include "parsers-common.h"
 
 namespace antlr4 {
@@ -78,7 +80,6 @@ namespace parsers {
 
   class SymbolTable;
 
-  // Returns a symbol table for all predefined system functions in MySQL. The parameter version must be given as short
-  // major * 100 + minor value (e.g. 506, 507, 800 etc.).
-  PARSERS_PUBLIC_TYPE SymbolTable* functionSymbolsForVersion(size_t version);
+  // Returns a symbol table for all predefined system functions in MySQL.
+  PARSERS_PUBLIC_TYPE SymbolTable* functionSymbolsForVersion(base::MySQLVersion version);
 }

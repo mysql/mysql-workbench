@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -22,6 +22,8 @@
  */
 
 #pragma once
+
+#include "base/symbol-info.h"
 
 #include "grt.h"
 #include "grt/tree_model.h"
@@ -395,7 +397,7 @@ namespace wb {
     bool is_object_type(ObjectTypeValidation validation, ObjectType type);
 
   public:
-    LiveSchemaTree();
+    LiveSchemaTree(base::MySQLVersion version);
     virtual ~LiveSchemaTree();
 
     void set_model_view(mforms::TreeView* target);
@@ -472,6 +474,7 @@ namespace wb {
   private:
     bool _is_schema_contents_enabled;
     bool _enabled_events;
+    base::MySQLVersion _version;
 
     LiveSchemaTree* _base;
     std::string _filter;

@@ -66,8 +66,8 @@ DBObjectEditorBE::DBObjectEditorBE(const db_DatabaseObjectRef &object)
   // Assume a default version if the given catalog is incomplete.
   GrtVersionRef version = get_catalog()->version();
   if (!version.is_valid())
-    version = bec::parse_version("5.5.1");
-  _globalSymbols = parsers::functionSymbolsForVersion(bec::version_to_int(version));
+    version = bec::parse_version("8.0.16");
+  _globalSymbols = parsers::functionSymbolsForVersion(bec::versionToEnum(version));
 
   std::string sqlMode;
   if (object->customData().has_key("sqlMode"))

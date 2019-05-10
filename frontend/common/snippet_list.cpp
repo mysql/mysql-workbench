@@ -395,7 +395,7 @@ void BaseSnippetList::layout() {
     if (_image != nullptr) {
       // If an image is set then this defines the minimal width.
       Size size = mforms::Utilities::getImageSize(_image);
-      _layout_width += SNIPPET_ICON_SPACING + size.width;
+      _layout_width += SNIPPET_ICON_SPACING + static_cast<int>(size.width);
     }
 
     if (_layout_height < SNIPPET_HEIGHT)

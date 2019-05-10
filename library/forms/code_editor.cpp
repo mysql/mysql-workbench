@@ -837,7 +837,7 @@ void CodeEditor::handleMarkerMove(size_t position, int linesAdded) {
 //----------------------------------------------------------------------------------------------------------------------
 
 char32_t CodeEditor::getCharAt(size_t position) {
-  return _code_editor_impl->send_editor(this, SCI_GETCHARAT, position, 0);
+  return static_cast<char32_t>(_code_editor_impl->send_editor(this, SCI_GETCHARAT, position, 0));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -929,50 +929,51 @@ void CodeEditor::loadConfiguration(SyntaxHighlighterLanguage language) {
   CodeEditorConfig config(language);
 
   // Keywords.
-  std::map<std::string, std::string> keywords = config.get_keywords();
-
-  // Key word list sets are from currently active lexer, so that must be set before calling here.
-  sptr_t length = _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, 0);
-  if (length > 0) {
-    char* keyword_sets = (char*)malloc(length + 1);
-    _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
-    std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
-    free(keyword_sets);
-
-    // Note: this part is in the process of being converted to a different approach (parsers know all keywords
-    //       so they can actually provide them, instead of a manually managed config file).
-    for (auto iterator : keywords) {
-      std::string list_name = iterator.first;
-      int list_index = base::index_of(keyword_list_names, list_name);
-      if (list_index > -1)
-        _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, (sptr_t)iterator.second.c_str());
-    }
-
-    // First part delivered by a parser are function names in MySQL.
-    size_t version = 0;
+  if (language == LanguageMySQL56 || language == LanguageMySQL57 || language == LanguageMySQL80) {
+    MySQLVersion version;
     switch (language) {
       case LanguageMySQL56:
-        version = 506;
+        version = MySQLVersion::MySQL56;
         break;
       case LanguageMySQL57:
-        version = 507;
+        version = MySQLVersion::MySQL56;
         break;
-      case LanguageMySQL80:
-        version = 800;
-        break;
-
       default:
+        version = MySQLVersion::MySQL80;
         break;
     }
 
-    if (version > 0) {
-      parsers::SymbolTable* functions = parsers::functionSymbolsForVersion(version);
-      std::set<std::string> functionNames = functions->getAllSymbolNames();
-      std::string functionList;
-      for (auto const& name : functionNames)
-        functionList += name + " ";
+    auto &names = MySQLSymbolInfo::systemFunctionsForVersion(version);
+    std::string list;
+    for (auto const& name : names)
+      list += name + " ";
 
-      _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 3, (sptr_t)functionList.c_str());
+    _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 3, (sptr_t)list.c_str());
+
+    names = MySQLSymbolInfo::keywordsForVersion(version);
+    list = "";
+    for (auto const& name : names)
+      list += name + " ";
+
+    _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 1, (sptr_t)list.c_str());
+
+  } else {
+    std::map<std::string, std::string> keywords = config.get_keywords();
+
+    // Key word list sets are from currently active lexer, so that must be set before calling here.
+    sptr_t length = _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, 0);
+    if (length > 0) {
+      char* keyword_sets = (char*)malloc(length + 1);
+      _code_editor_impl->send_editor(this, SCI_DESCRIBEKEYWORDSETS, 0, (sptr_t)keyword_sets);
+      std::vector<std::string> keyword_list_names = base::split(keyword_sets, "\n");
+      free(keyword_sets);
+
+      for (auto iterator : keywords) {
+        std::string list_name = iterator.first;
+        int list_index = base::index_of(keyword_list_names, list_name);
+        if (list_index > -1)
+          _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, list_index, reinterpret_cast<sptr_t>(iterator.second.c_str()));
+      }
     }
   }
 

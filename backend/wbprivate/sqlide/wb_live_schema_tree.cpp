@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -422,11 +422,12 @@ std::string LiveSchemaTree::FunctionData::get_details(bool full, const mforms::T
 }
 //--------------------------------------------------------------------------------------------------
 
-LiveSchemaTree::LiveSchemaTree()
-  : _model_view(NULL),
+LiveSchemaTree::LiveSchemaTree(MySQLVersion version)
+  : _model_view(nullptr),
     _case_sensitive_identifiers(false),
     _is_schema_contents_enabled(true),
     _enabled_events(false),
+    _version(version),
     _base(0),
     _filter_type(Any),
     _schema_pattern(0),
@@ -2138,7 +2139,7 @@ void LiveSchemaTree::node_activated(mforms::TreeNodeRef node, int column) {
       }
       /* fall-thru */
       default:
-        node_name = base::quote_identifier_if_needed(node_name, '`');
+        node_name = base::quoteIdentifierIfNeeded(node_name, '`', _version);
         sql_editor_text_insert_signal(node_name);
         break;
     }

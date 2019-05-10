@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -25,6 +25,8 @@
 
 #include "wbpublic_public_interface.h"
 
+#include "base/symbol-info.h"
+
 #include "grts/structs.db.mgmt.h"
 #include <string>
 
@@ -40,6 +42,7 @@ namespace bec {
 
   GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC parse_version(const std::string &version);
   int WBPUBLICBACKEND_PUBLIC_FUNC version_to_int(const GrtVersionRef &version);
+  base::MySQLVersion WBPUBLICBACKEND_PUBLIC_FUNC versionToEnum(const GrtVersionRef &version);
   GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC int_to_version(int version);
   bool WBPUBLICBACKEND_PUBLIC_FUNC version_equal(GrtVersionRef a, GrtVersionRef b);
   bool WBPUBLICBACKEND_PUBLIC_FUNC version_greater(GrtVersionRef a, GrtVersionRef b);

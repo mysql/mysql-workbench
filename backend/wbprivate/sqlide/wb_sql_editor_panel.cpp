@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -95,8 +95,7 @@ SqlEditorPanel::SqlEditorPanel(SqlEditorForm *owner, bool is_scratch, bool start
   parsers::MySQLParserContext::Ref context = services->createParserContext(
     owner->rdbms()->characterSets(), owner->rdbms_version(), owner->sql_mode(), owner->lower_case_table_names() != 0);
 
-  long version = long(owner->rdbms_version()->majorNumber() * 100 + owner->rdbms_version()->minorNumber());
-  parsers::SymbolTable *functionSymbols = parsers::functionSymbolsForVersion(version);
+  parsers::SymbolTable *functionSymbols = parsers::functionSymbolsForVersion(bec::versionToEnum(owner->rdbms_version()));
   _editor = MySQLEditor::create(context, owner->work_parser_context(), { functionSymbols, owner->databaseSymbols() }, grtobj);
   _editor->set_sql_mode(owner->sql_mode());
   _editor->set_current_schema(owner->active_schema());

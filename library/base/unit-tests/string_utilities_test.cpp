@@ -22,249 +22,14 @@
  */
 
 #include "base/string_utilities.h"
+#include "base/symbol-info.h"
+
 #include "grt.h"
 #include "wb_helpers.h"
 
 #include <algorithm>
 
 using namespace base;
-
-// updated as of 5.7
-static const char *reserved_keywords[] = {
-  "ACCESSIBLE",
-  "ADD",
-  "ALL",
-  "ALTER",
-  "ANALYZE",
-  "AND",
-  "AS",
-  "ASC",
-  "ASENSITIVE",
-  "BEFORE",
-  "BETWEEN",
-  "BIGINT",
-  "BINARY",
-  "BLOB",
-  "BOTH",
-  "BY",
-  "CALL",
-  "CASCADE",
-  "CASE",
-  "CHANGE",
-  "CHAR",
-  "CHARACTER",
-  "CHECK",
-  "COLLATE",
-  "COLUMN",
-  "CONDITION",
-  "CONSTRAINT",
-  "CONTINUE",
-  "CONVERT",
-  "CREATE",
-  "CROSS",
-  "CURRENT_DATE",
-  "CURRENT_TIME",
-  "CURRENT_TIMESTAMP",
-  "CURRENT_USER",
-  "CURSOR",
-  "DATABASE",
-  "DATABASES",
-  "DAY_HOUR",
-  "DAY_MICROSECOND",
-  "DAY_MINUTE",
-  "DAY_SECOND",
-  "DEC",
-  "DECIMAL",
-  "DECLARE",
-  "DEFAULT",
-  "DELAYED",
-  "DELETE",
-  "DESC",
-  "DESCRIBE",
-  "DETERMINISTIC",
-  "DISTINCT",
-  "DISTINCTROW",
-  "DIV",
-  "DOUBLE",
-  "DROP",
-  "DUAL",
-  "EACH",
-  "ELSE",
-  "ELSEIF",
-  "ENCLOSED",
-  "ESCAPED",
-  "EXISTS",
-  "EXIT",
-  "EXPLAIN",
-  "FALSE",
-  "FETCH",
-  "FLOAT",
-  "FLOAT4",
-  "FLOAT8",
-  "FOR",
-  "FORCE",
-  "FOREIGN",
-  "FROM",
-  "FULLTEXT",
-  "GET",
-  "GRANT",
-  "GROUP",
-  "HAVING",
-  "HIGH_PRIORITY",
-  "HOUR_MICROSECOND",
-  "HOUR_MINUTE",
-  "HOUR_SECOND",
-  "IF",
-  "IGNORE",
-  "IN",
-  "INDEX",
-  "INFILE",
-  "INNER",
-  "INOUT",
-  "INSENSITIVE",
-  "INSERT",
-  "INT",
-  "INT1",
-  "INT2",
-  "INT3",
-  "INT4",
-  "INT8",
-  "INTEGER",
-  "INTERVAL",
-  "INTO",
-  "IO_AFTER_GTIDS",
-  "IO_BEFORE_GTIDS",
-  "IS",
-  "ITERATE",
-  "JOIN",
-  "KEY",
-  "KEYS",
-  "KILL",
-  "LEADING",
-  "LEAVE",
-  "LEFT",
-  "LIKE",
-  "LIMIT",
-  "LINEAR",
-  "LINES",
-  "LOAD",
-  "LOCALTIME",
-  "LOCALTIMESTAMP",
-  "LOCK",
-  "LONG",
-  "LONGBLOB",
-  "LONGTEXT",
-  "LOOP",
-  "LOW_PRIORITY",
-  "MASTER_BIND",
-  "MASTER_SSL_VERIFY_SERVER_CERT",
-  "MATCH",
-  "MAXVALUE",
-  "MEDIUMBLOB",
-  "MEDIUMINT",
-  "MEDIUMTEXT",
-  "MIDDLEINT",
-  "MINUTE_MICROSECOND",
-  "MINUTE_SECOND",
-  "MOD",
-  "MODIFIES",
-  "NATURAL",
-  "NONBLOCKING",
-  "NOT",
-  "NO_WRITE_TO_BINLOG",
-  "NULL",
-  "NUMERIC",
-  "ON",
-  "OPTIMIZE",
-  "OPTION",
-  "OPTIONALLY",
-  "OR",
-  "ORDER",
-  "OUT",
-  "OUTER",
-  "OUTFILE",
-  "PARTITION",
-  "PRECISION",
-  "PRIMARY",
-  "PROCEDURE",
-  "PURGE",
-  "RANGE",
-  "READ",
-  "READS",
-  "READ_WRITE",
-  "REAL",
-  "REFERENCES",
-  "REGEXP",
-  "RELEASE",
-  "RENAME",
-  "REPEAT",
-  "REPLACE",
-  "REQUIRE",
-  "RESIGNAL",
-  "RESTRICT",
-  "RETURN",
-  "REVOKE",
-  "RIGHT",
-  "RLIKE",
-  "SCHEMA",
-  "SCHEMAS",
-  "SECOND_MICROSECOND",
-  "SELECT",
-  "SENSITIVE",
-  "SEPARATOR",
-  "SET",
-  "SHOW",
-  "SIGNAL",
-  "SMALLINT",
-  "SPATIAL",
-  "SPECIFIC",
-  "SQL",
-  "SQLEXCEPTION",
-  "SQLSTATE",
-  "SQLWARNING",
-  "SQL_BIG_RESULT",
-  "SQL_CALC_FOUND_ROWS",
-  "SQL_SMALL_RESULT",
-  "SSL",
-  "STARTING",
-  "STRAIGHT_JOIN",
-  "TABLE",
-  "TERMINATED",
-  "THEN",
-  "TINYBLOB",
-  "TINYINT",
-  "TINYTEXT",
-  "TO",
-  "TRAILING",
-  "TRIGGER",
-  "TRUE",
-  "UNDO",
-  "UNION",
-  "UNIQUE",
-  "UNLOCK",
-  "UNSIGNED",
-  "UPDATE",
-  "USAGE",
-  "USE",
-  "USING",
-  "UTC_DATE",
-  "UTC_TIME",
-  "UTC_TIMESTAMP",
-  "VALUES",
-  "VARBINARY",
-  "VARCHAR",
-  "VARCHARACTER",
-  "VARYING",
-  "WHEN",
-  "WHERE",
-  "WHILE",
-  "WITH",
-  "WRITE",
-  "XOR",
-  "YEAR_MONTH",
-  "ZEROFILL",
-  nullptr
-};
 
 BEGIN_TEST_DATA_CLASS(string_utilities_test)
 
@@ -308,42 +73,42 @@ TEST_FUNCTION(5) {
   ensure_equals("Unexpected result quoting string", test_result, "%Unicode \xE3\x8A\xA8%");
 }
 
-/* Testing base::quote_identifier_if_needed */
+/* Testing base::quoteIdentifierIfNeeded */
 TEST_FUNCTION(10) {
   std::string test = "first_test";
 
-  std::string test_result = base::quote_identifier_if_needed(test, '`');
+  std::string test_result = base::quoteIdentifierIfNeeded(test, '`', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "first_test");
 
   test = "second_test";
-  test_result = base::quote_identifier_if_needed(test, '\"');
+  test_result = base::quoteIdentifierIfNeeded(test, '\"', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "second_test");
 
   test = "Unicode\xE3\x8A\xA8"; // UTF-8 encoded: CIRCLED IDEOGRAPH RIGHT
-  test_result = base::quote_identifier_if_needed(test, '%');
+  test_result = base::quoteIdentifierIfNeeded(test, '%', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "Unicode\xE3\x8A\xA8");
 
   test = "test.case";
-  test_result = base::quote_identifier_if_needed(test, '$');
+  test_result = base::quoteIdentifierIfNeeded(test, '$', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "$test.case$");
 
   // Note: currently there is no support to check if the given string contains the quote char already.
   test = "test$case";
-  test_result = base::quote_identifier_if_needed(test, '$');
+  test_result = base::quoteIdentifierIfNeeded(test, '$', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "test$case");
 
   test = ".test$case";
-  test_result = base::quote_identifier_if_needed(test, '$');
+  test_result = base::quoteIdentifierIfNeeded(test, '$', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "$.test$case$");
 
   test = "test-case";
-  test_result = base::quote_identifier_if_needed(test, '`');
+  test_result = base::quoteIdentifierIfNeeded(test, '`', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "`test-case`");
 
   // Identifiers consisting only of digits cannot be distinguished from normal numbers
   // so they must be quoted.
   test = "12345";
-  test_result = base::quote_identifier_if_needed(test, '`');
+  test_result = base::quoteIdentifierIfNeeded(test, '`', MySQLVersion::MySQL80);
   ensure_equals("Unexpected result quoting string", test_result, "`12345`");
 }
 
@@ -826,19 +591,6 @@ TEST_FUNCTION(41) {
                 base::right(test_string_unicode, test_string_unicode.length()), test_string_unicode);
   ensure_equals("TEST 40.24: [Unicode]String right (more chars then the original string)",
                 base::right(test_string_unicode, 500), test_string_unicode);
-}
-
-TEST_FUNCTION(42) {
-  for (const char **kw = reserved_keywords; *kw != NULL; ++kw)
-    ensure("TEST 42.1: Testing keywords", base::is_reserved_word(*kw) == true);
-
-  ensure("TEST 42.2: Testing no keyword", base::is_reserved_word("some_word") == false);
-  ensure("TEST 42.3: Testing unicode keywords", base::is_reserved_word("\xC3\x89\xC3\x89\xC3") == false);
-  ensure("TEST 42.4: Testing empty string", base::is_reserved_word("") == false);
-  ensure("TEST 42.5: Testing similar string", base::is_reserved_word("COLUMNA") == false);
-  ensure("TEST 42.6: Testing similar string", base::is_reserved_word("ACOLUMN") == false);
-  ensure("TEST 42.7: Testing similar string", base::is_reserved_word("COLUM") == false);
-  ensure("TEST 42.7: Testing duplicated string", base::is_reserved_word("COLUMNCOLUMN") == false);
 }
 
 TEST_FUNCTION(43) {

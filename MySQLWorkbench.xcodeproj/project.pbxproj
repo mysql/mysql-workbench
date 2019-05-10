@@ -182,6 +182,12 @@
 		2720518E111847920013E88B /* message_wb_lock.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720518D111847920013E88B /* message_wb_lock.png */; };
 		27257468191BBD6A00094162 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2725786F2062B20900BC6E5E /* db_reverse_engineer_script.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */; };
+		2725AD4D228415650049CCB9 /* symbol-info.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2725AD4B228415650049CCB9 /* symbol-info.cpp */; };
+		2725AD4E228415650049CCB9 /* symbol-info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725AD4C228415650049CCB9 /* symbol-info.h */; };
+		2725AD5222841CD40049CCB9 /* system-functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725AD5022841CD10049CCB9 /* system-functions.h */; };
+		2725AD5322841CD40049CCB9 /* keyword_list80.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725AD5122841CD20049CCB9 /* keyword_list80.h */; };
+		2725AD562284419B0049CCB9 /* keyword_list57.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725AD54228441990049CCB9 /* keyword_list57.h */; };
+		2725AD572284419B0049CCB9 /* keyword_list56.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725AD552284419A0049CCB9 /* keyword_list56.h */; };
 		27273AE0220DDDAD008B2F44 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		27273AE1220DDE0D008B2F44 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		272E57321FA0726E002541F5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2774A4C41C92D31200D1E037 /* Cocoa.framework */; };
@@ -4362,6 +4368,12 @@
 		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
 		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
 		2725786E2062B20900BC6E5E /* db_reverse_engineer_script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db_reverse_engineer_script.h; path = plugins/db.mysql/frontend/db_reverse_engineer_script.h; sourceTree = "<group>"; };
+		2725AD4B228415650049CCB9 /* symbol-info.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "symbol-info.cpp"; path = "library/base/symbol-info.cpp"; sourceTree = "<group>"; };
+		2725AD4C228415650049CCB9 /* symbol-info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "symbol-info.h"; path = "library/base/base/symbol-info.h"; sourceTree = "<group>"; };
+		2725AD5022841CD10049CCB9 /* system-functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "system-functions.h"; path = "res/server/system-functions.h"; sourceTree = "<group>"; };
+		2725AD5122841CD20049CCB9 /* keyword_list80.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyword_list80.h; path = res/server/keyword_list80.h; sourceTree = "<group>"; };
+		2725AD54228441990049CCB9 /* keyword_list57.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyword_list57.h; path = res/server/keyword_list57.h; sourceTree = "<group>"; };
+		2725AD552284419A0049CCB9 /* keyword_list56.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyword_list56.h; path = res/server/keyword_list56.h; sourceTree = "<group>"; };
 		2731DE4F21A2CD70002EEE8A /* genobj */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genobj; sourceTree = BUILT_PRODUCTS_DIR; };
 		2731DE5A21A2CDA0002EEE8A /* genwrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genwrap; sourceTree = BUILT_PRODUCTS_DIR; };
 		2731DE6121A2CE15002EEE8A /* genwrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = genwrap.cpp; path = tools/genwrap/genwrap.cpp; sourceTree = "<group>"; };
@@ -7993,6 +8005,17 @@
 			name = "context help";
 			sourceTree = "<group>";
 		};
+		2725AD4F22841CBF0049CCB9 /* server */ = {
+			isa = PBXGroup;
+			children = (
+				2725AD552284419A0049CCB9 /* keyword_list56.h */,
+				2725AD54228441990049CCB9 /* keyword_list57.h */,
+				2725AD5122841CD20049CCB9 /* keyword_list80.h */,
+				2725AD5022841CD10049CCB9 /* system-functions.h */,
+			);
+			name = server;
+			sourceTree = "<group>";
+		};
 		2730C7471917866D00A3BD0C /* db.mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
@@ -8625,10 +8648,10 @@
 				2B59AA240E94F7920083C1C6 /* Module Data */,
 				2B6C4FC218DE372D00869EBE /* mysql.profiles */,
 				279EF96A10D6B02A00C1ED1B /* Scripts */,
+				2725AD4F22841CBF0049CCB9 /* server */,
 				2BE680370F8E45DC00E00A97 /* SQLIDE Data */,
 				2BF510B912E8BBC500A6CCC3 /* SQLIDE Icons */,
 				2B59A9F00E94F6250083C1C6 /* WB Data */,
-				2B59A9F10E94F6430083C1C6 /* main_menu.xml */,
 			);
 			name = "Resource Files";
 			sourceTree = "<group>";
@@ -9581,6 +9604,7 @@
 				2BE6805C0F8E47FD00E00A97 /* data.db */,
 				2BF87BB70FA87CF60012EADA /* dbquery_toolbar.xml */,
 				2BD99BB80FAE754C0074852E /* default_toolbar.xml */,
+				2B59A9F10E94F6430083C1C6 /* main_menu.xml */,
 				2B15B69A12E15273006567D6 /* model_diagram_toolbar.xml */,
 				2BF87BB80FA87CF60012EADA /* model_option_toolbar_layer.xml */,
 				2BF87BB90FA87CF60012EADA /* model_option_toolbar_note.xml */,
@@ -10181,6 +10205,8 @@
 				2B497E6013D0DD5600F6AF47 /* sqlstring.h */,
 				2738042010AB272500EF15C0 /* string_utilities.cpp */,
 				2738042110AB272500EF15C0 /* string_utilities.h */,
+				2725AD4B228415650049CCB9 /* symbol-info.cpp */,
+				2725AD4C228415650049CCB9 /* symbol-info.h */,
 				27ED05081071D0A000C62B57 /* threaded_timer.cpp */,
 				27ED05091071D0A000C62B57 /* threaded_timer.h */,
 				2BAD7A72156C8A6E0025F13F /* threading.cpp */,
@@ -12041,12 +12067,15 @@
 				44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */,
 				27C3A1311070C3B200DD5717 /* common.h in Headers */,
 				2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */,
+				2725AD562284419B0049CCB9 /* keyword_list57.h in Headers */,
 				27C47B3F1C80A2BD00559C2B /* data_types.h in Headers */,
 				27ED050B1071D0A000C62B57 /* threaded_timer.h in Headers */,
 				2B4C9E0910A29CDF00D5F19E /* ui_form.h in Headers */,
 				2738042310AB272500EF15C0 /* string_utilities.h in Headers */,
 				2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */,
+				2725AD4E228415650049CCB9 /* symbol-info.h in Headers */,
 				4401E1C71D99594A0027AD13 /* utf8string.h in Headers */,
+				2725AD5222841CD40049CCB9 /* system-functions.h in Headers */,
 				2767F92C11635C2500931E27 /* geometry.h in Headers */,
 				2B299C4B12CF8C3D008B57C9 /* boost_smart_ptr_helpers.h in Headers */,
 				2B299C4C12CF8C3D008B57C9 /* config_file.h in Headers */,
@@ -12054,6 +12083,8 @@
 				44683E4C1AC9A41700C516C5 /* generic_templates.h in Headers */,
 				2B299C4E12CF8C3D008B57C9 /* wb_iterators.h in Headers */,
 				2B6C4FBD18DDD8C500869EBE /* python_utils.h in Headers */,
+				2725AD572284419B0049CCB9 /* keyword_list56.h in Headers */,
+				2725AD5322841CD40049CCB9 /* keyword_list80.h in Headers */,
 				2B299C4F12CF8C3D008B57C9 /* wb_memory.h in Headers */,
 				2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */,
 				27B3E26012E05FC700FFF572 /* log.h in Headers */,
@@ -15071,6 +15102,7 @@
 				27100A2E1FBC3D8B004AE384 /* accessibility.cpp in Sources */,
 				2B60D7E8129C6B83000D5760 /* config_file.cpp in Sources */,
 				2B89B55F12A2FC7B009D4A2C /* file_utilities.cpp in Sources */,
+				2725AD4D228415650049CCB9 /* symbol-info.cpp in Sources */,
 				2B15AEB612D74EFF006567D6 /* file_functions.cpp in Sources */,
 				4401E1C81D99594D0027AD13 /* utf8string.cpp in Sources */,
 				27B3E25C12E05FBE00FFF572 /* log.cpp in Sources */,
@@ -17739,6 +17771,7 @@
 					"$(PROJECT_DIR)/ext",
 					"$(PROJECT_DIR)/library/base",
 					"$(PROJECT_DIR)/backend/wbprivate",
+					"$(PROJECT_DIR)/res",
 					"$(PROJECT_DIR)/3rd-party-ce/include",
 					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
@@ -17747,6 +17780,11 @@
 					/usr/include/libxml2,
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/res",
+					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
 			};
@@ -17764,6 +17802,7 @@
 					"$(PROJECT_DIR)/ext",
 					"$(PROJECT_DIR)/library/base",
 					"$(PROJECT_DIR)/backend/wbprivate",
+					"$(PROJECT_DIR)/res",
 					"$(PROJECT_DIR)/3rd-party-ce/include",
 					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
@@ -17772,6 +17811,11 @@
 					/usr/include/libxml2,
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/res",
+					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
 			};

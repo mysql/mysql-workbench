@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,9 +21,6 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-
-
-
 #include "code-completion/mysql-code-completion.h"
 #include "mysql/MySQLRecognizerCommon.h"
 #include "mysql/MySQLLexer.h"
@@ -33,6 +30,7 @@
 
 #include "connection_helpers.h"
 #include "base/file_utilities.h"
+#include "base/symbol-info.h"
 
 #include "grtdb/db_helpers.h"
 #include "grtdb/db_object_helpers.h"
@@ -43,6 +41,7 @@
 
 #include "tut_mysql_versions.h"
 
+using namespace base;
 using namespace bec;
 using namespace wb;
 using namespace parsers;
@@ -194,7 +193,7 @@ TEST_FUNCTION(5) {
   _sql_editor->set_current_schema("sakila");
 
   createDBObjects(_dbObjects);
-  _mainSymbols.addDependencies({ &_dbObjects, functionSymbolsForVersion(507) });
+  _mainSymbols.addDependencies({ &_dbObjects, functionSymbolsForVersion(MySQLVersion::MySQL57) });
 }
 
 // Testing proper symbol retrieval in symbol tables.
@@ -222,7 +221,7 @@ TEST_FUNCTION(10) {
   ensure_equals("Test 10.8", udfs.size(), 3U);
 
   auto systemFunctions = _mainSymbols.getSymbolsOfType<RoutineSymbol>(); // System functions.
-  ensure_equals("Test 10.9", systemFunctions.size(), 294U);
+  ensure_equals("Test 10.9", systemFunctions.size(), 293U);
 }
 
 class ErrorListener : public BaseErrorListener {

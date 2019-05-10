@@ -94,7 +94,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <BrowseInformation>false</BrowseInformation>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\backend\wbprivate;..\..\backend\wbprivate\workbench;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\res;..\..\backend\wbprivate;..\..\backend\wbprivate\workbench;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,7 +115,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\backend\wbprivate;..\..\backend\wbprivate\workbench;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\res;..\..\backend\wbprivate;..\..\backend\wbprivate\workbench;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -135,7 +135,7 @@
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4503</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\..\backend\wbprivate;..\..\backend\wbprivate\workbench;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\res;..\..\backend\wbprivate;..\..\backend\wbprivate\workbench;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -166,6 +166,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="string_utilities.cpp" />
+    <ClCompile Include="symbol-info.cpp" />
     <ClCompile Include="threaded_timer.cpp" />
     <ClCompile Include="threading.cpp" />
     <ClCompile Include="ui_form.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="base\scope_exit_trigger.h" />
     <ClInclude Include="base\sqlstring.h" />
     <ClInclude Include="base\string_utilities.h" />
+    <ClInclude Include="base\symbol-info.h" />
     <ClInclude Include="base\threaded_timer.h" />
     <ClInclude Include="base\threading.h" />
     <ClInclude Include="base\trackable.h" />

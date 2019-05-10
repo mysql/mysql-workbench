@@ -20,12 +20,14 @@ add_library(wbbase
     boost_fix.cpp
     utf8string.cpp
     xml_functions.cpp
+    symbol-info.cpp
 )
 
 target_include_directories(wbbase 
  SYSTEM
   PRIVATE
     ${GTKMM_INCLUDE_DIRS}
+    ${PROJECT_SOURCE_DIR}/res
 
 )
 

@@ -135,6 +135,8 @@ SqlEditorTreeController::SqlEditorTreeController(SqlEditorForm *owner)
     _task_tabview(nullptr),
     _taskbar_box(nullptr),
     _schema_tree(&_base_schema_tree),
+    _base_schema_tree(bec::versionToEnum(owner->rdbms_version())),
+    _filtered_schema_tree(bec::versionToEnum(owner->rdbms_version())),
     live_schema_fetch_task(GrtThreadedTask::create()),
     live_schemata_refresh_task(GrtThreadedTask::create()),
     _is_refreshing_schema_tree(false),

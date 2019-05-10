@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,11 +21,14 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#include "base/symbol-info.h"
+
 #include "stub/stub_mforms.h"
 #include "sqlide/wb_live_schema_tree.h"
 #include "grt.h"
 #include "test.h"
 
+using namespace base;
 using namespace grt;
 using namespace wb;
 
@@ -439,7 +442,8 @@ class DummyLST : public LiveSchemaTree::LSTData {
 };
 
 TEST_DATA_CONSTRUCTOR(wb_live_schema_tree_test)
-  : deleg(new LiveTreeTestDelegate()), deleg_filtered(new LiveTreeTestDelegate()) {
+  : _lst(MySQLVersion::MySQL80), _lst_filtered(MySQLVersion::MySQL80),
+    deleg(new LiveTreeTestDelegate()), deleg_filtered(new LiveTreeTestDelegate()) {
   grt::GRT::get()->set("/wb", grt::DictRef(true));
   grt::GRT::get()->set("/wb/options", grt::DictRef(true));
   grt::GRT::get()->set("/wb/options/options", grt::DictRef(true));

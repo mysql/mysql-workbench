@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -24,6 +24,8 @@
 #pragma once
 
 #include "common.h"
+
+#include "base/symbol-info.h"
 
 #if !defined(_MSC_VER) && !defined(__APPLE)
 #include <glib.h>
@@ -157,7 +159,8 @@ namespace base {
   BASELIBRARY_PUBLIC_FUNC std::string quote_identifier(const std::string &identifier, const char quote_char);
   BASELIBRARY_PUBLIC_FUNC std::string unquote_identifier(const std::string &identifier);
   BASELIBRARY_PUBLIC_FUNC std::string unquote(const std::string &text);
-  BASELIBRARY_PUBLIC_FUNC std::string quote_identifier_if_needed(const std::string &ident, const char quote_char);
+  BASELIBRARY_PUBLIC_FUNC std::string quoteIdentifierIfNeeded(const std::string &ident, const char quote_char,
+                                                              base::MySQLVersion version);
 
   BASELIBRARY_PUBLIC_FUNC bool stl_string_compare(const std::string &first, const std::string &second,
                                                   bool case_sensitive = true);
@@ -171,16 +174,6 @@ namespace base {
   BASELIBRARY_PUBLIC_FUNC bool is_number(const std::string &word);
   BASELIBRARY_PUBLIC_FUNC bool isBool(const std::string &text);
 
-  /**
-   * XXX: remove that, this is a totally wrong place (parser related and version dependent).
-   * @brief Check if @word is a reserved word.
-   *
-   * It returns @a true if it is a reserved word and @a false otherwise.
-   *
-   * @param word The word to verify
-   * @return bool
-   */
-  BASELIBRARY_PUBLIC_FUNC bool is_reserved_word(const std::string &word);
 #ifdef __APPLE__
 #undef check
 #endif

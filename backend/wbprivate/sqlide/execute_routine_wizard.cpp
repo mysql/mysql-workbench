@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -34,6 +34,8 @@
 
 #include "grtdb/db_object_helpers.h"
 #include "grtsqlparser/mysql_parser_services.h"
+
+using namespace base;
 
 //--------------------------------------------------------------------------------------------------
 
@@ -180,8 +182,14 @@ std::string ExecuteRoutineWizard::run() {
       return "";
   }
 
-  std::string schema_name = base::quote_identifier_if_needed(*_routine->owner()->name(), '`');
-  std::string routine_name = base::quote_identifier_if_needed(*_routine->name(), '`');
+  GrtVersionRef version;
+  if (_catalog.is_valid()) {
+    version = _catalog->version();
+  }
+  MySQLVersion versionEnum = bec::versionToEnum(version);
+
+  std::string schema_name = base::quoteIdentifierIfNeeded(*_routine->owner()->name(), '`', versionEnum);
+  std::string routine_name = base::quoteIdentifierIfNeeded(*_routine->name(), '`', versionEnum);
   if (base::tolower(_routine->routineType()) == "procedure") {
     std::string parameters_list;
     std::string variables_list;
@@ -208,7 +216,7 @@ std::string ExecuteRoutineWizard::run() {
         // Out or in/out parameter.
         // Since we cannot use DECLARE outside stored programs we use SET to define a variable
         // that can take the output of the call. Need to set a dummy value, however.
-        std::string parameter_name = base::quote_identifier_if_needed(*parameter->name(), '`');
+        std::string parameter_name = base::quoteIdentifierIfNeeded(*parameter->name(), '`', versionEnum);
         result += "set @" + parameter_name + " = ";
 
         std::string value = "0";

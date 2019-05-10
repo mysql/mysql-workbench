@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -26,6 +26,7 @@
 
 #include "interfaces/sqlgenerator.h"
 #include "grts/structs.workbench.h"
+#include "grtdb/db_helpers.h"
 
 #include "reporting_template_variables.h"
 
@@ -34,6 +35,7 @@
 #include "base/geometry.h"
 #include "base/log.h"
 #include "base/util_functions.h"
+#include "base/symbol-info.h"
 
 #include "mforms/code_editor.h"
 
@@ -652,14 +654,22 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
 
     // There are no predefined constants for the indices below, but the occupancy of the list array
     // can be seen in LexMySQL.cxx.
-    parsers::SymbolTable *functions = parsers::functionSymbolsForVersion(800);
-    std::set<std::string> functionNames = functions->getAllSymbolNames();
-    std::string functionList;
-    for (auto &name : functionNames)
-      functionList += name + " ";
+    auto version = rdbms->version();
+    if (!version.is_valid())
+      version = bec::parse_version("8.0.16");
 
-    ((SCI_WRAPPER_NS WordList *)keywordLists[1])->Set(keywords["Keywords"].c_str());
-    ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(functionList.c_str());
+    auto &names = MySQLSymbolInfo::systemFunctionsForVersion(bec::versionToEnum(version));
+    std::string list;
+    for (auto &name : names)
+      list += name + " ";
+    ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(list.c_str());
+
+    names = MySQLSymbolInfo::keywordsForVersion(bec::versionToEnum(version));
+    list = "";
+    for (auto &name : names)
+      list += name + " ";
+    ((SCI_WRAPPER_NS WordList *)keywordLists[1])->Set(list.c_str());
+
     ((SCI_WRAPPER_NS WordList *)keywordLists[5])->Set(keywords["Procedure keywords"].c_str());
     ((SCI_WRAPPER_NS WordList *)keywordLists[6])->Set(keywords["User Keywords 1"].c_str());
 

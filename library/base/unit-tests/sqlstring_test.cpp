@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,6 +23,8 @@
 
 #include "base/sqlstring.h"
 #include "base/string_utilities.h"
+#include "base/symbol-info.h"
+
 #include "wb_helpers.h"
 
 #ifdef __APPLE__
@@ -305,8 +307,7 @@ TEST_FUNCTION(20) {
   test_result.append(sqlstring("!", QuoteOnlyIfNeeded) << long_random_string);
 
   escaped = escape_backticks(long_random_string);
-  temp_long_random_string.append(base::quote_identifier_if_needed(escaped, '`'));
-  ;
+  temp_long_random_string.append(base::quoteIdentifierIfNeeded(escaped, '`', MySQLVersion::MySQL57));
 
   ensure_equals("TEST 20.3: Unexpected result quoting long random string", test_result, temp_long_random_string);
 
@@ -386,7 +387,7 @@ TEST_FUNCTION(25) {
     test_result.clear();
     test_result.append(sqlstring("eleventh_test !", QuoteOnlyIfNeeded) << null_str);
     fail("TEST 25.11: Unexpected result quoting null string");
-  } catch (std::invalid_argument &e) {
+  } catch (std::invalid_argument &) {
     // Nothing to do, just catch the error and continue
   }
 
@@ -394,7 +395,7 @@ TEST_FUNCTION(25) {
     test_result.clear();
     test_result.append(sqlstring("twelfth_test !", UseAnsiQuotes) << null_str);
     fail("TEST 25.12: Unexpected result quoting null string");
-  } catch (std::invalid_argument &e) {
+  } catch (std::invalid_argument &) {
     // Nothing to do, just catch the error and continue
   }
 }

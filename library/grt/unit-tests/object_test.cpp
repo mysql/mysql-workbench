@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -116,35 +116,35 @@ TEST_FUNCTION(6) {
   flag = false;
   try {
     obj.set_member("title", IntegerRef(1234));
-  } catch (type_error &exc ) {
+  } catch (type_error &) {
     flag = true;
   };
   ensure("set bad type1", flag == true);
   flag = false;
   try {
     obj.set_member("title", DoubleRef(1234.123));
-  } catch (type_error &exc) {
+  } catch (type_error &) {
     flag = true;
   };
   ensure("set bad type2", flag == true);
   flag = false;
   try {
     obj.set_member("price", StringRef("hello"));
-  } catch (type_error &exc) {
+  } catch (type_error &) {
     flag = true;
   };
   ensure("set bad type3", flag == true);
   flag = false;
   try {
     obj.set_member("authors", StringRef("joe"));
-  } catch (read_only_item &exc) {
+  } catch (read_only_item &) {
     flag = true;
   };
   ensure("set read-only", flag == true);
   flag = false;
   try {
     obj.set_member("pages", DoubleRef(1234.456));
-  } catch (type_error &exc) {
+  } catch (type_error &) {
     flag = true;
   };
   ensure("set bad type6", flag == true);

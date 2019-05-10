@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -412,7 +412,7 @@ namespace ssh {
             logDebug2("Expected pw prompt but it didn't came, instead we got: %s\n", test.c_str());
             retError.append(test);
           }
-        } catch (SshException &exc) {
+        } catch (SshException &) {
           logError("Sudo password didn't came, could be it was cached, we continue and see what will happen\n");
           pwSkip = true;
         }
@@ -573,7 +573,7 @@ namespace ssh {
     try {
       if (_session->userauthNone() == SSH_AUTH_SUCCESS)
         return;
-    } catch (SshException &exc) {
+    } catch (SshException &) {
       throw SSHTunnelException(ssh_get_error(_session->getCSession()));
     }
 

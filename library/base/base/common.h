@@ -23,7 +23,7 @@
 
 #pragma once
 
-#define MIN_SERVER_VERSION 50500
+#define MIN_SERVER_VERSION 50600
 #define MAX_SERVER_VERSION 99999
 
 #if defined(__GNUC__) || defined(__APPLE)

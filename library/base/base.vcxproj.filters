@@ -85,6 +85,9 @@
     <ClCompile Include="accessibility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="symbol-info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base\boost_smart_ptr_helpers.h">
@@ -177,10 +180,13 @@
     <ClInclude Include="base\xml_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h" >
+    <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="base\accessibility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="base\symbol-info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,45 +18,33 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifdef __OBJC__
-  #import <Cocoa/Cocoa.h>
-#endif
+#pragma once
 
-#ifdef __cplusplus
+// Provides MySQL symbol information for various tasks, like symbol tables, identifier quoting + code completion.
 
-#include <errno.h>
-#include <string>
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <time.h>
-#include <vector>
-#include <list>
+#include "common.h"
+
 #include <set>
-#include <sstream>
-#include <typeinfo>
-#include <unistd.h>
-#include <stdexcept>
-#include <functional>
-#include <locale>
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <condition_variable>
 
-#include <glib.h>
-#include <glib/gstdio.h>
+namespace base {
 
-#include <boost/bind.hpp>
-#include <boost/optional.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/function.hpp>
-#include <boost/locale/encoding_utf.hpp>
+// Currently supported MySQL versions.
+enum class MySQLVersion {
+  Unknown,
+  MySQL56,
+  MySQL57,
+  MySQL80,
+};
 
-#endif
+class BASELIBRARY_PUBLIC_FUNC MySQLSymbolInfo {
+public:
+  static std::set<std::string>& systemFunctionsForVersion(MySQLVersion version);
+  static std::set<std::string>& keywordsForVersion(MySQLVersion version);
+
+  static bool isReservedKeyword(std::string const& identifier, MySQLVersion version);
+};
+
+}

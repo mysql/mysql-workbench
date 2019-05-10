@@ -890,7 +890,7 @@ void SimpleSidebar::updateColors() {
       break;
   }
 
-  float previousAlpha = _activeTextColor.alpha > 0 ? _activeTextColor.alpha : 1;
+  double previousAlpha = _activeTextColor.alpha > 0 ? _activeTextColor.alpha : 1;
   _activeTextColor = Color::getSystemColor(base::SystemColor::LabelColor);
   _activeTextColor.alpha = previousAlpha;
   _inactiveTextColor = Color::getSystemColor(base::SystemColor::LabelColor);

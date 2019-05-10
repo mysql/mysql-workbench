@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -22,6 +22,7 @@
  */
 
 #include "base/sqlstring.h"
+#include "base/symbol-info.h"
 
 using namespace base;
 
@@ -102,7 +103,7 @@ sqlstring &sqlstring::operator<<(const std::string &v) {
   if (esc == '!') {
     std::string escaped = escape_backticks(v);
     if ((_format._flags & QuoteOnlyIfNeeded) != 0)
-      append(base::quote_identifier_if_needed(escaped, '`'));
+      append(base::quoteIdentifierIfNeeded(escaped, '`', MySQLVersion::MySQL80)); // XXX: make this configurable.
     else
       append(base::quote_identifier(escaped, '`'));
   } else if (esc == '?') {
