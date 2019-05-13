@@ -946,14 +946,14 @@ void CodeEditor::loadConfiguration(SyntaxHighlighterLanguage language) {
     auto &names = MySQLSymbolInfo::systemFunctionsForVersion(version);
     std::string list;
     for (auto const& name : names)
-      list += name + " ";
+      list += base::tolower(name) + " "; // Keyword matching in Scintilla uses lower case compare.
 
     _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 3, (sptr_t)list.c_str());
 
     names = MySQLSymbolInfo::keywordsForVersion(version);
     list = "";
     for (auto const& name : names)
-      list += name + " ";
+      list += base::tolower(name) + " ";
 
     _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 1, (sptr_t)list.c_str());
 
