@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -308,6 +308,7 @@ class MEBBackup(MEBCommand):
         self.backup_dir = profile.read_value('mysqlbackup', 'backup_dir', True, "")
         self.inc_backup_dir = profile.read_value('mysqlbackup', 'incremental_backup_dir', True, "")
         self.use_tts = profile.read_value('meb_manager', 'using_tts', False, "0")
+        self.compress = profile.read_value('meb_manager', 'compress', False, False) == 'True'
         self.compress_method = profile.read_value('meb_manager', 'compress_method', False, 'lz4')
         self.compress_level = profile.read_value('meb_manager', 'compress_level', False, '1')
         self.skip_unused_pages = profile.read_value('meb_manager', 'skip_unused_pages', False, False) == 'True'
