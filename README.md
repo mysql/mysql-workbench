@@ -4,6 +4,8 @@ Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 
 This is a release of [MySQL Workbench](https://mysqlworkbench.org), a graphical tool for working with MySQL servers and databases.
 
+![Home screen on Windows](https://dev.mysql.com/doc/workbench/en/images/wb-home-screen-new.png)
+
 License information can be found in the [License](License.txt) file.
 
 This distribution may include materials developed by third parties. 
@@ -33,4 +35,6 @@ MySQL Workbench functionality covers five main topics:
 
 * **MySQL Enterprise Support:** Support for Enterprise products such as MySQL Enterprise Backup, MySQL Firewall, and MySQL Audit.
 
-The [code repository on Github](https://github.com/mysql/mysql-workbench) is where we publish a snapshot of our internal repository everytime a new release of the tools is published. Use the [MySQL bug system](http://bugs.mysql.com/) to report any issue you have. You can use Github or the MySQL bug system to contribute to the development. Simply file a new issue with your patch and we will take care of it.
+![Performance dashboard](https://dev.mysql.com/doc/workbench/en/images/wb-performance-dashboard.png)
+
+The [code repository on Github](https://github.com/mysql/mysql-workbench) is where we publish a snapshot of our internal repository everytime a new release of the product is published. Use the [MySQL bug system](http://bugs.mysql.com/) to report any issue you have. You can use Github or the MySQL bug system to contribute to the development. File a pull request on Github or a new issue on the MySQL Bug system with your patch and we will take care of it.
