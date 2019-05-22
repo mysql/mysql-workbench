@@ -2252,6 +2252,9 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index) {
       case MYSQL_TYPE_DATETIME2:
       case MYSQL_TYPE_TIME2:
 #endif
+#if MYSQL_VERSION_ID > 80016
+      case MYSQL_TYPE_TYPED_ARRAY: /* Used only for replication. */
+#endif
         // TODO: implement handling
         break;
       case MYSQL_TYPE_GEOMETRY:
