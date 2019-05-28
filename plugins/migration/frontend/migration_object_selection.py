@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -31,6 +31,7 @@ class ObjectMainView(WizardPage):
 
         self.main.add_wizard_page(self, "ObjectMigration", "Source Objects")
         self._scrollpanel = None
+        self.db_selector = None
         
         label = mforms.newLabel("You may select the objects to be migrated in the lists below.\nAll tables will be migrated by default.")
         label.set_name('Select Objects')
@@ -66,3 +67,8 @@ class ObjectMainView(WizardPage):
 
         super(ObjectMainView, self).go_next()
 
+    def go_back(self):
+        supported_types = tuple(otype[0] for otype in self.main.plan.migrationSource.supportedObjectTypes)
+        for otype in supported_types:
+            self.main.plan.migrationSource.setIgnoredObjectsOfType(otype, {})
+        WizardPage.go_back(self)
