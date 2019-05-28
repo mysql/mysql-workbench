@@ -982,7 +982,7 @@ size_t MySQLParserServicesImpl::parseView(MySQLParserContext::Ref context, db_my
   } else {
     // Finished with errors. See if we can get at least the view name out.
     auto viewTree = dynamic_cast<MySQLParser::CreateViewContext *>(tree);
-    if (viewTree->viewName() != nullptr) {
+    if (viewTree != nullptr && viewTree->viewName() != nullptr) {
       IdentifierListener listener(viewTree->viewName());
       view->name(listener.parts.back() + "_SYNTAX_ERROR");
     }
