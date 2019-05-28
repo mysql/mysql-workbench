@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,41 +21,56 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include "grt/grt_manager.h"
-#include "grtdb/db_object_helpers.h"
-#include "grts/structs.db.h"
-#include "grts/structs.workbench.physical.h"
-#include "sql_import_be.h"
-#include "grtsqlparser/sql_facade.h"
+#include <glib.h>
+
 #include "base/string_utilities.h"
 
-void Sql_import::grtm() {
-  {
-    _options = grt::DictRef(true);
-    _doc = workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
+#include "grt/grt_manager.h"
+#include "grtdb/db_object_helpers.h"
+#include "grtui/file_charset_dialog.h"
 
-    // init some options based on global defaults
-    // FE will query them to init controls state
-    {
-      grt::DictRef options = grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
-      const char *option_names[] = { "SqlIdentifiersCS" };
-      for (size_t n = 0, count = sizeof(option_names) / sizeof(option_names[0]); n < count; ++n)
-        _options.set(option_names[n], options.get(option_names[n]));
-    }
+#include "grts/structs.db.h"
+#include "grts/structs.workbench.physical.h"
+
+#include "grtsqlparser/sql_facade.h"
+
+#include "sql_import_be.h"
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Sql_import::grtm() {
+  _options = grt::DictRef(true);
+  _doc = workbench_DocumentRef::cast_from(grt::GRT::get()->get("/wb/doc"));
+
+  // init some options based on global defaults
+  // FE will query them to init controls state
+  {
+    grt::DictRef options = grt::DictRef::cast_from(grt::GRT::get()->get("/wb/options/options"));
+    const char *option_names[] = { "SqlIdentifiersCS" };
+    for (size_t n = 0, count = sizeof(option_names) / sizeof(option_names[0]); n < count; ++n)
+      _options.set(option_names[n], options.get(option_names[n]));
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 db_CatalogRef Sql_import::target_catalog() {
   return _doc->physicalModels().get(0)->catalog();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::function<grt::ValueRef()> Sql_import::get_task_slot() {
   return [this]() { return parse_sql_script(target_catalog(), sql_script()); };
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::function<grt::ValueRef()> Sql_import::get_autoplace_task_slot() {
   return std::bind(&Sql_import::autoplace_grt, this);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::string &sql_script) {
   grt::ListRef<GrtObject> created_objects(grt::Initialized);
@@ -80,21 +95,28 @@ grt::StringRef Sql_import::parse_sql_script(db_CatalogRef catalog, const std::st
   return grt::StringRef("The SQL script was parsed");
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void Sql_import::parse_sql_script(parsers::MySQLParserServices::Ref sql_parser, parsers::MySQLParserContext::Ref context,
-  db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options)
-{
+  db_CatalogRef &catalog, const std::string &sql_script, grt::DictRef &options) {
   grt::AutoUndo undo;
 
-  // XXX: we need a way to convert the encoding. Currently we assume it's always utf-8 here.
-  //_options.set("sql_script_codeset", grt::StringRef(_sql_script_codeset));
-  const std::string sql = base::getTextFileContent(sql_script);
+  std::string sql = base::getTextFileContent(sql_script);
+  const gchar *end = nullptr;
+  if (!g_utf8_validate(sql.c_str(), sql.size(), &end))
+    throw std::runtime_error("Input is not UTF-8 encoded and cannot be used.");
+
   sql_parser->parseSQLIntoCatalog(context, db_mysql_CatalogRef::cast_from(catalog), sql, options);
   undo.end(_("Reverse Engineer from SQL Script"));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 grt::ListRef<GrtObject> Sql_import::get_created_objects() {
   return grt::ListRef<GrtObject>::cast_from(_options.get("created_objects"));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 grt::ValueRef Sql_import::autoplace_grt() {
   db_CatalogRef catalog = target_catalog();
@@ -123,3 +145,4 @@ grt::ValueRef Sql_import::autoplace_grt() {
   return grt::ValueRef();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
