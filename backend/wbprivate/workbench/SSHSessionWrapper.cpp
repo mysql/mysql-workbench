@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -79,7 +79,7 @@ namespace ssh {
       }
       _sessionPoolHandle = 0;
     }
-    
+
     auto timeoutLock = lockTimeout();
     // before we continue, we should close all opened files
     _sftp.reset();
@@ -260,10 +260,15 @@ namespace ssh {
 
     auto parts = base::split(loginInfo.get_string("ssh.hostName"), ":");
     config.remoteSSHhost = parts[0];
-    if (parts.size() > 1)
+    if (parts.size() > 1) {
       config.remoteSSHport = base::atoi<std::size_t>(parts[1], 22);
-    else
-      config.remoteSSHport = 22;
+    } else {
+      if (loginInfo.has_key("ssh.port")) {
+        config.remoteSSHport =  base::atoi<std::size_t>(loginInfo.get_string("ssh.port"), 22);
+      } else {
+        config.remoteSSHport = 22;
+      }
+    }
 
     auto parameter_values = serverInstanceProperties->connection()->parameterValues();
     config.remotehost = parameter_values.get_string("hostName");
@@ -446,21 +451,21 @@ namespace ssh {
       ThreadedTimer::remove_task(_sessionPoolHandle);
       _sessionPoolHandle = 0;
     }
-    
+
     _sessionPoolHandle = ThreadedTimer::add_task(TimerTimeSpan, 2.0,
                                                  false, std::bind(&SSHSessionWrapper::pollSession, this));
   }
-  
+
   bool SSHSessionWrapper::pollSession() {
     auto timeoutLock = lockTimeout();
     if (_session != nullptr)
       _session->pollEvent();
-    
+
     if (_isClosing) {
       _canClose.post();
       return true;
     }
-    
+
     return false;
   }
 
