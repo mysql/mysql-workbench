@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-# Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
@@ -99,7 +99,7 @@ build-arch: build-stamp
 
 build-indep: build-stamp
 
-build-stamp: configure-stamp 
+build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
@@ -113,19 +113,19 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	dh_clean 
+	dh_clean
 
 install: build
 	dh_testdir
 	dh_testroot
-# 	dh_clean -k 
+# 	dh_clean -k
 	dh_prep
 	dh_installdirs
 
 	# Add here commands to install the package into debian/mysql-workbench.
 	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
 	mkdir -p $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
-	# Bundle libaries 
+	# Bundle libaries
 	cp -a $(BUNDLES_PATH)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/Python/pyodbc/pyodbc.so  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
@@ -163,7 +163,7 @@ binary-arch: build install
 	dh_installexamples
 #	dh_install
 #	dh_installmenu
-#	dh_installdebconf	
+#	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
 #	dh_installpam
@@ -177,7 +177,7 @@ binary-arch: build install
 	dh_link
 	#dh_strip --dbg-package=mysql-workbench-@edition@
 	dh_strip
-	dh_compress
+	dh_compress -XLicense.txt -XLicense-commercial.txt
 	dh_fixperms -X*.sh
 #	dh_perl
 #	dh_makeshlibs
