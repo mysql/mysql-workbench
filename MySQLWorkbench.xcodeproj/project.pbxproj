@@ -289,7 +289,6 @@
 		2769C8831726761F0096ACF5 /* ui_ObjectEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2769C8801726761F0096ACF5 /* ui_ObjectEditor.cpp */; };
 		276C9C9210FF64AB00FE9A78 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		276C9C9C10FF64C900FE9A78 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
-		276CA75022315F880032D3BB /* libmysqlcppconn.7.8.0.16.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 44621D40222FB70E00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2773B87E11006A21000CA2F9 /* splitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773B87D11006A21000CA2F9 /* splitter.h */; };
 		2773B88011006A2D000CA2F9 /* splitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773B87F11006A2D000CA2F9 /* splitter.cpp */; };
 		2773B88511006B53000CA2F9 /* MFSplitter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773B88411006B53000CA2F9 /* MFSplitter.h */; };
@@ -2598,12 +2597,12 @@
 		440DD3FA22980A0500EB5F10 /* libssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 440DD3F922980A0500EB5F10 /* libssh.dylib */; };
 		440DD3FB22980A0500EB5F10 /* libssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 440DD3F922980A0500EB5F10 /* libssh.dylib */; };
 		440DD3FC22980A0500EB5F10 /* libssh.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 440DD3F922980A0500EB5F10 /* libssh.dylib */; };
+		440DD40822A004D500EB5F10 /* libmysqlcppconn.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 440DD40722A004D500EB5F10 /* libmysqlcppconn.dylib */; };
+		440DD40922A004D500EB5F10 /* libmysqlcppconn.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 440DD40722A004D500EB5F10 /* libmysqlcppconn.dylib */; };
+		440DD40A22A004D500EB5F10 /* libmysqlcppconn.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 440DD40722A004D500EB5F10 /* libmysqlcppconn.dylib */; };
 		443D2B901C6CAF1A00C7FC85 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		4449373F1DBA37C9007263D8 /* sidebar_launchers.png in Resources */ = {isa = PBXBuildFile; fileRef = 444937261DBA37C9007263D8 /* sidebar_launchers.png */; };
 		444937401DBA37C9007263D8 /* sidebar_launchers@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 444937271DBA37C9007263D8 /* sidebar_launchers@2x.png */; };
-		44621D41222FB70F00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44621D40222FB70E00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib */; };
-		44621D42222FB71200FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44621D40222FB70E00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib */; };
-		44621D43222FB71300FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44621D40222FB70E00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib */; };
 		44621D4B22316FAF00FBA3E9 /* validateReporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44621D4522316FAC00FBA3E9 /* validateReporter.cpp */; };
 		44621D4C22316FAF00FBA3E9 /* validateReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 44621D4622316FAD00FBA3E9 /* validateReporter.h */; };
 		44621D4D22316FAF00FBA3E9 /* generalValidator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44621D4722316FAD00FBA3E9 /* generalValidator.cpp */; };
@@ -4034,7 +4033,6 @@
 				27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */,
 				278DFEC720A2E19000D7E439 /* libz.so.1.2.5 in Copy Files (dylibs) */,
 				27189E65209B2D2F002EC0D4 /* libzip.4.dylib in Copy Files (dylibs) */,
-				276CA75022315F880032D3BB /* libmysqlcppconn.7.8.0.16.dylib in Copy Files (dylibs) */,
 			);
 			name = "Copy Files (dylibs)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6751,9 +6749,9 @@
 		4401E1C41D9959440027AD13 /* utf8string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utf8string.h; path = library/base/base/utf8string.h; sourceTree = "<group>"; };
 		4401E1C51D9959440027AD13 /* utf8string.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utf8string.cpp; path = library/base/utf8string.cpp; sourceTree = "<group>"; };
 		440DD3F922980A0500EB5F10 /* libssh.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.dylib; path = "3rd-party-se/lib/libssh.dylib"; sourceTree = SOURCE_ROOT; };
+		440DD40722A004D500EB5F10 /* libmysqlcppconn.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.dylib; path = "3rd-party-se/lib/libmysqlcppconn.dylib"; sourceTree = "<group>"; };
 		444937261DBA37C9007263D8 /* sidebar_launchers.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = sidebar_launchers.png; path = images/home/sidebar_launchers.png; sourceTree = "<group>"; };
 		444937271DBA37C9007263D8 /* sidebar_launchers@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sidebar_launchers@2x.png"; path = "images/home/sidebar_launchers@2x.png"; sourceTree = "<group>"; };
-		44621D40222FB70E00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.8.0.16.dylib; path = "3rd-party-ce/lib/libmysqlcppconn.7.8.0.16.dylib"; sourceTree = "<group>"; };
 		44621D4522316FAC00FBA3E9 /* validateReporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = validateReporter.cpp; path = internal/wb.mysql.validation/src/validateReporter.cpp; sourceTree = "<group>"; };
 		44621D4622316FAD00FBA3E9 /* validateReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = validateReporter.h; path = internal/wb.mysql.validation/src/validateReporter.h; sourceTree = "<group>"; };
 		44621D4722316FAD00FBA3E9 /* generalValidator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = generalValidator.cpp; path = internal/wb.mysql.validation/src/generalValidator.cpp; sourceTree = "<group>"; };
@@ -7071,7 +7069,7 @@
 			files = (
 				443D2B901C6CAF1A00C7FC85 /* libwbbase.dylib in Frameworks */,
 				2B750E6A0E87851B0003120A /* libgrt.dylib in Frameworks */,
-				44621D42222FB71200FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib in Frameworks */,
+				440DD40922A004D500EB5F10 /* libmysqlcppconn.dylib in Frameworks */,
 				27D6EE2F2099D7170050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				27D6EE302099D7220050B26B /* libgmodule-2.0.0.dylib in Frameworks */,
 			);
@@ -7208,7 +7206,6 @@
 			files = (
 				278DFF2420A2F86A00D7E439 /* libwbssh.dylib in Frameworks */,
 				2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */,
-				44621D43222FB71300FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib in Frameworks */,
 				2BCB31990E884615005C8ED2 /* libmysql.canvas.dylib in Frameworks */,
 				2BCB31DB0E88493F005C8ED2 /* libwbpublic.be.dylib in Frameworks */,
 				2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */,
@@ -7216,6 +7213,7 @@
 				2BCB319A0E88461A005C8ED2 /* libwbbase.dylib in Frameworks */,
 				2B6A60C00EB0BBF1008E6D11 /* libcdbc.dylib in Frameworks */,
 				2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */,
+				440DD40A22A004D500EB5F10 /* libmysqlcppconn.dylib in Frameworks */,
 				27D6EE472099E3B10050B26B /* libantlr4-runtime.dylib in Frameworks */,
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
@@ -7329,11 +7327,11 @@
 				2B263B490E94031C00933149 /* libgrt.dylib in Frameworks */,
 				2B263B4B0E94031C00933149 /* libmysql.canvas.dylib in Frameworks */,
 				2B263B4D0E94031D00933149 /* libcdbc.dylib in Frameworks */,
-				44621D41222FB70F00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib in Frameworks */,
 				2B263B520E94031D00933149 /* libwbpublic.be.dylib in Frameworks */,
 				2B263B530E94031D00933149 /* libwbprivate.be.dylib in Frameworks */,
 				2B9617B50F277C3800F0B599 /* libmforms.dylib in Frameworks */,
 				27E0E21A155173380073FD6F /* libparsers.dylib in Frameworks */,
+				440DD40822A004D500EB5F10 /* libmysqlcppconn.dylib in Frameworks */,
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
 				440DD3FA22980A0500EB5F10 /* libssh.dylib in Frameworks */,
 				27810E55209B007F00E6E4CE /* libglib-2.0.0.dylib in Frameworks */,
@@ -9763,7 +9761,6 @@
 			isa = PBXGroup;
 			children = (
 				440DD3F922980A0500EB5F10 /* libssh.dylib */,
-				44621D40222FB70E00FBA3E9 /* libmysqlcppconn.7.8.0.16.dylib */,
 				27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */,
 				27D6EE362099D8210050B26B /* libcairo.2.dylib */,
 				27189E70209B30DC002EC0D4 /* libcrypto.1.0.0.dylib */,
@@ -9774,6 +9771,7 @@
 				27189E69209B2E84002EC0D4 /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				270124232099F9D100FE448E /* libmysqlclient.21.dylib */,
+				440DD40722A004D500EB5F10 /* libmysqlcppconn.dylib */,
 				27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */,
 				2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */,
 				27189E55209B28B4002EC0D4 /* libpixman-1.0.dylib */,
@@ -14409,7 +14407,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH_CE=${SRCROOT}/3rd-party-ce\nRES_SOURCE_PATH_SE=${SRCROOT}/3rd-party-se\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file if it doesnt exist or is newer\nfunction copy() {\n    from=$1\n    to=$2/`basename $from`\n    if [ ! -f $to ] || [ $from -nt $to ]; then\n        cp -f $from $to\n    fi\n}\n\nfunction copySymlink() {\n    fromPath=$1\n    fromDir=`dirname $fromPath`\n    destName=`readlink $fromPath`\n    while [ -L \"$fromDir/$destName\" ]\n    do\n        destName=`readlink $fromDir/$destName`\n    done\n    destPath=$2/$destName\n    if [ ! -f $fromPath ] || [ $fromPath -nt $destPath ]; then\n        cp -f $fromPath $destPath\n    fi\n}\n\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH_CE}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/License*.txt\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/README*.txt\n\ncopy ${RES_SOURCE_PATH_SE}/bin/ogrinfo ${EXEPATH}\ncopy ${RES_SOURCE_PATH_SE}/bin/ogr2ogr ${EXEPATH}\n\ncopy ${RES_SOURCE_PATH_SE}/lib/libproj.0.dylib ${NEWLIBPATH}\n\necho \"Copy libssh symlink destination into bundle\"\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libssh.dylib ${NEWLIBPATH}\n\n# Use commercial libs if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying libraries for standard edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_SE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying libraries for community edition\"\n    copy ${RES_SOURCE_PATH_CE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_CE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\nCHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n";
+			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH_CE=${SRCROOT}/3rd-party-ce\nRES_SOURCE_PATH_SE=${SRCROOT}/3rd-party-se\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file if it doesnt exist or is newer\nfunction copy() {\n    from=$1\n    to=$2/`basename $from`\n    if [ ! -f $to ] || [ $from -nt $to ]; then\n        cp -f $from $to\n    fi\n}\n\nfunction copySymlink() {\n    fromPath=$1\n    fromDir=`dirname $fromPath`\n    destName=`readlink $fromPath`\n    while [ -L \"$fromDir/$destName\" ]\n    do\n        destName=`readlink $fromDir/$destName`\n    done\n    destPath=$2/$destName\n    if [ ! -f $fromPath ] || [ $fromPath -nt $destPath ]; then\n        cp -f $fromPath $destPath\n    fi\n}\n\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH_CE}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/License*.txt\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/README*.txt\n\ncopy ${RES_SOURCE_PATH_SE}/bin/ogrinfo ${EXEPATH}\ncopy ${RES_SOURCE_PATH_SE}/bin/ogr2ogr ${EXEPATH}\n\ncopy ${RES_SOURCE_PATH_SE}/lib/libproj.0.dylib ${NEWLIBPATH}\n\necho \"Copy libssh symlink destination into bundle\"\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libssh.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libmysqlcppconn.dylib ${NEWLIBPATH}\n\n# Use commercial libs if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying libraries for standard edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_SE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying libraries for community edition\"\n    copy ${RES_SOURCE_PATH_CE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_CE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\nCHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n";
 			showEnvVarsInLog = 0;
 		};
 		2731DE7521A2D4E4002EEE8A /* Copy some binaries */ = {
