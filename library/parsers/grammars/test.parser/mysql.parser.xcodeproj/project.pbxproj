@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		273AB866228AE11000FB3602 /* symbol-info.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 273AB865228AE11000FB3602 /* symbol-info.cpp */; };
 		274912441D574E600030C9F5 /* mysql_parserAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 274912431D574E600030C9F5 /* mysql_parserAppDelegate.mm */; };
 		27AC52C31CE76A110093AAAB /* MySQLBaseLexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27AC52C11CE76A110093AAAB /* MySQLBaseLexer.cpp */; };
 		27AC52C61CE76B850093AAAB /* MySQLRecognizerCommon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27AC52C41CE76B850093AAAB /* MySQLRecognizerCommon.cpp */; };
@@ -45,6 +46,8 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		256AC3F00F4B6AF500CF3369 /* mysql_parser_Prefix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = mysql_parser_Prefix.h; sourceTree = "<group>"; };
+		273AB863228AE0F600FB3602 /* symbol-info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "symbol-info.h"; path = "../../../base/base/symbol-info.h"; sourceTree = "<group>"; };
+		273AB865228AE11000FB3602 /* symbol-info.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "symbol-info.cpp"; path = "../../../base/symbol-info.cpp"; sourceTree = "<group>"; };
 		274912421D574E600030C9F5 /* mysql_parserAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mysql_parserAppDelegate.h; sourceTree = "<group>"; };
 		274912431D574E600030C9F5 /* mysql_parserAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mysql_parserAppDelegate.mm; sourceTree = "<group>"; wrapsLines = 0; };
 		27AC52C11CE76A110093AAAB /* MySQLBaseLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLBaseLexer.cpp; path = ../../mysql/MySQLBaseLexer.cpp; sourceTree = "<group>"; wrapsLines = 0; };
@@ -125,6 +128,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		273AB862228AE0DB00FB3602 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				273AB865228AE11000FB3602 /* symbol-info.cpp */,
+				273AB863228AE0F600FB3602 /* symbol-info.h */,
+			);
+			name = base;
+			sourceTree = "<group>";
+		};
+		273AB864228AE0FE00FB3602 /* library */ = {
+			isa = PBXGroup;
+			children = (
+				273AB862228AE0DB00FB3602 /* base */,
+			);
+			name = library;
+			sourceTree = "<group>";
+		};
 		278FD340153C6CE1004ABEFF /* Parser */ = {
 			isa = PBXGroup;
 			children = (
@@ -155,6 +175,7 @@
 		29B97314FDCFA39411CA2CEA /* mysql.parser */ = {
 			isa = PBXGroup;
 			children = (
+				273AB864228AE0FE00FB3602 /* library */,
 				278FD340153C6CE1004ABEFF /* Parser */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -286,6 +307,7 @@
 				27D89B431CE4C0F000BEEA3B /* MySQLParserVisitor.cpp in Sources */,
 				27D89B401CE4C0F000BEEA3B /* MySQLParserBaseListener.cpp in Sources */,
 				27D89B421CE4C0F000BEEA3B /* MySQLParserListener.cpp in Sources */,
+				273AB866228AE11000FB3602 /* symbol-info.cpp in Sources */,
 				27D89B3E1CE4C0F000BEEA3B /* MySQLLexer.cpp in Sources */,
 				27AC52C61CE76B850093AAAB /* MySQLRecognizerCommon.cpp in Sources */,
 				27AC52C31CE76A110093AAAB /* MySQLBaseLexer.cpp in Sources */,
@@ -396,6 +418,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../base,
 					../../../parsers,
+					../../../../res,
 					"../../../../../mysql-mac-res/include/antlr4-runtime",
 					"../../../../../mysql-mac-res/include/glib-2.0",
 					"../../../../../mysql-mac-res/lib/glib-2.0/include",
@@ -444,6 +467,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../base,
 					../../../parsers,
+					../../../../res,
 					"../../../../../mysql-mac-res/include/antlr4-runtime",
 					"../../../../../mysql-mac-res/include/glib-2.0",
 					"../../../../../mysql-mac-res/lib/glib-2.0/include",

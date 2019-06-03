@@ -971,8 +971,10 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
 
       case MySQLParser::RuleTableConstraintDef: {
         auto definitionContext = dynamic_cast<MySQLParser::TableConstraintDefContext *>(context);
-        if (definitionContext->type->getType() == MySQLLexer::FOREIGN_SYMBOL)
+        if (definitionContext->type != nullptr && definitionContext->type->getType() == MySQLLexer::FOREIGN_SYMBOL)
           return "CONSTRAINT";
+        if (definitionContext->checkConstraint() != nullptr)
+          return "CONSTRAINT"; // TODO: There's no own topic for check constraints so far. Update when that is available.
         break;
       }
 

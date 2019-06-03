@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -44,7 +44,6 @@ namespace parsers {
     virtual void reset() override;
 
     bool isIdentifier(size_t type) const;
-    bool isKeyword(size_t type) const;
     size_t keywordFromText(std::string const& name);
 
     // Scans from the current token position to find out which query type we are dealing with in the input.

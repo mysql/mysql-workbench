@@ -43,7 +43,7 @@ namespace bec {
   GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC parse_version(const std::string &version);
   int WBPUBLICBACKEND_PUBLIC_FUNC version_to_int(const GrtVersionRef &version);
   base::MySQLVersion WBPUBLICBACKEND_PUBLIC_FUNC versionToEnum(const GrtVersionRef &version);
-  GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC int_to_version(int version);
+  GrtVersionRef WBPUBLICBACKEND_PUBLIC_FUNC intToVersion(int version);
   bool WBPUBLICBACKEND_PUBLIC_FUNC version_equal(GrtVersionRef a, GrtVersionRef b);
   bool WBPUBLICBACKEND_PUBLIC_FUNC version_greater(GrtVersionRef a, GrtVersionRef b);
 

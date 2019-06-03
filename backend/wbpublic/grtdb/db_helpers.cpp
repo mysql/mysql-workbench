@@ -161,7 +161,7 @@ MySQLVersion bec::versionToEnum(const GrtVersionRef &version) {
  * Converts the int form of a server version to a grt version ref.
  * The build member in the returned version is always -1.
  */
-GrtVersionRef bec::int_to_version(int version) {
+GrtVersionRef bec::intToVersion(int version) {
   int major = version / 10000, minor = (version / 100) % 100, release = version % 100, build = -1;
 
   GrtVersionRef version_(grt::Initialized);

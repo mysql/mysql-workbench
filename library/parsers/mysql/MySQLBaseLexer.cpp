@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -26,6 +26,9 @@
 #include "MySQLLexer.h"
 #include "MySQLBaseLexer.h"
 
+#include "base/symbol-info.h"
+
+using namespace base;
 using namespace antlr4;
 using namespace parsers;
 
@@ -48,7 +51,7 @@ void MySQLBaseLexer::reset() {
 
 /**
  * Returns true if the given token is an identifier. This includes all those keywords that are
- * allowed as identifiers too.
+ * allowed as identifiers when unquoted (non-reserved keywords).
  */
 bool MySQLBaseLexer::isIdentifier(size_t type) const {
   if ((type == MySQLLexer::IDENTIFIER) || (type == MySQLLexer::BACK_TICK_QUOTED_ID))
@@ -58,11 +61,36 @@ bool MySQLBaseLexer::isIdentifier(size_t type) const {
   if (((sqlMode & AnsiQuotes) != 0) && (type == MySQLLexer::DOUBLE_QUOTED_TEXT))
     return true;
 
-  // All keywords from the keyword and keyword_sp rules, which are ordered such that we can do a range check.
-  if (type >= MySQLLexer::ACCOUNT_SYMBOL && type <= MySQLLexer::YEAR_SYMBOL)
+  std::string symbol = getVocabulary().getSymbolicName(type);
+  if (!symbol.empty() && !MySQLSymbolInfo::isReservedKeyword(symbol, MySQLSymbolInfo::numberToVersion(serverVersion)))
     return true;
 
   return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+size_t MySQLBaseLexer::keywordFromText(std::string const& name) {
+  // (My)SQL only uses ASCII chars for keywords so we can do a simple downcase here for comparison.
+  std::string transformed;
+  std::transform(name.begin(), name.end(), std::back_inserter(transformed), ::tolower);
+
+  if (!MySQLSymbolInfo::isKeyword(transformed, MySQLSymbolInfo::numberToVersion(serverVersion)))
+    return INVALID_INDEX - 1; // INVALID_INDEX alone can be interpreted as EOF.
+
+  // Generate string -> enum value map, if not yet done.
+  if (_symbols.empty()) {
+    auto &vocabulary = getVocabulary();
+    size_t max = vocabulary.getMaxTokenType();
+    for (size_t i = 0; i <= max; ++i)
+      _symbols[vocabulary.getSymbolicName(i)] = i;
+  }
+
+  // Here we know for sure we got a keyword.
+  auto symbol = _symbols.find(transformed);
+  if (symbol == _symbols.end())
+    return INVALID_INDEX - 1;
+  return symbol->second;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -829,107 +857,6 @@ MySQLQueryType MySQLBaseLexer::determineQueryType() {
   }
 
   return QtUnknown;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-bool MySQLBaseLexer::isKeyword(size_t type) const {
-  switch (type) {
-    case Token::EOF:
-    case MySQLLexer::NOT2_SYMBOL:
-    case MySQLLexer::CONCAT_PIPES_SYMBOL:
-    case MySQLLexer::INT_NUMBER:
-    case MySQLLexer::LONG_NUMBER:
-    case MySQLLexer::ULONGLONG_NUMBER:
-    case MySQLLexer::EQUAL_OPERATOR:
-    case MySQLLexer::ASSIGN_OPERATOR:
-    case MySQLLexer::NULL_SAFE_EQUAL_OPERATOR:
-    case MySQLLexer::GREATER_OR_EQUAL_OPERATOR:
-    case MySQLLexer::GREATER_THAN_OPERATOR:
-    case MySQLLexer::LESS_OR_EQUAL_OPERATOR:
-    case MySQLLexer::LESS_THAN_OPERATOR:
-    case MySQLLexer::NOT_EQUAL_OPERATOR:
-    case MySQLLexer::NOT_EQUAL2_OPERATOR:
-    case MySQLLexer::PLUS_OPERATOR:
-    case MySQLLexer::MINUS_OPERATOR:
-    case MySQLLexer::MULT_OPERATOR:
-    case MySQLLexer::DIV_OPERATOR:
-    case MySQLLexer::MOD_OPERATOR:
-    case MySQLLexer::LOGICAL_NOT_OPERATOR:
-    case MySQLLexer::BITWISE_NOT_OPERATOR:
-    case MySQLLexer::SHIFT_LEFT_OPERATOR:
-    case MySQLLexer::SHIFT_RIGHT_OPERATOR:
-    case MySQLLexer::LOGICAL_AND_OPERATOR:
-    case MySQLLexer::BITWISE_AND_OPERATOR:
-    case MySQLLexer::BITWISE_XOR_OPERATOR:
-    case MySQLLexer::LOGICAL_OR_OPERATOR:
-    case MySQLLexer::BITWISE_OR_OPERATOR:
-    case MySQLLexer::DOT_SYMBOL:
-    case MySQLLexer::COMMA_SYMBOL:
-    case MySQLLexer::SEMICOLON_SYMBOL:
-    case MySQLLexer::COLON_SYMBOL:
-    case MySQLLexer::OPEN_PAR_SYMBOL:
-    case MySQLLexer::CLOSE_PAR_SYMBOL:
-    case MySQLLexer::OPEN_CURLY_SYMBOL:
-    case MySQLLexer::CLOSE_CURLY_SYMBOL:
-    case MySQLLexer::UNDERLINE_SYMBOL:
-    case MySQLLexer::JSON_SEPARATOR_SYMBOL:
-    case MySQLLexer::JSON_UNQUOTED_SEPARATOR_SYMBOL:
-    case MySQLLexer::AT_SIGN_SYMBOL:
-    case MySQLLexer::AT_TEXT_SUFFIX:
-    case MySQLLexer::AT_AT_SIGN_SYMBOL:
-    case MySQLLexer::NULL2_SYMBOL:
-    case MySQLLexer::PARAM_MARKER:
-    case MySQLLexer::HEX_NUMBER:
-    case MySQLLexer::BIN_NUMBER:
-    case MySQLLexer::FLOAT_NUMBER:
-    case MySQLLexer::DECIMAL_NUMBER:
-    case MySQLLexer::UNDERSCORE_CHARSET:
-    case MySQLLexer::IDENTIFIER:
-    case MySQLLexer::NCHAR_TEXT:
-    case MySQLLexer::BACK_TICK_QUOTED_ID:
-    case MySQLLexer::DOUBLE_QUOTED_TEXT:
-    case MySQLLexer::SINGLE_QUOTED_TEXT:
-    case MySQLLexer::VERSION_COMMENT_START:
-    case MySQLLexer::MYSQL_COMMENT_START:
-    case MySQLLexer::VERSION_COMMENT_END:
-    case MySQLLexer::BLOCK_COMMENT:
-    case MySQLLexer::POUND_COMMENT:
-    case MySQLLexer::DASHDASH_COMMENT:
-      return false;
-
-    default:
-      return true;
-  }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**
- * Tries to find out if the given text could be a keyword and returns the type.
- * The problem here is that keywords can be conditionally disabled for certain server versions and lexer tokens in
- * general rarely have symbol names (read: a simple, fixed sequence of chars). We use a "heuristic" approach here
- * instead: if the given text corresponds to (the start of) a lexer token rule name we assume it is that token type.
- */
-size_t MySQLBaseLexer::keywordFromText(std::string const& name) {
-  if (_symbols.empty()) {
-    auto &vocabulary = getVocabulary();
-    size_t max = vocabulary.getMaxTokenType();
-    for (size_t i = 0; i <= max; ++i)
-      _symbols[vocabulary.getSymbolicName(i)] = i;
-  }
-
-  // (My)SQL only uses ASCII chars for keywords so we can do a simple upcase here for comparison.
-  std::string transformed;
-  std::transform(name.begin(), name.end(), std::back_inserter(transformed), ::toupper);
-
-  auto symbol = std::find_if(_symbols.begin(), _symbols.end(), [transformed](std::pair<std::string, size_t> const& s) {
-    return s.first.find(transformed) == 0;
-  });
-
-  if (symbol == _symbols.end())
-    return INVALID_INDEX - 1; // INVALID_INDEX alone can be interpreted as EOF.
-  return symbol->second;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

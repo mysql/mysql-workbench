@@ -45,6 +45,9 @@ public:
   static std::set<std::string>& keywordsForVersion(MySQLVersion version);
 
   static bool isReservedKeyword(std::string const& identifier, MySQLVersion version);
+  static bool isKeyword(std::string const& identifier, MySQLVersion version);
+
+  static MySQLVersion numberToVersion(long version);
 };
 
 }

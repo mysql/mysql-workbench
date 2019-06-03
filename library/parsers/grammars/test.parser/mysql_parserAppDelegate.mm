@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -296,11 +296,11 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   parseTreeView.string = @"";
   [parseTreeView setNeedsDisplay:YES];
 
-  size_t errorCount = [self parseQuery:singleQueryText.string
+  size_t errorCount = [self parseQuery: singleQueryText.string
                                version: [self getServerVersion]
                                  modes: [self getSqlModes]
-                          dumpToOutput:YES
-                              needTree:YES];
+                          dumpToOutput: YES
+                              needTree: YES];
 
   NSString *combinedErrorText = [NSString stringWithFormat: @"Parse time: %.6fs\n\n", lastDuration];
 

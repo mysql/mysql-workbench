@@ -24,9 +24,9 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [ea0a6870d34] (8. January 2019).
+ * Merged in all changes up to mysql-trunk git revision [65e41a818c0] (28. May 2019).
  *
- * MySQL grammar for ANTLR 4.5+ with language features from MySQL 5.5.0 up to MySQL 8.0.
+ * MySQL grammar for ANTLR 4.5+ with language features from MySQL 5.6.0 up to MySQL 8.0.
  * The server version in the generated parser can be switched at runtime, making it so possible
  * to switch the supported feature set dynamically.
  *
@@ -46,8 +46,7 @@ lexer grammar MySQLLexer;
 
 options {
     superClass = MySQLBaseLexer;
-    tokenVocab = predefined;
-    // Certain tokens in a predefined order for simpler checks.
+    tokenVocab = predefined; // Certain tokens in a predefined order for simpler checks.
     exportMacro = PARSERS_PUBLIC_TYPE;
 }
 
@@ -1010,7 +1009,7 @@ VCPU_SYMBOL:                     V C P U                                     {se
 MASTER_PUBLIC_KEY_PATH_SYMBOL:
     M A S T E R '_' P U B L I C '_' K E Y '_' P A T H                        {serverVersion >= 80000}?
 ;                                                                            // MYSQL
-GET_MASTER_PUBLIC_KEY_SYM:
+GET_MASTER_PUBLIC_KEY_SYMBOL:
     G E T '_' M A S T E R '_' P U B L I C '_' K E Y '_' S Y M                {serverVersion >= 80000}?
 ;                                                                            // MYSQL
 RESTART_SYMBOL:                  R E S T A R T                               {serverVersion >= 80011}?;
@@ -1030,6 +1029,12 @@ INACTIVE_SYMBOL:                I N A C T I V E                              {se
 LATERAL_SYMBOL:                 L A T E R A L                                {serverVersion >= 80014}?;
 RETAIN_SYMBOL:                  R E T A I N                                  {serverVersion >= 80014}?;
 OLD_SYMBOL:                     O L D                                        {serverVersion >= 80014}?;
+
+NETWORK_NAMESPACE_SYMBOL:       N E T W O R K '_' N A M E S P A C E          {serverVersion >= 80017}?;
+ENFORCED_SYMBOL:                E N F O R C E D                              {serverVersion >= 80017}?;
+ARRAY_SYMBOL:                   A R R A Y                                    {serverVersion >= 80017}?;
+OJ_SYMBOL:                      O J                                          {serverVersion >= 80017}?;
+MEMBER_SYMBOL:                  M E M B E R                                  {serverVersion >= 80017}?;
 
 // $antlr-format groupedAlignments on, alignTrailers off, alignLexerCommands on
 
@@ -1078,7 +1083,7 @@ IDENTIFIER:
 
 NCHAR_TEXT: [nN] SINGLE_QUOTED_TEXT;
 
-// MySQL supports automatic concatenation of mutliple single and double quoted strings if they follow each other as separate
+// MySQL supports automatic concatenation of multiple single and double quoted strings if they follow each other as separate
 // tokens. This is reflected in the `textLiteral` parser rule.
 // Here we handle duplication of quotation chars only (which must be replaced by a single char in the target code).
 

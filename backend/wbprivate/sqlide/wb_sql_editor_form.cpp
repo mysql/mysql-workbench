@@ -1337,7 +1337,7 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
   } catch (sql::SQLException &exc) {
     logException("SqlEditorForm: exception in do_connect method", exc);
 
-    _version = bec::int_to_version(50717); // Set a meaningful default version if we cannot open a connection.
+    _version = bec::intToVersion(50717); // Set a meaningful default version if we cannot open a connection.
 
     switch (exc.getErrorCode()) {
       case 1820: // ER_MUST_CHANGE_PASSWORD_LOGIN

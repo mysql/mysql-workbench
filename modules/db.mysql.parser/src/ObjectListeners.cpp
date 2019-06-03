@@ -514,8 +514,9 @@ public:
     } else if (ctx->indexName() != nullptr) {
       IdentifierListener listener(ctx->indexName());
       constraintName = listener.parts.back();
-    } if (ctx->identifier() != nullptr) { // Use the constraint symbol as name if given and no other name is available.
-      IdentifierListener listener(ctx->identifier());
+    } if (ctx->constraintName() != nullptr && ctx->constraintName()->identifier() != nullptr) {
+      // Use the constraint symbol as name if given and no other name is available.
+      IdentifierListener listener(ctx->constraintName()->identifier());
       constraintName = listener.parts.back();
     }
 

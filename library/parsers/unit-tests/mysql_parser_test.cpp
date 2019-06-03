@@ -874,15 +874,10 @@ struct VersionTestData {
 };
 
 const std::vector<VersionTestData> versionTestResults = {
-  VersionTestData(50100, "grant all privileges on a to mike", 0U),
-  VersionTestData(50100, "grant all privileges on a to mike identified by 'blah'", 0U),
-  VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U),
-  VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U),
   VersionTestData(50500, "grant all privileges on a to mike identified by password 'blah'", 0U),
   VersionTestData(50710, "grant all privileges on a to mike identified by password 'blah'", 0U),
   VersionTestData(50100, "grant select on *.* to mike identified with 'blah'", 1U),
   VersionTestData(50600, "grant select on *.* to mike identified with 'blah'", 0U),
-  VersionTestData(50100, "grant select on *.* to mike identified with blah as 'blubb'", 1U),
   VersionTestData(50600, "grant select on *.* to mike identified with blah as 'blubb'", 0U),
   VersionTestData(50100, "grant select on *.* to mike identified with blah by 'blubb'", 1U),
   VersionTestData(50600, "grant select on *.* to mike identified with blah by 'blubb'", 1U),

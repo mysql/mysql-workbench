@@ -52,31 +52,43 @@ std::set<std::string>& MySQLSymbolInfo::systemFunctionsForVersion(MySQLVersion v
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static std::map<MySQLVersion, std::set<std::string>> keywords;
+static std::map<MySQLVersion, std::set<std::string>> reservedKeywords;
 std::set<std::string>& MySQLSymbolInfo::keywordsForVersion(MySQLVersion version) {
-  static std::map<MySQLVersion, std::set<std::string>> keywords;
-  static std::map<MySQLVersion, std::string> keywordFiles;
-
   if (keywords.count(version) == 0) {
     std::set<std::string> list;
+    std::set<std::string> reservedList;
     switch (version) {
       case MySQLVersion::MySQL56: {
         size_t listSize = sizeof(keyword_list56) / sizeof(keyword_list56[0]);
-        for (size_t i = 0; i < listSize; ++i)
-          list.insert(keyword_list56[i].word);
+        for (size_t i = 0; i < listSize; ++i) {
+          std::string word = keyword_list56[i].word;
+          list.insert(word);
+          if (keyword_list56[i].reserved != 0)
+            reservedList.insert(word);
+        }
         break;
       }
 
       case MySQLVersion::MySQL57: {
         size_t listSize = sizeof(keyword_list57) / sizeof(keyword_list57[0]);
-        for (size_t i = 0; i < listSize; ++i)
-          list.insert(keyword_list57[i].word);
+        for (size_t i = 0; i < listSize; ++i) {
+          std::string word = keyword_list57[i].word;
+          list.insert(word);
+          if (keyword_list57[i].reserved != 0)
+            reservedList.insert(word);
+        }
         break;
       }
 
       case MySQLVersion::MySQL80: {
         size_t listSize = sizeof(keyword_list80) / sizeof(keyword_list80[0]);
-        for (size_t i = 0; i < listSize; ++i)
-          list.insert(keyword_list80[i].word);
+        for (size_t i = 0; i < listSize; ++i) {
+          std::string word = keyword_list80[i].word;
+          list.insert(word);
+          if (keyword_list80[i].reserved != 0)
+            reservedList.insert(word);
+        }
         break;
       }
 
@@ -92,8 +104,42 @@ std::set<std::string>& MySQLSymbolInfo::keywordsForVersion(MySQLVersion version)
 //----------------------------------------------------------------------------------------------------------------------
 
 bool MySQLSymbolInfo::isReservedKeyword(std::string const& identifier, MySQLVersion version) {
-  auto &keywords = keywordsForVersion(version);
+  std::ignore = keywordsForVersion(version);
+  return reservedKeywords[version].count(identifier) > 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * For both, reserved and non-reserved keywords.
+ */
+bool MySQLSymbolInfo::isKeyword(std::string const& identifier, MySQLVersion version) {
+  auto keywords = keywordsForVersion(version);
   return keywords.count(identifier) > 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+MySQLVersion MySQLSymbolInfo::numberToVersion(long version) {
+  long major = version / 10000, minor = (version / 100) % 100;
+
+  if (major < 5 || major > 8)
+    return MySQLVersion::Unknown;
+
+  if (major == 8)
+    return MySQLVersion::MySQL80;
+
+  if (major != 5)
+    return MySQLVersion::Unknown;
+
+  switch (minor) {
+    case 6:
+      return MySQLVersion::MySQL56;
+    case 7:
+      return MySQLVersion::MySQL57;
+    default:
+      return MySQLVersion::Unknown;
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

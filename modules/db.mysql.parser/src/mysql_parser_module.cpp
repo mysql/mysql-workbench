@@ -582,8 +582,22 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
 
       if (!expectedText.empty())
         message += ", expecting " + expectedText;
-    } catch (FailedPredicateException &) {
-      message = "FailedPredicateException"; // TODO: find a case that throws this.
+    } catch (FailedPredicateException &e) {
+      // For cases like "... | a ({condition}? b)", but not "... | a ({condition}? b)?".
+      std::string condition = e.what();
+      static std::string prefix = "predicate failed: ";
+      condition.erase(0, prefix.size());
+      condition.resize(condition.size() - 1); // Remove trailing question mark.
+
+      std::size_t index;
+      while ((index = condition.find("serverVersion")) != std::string::npos) {
+        condition.replace(index, 13, "server version");
+      }
+
+      if ((index = condition.find("&&")) != std::string::npos) {
+        condition.replace(index, 2, "and");
+      }
+      message = wrongText + " is valid only for " + condition;
     } catch (NoViableAltException &) {
       if (isEof)
         message = "Statement is incomplete";
