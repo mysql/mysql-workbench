@@ -362,9 +362,9 @@ struct PasteboardDataWrapper {
   std::vector<std::string> formats;
   NSPasteboard *pasteboard = sender.draggingPasteboard;
   for (NSString *entry in pasteboard.types) {
-    if ([entry isEqualToString:NSStringPboardType])
+    if ([entry isEqualToString:NSPasteboardTypeString])
       formats.push_back(mforms::DragFormatText);
-    else if ([entry isEqualToString:NSFilenamesPboardType])
+    else if ([entry isEqualToString: NSPasteboardTypeFileURL])
       formats.push_back(mforms::DragFormatFileName);
     else
       formats.push_back(entry.UTF8String);
@@ -406,16 +406,16 @@ struct PasteboardDataWrapper {
   NSPoint location = [self convertPoint: sender.draggingLocation fromView: nil];
   NSPasteboard *pasteboard = sender.draggingPasteboard;
   for (NSString *entry in pasteboard.types) {
-    if ([entry isEqualToString: NSStringPboardType]) {
-      NSString *text = [pasteboard stringForType: NSStringPboardType];
+    if ([entry isEqualToString: NSPasteboardTypeString]) {
+      NSString *text = [pasteboard stringForType: NSPasteboardTypeString];
       if (delegate->text_dropped(view, base::Point(location.x, location.y), operations, text.UTF8String) !=
           mforms::DragOperationNone)
         return YES;
-    } else if ([entry isEqualToString: NSFilenamesPboardType]) {
-      NSArray *fileNames = [pasteboard propertyListForType: NSFilenamesPboardType];
+    } else if ([entry isEqualToString: NSPasteboardTypeFileURL]) {
+      NSArray *fileURLs = [pasteboard propertyListForType: NSPasteboardTypeFileURL];
       std::vector<std::string> names;
-      for (NSString *name in fileNames)
-        names.push_back(name.UTF8String);
+      for (NSURL *url in fileURLs)
+        names.push_back(url.path.UTF8String);
       if (names.size() > 0 &&
           delegate->files_dropped(view, base::Point(location.x, location.y), operations, names) !=
             mforms::DragOperationNone)
@@ -454,7 +454,7 @@ static NSString *dragText = nil;
 
   NSPasteboard *pasteboard = NSPasteboard.generalPasteboard;
   [pasteboard clearContents];
-  [pasteboard setString: text forType: NSStringPboardType];
+  [pasteboard setString: text forType: NSPasteboardTypeString];
 
   NSImage *dragImage = [[NSImage alloc] init];
   if (details.image == NULL) {
@@ -508,7 +508,7 @@ static NSString *dragText = nil;
   position.y -= details.hotspot.y;
 
   NSPasteboardItem *pbItem = [NSPasteboardItem new];
-  [pbItem setDataProvider:self forTypes:@[ NSStringPboardType ]];
+  [pbItem setDataProvider:self forTypes:@[ NSPasteboardTypeString ]];
 
   NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter: pbItem];
 
@@ -604,8 +604,8 @@ static bool dragInProgress = NO;
 //----------------------------------------------------------------------------------------------------------------------
 
 - (void)pasteboard: (NSPasteboard *)sender item: (NSPasteboardItem *)item provideDataForType: (NSString *)type {
-  if ([type isEqualTo:NSStringPboardType])
-    [sender setString:dragText forType: NSStringPboardType];
+  if ([type isEqualTo:NSPasteboardTypeString])
+    [sender setString:dragText forType: NSPasteboardTypeString];
   else
     [sender writeNativeData: dragData typeAsString: type];
 }
@@ -1174,9 +1174,9 @@ static void register_drop_formats(mforms::View *self, mforms::DropDelegate *targ
   NSMutableArray *list = [[NSMutableArray alloc] init];
   for (size_t i = 0; i < formats.size(); ++i) {
     if (formats[i] == mforms::DragFormatText)
-      [list addObject:NSStringPboardType];
+      [list addObject:NSPasteboardTypeString];
     else if (formats[i] == mforms::DragFormatFileName)
-      [list addObject:NSFilenamesPboardType];
+      [list addObject: NSPasteboardTypeFileURL];
     else
       [list addObject: @(formats[i].c_str())];
   }

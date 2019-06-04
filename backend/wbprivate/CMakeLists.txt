@@ -49,7 +49,6 @@ add_library(wbprivate
     workbench/wb_tunnel.cpp
     workbench/wb_overview.cpp
     workbench/wb_tunnel.cpp
-    workbench/webbrowser_view.cpp
     workbench/wb_db_schema.cpp
     workbench/about_box.cpp
     workbench/SSHSessionWrapper.cpp

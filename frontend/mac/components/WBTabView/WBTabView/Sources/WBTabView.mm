@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -514,8 +514,8 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
             id oldTab = mSelectedTab;
             id newTab = item;
             mSelectedTab = newTab;
-            [oldTab setState: NSOffState];
-            [newTab setState: NSOnState];
+            [oldTab setState: NSControlStateValueOff];
+            [newTab setState: NSControlStateValueOn];
             mLastSelectedTabIndex = [mTabItems indexOfObject: newTab];
             [self layoutTabItemsDisregardingTabItem: nil];
 
@@ -828,7 +828,7 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
     NSMenuItem* menuItem = [menu addItemWithTitle: item.label action: @selector(selectTabViewMenu:) keyEquivalent: @""];
     menuItem.target = self;
     menuItem.representedObject = item.identifier;
-    menuItem.state = ([mSelectedTab.identifier isEqual: item.identifier] ? NSOnState : NSOffState);
+    menuItem.state = ([mSelectedTab.identifier isEqual: item.identifier] ? NSControlStateValueOn : NSControlStateValueOff);
   }
 
   NSEvent* theEvent = NSApp.currentEvent;

@@ -33,11 +33,11 @@
 - (instancetype)initWithObject: (mforms::CheckBox*)aCheckBox square: (BOOL)square {
   self = [super initWithObject: aCheckBox buttonType: mforms::PushButton];
   if (self != nil) {
-    [self setButtonType: square ? NSPushOnPushOffButton : NSSwitchButton];
+    [self setButtonType: square ? NSButtonTypePushOnPushOff : NSButtonTypeSwitch];
     if (square)
-      self.bezelStyle = NSShadowlessSquareBezelStyle;
+      self.bezelStyle = NSBezelStyleShadowlessSquare;
     else
-      self.bezelStyle = NSRegularSquareBezelStyle;
+      self.bezelStyle = NSBezelStyleRegularSquare;
 
     mTopLeftOffset = NSMakePoint(0, 0);
     mBottomRightOffset = NSMakePoint(0, 0);
@@ -75,9 +75,9 @@
 - (nullable NSNumber *)accessibilityValue {
     MFCheckBoxImpl* checkbox = mOwner->get_data();
     short int value = 0;
-    if(checkbox.state == NSOnState)
+    if(checkbox.state == NSControlStateValueOn)
         value = 1;
-    else if (checkbox.state == NSMixedState)
+    else if (checkbox.state == NSControlStateValueMixed)
         value = 2;
     return @(value);
 }
@@ -94,7 +94,7 @@ static void checkbox_set_active(mforms::CheckBox *self, bool flag) {
   MFCheckBoxImpl* checkbox = self->get_data();
 
   if (checkbox != nullptr) {
-    checkbox.state = flag ? NSOnState : NSOffState;
+    checkbox.state = flag ? NSControlStateValueOn : NSControlStateValueOff;
   }
 }
 
@@ -104,7 +104,7 @@ static bool checkbox_get_active(::mforms::CheckBox *self) {
   MFCheckBoxImpl* checkbox = self->get_data();
 
   if (checkbox != nullptr) {
-    return checkbox.state == NSOnState;
+    return checkbox.state == NSControlStateValueOn;
   }
 
   return false;

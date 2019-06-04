@@ -497,7 +497,7 @@ bool ViewWrapper::use_min_width_for_layout(Control ^ control) {
       (Panel::typeid ==
        control->GetType()) // Only the standard panel, not our derivation or we will cause an endless loop.
       || is<ComboBox>(control) || is<TreeViewAdv>(control) || is<ListBox>(control) || is<SplitContainer>(control) ||
-      is<System::Windows::Forms::WebBrowser>(control) || is<HtmlLabel>(control) || is<HtmlPanel>(control) ||
+      is<HtmlLabel>(control) || is<HtmlPanel>(control) ||
       is<ProgressBar>(control) || is<ScintillaControl>(control) || is<DataGridView>(control) || is<TextBox>(control);
   }
 
@@ -512,8 +512,7 @@ bool ViewWrapper::use_min_height_for_layout(Control ^ control) {
   if (!needsMinHeight) {
     needsMinHeight = is<TabControl>(control) || (Panel::typeid == control->GetType()) || is<ListBox>(control) ||
                      is<TreeViewAdv>(control) || is<SplitContainer>(control) ||
-                     is<System::Windows::Forms::WebBrowser>(control) || is<ScintillaControl>(control) ||
-                     is<DataGridView>(control);
+                     is<ScintillaControl>(control) || is<DataGridView>(control);
   }
 
   return needsMinHeight;

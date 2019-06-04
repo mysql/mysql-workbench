@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -80,7 +80,6 @@ ControlFactory::ControlFactory() {
   memset(&_popover_impl, 0, sizeof(_popover_impl));
   memset(&_treeview_impl, 0, sizeof(_treeview_impl));
   memset(&_findpanel_impl, 0, sizeof(_findpanel_impl));
-  memset(&_webbrowser_impl, 0, sizeof(_webbrowser_impl));
   memset(&_popup_impl, 0, sizeof(_popup_impl));
   memset(&_canvas_impl, 0, sizeof(_canvas_impl));
 }
@@ -123,7 +122,6 @@ void ControlFactory::check_impl() {
   CHECKPTRS(_drawbox_impl);
   CHECKPTRS(_app_impl);
   CHECKPTRS(_splitter_impl);
-  CHECKPTRS(_webbrowser_impl);
   CHECKPTRS(_menu_impl);
   CHECKPTRS(_menu_item_impl);
   CHECKPTRS(_tool_bar_impl);

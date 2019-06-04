@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1059,14 +1059,14 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
       NSButtonCell *cell = [[NSButtonCell alloc] init];
       column.dataCell = cell;
       cell.title = @"";
-      [cell setButtonType:NSSwitchButton];
+      [cell setButtonType: NSButtonTypeSwitch];
       break;
     }
     case mforms::TriCheckColumnType: {
       NSButtonCell *cell = [[NSButtonCell alloc] init];
       column.dataCell = cell;
       cell.title = @"";
-      [cell setButtonType:NSSwitchButton];
+      [cell setButtonType: NSButtonTypeSwitch];
       [cell setAllowsMixedState: YES];
       break;
     }
@@ -1085,7 +1085,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
       NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
       nf.numberStyle = (NSNumberFormatterStyle)kCFNumberFormatterDecimalStyle;
       [column.dataCell setAlignment: NSTextAlignmentRight];
-      [column.dataCell setFormatter:nf];
+      [column.dataCell setFormatter: nf];
       break;
     }
     case mforms::IntegerColumnType:
@@ -1093,7 +1093,7 @@ STANDARD_FOCUS_HANDLING(self)                 // Notify backend when getting fir
       NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
       nf.numberStyle = NSNumberFormatterNoStyle;
       [column.dataCell setAlignment: NSTextAlignmentRight];
-      [column.dataCell setFormatter:nf];
+      [column.dataCell setFormatter: nf];
       break;
     }
   }
@@ -1449,9 +1449,9 @@ static void sortChildrenOfNode(MFTreeNodeImpl *node, NSArray *sortDescriptors) {
   // First write a special datatype for row reordering if enabled. This is the preferred type in that case.
   if (mCanReorderRows && items.count == 1) {
     NSNumber *number = @([outlineView rowForItem: items.lastObject]);
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject: @[ number ]];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject: @[ number ] requiringSecureCoding: NO error: nil];
     [pboard declareTypes: @[ RowReorderPasteboardDatatype ] owner: nil];
-    [pboard setData: data forType:RowReorderPasteboardDatatype];
+    [pboard setData: data forType: RowReorderPasteboardDatatype];
   }
 
   mforms::DragDetails details;
@@ -1511,7 +1511,7 @@ static void sortChildrenOfNode(MFTreeNodeImpl *node, NSArray *sortDescriptors) {
     NSData *data = [pb dataForType:RowReorderPasteboardDatatype];
     NSAssert((data != nil), @"Drag flavour was not found.");
 
-    NSArray *indexes = [NSKeyedUnarchiver unarchiveObjectWithData: data];
+    NSArray *indexes = [NSKeyedUnarchiver unarchivedObjectOfClass: [NSArray class] fromData: data error: nil];
     NSInteger oldIndex = [indexes.lastObject integerValue];
 
     // Right now only allow reordering flat lists, not trees.
@@ -1541,7 +1541,7 @@ static void sortChildrenOfNode(MFTreeNodeImpl *node, NSArray *sortDescriptors) {
     NSData *data = [pb dataForType:RowReorderPasteboardDatatype];
     NSAssert((data != nil), @"Drag flavour was not found.");
 
-    NSArray *indexes = [NSKeyedUnarchiver unarchiveObjectWithData: data];
+    NSArray *indexes = [NSKeyedUnarchiver unarchivedObjectOfClass: [NSArray class] fromData: data error: nil];
     NSInteger oldIndex = [indexes.lastObject integerValue];
 
     if (index != oldIndex) {

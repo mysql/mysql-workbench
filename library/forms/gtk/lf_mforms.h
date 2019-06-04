@@ -55,7 +55,6 @@
 #include "mforms/widgets.h"
 #include "mforms/menu.h"
 #include "mforms/splitter.h"
-#include "mforms/webbrowser.h"
 #include "mforms/popup.h"
 #include "mforms/code_editor.h"
 #include "mforms/menubar.h"

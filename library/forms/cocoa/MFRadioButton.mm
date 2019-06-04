@@ -37,8 +37,8 @@
   self = [super initWithObject: aRadioButton buttonType: mforms::PushButton];
   if (self)
   {
-    [self setButtonType: NSRadioButton];
-    self.bezelStyle = NSRegularSquareBezelStyle;
+    [self setButtonType: NSButtonTypeRadio];
+    self.bezelStyle = NSBezelStyleRegularSquare;
     
     mTopLeftOffset= NSMakePoint(0, 0);
     mBottomRightOffset= NSMakePoint(0, 0);
@@ -86,9 +86,9 @@
 - (nullable NSNumber *)accessibilityValue {
     MFRadioButtonImpl* radiobutton = mOwner->get_data();
     short int value = 0;
-    if(radiobutton.state == NSOnState)
+    if(radiobutton.state == NSControlStateValueOn)
         value = 1;
-    else if (radiobutton.state == NSMixedState)
+    else if (radiobutton.state == NSControlStateValueMixed)
         value = 2;
     return @(value);
 }
@@ -110,7 +110,7 @@ static void radiobutton_set_active(::mforms::RadioButton *self, bool flag)
     
     if ( radiobutton )
     {
-      radiobutton.state = flag ? NSOnState : NSOffState;
+      radiobutton.state = flag ? NSControlStateValueOn : NSControlStateValueOff;
     }
   }
 }
@@ -125,7 +125,7 @@ static bool radiobutton_get_active(::mforms::RadioButton *self)
     
     if ( radiobutton )
     {
-      return radiobutton.state == NSOnState;
+      return radiobutton.state == NSControlStateValueOn;
     }
   }
   return false;

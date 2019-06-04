@@ -75,9 +75,6 @@
     <ClInclude Include="workbench\wb_version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="workbench\webbrowser_view.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="workbench\stdafx.h" />
     <ClInclude Include="model\canvas_floater.h">
       <Filter>Header Files</Filter>
@@ -331,9 +328,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="workbench\wb_tunnel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="workbench\webbrowser_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="model\wb_user_datatypes.cpp">

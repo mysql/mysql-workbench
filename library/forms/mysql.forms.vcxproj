@@ -197,7 +197,6 @@
     <ClCompile Include="treeview.cpp" />
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="view.cpp" />
-    <ClCompile Include="webbrowser.cpp" />
     <ClCompile Include="widgets.cpp" />
     <ClCompile Include="wizard.cpp" />
   </ItemGroup>
@@ -254,7 +253,6 @@
     <ClInclude Include="mforms\uistyle.h" />
     <ClInclude Include="mforms\utilities.h" />
     <ClInclude Include="mforms\view.h" />
-    <ClInclude Include="mforms\webbrowser.h" />
     <ClInclude Include="mforms\widgets.h" />
     <ClInclude Include="mforms\wizard.h" />
     <ClInclude Include="stdafx.h" />

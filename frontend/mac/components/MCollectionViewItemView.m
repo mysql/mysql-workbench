@@ -356,7 +356,7 @@ static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWi
 - (void)drawRect: (NSRect)rect {
   NSTextField *label = [self viewWithTag: 1];
   if (self.selected) {
-    CGContextRef context = [NSGraphicsContext currentContext].graphicsPort;
+    CGContextRef context = [NSGraphicsContext currentContext].CGContext;
 
     BOOL applicationActive = NSApp.keyWindow != nil;
     BOOL showSelected = self.activeCollectionView == self.superview;

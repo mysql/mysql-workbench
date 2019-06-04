@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -28,8 +28,7 @@
 
 @class MFTreeNodeImpl;
 
-@interface MFTreeViewImpl : NSScrollView<NSOutlineViewDataSource, NSOutlineViewDelegate> // someone else
-{
+@interface MFTreeViewImpl : NSScrollView<NSOutlineViewDataSource, NSOutlineViewDelegate> {
   NSOutlineView *mOutline;
   NSMutableDictionary *mIconCache;
   MFTreeNodeImpl *mRootNode;
@@ -48,6 +47,7 @@
   BOOL mPendingReload;
   BOOL mTagIndexEnabled;
   BOOL mColumnsAutoResize;
+  
 @public
   BOOL mFlatTable;
   BOOL mSmallFont;
@@ -55,13 +55,14 @@
 
 @property(readonly) mforms::TreeView *backend;
 
-- (NSString *)keyForColumn:(int)column;
+- (NSString *)keyForColumn: (int)column;
 @property(readonly, weak) NSOutlineView *outlineView;
 @property(readonly) BOOL frozen;
 
-- (NSImage *)iconForFile:(NSString *)path;
+- (NSImage *)iconForFile: (NSString *)path;
 
 - (void)setNeedsReload;
 
-- (void)setNode:(MFTreeNodeImpl *)node forTag:(const std::string &)tag;
+- (void)setNode: (MFTreeNodeImpl *)node forTag: (const std::string &)tag;
+
 @end

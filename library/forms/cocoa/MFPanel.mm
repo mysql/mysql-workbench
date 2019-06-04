@@ -449,7 +449,7 @@ static void panel_set_active(mforms::Panel *self, bool active) {
     MFPanelImpl *panel = self->get_data();
 
     if (panel) {
-      panel->mCheckButton.state = active ? NSOnState : NSOffState;
+      panel->mCheckButton.state = active ? NSControlStateValueOn : NSControlStateValueOff;
     }
   }
 }
@@ -461,7 +461,7 @@ static bool panel_get_active(mforms::Panel *self) {
     MFPanelImpl *panel = self->get_data();
 
     if (panel) {
-      return panel->mCheckButton.state == NSOnState;
+      return panel->mCheckButton.state == NSControlStateValueOn;
     }
   }
   return false;

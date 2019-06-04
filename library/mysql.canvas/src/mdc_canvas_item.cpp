@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -606,6 +606,7 @@ void CanvasItem::draw_outline_ring(CairoCtx *cr, const Color &color) {
 //--------------------------------------------------------------------------------------------------
 
 void CanvasItem::draw_outline_ring_gl(const Color &color) {
+#ifndef __APPLE__
   gl_setcolor(color);
   glLineWidth(2);
   stroke_outline_gl(1);
@@ -615,6 +616,7 @@ void CanvasItem::draw_outline_ring_gl(const Color &color) {
   glLineWidth(4);
   stroke_outline_gl(1);
   glLineWidth(1);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -638,6 +640,7 @@ void CanvasItem::render_to_surface(cairo_surface_t *surf, bool use_padding) {
 }
 
 void CanvasItem::repaint_gl(const Rect &clipArea) {
+#ifndef __APPLE__
   CairoCtx *ccr = _layer->get_view()->cairoctx();
 
   // 1st check if we can directly render as gl
@@ -743,6 +746,7 @@ void CanvasItem::repaint_gl(const Rect &clipArea) {
   glCallList(_display_list);
 
   glPopMatrix();
+#endif
 }
 
 void CanvasItem::repaint(const Rect &clipArea, bool direct) {

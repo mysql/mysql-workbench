@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -116,6 +116,7 @@ namespace mdc {
    * Draws a rectangular shadow around the given rectangle using OpenGL.
    */
   void draw_shadow_gl(const Rect &bounds, const Color &color) {
+#ifndef __APPLE__
     double small_offset = 15;
     double large_offset = 50;
     glBegin(GL_QUADS);
@@ -173,6 +174,7 @@ namespace mdc {
     glVertex2d(bounds.left(), bounds.top());
 
     glEnd();
+#endif
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -183,12 +185,6 @@ namespace mdc {
     cr->set_line_width(5);
     cr->rectangle(around_rect.left() - 2.5, around_rect.top() - 2.5, around_rect.width() + 6, around_rect.height() + 6);
     cr->stroke();
-    /*
-    cr->set_source_rgba(color.r, color.g, color.b, 0.8);
-    cr->set_line_width(2);
-    cr->rectangle(around_rect.xmin()-0.5, around_rect.ymin()-0.5, around_rect.width()+2, around_rect.height()+2);
-    cr->stroke();
-     */
     cr->restore();
   }
 

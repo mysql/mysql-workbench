@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -52,7 +52,6 @@
 #include "grtui/gui_plugin_base.h"
 
 #include "grt_shell_window.h"
-#include "webbrowser_view.h"
 #include "license_view.h"
 
 #include "mforms/appview.h"
@@ -330,18 +329,10 @@ PhysicalOverviewBE *WBContextUI::get_physical_overview() {
 //--------------------------------------------------------------------------------------------------
 
 /*
- * Displays the web page given by url either in an internal window or an external browser instance.
+ * Opens the given web page in the system's default browser.
  */
 void WBContextUI::show_web_page(const std::string &url, bool internal_browser) {
-#ifdef WB_USE_INTERNAL_BROWSER
-  if (internal_browser) {
-    WebBrowserView *browser = mforms::manage(new WebBrowserView(this));
-    mforms::App::get()->dock_view(browser, "maintab");
-    browser->set_title(_("Loading web page..."));
-    browser->navigate(url);
-  } else
-#endif
-    mforms::Utilities::open_url(url);
+  mforms::Utilities::open_url(url);
 }
 
 //--------------------------------------------------------------------------------------------------

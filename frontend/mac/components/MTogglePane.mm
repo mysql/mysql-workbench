@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -48,12 +48,12 @@
     _initializing= YES;
     if (hasHeader) {
       _toggleButton= [[NSButton alloc] initWithFrame:NSMakeRect(5, 5, 13, 13)];
-      _toggleButton.bezelStyle = NSDisclosureBezelStyle;
-      [_toggleButton setButtonType:NSOnOffButton];
+      _toggleButton.bezelStyle = NSBezelStyleDisclosure;
+      [_toggleButton setButtonType: NSButtonTypeOnOff];
       _toggleButton.title = @"";
       _toggleButton.action = @selector(toggle:);
       _toggleButton.target = self;
-      _toggleButton.state = NSOnState; // expanded by default
+      _toggleButton.state = NSControlStateValueOn; // expanded by default
       [self addSubview:_toggleButton];
     
       _label= [[NSTextField alloc] initWithFrame:NSMakeRect(20, 3, 20, 20)];
@@ -104,7 +104,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 - (void)setExpanded:(BOOL)flag {
-  _toggleButton.state = flag ? NSOnState : NSOffState;
+  _toggleButton.state = flag ? NSControlStateValueOn : NSControlStateValueOff;
   [self relayout];
 }
 
@@ -174,7 +174,7 @@
     return;
   _relayouting = YES;
   
-  if (!_toggleButton || _toggleButton.state == NSOnState) {
+  if (!_toggleButton || _toggleButton.state == NSControlStateValueOn) {
     rect.size.height = HEADER_HEIGHT + NSHeight(contentRect);
 
     [_content setHidden: NO];
@@ -252,7 +252,7 @@
                             toPoint: { NSMaxX(dirtyRect), NSMinY(dirtyRect) + 0.5 }];
 
   // Draw also a bottom line if this entry is expanded or the last one in the child list.
-  if ((!_toggleButton || _toggleButton.state == NSOnState) || (self == self.superview.subviews.lastObject)) {
+  if ((!_toggleButton || _toggleButton.state == NSControlStateValueOn) || (self == self.superview.subviews.lastObject)) {
     [NSBezierPath strokeLineFromPoint: { NSMinX(dirtyRect), NSMaxY(dirtyRect) - 0.5 }
                               toPoint: { NSMaxX(dirtyRect), NSMaxY(dirtyRect) - 0.5 }];
   }

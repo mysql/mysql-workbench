@@ -99,12 +99,12 @@ using namespace mforms;
       mMatchCase = NO;
       mWrapAround = YES;
 
-      [mSearchMenu itemWithTag: 20].state = mUseRegex ? NSOffState : NSOnState;
-      [mSearchMenu itemWithTag: 21].state = !mUseRegex ? NSOffState : NSOnState;
+      [mSearchMenu itemWithTag: 20].state = mUseRegex ? NSControlStateValueOff : NSControlStateValueOn;
+      [mSearchMenu itemWithTag: 21].state = !mUseRegex ? NSControlStateValueOff : NSControlStateValueOn;
 
-      [mSearchMenu itemWithTag: 30].state = !mMatchCase ? NSOnState : NSOffState;
-      [mSearchMenu itemWithTag: 31].state = mMatchWhole ? NSOnState : NSOffState;
-      [mSearchMenu itemWithTag: 32].state = mWrapAround ? NSOnState : NSOffState;
+      [mSearchMenu itemWithTag: 30].state = !mMatchCase ? NSControlStateValueOn : NSControlStateValueOff;
+      [mSearchMenu itemWithTag: 31].state = mMatchWhole ? NSControlStateValueOn : NSControlStateValueOff;
+      [mSearchMenu itemWithTag: 32].state = mWrapAround ? NSControlStateValueOn : NSControlStateValueOff;
       
       [self enableReplaceInFindPanel: NO];
     }
@@ -274,26 +274,26 @@ using namespace mforms;
     // Menu
     case 20: // plain text
       mUseRegex = NO;
-      [[sender menu] itemWithTag: 20].state = NSOnState;
-      [[sender menu] itemWithTag: 21].state = NSOffState;      
+      [[sender menu] itemWithTag: 20].state = NSControlStateValueOn;
+      [[sender menu] itemWithTag: 21].state = NSControlStateValueOff;      
       break;
     case 21:
       mUseRegex = YES;
-      [[sender menu] itemWithTag: 20].state = NSOffState;
-      [[sender menu] itemWithTag: 21].state = NSOnState;
+      [[sender menu] itemWithTag: 20].state = NSControlStateValueOff;
+      [[sender menu] itemWithTag: 21].state = NSControlStateValueOn;
       break;
 
     case 30: // ignore case
-      mMatchCase = [sender state] == NSOnState;
-      [sender setState: mMatchCase ? NSOffState : NSOnState];
+      mMatchCase = [sender state] == NSControlStateValueOn;
+      [sender setState: mMatchCase ? NSControlStateValueOff : NSControlStateValueOn];
       break;
     case 31: // match whole words
-      mMatchWhole = [sender state] != NSOnState;
-      [sender setState: mMatchWhole ? NSOnState : NSOffState];
+      mMatchWhole = [sender state] != NSControlStateValueOn;
+      [sender setState: mMatchWhole ? NSControlStateValueOn : NSControlStateValueOff];
       break;
     case 32: // wrap around
-      mWrapAround = [sender state] != NSOnState;
-      [sender setState: mWrapAround ? NSOnState : NSOffState];
+      mWrapAround = [sender state] != NSControlStateValueOn;
+      [sender setState: mWrapAround ? NSControlStateValueOn : NSControlStateValueOff];
       break;
   }
 }

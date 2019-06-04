@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -69,11 +69,13 @@ LayerAreaGroup::LayerAreaGroup(mdc::Layer *layer, FigureEventHub *hub, model_Obj
 //--------------------------------------------------------------------------------------------------
 
 LayerAreaGroup::~LayerAreaGroup() {
+#ifndef __APPLE__
   if (_display_list != 0)
     glDeleteLists(_display_list, 1);
 
   if (_text_texture != 0)
     glDeleteTextures(1, &_text_texture);
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +227,7 @@ void LayerAreaGroup::render(mdc::CairoCtx *cr) {
 void LayerAreaGroup::render_gl(mdc::CairoCtx *cr) {
   mdc::AreaGroup::render_gl(cr);
 
+#ifndef __APPLE__
   if (_extents_invalid) {
     cr->get_text_extents(_font, _title, _extents);
     _extents_invalid = false;
@@ -336,6 +339,7 @@ void LayerAreaGroup::render_gl(mdc::CairoCtx *cr) {
   glCallList(_display_list);
 
   glPopMatrix();
+#endif
 }
 
 Rect LayerAreaGroup::get_title_bounds() const {

@@ -108,10 +108,10 @@ Color Color::getSystemColor(SystemColor colorType) {
   Color result;
 
   if (color != nil) {
-    NSColor *rgbColor = [color colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
+    NSColor *rgbColor = [color colorUsingColorSpace: NSColorSpace.genericRGBColorSpace];
     if (rgbColor == nil) {
       // A pattern color probably.
-      rgbColor = [color colorUsingColorSpaceName: NSPatternColorSpace];
+      rgbColor = [color colorUsingType: NSColorTypePattern];
       NSImage *pattern = rgbColor.patternImage;
       if (pattern != nil) {
         NSBitmapImageRep *representation = (NSBitmapImageRep *)pattern.representations[0]; // Usually only has one.

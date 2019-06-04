@@ -1901,7 +1901,7 @@ static NSString *extender = @"≫";
         else {
           mBusyTabIndicator = [[NSProgressIndicator alloc] initWithFrame: NSMakeRect(NSMaxX(rect) - 23, 2, 16, 16)];
           mBusyTabIndicator.controlSize = NSControlSizeSmall;
-          mBusyTabIndicator.style = NSProgressIndicatorSpinningStyle;
+          mBusyTabIndicator.style = NSProgressIndicatorStyleSpinning;
           [mBusyTabIndicator setIndeterminate: YES];
           [mBusyTabIndicator startAnimation: nil];
           [self addSubview: mBusyTabIndicator];

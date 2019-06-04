@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -72,7 +72,7 @@
   if (_view) {
     [super drawRect: rect];
 
-    _view->set_target_context((CGContextRef)NSGraphicsContext.currentContext.graphicsPort);
+    _view->set_target_context((CGContextRef)NSGraphicsContext.currentContext.CGContext);
     _view->repaint(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 
     if (_firstResponder) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -118,10 +118,7 @@ void apply_bounds(ControlList % list, bool horizontal) {
       else
         vertical_offset += newBounds.Height - entry->bounds.Height;
 
-      // The WebBrowser class doesn't like being resized via DeferWindowPos, so we do it the straight way.
-      // Also, if DeferWindowPos (or BeginDeferWindowPos for that matter) returned an empty handle
-      // then we need to do the resizing that way for all controls.
-      if (hdwp == 0 || is<System::Windows::Forms::WebBrowser>(entry->control))
+      if (hdwp == 0)
         entry->control->Bounds = newBounds;
       else {
         HDWP new_hdwp = DeferWindowPos(hdwp, (HWND)entry->control->Handle.ToPointer(), 0, newBounds.X, newBounds.Y,

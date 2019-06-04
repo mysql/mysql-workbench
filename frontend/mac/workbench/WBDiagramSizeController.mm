@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -35,8 +35,7 @@
 
 @end
 
-@interface WBDiagramSizeController()
-{
+@interface WBDiagramSizeController() {
   __weak IBOutlet TestPanel *panel;
   __weak IBOutlet MCanvasViewer *canvas;
   __weak IBOutlet NSTextField *nameField;
@@ -52,21 +51,15 @@
 
 @implementation WBDiagramSizeController
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
-  if (self != nil)
-  {
+  if (self != nil)  {
     // The diagram size controller is a panel (window) which can be set to auto release on close.
     // However, in order to keep the pattern with all our nib loading this setting is off and we do it manually.
     NSMutableArray *temp;
-    if ([NSBundle.mainBundle loadNibNamed: @"DiagramOptions" owner: self topLevelObjects: &temp])
-    {
+    if ([NSBundle.mainBundle loadNibNamed: @"DiagramOptions" owner: self topLevelObjects: &temp]) {
       nibObjects = temp;
-
-      [canvas lockFocus];
       [canvas setupQuartz];
-      [canvas unlockFocus];
 
       _be = wb::WBContextUI::get()->create_diagram_options_be(canvas.canvas);
       _be->update_size();
@@ -80,45 +73,35 @@
   return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
   delete _be;
 }
 
-static void update_size_entries(void *theController)
-{
+static void update_size_entries(void *theController) {
   WBDiagramSizeController *controller = (__bridge WBDiagramSizeController *)theController;
   controller->widthField.integerValue = controller->_be->get_xpages();
   controller->heightField.integerValue = controller->_be->get_ypages();
 }
 
-
-- (IBAction)okClicked:(id)sender
-{
+- (IBAction)okClicked: (id)sender {
   _be->set_name(nameField.stringValue.UTF8String);
   
   _be->commit();
   [panel performClose:nil];
 }
 
-
-- (void)windowWillClose:(NSNotification *)notification
-{
+- (void)windowWillClose:(NSNotification *)notification {
   [NSApp stopModal];
 }
 
-
-- (void)controlTextDidEndEditing:(NSNotification *)aNotification
-{
+- (void)controlTextDidEndEditing:(NSNotification *)aNotification {
   if (aNotification.object == widthField)
     _be->set_xpages((int)widthField.integerValue);
   else if (aNotification.object == heightField)
     _be->set_ypages((int)heightField.integerValue);
 }  
 
-
-- (void)showModal
-{
+- (void)showModal {
   [panel makeKeyAndOrderFront:nil];
   
   [NSApp runModalForWindow:panel];

@@ -130,9 +130,6 @@
     <ClInclude Include="src\wf_view.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\wf_webbrowser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\wf_wizard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -267,9 +264,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\wf_view.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\wf_webbrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\wf_wizard.cpp">

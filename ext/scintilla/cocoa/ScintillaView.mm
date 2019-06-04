@@ -222,7 +222,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
 
     [self registerForDraggedTypes: [NSArray arrayWithObjects:
-                                   NSStringPboardType, ScintillaRecPboardType, NSFilenamesPboardType, nil]];
+                                   NSPasteboardTypeString, ScintillaRecPboardType, NSFilenamesPboardType, nil]];
 
     // Set up accessibility in the text role
     self.accessibilityElement = TRUE;
@@ -344,7 +344,7 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor)
  */
 - (void) drawRect: (NSRect) rect
 {
-  CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+  CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] CGContext];
 
   if (!mOwner.backend->Draw(rect, context)) {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1899,7 +1899,7 @@ sourceOperationMaskForDraggingContext: (NSDraggingContext) context
 - (void) setColorProperty: (int) property parameter: (long) parameter value: (NSColor*) value
 {
   if ([value colorSpaceName] != NSDeviceRGBColorSpace)
-    value = [value colorUsingColorSpaceName: NSDeviceRGBColorSpace];
+    value = [value colorUsingColorSpace: NSColorSpace.genericRGBColorSpace];
   long red = static_cast<long>([value redComponent] * 255);
   long green = static_cast<long>([value greenComponent] * 255);
   long blue = static_cast<long>([value blueComponent] * 255);

@@ -331,7 +331,7 @@ static bool get_enabled(MenuBase *aitem)
 static void set_checked(MenuItem *aitem, bool flag)
 {
   NSMenuItem *item = aitem->get_data();
-  item.state = flag ? NSOnState : NSOffState;
+  item.state = flag ? NSControlStateValueOn : NSControlStateValueOff;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -339,7 +339,7 @@ static void set_checked(MenuItem *aitem, bool flag)
 static bool get_checked(MenuItem *aitem)
 {
   NSMenuItem *item = aitem->get_data();
-  return item.state == NSOnState;
+  return item.state == NSControlStateValueOn;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

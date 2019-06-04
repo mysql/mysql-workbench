@@ -1154,7 +1154,7 @@ void ScintillaCocoa::CTPaint(void* gc, NSRect rc) {
 
 - (void) drawRect: (NSRect) needsDisplayInRect {
     if (sci) {
-        CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+        CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] CGContext];
         sci->CTPaint(context, needsDisplayInRect);
     }
 }
@@ -1342,7 +1342,7 @@ void ScintillaCocoa::DragScroll()
 
   if ([type compare: NSPasteboardTypeString] == NSOrderedSame)
   {
-    [pasteboard setString:(NSString *)cfsVal forType: NSStringPboardType];
+    [pasteboard setString:(NSString *)cfsVal forType: NSPasteboardTypeString];
   }
   else if ([type compare: ScintillaRecPboardType] == NSOrderedSame)
   {
@@ -1555,7 +1555,7 @@ NSDragOperation ScintillaCocoa::DraggingUpdated(id <NSDraggingInfo> info)
   NSPasteboard* pasteboard = [info draggingPasteboard];
 
   // Return what type of operation we will perform. Prefer move over copy.
-  if ([[pasteboard types] containsObject: NSStringPboardType] ||
+  if ([[pasteboard types] containsObject: NSPasteboardTypeString] ||
       [[pasteboard types] containsObject: ScintillaRecPboardType])
     return (sourceDragMask & NSDragOperationMove) ? NSDragOperationMove : NSDragOperationCopy;
 
@@ -1623,8 +1623,8 @@ void ScintillaCocoa::SetPasteboardData(NSPasteboard* board, const SelectionText 
                                                selectedText.Length(), encoding, false);
 
   NSArray *pbTypes = selectedText.rectangular ?
-    [NSArray arrayWithObjects: NSStringPboardType, ScintillaRecPboardType, nil] :
-    [NSArray arrayWithObjects: NSStringPboardType, nil];
+    [NSArray arrayWithObjects: NSPasteboardTypeString, ScintillaRecPboardType, nil] :
+    [NSArray arrayWithObjects: NSPasteboardTypeString, nil];
   [board declareTypes:pbTypes owner:nil];
 
   if (selectedText.rectangular)
@@ -1633,7 +1633,7 @@ void ScintillaCocoa::SetPasteboardData(NSPasteboard* board, const SelectionText 
     [board setString: (NSString *)cfsVal forType: ScintillaRecPboardType];
   }
 
-  [board setString: (NSString *)cfsVal forType: NSStringPboardType];
+  [board setString: (NSString *)cfsVal forType: NSPasteboardTypeString];
 
   if (cfsVal)
     CFRelease(cfsVal);
@@ -1647,7 +1647,7 @@ void ScintillaCocoa::SetPasteboardData(NSPasteboard* board, const SelectionText 
 bool ScintillaCocoa::GetPasteboardData(NSPasteboard* board, SelectionText* selectedText)
 {
   NSArray* supportedTypes = [NSArray arrayWithObjects: ScintillaRecPboardType,
-                             NSStringPboardType,
+                             NSPasteboardTypeString,
                              nil];
   NSString *bestType = [board availableTypeFromArray: supportedTypes];
   NSString* data = [board stringForType: bestType];
@@ -1874,7 +1874,7 @@ bool ScintillaCocoa::SyncPaint(void* gc, PRectangle rc)
  */
 void ScintillaCocoa::PaintMargin(NSRect aRect)
 {
-  CGContextRef gc = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+  CGContextRef gc = (CGContextRef) [[NSGraphicsContext currentContext] CGContext];
 
   PRectangle rc = NSRectToPRectangle(aRect);
   rcPaint = rc;

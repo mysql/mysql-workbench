@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -52,7 +52,7 @@ static NSColor *lineColorDark = [NSColor colorWithDeviceWhite: 0.3 alpha: 1];
   }
   BOOL isActive = owner.window.mainWindow;
 
-	if (mState == NSOnState) {
+	if (mState == NSControlStateValueOn) {
 		mSideLeft.opacity = 1;
 		mSideRight.opacity = 1;
     mTabBackground.opacity = 1;
@@ -121,7 +121,7 @@ static NSColor *lineColorDark = [NSColor colorWithDeviceWhite: 0.3 alpha: 1];
 		mIdentifier = identifier;
 		
 		mHasIcon = YES;
-    mState = NSOnState;
+    mState = NSControlStateValueOn;
 		mTabDirection = WBTabDirectionUp;
 		mTabPlacement = WBTabPlacementTop;
 		

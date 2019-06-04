@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -99,7 +99,7 @@ static void call_refresh(void *theEditor) {
 
     [widthField setIntegerValue: w];
     [heightField setIntegerValue: h];
-    [keepAspectRatio setState: mBackEnd->get_keep_aspect_ratio() ? NSOnState : NSOffState];
+    [keepAspectRatio setState: mBackEnd->get_keep_aspect_ratio() ? NSControlStateValueOn : NSControlStateValueOff];
   }
 }
 
@@ -122,7 +122,7 @@ static void call_refresh(void *theEditor) {
 }
 
 - (IBAction)toggleAspectRatio: (id)sender {
-  mBackEnd->set_keep_aspect_ratio([keepAspectRatio state] == NSOnState);
+  mBackEnd->set_keep_aspect_ratio([keepAspectRatio state] == NSControlStateValueOn);
 }
 
 - (IBAction)resetSize: (id)sender {

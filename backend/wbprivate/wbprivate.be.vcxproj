@@ -243,7 +243,6 @@
     <ClInclude Include="workbench\wb_overview.h" />
     <ClInclude Include="workbench\wb_tunnel.h" />
     <ClInclude Include="workbench\wb_version.h" />
-    <ClInclude Include="workbench\webbrowser_view.h" />
     <ClInclude Include="workbench\wmi.h" />
   </ItemGroup>
   <ItemGroup>
@@ -322,7 +321,6 @@
     <ClCompile Include="workbench\wb_module.cpp" />
     <ClCompile Include="workbench\wb_overview.cpp" />
     <ClCompile Include="workbench\wb_tunnel.cpp" />
-    <ClCompile Include="workbench\webbrowser_view.cpp" />
     <ClCompile Include="workbench\wmi.cpp" />
   </ItemGroup>
   <ItemGroup>

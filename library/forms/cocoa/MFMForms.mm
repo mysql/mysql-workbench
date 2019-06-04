@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -47,7 +47,6 @@ extern void cf_wizard_init();
 extern void cf_util_init();
 extern void cf_drawbox_init();
 extern void cf_splitter_init();
-extern void cf_webbrowser_init();
 extern void cf_popup_init();
 extern void cf_menu_init();
 extern void cf_codeeditor_init();
@@ -59,8 +58,8 @@ extern void cf_findpanel_init();
 extern void cf_canvas_init();
 
 extern "C" {
-void mforms_cocoa_init()
-{
+
+void mforms_cocoa_init() {
   cf_view_init();
   cf_form_init();
   cf_button_init();
@@ -81,7 +80,6 @@ void mforms_cocoa_init()
   cf_listbox_init();
   cf_splitter_init();
   cf_drawbox_init();
-  cf_webbrowser_init();
   cf_popup_init();
   cf_menu_init();
   cf_codeeditor_init();
@@ -100,9 +98,8 @@ void mforms_cocoa_init()
   cf_canvas_init();
 }
   
-  
-void mforms_cocoa_check()
-{
+void mforms_cocoa_check() {
   mforms::ControlFactory::get_instance()->check_impl();
 }
+  
 };

@@ -84,7 +84,6 @@ add_library(mforms
     treeview.cpp
     utilities.cpp
     view.cpp
-    webbrowser.cpp
     jsonview.cpp
     widgets.cpp
     wizard.cpp

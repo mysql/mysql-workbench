@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -138,10 +138,10 @@ static void call_refresh(void *theEditor)
     [table2ColumnText setStringValue: [NSString stringWithCPPString:mBackEnd->get_right_table_info()]];
     [table1FKText setStringValue: [NSString stringWithCPPString:mBackEnd->get_left_table_fk()]];
     
-    [mandatory1Check setState: mBackEnd->get_left_mandatory() ? NSOnState : NSOffState];
-    [mandatory2Check setState: mBackEnd->get_right_mandatory() ? NSOnState : NSOffState];
+    [mandatory1Check setState: mBackEnd->get_left_mandatory() ? NSControlStateValueOn : NSControlStateValueOff];
+    [mandatory2Check setState: mBackEnd->get_right_mandatory() ? NSControlStateValueOn : NSControlStateValueOff];
     
-    [identifyingCheck setState: mBackEnd->get_is_identifying() ? NSOnState : NSOffState];
+    [identifyingCheck setState: mBackEnd->get_is_identifying() ? NSControlStateValueOn : NSControlStateValueOff];
 
     [visibilityRadios selectCellWithTag: (int)mBackEnd->get_visibility()];
     
@@ -190,11 +190,11 @@ static void call_refresh(void *theEditor)
 - (IBAction)userToggleCheck:(id)sender
 {
   if (sender == mandatory1Check)
-    mBackEnd->set_left_mandatory([mandatory1Check state] == NSOnState);
+    mBackEnd->set_left_mandatory([mandatory1Check state] == NSControlStateValueOn);
   else if (sender == mandatory2Check)
-    mBackEnd->set_right_mandatory([mandatory2Check state] == NSOnState);
+    mBackEnd->set_right_mandatory([mandatory2Check state] == NSControlStateValueOn);
   else if (sender == identifyingCheck)
-    mBackEnd->set_is_identifying([identifyingCheck state] == NSOnState);
+    mBackEnd->set_is_identifying([identifyingCheck state] == NSControlStateValueOn);
 }
 
 

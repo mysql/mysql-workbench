@@ -305,12 +305,6 @@
 		2783C5191E263CA200322D6D /* symbol-data.h in Headers */ = {isa = PBXBuildFile; fileRef = 2783C5181E263CA200322D6D /* symbol-data.h */; };
 		278767AC1E323FD400EC07AC /* home_screen_close_light.png in Resources */ = {isa = PBXBuildFile; fileRef = 278767AA1E323FD400EC07AC /* home_screen_close_light.png */; };
 		278767AD1E323FD400EC07AC /* home_screen_close_light@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 278767AB1E323FD400EC07AC /* home_screen_close_light@2x.png */; };
-		278874861189DA8500E477EF /* webbrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874851189DA8500E477EF /* webbrowser.h */; };
-		278874881189DA9300E477EF /* webbrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278874871189DA9300E477EF /* webbrowser.cpp */; };
-		278874961189DEA500E477EF /* webbrowser_view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278874951189DEA500E477EF /* webbrowser_view.cpp */; };
-		278874981189DEAC00E477EF /* webbrowser_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874971189DEAC00E477EF /* webbrowser_view.h */; };
-		278874AE1189DFE100E477EF /* MFWebBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 278874AC1189DFE100E477EF /* MFWebBrowser.h */; };
-		278874AF1189DFE100E477EF /* MFWebBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 278874AD1189DFE100E477EF /* MFWebBrowser.mm */; };
 		278A083E19BC84B20084C2F4 /* db_generic_migration_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4D156D897A0025F13F /* db_generic_migration_grt.py */; };
 		278A083F19BC84B20084C2F4 /* db_generic_re_grt.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4E156D897A0025F13F /* db_generic_re_grt.py */; };
 		278A084019BC84B20084C2F4 /* SQLEXT.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 2BAD7C4F156D897A0025F13F /* SQLEXT.py */; };
@@ -1501,7 +1495,6 @@
 		2B4971F713C93BEB00F6AF47 /* MFHyperTextView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4971F513C93BEB00F6AF47 /* MFHyperTextView.mm */; };
 		2B4973D413CA7D5600F6AF47 /* query_side_palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4973D213CA7D5600F6AF47 /* query_side_palette.h */; };
 		2B4973D513CA7D5600F6AF47 /* query_side_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4973D313CA7D5600F6AF47 /* query_side_palette.cpp */; };
-		2B4974D513CAA4DB00F6AF47 /* hypertextview.css in Resources */ = {isa = PBXBuildFile; fileRef = 2B4974C613CAA37F00F6AF47 /* hypertextview.css */; };
 		2B497E5F13D0DD4600F6AF47 /* sqlstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B497E5E13D0DD4600F6AF47 /* sqlstring.cpp */; };
 		2B497E6113D0DD5600F6AF47 /* sqlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B497E6013D0DD5600F6AF47 /* sqlstring.h */; };
 		2B4BCE281847745400865D37 /* admin_dashboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BCE221847745400865D37 /* admin_dashboard.png */; };
@@ -4321,7 +4314,6 @@
 		27050AE51B3443C900D6135D /* stub_treeview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stub_treeview.h; path = library/forms/stub/stub_treeview.h; sourceTree = "<group>"; };
 		27050AE61B3443C900D6135D /* stub_utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stub_utilities.h; path = library/forms/stub/stub_utilities.h; sourceTree = "<group>"; };
 		27050AE71B3443C900D6135D /* stub_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stub_view.h; path = library/forms/stub/stub_view.h; sourceTree = "<group>"; };
-		27050AE81B3443C900D6135D /* stub_webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stub_webbrowser.h; path = library/forms/stub/stub_webbrowser.h; sourceTree = "<group>"; };
 		27050AE91B3443C900D6135D /* stub_wizard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stub_wizard.h; path = library/forms/stub/stub_wizard.h; sourceTree = "<group>"; };
 		27050B0C1B34440200D6135D /* mysql_invalid_sql_parser_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mysql_invalid_sql_parser_test.cpp; path = "modules/db.mysql.sqlparser/unit-tests/mysql_invalid_sql_parser_test.cpp"; sourceTree = "<group>"; };
 		27050B0D1B34440200D6135D /* test_mysql_sql_facade.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_mysql_sql_facade.cpp; path = "modules/db.mysql.sqlparser/unit-tests/test_mysql_sql_facade.cpp"; sourceTree = "<group>"; };
@@ -4482,12 +4474,6 @@
 		2783C5181E263CA200322D6D /* symbol-data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "symbol-data.h"; path = "library/parsers/mysql/symbol-data.h"; sourceTree = "<group>"; };
 		278767AA1E323FD400EC07AC /* home_screen_close_light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = home_screen_close_light.png; path = images/home/home_screen_close_light.png; sourceTree = "<group>"; };
 		278767AB1E323FD400EC07AC /* home_screen_close_light@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "home_screen_close_light@2x.png"; path = "images/home/home_screen_close_light@2x.png"; sourceTree = "<group>"; };
-		278874851189DA8500E477EF /* webbrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webbrowser.h; path = library/forms/mforms/webbrowser.h; sourceTree = "<group>"; };
-		278874871189DA9300E477EF /* webbrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webbrowser.cpp; path = library/forms/webbrowser.cpp; sourceTree = "<group>"; };
-		278874951189DEA500E477EF /* webbrowser_view.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = webbrowser_view.cpp; sourceTree = "<group>"; };
-		278874971189DEAC00E477EF /* webbrowser_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = webbrowser_view.h; sourceTree = "<group>"; };
-		278874AC1189DFE100E477EF /* MFWebBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MFWebBrowser.h; path = library/forms/cocoa/MFWebBrowser.h; sourceTree = "<group>"; };
-		278874AD1189DFE100E477EF /* MFWebBrowser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFWebBrowser.mm; path = library/forms/cocoa/MFWebBrowser.mm; sourceTree = "<group>"; };
 		278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.so.1.2.5; path = "3rd-party-se/lib/libz.so.1.2.5"; sourceTree = "<group>"; };
 		278DFF0620A2F2AC00D7E439 /* libwbssh.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwbssh.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		278DFF0B20A2F64700D7E439 /* SSHTunnelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHTunnelManager.h; path = library/ssh/SSHTunnelManager.h; sourceTree = "<group>"; };
@@ -5538,7 +5524,6 @@
 		2B4971F513C93BEB00F6AF47 /* MFHyperTextView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MFHyperTextView.mm; path = library/forms/cocoa/MFHyperTextView.mm; sourceTree = "<group>"; };
 		2B4973D213CA7D5600F6AF47 /* query_side_palette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = query_side_palette.h; path = backend/wbprivate/sqlide/query_side_palette.h; sourceTree = "<group>"; wrapsLines = 0; };
 		2B4973D313CA7D5600F6AF47 /* query_side_palette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = query_side_palette.cpp; path = backend/wbprivate/sqlide/query_side_palette.cpp; sourceTree = "<group>"; wrapsLines = 0; };
-		2B4974C613CAA37F00F6AF47 /* hypertextview.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; name = hypertextview.css; path = library/forms/cocoa/hypertextview.css; sourceTree = "<group>"; };
 		2B497E5E13D0DD4600F6AF47 /* sqlstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sqlstring.cpp; path = library/base/sqlstring.cpp; sourceTree = "<group>"; };
 		2B497E6013D0DD5600F6AF47 /* sqlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqlstring.h; path = library/base/base/sqlstring.h; sourceTree = "<group>"; };
 		2B4BCE221847745400865D37 /* admin_dashboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_dashboard.png; path = images/admin/admin_dashboard.png; sourceTree = "<group>"; };
@@ -7770,7 +7755,6 @@
 				27050AE61B3443C900D6135D /* stub_utilities.h */,
 				27050AB91B3443C100D6135D /* stub_view.cpp */,
 				27050AE71B3443C900D6135D /* stub_view.h */,
-				27050AE81B3443C900D6135D /* stub_webbrowser.h */,
 				27050ABA1B3443C100D6135D /* stub_wizard.cpp */,
 				27050AE91B3443C900D6135D /* stub_wizard.h */,
 			);
@@ -8197,7 +8181,6 @@
 				2BE67EF90F8DB1F000E00A97 /* uistyle.h */,
 				2B73957E0F6048620084CA96 /* utilities.h */,
 				2B96166F0F275B0A00F0B599 /* view.h */,
-				278874851189DA8500E477EF /* webbrowser.h */,
 				2760C4B91074948B00FD1366 /* widgets.h */,
 			);
 			name = Headers;
@@ -8253,7 +8236,6 @@
 				2B064CDE14D327F400B01887 /* treeview.cpp */,
 				2B7395800F6048780084CA96 /* utilities.cpp */,
 				2B96163F0F275AF200F0B599 /* view.cpp */,
-				278874871189DA9300E477EF /* webbrowser.cpp */,
 				2760C4B71074947300FD1366 /* widgets.cpp */,
 			);
 			name = Source;
@@ -9981,8 +9963,6 @@
 				2BC08B321064836C0069AB9A /* wb_tunnel.cpp */,
 				2BC08B311064836C0069AB9A /* wb_tunnel.h */,
 				2BF049671742CCF400A7EA35 /* wb_version.h */,
-				278874951189DEA500E477EF /* webbrowser_view.cpp */,
-				278874971189DEAC00E477EF /* webbrowser_view.h */,
 			);
 			name = Workbench;
 			path = backend/wbprivate/workbench;
@@ -10516,7 +10496,6 @@
 			isa = PBXGroup;
 			children = (
 				276183531C7B34EA00FD7956 /* Resources */,
-				2B4974C613CAA37F00F6AF47 /* hypertextview.css */,
 				2B3D48F70F3E3FCA009238A7 /* MFBase.h */,
 				2B3D48F80F3E3FCA009238A7 /* MFBase.mm */,
 				2B3D48F90F3E3FCA009238A7 /* MFBox.h */,
@@ -10585,8 +10564,6 @@
 				2B7395830F60488F0084CA96 /* MFUtilities.mm */,
 				2B3D49130F3E3FCA009238A7 /* MFView.h */,
 				2B3D49140F3E3FCA009238A7 /* MFView.mm */,
-				278874AC1189DFE100E477EF /* MFWebBrowser.h */,
-				278874AD1189DFE100E477EF /* MFWebBrowser.mm */,
 				2B3D49150F3E3FCA009238A7 /* MFWizard.h */,
 				2B3D49160F3E3FCA009238A7 /* MFWizard.mm */,
 				2798BFA7118AF2BC0090590E /* MHudController.h */,
@@ -12245,8 +12222,6 @@
 				2773B87E11006A21000CA2F9 /* splitter.h in Headers */,
 				2773B88511006B53000CA2F9 /* MFSplitter.h in Headers */,
 				27C08A551CB79792001A0ECC /* home_screen.h in Headers */,
-				278874861189DA8500E477EF /* webbrowser.h in Headers */,
-				278874AE1189DFE100E477EF /* MFWebBrowser.h in Headers */,
 				2798BFAA118AF2BC0090590E /* MHudController.h in Headers */,
 				275E55CE11AD35F100B3886E /* popup.h in Headers */,
 				275E560911AD41C400B3886E /* MFPopup.h in Headers */,
@@ -12336,7 +12311,6 @@
 				2B39A3AC10AD98D200AD3447 /* new_connection_wizard.h in Headers */,
 				27C6888010B58C9B00B8D810 /* new_server_instance_wizard.h in Headers */,
 				2BB376C21104898800DA4577 /* grt_shell_window.h in Headers */,
-				278874981189DEAC00E477EF /* webbrowser_view.h in Headers */,
 				2B3DBD0A1212ECAB001837A5 /* plugin_manager_window.h in Headers */,
 				2B6483DE122725ED00207149 /* grt_code_editor.h in Headers */,
 				2B648419122741FB00207149 /* grt_plugin_wizard.h in Headers */,
@@ -14022,7 +13996,6 @@
 				2BAE51DD1342445C00076130 /* MySQLWBPlugin.icns in Resources */,
 				2BCD412E13837A3500B375FD /* wait_panel_cancel_button.png in Resources */,
 				275F04FF1386942400F29131 /* refresh_sidebar_mac.png in Resources */,
-				2B4974D513CAA4DB00F6AF47 /* hypertextview.css in Resources */,
 				2BCEBF9713DBD3F100A23E75 /* mini_edit.png in Resources */,
 				44B7DC9F1C0C7A72000D608D /* admin_info_offline.png in Resources */,
 				2BCEBF9813DBD3F100A23E75 /* mini_ok.png in Resources */,
@@ -15257,8 +15230,6 @@
 				2B83E5B71992B34500781432 /* MFCanvas.mm in Sources */,
 				2B83E5BF1992B3D900781432 /* MCanvasViewer.mm in Sources */,
 				27ABB5EA1BED01BA00BD039F /* jsonview.cpp in Sources */,
-				278874881189DA9300E477EF /* webbrowser.cpp in Sources */,
-				278874AF1189DFE100E477EF /* MFWebBrowser.mm in Sources */,
 				2798BFAB118AF2BC0090590E /* MHudController.mm in Sources */,
 				275E55D011AD35FE00B3886E /* popup.cpp in Sources */,
 				27C08A471CB79775001A0ECC /* home_screen_connections.cpp in Sources */,
@@ -15379,7 +15350,6 @@
 				2B39A3AD10AD98D200AD3447 /* new_connection_wizard.cpp in Sources */,
 				27C6887F10B58C9B00B8D810 /* new_server_instance_wizard.cpp in Sources */,
 				2BB376C11104898700DA4577 /* grt_shell_window.cpp in Sources */,
-				278874961189DEA500E477EF /* webbrowser_view.cpp in Sources */,
 				2B3DBD0B1212ECAB001837A5 /* plugin_manager_window.cpp in Sources */,
 				2B6483DD122725ED00207149 /* grt_code_editor.cpp in Sources */,
 				2B4D197B124030D9004E6309 /* wb_context_ui_home.cpp in Sources */,
@@ -19070,7 +19040,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
@@ -19139,7 +19109,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;

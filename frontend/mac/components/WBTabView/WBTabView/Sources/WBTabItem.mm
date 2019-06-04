@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -149,7 +149,7 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
   mCloseButton.opacity = (mEnabled ? 1.0 : 0.6);
   mTitleLayer.opacity = (mEnabled ? 1.0 : 0.6);
   
-  if (mState == NSOnState) {
+  if (mState == NSControlStateValueOn) {
     self.backgroundColor = self.currentColors[@"tabBackgroundSelected"].CGColor;
     mTitleLayer.foregroundColor = self.currentColors[@"tabLabelSelected"].CGColor;
   } else {
@@ -157,13 +157,13 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
     mTitleLayer.foregroundColor = self.currentColors[@"tabLabelUnselected"].CGColor;
   }
 
-  [self setCloseButtonState: NSOffState];
+  [self setCloseButtonState: NSControlStateValueOff];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-- (void)setState: (NSCellStateValue)value {
-  NSAssert( (value == NSOffState || value == NSOnState), @"Bad argument for setState, should be NSOffState or NSOnState.");
+- (void)setState: (NSControlStateValue)value {
+  NSAssert( (value == NSControlStateValueOff || value == NSControlStateValueOn), @"Bad argument for setState, should be NSControlStateValueOff or NSControlStateValueOn.");
   
   mState = value;
   [self updateAppearance];
@@ -195,17 +195,17 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-- (void)setCloseButtonState: (NSCellStateValue)state {
+- (void)setCloseButtonState: (NSControlStateValue)state {
   BOOL isDark = NO;
   if (@available(macOS 10.14, *)) {
     isDark = owner.window.effectiveAppearance.name == NSAppearanceNameDarkAqua;
   }
 
   NSBundle * bundle = [NSBundle bundleForClass: self.class];
-  if (state == NSOnState) {
+  if (state == NSControlStateValueOn) {
     mCloseButtonImage = [bundle imageForResource: isDark ? @"TabClose_PressedDark" : @"TabClose_PressedLight"];
     mCloseButton.contents = mCloseButtonImage;
-  } else if (state == NSOffState) {
+  } else if (state == NSControlStateValueOff) {
     mCloseButtonImage = [bundle imageForResource: isDark ? @"TabClose_UnpressedDark" : @"TabClose_UnpressedLight"];
     mCloseButton.contents = mCloseButtonImage;
   }
@@ -286,7 +286,7 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
   if (CGRectContainsPoint(mCloseButton.frame, mouse)) {
     mClickInCloseBox = YES;
     mMouseInCloseBox = YES;
-    [self setCloseButtonState: NSOnState];
+    [self setCloseButtonState: NSControlStateValueOn];
   } else {
     mClickInCloseBox = NO;
     mMouseInCloseBox = NO;
@@ -303,7 +303,7 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
     // Track mouse around close box.
     BOOL inside = (CGRectContainsPoint(mCloseButton.frame, mouse));
     if (mMouseInCloseBox != inside) {
-      [self setCloseButtonState: (inside ? NSOnState : NSOffState)];
+      [self setCloseButtonState: (inside ? NSControlStateValueOn : NSControlStateValueOff)];
     }
     mMouseInCloseBox = inside;
   }
@@ -314,7 +314,7 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
 - (void)mouseUp {
   if (mMouseInCloseBox) {
     [(id)[self delegate] closeTab: self];
-    [self setCloseButtonState: NSOffState];
+    [self setCloseButtonState: NSControlStateValueOff];
   }
 }
 
@@ -445,7 +445,7 @@ extern NSDictionary<NSString *, NSGradient *> *inactiveGradientsLight;
     frame.size.width = self.preferredWidth;
     self.frame = frame;
     
-    [self setState: NSOffState];
+    [self setState: NSControlStateValueOff];
     [self setEnabled: YES];
   }
   

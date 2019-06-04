@@ -40,7 +40,6 @@ set(SWIG_MODULE_mforms_EXTRA_DEPS
     ${PROJECT_SOURCE_DIR}/library/forms/mforms/widgets.h
     ${PROJECT_SOURCE_DIR}/library/forms/mforms/menu.h
     ${PROJECT_SOURCE_DIR}/library/forms/mforms/splitter.h
-    ${PROJECT_SOURCE_DIR}/library/forms/mforms/webbrowser.h
     ${PROJECT_SOURCE_DIR}/library/forms/mforms/popup.h
     ${PROJECT_SOURCE_DIR}/library/forms/mforms/code_editor.h
     ${PROJECT_SOURCE_DIR}/library/forms/mforms/menubar.h

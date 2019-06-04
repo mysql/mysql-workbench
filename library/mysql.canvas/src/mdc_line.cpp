@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -303,6 +303,7 @@ void Line::draw_outline_ring(CairoCtx *cr, const Color &color) {
 //--------------------------------------------------------------------------------------------------
 
 void Line::draw_outline_ring_gl(const Color &color) {
+#ifndef __APPLE__
   Point position = get_position();
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
@@ -317,6 +318,7 @@ void Line::draw_outline_ring_gl(const Color &color) {
   stroke_outline_gl();
 
   glPopMatrix();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,6 +456,7 @@ static void draw_line_end(CairoCtx *cr, LineEndType type, const Color &lcolor, c
 
 //--------------------------------------------------------------------------------------------------
 
+#ifndef __APPLE__
 static void draw_line_end_gl(LineEndType type, const Color &lcolor, const Color &bcolor) {
   switch (type) {
     case DashedNormalEnd:
@@ -581,6 +584,7 @@ static void draw_line_end_gl(LineEndType type, const Color &lcolor, const Color 
       break;
   }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------------
 
@@ -619,6 +623,7 @@ void Line::stroke_outline(CairoCtx *cr, float offset) const {
 //--------------------------------------------------------------------------------------------------
 
 void Line::stroke_outline_gl(float offset) const {
+#ifndef __APPLE__
   glBegin(GL_LINE_STRIP);
 
   std::vector<SegmentPoint>::const_iterator pv, v = _segments.begin();
@@ -652,6 +657,7 @@ void Line::stroke_outline_gl(float offset) const {
   }
 
   glEnd();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -694,6 +700,7 @@ void Line::draw_line_ends(CairoCtx *cr) {
 //--------------------------------------------------------------------------------------------------
 
 void Line::draw_line_ends_gl() {
+#ifndef __APPLE__
   glMatrixMode(GL_MODELVIEW);
 
   glPushMatrix();
@@ -709,6 +716,7 @@ void Line::draw_line_ends_gl() {
   glRotated(270 - get_line_end_angle(), 0, 0, 1);
   draw_line_end_gl(_end_type, _pen_color, _fill_color);
   glPopMatrix();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

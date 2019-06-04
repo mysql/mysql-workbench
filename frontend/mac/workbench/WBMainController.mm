@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -426,7 +426,7 @@ static bool validate_paste() {
     BOOL isEditable = [(id)NSApp.keyWindow.firstResponder isEditable];
 
     // 2) The pasteboard contains text.
-    NSArray *supportedTypes = @[ NSStringPboardType ];
+    NSArray *supportedTypes = @[ NSPasteboardTypeString ];
     NSString *bestType = [[NSPasteboard generalPasteboard] availableTypeFromArray: supportedTypes];
 
     return isEditable && (bestType != nil);
@@ -1052,11 +1052,11 @@ static void init_mforms() {
     [NSApp stopModalWithCode:NSModalResponseCancel];
     [pageSetup orderOut: nil];
   } else if (sender == landscapeButton) {
-    landscapeButton.state = NSOnState;
-    portraitButton.state = NSOffState;
+    landscapeButton.state = NSControlStateValueOn;
+    portraitButton.state = NSControlStateValueOff;
   } else if (sender == portraitButton) {
-    landscapeButton.state = NSOffState;
-    portraitButton.state = NSOnState;
+    landscapeButton.state = NSControlStateValueOff;
+    portraitButton.state = NSControlStateValueOn;
   }
 }
 
@@ -1114,11 +1114,11 @@ static void init_mforms() {
     [self selectCollectionItem:paperSize];
   }
   if (settings->orientation() == "landscape") {
-    landscapeButton.state = NSOnState;
-    portraitButton.state = NSOffState;
+    landscapeButton.state = NSControlStateValueOn;
+    portraitButton.state = NSControlStateValueOff;
   } else {
-    landscapeButton.state = NSOffState;
-    portraitButton.state = NSOnState;
+    landscapeButton.state = NSControlStateValueOff;
+    portraitButton.state = NSControlStateValueOn;
   }
 
   if ([NSApp runModalForWindow:pageSetup] == NSModalResponseOK) {
@@ -1129,7 +1129,7 @@ static void init_mforms() {
 
     if (paperType != settings->paperType())
       settings->paperType(paperType);
-    if (landscapeButton.state == NSOnState)
+    if (landscapeButton.state == NSControlStateValueOn)
       orientation = "landscape";
     else
       orientation = "portrait";

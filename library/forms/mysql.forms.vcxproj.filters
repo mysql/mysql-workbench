@@ -147,9 +147,6 @@
     <ClCompile Include="view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="webbrowser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -314,9 +311,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\view.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mforms\webbrowser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mforms\widgets.h">

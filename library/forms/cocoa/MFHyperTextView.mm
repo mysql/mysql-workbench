@@ -21,7 +21,6 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#import <WebKit/WebKit.h>
 #import "MFHyperTextView.h"
 #import "MFMForms.h"
 #import "MFBase.h"
@@ -104,25 +103,15 @@ static void ht_set_markup(mforms::HyperText *ht, const std::string &text) {
     return;
   }
 
-  WebPreferences *defaults = [WebPreferences standardPreferences];
-
-  defaults.standardFontFamily = @"Lucida Grande";
-  defaults.defaultFontSize = NSFont.systemFontSize;
-  defaults.defaultFixedFontSize = NSFont.systemFontSize;
-  defaults.userStyleSheetEnabled = YES;
-  defaults.userStyleSheetLocation =
-    [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource: @"hypertextview" ofType: @"css"]];
-
+  NSData *html = [NSData dataWithBytes:text.data() length: text.size()];
+  NSDictionary *options = @{
+    NSTextEncodingNameDocumentOption: @"UTF-8",
+    NSBaseURLDocumentOption : [NSURL URLWithString: @""]
+  };
   [htv->mTextView.textStorage
     replaceCharactersInRange: NSMakeRange(0, htv->mTextView.textStorage.length)
-        withAttributedString: [[NSAttributedString alloc]
-                                     initWithHTML: [NSData dataWithBytes:text.data() length:text.size()]
-                                          options: @{
-                                            NSWebPreferencesDocumentOption: defaults,
-                                            NSTextEncodingNameDocumentOption: @"UTF-8",
-                                            NSBaseURLDocumentOption : [NSURL URLWithString: @""]
-                                          }
-                               documentAttributes: nil]];
+        withAttributedString: [[NSAttributedString alloc] initWithHTML: html options: options documentAttributes: nil]
+  ];
 }
 
 //----------------------------------------------------------------------------------------------------------------------

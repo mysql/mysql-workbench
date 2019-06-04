@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -28,7 +28,7 @@
  *  \anchor MForms
  *
  * \section Introduction
- * MForms is a small GUI toolkit library written for use in the <a href="http://wb.mysql.com">MySQL Workbench</a>
+ * MForms is a small GUI toolkit library written for use in the "a href="http://wb.mysql.com""MySQL Workbench"/a"
  * project. It is small and cross-platform,
  * while providing access to fully native controls (through .NET in Windows, GTK in Linux and Cocoa in MacOSX).
  * It is not meant to be a full-fledged control library, but instead a light-weight and simple library that allows
@@ -61,53 +61,54 @@
  *
  */
 
-#include <mforms/view.h>
-#include <mforms/form.h>
-#include <mforms/button.h>
-#include <mforms/checkbox.h>
-#include <mforms/textentry.h>
-#include <mforms/textbox.h>
-#include <mforms/label.h>
-#include <mforms/selector.h>
-#include <mforms/listbox.h>
-#include <mforms/tabview.h>
-#include <mforms/box.h>
-#include <mforms/panel.h>
-#include <mforms/filechooser.h>
-#include <mforms/radiobutton.h>
-#include <mforms/imagebox.h>
-#include <mforms/progressbar.h>
-#include <mforms/table.h>
-#include <mforms/scrollpanel.h>
-#include <mforms/treeview.h>
-#include <mforms/wizard.h>
-#include <mforms/drawbox.h>
-#include <mforms/tabswitcher.h>
-#include <mforms/app.h>
-#include <mforms/appview.h>
-#include <mforms/utilities.h>
-#include <mforms/uistyle.h>
-#include <mforms/appview.h>
-#include <mforms/sectionbox.h>
-#include <mforms/widgets.h>
-#include <mforms/menu.h>
-#include <mforms/splitter.h>
-#include <mforms/webbrowser.h>
-#include <mforms/popup.h>
-#include <mforms/code_editor.h>
-#include <mforms/menubar.h>
-#include <mforms/toolbar.h>
-#include <mforms/hypertext.h>
-#include <mforms/popover.h>
-#include <mforms/fs_object_selector.h>
-#include <mforms/simpleform.h>
-#include <mforms/find_panel.h>
-#include <mforms/native.h>
-#include <mforms/canvas.h>
-#include <mforms/gridview.h>
+#include "mforms/view.h"
+#include "mforms/form.h"
+#include "mforms/button.h"
+#include "mforms/checkbox.h"
+#include "mforms/textentry.h"
+#include "mforms/textbox.h"
+#include "mforms/label.h"
+#include "mforms/selector.h"
+#include "mforms/listbox.h"
+#include "mforms/tabview.h"
+#include "mforms/box.h"
+#include "mforms/panel.h"
+#include "mforms/filechooser.h"
+#include "mforms/radiobutton.h"
+#include "mforms/imagebox.h"
+#include "mforms/progressbar.h"
+#include "mforms/table.h"
+#include "mforms/scrollpanel.h"
+#include "mforms/treeview.h"
+#include "mforms/wizard.h"
+#include "mforms/drawbox.h"
+#include "mforms/tabswitcher.h"
+#include "mforms/app.h"
+#include "mforms/appview.h"
+#include "mforms/utilities.h"
+#include "mforms/uistyle.h"
+#include "mforms/appview.h"
+#include "mforms/sectionbox.h"
+#include "mforms/widgets.h"
+#include "mforms/menu.h"
+#include "mforms/splitter.h"
+#include "mforms/popup.h"
+#include "mforms/code_editor.h"
+#include "mforms/menubar.h"
+#include "mforms/toolbar.h"
+#include "mforms/hypertext.h"
+#include "mforms/popover.h"
+#include "mforms/fs_object_selector.h"
+#include "mforms/simpleform.h"
+#include "mforms/find_panel.h"
+#include "mforms/native.h"
+#include "mforms/canvas.h"
+#include "mforms/gridview.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 namespace mforms {
+
   class MFORMS_EXPORT ControlFactory {
   public:
     ViewImplPtrs _view_impl;
@@ -132,7 +133,6 @@ namespace mforms {
     DrawBoxImplPtrs _drawbox_impl;
     MenuImplPtrs _menu_impl;
     SplitterImplPtrs _splitter_impl;
-    WebBrowserImplPtrs _webbrowser_impl;
     PopupImplPtrs _popup_impl;
     CodeEditorImplPtrs _code_editor_impl;
     MenuItemImplPtrs _menu_item_impl;

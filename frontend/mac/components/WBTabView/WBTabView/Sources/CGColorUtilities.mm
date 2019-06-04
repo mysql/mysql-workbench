@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,25 +23,24 @@
 
 #import "CGColorUtilities.h"
 
-CGColorRef WB_CGColorCreateCalibratedRGB(CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha)
-{
-	NSColor* calibratedNSColor = [NSColor colorWithCalibratedRed: red
+CGColorRef WB_CGColorCreateCalibratedRGB(CGFloat red, CGFloat green, CGFloat blue, CGFloat alpha) {
+  NSColor* calibratedNSColor = [NSColor colorWithCalibratedRed: red
                                                          green: green
                                                           blue: blue
                                                          alpha: alpha];
-	
-	NSColor* deviceColor = [calibratedNSColor colorUsingColorSpaceName: NSCalibratedRGBColorSpace];
-	CGFloat colorComponents[4];
-	[deviceColor getRed: &colorComponents[0]
+
+  NSColor* deviceColor = [calibratedNSColor colorUsingColorSpace: NSColorSpace.genericRGBColorSpace];
+  CGFloat colorComponents[4];
+  [deviceColor getRed: &colorComponents[0]
                 green: &colorComponents[1]
                  blue: &colorComponents[2]
                 alpha: &colorComponents[3]];
-	
-	CGColorSpaceRef cgColorSpace = CGColorSpaceCreateDeviceRGB();
-	CGColorRef calibratedCGColor = CGColorCreate(cgColorSpace, colorComponents);
-	CGColorSpaceRelease(cgColorSpace);
+
+  CGColorSpaceRef cgColorSpace = CGColorSpaceCreateDeviceRGB();
+  CGColorRef calibratedCGColor = CGColorCreate(cgColorSpace, colorComponents);
+  CGColorSpaceRelease(cgColorSpace);
   
-	return calibratedCGColor;
+  return calibratedCGColor;
 }
 
 

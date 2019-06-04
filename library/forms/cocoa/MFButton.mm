@@ -43,7 +43,7 @@
         mTopLeftOffset = NSMakePoint(6, 2);
         mBottomRightOffset = NSMakePoint(5, 5);
 
-        self.bezelStyle = NSRoundedBezelStyle;
+        self.bezelStyle = NSBezelStyleRounded;
         break;
       case ::mforms::ToolButton:
         mTopLeftOffset = NSZeroPoint;
@@ -55,7 +55,7 @@
       case ::mforms::SmallButton:
         // buttons have some extra padding to the sides that we want to skip
         self.cell.font = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
-        self.bezelStyle = NSRoundRectBezelStyle;
+        self.bezelStyle = NSBezelStyleRoundRect;
         break;
     }
     self.target = self;

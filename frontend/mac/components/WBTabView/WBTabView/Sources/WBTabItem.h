@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -74,7 +74,7 @@ typedef NS_ENUM(NSInteger, WBTabSize) {
   WBTabView *owner;
 
   id mIdentifier;
-  NSCellStateValue mState;
+  NSControlStateValue mState;
   BOOL mEnabled;
   WBTabSize mTabSize;
   WBTabPlacement mTabPlacement;
@@ -101,7 +101,7 @@ typedef NS_ENUM(NSInteger, WBTabSize) {
 - (void)mouseUp;
 
 - (void)updateAppearance;
-- (void)setState:(NSCellStateValue)value;
+- (void)setState:(NSControlStateValue)value;
 - (void)setEnabled:(BOOL)enabled;
 - (void)setLabel:(NSString*)newLabel;
 - (void)setIconImage:(NSImage*)image;

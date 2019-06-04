@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -154,14 +154,14 @@ static const float DEFAULT_HEIGHT = 24;
                             tag: (int)tag {
   NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 10, 10)];
   
-  [button setButtonType: NSMomentaryLightButton];
+  [button setButtonType: NSButtonTypeMomentaryLight];
   button.title = title;
   button.tag = tag;
   button.target = target;
   button.action = action;
   [button setBordered: YES];
 
-  button.bezelStyle = NSRoundedBezelStyle;
+  button.bezelStyle = NSBezelStyleRounded;
   
   [self addSubview: button];
   
@@ -179,7 +179,7 @@ static const float DEFAULT_HEIGHT = 24;
                            tag: (int)tag {
   NSButton *button = [[NSButton alloc] initWithFrame: NSMakeRect(0, 0, 18, 18)];
   
-  [button setButtonType: NSMomentaryLightButton];
+  [button setButtonType: NSButtonTypeMomentaryLight];
   [button setBordered: NO];
   button.imagePosition = NSImageOnly;
   button.image = icon;

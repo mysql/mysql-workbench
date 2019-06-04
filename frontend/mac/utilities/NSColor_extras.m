@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -26,8 +26,7 @@
 
 @implementation NSColor(NSColor_extras)
 
-+ (NSColor*)colorFromHexString:(NSString*)hexcolor
-{
++ (NSColor*)colorFromHexString: (NSString*)hexcolor {
   int r, g, b;
   
   if (sscanf(hexcolor.UTF8String, "#%02x%02x%02x", &r, &g, &b) != 3)
@@ -36,12 +35,10 @@
   return [NSColor colorWithDeviceRed:r / 255.0 green:g / 255.0 blue:b / 255.0 alpha: 1.0];
 }
 
-
-- (NSString*)hexString
-{
+- (NSString*)hexString {
   CGFloat red, green, blue, alpha;
   
-  [[self colorUsingColorSpaceName: NSDeviceRGBColorSpace] getRed:&red green:&green blue:&blue alpha:&alpha];
+  [[self colorUsingColorSpace: NSColorSpace.genericRGBColorSpace] getRed: &red green: &green blue: &blue alpha: &alpha];
   
   return [NSString stringWithFormat:@"#%02x%02x%02x", (int)(red * 255), (int)(green * 255), (int)(blue * 255)];
 }

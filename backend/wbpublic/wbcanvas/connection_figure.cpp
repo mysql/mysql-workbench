@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -340,6 +340,7 @@ void Connection::stroke_outline(mdc::CairoCtx *cr, float offset) const {
 //--------------------------------------------------------------------------------------------------
 
 void Connection::stroke_outline_gl(float offset) const {
+#ifndef __APPLE__
   if (!_split || _segments.size() < 2)
     mdc::Line::stroke_outline_gl(offset);
   else {
@@ -387,6 +388,7 @@ void Connection::stroke_outline_gl(float offset) const {
 
     glEnd();
   }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -665,6 +667,7 @@ void Connection::render(mdc::CairoCtx *cr) {
 //--------------------------------------------------------------------------------------------------
 
 void Connection::render_gl(mdc::CairoCtx *cr) {
+#ifndef __APPLE__
   if (_segments.empty())
     return;
 
@@ -755,6 +758,7 @@ void Connection::render_gl(mdc::CairoCtx *cr) {
   }
 
   glPopMatrix();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -416,7 +416,8 @@ public:
   MySQLTriggerPanel(MySQLTableEditorBE *editor)
     : mforms::Box(true),
       _editor(editor),
-      _trigger_list(mforms::TreeSizeSmall | mforms::TreeNoBorder | mforms::TreeNoHeader | mforms::TreeCanBeDragSource),
+      _trigger_list(mforms::TreeSizeSmall | mforms::TreeNoBorder | mforms::TreeNoHeader | mforms::TreeCanBeDragSource
+                    | mforms::TreeAllowReorderRows),
       _refreshing(false) {
     scoped_connect(_editor->get_table()->signal_refreshDisplay(),
                    std::bind(&MySQLTriggerPanel::need_refresh, this, std::placeholders::_1));

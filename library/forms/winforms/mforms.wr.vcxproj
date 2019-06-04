@@ -187,7 +187,6 @@
     <ClInclude Include="src\wf_treeview.h" />
     <ClInclude Include="src\wf_utilities.h" />
     <ClInclude Include="src\wf_view.h" />
-    <ClInclude Include="src\wf_webbrowser.h" />
     <ClInclude Include="src\wf_wizard.h" />
   </ItemGroup>
   <ItemGroup>
@@ -240,7 +239,6 @@
     <ClCompile Include="src\wf_treeview.cpp" />
     <ClCompile Include="src\wf_utilities.cpp" />
     <ClCompile Include="src\wf_view.cpp" />
-    <ClCompile Include="src\wf_webbrowser.cpp" />
     <ClCompile Include="src\wf_wizard.cpp" />
     <ClCompile Include="src\wf_canvas.cpp" />
   </ItemGroup>

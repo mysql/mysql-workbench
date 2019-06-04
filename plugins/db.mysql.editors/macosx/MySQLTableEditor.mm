@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -321,7 +321,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [mTabSwitcher setTabStyle: MEditorBottomTabSwitcher];
 
   // collapse header by default
-  [mHeaderExpander setState: NSOffState];
+  [mHeaderExpander setState: NSControlStateValueOff];
   [self toggleHeader: NO];
 
   // Store the min size specified in the .xib file.
@@ -509,25 +509,25 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     NSArray* flags = MArrayFromStringVector(mBackEnd->get_columns()->get_datatype_flags(rowIndex, true));
     ssize_t flag;
     mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsPK, flag);
-    [mColumnsFlagPK setState:flag ? NSOnState : NSOffState];
+    [mColumnsFlagPK setState:flag ? NSControlStateValueOn : NSControlStateValueOff];
     mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsNotNull, flag);
-    [mColumnsFlagNN setState:flag ? NSOnState : NSOffState];
+    [mColumnsFlagNN setState:flag ? NSControlStateValueOn : NSControlStateValueOff];
     mBackEnd->get_columns()->get_field(rowIndex, bec::TableColumnsListBE::IsUnique, flag);
-    [mColumnsFlagUNQ setState:flag ? NSOnState : NSOffState];
+    [mColumnsFlagUNQ setState:flag ? NSControlStateValueOn : NSControlStateValueOff];
 
     [mColumnsFlagBIN setEnabled: [flags containsObject: @"BINARY"]];
-    [mColumnsFlagBIN setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "BINARY") ? NSOnState : NSOffState];
+    [mColumnsFlagBIN setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "BINARY") ? NSControlStateValueOn : NSControlStateValueOff];
     [mColumnsFlagUN setEnabled: [flags containsObject: @"UNSIGNED"]];
-    [mColumnsFlagUN setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "UNSIGNED") ? NSOnState : NSOffState];
+    [mColumnsFlagUN setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "UNSIGNED") ? NSControlStateValueOn : NSControlStateValueOff];
     [mColumnsFlagZF setEnabled: [flags containsObject: @"ZEROFILL"]];
-    [mColumnsFlagZF setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "ZEROFILL") ? NSOnState : NSOffState];
+    [mColumnsFlagZF setState: mBackEnd->get_columns()->get_column_flag(rowIndex, "ZEROFILL") ? NSControlStateValueOn : NSControlStateValueOff];
 
     mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrementable, flag);
     [mColumnsFlagAI setEnabled:flag];
     mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsAutoIncrement, flag);
-    [mColumnsFlagAI setState:flag ? NSOnState : NSOffState];
+    [mColumnsFlagAI setState:flag ? NSControlStateValueOn : NSControlStateValueOff];
     mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::IsGenerated, flag);
-    [mColumnsFlagG setState:flag ? NSOnState : NSOffState];
+    [mColumnsFlagG setState:flag ? NSControlStateValueOn : NSControlStateValueOff];
     mDefaultLabel.stringValue = flag ? @"Expression" : @"Default";
 
     mButtonGCStored.enabled = flag;
@@ -536,9 +536,9 @@ extern const char* DEFAULT_COLLATION_CAPTION;
       std::string storageType;
       mBackEnd->get_columns()->get_field(rowIndex, MySQLTableColumnsListBE::GeneratedStorageType, storageType);
       if (base::toupper(storageType) != "STORED")
-        mButtonGCVirtual.state = NSOnState;
+        mButtonGCVirtual.state = NSControlStateValueOn;
       else
-        mButtonGCStored.state = NSOnState;
+        mButtonGCStored.state = NSControlStateValueOn;
     }
   }
 }
@@ -583,7 +583,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
                                                              row: rowIndex] intValue];
         
         }
-        [mIndicesVisibleCheckbox setState: (visible == 1 ? NSOnState: NSOffState)];
+        [mIndicesVisibleCheckbox setState: (visible == 1 ? NSControlStateValueOn: NSControlStateValueOff)];
         if ([indexType isEqualToString:@"PRIMARY"] || ([indexType isEqualToString:@"UNIQUE"] && mBackEnd->get_indexes()->count() == 2)) {
           mIndicesVisibleCheckbox.enabled = FALSE;
         } else {
@@ -633,7 +633,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
 
     bool flag = false;
     mBackEnd->get_fks()->get_field(rowIndex, bec::FKConstraintListBE::ModelOnly, flag);
-    [mFKModelOnly setState:flag ? NSOnState : NSOffState];
+    [mFKModelOnly setState:flag ? NSControlStateValueOn : NSControlStateValueOff];
 
     [mFKColumnsTable reloadData];
   }
@@ -645,7 +645,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   std::string prtn_type = mBackEnd->get_partition_type();
   NSString* partitionType = @(prtn_type.c_str());
   BOOL enabled = ([partitionType length] > 0);
-  [mPartitionEnabledCheckbox setState: (enabled ? NSOnState : NSOffState)];
+  [mPartitionEnabledCheckbox setState: (enabled ? NSControlStateValueOn : NSControlStateValueOff)];
   [mPartitionEnabledCheckbox setEnabled: YES];
 
   // Enable or disable the first row of controls.
@@ -671,7 +671,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     NSString* partCount = [NSString stringWithFormat: @"%d", c];
     [mPartitionCountTextField setStringValue:partCount];
 
-    NSCellStateValue manualState = (mBackEnd->get_explicit_partitions() == true ? NSOnState : NSOffState);
+    NSControlStateValue manualState = (mBackEnd->get_explicit_partitions() == true ? NSControlStateValueOn : NSControlStateValueOff);
     [mPartitionManualCheckbox setState:manualState];
   }
 
@@ -688,7 +688,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     subEnabled = subEnabled && (!s.empty());
     [mSubPartitionParametersTextField setEnabled:subEnabled];
     [mSubpartitionCountTextField setEnabled:subEnabled];
-    [mSubpartitionManualCheckbox setEnabled:subEnabled && ([mPartitionManualCheckbox state] == NSOnState)];
+    [mSubpartitionManualCheckbox setEnabled:subEnabled && ([mPartitionManualCheckbox state] == NSControlStateValueOn)];
 
     s = mBackEnd->get_subpartition_expression();
     NSString* partExpr = @(s.c_str());
@@ -698,12 +698,12 @@ extern const char* DEFAULT_COLLATION_CAPTION;
     NSString* partCount = [NSString stringWithFormat: @"%d", c];
     [mSubpartitionCountTextField setStringValue:partCount];
 
-    NSCellStateValue manualState = (mBackEnd->get_explicit_subpartitions() == true ? NSOnState : NSOffState);
+    NSControlStateValue manualState = (mBackEnd->get_explicit_subpartitions() == true ? NSControlStateValueOn : NSControlStateValueOff);
     [mSubpartitionManualCheckbox setState:manualState];
   }
 
   // Enable or disable the table view.
-  BOOL tabViewEnabled = (([mPartitionManualCheckbox isEnabled] && [mPartitionManualCheckbox state] == NSOnState));
+  BOOL tabViewEnabled = (([mPartitionManualCheckbox isEnabled] && [mPartitionManualCheckbox state] == NSControlStateValueOn));
   [mPartitionTable setEnabled:tabViewEnabled];
 }
 
@@ -722,7 +722,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [mOptionsAutoIncrement setStringValue:option];
 
   option = @(mBackEnd->get_table_option_by_name("DELAY_KEY_WRITE").c_str());
-  [mOptionsDelayKeyUpdates setState: ([option isEqualToString: @"1"] ? NSOnState : NSOffState)];
+  [mOptionsDelayKeyUpdates setState: ([option isEqualToString: @"1"] ? NSControlStateValueOn : NSControlStateValueOff)];
 
   // Row options
 
@@ -748,7 +748,7 @@ extern const char* DEFAULT_COLLATION_CAPTION;
   [mOptionsMaxRows setStringValue:option];
 
   option = @(mBackEnd->get_table_option_by_name("CHECKSUM").c_str());
-  [mOptionsUseChecksum setState: ([option isEqualToString: @"1"] ? NSOnState : NSOffState)];
+  [mOptionsUseChecksum setState: ([option isEqualToString: @"1"] ? NSControlStateValueOn : NSControlStateValueOff)];
 
   // Storage options
 
@@ -954,7 +954,7 @@ objectValueForTableColumn: (NSTableColumn*)aTableColumn
       [aCell setTitle:obj];
 
       BOOL yn = [mIndexColumnsDataSource rowEnabled: rowIndex];
-      [aCell setState: (yn ? NSOnState : NSOffState)];
+      [aCell setState: (yn ? NSControlStateValueOn : NSControlStateValueOff)];
     } else if ([identifier isEqual: @"order"]) {
       id obj = [mIndexColumnsDataSource objectValueForValueIndex:bec::IndexColumnsListBE::Descending row: rowIndex];
       [aCell selectItemWithTitle: ([obj intValue] == 0 ? @"ASC" : @"DESC")];
@@ -985,7 +985,7 @@ objectValueForTableColumn: (NSTableColumn*)aTableColumn
         [mFKColumnsDataSource objectValueForValueIndex:bec::FKConstraintColumnsListBE::Column row: rowIndex];
       [aCell setTitle:title];
       BOOL yn = [mFKColumnsDataSource rowEnabled: rowIndex];
-      [aCell setState: (yn ? NSOnState : NSOffState)];
+      [aCell setState: (yn ? NSControlStateValueOn : NSControlStateValueOff)];
     } else if ([identifier isEqual: @"referenced column"]) {
       MFillPopupButtonWithStrings((NSPopUpButton*)aCell,
                                   mBackEnd->get_fks()->get_columns()->get_ref_columns_list(rowIndex, false));
@@ -1453,55 +1453,55 @@ shouldEditTableColumn: (NSTableColumn*)aTableColumn
 - (IBAction)userClickButton: (id)sender {
   if (sender == mColumnsFlagPK)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsPK,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagNN)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsNotNull,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagUNQ)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsUnique,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagBIN)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsBinary,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagUN)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsUnsigned,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagZF)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::IsZerofill,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagAI)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], MySQLTableColumnsListBE::IsAutoIncrement,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mColumnsFlagG)
     mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], MySQLTableColumnsListBE::IsGenerated,
-                                       [sender state] == NSOnState);
+                                       [sender state] == NSControlStateValueOn);
   else if (sender == mPartitionEnabledCheckbox) {
-    mBackEnd->set_partition_type(([mPartitionEnabledCheckbox state] == NSOnState ? "HASH" : ""));
+    mBackEnd->set_partition_type(([mPartitionEnabledCheckbox state] == NSControlStateValueOn ? "HASH" : ""));
     [self refreshTableEditorGUIPartitioningTab];
   } else if (sender == mPartitionManualCheckbox) {
-    mBackEnd->set_explicit_partitions(([sender state] == NSOnState ? true : false));
+    mBackEnd->set_explicit_partitions(([sender state] == NSControlStateValueOn ? true : false));
     [self refreshTableEditorGUIPartitioningTab];
   } else if (sender == mSubpartitionManualCheckbox) {
-    mBackEnd->set_explicit_subpartitions(([sender state] == NSOnState ? true : false));
+    mBackEnd->set_explicit_subpartitions(([sender state] == NSControlStateValueOn ? true : false));
     [self refreshTableEditorGUIPartitioningTab];
   } else if (sender == mOptionsDelayKeyUpdates) {
     [[sender window] makeFirstResponder: sender];
-    mBackEnd->set_table_option_by_name("DELAY_KEY_WRITE", ([sender state] == NSOnState ? "1" : "0"));
+    mBackEnd->set_table_option_by_name("DELAY_KEY_WRITE", ([sender state] == NSControlStateValueOn ? "1" : "0"));
   } else if (sender == mOptionsUseChecksum) {
     [[sender window] makeFirstResponder: sender];
-    mBackEnd->set_table_option_by_name("CHECKSUM", ([sender state] == NSOnState ? "1" : "0"));
+    mBackEnd->set_table_option_by_name("CHECKSUM", ([sender state] == NSControlStateValueOn ? "1" : "0"));
   } else if (sender == mFKModelOnly) {
     if ([mFKTable selectedRow] >= 0)
       mBackEnd->get_fks()->set_field([mFKTable selectedRow], bec::FKConstraintListBE::ModelOnly,
-                                     [sender state] == NSOnState);
+                                     [sender state] == NSControlStateValueOn);
   } else if (sender == mHeaderExpander) {
-    [self toggleHeader: [sender state] == NSOnState];
+    [self toggleHeader: [sender state] == NSControlStateValueOn];
   } else if (sender == mIndicesVisibleCheckbox) {
-    mBackEnd->get_indexes()->set_field([mIndicesTable selectedRow], MySQLTableIndexListBE::Visible, [sender state] == NSOnState);
+    mBackEnd->get_indexes()->set_field([mIndicesTable selectedRow], MySQLTableIndexListBE::Visible, [sender state] == NSControlStateValueOn);
   } else {
     NSAssert1(NO, @"DEBUG - User clicked unmatched button: '%@'", [sender title]);
   }
-  [mColumnsTable setNeedsDisplay];
+  [mColumnsTable setNeedsDisplay: YES];
 }
 
 - (IBAction)userClickRadioButton: (id)sender {
@@ -1606,27 +1606,27 @@ shouldEditTableColumn: (NSTableColumn*)aTableColumn
     if ([mColumnsTable selectedRow] >= 0)
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Name,
                                          [[sender stringValue] UTF8String]);
-    [mColumnsTable setNeedsDisplay];
+    [mColumnsTable setNeedsDisplay: YES];
   } else if (sender == mColumnsCharset || sender == mColumnsCharset2) {
     if ([mColumnsTable selectedRow] >= 0)
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Charset,
                                          [[sender stringValue] UTF8String]);
-    [mColumnsTable setNeedsDisplay];
+    [mColumnsTable setNeedsDisplay: YES];
   } else if (sender == mColumnsCollation || sender == mColumnsCollation2) {
     if ([mColumnsTable selectedRow] >= 0)
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Collation,
                                          [[sender stringValue] UTF8String]);
-    [mColumnsTable setNeedsDisplay];
+    [mColumnsTable setNeedsDisplay: YES];
   } else if (sender == mColumnsType) {
     if ([mColumnsTable selectedRow] >= 0)
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Type,
                                          [[sender stringValue] UTF8String]);
-    [mColumnsTable setNeedsDisplay];
+    [mColumnsTable setNeedsDisplay: YES];
   } else if (sender == mColumnsDefault) {
     if ([mColumnsTable selectedRow] >= 0)
       mBackEnd->get_columns()->set_field([mColumnsTable selectedRow], bec::TableColumnsListBE::Default,
                                          [[sender stringValue] UTF8String]);
-    [mColumnsTable setNeedsDisplay];
+    [mColumnsTable setNeedsDisplay: YES];
   } else {
     NSAssert1(NO, @"DEBUG - Unknown text field: %@", sender);
   }

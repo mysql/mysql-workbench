@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -58,6 +58,7 @@ void RectangleFigure::draw_contents(CairoCtx *cr) {
 }
 
 void RectangleFigure::draw_contents_gl() {
+#ifndef __APPLE__
   glLineWidth(_line_width);
   if (_filled) {
     gl_setcolor(_fill_color);
@@ -67,6 +68,7 @@ void RectangleFigure::draw_contents_gl() {
   gl_setcolor(_pen_color);
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   stroke_outline_gl();
+#endif
 }
 
 void RectangleFigure::set_rounded_corners(float radius, CornerMask corners) {

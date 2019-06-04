@@ -38,7 +38,6 @@
 #include <mforms/widgets.h>
 #include <mforms/menu.h>
 #include <mforms/splitter.h>
-#include <mforms/webbrowser.h>
 #include <mforms/popup.h>
 #include <mforms/code_editor.h>
 #include <mforms/menubar.h>
@@ -989,12 +988,6 @@ def newLineDiagramWidget(*args):
     c.set_release_on_add()
     return c
 
-def newWebBrowser(*args):
-    c = WebBrowser(*args)
-    c.set_managed()
-    c.set_release_on_add()
-    return c
-
 def newPopup(*args):
     c = Popup(*args)
     c.set_managed()
@@ -1080,7 +1073,6 @@ def newToolBarItem(*args):
 %include "../mforms/tabswitcher.h"
 %include "../mforms/sectionbox.h"
 %include "../mforms/widgets.h"
-%include "../mforms/webbrowser.h"
 %include "../mforms/popup.h"
 %include "../mforms/popover.h"
 %include "../mforms/menubar.h"
@@ -1178,10 +1170,6 @@ static mforms::TimeoutHandle add_timeout(float interval, PyObject *callback) { r
 static void perform_from_main_thread(PyObject *callable, bool wait) { 
   WillLeavePython gil;
   mforms::Utilities::perform_from_main_thread(pycall_ignoreret_voidptr_fun(callable), wait); }
-}
-
-%extend mforms::WebBrowser {
-SWIG_ADD_SIGNAL_VOID_STRING_CALLBACK(loaded_callback, self->signal_loaded());
 }
 
 %extend mforms::MenuBase {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -381,6 +381,7 @@ void CanvasView::apply_transformations() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void CanvasView::apply_transformations_gl() {
+#ifndef __APPLE__
   glViewport(0, 0, _view_width, _view_height);
 
   glMatrixMode(GL_PROJECTION);
@@ -394,14 +395,19 @@ void CanvasView::apply_transformations_gl() {
   glScalef(_zoom, _zoom, 1.0);
 
   glTranslated(-_offset.x + _extra_offset.x, -_offset.y + _extra_offset.y, 0);
+#endif
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void CanvasView::reset_transformations_gl() {
+#ifndef __APPLE__
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+#endif
 }
 
 //----------------------------------------------------------------------------------------------------------------------

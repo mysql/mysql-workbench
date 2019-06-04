@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -85,7 +85,7 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
   
   NSModalResponse res = [alert runModal];
 
-  cb_answer = alert.suppressionButton.state == NSOnState;
+  cb_answer = alert.suppressionButton.state == NSControlStateValueOn;
   
   if (res == NSAlertFirstButtonReturn)
     return mforms::ResultOk;
@@ -99,15 +99,15 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
 static void util_set_clipboard_text(const std::string &text)
 {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-  [pasteBoard declareTypes: @[NSStringPboardType] owner:nil];
+  [pasteBoard declareTypes: @[NSPasteboardTypeString] owner:nil];
   [pasteBoard setString: @(text.c_str())
-                                      forType: NSStringPboardType];
+                                      forType: NSPasteboardTypeString];
 }
 
 static std::string util_get_clipboard_text()
 {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
-  return [pasteBoard stringForType: NSStringPboardType].UTF8String ?:"";
+  return [pasteBoard stringForType: NSPasteboardTypeString].UTF8String ?:"";
 }
 
 static void util_open_url(const std::string &url)
