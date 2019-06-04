@@ -853,6 +853,7 @@ class FirewallAddRuleDialog(mforms.Form):
         
         self.query_box = mforms.newTextBox(mforms.SmallScrollBars)
         self.query_box.set_size(400, 200)
+        self.query_box.add_changed_callback(self.text_changed)
         self.content.add(self.query_box, True, True)
         
         self.normalized = False
@@ -868,6 +869,7 @@ class FirewallAddRuleDialog(mforms.Form):
 
         self.ok_button = mforms.newButton()
         self.ok_button.set_text("OK")
+        self.ok_button.set_enabled(False)
         self.ok_button.add_clicked_callback(self.ok_button_pressed)
         
         button_box.add_end(self.ok_button, False, True)
@@ -877,6 +879,12 @@ class FirewallAddRuleDialog(mforms.Form):
         self.cancel_button.add_clicked_callback(self.cancel_button_pressed)
         button_box.add_end(self.cancel_button, False, True)
     
+    def text_changed(self):
+        if len(self.query_box.get_string_value()) > 0:
+            self.ok_button.set_enabled(True)
+        else:
+            self.ok_button.set_enabled(False)
+
     def normalized_clicked(self):
         self.normalized = self.normalized_checkbox.get_active()
     
