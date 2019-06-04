@@ -1,4 +1,4 @@
-# Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -606,7 +606,7 @@ class ErrorLogFileReader(BaseLogFileReader):
         elif gdict['old']:
             return ["20%s-%s-%s %s" % (g[10], g[11], g[12], g[13]), "", g[14], g[15]]
         elif gdict['v57']:
-            return [ts_iso_to_local(g[17], "%F %T"), g[18], g[19], g[20]]
+            return [ts_iso_to_local(g[17], "%F %T"), g[18], "[" + g[19] + "]", g[20]]
         else:
             return ["", "", "", g[-1]]
 
