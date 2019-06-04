@@ -29,6 +29,10 @@ def escape_sql_identifier(s):
     return s.replace("`", "``")
 
 
+def escape_schema_wildcards(s):
+    return s.replace("`", "``").replace("_", "\\_").replace("%", "\\%")
+
+
 def strip_password(s):
     import re
     while True:

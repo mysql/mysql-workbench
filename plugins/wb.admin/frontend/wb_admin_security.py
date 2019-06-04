@@ -318,7 +318,7 @@ class AddSchemaPrivilegeForm(mforms.Form):
             elif self.schema2.get_active():
                 schema = self.schema2entry.get_string_value()
             else:
-                schema = self.schema3sel.get_string_value()
+                schema = db_utils.escape_schema_wildcards(self.schema3sel.get_string_value())
 
             return schema
 
