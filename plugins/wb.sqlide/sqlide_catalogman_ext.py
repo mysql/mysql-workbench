@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -342,9 +342,15 @@ class ObjectManager(mforms.Box):
                     field = None
                     try:
                         format_func = field_obj['format_func']
+                    except:
+                        pass
+                    try:
                         field = field_obj['field']
                     except:
-                        field = field_obj
+                        if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+                            field = field_obj.upper();
+                        else:
+                            field = field_obj
                     if ctype is mforms.IntegerColumnType:
                         if type(field) is int:
                             node.set_int(i, rset.intFieldValue(field) or 0)
