@@ -1124,6 +1124,7 @@ void ServerInstanceEditor::show_connection() {
   _move_down_button.set_enabled(valid_connection);
   _del_inst_button.set_enabled(valid_connection);
   _dup_inst_button.set_enabled(valid_connection);
+  _test_button.set_enabled(valid_connection);
 
   _contains_group = false;
   if (valid_connection) {
