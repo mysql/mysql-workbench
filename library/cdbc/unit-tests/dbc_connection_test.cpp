@@ -73,7 +73,7 @@ TEST_FUNCTION(3) {
   ensure("conn is NULL", wrapper.get() != NULL);
   sql::Connection *connection = wrapper.get();
   {
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
   }
 }
@@ -174,16 +174,16 @@ TEST_FUNCTION(7) {
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
 
-    std::auto_ptr<sql::Statement> stmt1(connection1->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection1->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt2 is NULL", stmt2.get() != NULL);
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT CONNECTION_ID()"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT CONNECTION_ID()"));
     ensure("res1 is NULL", rset1.get() != NULL);
 
-    std::auto_ptr<sql::ResultSet> rset2(stmt2->executeQuery("SELECT CONNECTION_ID()"));
+    std::unique_ptr<sql::ResultSet> rset2(stmt2->executeQuery("SELECT CONNECTION_ID()"));
     ensure("res2 is NULL", rset2.get() != NULL);
 
     ensure("res1 is empty", rset1->next() != false);
@@ -209,10 +209,10 @@ TEST_FUNCTION(8) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
     sql::Connection *connection = wrapper1.get();
 
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT CONNECTION_ID()"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT CONNECTION_ID()"));
     ensure("res1 is NULL", rset1.get() != NULL);
 
     ensure("res1 is empty", rset1->next() != false);
@@ -247,10 +247,10 @@ TEST_FUNCTION(9) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
     sql::Connection *connection = wrapper1.get();
 
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT CONNECTION_ID()"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT CONNECTION_ID()"));
     ensure("res1 is NULL", rset1.get() != NULL);
 
     ensure("res1 is empty", rset1->next() != false);
@@ -270,7 +270,7 @@ TEST_FUNCTION(9) {
 
     // Try another statement. This should give us another exception
     try {
-      std::auto_ptr<sql::ResultSet> rset2(stmt1->executeQuery("SELECT CONNECTION_ID()"));
+      std::unique_ptr<sql::ResultSet> rset2(stmt1->executeQuery("SELECT CONNECTION_ID()"));
     } catch (sql::SQLException &e) {
       // Expected.
       ensure_equals("Unexpected exception", e.what(), "Commands out of sync; you can't run this command now");

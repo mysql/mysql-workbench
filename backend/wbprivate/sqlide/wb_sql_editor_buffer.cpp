@@ -147,7 +147,7 @@ void SqlEditorForm::save_workspace(const std::string &workspace_name, bool is_au
 }
 
 std::string SqlEditorForm::find_workspace_state(const std::string &workspace_name,
-                                                std::auto_ptr<base::LockFile> &lock_file) {
+                                                std::unique_ptr<base::LockFile> &lock_file) {
   std::string path_prefix = base::makePath(bec::GRTManager::get()->get_user_datadir(), "sql_workspaces");
 
   // find workspaces on disk
@@ -227,7 +227,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name) {
 
   GuardBoolFlag flag(&_loading_workspace);
 
-  std::auto_ptr<base::LockFile> lock_file;
+  std::unique_ptr<base::LockFile> lock_file;
   std::string workspace_path = find_workspace_state(workspace_name, lock_file);
   if (workspace_path.empty())
     return false;

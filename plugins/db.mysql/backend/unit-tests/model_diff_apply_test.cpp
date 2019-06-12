@@ -111,8 +111,8 @@ struct all_objects_mwb {
 BEGIN_TEST_DATA_CLASS(model_diff_apply)
 protected:
 WBTester* tester;
-std::auto_ptr<DbMySQLScriptSync> sync_plugin;
-std::auto_ptr<DbMySQLSQLExport> fwdeng_plugin;
+std::unique_ptr<DbMySQLScriptSync> sync_plugin;
+std::unique_ptr<DbMySQLSQLExport> fwdeng_plugin;
 SqlFacade::Ref sql_parser;
 sql::ConnectionWrapper connection;
 grt::DbObjectMatchAlterOmf omf;

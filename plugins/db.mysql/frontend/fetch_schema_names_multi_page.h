@@ -82,7 +82,7 @@ protected:
 
     // order the schema names alphabetically
     std::sort(schema_names.begin(), schema_names.end(),
-              std::ptr_fun(&FetchSchemaNamesSourceTargetProgressPage::collate));
+      std::bind(&FetchSchemaNamesSourceTargetProgressPage::collate, std::placeholders::_1, std::placeholders::_2));
 
     grt::StringListRef list(grt::Initialized);
     for (std::vector<std::string>::const_iterator iter = schema_names.begin(); iter != schema_names.end(); ++iter)

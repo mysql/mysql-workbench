@@ -41,8 +41,8 @@ InternalSchema::~InternalSchema(void) {
 bool InternalSchema::check_schema_exist() {
   bool ret_val = false;
   try {
-    std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring("SHOW DATABASES LIKE ?", 0) << _schema_name)));
 
     ret_val = rs->next();
@@ -67,8 +67,8 @@ bool InternalSchema::check_function_or_sp_exists(const std::string object_name, 
   std::string what = check_function ? "FUNCTION" : "PROCEDURE";
   std::string statement = "SHOW " + what + " STATUS LIKE ?";
   try {
-    std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring(statement.c_str(), 0) << object_name)));
 
     while (!ret_val && rs->next()) {
@@ -97,8 +97,8 @@ bool InternalSchema::check_table_or_view_exists(const std::string object_name, b
   std::string what = check_view ? "view" : "table";
   bool ret_val = false;
   try {
-    std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(
+    std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(
       std::string(base::sqlstring("SHOW FULL TABLES FROM ! LIKE ?", 0) << _schema_name << object_name)));
 
     while (!ret_val && rs->next()) {
@@ -133,7 +133,7 @@ bool InternalSchema::is_remote_search_deployed() {
 std::string InternalSchema::execute_sql(const std::string &statement) {
   std::string ret_val("");
   try {
-    std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+    std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
     stmt->execute(statement);
   } catch (const sql::SQLException &exc) {
     ret_val = base::strfmt("MySQL Error : %s (code %d)", exc.what(), exc.getErrorCode());
@@ -377,10 +377,10 @@ int InternalSchema::insert_snippet(const std::string &title, const std::string &
   std::string statement(base::sqlstring("INSERT INTO !.snippet (title, code) VALUES (?, ?)", 0) << _schema_name << title
                                                                                                 << code);
 
-  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
   stmt->execute(statement);
 
-  std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT LAST_INSERT_ID()"));
+  std::unique_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT LAST_INSERT_ID()"));
   if (result->next())
     return result->getInt(1);
   return 0;
@@ -389,7 +389,7 @@ int InternalSchema::insert_snippet(const std::string &title, const std::string &
 void InternalSchema::delete_snippet(int snippet_id) {
   std::string statement(base::sqlstring("DELETE FROM !.snippet WHERE id = ?", 0) << _schema_name << snippet_id);
 
-  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
   stmt->execute(statement);
 }
 
@@ -397,7 +397,7 @@ void InternalSchema::set_snippet_title(int snippet_id, const std::string &title)
   std::string statement(base::sqlstring("UPDATE !.snippet SET title = ? WHERE id = ?", 0) << _schema_name << title
                                                                                           << snippet_id);
 
-  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
   stmt->execute(statement);
 }
 
@@ -405,6 +405,6 @@ void InternalSchema::set_snippet_code(int snippet_id, const std::string &code) {
   std::string statement(base::sqlstring("UPDATE !.snippet SET code = ? WHERE id = ?", 0) << _schema_name << code
                                                                                          << snippet_id);
 
-  std::auto_ptr<sql::Statement> stmt(_connection->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_connection->ref->createStatement());
   stmt->execute(statement);
 }

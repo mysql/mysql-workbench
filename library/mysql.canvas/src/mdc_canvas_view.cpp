@@ -591,7 +591,7 @@ void CanvasView::update_line_crossings(Line *line) {
 
   // get the lines in the same bounding box
 
-  std::list<CanvasItem *> items = get_items_bounded_by(line->get_root_bounds(), std::ptr_fun(is_line));
+  std::list<CanvasItem *> items = get_items_bounded_by(line->get_root_bounds(),  std::bind(&is_line, std::placeholders::_1));
 
   std::list<CanvasItem *>::iterator iter = items.begin();
 

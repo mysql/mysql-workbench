@@ -219,8 +219,8 @@ void DbSqlEditorSnippets::load_from_db(SqlEditorForm *editor) {
 
     try {
       std::string s = base::sqlstring("SELECT id, title, code FROM !.snippet", 0) << _snippet_db;
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(s));
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::ResultSet> result(stmt->executeQuery(s));
 
       while (result->next()) {
         Snippet snippet;

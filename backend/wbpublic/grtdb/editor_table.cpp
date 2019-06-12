@@ -1974,7 +1974,7 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, c
 
     case RefColumn:
       if (fk.is_valid() && fk->referencedTable().is_valid()) {
-        std::auto_ptr<AutoUndoEdit> undo;
+        std::unique_ptr<AutoUndoEdit> undo;
 
         tcolumn = grt::find_named_object_in_list(fk->referencedTable()->columns(), value);
 
@@ -1989,7 +1989,7 @@ bool FKConstraintColumnsListBE::set_field(const NodeId &node, ColumnId column, c
                                                column_name)) {
             tcolumn = grt::find_named_object_in_list(fk->referencedTable()->columns(), column_name);
             if (!tcolumn.is_valid()) {
-              undo = std::auto_ptr<AutoUndoEdit>(new AutoUndoEdit(_owner->get_owner()));
+              undo = std::unique_ptr<AutoUndoEdit>(new AutoUndoEdit(_owner->get_owner()));
 
               // create the column
               tcolumn = grt::copy_object(_owner->get_owner()->get_table()->columns()[node[0]]);

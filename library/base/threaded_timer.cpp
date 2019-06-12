@@ -205,7 +205,7 @@ void ThreadedTimer::pool_function(gpointer data, gpointer user_data) {
 //--------------------------------------------------------------------------------------------------
 
 // Helper predicate for removing finished tasks.
-class IsStopped : public std::unary_function<TimerTask, bool> {
+class IsStopped : public std::function<TimerTask (bool)> {
 public:
   bool operator()(TimerTask &task) {
     return task.stop;

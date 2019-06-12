@@ -127,7 +127,7 @@ protected:
   void update_toolbar_icons();
 
   void save_workspace_order(const std::string &prefix);
-  std::string find_workspace_state(const std::string &workspace_name, std::auto_ptr<base::LockFile> &lock_file);
+  std::string find_workspace_state(const std::string &workspace_name, std::unique_ptr<base::LockFile> &lock_file);
 
 public:
   virtual ~SqlEditorForm();

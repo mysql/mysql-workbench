@@ -200,14 +200,14 @@ void Recordset_text_storage::do_serialize(const Recordset *recordset, sqlite::co
     if (info.quote != "")
       qv.quote = info.quote;
     if (_data_format == "JSON")
-      qv.escape_string = std::ptr_fun(escape_json_string_);
+      qv.escape_string = escape_json_string_;
     else
-      qv.escape_string = std::ptr_fun(escape_sql_string_);
+      qv.escape_string = escape_sql_string_;
     // swap db (sqlite) stores unknown values as quoted strings
     qv.store_unknown_as_string = true;
     qv.allow_func_escaping = false;
     qv.blob_to_string =
-      (true) ? sqlide::QuoteVar::Blob_to_string() : std::ptr_fun(sqlide::QuoteVar::blob_to_hex_string);
+      (true) ? sqlide::QuoteVar::Blob_to_string() : sqlide::QuoteVar::blob_to_hex_string;
   }
 
   // global variables

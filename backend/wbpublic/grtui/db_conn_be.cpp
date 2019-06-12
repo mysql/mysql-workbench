@@ -643,7 +643,7 @@ void DbConnection::init_dbc_connection(sql::Connection *dbc_conn, const db_mgmt_
       Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
       sql_specifics->get_connection_startup_script(sql_script);
     }
-    std::auto_ptr<sql::Statement> stmt(dbc_conn->createStatement());
+    std::unique_ptr<sql::Statement> stmt(dbc_conn->createStatement());
     sql::SqlBatchExec sql_batch_exec;
     sql_batch_exec(stmt.get(), sql_script);
   }

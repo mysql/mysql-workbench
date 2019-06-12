@@ -252,10 +252,10 @@ TEST_FUNCTION(5) {
     
     for(auto &it: wrapperList) {
       sql::Connection *conn = it.get();
-      std::auto_ptr<sql::Statement> stmt(conn->createStatement());
+      std::unique_ptr<sql::Statement> stmt(conn->createStatement());
       ensure("Statement is invalid", stmt.get() != NULL);
       
-      std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT CONNECTION_ID()"));
+      std::unique_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT CONNECTION_ID()"));
       ensure("Invalid connection ID result set", rset.get() != NULL);
       
       ensure("Result set is empty", rset->next());

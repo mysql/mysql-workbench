@@ -55,7 +55,7 @@ TEST_FUNCTION(2) {
     ensure("meta is NULL", meta != NULL);
 
     // TODO: getCatalogs() is not implemented.
-    // std::auto_ptr<sql::Statement> rset(meta->getCatalogs());
+    // std::unique_ptr<sql::Statement> rset(meta->getCatalogs());
     // ensure("rset is not NULL", rset.get() != NULL);
     // while (rset->next());
   } catch (sql::SQLException &) {

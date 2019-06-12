@@ -31,7 +31,7 @@ namespace base {
   //==============================================================================
   //
   //==============================================================================
-  // This template is an analgue of std::auto_ptr in terms of semantic, it is only
+  // This template is an analgue of std::unique_ptr in terms of semantic, it is only
   // this template provides alternative way to free managed resource. For example
   // this might get handy when working with FILE*
   //
@@ -41,10 +41,10 @@ namespace base {
   //         fclose(fp);
   //     }
   //
-  //     typedef scope_ptr<FILE, &scope_fclose> FILE_auto_ptr;
+  //     typedef scope_ptr<FILE, &scope_fclose> FILE_unique_ptr;
   //     ...
   //     {
-  //       FILE_auto_ptr fp = g_fopen(file_name, "r");
+  //       FILE_unique_ptr fp = g_fopen(file_name, "r");
   //       while (!feof(fp))
   //       {
   //         fputc(fgetc(fp), fp);

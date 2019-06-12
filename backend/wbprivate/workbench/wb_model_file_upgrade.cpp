@@ -314,7 +314,7 @@ bool ModelFile::attempt_xml_document_upgrade(xmlDocPtr xmldoc, const std::string
         }
       }
 
-      xml.traverse_subtree("/physicalModels/0/catalog/schemata/0/tables", std::ptr_fun(fix_user_datatypes));
+      xml.traverse_subtree("/physicalModels/0/catalog/schemata/0/tables",  std::bind(&fix_user_datatypes, std::placeholders::_1, std::placeholders::_2));
 
       // add boolean UDT to the userTypes list
       typesList = xml.get_object_by_path("/physicalModels/0/catalog/userDatatypes");

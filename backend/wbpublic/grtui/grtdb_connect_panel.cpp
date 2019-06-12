@@ -624,8 +624,8 @@ bool DbConnectPanel::test_connection() {
         // check that we're connecting to a known and supported version of the server
         std::string version;
         {
-          std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
-          std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
+          std::unique_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
+          std::unique_ptr<sql::ResultSet> result(stmt->executeQuery("SELECT version()"));
           if (result->next())
             version = result->getString(1);
         }
@@ -647,8 +647,8 @@ bool DbConnectPanel::test_connection() {
 
         // check ssl
         {
-          std::auto_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
-          std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+          std::unique_ptr<sql::Statement> stmt(_dbc_conn->createStatement());
+          std::unique_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
           if (result->next())
             ssl_cipher = result->getString(2);
 

@@ -72,7 +72,7 @@ TEST_DATA_CONSTRUCTOR(grtdiff_alter_test) {
 }
 
 TEST_DATA_DESTRUCTOR(grtdiff_alter_test) {
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP DATABASE IF EXISTS grtdiff_alter_test;");
 }
 
@@ -1072,7 +1072,7 @@ TEST_FUNCTION(10) {
   ensure("connection is NULL", connection.get() != NULL);
 
   {
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     execute_script(stmt.get(),
                    "DROP DATABASE IF EXISTS grtdiff_alter_test;"
                    "DROP DATABASE IF EXISTS grtdiff_alter_test2");
@@ -1153,7 +1153,7 @@ TEST_FUNCTION(10) {
     std::string export_sql_script = options.get_string("OutputScript");
 
     // 2. apply it to server
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
 
     try {
       execute_script(stmt.get(), data[i].cleanup);
@@ -1228,7 +1228,7 @@ TEST_FUNCTION(20) {
   ensure("connection is NULL", connection.get() != NULL);
 
   {
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     execute_script(stmt.get(),
                    "DROP DATABASE IF EXISTS grtdiff_alter_test;"
                    "DROP DATABASE IF EXISTS grtdiff_alter_test2");
@@ -1381,7 +1381,7 @@ TEST_FUNCTION(30) {
   ensure("connection is NULL", connection.get() != NULL);
 
   {
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     execute_script(stmt.get(),
                    "DROP DATABASE IF EXISTS grtdiff_alter_test;"
                    "DROP DATABASE IF EXISTS grtdiff_alter_test2");

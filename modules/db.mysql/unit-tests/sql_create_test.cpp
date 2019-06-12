@@ -56,7 +56,7 @@ TEST_DATA_CONSTRUCTOR(sql_create_test) {
 }
 
 TEST_DATA_DESTRUCTOR(sql_create_test) {
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS `A`;");
   stmt->execute("DROP SCHEMA IF EXISTS `B`;");
 }
@@ -68,7 +68,7 @@ TEST_MODULE(sql_create_test, "sql create");
 // Test if sql generated for synthetic model is valid.
 TEST_FUNCTION(10) {
   grt::ValueRef e;
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
@@ -114,7 +114,7 @@ TEST_FUNCTION(10) {
 // Forward engineer synthetic model without qualifying schema, but inserting USE statements instead.
 TEST_FUNCTION(20) {
   grt::ValueRef e;
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
@@ -150,7 +150,7 @@ TEST_FUNCTION(20) {
 // Test case for Bug #11926862 NO WAY TO SORT SCHEMAS ON EXPORT
 TEST_FUNCTION(30) {
   grt::ValueRef e;
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
@@ -188,7 +188,7 @@ TEST_FUNCTION(30) {
 // sql generation to avoid creating invalid DDL.
 TEST_FUNCTION(40) {
   grt::ValueRef e;
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 
@@ -364,7 +364,7 @@ TEST_FUNCTION(50) {
 TEST_FUNCTION(60) {
   {
     grt::ValueRef e;
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
@@ -426,7 +426,7 @@ TEST_FUNCTION(60) {
 
   {
     grt::ValueRef e;
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     NormalizedComparer cmp;
     grt::DbObjectMatchAlterOmf omf;
 
@@ -490,7 +490,7 @@ TEST_FUNCTION(60) {
 // Test forward engineering after renaming a schema, if it generates proper sql.
 TEST_FUNCTION(70) {
   grt::ValueRef e;
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   grt::DbObjectMatchAlterOmf omf;
 

@@ -26,7 +26,7 @@
 
 #define DATABASE_TO_USE "USE test"
 
-static bool populate_test_table(std::auto_ptr<sql::Statement> &stmt) {
+static bool populate_test_table(std::unique_ptr<sql::Statement> &stmt) {
   stmt->execute(DATABASE_TO_USE);
   stmt->execute("DROP TABLE IF EXISTS test_function");
   if (stmt->execute("CREATE TABLE test_function (a integer, b integer, c integer default null)"))
@@ -60,7 +60,7 @@ TEST_DATA_CONSTRUCTOR(module_dbc_statement_test) {
   ensure("conn is NULL", wrapper.get() != NULL);
 
   sql::Connection *connection = wrapper.get();
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS test; CREATE SCHEMA test");
 }
 
@@ -84,7 +84,7 @@ TEST_FUNCTION(2) {
     sql::Connection *connection = wrapper.get();
     {
       /* Going out scope will free the object. We test this as there is no close() method */
-      std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+      std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     }
   } catch (sql::SQLException &) {
     printf("ERR: Caught sql::SQLException\n");
@@ -107,7 +107,7 @@ TEST_FUNCTION(3) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
@@ -139,7 +139,7 @@ TEST_FUNCTION(4) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
@@ -150,7 +150,7 @@ TEST_FUNCTION(4) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("conn2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -178,13 +178,13 @@ TEST_FUNCTION(5) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
-      std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT * FROM test_function"));
+      std::unique_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT * FROM test_function"));
       ensure("NULL returned for result set", rset.get() != NULL);
     } catch (sql::SQLException &) {
       printf("ERR: sql::SQLException caught\n");
@@ -195,7 +195,7 @@ TEST_FUNCTION(5) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -223,13 +223,13 @@ TEST_FUNCTION(6) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
-      std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT * FROM test_function WHERE 1=2"));
+      std::unique_ptr<sql::ResultSet> rset(stmt->executeQuery("SELECT * FROM test_function WHERE 1=2"));
       ensure("NULL returned for result set", rset.get() != NULL);
       ensure("Non-empty result set", false == rset->next());
 
@@ -242,7 +242,7 @@ TEST_FUNCTION(6) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -270,13 +270,13 @@ TEST_FUNCTION(7) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
     /* Get a result set */
     try {
-      std::auto_ptr<sql::ResultSet> rset(stmt->executeQuery("INSERT INTO test_function VALUES(2,200)"));
+      std::unique_ptr<sql::ResultSet> rset(stmt->executeQuery("INSERT INTO test_function VALUES(2,200)"));
       ensure("NULL returned for result set", rset.get() == NULL);
       ensure("Non-empty result set", false == rset->next());
     } catch (sql::SQLException &) {
@@ -288,7 +288,7 @@ TEST_FUNCTION(7) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -316,7 +316,7 @@ TEST_FUNCTION(8) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
@@ -332,7 +332,7 @@ TEST_FUNCTION(8) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -360,7 +360,7 @@ TEST_FUNCTION(9) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
@@ -376,7 +376,7 @@ TEST_FUNCTION(9) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -401,7 +401,7 @@ TEST_FUNCTION(10) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     // TODO: implement and test getFetchSize() and getFechtDirection()
@@ -432,20 +432,20 @@ TEST_FUNCTION(11) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
     ensure("Statement::execute returned false", stmt->execute("SELECT * FROM test_function"));
 
-    std::auto_ptr<sql::ResultSet> rset(stmt->getResultSet());
+    std::unique_ptr<sql::ResultSet> rset(stmt->getResultSet());
     ensure("rset is NULL", rset.get() != NULL);
 
     /* Clean */
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -471,7 +471,7 @@ TEST_FUNCTION(12) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     ensure("Data not populated", populate_test_table(stmt));
@@ -479,7 +479,7 @@ TEST_FUNCTION(12) {
     ensure("Statement::execute returned true", false == stmt->execute("UPDATE test_function SET a = 222"));
 
     try {
-      std::auto_ptr<sql::ResultSet> rset(stmt->getResultSet());
+      std::unique_ptr<sql::ResultSet> rset(stmt->getResultSet());
       if (NULL == rset.get())
         throw sql::SQLException();
       fail("Got result set for an update operation.");
@@ -490,7 +490,7 @@ TEST_FUNCTION(12) {
     sql::ConnectionWrapper wrapper2 = dm->getConnection(connectionProperties);
     ensure("wrapper2 is NULL", wrapper2.get() != NULL);
     sql::Connection *connection2 = wrapper2.get();
-    std::auto_ptr<sql::Statement> stmt2(connection2->createStatement());
+    std::unique_ptr<sql::Statement> stmt2(connection2->createStatement());
     ensure("stmt is NULL", stmt2.get() != NULL);
     stmt2->execute(DATABASE_TO_USE);
     stmt2->execute("DROP TABLE test_function");
@@ -521,7 +521,7 @@ TEST_FUNCTION(13) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
     /*
         int setFetchSize = 50;
@@ -552,7 +552,7 @@ TEST_FUNCTION(14) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
     /*
         try {
@@ -584,7 +584,7 @@ TEST_FUNCTION(15) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
     /*
         try {
@@ -615,7 +615,7 @@ TEST_FUNCTION(16) {
 
     sql::Connection *connection = wrapper.get();
 
-    std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt(connection->createStatement());
     ensure("stmt is NULL", stmt.get() != NULL);
 
     std::string sql_script =
@@ -657,7 +657,7 @@ TEST_FUNCTION(99) {
   ensure("conn is NULL", wrapper.get() != NULL);
 
   sql::Connection *connection = wrapper.get();
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS test;");
 
   delete _tester;

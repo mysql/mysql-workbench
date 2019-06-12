@@ -696,7 +696,7 @@ std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_cal
   std::string ret_val("");
   try {
     RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
-    std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+    std::unique_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
     stmt->execute(std::string(proc_call));
     do {
       rs.reset(stmt->getResultSet());
@@ -754,10 +754,10 @@ void SqlEditorForm::query_ps_statistics(std::int64_t conn_id, std::map<std::stri
                                       nullptr};
   RecMutexLock lock(ensure_valid_aux_connection());
 
-  std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
 
   try {
-    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt(
+    std::unique_ptr<sql::ResultSet> result(stmt->executeQuery(base::strfmt(
       "SELECT st.* FROM performance_schema.events_statements_current st JOIN performance_schema.threads thr"
       " ON thr.thread_id = st.thread_id WHERE thr.processlist_id = %lli",
       (long long int)conn_id)));
@@ -774,10 +774,10 @@ void SqlEditorForm::query_ps_statistics(std::int64_t conn_id, std::map<std::stri
 std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(std::int64_t stmt_event_id) {
   RecMutexLock lock(ensure_valid_aux_connection());
 
-  std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
   std::vector<PSStage> stages;
   try {
-    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(
+    std::unique_ptr<sql::ResultSet> result(stmt->executeQuery(
       base::strfmt("SELECT st.* FROM performance_schema.events_stages_history_long st WHERE st.nesting_event_id = %lli",
                    (long long int)stmt_event_id)));
     while (result->next()) {
@@ -814,10 +814,10 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(std::int64_t 
 std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(std::int64_t stmt_event_id) {
   RecMutexLock lock(ensure_valid_aux_connection());
 
-  std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+  std::unique_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
   std::vector<PSWait> waits;
   try {
-    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(
+    std::unique_ptr<sql::ResultSet> result(stmt->executeQuery(
       base::strfmt("SELECT st.* FROM performance_schema.events_waits_history_long st WHERE st.nesting_event_id = %lli",
                    (long long int)stmt_event_id)));
     while (result->next()) {
@@ -955,7 +955,7 @@ void SqlEditorForm::init_connection(sql::Connection *dbc_conn_ref, const db_mgmt
     if (bec::GRTManager::get()->get_app_option_int("DbSqlEditor:SafeUpdates", 1) && user_connection)
       sql_script.push_back("SET SQL_SAFE_UPDATES=1");
 
-    std::auto_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
+    std::unique_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
     sql::SqlBatchExec sql_batch_exec;
     sql_batch_exec(stmt.get(), sql_script);
 
@@ -972,7 +972,7 @@ void SqlEditorForm::init_connection(sql::Connection *dbc_conn_ref, const db_mgmt
           }
         }
 
-        std::auto_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
+        std::unique_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
         std::string query = base::sqlstring("SET SESSION SQL_MODE=?", 0) << base::join(options, ",");
         stmt->execute(query);
       }
@@ -983,7 +983,7 @@ void SqlEditorForm::init_connection(sql::Connection *dbc_conn_ref, const db_mgmt
   {
     std::string query_connection_id = sql_specifics->query_connection_id();
     if (!query_connection_id.empty()) {
-      std::auto_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
+      std::unique_ptr<sql::Statement> stmt(dbc_conn_ref->createStatement());
       stmt->execute(query_connection_id);
       std::shared_ptr<sql::ResultSet> rs(stmt->getResultSet());
       rs->next();
@@ -1042,8 +1042,8 @@ void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn
 
   // get SSL enabled info
   {
-    std::auto_ptr<sql::Statement> stmt(dbc_conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
+    std::unique_ptr<sql::Statement> stmt(dbc_conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> result(stmt->executeQuery("SHOW SESSION STATUS LIKE 'Ssl_cipher'"));
     if (result->next()) {
       dbc_conn->ssl_cipher = result->getString(2);
     }
@@ -1474,7 +1474,7 @@ bool SqlEditorForm::ping() const {
     return true;
 
   if (_usr_dbc_conn && _usr_dbc_conn->ref.get_ptr()) {
-    std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
+    std::unique_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
     try {
       stmt->execute("do 1");
       _usr_dbc_conn_mutex.unlock();
@@ -1623,7 +1623,7 @@ void SqlEditorForm::cancel_query() {
   try {
     {
       RecMutexLock aux_dbc_conn_mutex(ensure_valid_aux_connection());
-      std::auto_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
+      std::unique_ptr<sql::Statement> stmt(_aux_dbc_conn->ref->createStatement());
       {
         base::ScopeExitTrigger schedule_timer_stop(std::bind(&Timer::stop, &timer));
         timer.run();
@@ -2542,7 +2542,7 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
   {
     try {
       RecMutexLock usr_dbc_conn_mutex(ensure_valid_usr_connection(true));
-      std::auto_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
+      std::unique_ptr<sql::Statement> stmt(_usr_dbc_conn->ref->createStatement());
       sql_batch_exec_err_count = sql_batch_exec(stmt.get(), statements);
     } catch (sql::SQLException &e) {
       set_log_message(log_id, DbSqlEditorLog::ErrorMsg, strfmt(SQL_EXCEPTION_MSG_FORMAT, e.getErrorCode(), e.what()),
@@ -2733,7 +2733,7 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
 
         // Fetch column info for each table.
         if (statement != nullptr) {
-          std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(
+          std::unique_ptr<sql::ResultSet> rs(statement->executeQuery(
             std::string(base::sqlstring("SHOW FULL COLUMNS FROM !.!", 0) << schema_name << table)));
 
           while (rs->next()) {
@@ -2747,7 +2747,7 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
 
         // Same for each view.
         if (statement != nullptr) {
-          std::auto_ptr<sql::ResultSet> rs(statement->executeQuery(
+          std::unique_ptr<sql::ResultSet> rs(statement->executeQuery(
             std::string(base::sqlstring("SHOW FULL COLUMNS FROM !.!", 0) << schema_name << view)));
 
           while (rs->next()) {
@@ -2768,7 +2768,7 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
         auto metaInfo = _usr_dbc_conn->ref->getMetaData();
         if (metaInfo->getDatabaseMajorVersion() > 7
             || (metaInfo->getDatabaseMajorVersion() == 5 && metaInfo->getDatabaseMinorVersion() > 6)) {
-          std::auto_ptr<sql::ResultSet> rs(
+          std::unique_ptr<sql::ResultSet> rs(
             statement->executeQuery("SELECT VARIABLE_NAME FROM performance_schema.user_variables_by_thread")
           );
 

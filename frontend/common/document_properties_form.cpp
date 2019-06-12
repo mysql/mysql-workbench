@@ -120,7 +120,7 @@ static void destroy(mforms::Object *object) {
 }
 
 DocumentPropertiesForm::~DocumentPropertiesForm() {
-  std::for_each(_widgets.begin(), _widgets.end(), std::ptr_fun(destroy));
+  std::for_each(_widgets.begin(), _widgets.end(), std::bind(&destroy, std::placeholders::_1));
 }
 
 void DocumentPropertiesForm::add_control(const std::string &caption, mforms::View *control, bool expand) {

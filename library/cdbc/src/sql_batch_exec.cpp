@@ -63,7 +63,7 @@ namespace sql {
       try {
         _sql_log.push_back(*i);
         if (stmt->execute(*i))
-          std::auto_ptr<sql::ResultSet> rs(stmt->getResultSet());
+          std::unique_ptr<sql::ResultSet> rs(stmt->getResultSet());
         ++_batch_exec_success_count;
       } catch (SQLException &e) {
         ++batch_exec_err_count;

@@ -409,7 +409,7 @@ void WbContext::set_create_main_form_view(MySQL::Workbench::WbFrontendCallbacks 
   VOID_STR_UIFORM_CB cb = static_cast<VOID_STR_UIFORM_CB>(ip.ToPointer());
 
   ::wb::WBFrontendCallbacks *callbacks = cbacks->get_callbacks();
-  callbacks->create_main_form_view = std::ptr_fun(cb);
+  callbacks->create_main_form_view = cb;
 }
 
 //--------------------------------------------------------------------------------------------------

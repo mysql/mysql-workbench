@@ -190,7 +190,7 @@ void Db_plugin::load_schemata(std::vector<std::string> &schemata) {
   }
 
 
-  std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", "", "schema"));
+  std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", "", "schema"));
   _schemata.reserve(rset->rowsCount());
   float total = (float)rset->rowsCount();
   int current = 0;
@@ -270,7 +270,7 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type) {
 
     if (!schema_name.empty()) {
       try {
-        std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", schema_name, db_object_type_name));
+        std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", schema_name, db_object_type_name));
         total_objects = (float)rset->rowsCount();
         while (rset->next()) {
           Db_obj_handle db_obj;
@@ -362,7 +362,7 @@ void Db_plugin::read_back_view_ddl() {
       grt::GRT::get()->send_progress(
         (current_view / total_views),
         std::string("Fetch back database view code for ").append(schema->name()).append(".").append(view->name()));
-      std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", *schema->name(), "view", true, *view->name()));
+      std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", *schema->name(), "view", true, *view->name()));
 
       // take a snapshot of the server version of the SQL
       if (rset->next())
@@ -518,7 +518,7 @@ void Db_plugin::set_task_proc() {
 
 grt::StringRef Db_plugin::apply_script_to_db() {
   sql::ConnectionWrapper conn = db_conn()->get_dbc_connection();
-  std::auto_ptr<sql::Statement> stmt(conn->createStatement());
+  std::unique_ptr<sql::Statement> stmt(conn->createStatement());
 
   grt::GRT::get()->send_info(_("Executing SQL script in server"));
 

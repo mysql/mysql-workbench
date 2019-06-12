@@ -270,7 +270,7 @@ std::string blob_to_string_(const unsigned char *data, size_t size) {
 }
 
 sqlide::QuoteVar::Blob_to_string Mysql_sql_specifics::blob_to_string() {
-  return std::ptr_fun(&blob_to_string_);
+  return blob_to_string_;
 }
 
 std::string Mysql_sql_specifics::setting_non_std_sql_delimiter() {

@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "figure_common.h"
@@ -337,8 +337,11 @@ void BaseFigure::set_allow_manual_resizing(bool flag) {
 
 void BaseFigure::invalidate_min_sizes(mdc::CanvasItem *item) {
   item->set_needs_relayout();
-  if (dynamic_cast<mdc::Layouter *>(item))
-    dynamic_cast<mdc::Layouter *>(item)->foreach (std::ptr_fun(&BaseFigure::invalidate_min_sizes));
+  if (dynamic_cast<mdc::Layouter *>(item)) {
+    dynamic_cast<mdc::Layouter *>(item)->foreach ([](mdc::CanvasItem * item) {
+      invalidate_min_sizes(item); 
+    });
+  }
 }
 
 void BaseFigure::invalidate_min_sizes() {

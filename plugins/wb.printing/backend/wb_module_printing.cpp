@@ -171,7 +171,7 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
   }
 
   {
-    std::auto_ptr<mdc::Surface> surf;
+    std::unique_ptr<mdc::Surface> surf;
 
     GRTLIST_FOREACH(model_Diagram, views, view) {
       mdc::CanvasViewExtras extras((*view)->get_data()->get_canvas_view());
@@ -183,9 +183,9 @@ int WbPrintingImpl::printDiagramsToFile(grt::ListRef<model_Diagram> views, const
 
       if (!surf.get()) {
         if (format == "pdf")
-          surf = std::auto_ptr<mdc::Surface>(extras.create_pdf_surface(fh));
+          surf = std::unique_ptr<mdc::Surface>(extras.create_pdf_surface(fh));
         else if (format == "ps")
-          surf = std::auto_ptr<mdc::Surface>(extras.create_ps_surface(fh));
+          surf = std::unique_ptr<mdc::Surface>(extras.create_ps_surface(fh));
         else
           throw std::invalid_argument("Invalid file format " + format);
       }

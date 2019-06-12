@@ -505,11 +505,11 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(
     {
       sql::Dbc_connection_handler::Ref conn;
       RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
 
       {
-        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-        std::auto_ptr<sql::ResultSet> rs(
+        std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+        std::unique_ptr<sql::ResultSet> rs(
           stmt->executeQuery(std::string(sqlstring("SHOW FULL TABLES FROM !", 0) << schema_name)));
         while (rs->next()) {
           std::string name = rs->getString(1);
@@ -522,7 +522,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(
         }
       }
         {
-          std::auto_ptr<sql::ResultSet> rs(
+          std::unique_ptr<sql::ResultSet> rs(
             stmt->executeQuery(std::string(sqlstring("SHOW PROCEDURE STATUS WHERE Db=?", 0) << schema_name)));
 
           while (rs->next()) {
@@ -531,7 +531,7 @@ grt::StringRef SqlEditorTreeController::do_fetch_live_schema_contents(
           }
         }
         {
-          std::auto_ptr<sql::ResultSet> rs(
+          std::unique_ptr<sql::ResultSet> rs(
             stmt->executeQuery(std::string(sqlstring("SHOW FUNCTION STATUS WHERE Db=?", 0) << schema_name)));
           while (rs->next()) {
             std::string name = rs->getString(2);
@@ -670,8 +670,8 @@ void SqlEditorTreeController::fetch_column_data(const std::string &schema_name, 
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring("SHOW FULL COLUMNS FROM !.!", 0) << schema_name << obj_name)));
 
     while (rs->next()) {
@@ -773,8 +773,8 @@ void SqlEditorTreeController::fetch_trigger_data(const std::string &schema_name,
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring("SHOW TRIGGERS FROM ! LIKE ?", 0) << schema_name << obj_name)));
 
     while (rs->next()) {
@@ -831,8 +831,8 @@ void SqlEditorTreeController::fetch_index_data(const std::string &schema_name, c
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring("SHOW INDEXES FROM !.!", 0) << schema_name << obj_name)));
 
     bool supportVisibility = _owner->rdbms_version().is_valid() && is_supported_mysql_version_at_least(_owner->rdbms_version(), 8, 0, 0);
@@ -898,8 +898,8 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string &schema_n
   RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
   try {
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring("SHOW CREATE TABLE !.!", 0) << schema_name << obj_name)));
 
     while (rs->next()) {
@@ -1088,8 +1088,8 @@ bool SqlEditorTreeController::fetch_routine_details(const std::string &schema_na
 
     RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(
       stmt->executeQuery(std::string(base::sqlstring(statement.c_str(), 0) << schema_name << obj_name)));
 
     if (rs->next()) {
@@ -1160,8 +1160,8 @@ wb::LiveSchemaTree::ObjectType SqlEditorTreeController::fetch_object_type(const 
       RecMutexLock aux_dbc_conn_mutex(_owner->ensure_valid_aux_connection(conn));
 
       {
-        std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-        std::auto_ptr<sql::ResultSet> rs(
+        std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+        std::unique_ptr<sql::ResultSet> rs(
           stmt->executeQuery(std::string(sqlstring("SHOW FULL TABLES FROM ! LIKE ?", 0) << schema_name << obj_name)));
         while (rs->next()) {
           std::string str_type = rs->getString(2);
@@ -1661,8 +1661,8 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
         {
           std::string trigger_query = base::sqlstring("SHOW TRIGGERS FROM ! WHERE ! = ?", 0) << schema_name << "Table"
                                                                                              << obj_name;
-          std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+          std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+          std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
 
           if (rs.get()) {
             while (rs->next())
@@ -1672,8 +1672,8 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
 
         for (size_t index = 0; index < triggers.size(); index++) {
           std::string trigger_query = base::sqlstring("SHOW CREATE TRIGGER !.!", 0) << schema_name << triggers[index];
-          std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-          std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+          std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+          std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
 
           if (rs.get() && rs->next()) {
             std::string trigger_ddl = (rs->getString(3));
@@ -1702,8 +1702,8 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
         break;
     }
 
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
 
     // Note: show create procedure includes the sql mode in the result before the actual DDL.
     if (rs.get() && rs->next()) {
@@ -1726,8 +1726,8 @@ std::string SqlEditorTreeController::get_object_ddl_script(wb::LiveSchemaTree::O
                 "AND TABLE_NAME = ?",
                 0)
               << schema_name << obj_name;
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
 
       if (rs.get() && rs->next()) {
         std::string view, definer;
@@ -1797,8 +1797,8 @@ std::pair<std::string, std::string> SqlEditorTreeController::get_object_create_s
         break;
     }
 
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-    std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
 
     if (rs.get() && rs->next()) {
       if (type == wb::LiveSchemaTree::Function || type == wb::LiveSchemaTree::Procedure) {
@@ -1818,8 +1818,8 @@ std::pair<std::string, std::string> SqlEditorTreeController::get_object_create_s
                 "AND TABLE_NAME = ?",
                 0)
               << schema_name << obj_name;
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(query));
 
       if (rs.get() && rs->next()) {
         std::string view, definer;
@@ -1858,8 +1858,8 @@ std::vector<std::string> SqlEditorTreeController::get_trigger_sql_for_table(cons
     {
       std::string trigger_query = base::sqlstring("SHOW TRIGGERS FROM ! WHERE ! = ?", 0) << schema_name << "Table"
                                                                                          << table_name;
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
 
       if (rs.get()) {
         while (rs->next())
@@ -1869,8 +1869,8 @@ std::vector<std::string> SqlEditorTreeController::get_trigger_sql_for_table(cons
 
     for (size_t index = 0; index < triggers.size(); index++) {
       std::string trigger_query = base::sqlstring("SHOW CREATE TRIGGER !.!", 0) << schema_name << triggers[index];
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(trigger_query));
 
       if (rs.get() && rs->next())
         result.push_back(rs->getString(3));
@@ -2184,7 +2184,7 @@ bool SqlEditorTreeController::apply_changes_to_object(bec::DBObjectEditorBE *obj
           std::string query = validation_queries.front();
           validation_queries.pop_front();
 
-          std::auto_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(query));
+          std::unique_ptr<sql::ResultSet> rs(conn->ref->createStatement()->executeQuery(query));
           if (rs->next()) {
             mforms::Utilities::show_error(_("Apply Changes to Object"),
                                           strfmt(_("Selected name conflicts with existing %s `%s`."), obj_type.c_str(),

@@ -68,9 +68,10 @@ set_source_files_properties(myx_statement_parser.cpp PROPERTIES COMPILE_FLAGS -W
 
 target_compile_options(sqlparser PRIVATE ${WB_CXXFLAGS})
 
-set_target_properties(sqlparser
-                      PROPERTIES VERSION   ${WB_VERSION}
-                                 SOVERSION ${WB_VERSION})
+set_target_properties(sqlparser PROPERTIES 
+                      COMPILE_FLAGS -Wno-register
+                      VERSION   ${WB_VERSION}
+                      SOVERSION ${WB_VERSION})
 if(COMMAND cotire)
   set_target_properties(sqlparser PROPERTIES 
       COTIRE_ENABLE_PRECOMPILED_HEADER FALSE

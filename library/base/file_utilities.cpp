@@ -131,7 +131,7 @@ namespace base {
 //--------------------------------------------------------------------------------------------------
 
 #ifdef _MSC_VER
-  LockFile::LockFile(const std::string &path) throw(std::invalid_argument, std::runtime_error, file_locked_error)
+  LockFile::LockFile(const std::string &path)
     : path(path), handle(0) {
     std::wstring wpath(string_to_wstring(path));
     if (path.empty())

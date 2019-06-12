@@ -57,7 +57,7 @@ namespace grt {
     }
   };
 
-  struct OmfEqPred : public std::binary_function<ValueRef, ValueRef, bool> { // functor for operator<
+  struct OmfEqPred : public std::function<bool (ValueRef, ValueRef)> { // functor for operator<
     const Omf *_omf;
     OmfEqPred(const Omf *omf) : _omf(omf) {
     }
@@ -153,11 +153,13 @@ namespace grt {
          ++target_idx) { // look for something that exists in target but not in source, it should be added
       const ValueRef v = target.get(target_idx);
       internal::List::raw_const_iterator It_Dup = find_if(
-        target.content().raw_begin(), target.content().raw_begin() + target_idx, std::bind2nd(OmfEqPred(comparer), v));
+        target.content().raw_begin(), target.content().raw_begin() + target_idx, std::bind(OmfEqPred(comparer), 
+          std::placeholders::_1, v));
       if (It_Dup != target.content().raw_begin() + target_idx)
         continue;
       internal::List::raw_const_iterator It =
-        find_if(source.content().raw_begin(), source.content().raw_end(), std::bind2nd(OmfEqPred(comparer), v));
+        find_if(source.content().raw_begin(), source.content().raw_end(), std::bind(OmfEqPred(comparer), 
+          std::placeholders::_1,v));
       if (It == source.content().raw_end())
         changes.push_back(std::shared_ptr<ListItemChange>(new ListItemAddedChange(v, prev_value, target_idx)));
       else // item exists in both target and source, save indexes
@@ -173,12 +175,14 @@ namespace grt {
       // But in case of caseless compare we may have non-unique lists
       // so just skip it
       internal::List::raw_const_iterator It_Dup = find_if(
-        source.content().raw_begin(), source.content().raw_begin() + source_idx, std::bind2nd(OmfEqPred(comparer), v));
+        source.content().raw_begin(), source.content().raw_begin() + source_idx, std::bind(OmfEqPred(comparer),
+          std::placeholders::_1, v));
       if (It_Dup != source.content().raw_begin() + source_idx)
         continue;
 
       internal::List::raw_const_iterator It =
-        find_if(target.content().raw_begin(), target.content().raw_end(), std::bind2nd(OmfEqPred(comparer), v));
+        find_if(target.content().raw_begin(), target.content().raw_end(), std::bind(OmfEqPred(comparer), 
+          std::placeholders::_1, v));
       if (It == target.content().raw_end()) {
 #ifdef DEBUG_DIFF
         logInfo("Removing %s from list\n", grt::ObjectRef::cast_from(v)->get_string_member("name").c_str());
@@ -199,7 +203,7 @@ namespace grt {
                         stable_elements.rend(), moved_elements.begin());
     for (TIndexContainer::iterator It = moved_elements.begin(); It != moved_elements.end(); ++It) {
       internal::List::raw_const_iterator It_target = find_if(target.content().raw_begin(), target.content().raw_end(),
-                                                             std::bind2nd(OmfEqPred(comparer), source.get(*It)));
+                std::bind(OmfEqPred(comparer), std::placeholders::_1, source.get(*It)));
       prev_value = It_target == target.content().raw_begin() ? ValueRef() : *(It_target - 1);
       std::shared_ptr<ListItemOrderChange> orderchange(
         new ListItemOrderChange(source.get(*It), *It_target, omf, prev_value, target.get_index(*It_target)));
@@ -209,7 +213,7 @@ namespace grt {
 
     for (TIndexContainer::iterator It = stable_elements.begin(); It != stable_elements.end(); ++It) {
       internal::List::raw_const_iterator It_target = find_if(target.content().raw_begin(), target.content().raw_end(),
-                                                             std::bind2nd(OmfEqPred(comparer), source.get(*It)));
+                std::bind(OmfEqPred(comparer), std::placeholders::_1, source.get(*It)));
       if (It_target != target.content().raw_end()) {
         std::shared_ptr<ListItemChange> change =
           create_item_modified_change(source.get(*It), *It_target, omf, target.get_index(*It_target));

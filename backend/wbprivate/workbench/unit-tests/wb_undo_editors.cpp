@@ -87,7 +87,7 @@ TEST_FUNCTION(2) // General
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
   const std::string old_name = table->name();
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   // Rename
   be->set_name("new_name");
@@ -108,7 +108,7 @@ TEST_FUNCTION(2) // General
 TEST_FUNCTION(3) // Table (general)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   // Change Collation
   std::string old_value = be->get_table_option_by_name("CHARACTER SET - COLLATE");
@@ -148,7 +148,7 @@ TEST_FUNCTION(3) // Table (general)
 TEST_FUNCTION(4) // Table (add column)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   // Add
   const size_t existing_cols_nr = table->columns().count();
@@ -167,7 +167,7 @@ TEST_FUNCTION(4) // Table (add column)
 TEST_FUNCTION(5) // Table (rename column)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const std::string old_name = table->columns()[0]->name();
   // Rename
@@ -183,7 +183,7 @@ TEST_FUNCTION(5) // Table (rename column)
 TEST_FUNCTION(6) // Table (Column type change)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   bec::TableColumnsListBE* cols = be->get_columns();
 
@@ -215,7 +215,7 @@ TEST_FUNCTION(6) // Table (Column type change)
 TEST_FUNCTION(7) // Table (Column flag change)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   bec::TableColumnsListBE* cols = be->get_columns();
 
@@ -233,7 +233,7 @@ TEST_FUNCTION(7) // Table (Column flag change)
 TEST_FUNCTION(8) // Table (column NN change)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   bec::TableColumnsListBE* cols = be->get_columns();
 
@@ -257,7 +257,7 @@ TEST_FUNCTION(8) // Table (column NN change)
 TEST_FUNCTION(9) // Table (column default change)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   bec::TableColumnsListBE* cols = be->get_columns();
 
@@ -277,7 +277,7 @@ TEST_FUNCTION(9) // Table (column default change)
 TEST_FUNCTION(10) // Table (column remove)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const size_t ncols = table->columns().count();
   ensure_equals("tables", ncols, 2U);
@@ -293,7 +293,7 @@ TEST_FUNCTION(10) // Table (column remove)
 TEST_FUNCTION(11) // Table (index add)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const size_t nidx = table->indices().count();
   // Add
@@ -312,7 +312,7 @@ TEST_FUNCTION(11) // Table (index add)
 TEST_FUNCTION(12) // Table (index rename)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const size_t nidx = table->indices().count();
   be->add_index("idx");
@@ -332,7 +332,7 @@ TEST_FUNCTION(12) // Table (index rename)
 TEST_FUNCTION(13) // Table (index remove)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const size_t nidx = table->indices().count();
   be->add_index("idx");
@@ -351,7 +351,7 @@ TEST_FUNCTION(13) // Table (index remove)
 TEST_FUNCTION(14) // Table (index type change)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   // set engine to something that supports FULLTEXT and RTREE index options
   table->tableEngine("MyISAM");
@@ -376,7 +376,7 @@ TEST_FUNCTION(14) // Table (index type change)
 TEST_FUNCTION(15) // Table (index storage change)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const size_t nidx = table->indices().count();
   be->add_index("idx");
@@ -399,7 +399,7 @@ TEST_FUNCTION(15) // Table (index storage change)
 TEST_FUNCTION(16) // Table (index column add)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
 
   const size_t nidx = table->indices().count();
   be->add_index("idx");
@@ -429,7 +429,7 @@ TEST_FUNCTION(16) // Table (index column add)
 TEST_FUNCTION(17) // Table (fk add)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
   const size_t nfks = table->foreignKeys().count();
 
   be->add_fk("fk1");
@@ -445,7 +445,7 @@ TEST_FUNCTION(17) // Table (fk add)
 TEST_FUNCTION(18) // Table (fk remove)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
   const size_t nfks = table->foreignKeys().count();
 
   be->add_fk("fk1");
@@ -464,7 +464,7 @@ TEST_FUNCTION(18) // Table (fk remove)
 TEST_FUNCTION(19) // Table (fk rename)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
   const size_t nfks = table->foreignKeys().count();
   bec::FKConstraintListBE* fks = be->get_fks();
 
@@ -485,7 +485,7 @@ TEST_FUNCTION(19) // Table (fk rename)
 TEST_FUNCTION(20) // Table (fk set ref table)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
   const size_t nfks = table->foreignKeys().count();
   bec::FKConstraintListBE* fks = be->get_fks();
 
@@ -506,7 +506,7 @@ TEST_FUNCTION(21) // Table (fk set ref column)
 {
   db_mysql_TableRef table(db_mysql_TableRef::cast_from(schema->tables()[0]));
   db_mysql_TableRef table2(db_mysql_TableRef::cast_from(schema->tables()[1]));
-  std::auto_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
+  std::unique_ptr<MySQLTableEditorBE> be(new MySQLTableEditorBE(table));
   const size_t nfks = table->foreignKeys().count();
   bec::FKConstraintListBE* fks = be->get_fks();
 

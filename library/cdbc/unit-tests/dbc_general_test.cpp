@@ -44,7 +44,7 @@ TEST_DATA_CONSTRUCTOR(module_dbc_general_test) {
   sql::ConnectionWrapper wrapper = dm->getConnection(connectionProperties);
   sql::Connection *connection = wrapper.get();
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS test");
   stmt->execute("CREATE SCHEMA test");
 }
@@ -62,7 +62,7 @@ TEST_FUNCTION(2) {
   sql::ConnectionWrapper wrapper = dm->getConnection(connectionProperties);
   sql::Connection *connection = wrapper.get();
   sql::DatabaseMetaData *meta(connection->getMetaData());
-  std::auto_ptr<sql::ResultSet> rset(meta->getSchemata());
+  std::unique_ptr<sql::ResultSet> rset(meta->getSchemata());
 
   while (rset->next()) {
     if (getenv("VERBOSE")) {
@@ -70,7 +70,7 @@ TEST_FUNCTION(2) {
       std::cout << "  Schema Objects:" << std::endl;
     }
 
-    std::auto_ptr<sql::ResultSet> rset2(meta->getSchemaObjects("", rset->getString("database")));
+    std::unique_ptr<sql::ResultSet> rset2(meta->getSchemaObjects("", rset->getString("database")));
     while (rset2->next()) {
       if (getenv("VERBOSE"))
         std::cout << rset2->getString("object_type") << ": " << rset2->getString("name") << ","
@@ -88,7 +88,7 @@ TEST_FUNCTION(3) {
   sql::ConnectionWrapper wrapper = dm->getConnection(connectionProperties);
   sql::Connection *connection = wrapper.get();
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
 
   stmt->execute("DROP TABLE IF EXISTS test.product");
   stmt->execute("CREATE TABLE test.product(idproduct INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(80))");
@@ -98,7 +98,7 @@ TEST_FUNCTION(3) {
   if (getenv("VERBOSE"))
     std::cout << "Insert Data." << std::endl;
 
-  std::auto_ptr<sql::PreparedStatement> prepStmt(
+  std::unique_ptr<sql::PreparedStatement> prepStmt(
     connection->prepareStatement("INSERT INTO test.product(idproduct, name)  VALUES(?, ?)"));
   prepStmt->setInt(1, 1);
   prepStmt->setString(2, "Harry Potter");
@@ -107,7 +107,7 @@ TEST_FUNCTION(3) {
   if (getenv("VERBOSE"))
     std::cout << "Display Data." << std::endl;
 
-  std::auto_ptr<sql::ResultSet> rset1(stmt->executeQuery("SELECT * FROM test.product"));
+  std::unique_ptr<sql::ResultSet> rset1(stmt->executeQuery("SELECT * FROM test.product"));
 
   int i = 0;
   while (rset1->next()) {
@@ -126,7 +126,7 @@ TEST_FUNCTION(3) {
   if (getenv("VERBOSE"))
     printf("Display Data Again.\n");
 
-  std::auto_ptr<sql::ResultSet> rset2(stmt->executeQuery("SELECT * FROM test.product"));
+  std::unique_ptr<sql::ResultSet> rset2(stmt->executeQuery("SELECT * FROM test.product"));
 
   i = 0;
   while (rset2->next()) {
@@ -149,7 +149,7 @@ TEST_FUNCTION(4) {
   sql::ConnectionWrapper wrapper = dm->getConnection(connectionProperties);
   sql::Connection *connection = wrapper.get();
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS test");
 }
 

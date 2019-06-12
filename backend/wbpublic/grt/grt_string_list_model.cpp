@@ -213,7 +213,8 @@ void GrtStringListModel::refresh() {
       process_mask(*i, items, false);
   }
 
-  _active_items_count = std::count_if(items.begin(), items.end(), std::bind2nd(std::equal_to<bool>(), true));
+  _active_items_count = std::count_if(items.begin(), items.end(), 
+    std::bind(std::equal_to<bool>(), std::placeholders::_1, true));
 
   // also process preview mask
   if (!_items_val_mask.empty())

@@ -107,7 +107,7 @@ namespace MySQL {
         ready_handler_wrapper_delegate = gcnew VoidStringWrapperDelegate(this, &GrtShell::ready_handler_wrapper);
         IntPtr ip = Marshal::GetFunctionPointerForDelegate(ready_handler_wrapper_delegate);
         VOID_STRING_HANDLER_CB cb = static_cast<VOID_STRING_HANDLER_CB>(ip.ToPointer());
-        inner->set_ready_handler(std::ptr_fun(cb));
+        inner->set_ready_handler(cb);
       }
 
       void set_saves_history(bool flag) {

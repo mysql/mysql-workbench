@@ -68,7 +68,7 @@ public:
   }
   result_type operator()(const sqlite::blob_ref_t &v, const sqlite::variant_t &index) {
     sqlite::blob_ref_t blob_ref;
-    std::auto_ptr<std::istream> is(_rs->getBlob(boost::get<int>(index)));
+    std::unique_ptr<std::istream> is(_rs->getBlob(boost::get<int>(index)));
     if ((size_t)-1 == _foreknown_blob_size) {
       const size_t BUFF_SIZE = 4096;
       std::list<std::vector<char> > chunks;
@@ -123,7 +123,7 @@ size_t Recordset_cdbc_storage::determine_pkey_columns(Recordset::Column_names &c
     sql::DatabaseMetaData *conn_meta(conn->ref->getMetaData());
     try {
       // XXX this can be slow because of the I_S queries, depending on the server
-      std::auto_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
+      std::unique_ptr<sql::ResultSet> rs(conn_meta->getBestRowIdentifier("", _schema_name, _table_name, 0, 0));
       size_t rowid_col_count = rs->rowsCount();
       if (rowid_col_count > 0) {
         _pkey_columns.reserve(rowid_col_count);
@@ -166,10 +166,10 @@ size_t Recordset_cdbc_storage::determine_pkey_columns_alt(Recordset::Column_name
   base::RecMutexLock lock(
     _getAuxConnection(conn, true)); // we can't perform full connection check, hence we use the simple one
   {
-    std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
+    std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
     std::string q = base::sqlstring("SHOW INDEX FROM !.!", 0) << _schema_name << _table_name;
     try {
-      std::auto_ptr<sql::ResultSet> rs(stmt->executeQuery(q));
+      std::unique_ptr<sql::ResultSet> rs(stmt->executeQuery(q));
       std::list<std::string> primary_columns;
       std::list<std::string> unique_notnull_columns, columns;
 
@@ -547,7 +547,7 @@ void Recordset_cdbc_storage::run_sql_script(const Sql_script &sql_script, bool s
   std::string msg;
   BlobVarToStream blob_var_to_stream;
   Sql_script::Statements_bindings::const_iterator sql_bindings = sql_script.statements_bindings.begin();
-  std::auto_ptr<sql::PreparedStatement> stmt;
+  std::unique_ptr<sql::PreparedStatement> stmt;
   for (const std::string &sql : sql_script.statements) {
     try {
       stmt.reset(conn->ref->prepareStatement(sql));

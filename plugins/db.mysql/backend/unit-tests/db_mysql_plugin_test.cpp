@@ -275,7 +275,7 @@ TEST_FUNCTION(5) {
 
   std::string script = run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
@@ -307,7 +307,7 @@ TEST_FUNCTION(10) {
 
   std::string script = run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
@@ -353,7 +353,7 @@ TEST_FUNCTION(15) {
 
   std::string script = run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
@@ -390,7 +390,7 @@ TEST_FUNCTION(20) {
 
   std::string script = run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
 
   try {
@@ -433,7 +433,7 @@ TEST_FUNCTION(25) {
 
   std::string script = run_sync_plugin_generate_script(schemata, db_mysql_CatalogRef(grt::Initialized), mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql2);
   // Self referencing keys are no longer supported, but as test case itself checks for
   // crash it is better to this test case since there shouldn't be any crashes even
@@ -459,7 +459,7 @@ TEST_FUNCTION(30) {
     "DELIMITER ;\n"
     "INSERT INTO t1(col_char) VALUES ('a'), ('b'), ('c');";
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
 
   std::list<std::string> schemata_list;
@@ -517,7 +517,7 @@ TEST_FUNCTION(35) {
 
   // part1 - check that unmodified procedure is not updated
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
 
   std::list<std::string> schemata_list;
@@ -585,7 +585,7 @@ TEST_FUNCTION(40) {
 
   std::string script = run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
@@ -622,7 +622,7 @@ TEST_FUNCTION(45) {
 
   std::string script = run_sync_plugin_generate_script(schemata, org_cat, mod_cat);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), sql1);
   execute_script(stmt.get(), script);
 
@@ -660,7 +660,7 @@ TEST_FUNCTION(50) {
 
   std::string script = run_fwdeng_plugin_generate_script(mod_cat, plugin);
 
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   execute_script(stmt.get(), script);
 
   std::vector<std::string> schemata;
@@ -669,7 +669,7 @@ TEST_FUNCTION(50) {
   // now the same test for sync
   script.assign(run_sync_plugin_generate_script(schemata, db_mysql_CatalogRef(grt::Initialized), mod_cat));
 
-  std::auto_ptr<sql::Statement> stmt2(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt2(connection->createStatement());
   execute_script(stmt2.get(), "DROP DATABASE IF EXISTS `db_mysql_plugin_test`");
   execute_script(stmt2.get(), script);
 }

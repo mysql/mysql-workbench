@@ -18414,6 +18414,13 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = sql.parser;
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
+					"-Wno-deprecated-register",
+					"-Wno-register",
+				);
 			};
 			name = Debug;
 		};
@@ -18443,6 +18450,13 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = sql.parser;
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wno-overloaded-virtual",
+					"-Wno-unused-local-typedef",
+					"-Wno-deprecated-register",
+					"-Wno-register",
+				);
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -18988,7 +19002,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -19051,6 +19065,7 @@
 					"-Wno-overloaded-virtual",
 					"-Wno-unused-local-typedef",
 					"-Wno-deprecated-register",
+					"-Wno-register",
 				);
 			};
 			name = Debug;
@@ -19060,7 +19075,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -19119,6 +19134,7 @@
 					"-Wno-overloaded-virtual",
 					"-Wno-unused-local-typedef",
 					"-Wno-deprecated-register",
+					"-Wno-register",
 				);
 			};
 			name = Release;

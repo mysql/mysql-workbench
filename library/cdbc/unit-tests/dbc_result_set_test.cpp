@@ -23,7 +23,7 @@
 
 #include "connection_helpers.h"
 
-static bool populate_test_table(std::auto_ptr<sql::Statement> &stmt) {
+static bool populate_test_table(std::unique_ptr<sql::Statement> &stmt) {
   stmt->execute("USE test");
   stmt->execute("DROP TABLE IF EXISTS test_function");
   if (true == stmt->execute("CREATE TABLE test_function (a integer, b integer, c integer default null)"))
@@ -36,7 +36,7 @@ static bool populate_test_table(std::auto_ptr<sql::Statement> &stmt) {
   return true;
 }
 
-static bool populate_tx_test_table(std::auto_ptr<sql::Statement> &stmt) {
+static bool populate_tx_test_table(std::unique_ptr<sql::Statement> &stmt) {
   stmt->execute("USE test");
   stmt->execute("DROP TABLE IF EXISTS test_function_tx");
   if (true ==
@@ -70,7 +70,7 @@ TEST_DATA_CONSTRUCTOR(module_dbc_result_set_test) {
   ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
   sql::Connection *connection = wrapper1.get();
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   ensure("stmt1 is NULL", stmt.get() != NULL);
 
   ensure_equals("Connection differs", wrapper1.get(), stmt->getConnection());
@@ -96,20 +96,20 @@ TEST_FUNCTION(2) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
     ensure_equals("Connection differs", wrapper1.get(), stmt1->getConnection());
 
     ensure("Data not populated", populate_tx_test_table(stmt1));
 
-    std::auto_ptr<sql::PreparedStatement> ps1(wrapper1->prepareStatement("SELECT a, b, c FROM test_function_tx"));
+    std::unique_ptr<sql::PreparedStatement> ps1(wrapper1->prepareStatement("SELECT a, b, c FROM test_function_tx"));
     ensure("ps1 is NULL", ps1.get() != NULL);
 
     // TODO: getConnection is not yet implemented.
     // ensure_equals("Connection differs", wrapper1.get(), ps1->getConnection());
 
-    std::auto_ptr<sql::ResultSet> rset(ps1->executeQuery());
+    std::unique_ptr<sql::ResultSet> rset(ps1->executeQuery());
     ensure("NULL returned for result set", rset.get() != NULL);
     while (rset->next())
       ;
@@ -135,14 +135,14 @@ TEST_FUNCTION(3) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT 1 FROM DUAL"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT 1 FROM DUAL"));
     ensure("res1 is NULL", rset1.get() != NULL);
 
     // TODO: Fails currently because the statements are not store-d but use-d.
-    // std::auto_ptr<sql::Statement> rset2(stmt1->executeQuery("SELECT 1 FROM DUAL"));
+    // std::unique_ptr<sql::Statement> rset2(stmt1->executeQuery("SELECT 1 FROM DUAL"));
     // ensure("res2 is NULL", rset2.get() != NULL);
 
     ensure("res1 is empty", rset1->next() != false);
@@ -168,12 +168,12 @@ TEST_FUNCTION(4) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
     ensure("Data not populated", true == populate_test_table(stmt1));
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT 1 FROM DUAL"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT 1 FROM DUAL"));
     ensure("res1 is NULL", rset1.get() != NULL);
     ensure("res1 is empty", rset1->next() != false);
     ensure("res1 is empty", rset1->next() == false);
@@ -202,7 +202,7 @@ TEST_FUNCTION(5) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
     ensure_equals("Connection differs", wrapper1.get(), stmt1->getConnection());
@@ -212,7 +212,7 @@ TEST_FUNCTION(5) {
 
     ensure("Data not populated", true == populate_tx_test_table(stmt1));
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res1 is NULL", rset1.get() != NULL);
     ensure("res1 is empty", rset1->next() != false);
     int count_full_before = rset1->getInt(1);
@@ -221,7 +221,7 @@ TEST_FUNCTION(5) {
     /* Let's delete and then rollback */
     ensure_equals("Deleted less rows", stmt1->executeUpdate("DELETE FROM test_function_tx WHERE 1"), count_full_before);
 
-    std::auto_ptr<sql::ResultSet> rset2(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset2(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res2 is NULL", rset2.get() != NULL);
     ensure("res2 is empty", rset2->next() != false);
     ensure("Table not empty after delete", rset2->getInt(1) == 0);
@@ -229,7 +229,7 @@ TEST_FUNCTION(5) {
 
     stmt1->getConnection()->rollback();
 
-    std::auto_ptr<sql::ResultSet> rset3(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset3(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res3 is NULL", rset3.get() != NULL);
     ensure("res3 is empty", rset3->next() != false);
     int count_full_after = rset3->getInt(1);
@@ -241,7 +241,7 @@ TEST_FUNCTION(5) {
     ensure_equals("Deleted less rows", stmt1->executeUpdate("DELETE FROM test_function_tx WHERE 1"), count_full_before);
     stmt1->getConnection()->commit();
 
-    std::auto_ptr<sql::ResultSet> rset4(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset4(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res4 is NULL", rset4.get() != NULL);
     ensure("res4 is empty", rset4->next() != false);
     ensure("Table not empty after delete", rset4->getInt(1) == 0);
@@ -270,7 +270,7 @@ TEST_FUNCTION(6) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
     ensure_equals("Connection differs", wrapper1.get(), stmt1->getConnection());
@@ -279,7 +279,7 @@ TEST_FUNCTION(6) {
     wrapper1->setAutoCommit(1);
     ensure("Data not populated", true == populate_tx_test_table(stmt1));
 
-    std::auto_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset1(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res1 is NULL", rset1.get() != NULL);
     ensure("res1 is empty", rset1->next() != false);
     int count_full_before = rset1->getInt(1);
@@ -288,7 +288,7 @@ TEST_FUNCTION(6) {
     /* Let's delete and then rollback */
     ensure_equals("Deleted less rows", stmt1->executeUpdate("DELETE FROM test_function_tx WHERE 1"), count_full_before);
 
-    std::auto_ptr<sql::ResultSet> rset2(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset2(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res2 is NULL", rset2.get() != NULL);
     ensure("res2 is empty", rset2->next() != false);
     ensure("Table not empty after delete", rset2->getInt(1) == 0);
@@ -297,7 +297,7 @@ TEST_FUNCTION(6) {
     // In autocommit on, this is a no-op.
     stmt1->getConnection()->rollback();
 
-    std::auto_ptr<sql::ResultSet> rset3(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset3(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res3 is NULL", rset3.get() != NULL);
     ensure("res3 is empty", rset3->next() != false);
     ensure("Rollback didn't work", rset3->getInt(1) == 0);
@@ -310,7 +310,7 @@ TEST_FUNCTION(6) {
     // In autocommit on, this is a no-op.
     stmt1->getConnection()->commit();
 
-    std::auto_ptr<sql::ResultSet> rset4(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
+    std::unique_ptr<sql::ResultSet> rset4(stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx"));
     ensure("res4 is NULL", rset4.get() != NULL);
     ensure("res4 is empty", rset4->next() != false);
     ensure_equals("Table not empty after delete", 0, rset4->getInt(1));
@@ -339,11 +339,11 @@ TEST_FUNCTION(7) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
     try {
-      std::auto_ptr<sql::ResultSet> rset1(
+      std::unique_ptr<sql::ResultSet> rset1(
         stmt1->executeQuery("SELECT COUNT(*) FROM test_function_tx; DELETE FROM test_function_tx"));
       ensure("ERR: Exception not thrown", false);
     } catch (sql::SQLException &) {
@@ -369,14 +369,14 @@ TEST_FUNCTION(8) {
     ensure("wrapper1 is NULL", wrapper1.get() != NULL);
 
     sql::Connection *connection = wrapper1.get();
-    std::auto_ptr<sql::Statement> stmt1(connection->createStatement());
+    std::unique_ptr<sql::Statement> stmt1(connection->createStatement());
     ensure("stmt1 is NULL", stmt1.get() != NULL);
 
     ensure_equals("Connection differs", wrapper1.get(), stmt1->getConnection());
 
     ensure("Data not populated", true == populate_tx_test_table(stmt1));
 
-    std::auto_ptr<sql::ResultSet> rset1(
+    std::unique_ptr<sql::ResultSet> rset1(
       stmt1->executeQuery("SELECT COUNT(*) AS 'count of rows' FROM test_function_tx"));
     ensure("res1 is NULL", rset1.get() != NULL);
     ensure("res1 is empty", rset1->next() != false);
@@ -474,7 +474,7 @@ TEST_FUNCTION(9) {
 
   sql::ConnectionWrapper wrapper1 = dm->getConnection(connectionProperties);
   sql::Connection *connection = wrapper1.get();
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   stmt->execute("DROP SCHEMA IF EXISTS test;");
 }
 

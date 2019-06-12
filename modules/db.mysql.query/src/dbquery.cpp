@@ -359,7 +359,7 @@ int DbMySQLQueryImpl::execute(int conn, const std::string &query) {
   }
 
   try {
-    std::auto_ptr<sql::Statement> pstmt(con->createStatement());
+    std::unique_ptr<sql::Statement> pstmt(con->createStatement());
     int r = pstmt->execute(query) ? 1 : 0;
     cinfo->last_update_count = (size_t)pstmt->getUpdateCount();
     return r;
@@ -392,7 +392,7 @@ int DbMySQLQueryImpl::executeQuery(int conn, const std::string &query) {
   }
 
   try {
-    std::auto_ptr<sql::Statement> pstmt(con->createStatement());
+    std::unique_ptr<sql::Statement> pstmt(con->createStatement());
     pstmt->execute(query);
 
     sql::ResultSet *res;
@@ -442,7 +442,7 @@ grt::IntegerListRef DbMySQLQueryImpl::executeQueryMultiResult(int conn, const st
   grt::IntegerListRef result(grt::Initialized);
 
   try {
-    std::auto_ptr<sql::Statement> pstmt(con->createStatement());
+    std::unique_ptr<sql::Statement> pstmt(con->createStatement());
     pstmt->execute(query);
 
     try {
@@ -668,7 +668,7 @@ int DbMySQLQueryImpl::loadSchemata(int conn, grt::StringListRef schemata) {
 
   try {
     sql::DatabaseMetaData *dbc_meta(con->getMetaData());
-    std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", "", "schema"));
+    std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", "", "schema"));
     while (rset->next()) {
       std::string name = rset->getString("name");
       schemata.insert(name);
@@ -705,8 +705,8 @@ grt::DictRef DbMySQLQueryImpl::getServerVariables(int conn) {
   }
 
   try {
-    std::auto_ptr<sql::Statement> pstmt(con->createStatement());
-    std::auto_ptr<sql::ResultSet> rset(pstmt->executeQuery("show variables"));
+    std::unique_ptr<sql::Statement> pstmt(con->createStatement());
+    std::unique_ptr<sql::ResultSet> rset(pstmt->executeQuery("show variables"));
 
     while (rset->next()) {
       std::string name = rset->getString("Variable_name");
@@ -759,7 +759,7 @@ int DbMySQLQueryImpl::loadSchemaObjects(int conn, grt::StringRef schema, grt::St
     }
     sql::DatabaseMetaData *dbc_meta(con->getMetaData());
     for (std::list<std::string>::const_iterator i = object_types.begin(), end = object_types.end(); i != end; ++i) {
-      std::auto_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", *schema, *object_type));
+      std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", *schema, *object_type));
       while (rset->next()) {
         std::string name = rset->getString("name");
         std::string ddl = rset->getString("ddl");

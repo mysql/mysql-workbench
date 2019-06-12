@@ -656,8 +656,8 @@ std::string ResultFormView::get_full_column_type(SqlEditorForm *editor, const st
       sql::Dbc_connection_handler::Ref conn;
       base::RecMutexLock lock(editor->ensure_valid_aux_connection(conn));
 
-      std::auto_ptr<sql::Statement> stmt(conn->ref->createStatement());
-      std::auto_ptr<sql::ResultSet> result(stmt->executeQuery(q));
+      std::unique_ptr<sql::Statement> stmt(conn->ref->createStatement());
+      std::unique_ptr<sql::ResultSet> result(stmt->executeQuery(q));
       if (result.get() && result->first())
         return result->getString(1);
     } catch (std::exception &e) {

@@ -451,13 +451,13 @@ ObjectRef grt::find_child_object(const ObjectRef &object, const std::string &id,
   return ::find_child_object(object, id, recursive, visited);
 }
 
-class search_in_list_pred : public std::unary_function<std::string, bool> {
+class search_in_list_pred : public std::function<bool (std::string)> {
 private:
   ObjectListRef _list;
 
 public:
   search_in_list_pred(const ObjectListRef &list) : _list(list){};
-  result_type operator()(argument_type arg) const {
+  result_type operator()(std::string arg) const {
     return find_named_object_in_list(_list, arg).is_valid();
   }
 };

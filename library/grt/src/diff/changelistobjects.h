@@ -34,7 +34,7 @@
 
 namespace grt {
 
-  struct pless_struct : public std::binary_function<ValueRef, ValueRef, bool> { // functor for operator<
+  struct pless_struct : public std::function<bool (ValueRef, ValueRef)> { // functor for operator<
     bool operator()(const ValueRef &_Left, const ValueRef &_Right) const;
   };
 

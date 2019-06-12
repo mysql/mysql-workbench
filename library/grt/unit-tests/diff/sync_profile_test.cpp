@@ -108,7 +108,7 @@ TEST_FUNCTION(1) {
 
 TEST_FUNCTION(2) {
   grt::ValueRef e;
-  std::auto_ptr<sql::Statement> stmt(connection->createStatement());
+  std::unique_ptr<sql::Statement> stmt(connection->createStatement());
   NormalizedComparer cmp;
   // Kind of hack, atm we doesn't propertly cut server representation of procedures and vews, so just skip it
   cmp.add_comparison_rule("sqlDefinition", std::bind([]() { return true; }));

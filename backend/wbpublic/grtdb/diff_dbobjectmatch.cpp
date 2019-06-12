@@ -460,10 +460,10 @@ std::string fixDefalutString(const std::string& str) {
 bool default_value_compare(const ValueRef obj1, const ValueRef obj2, const std::string& name) {
   std::string s1 = ObjectRef::cast_from(obj1).get_string_member(name);
   std::string s2 = ObjectRef::cast_from(obj2).get_string_member(name);
-  s1.erase(std::remove_if(s1.begin(), s1.end(), std::bind2nd(std::equal_to<std::string::value_type>(), '\'')),
-           s1.end());
-  s2.erase(std::remove_if(s2.begin(), s2.end(), std::bind2nd(std::equal_to<std::string::value_type>(), '\'')),
-           s2.end());
+  s1.erase(std::remove_if(s1.begin(), s1.end(), std::bind(std::equal_to<std::string::value_type>(), 
+    std::placeholders::_1, '\'')), s1.end());
+  s2.erase(std::remove_if(s2.begin(), s2.end(), std::bind(std::equal_to<std::string::value_type>(),
+    std::placeholders::_1 , '\'')), s2.end());
   s1 = fixDefalutString(s1);
   s2 = fixDefalutString(s2);
   return s1 == s2;

@@ -102,15 +102,14 @@ void Layer::remove_item(CanvasItem *item) {
 }
 
 static void invalidate(CanvasItem *item) {
-  Layouter *l;
   item->invalidate_cache();
-  l = dynamic_cast<Layouter *>(item);
+  Layouter *l = dynamic_cast<Layouter *>(item);
   if (l)
-    l->foreach (std::ptr_fun(invalidate));
+    l->foreach(std::bind(&invalidate, std::placeholders::_1));
 }
 
 void Layer::invalidate_caches() {
-  _root_area->foreach (std::ptr_fun(invalidate));
+  _root_area->foreach(std::bind(&invalidate, std::placeholders::_1));
 }
 
 void Layer::set_needs_repaint_all_items() {
