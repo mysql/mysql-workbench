@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -227,6 +227,9 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
         self._tasks_box.set_padding(24)
         self._tasks_box.set_spacing(8)
         self.content.add(self._tasks_box, False, True)
+        
+        self._after_tasks_box = mforms.newBox(False)
+        self.content.add(self._after_tasks_box, False, True)
         
         self._status_label = mforms.newLabel("Click [Next >] to execute.")
         self._status_label.set_name("Next Information")
