@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -53,7 +53,7 @@ MYSQL_ERR_OFFLINE_MODE = 3032
 # Handling object should have corresponding method if the object wants to receive
 # events. For event shutdown method name must be shutdown_event
 class EventManager(object):
-    valid_events = ['server_offline_event', 'server_started_event', 'server_stopped_event', 'shutdown_event']
+    valid_events = ['server_offline_event', 'server_started_event', 'server_stopped_event', 'shutdown_event', 'firewall_installed_event', 'firewall_removed_event']
 
     def __init__(self):
         self.events = {}
@@ -90,6 +90,7 @@ class EventManager(object):
             self.deferred_events.append(name)
             return
         name += "_event"
+        log_error("VALID EVENTS: %s" % str(self.valid_events));
         if name not in self.valid_events:
             log_error('EventManager: invalid event: ' + name + '\n')
         elif name in self.events:

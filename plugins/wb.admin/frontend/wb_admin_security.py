@@ -785,13 +785,11 @@ class FirewallCommands:
         return self.set_user_mode(userhost, 'RESET')
 
     def is_enabled(self):
-        result = self.execute_result_command("SELECT @@mysql_firewall_mode")
-        if not result:
+        if 'mysql_firewall_mode' not in self.owner.ctrl_be.server_variables.keys():
             return False
-          
-        if result.nextRow():
-            return result.intByIndex(1) == 1
-        return False
+        
+        result = self.owner.ctrl_be.server_variables.get('mysql_firewall_mode')
+        return result == "1"
 
 
 class FirewallUserInterfaceBase(mforms.Box):
@@ -1132,11 +1130,13 @@ class SecurityAccount(mforms.Box):
         self.suspend_layout()
         self.set_spacing(8)
 
-        if self.owner.ctrl_be.server_variables.get('mysql_firewall_mode') and not grt.root.wb.info.edition == "Community":
+        if 'mysql_firewall_mode' in self.owner.ctrl_be.server_variables.keys():
             self.firewall_rules = FirewallUserInterface(self)
         else:
             self.firewall_rules = FirewallUserInterfaceDummy(self)
 
+        self.owner.ctrl_be.add_me_for_event('firewall_installed', self)
+        self.owner.ctrl_be.add_me_for_event('firewall_removed', self)
 
         self.splitter = mforms.newSplitter(True)
 
@@ -1420,6 +1420,12 @@ class SecurityAccount(mforms.Box):
         self.user_selected()
             
         self.relayout()
+
+    def firewall_installed_event(self):
+        self.firewall_rules.set_enabled(True)
+
+    def firewall_removed_event(self):
+        self.firewall_rules.set_enabled(False)
 
     def shutdown(self):
        self.password_validator.shutdown() 

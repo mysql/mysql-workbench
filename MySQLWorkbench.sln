@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLWorkbench", "frontend\windows\MySQLWorkbench\MySQLWorkbench.csproj", "{1EC37D95-8840-4881-8814-6943938B43BF}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -519,6 +519,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wba_firewall", "wba_firewal
 	ProjectSection(SolutionItems) = preProject
 		plugins\wb.admin\internal\wba_firewall\__init__.py = plugins\wb.admin\internal\wba_firewall\__init__.py
 		plugins\wb.admin\internal\wba_firewall\wb_admin_firewall.py = plugins\wb.admin\internal\wba_firewall\wb_admin_firewall.py
+		plugins\wb.admin\internal\wba_firewall\wb_admin_firewall_install.py = plugins\wb.admin\internal\wba_firewall\wb_admin_firewall_install.py
+		plugins\wb.admin\internal\wba_firewall\wb_admin_firewall_manager.py = plugins\wb.admin\internal\wba_firewall\wb_admin_firewall_manager.py
+		plugins\wb.admin\internal\wba_firewall\wb_admin_firewall_utils.py = plugins\wb.admin\internal\wba_firewall\wb_admin_firewall_utils.py
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "firewall", "firewall", "{1BBD1428-D18C-48EB-BA2E-01667E0A9A59}"

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -264,7 +264,7 @@ class WbAdminTabBase(mforms.Box):
         
     def set_footer(self, footer):
         if self._footer_contents:
-            self._page_footer.remove(self._footer)
+            self._page_footer.remove(self._footer_contents)
         self._footer_contents = footer
         self._footer_contents.set_padding(10, 5, 10, 10)
         self._page_footer.add(self._footer_contents, True, True)
