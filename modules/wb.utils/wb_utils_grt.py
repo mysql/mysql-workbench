@@ -63,7 +63,6 @@ def get_linux_terminal_program():
 
     return None
 
-
 @ModuleInfo.plugin('wb.tools.backupConnections', caption='Backup existing connections', accessibilityName="Backup Existing Connections")
 @ModuleInfo.export(grt.INT)
 def backupConnections():
@@ -813,32 +812,6 @@ class SSLWizard_GenerationTask:
         f.close()
       
 
-    def generate_certificate(self, tool, out_path, out_name, ca_cert, ca_key, config_file, days=3600):
-        key = os.path.join(out_path, out_name+"-key.pem")
-        req = os.path.join(out_path, out_name+"-req.pem")
-        cert = os.path.join(out_path, out_name+"-cert.pem")
-
-        serial_file = os.path.join(out_path, out_name+".serial")
-
-        req_cmd = [tool, "req", "-newkey", "rsa:2048", "-days", str(days), "-nodes", "-keyout", key, "-out", req, "-config", config_file]
-        if not self.run_command(req_cmd):
-            log_error("Unable to generate key.\n")
-            return False, key, req, cert
-
-        rsa_cmd = [tool, "rsa", "-in", key, "-out", key]
-        if not self.run_command(rsa_cmd):
-            log_error("Unable to generate key.\n")
-            return False, key, req, cert
-
-        rsa_cmd = [tool, "x509", "-req", "-in", req, "-days", str(days), "-CA", ca_cert, "-CAkey", ca_key,
-                         "-CAserial", serial_file, "-CAcreateserial",
-                         "-out", cert]
-        if not self.run_command(rsa_cmd):
-            log_error("Unable to generate certificate serial.\n")
-            return False, key, req, cert
-
-        return True, key, req, cert
-
     def run_command(self, command, output_to = subprocess.PIPE):
 
         try:
@@ -876,31 +849,64 @@ class SSLWizard_GenerationTask:
             self.display_error("Checking requirements", "The specified directory does not exist.")
             return False, None, None, None, None, None
 
-        log_debug2("Creating CA certificate...\n")
+        server_key = os.path.join(path, "server-key.pem")
+        server_req = os.path.join(path, "server-req.pem")
+        server_cert = os.path.join(path, "server-cert.pem")
         
-        f = open(ca_key, "w")
-        if not self.run_command([tool, "genrsa", "2048"], f):
-            self.display_error("Creating CA certificate...", "Could not generate RSA certificate")
-            return False, None, None, None, None, None
-
-        log_debug2("Creating CA key...\n")
+        client_key = os.path.join(path, "client-key.pem")
+        client_req = os.path.join(path, "client-req.pem")
+        client_cert = os.path.join(path, "client-cert.pem")
+        client_p12 = os.path.join(path, "client.p12")
         
-        req_cmd = [tool, "req", "-new", "-x509", "-nodes", "-days", str(days), "-key", ca_key, "-out", ca_cert, "-config", self.config_file["CA"]]
-        if not self.run_command(req_cmd):
-            self.display_error("Creating CA certificate...", "Could not generate keys")
-            return False, None, None, None, None, None
+        private_key = os.path.join(path, "private_key.pem")
+        key_store = os.path.join(path, "test-cert-store")
 
-        log_debug2("Create server certificate and self-sign\n")
-        result, server_key, server_req, server_cert = self.generate_certificate(tool, path, "server", ca_cert, ca_key, self.config_file["Server"])
-        if not result:
-            self.display_error("Create server certificate and self-sign", "Could not generate keys")
-            return False, server_key, server_req, server_cert
+        params = {
+            'keylen': 2048,
+            'days': 3650,
+            'ca_key': ca_key,
+            'ca_cert': ca_cert,
+            
+            'server_key': server_key,
+            'server_req': server_req,
+            'server_cert': server_cert,
 
-        log_debug2("Create client certificates and self-sign\n")
-        result, client_key, client_req, client_cert = self.generate_certificate(tool, path, "client", ca_cert, ca_key, self.config_file["Client"])
-        if not result:
-            self.display_error("Create client certificates and self-sign", "Could not generate keys")
-            return False, server_key, server_req, server_cert
+            'client_key': client_key,
+            'client_req': client_req,
+            'client_cert': client_cert,
+            'client_p12': client_p12,
+            
+            'key_store': key_store,
+            'private_key': private_key,
+            
+            "config_CA": self.config_file["CA"],
+            "config_server": self.config_file["Server"],
+            "config_client": self.config_file["Client"]
+        }
+        
+        commands = [
+            #Creating CA key
+            'openssl genrsa -out %(ca_key)s %(keylen)s' % params,
+            # Creating CA Certificate using the authority key
+            'openssl req -new -x509 -nodes -days %(days)s -key %(ca_key)s -out %(ca_cert)s -config %(config_CA)s' % params,
+
+            # Create server key and certificate sign request
+            'openssl req -newkey rsa:%(keylen)s -nodes -keyout %(server_key)s -out %(server_req)s -config %(config_server)s' % params,
+            # Encrypt the server private key
+            'openssl rsa -in %(server_key)s -out %(server_key)s' % params,
+            # Generate self-signed certificate (using the key+csr)
+            'openssl x509 -req -in %(server_req)s -days %(days)s -CA %(ca_cert)s -CAkey %(ca_key)s -set_serial 01 -out %(server_cert)s -extensions v3_req' % params,
+
+            # Create client key and certificate sign request
+            'openssl req -newkey rsa:%(keylen)s -nodes -keyout %(client_key)s -out %(client_req)s -config %(config_client)s' % params,
+            # Encrypt the client private key
+            'openssl rsa -in %(client_key)s -out %(client_key)s' % params,
+            # Generate self-signed certificate (using the key+csr)
+            'openssl x509 -req -in %(client_req)s -days %(days)s -CA %(ca_cert)s -CAkey %(ca_key)s -set_serial 01 -out %(client_cert)s' % params,
+        ]
+        
+        for command in commands:
+            self.run_command(command.split(' '))
 
         return True, ca_cert, server_cert, server_key, client_cert, client_key
 
@@ -1076,18 +1082,25 @@ class SSLWizard_GeneratePage(WizardPage):
         self.default_label.show(not value)
 
     def get_attributes(self, target):
+        def get_value_default(text_control, default_value):
+            current_value = text_control.get_string_value().encode('utf-8')
+            if not current_value:
+                return default_value
+            return current_value
+        
+        default_cn = 'localhost'
+        if target == 'CA':
+            default_cn = 'issuer'
+        
         l = []
-        l.append("C=%s"%self.country_code.get_string_value().encode('utf-8'))
-        l.append("ST=%s"%self.state_name.get_string_value().encode('utf-8'))
-        l.append("L=%s"%self.locality_name.get_string_value().encode('utf-8'))
-        l.append("O=%s"%self.org_name.get_string_value().encode('utf-8'))
-        l.append("OU=%s"%self.org_unit.get_string_value().encode('utf-8'))
-        l.append("CN=%s-%s"%(self.common_name.get_string_value().encode('utf-8'), target))
-        l.append("emailAddress=%s"%self.email_address.get_string_value().encode('utf-8'))
-        # filter out blank values
-        l = [s for s in l if s.partition("=")[-1]]
-        if not l:
-            l.append("C=US")
+        l.append("C=%s" % get_value_default(self.country_code, "US"))
+        l.append("ST=%s" % get_value_default(self.state_name, "California"))
+        l.append("L=%s" % get_value_default(self.locality_name, "Redwood Shores"))
+        l.append("O=%s" % get_value_default(self.org_name, "Oracle"))
+        l.append("OU=%s" % get_value_default(self.org_unit, "MySQL"))
+        l.append("CN=%s" % get_value_default(self.common_name, default_cn))
+        l.append("emailAddress=%s" % get_value_default(self.email_address, "any@localhost"))
+
         return l
 
     def create_ui(self):
