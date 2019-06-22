@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -213,7 +213,11 @@ namespace ssh {
   using ftpFileUniqueDeleter = std::unique_ptr<ftpFile, std::function<void(ftpFile*)>>;
 
   ftpFileUniqueDeleter createPtr(sftp_file _file) {
-    return ftpFileUniqueDeleter(new ftpFile(_file), [](ftpFile* f) { sftp_close(f->ptr); delete f;});
+    return ftpFileUniqueDeleter(new ftpFile(_file), [](ftpFile* f) {
+      if (f->ptr != nullptr)
+        sftp_close(f->ptr);
+      delete f;
+    });
   }
 
   void SSHSftp::get(const std::string &src, const std::string &dest) const {
@@ -255,7 +259,7 @@ namespace ssh {
     logDebug3("Set file content: %s\n", path.c_str());
     auto lock = _session->lockSession();
     auto file = createPtr(sftp_open(_sftp, createRemotePath(path).c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU));
-    if (!file)
+    if (file->ptr == nullptr)
       throw SSHSftpException(_session->getSession()->getError());
 
     ssize_t nWritten = sftp_write(file->ptr, data.c_str(), data.size());
@@ -269,7 +273,7 @@ namespace ssh {
     auto lock = _session->lockSession();
     auto file = createPtr(sftp_open(_sftp, createRemotePath(src).c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU));
 
-    if (!file)
+    if (file->ptr == nullptr)
       throw SSHSftpException(_session->getSession()->getError());
 
     base::FileHandle fileHandle;
@@ -304,7 +308,7 @@ namespace ssh {
   std::string SSHSftp::getContent(const std::string &src) const {
     auto lock = _session->lockSession();
     auto file = createPtr(sftp_open(_sftp, createRemotePath(src).c_str(), O_RDONLY, 0));
-    if (!file)
+    if (file->ptr == nullptr)
       throw SSHSftpException(_session->getSession()->getError());
 
     std::string buff;
