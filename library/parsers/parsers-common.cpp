@@ -139,37 +139,27 @@ bool Scanner::advanceToType(size_t type) {
 /**
  * Steps over a number of tokens and positions.
  * The tokens are traversed in exactly the given order without intermediate tokens. The current token must be
- * startToken.
- *
- * Note: the list must be terminated by INVALID_TYPE (or 0).
+ * startToken. Any non-default channel token is skipped before testing for the next token in the sequence.
  *
  * @return True if all the given tokens were found and there is another token after the last token
  *         in the list, false otherwise. If the token sequence could not be found or there is no more
  *         token the internal state is undefined.
  */
-bool Scanner::skipTokenSequence(size_t startToken, ...) {
-  bool result = false;
+bool Scanner::skipTokenSequence(std::initializer_list<size_t> sequence) {
+  if (_index >= _tokens.size())
+    return false;
 
-  size_t token = startToken;
-  va_list tokens;
-  va_start(tokens, startToken);
-  while (true) {
+  for (auto token : sequence) {
     if (_tokens[_index]->getType() != token)
-      break;
+      return false;
 
-    if (_index + 1 >= _tokens.size())
-      break;
+    while (++_index < _tokens.size() && _tokens[_index]->getChannel() != Token::DEFAULT_CHANNEL)
+      ;
 
-    ++_index;
-    token = va_arg(tokens, size_t);
-    if (token == ParserToken::INVALID_TYPE) {
-      result = true;
-      break;
-    }
+    if (_index == _tokens.size())
+      return false;
   }
-  va_end(tokens);
-
-  return result;
+  return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

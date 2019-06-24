@@ -217,9 +217,14 @@ struct AutoCompletionContext {
     // If a column reference is required then we have to continue scanning the query for table references.
     for (auto ruleEntry : completionCandidates.rules) {
       if (ruleEntry.first == MySQLParser::RuleColumnRef) {
-        collectLeadingTableReferences(parser, scanner, caretIndex);
+        collectLeadingTableReferences(parser, scanner, caretIndex, false);
         takeReferencesSnapshot();
         collectRemainingTableReferences(parser, scanner);
+        takeReferencesSnapshot();
+        break;
+      } else if (ruleEntry.first == MySQLParser::RuleColumnInternalRef) {
+        // Note:: rule columnInternalRef is not only used for ALTER TABLE, but atm. we only support that here.
+        collectLeadingTableReferences(parser, scanner, caretIndex, true);
         takeReferencesSnapshot();
         break;
       }
@@ -307,53 +312,77 @@ private:
    * Called if one of the candidates is a column reference, for table references *before* the caret.
    * SQL code must be valid up to the caret, so we can check nesting strictly.
    */
-  void collectLeadingTableReferences(MySQLParser *parser, Scanner &scanner, size_t caretIndex) {
+  void collectLeadingTableReferences(MySQLParser *parser, Scanner &scanner, size_t caretIndex, bool forTableAlter) {
     scanner.push();
-    scanner.seek(0);
 
-    size_t level = 0;
-    while (true) {
-      bool found = scanner.tokenType() == MySQLLexer::FROM_SYMBOL;
-      while (!found) {
-        if (!scanner.next() || scanner.tokenIndex() >= caretIndex)
-          break;
+    if (forTableAlter) {
+      MySQLLexer *lexer = dynamic_cast<MySQLLexer *>(parser->getTokenStream()->getTokenSource());
 
-        switch (scanner.tokenType()) {
-          case MySQLLexer::OPEN_PAR_SYMBOL:
-            ++level;
-            referencesStack.emplace_front();
+      // For ALTER TABLE commands we do a simple backscan (no nesting is allowed) until we find ALTER TABLE.
+      while (scanner.previous() && scanner.tokenType() != MySQLLexer::ALTER_SYMBOL)
+        ;
+      if (scanner.tokenType() == MySQLLexer::ALTER_SYMBOL) {
+        scanner.skipTokenSequence({ MySQLLexer::ALTER_SYMBOL, MySQLLexer::TABLE_SYMBOL });
 
-            break;
-
-          case MySQLLexer::CLOSE_PAR_SYMBOL:
-            if (level == 0) {
-              scanner.pop();
-              return; // We cannot go above the initial nesting level.
-            }
-
-            --level;
-            referencesStack.pop_front();
-
-            break;
-
-          case MySQLLexer::FROM_SYMBOL:
-            found = true;
-            break;
-
-          default:
-            break;
+        TableReference reference;
+        reference.table = base::unquote(scanner.tokenText());
+        if (scanner.next() && scanner.is(MySQLLexer::DOT_SYMBOL)) {
+          reference.schema = reference.table;
+          scanner.next();
+          scanner.next();
+          reference.table = base::unquote(scanner.tokenText());
         }
+        referencesStack.front().push_back(reference);
       }
+    } else {
+      scanner.seek(0);
 
-      if (!found) {
-        scanner.pop();
-        return; // No more FROM clause found.
+      size_t level = 0;
+      while (true) {
+        bool found = scanner.tokenType() == MySQLLexer::FROM_SYMBOL;
+        while (!found) {
+          if (!scanner.next() || scanner.tokenIndex() >= caretIndex)
+            break;
+
+          switch (scanner.tokenType()) {
+            case MySQLLexer::OPEN_PAR_SYMBOL:
+              ++level;
+              referencesStack.emplace_front();
+
+              break;
+
+            case MySQLLexer::CLOSE_PAR_SYMBOL:
+              if (level == 0) {
+                scanner.pop();
+                return; // We cannot go above the initial nesting level.
+              }
+
+              --level;
+              referencesStack.pop_front();
+
+              break;
+
+            case MySQLLexer::FROM_SYMBOL:
+              found = true;
+              break;
+
+            default:
+              break;
+          }
+        }
+
+        if (!found) {
+          scanner.pop();
+          return; // No more FROM clause found.
+        }
+
+        parseTableReferences(scanner.tokenSubText(), parser);
+        if (scanner.tokenType() == MySQLLexer::FROM_SYMBOL)
+          scanner.next();
       }
-
-      parseTableReferences(scanner.tokenSubText(), parser);
-      if (scanner.tokenType() == MySQLLexer::FROM_SYMBOL)
-        scanner.next();
     }
+
+    scanner.pop();
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -945,8 +974,7 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
       }
 
       case MySQLParser::RuleTableWild:
-      case MySQLParser::RuleColumnRef:
-      case MySQLParser::RuleColumnInternalRef: {
+      case MySQLParser::RuleColumnRef: {
         logDebug3("Adding column names from cache\n");
 
         // Try limiting what to show to the smallest set possible.
@@ -1028,6 +1056,24 @@ std::vector<std::pair<int, std::string>> getCodeCompletionList(size_t caretLine,
             insertColumns(symbolTable, columnEntries, schemas, tables);
           }
         }
+
+        break;
+      }
+
+      case MySQLParser::RuleColumnInternalRef: {
+        logDebug3("Adding internal column names from cache\n");
+
+        std::set<std::string> schemas;
+        std::set<std::string> tables;
+        if (!context.references.empty()) {
+          tables.insert(context.references[0].table);
+          if (context.references[0].schema.empty())
+            schemas.insert(defaultSchema);
+          else
+            schemas.insert(context.references[0].schema);
+        }
+        if (!tables.empty())
+          insertColumns(symbolTable, columnEntries, schemas, tables);
 
         break;
       }

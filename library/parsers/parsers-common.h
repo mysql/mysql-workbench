@@ -126,7 +126,7 @@ namespace parsers {
     // Advanced navigation.
     bool advanceToPosition(size_t line, size_t offset);
     bool advanceToType(size_t type);
-    bool skipTokenSequence(size_t startToken, ...);
+    bool skipTokenSequence(std::initializer_list<size_t> sequence);
 
     size_t lookAhead(bool skipHidden = true);
     size_t lookBack(bool skipHidden = true);
