@@ -406,6 +406,9 @@ void CodeEditor::updateColors() {
   // Other settings.
   color = Color::getSystemColor(base::SelectedTextBackgroundColor);
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, color.toBGR());
+#ifndef __APPLE__
+  _code_editor_impl->send_editor(this, SCI_SETSELALPHA, 128, 0);
+#endif
 
   if (darkMode) {
     _code_editor_impl->send_editor(this, SCI_SETCARETLINEBACK, 0xFFFFFF, 0);
@@ -801,7 +804,7 @@ void CodeEditor::handleMarkerDeletion(size_t position, size_t length) {
 /**
  * Called after an edit action took place. We have to record markers that got moved by that action.
  */
-void CodeEditor::handleMarkerMove(size_t position, int linesAdded) {
+void CodeEditor::handleMarkerMove(Sci_Position position, Sci_Position linesAdded) {
   if (linesAdded == 0)
     return;
 
@@ -818,7 +821,7 @@ void CodeEditor::handleMarkerMove(size_t position, int linesAdded) {
   }
 
   // Ignore the first line if it has been edited after the line start.
-  if (position > static_cast<size_t>(_code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, currentLine, 0)))
+  if (position > static_cast<Sci_Position>(_code_editor_impl->send_editor(this, SCI_POSITIONFROMLINE, currentLine, 0)))
     ++currentLine;
 
   currentLine = _code_editor_impl->send_editor(this, SCI_MARKERNEXT, currentLine, LineMarkupAll);

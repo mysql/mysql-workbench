@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "wb_model.h"
@@ -42,6 +42,8 @@
 #include "mysql/MySQLRecognizerCommon.h"
 #include "SymbolTable.h"
 
+#include "UniConversion.h"
+
 // Support for syntax highlighting in SQL output.
 #ifdef _MSC_VER
   #include "win32/ScintillaWR.h"
@@ -61,13 +63,15 @@
 #include "mtemplate/template.h"
 
 using namespace base;
+using namespace Scintilla;
 
 DEFAULT_LOG_DOMAIN("Model.Reporting")
 
-//----------------- LexerDocument ------------------------------------------------------------------
+//----------------- LexerDocument --------------------------------------------------------------------------------------
 
 LexerDocument::LexerDocument(const std::string &text) : _text(text), _styling_mask('\0') {
   _style_position = 0;
+  _styling_mask = 127;
   _style_buffer = new char[_text.size()];
 
   // Split the text into lines and store start and length of each.
@@ -79,20 +83,20 @@ LexerDocument::LexerDocument(const std::string &text) : _text(text), _styling_ma
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 LexerDocument::~LexerDocument() {
   delete[] _style_buffer;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 // IDocument implementation.
 int LexerDocument::Version() const {
   return 0; // Indicates old style lexer document.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void LexerDocument::SetErrorStatus(int status) {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
@@ -102,27 +106,27 @@ void LexerDocument::SetErrorStatus(int status) {
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::Length() const {
-  return (int)_text.size();
+Sci_Position LexerDocument::Length() const {
+  return static_cast<Sci_Position>(_text.size());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void LexerDocument::GetCharRange(char *buffer, int position, int lengthRetrieve) const {
+void LexerDocument::GetCharRange(char *buffer, Sci_Position position, Sci_Position lengthRetrieve) const {
   _text.copy(buffer, lengthRetrieve, position);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-char LexerDocument::StyleAt(int position) const {
+char LexerDocument::StyleAt(Sci_Position position) const {
   return _style_buffer[position];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::LineFromPosition(int position) const {
+Sci_Position LexerDocument::LineFromPosition(Sci_Position position) const {
   std::size_t i = 0;
   while (i < _lines.size()) {
     if ((std::size_t)position < _lines[i].first + _lines[i].second)
@@ -135,9 +139,9 @@ int LexerDocument::LineFromPosition(int position) const {
   return (int)_lines.size();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::LineStart(int line) const {
+Sci_Position LexerDocument::LineStart(Sci_Position line) const {
   if (_lines.empty())
     return 1;
 
@@ -147,17 +151,17 @@ int LexerDocument::LineStart(int line) const {
   return (int)_lines[line].first;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::GetLevel(int line) const {
+int LexerDocument::GetLevel(Sci_Position line) const {
   if (line < 0 || line >= (int)_level_cache.size())
     return SC_FOLDLEVELBASE;
   return _level_cache[line];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::SetLevel(int line, int level) {
+int LexerDocument::SetLevel(Sci_Position line, int level) {
   if (line >= 0) {
     // Check if we need to make more room in our cache.
     if (line >= (int)_level_cache.size()) {
@@ -174,9 +178,9 @@ int LexerDocument::SetLevel(int line, int level) {
   return SC_FOLDLEVELBASE;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::GetLineState(int line) const {
+int LexerDocument::GetLineState(Sci_Position line) const {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
                            .append(__FUNCTION__)
                            .append(" in LexerDocument (")
@@ -184,9 +188,9 @@ int LexerDocument::GetLineState(int line) const {
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::SetLineState(int line, int state) {
+int LexerDocument::SetLineState(Sci_Position line, int state) {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
                            .append(__FUNCTION__)
                            .append(" in LexerDocument (")
@@ -194,21 +198,20 @@ int LexerDocument::SetLineState(int line, int state) {
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void LexerDocument::StartStyling(int position, char mask) {
-  _styling_mask = mask;
+void LexerDocument::StartStyling(Sci_Position position) {
   _style_position = position;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-bool LexerDocument::SetStyleFor(int length, char style) {
+bool LexerDocument::SetStyleFor(Sci_Position length, char style) {
   // Style buffer and text have the same length so we can use the text to get the size (which is faster).
   if (_style_position + length >= (int)_text.size())
     return false;
 
-  int i = _style_position;
+  Sci_Position i = _style_position;
   style &= _styling_mask;
   for (; length > 0; i++, length--)
     _style_buffer[i] = style;
@@ -217,13 +220,13 @@ bool LexerDocument::SetStyleFor(int length, char style) {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-bool LexerDocument::SetStyles(int length, const char *styles) {
+bool LexerDocument::SetStyles(Sci_Position length, const char *styles) {
   if (_style_position + length > (int)_text.size())
     return false;
 
-  int i = _style_position;
+  Sci_Position i = _style_position;
   for (int j = 0; length > 0; i++, j++, length--)
     _style_buffer[i] = styles[j] & _styling_mask;
   _style_position = i;
@@ -231,7 +234,7 @@ bool LexerDocument::SetStyles(int length, const char *styles) {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void LexerDocument::DecorationSetCurrentIndicator(int indicator) {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
@@ -241,9 +244,9 @@ void LexerDocument::DecorationSetCurrentIndicator(int indicator) {
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void LexerDocument::DecorationFillRange(int position, int value, int fillLength) {
+void LexerDocument::DecorationFillRange(Sci_Position position, int value, Sci_Position fillLength) {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
                            .append(__FUNCTION__)
                            .append(" in LexerDocument (")
@@ -251,9 +254,9 @@ void LexerDocument::DecorationFillRange(int position, int value, int fillLength)
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void LexerDocument::ChangeLexerState(int start, int end) {
+void LexerDocument::ChangeLexerState(Sci_Position start, Sci_Position end) {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
                            .append(__FUNCTION__)
                            .append(" in LexerDocument (")
@@ -261,19 +264,19 @@ void LexerDocument::ChangeLexerState(int start, int end) {
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 int LexerDocument::CodePage() const {
   return SC_CP_UTF8;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool LexerDocument::IsDBCSLeadByte(char ch) const {
   return false;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 const char *LexerDocument::BufferPointer() {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
@@ -283,9 +286,9 @@ const char *LexerDocument::BufferPointer() {
                            .append(")."));
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-int LexerDocument::GetLineIndentation(int line) {
+int LexerDocument::GetLineIndentation(Sci_Position line) {
   throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
                            .append(__FUNCTION__)
                            .append(" in LexerDocument (")
@@ -293,7 +296,52 @@ int LexerDocument::GetLineIndentation(int line) {
                            .append(")."));
 }
 
-//----------------- WbModelImpl --------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+Sci_Position LexerDocument::LineEnd(Sci_Position line) const {
+  throw std::logic_error(std::string("Internal error. Unexpected use of unimplemented function ")
+                         .append(__FUNCTION__)
+                         .append(" in LexerDocument (")
+                         .append(__FILE__)
+                         .append(")."));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+Sci_Position LexerDocument::GetRelativePosition(Sci_Position positionStart, Sci_Position characterOffset) const {
+  Sci_Position pos = positionStart;
+  pos = positionStart + characterOffset;
+  if ((pos < 0) || (pos > Length()))
+    return INVALID_POSITION;
+
+  return pos;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+int LexerDocument::GetCharacterAndWidth(Sci_Position position, Sci_Position *pWidth) const {
+  int character;
+  const unsigned char leadByte = _text[position];
+  if (UTF8IsAscii(leadByte)) {
+    // Single byte character or invalid
+    character =  leadByte;
+  } else {
+    const int widthCharBytes = UTF8BytesOfLead[leadByte];
+    unsigned char charBytes[UTF8MaxBytes] = { leadByte, 0, 0, 0 };
+    for (int b = 1; b < widthCharBytes; b++)
+      charBytes[b] = _text[position + b];
+    const int utf8status = UTF8Classify(charBytes, widthCharBytes);
+    if (utf8status & UTF8MaskInvalid) {
+      // Report as singleton surrogate values which are invalid Unicode
+      character =  0xDC80 + leadByte;
+    } else {
+      character = UnicodeFromUTF8(charBytes);
+    }
+  }
+  return character;
+}
+
+//----------------- WbModelImpl ----------------------------------------------------------------------------------------
 
 /**
  * Initializes the template engine with our templates. They are registered so we can get error
@@ -304,7 +352,7 @@ void WbModelImpl::initializeReporting() {
   // Enumerate reporting folder for all stored report types.
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /*
  * @brief returns the list of available template file directories
@@ -350,7 +398,7 @@ ssize_t WbModelImpl::getAvailableReportingTemplates(grt::StringListRef templates
   return 1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /*
  * @brief returns the template info for the given template
@@ -369,10 +417,10 @@ workbench_model_reporting_TemplateInfoRef WbModelImpl::getReportingTemplateInfo(
     return workbench_model_reporting_TemplateInfoRef();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_from_name(std::string template_name,
-                                                                                         std::string template_style_name) {
+  std::string template_style_name) {
   if (template_style_name == "")
     return workbench_model_reporting_TemplateStyleInfoRef();
 
@@ -394,21 +442,21 @@ workbench_model_reporting_TemplateStyleInfoRef WbModelImpl::get_template_style_f
   return workbench_model_reporting_TemplateStyleInfoRef();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void read_option(bool &var, const char *field, const grt::DictRef &dict) {
   if (dict.has_key(field))
     var = dict.get_int(field) != 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void read_option(std::string &var, const char *field, const grt::DictRef &dict) {
   if (dict.has_key(field))
     var = dict.get_string(field);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Assigns the given value to the dictionary if it is not empty. Otherwise the text "n/a" is added.
@@ -420,7 +468,8 @@ void assignValueOrNA(mtemplate::DictionaryInterface *dict, const char *key, cons
     dict->setValue(key, value);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillTablePropertyDict(const db_mysql_TableRef &table, mtemplate::DictionaryInterface *table_dict) {
   assignValueOrNA(table_dict, REPORT_TABLE_AVG_ROW_LENGTH, *table->avgRowLength());
   table_dict->setValue(REPORT_TABLE_USE_CHECKSUM, (table->checksum() == 1) ? "yes" : "no");
@@ -484,7 +533,8 @@ void fillTablePropertyDict(const db_mysql_TableRef &table, mtemplate::Dictionary
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillColumnDict(const db_mysql_ColumnRef &col, const db_mysql_TableRef &table,
                     mtemplate::DictionaryInterface *col_dict, bool detailed) {
   if (*table->isPrimaryKeyColumn(col)) {
@@ -530,7 +580,8 @@ void fillColumnDict(const db_mysql_ColumnRef &col, const db_mysql_TableRef &tabl
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillIndexDict(const db_mysql_IndexRef &idx, const db_mysql_TableRef &table,
                    mtemplate::DictionaryInterface *idx_dict, bool detailed) {
   idx_dict->setValue(REPORT_INDEX_NAME, *idx->name());
@@ -559,7 +610,8 @@ void fillIndexDict(const db_mysql_IndexRef &idx, const db_mysql_TableRef &table,
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillForeignKeyDict(const db_mysql_ForeignKeyRef &fk, const db_mysql_TableRef &table,
                         mtemplate::DictionaryInterface *fk_dict, bool detailed) {
   fk_dict->setValue(REPORT_REL_NAME, *fk->name());
@@ -578,7 +630,8 @@ void fillForeignKeyDict(const db_mysql_ForeignKeyRef &fk, const db_mysql_TableRe
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillTriggerDict(const db_mysql_TriggerRef &trigger, const db_mysql_TableRef &table,
                      mtemplate::DictionaryInterface *trigger_dict) {
   trigger_dict->setValue(REPORT_TRIGGER_NAME, *trigger->name());
@@ -593,7 +646,8 @@ void fillTriggerDict(const db_mysql_TriggerRef &trigger, const db_mysql_TableRef
   trigger_dict->setValue(REPORT_TRIGGER_TIMING, *trigger->timing());
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillViewDict(const db_mysql_ViewRef &view, mtemplate::DictionaryInterface *view_dict) {
   view_dict->setValue(REPORT_VIEW_NAME, *view->name());
   view_dict->setValueAndShowSection(REPORT_VIEW_COMMENT, *view->comment(), REPORT_VIEW_COMMENT_LISTING);
@@ -611,7 +665,8 @@ void fillViewDict(const db_mysql_ViewRef &view, mtemplate::DictionaryInterface *
   assignValueOrNA(view_dict, REPORT_VIEW_COLUMNS, columns);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void fillRoutineDict(const db_mysql_RoutineRef &routine, mtemplate::DictionaryInterface *routine_dict) {
   std::string value;
 
@@ -633,7 +688,7 @@ void fillRoutineDict(const db_mysql_RoutineRef &routine, mtemplate::DictionaryIn
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static Scintilla::WordList *keywordLists[KEYWORDSET_MAX + 2];
 
@@ -661,13 +716,13 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
     auto &names = MySQLSymbolInfo::systemFunctionsForVersion(bec::versionToEnum(version));
     std::string list;
     for (auto &name : names)
-      list += name + " ";
+      list += base::tolower(name) + " ";
     ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(list.c_str());
 
     names = MySQLSymbolInfo::keywordsForVersion(bec::versionToEnum(version));
     list = "";
     for (auto &name : names)
-      list += name + " ";
+      list += base::tolower(name) + " ";
     ((SCI_WRAPPER_NS WordList *)keywordLists[1])->Set(list.c_str());
 
     ((SCI_WRAPPER_NS WordList *)keywordLists[5])->Set(keywords["Procedure keywords"].c_str());
@@ -679,7 +734,7 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Cleanup after we are done with report creation.
@@ -689,7 +744,7 @@ void cleanup_syntax_highlighter() {
     delete (SCI_WRAPPER_NS WordList *)keywordLists[i];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the HTML markup for the given style.
@@ -767,7 +822,8 @@ const std::string markupFromStyle(int style) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl *sqlgenModule,
              const GrtNamedObjectRef &object, const Scintilla::LexerModule *lexer, bool ddl_enabled) {
   if (ddl_enabled && sqlgenModule != NULL) {
@@ -808,7 +864,7 @@ void set_ddl(mtemplate::DictionaryInterface *target, SQLGeneratorInterfaceImpl *
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 static int count_template_files(const std::string template_dir) {
   // loop over all files in the template dir
@@ -833,7 +889,7 @@ static int count_template_files(const std::string template_dir) {
   return count;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * @brief Generates a schema report for the model passed in workbench_physical_Model.
@@ -900,8 +956,6 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   // Start report generation
   grt::GRT::get()->send_info("Generating schema report...");
 
-  // --------------------------------------------------------------------------------------------
-
   // Build FK dictionary if required
   if (fks_show && fks_show_referred_fks) {
     // build schema_dict by loop over all schemata, add it to the main_dict
@@ -939,7 +993,6 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
     }
   }
 
-  // --------------------------------------------------------------------------------------------
   // create main dictionary that will be used to expand the templates
   mtemplate::DictionaryInterface *main_dictionary = mtemplate::CreateMainDictionary();
 
@@ -978,18 +1031,6 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   SQLGeneratorInterfaceImpl *sqlgenModule = NULL;
 
   if (show_ddl) {
-    /*
-    vector<SQLGeneratorInterfaceImpl*> genmodules=
-    grt::GRT::get()->get_implementing_modules<SQLGeneratorInterfaceWrapper>();
-    for (vector<SQLGeneratorInterfaceWrapper*>::const_iterator iter= genmodules.begin();
-         iter != genmodules.end(); ++iter)
-    {
-      if ((*iter)->getTargetDBMSName() == "mysql")
-      {
-        sqlgenModule= *iter;
-        break;
-      }
-    }*/
     sqlgenModule = dynamic_cast<SQLGeneratorInterfaceImpl *>(grt::GRT::get()->get_module("DbMySQL"));
     if (!sqlgenModule)
       throw std::logic_error("could not find SQL generation module for mysql");
@@ -1173,7 +1214,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
   main_dictionary->setIntValue(REPORT_TOTAL_VIEW_COUNT, total_view_count);
   main_dictionary->setIntValue(REPORT_TOTAL_TRIGGER_COUNT, total_trigger_count);
   main_dictionary->setIntValue(REPORT_TOTAL_ROUTINE_COUNT, total_sp_count);
-  // --------------------------------------------------------------------------------------------
+
   // Process template files
 
   std::string template_dir = getTemplateDirFromName(template_name);
@@ -1257,3 +1298,5 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
 
   return 1;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

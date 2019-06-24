@@ -481,7 +481,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
 
   switch (context->getRuleIndex()) {
     case MySQLParser::RuleFunctionCall:
-      expectedText =  "a complete function call or other expression";
+      expectedText =  " a complete function call or other expression";
       break;
 
     case MySQLParser::RuleExpr:
@@ -569,7 +569,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
         message = std::string("Expected") + expectedText + ", but found " + wrongText + " instead";
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting " + expectedText;
+      message = std::string("Extraneous input ") + wrongText + " found, expecting" + expectedText;
     }
   } else {
     try {
@@ -581,7 +581,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
         message = wrongText + " is not valid at this position";
 
       if (!expectedText.empty())
-        message += ", expecting " + expectedText;
+        message += ", expecting" + expectedText;
     } catch (FailedPredicateException &e) {
       // For cases like "... | a ({condition}? b)", but not "... | a ({condition}? b)?".
       std::string condition = e.what();
@@ -608,7 +608,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
       }
 
       if (!expectedText.empty())
-        message += ", expecting " + expectedText;
+        message += ", expecting" + expectedText;
     }
   }
 

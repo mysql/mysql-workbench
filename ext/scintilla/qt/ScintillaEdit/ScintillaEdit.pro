@@ -10,17 +10,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ScintillaEdit
 TEMPLATE = lib
 CONFIG += lib_bundle
+CONFIG += c++1z
 
-unix {
-    # <regex> requires C++11 support
-    greaterThan(QT_MAJOR_VERSION, 4){
-        CONFIG += c++11
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-    }
-}
-
-VERSION = 3.7.0
+VERSION = 4.1.5
 
 SOURCES += \
     ScintillaEdit.cpp \
@@ -30,6 +22,7 @@ SOURCES += \
     ../ScintillaEditBase/ScintillaEditBase.cpp \
     ../../src/XPM.cxx \
     ../../src/ViewStyle.cxx \
+    ../../src/UniqueString.cxx \
     ../../src/UniConversion.cxx \
     ../../src/Style.cxx \
     ../../src/Selection.cxx \
@@ -48,6 +41,7 @@ SOURCES += \
     ../../src/EditModel.cxx \
     ../../src/Document.cxx \
     ../../src/Decoration.cxx \
+    ../../src/DBCS.cxx \
     ../../src/ContractionState.cxx \
     ../../src/CharClassify.cxx \
     ../../src/CellBuffer.cxx \
@@ -63,10 +57,11 @@ SOURCES += \
     ../../lexlib/LexerNoExceptions.cxx \
     ../../lexlib/LexerModule.cxx \
     ../../lexlib/LexerBase.cxx \
+    ../../lexlib/DefaultLexer.cxx \
     ../../lexlib/CharacterSet.cxx \
     ../../lexlib/CharacterCategory.cxx \
     ../../lexlib/Accessor.cxx \
-    ../../lexers/*.cxx
+    $$files(../../lexers/*.cxx, false)
 
 HEADERS  += \
     ScintillaEdit.h \

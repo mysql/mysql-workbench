@@ -22,8 +22,10 @@
 **.vb = native
 **.d = native
 **.lua = native
-**.rb = native
+**.nim = native
 **.pl = native
+**.rb = native
+**.tcl = native
 **.txt = native
 **.pch = native
 **.hgeol = native

@@ -34,12 +34,19 @@
  * <br>
  * WM_NOTIFY: wParam = control ID, lParam = ptr to SCNotification structure, with hwndFrom set to ScintillaCocoa*
  */
-typedef void(*SciNotifyFunc) (intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
+typedef void(*SciNotifyFunc)(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
 
 extern NSString *const SCIUpdateUINotification;
 
 @protocol ScintillaNotificationProtocol
-- (void)notification: (SCNotification*)notification;
+- (void) notification: (SCNotification *) notification;
+@end
+
+/**
+ * SCIScrollView provides pre-macOS 10.14 tiling behavior.
+ */
+@interface SCIScrollView : NSScrollView;
+
 @end
 
 /**
@@ -54,11 +61,11 @@ extern NSString *const SCIUpdateUINotification;
  * provides a canvas for painting the output.
  */
 @interface SCIContentView : NSView <
-  NSTextInputClient,
-  NSUserInterfaceValidations,
-  NSDraggingSource,
-  NSDraggingDestination,
-  NSAccessibilityStaticText>;
+	NSTextInputClient,
+	NSUserInterfaceValidations,
+	NSDraggingSource,
+	NSDraggingDestination,
+	NSAccessibilityStaticText>;
 
 - (void) setCursor: (int) cursor; // Needed by ScintillaCocoa
 
@@ -71,46 +78,46 @@ extern NSString *const SCIUpdateUINotification;
  */
 @interface ScintillaView : NSView <InfoBarCommunicator, ScintillaNotificationProtocol>;
 
-@property (nonatomic, assign) id<ScintillaNotificationProtocol> delegate;
-@property (nonatomic, readonly) NSScrollView *scrollView;
+@property(nonatomic, unsafe_unretained) id<ScintillaNotificationProtocol> delegate;
+@property(nonatomic, readonly) NSScrollView *scrollView;
 
 + (Class) contentViewClass;
 
-- (void) notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
-          value: (float) value;
+- (void) notify: (NotificationType) type message: (NSString *) message location: (NSPoint) location
+	  value: (float) value;
 - (void) setCallback: (id <InfoBarCommunicator>) callback;
 
 - (void) suspendDrawing: (BOOL) suspend;
-- (void) notification: (SCNotification*) notification;
+- (void) notification: (SCNotification *) notification;
 
 - (void) updateIndicatorIME;
 
 // Scroller handling
 - (void) setMarginWidth: (int) width;
-- (SCIContentView*) content;
+- (SCIContentView *) content;
 - (void) updateMarginCursors;
 
 // NSTextView compatibility layer.
-- (NSString*) string;
-- (void) setString: (NSString*) aString;
+- (NSString *) string;
+- (void) setString: (NSString *) aString;
 - (void) insertText: (id) aString;
 - (void) setEditable: (BOOL) editable;
 - (BOOL) isEditable;
 - (NSRange) selectedRange;
 - (NSRange) selectedRangePositions;
 
-- (NSString*) selectedString;
+- (NSString *) selectedString;
 
 - (void) deleteRange: (NSRange) range;
 
-- (void)setFontName: (NSString*) font
-               size: (int) size
-               bold: (BOOL) bold
-             italic: (BOOL) italic;
+- (void) setFontName: (NSString *) font
+		size: (int) size
+		bold: (BOOL) bold
+	      italic: (BOOL) italic;
 
 // Native call through to the backend.
-+ (sptr_t) directCall: (ScintillaView*) sender message: (unsigned int) message wParam: (uptr_t) wParam
-               lParam: (sptr_t) lParam;
++ (sptr_t) directCall: (ScintillaView *) sender message: (unsigned int) message wParam: (uptr_t) wParam
+	       lParam: (sptr_t) lParam;
 - (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam lParam: (sptr_t) lParam;
 - (sptr_t) message: (unsigned int) message wParam: (uptr_t) wParam;
 - (sptr_t) message: (unsigned int) message;
@@ -122,40 +129,40 @@ extern NSString *const SCIUpdateUINotification;
 - (long) getGeneralProperty: (int) property;
 - (long) getGeneralProperty: (int) property parameter: (long) parameter;
 - (long) getGeneralProperty: (int) property parameter: (long) parameter extra: (long) extra;
-- (long) getGeneralProperty: (int) property ref: (const void*) ref;
-- (void) setColorProperty: (int) property parameter: (long) parameter value: (NSColor*) value;
-- (void) setColorProperty: (int) property parameter: (long) parameter fromHTML: (NSString*) fromHTML;
-- (NSColor*) getColorProperty: (int) property parameter: (long) parameter;
-- (void) setReferenceProperty: (int) property parameter: (long) parameter value: (const void*) value;
-- (const void*) getReferenceProperty: (int) property parameter: (long) parameter;
-- (void) setStringProperty: (int) property parameter: (long) parameter value: (NSString*) value;
-- (NSString*) getStringProperty: (int) property parameter: (long) parameter;
-- (void) setLexerProperty: (NSString*) name value: (NSString*) value;
-- (NSString*) getLexerProperty: (NSString*) name;
+- (long) getGeneralProperty: (int) property ref: (const void *) ref;
+- (void) setColorProperty: (int) property parameter: (long) parameter value: (NSColor *) value;
+- (void) setColorProperty: (int) property parameter: (long) parameter fromHTML: (NSString *) fromHTML;
+- (NSColor *) getColorProperty: (int) property parameter: (long) parameter;
+- (void) setReferenceProperty: (int) property parameter: (long) parameter value: (const void *) value;
+- (const void *) getReferenceProperty: (int) property parameter: (long) parameter;
+- (void) setStringProperty: (int) property parameter: (long) parameter value: (NSString *) value;
+- (NSString *) getStringProperty: (int) property parameter: (long) parameter;
+- (void) setLexerProperty: (NSString *) name value: (NSString *) value;
+- (NSString *) getLexerProperty: (NSString *) name;
 
 // The delegate property should be used instead of registerNotifyCallback which is deprecated.
-- (void) registerNotifyCallback: (intptr_t) windowid value: (SciNotifyFunc) callback __attribute__((deprecated));
+- (void) registerNotifyCallback: (intptr_t) windowid value: (SciNotifyFunc) callback __attribute__ ( (deprecated)) ;
 
-- (void) setInfoBar: (NSView <InfoBarCommunicator>*) aView top: (BOOL) top;
-- (void) setStatusText: (NSString*) text;
+- (void) setInfoBar: (NSView <InfoBarCommunicator> *) aView top: (BOOL) top;
+- (void) setStatusText: (NSString *) text;
 
-- (BOOL) findAndHighlightText: (NSString*) searchText
-                    matchCase: (BOOL) matchCase
-                    wholeWord: (BOOL) wholeWord
-                     scrollTo: (BOOL) scrollTo
-                         wrap: (BOOL) wrap;
+- (BOOL) findAndHighlightText: (NSString *) searchText
+		    matchCase: (BOOL) matchCase
+		    wholeWord: (BOOL) wholeWord
+		     scrollTo: (BOOL) scrollTo
+			 wrap: (BOOL) wrap;
 
-- (BOOL) findAndHighlightText: (NSString*) searchText
-                    matchCase: (BOOL) matchCase
-                    wholeWord: (BOOL) wholeWord
-                     scrollTo: (BOOL) scrollTo
-                         wrap: (BOOL) wrap
-                    backwards: (BOOL) backwards;
+- (BOOL) findAndHighlightText: (NSString *) searchText
+		    matchCase: (BOOL) matchCase
+		    wholeWord: (BOOL) wholeWord
+		     scrollTo: (BOOL) scrollTo
+			 wrap: (BOOL) wrap
+		    backwards: (BOOL) backwards;
 
-- (int) findAndReplaceText: (NSString*) searchText
-                    byText: (NSString*) newText
-                 matchCase: (BOOL) matchCase
-                 wholeWord: (BOOL) wholeWord
-                     doAll: (BOOL) doAll;
+- (int) findAndReplaceText: (NSString *) searchText
+		    byText: (NSString *) newText
+		 matchCase: (BOOL) matchCase
+		 wholeWord: (BOOL) wholeWord
+		     doAll: (BOOL) doAll;
 
 @end

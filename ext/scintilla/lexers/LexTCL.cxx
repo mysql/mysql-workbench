@@ -23,9 +23,7 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
-#ifdef SCI_NAMESPACE
 using namespace Scintilla;
-#endif
 
 // Extended to accept accented characters
 static inline bool IsAWordChar(int ch) {
@@ -130,8 +128,10 @@ next:
 				continue;
 			case ',':
 				sc.SetState(SCE_TCL_OPERATOR);
-				if (subParen)
+				if (subParen) {
 					sc.ForwardSetState(SCE_TCL_SUBSTITUTION);
+					goto next;	// Already forwarded so avoid loop's Forward()
+				}
 				continue;
 			default :
 				// maybe spaces should be allowed ???
@@ -314,6 +314,7 @@ next:
 					break;
 				case '[':
 					expected = true;
+					// Falls through.
 				case ']':
 				case '(':
 				case ')':

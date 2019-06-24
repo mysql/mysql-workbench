@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -39,6 +39,8 @@
 
 #include "grtsqlparser/mysql_parser_services.h"
 #include "grtdb/db_helpers.h"
+
+#include "Scintilla.h"
 
 namespace bec {
   class GRTManager;
@@ -163,7 +165,7 @@ private:
 
   std::string getWrittenPart(size_t position);
 
-  void text_changed(int position, int length, int lines_changed, bool added);
+  void text_changed(Sci_Position position, Sci_Position length, Sci_Position lines_changed, bool added);
   void char_added(int char_code);
   void dwell_event(bool started, size_t position, int x, int y);
 

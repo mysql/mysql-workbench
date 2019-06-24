@@ -6,16 +6,20 @@
 # Builds for GTK+ 2 and no longer supports GTK+ 1.
 # Also works with ming32-make on Windows.
 
+.SUFFIXES: .cxx .c .o .h .a .list
+
 srcdir ?= .
 
-.SUFFIXES: .cxx .c .o .h .a .list
 ifdef CLANG
-CXX = clang++ -Wno-deprecated-register
+CXX = clang++
+CXXWARNFLAGS = -Wall -pedantic -Wno-deprecated-register -Wno-missing-braces
 CC = clang
 # Can choose aspect to sanitize: address and undefined can simply change SANITIZE but for
 # thread also need to create Position Independent Executable -> search online documentation
 SANITIZE = address
 #SANITIZE = undefined
+else
+CXXWARNFLAGS = -Wall -pedantic
 endif
 ARFLAGS = rc
 RANLIB = touch
@@ -56,7 +60,7 @@ INCLUDEDIRS=-I $(srcdir)/../include -I $(srcdir)/../src -I $(srcdir)/../lexlib
 ifdef CHECK_DEPRECATED
 DEPRECATED=-DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DDISABLE_GDK_FONT
 endif
-CXXBASEFLAGS=-Wall -pedantic $(PICFLAGS) -DGTK -DSCI_LEXER $(INCLUDEDIRS) $(DEPRECATED)
+CXXBASEFLAGS=$(CXXWARNFLAGS) $(PICFLAGS) -DGTK -DSCI_LEXER $(INCLUDEDIRS) $(DEPRECATED)
 
 ifdef NOTHREADS
 THREADFLAGS=-DG_THREADS_IMPL_NONE
@@ -78,10 +82,15 @@ else
 CTFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
 endif
 
-CXXTFLAGS:=--std=gnu++0x $(CTFLAGS) $(REFLAGS)
+CXXTFLAGS:=--std=gnu++17 $(CTFLAGS) $(REFLAGS)
 
 CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
 MARSHALLER=scintilla-marshal.o
+
+all: $(COMPLIB)
+
+clean:
+	$(DEL) *.o $(COMPLIB) *.plist
 
 .cxx.o:
 	$(CXX) $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) -c $<
@@ -96,29 +105,20 @@ GLIB_GENMARSHAL_FLAGS = --prefix=scintilla_marshal
 .list.c:
 	$(GLIB_GENMARSHAL) --body $(GLIB_GENMARSHAL_FLAGS) $< > $@
 
-LEXOBJS:=$(addsuffix .o,$(basename $(notdir $(wildcard $(srcdir)/../lexers/Lex*.cxx))))
-
-all: $(COMPLIB)
-
-clean:
-	$(DEL) *.o $(COMPLIB) *.plist
+LEXOBJS:=$(addsuffix .o,$(basename $(sort $(notdir $(wildcard $(srcdir)/../lexers/Lex*.cxx)))))
 
 analyze:
 	clang --analyze $(CONFIGFLAGS) $(CXXTFLAGS) $(CXXFLAGS) $(srcdir)/*.cxx $(srcdir)/../src/*.cxx $(srcdir)/../lexlib/*.cxx $(srcdir)/../lexers/*.cxx
 
-# To minimize deltas, including between Unix and Windows, the lexer file names are sorted case-insensitively
-LEXSORTED=$(shell ls $(srcdir)/../lexers/Lex*.cxx | sort -f)
-DEPSRCS=$(srcdir)/*.cxx $(srcdir)/../src/*.cxx $(srcdir)/../lexlib/*.cxx $(LEXSORTED)
-deps: deps.mak
-deps.mak:
-	$(CXX) -MM $(CONFIGFLAGS) $(CXXTFLAGS) $(DEPSRCS) | sed -e 's/\/usr.* //' | grep [a-zA-Z] > $@
+depend deps.mak:
+	python DepGen.py
 
-$(COMPLIB): Accessor.o CharacterSet.o LexerBase.o LexerModule.o LexerSimple.o StyleContext.o WordList.o \
+$(COMPLIB): Accessor.o CharacterSet.o DefaultLexer.o LexerBase.o LexerModule.o LexerSimple.o StyleContext.o WordList.o \
 	CharClassify.o Decoration.o Document.o PerLine.o Catalogue.o CallTip.o CaseConvert.o CaseFolder.o \
 	ScintillaBase.o ContractionState.o EditModel.o Editor.o EditView.o ExternalLexer.o MarginView.o \
 	PropSetSimple.o PlatGTK.o \
 	KeyMap.o LineMarker.o PositionCache.o ScintillaGTK.o ScintillaGTKAccessible.o CellBuffer.o CharacterCategory.o ViewStyle.o \
-	RESearch.o RunStyles.o Selection.o Style.o Indicator.o AutoComplete.o UniConversion.o XPM.o \
+	RESearch.o RunStyles.o Selection.o Style.o Indicator.o AutoComplete.o UniConversion.o UniqueString.o XPM.o \
 	$(MARSHALLER) $(LEXOBJS)
 	$(AR) $(ARFLAGS) $@ $^
 	$(RANLIB) $@

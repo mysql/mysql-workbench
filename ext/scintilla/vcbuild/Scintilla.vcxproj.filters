@@ -156,9 +156,6 @@
     <ClInclude Include="..\src\CaseFolder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\UnicodeFromUTF8.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\lexlib\CharacterCategory.h">
       <Filter>LexLib</Filter>
     </ClInclude>
@@ -182,6 +179,15 @@
     </ClInclude>
     <ClInclude Include="..\win32\HanjaDic.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\DBCS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\UniqueString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexlib\DefaultLexer.h">
+      <Filter>LexLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -312,9 +318,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\CaseFolder.cxx">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\win32\CheckD2D.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\lexers\LexHTML.cxx">
@@ -625,6 +628,36 @@
     </ClCompile>
     <ClCompile Include="..\lexers\LexEDIFACT.cxx">
       <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\DBCS.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\UniqueString.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexlib\DefaultLexer.cxx">
+      <Filter>LexLib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexers\LexCIL.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexers\LexNim.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexers\LexMaxima.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexers\LexSAS.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexers\LexStata.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexers\LexIndent.cxx">
+      <Filter>Lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\win32\ScintillaDLL.cxx">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

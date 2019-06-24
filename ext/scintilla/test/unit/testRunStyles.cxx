@@ -1,9 +1,13 @@
 // Unit Tests for Scintilla internal data structures
 
-#include <string.h>
+#include <cstddef>
+#include <cstring>
 
 #include <stdexcept>
+#include <string_view>
+#include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "Platform.h"
 
@@ -14,11 +18,21 @@
 
 #include "catch.hpp"
 
+using namespace Scintilla;
+
 // Test RunStyles.
+
+namespace Scintilla {	// Xcode clang 9.0 doesn't like this when in the unnamed namespace
+	bool operator==(const FillResult<int> &fra, const FillResult<int> &frb) {
+		return fra.changed == frb.changed &&
+			fra.position == frb.position &&
+			fra.fillLength == frb.fillLength;
+	}
+}
 
 TEST_CASE("RunStyles") {
 
-	RunStyles rs;
+	RunStyles<int, int> rs;
 
 	SECTION("IsEmptyInitially") {
 		REQUIRE(0 == rs.Length());
@@ -88,9 +102,8 @@ TEST_CASE("RunStyles") {
 		rs.InsertSpace(0, 5);
 		int startFill = 1;
 		int lengthFill = 3;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(1 == startFill);
-		REQUIRE(3 == lengthFill);
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(FillResult<int>{true, 1, 3} == fr);
 
 		REQUIRE(0 == rs.ValueAt(0));
 		REQUIRE(99 == rs.ValueAt(1));
@@ -109,16 +122,14 @@ TEST_CASE("RunStyles") {
 		rs.InsertSpace(0, 5);
 		int startFill = 1;
 		int lengthFill = 3;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(1 == startFill);
-		REQUIRE(3 == lengthFill);
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(FillResult<int>{true, 1, 3} == fr);
 
 		int startFill2 = 2;
 		int lengthFill2 = 1;
 		// Compiler warnings if 'false' used instead of '0' as expected value:
-		REQUIRE(false == rs.FillRange(startFill2, 99, lengthFill2));
-		REQUIRE(2 == startFill2);
-		REQUIRE(1 == lengthFill2);
+		const auto fr2 = rs.FillRange(startFill2, 99, lengthFill2);
+		REQUIRE(FillResult<int>{false, 2, 1} == fr2);
 		REQUIRE(0 == rs.ValueAt(0));
 		REQUIRE(99 == rs.ValueAt(1));
 		REQUIRE(99 == rs.ValueAt(2));
@@ -131,15 +142,13 @@ TEST_CASE("RunStyles") {
 		rs.InsertSpace(0, 5);
 		int startFill = 1;
 		int lengthFill = 2;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(1 == startFill);
-		REQUIRE(2 == lengthFill);
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(FillResult<int>{true, 1, 2} == fr);
 
 		int startFill2 = 2;
 		int lengthFill2 = 2;
-		REQUIRE(true == rs.FillRange(startFill2, 99, lengthFill2));
-		REQUIRE(3 == startFill2);
-		REQUIRE(1 == lengthFill2);
+		const auto fr2 = rs.FillRange(startFill2, 99, lengthFill2);
+		REQUIRE(FillResult<int>{true, 3, 1} == fr2);
 		REQUIRE(3 == rs.Runs());
 	}
 
@@ -169,9 +178,8 @@ TEST_CASE("RunStyles") {
 		rs.InsertSpace(0, 5);
 		int startFill = 1;
 		int lengthFill = 3;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(1 == startFill);
-		REQUIRE(3 == lengthFill);
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(FillResult<int>{true, 1, 3} == fr);
 
 		REQUIRE(0 == rs.Find(0,0));
 		REQUIRE(1 == rs.Find(99,0));
@@ -206,11 +214,13 @@ TEST_CASE("RunStyles") {
 		REQUIRE(true == rs.AllSameAs(0));
 		int startFill = 1;
 		int lengthFill = 3;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(true == fr.changed);
 		REQUIRE(false == rs.AllSame());
 		REQUIRE(false == rs.AllSameAs(88));
 		REQUIRE(false == rs.AllSameAs(0));
-		REQUIRE(true == rs.FillRange(startFill, 0, lengthFill));
+		const auto fr2 = rs.FillRange(startFill, 0, lengthFill);
+		REQUIRE(true == fr2.changed);
 		REQUIRE(true == rs.AllSame());
 		REQUIRE(false == rs.AllSameAs(88));
 		REQUIRE(true == rs.AllSameAs(0));
@@ -222,29 +232,27 @@ TEST_CASE("RunStyles") {
 
 		int startFill = 1;
 		int lengthFill = 1;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(1 == startFill);
-		REQUIRE(1 == lengthFill);
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(FillResult<int>{true, 1, 1} == fr);
 		REQUIRE(3 == rs.Runs());
 
 		startFill = 2;
 		lengthFill = 1;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
-		REQUIRE(2 == startFill);
-		REQUIRE(1 == lengthFill);
+		const auto fr2 = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(FillResult<int>{true, 2, 1} == fr2);
 		REQUIRE(3 == rs.Runs());
 
 		startFill = 1;
 		lengthFill = 1;
-		REQUIRE(true == rs.FillRange(startFill, 0, lengthFill));
+		const auto fr3 = rs.FillRange(startFill, 0, lengthFill);
+		REQUIRE(FillResult<int>{true, 1, 1} == fr3);
 		REQUIRE(3 == rs.Runs());
-		REQUIRE(1 == lengthFill);
 
 		startFill = 2;
 		lengthFill = 1;
-		REQUIRE(true == rs.FillRange(startFill, 0, lengthFill));
+		const auto fr4 = rs.FillRange(startFill, 0, lengthFill);
+		REQUIRE(FillResult<int>{true, 2, 1} == fr4);
 		REQUIRE(1 == rs.Runs());
-		REQUIRE(1 == lengthFill);
 
 		REQUIRE(-1 == rs.Find(0,6));
 	}
@@ -279,7 +287,8 @@ TEST_CASE("RunStyles") {
 		rs.InsertSpace(0, 3);
 		int startFill = 1;
 		int lengthFill = 1;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(true == fr.changed);
 		REQUIRE(3 == rs.Length());
 		REQUIRE(3 == rs.Runs());
 		rs.DeleteRange(1, 1);
@@ -291,7 +300,8 @@ TEST_CASE("RunStyles") {
 		rs.InsertSpace(0, 2);
 		int startFill = 1;
 		int lengthFill = 1;
-		REQUIRE(true == rs.FillRange(startFill, 99, lengthFill));
+		const auto fr = rs.FillRange(startFill, 99, lengthFill);
+		REQUIRE(true == fr.changed);
 		REQUIRE(2 == rs.Length());
 		REQUIRE(2 == rs.Runs());
 		REQUIRE(0 == rs.StartRun(0));

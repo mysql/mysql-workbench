@@ -1,9 +1,13 @@
 // Unit Tests for Scintilla internal data structures
 
-#include <string.h>
+#include <cstddef>
+#include <cstring>
 
 #include <stdexcept>
+#include <string_view>
+#include <vector>
 #include <algorithm>
+#include <memory>
 
 #include "Platform.h"
 
@@ -11,6 +15,8 @@
 #include "SplitVector.h"
 
 #include "catch.hpp"
+
+using namespace Scintilla;
 
 // Test SplitVector.
 
@@ -270,8 +276,8 @@ TEST_CASE("SplitVector") {
 		for (int i=0; i<testLength; i++)
 			sv.SetValueAt(i, i+12);
 		REQUIRE(testLength == sv.Length());
-		for (int i=sv.Length()-1; i>=0; i--) {
-			sv.InsertValue(i, 1, i+5);
+		for (ptrdiff_t i=sv.Length()-1; i>=0; i--) {
+			sv.InsertValue(i, 1, static_cast<int>(i+5));
 			sv.Delete(i+1);
 		}
 		for (int i=0; i<sv.Length(); i++)
@@ -279,11 +285,19 @@ TEST_CASE("SplitVector") {
 	}
 
 	SECTION("BufferPointer") {
+		// Low-level access to the data
 		sv.InsertFromArray(0, testArray, 0, lengthTestArray);
+		sv.Insert(0, 99);	// This moves the gap so that BufferPointer() must also move
+		REQUIRE(1 == sv.GapPosition());
+		const int lengthAfterInsertion = 1 + lengthTestArray;
+		REQUIRE(lengthAfterInsertion == (sv.Length()));
 		int *retrievePointer = sv.BufferPointer();
-		for (int i=0; i<sv.Length(); i++) {
-			REQUIRE((i+3) == retrievePointer[i]);
+		for (int i=1; i<sv.Length(); i++) {
+			REQUIRE((i+3-1) == retrievePointer[i]);
 		}
+		REQUIRE(lengthAfterInsertion == sv.Length());
+		// Gap was moved to end.
+		REQUIRE(lengthAfterInsertion == sv.GapPosition());
 	}
 
 	SECTION("DeleteBackAndForth") {
@@ -291,8 +305,8 @@ TEST_CASE("SplitVector") {
 		for (int i=0; i<10; i+=2) {
 			int len = 10 - i;
 			REQUIRE(len == sv.Length());
-			for (int i=0; i<sv.Length(); i++) {
-				REQUIRE(87 == sv.ValueAt(i));
+			for (int j=0; j<sv.Length(); j++) {
+				REQUIRE(87 == sv.ValueAt(j));
 			}
 			sv.Delete(len-1);
 			sv.Delete(0);

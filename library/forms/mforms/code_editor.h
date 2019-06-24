@@ -492,7 +492,7 @@ namespace mforms {
      *    The number of lines which have been added (if positive) or removed (if negative).
      *    True if text was inserted.
      */
-    boost::signals2::signal<void(size_t, size_t, int, bool)>* signal_changed() {
+    boost::signals2::signal<void(Sci_Position, Sci_Position, Sci_Position, bool)>* signal_changed() {
       return &_change_event;
     }
 
@@ -586,7 +586,7 @@ namespace mforms {
 
     void setupMarker(int marker, const std::string& name);
     void handleMarkerDeletion(size_t position, size_t length);
-    void handleMarkerMove(size_t position, int linesAdded);
+    void handleMarkerMove(Sci_Position position, Sci_Position linesAdded);
     char32_t getCharAt(size_t position);
     void updateBraceHighlighting();
     bool ensureImage(std::string const& name);
@@ -594,7 +594,7 @@ namespace mforms {
     void loadConfiguration(SyntaxHighlighterLanguage language);
     virtual void handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) override;
 
-    boost::signals2::signal<void(size_t, size_t, int, bool)> _change_event;
+    boost::signals2::signal<void(Sci_Position, Sci_Position, Sci_Position, bool)> _change_event;
     boost::signals2::signal<void(size_t, size_t, mforms::ModifierKey)> _gutter_clicked_event;
     boost::signals2::signal<void(AutoCompletionEventType, size_t, const std::string&)> _auto_completion_event;
     boost::signals2::signal<void(bool, size_t, int, int)> _dwell_event;

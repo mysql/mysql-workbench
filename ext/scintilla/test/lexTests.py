@@ -75,9 +75,7 @@ class TestLexers(unittest.TestCase):
 		self.ed.EmptyUndoBuffer()
 		self.ed.SetCodePage(65001)
 		self.ed.LexerLanguage = lexerName
-		bits = self.ed.StyleBitsNeeded
-		mask = 2 << bits - 1
-		self.ed.StyleBits = bits
+		mask = 0xff
 		for i in range(len(keywords)):
 			self.ed.SetKeyWords(i, keywords[i])
 
@@ -158,6 +156,9 @@ class TestLexers(unittest.TestCase):
 	def testLua(self):
 		self.LexExample("x.lua", b"lua", [b"function end"])
 
+	def testNim(self):
+		self.LexExample("x.nim", b"nim", [b"else end if let proc"])
+
 	def testRuby(self):
 		self.LexExample("x.rb", b"ruby", [b"class def end"])
 
@@ -174,6 +175,9 @@ class TestLexers(unittest.TestCase):
 		self.LexExample("x.d", b"d",
 			[b"keyword1", b"keyword2", b"", b"keyword4", b"keyword5",
 			b"keyword6", b"keyword7"])
+
+	def testTCL(self):
+		self.LexExample("x.tcl", b"tcl", [b"proc set socket vwait"])
 
 if __name__ == '__main__':
 	Xite.main("lexTests")

@@ -86,11 +86,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_NAMESPACE;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\ext\scintilla\src;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -109,10 +109,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_NAMESPACE;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\ext\scintilla\src;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -129,10 +129,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_NAMESPACE;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\ext\scintilla\src;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\ext\scintilla\src\UniConversion.cxx" />
     <ClCompile Include="src\reporting.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -151,6 +152,7 @@
     <ClCompile Include="src\wb_model.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\ext\scintilla\src\UniConversion.h" />
     <ClInclude Include="src\reporting.h" />
     <ClInclude Include="src\reporting_template_variables.h" />
     <ClInclude Include="src\stdafx.h" />

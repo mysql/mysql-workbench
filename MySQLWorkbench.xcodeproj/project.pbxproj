@@ -279,6 +279,8 @@
 		27635D1F179968B300288DBE /* tiny_new.png in Resources */ = {isa = PBXBuildFile; fileRef = 27635D04179968B300288DBE /* tiny_new.png */; };
 		27635D20179968B300288DBE /* tiny_refresh@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27635D05179968B300288DBE /* tiny_refresh@2x.png */; };
 		27635D22179968B300288DBE /* wb_toolbar_pages_18x18.png in Resources */ = {isa = PBXBuildFile; fileRef = 27635D07179968B300288DBE /* wb_toolbar_pages_18x18.png */; };
+		2765D16A22A940B50068BC44 /* reporting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2765D16822A940B40068BC44 /* reporting.h */; };
+		2765D16B22A940B50068BC44 /* wb_model.h in Headers */ = {isa = PBXBuildFile; fileRef = 2765D16922A940B40068BC44 /* wb_model.h */; };
 		2767F92B11635C2500931E27 /* geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2767F92911635C2500931E27 /* geometry.cpp */; };
 		2767F92C11635C2500931E27 /* geometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2767F92A11635C2500931E27 /* geometry.h */; };
 		27694816142A4FAA009DE637 /* snippet_popover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27694814142A4FAA009DE637 /* snippet_popover.cpp */; };
@@ -4454,6 +4456,8 @@
 		27635D04179968B300288DBE /* tiny_new.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = tiny_new.png; path = images/toolbar/tiny_new.png; sourceTree = "<group>"; };
 		27635D05179968B300288DBE /* tiny_refresh@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "tiny_refresh@2x.png"; path = "images/toolbar/tiny_refresh@2x.png"; sourceTree = "<group>"; };
 		27635D07179968B300288DBE /* wb_toolbar_pages_18x18.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_toolbar_pages_18x18.png; path = images/toolbar/wb_toolbar_pages_18x18.png; sourceTree = "<group>"; };
+		2765D16822A940B40068BC44 /* reporting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = reporting.h; path = modules/wb.model/src/reporting.h; sourceTree = "<group>"; };
+		2765D16922A940B40068BC44 /* wb_model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wb_model.h; path = modules/wb.model/src/wb_model.h; sourceTree = "<group>"; };
 		2767F92911635C2500931E27 /* geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geometry.cpp; path = library/base/geometry.cpp; sourceTree = "<group>"; };
 		2767F92A11635C2500931E27 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = library/base/base/geometry.h; sourceTree = "<group>"; };
 		27694814142A4FAA009DE637 /* snippet_popover.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = snippet_popover.cpp; path = frontend/common/snippet_popover.cpp; sourceTree = "<group>"; };
@@ -9483,7 +9487,9 @@
 			isa = PBXGroup;
 			children = (
 				2B5283FE0F1A5718005FBF7C /* reporting.cpp */,
+				2765D16822A940B40068BC44 /* reporting.h */,
 				2B5283FF0F1A5718005FBF7C /* wb_model.cpp */,
+				2765D16922A940B40068BC44 /* wb_model.h */,
 				27504D771B3BF4120007CAEA /* wb.model.grt_prefix.h */,
 			);
 			name = wb.model;
@@ -11926,6 +11932,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2765D16A22A940B50068BC44 /* reporting.h in Headers */,
+				2765D16B22A940B50068BC44 /* wb_model.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -16766,7 +16774,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -16795,10 +16802,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext/scintilla/include",
 					"$(PROJECT_DIR)/backend/wbpublic",
@@ -16828,7 +16832,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
 				);
@@ -16866,10 +16869,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					ENABLE_PYTHON_MODULES,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
 					"$(PROJECT_DIR)/ext/scintilla/**",
@@ -16906,8 +16906,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					AUTO_REGISTER_GRT_CLASSES,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-					SCI_LEXERS,
 					ENABLE_TESTING,
 					ENABLE_DEBUG,
 				);
@@ -16953,8 +16951,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					AUTO_REGISTER_GRT_CLASSES,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMEPSACE,
-					SCI_LEXERS,
 					ENABLE_TESTING,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -17096,7 +17092,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				PRODUCT_NAME = _cairo;
@@ -17124,7 +17119,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 				);
 				PRODUCT_NAME = _cairo;
 				SKIP_INSTALL = YES;
@@ -17148,7 +17142,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -17179,10 +17172,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
 					"$(PROJECT_DIR)/ext/scintilla/include",
@@ -17215,7 +17205,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -17243,10 +17232,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext/scintilla/include",
 					"$(PROJECT_DIR)/library/forms",
@@ -17276,8 +17262,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_LEXER,
-					SCI_NAMESPACE,
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
@@ -17310,8 +17294,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					SCI_LEXER,
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
 				);
@@ -17345,7 +17327,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -17374,10 +17355,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
 					"$(PROJECT_DIR)/ext/scintilla/include",
@@ -17409,7 +17387,6 @@
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
 				);
@@ -17451,10 +17428,7 @@
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					ENABLE_PYTHON_MODULES,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
@@ -17654,11 +17628,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					ENABLE_PYTHON_MODULES,
-					ENABLE_DEBUG,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_DEBUG;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
 					"$(PROJECT_DIR)/ext/antlr-runtime/include",
@@ -17695,10 +17665,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					ENABLE_PYTHON_MODULES,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
 					"$(PROJECT_DIR)/ext/antlr-runtime/include",
@@ -17880,8 +17847,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-					SCI_LEXER,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -17924,8 +17889,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-					SCI_LEXER,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
@@ -18067,7 +18030,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -18096,10 +18058,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext/scintilla/include",
 					"$(PROJECT_DIR)/library/forms",
@@ -18135,7 +18094,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -18172,7 +18130,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SWIG_TYPE_TABLE=mforms",
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/generated",
@@ -18208,7 +18165,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -18253,7 +18209,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
@@ -18301,8 +18256,6 @@
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					SCI_LEXER,
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
 				);
@@ -18350,11 +18303,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					SCI_LEXER,
-					ENABLE_PYTHON_MODULES,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbpublic",
 					"$(PROJECT_DIR)/ext/scintilla/include",
@@ -18602,7 +18551,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
 					ENABLE_DEBUG,
 				);
 				HEADER_SEARCH_PATHS = (
@@ -18630,10 +18578,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext/scintilla/include",
 					"$(PROJECT_DIR)/library/forms",
@@ -18664,7 +18609,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
-					SCI_NAMESPACE,
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext/scintilla/include",
@@ -18690,10 +18634,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext/scintilla/include",
 					"$(PROJECT_DIR)/library/forms",
@@ -18802,8 +18743,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					AUTO_REGISTER_GRT_CLASSES,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMESPACE,
-					SCI_LEXERS,
 					ENABLE_TESTING,
 					ENABLE_DEBUG,
 				);
@@ -18851,8 +18790,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					AUTO_REGISTER_GRT_CLASSES,
 					ENABLE_PYTHON_MODULES,
-					SCI_NAMEPSACE,
-					SCI_LEXERS,
 					ENABLE_TESTING,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -18900,7 +18837,6 @@
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
 					ENABLE_PYTHON_MODULES,
 					ENABLE_DEBUG,
 				);
@@ -18953,10 +18889,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					SCI_NAMESPACE,
-					ENABLE_PYTHON_MODULES,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/backend/wbprivate",

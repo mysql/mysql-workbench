@@ -11,6 +11,7 @@ set(SCINTILLA_SOURCES
     ../src/CellBuffer.cxx
     ../src/CharClassify.cxx
     ../src/ContractionState.cxx
+    ../src/DBCS.cxx
     ../src/Decoration.cxx
     ../src/Document.cxx
     ../src/EditModel.cxx
@@ -29,11 +30,13 @@ set(SCINTILLA_SOURCES
     ../src/Selection.cxx
     ../src/Style.cxx
     ../src/UniConversion.cxx
+    ../src/UniqueString.cxx
     ../src/ViewStyle.cxx
     ../src/XPM.cxx
     ../lexlib/Accessor.cxx
     ../lexlib/CharacterCategory.cxx
     ../lexlib/CharacterSet.cxx
+    ../lexlib/DefaultLexer.cxx
     ../lexlib/LexerBase.cxx
     ../lexlib/LexerModule.cxx
     ../lexlib/LexerNoExceptions.cxx
@@ -64,6 +67,7 @@ set(SCINTILLA_SOURCES
     ../lexers/LexCoffeeScript.cxx
     ../lexers/LexConf.cxx
     ../lexers/LexCPP.cxx
+    ../lexers/LexCIL.cxx
     ../lexers/LexCrontab.cxx
     ../lexers/LexCsound.cxx
     ../lexers/LexCSS.cxx
@@ -84,6 +88,7 @@ set(SCINTILLA_SOURCES
     ../lexers/LexGui4Cli.cxx
     ../lexers/LexHaskell.cxx
     ../lexers/LexHex.cxx
+    ../lexers/LexIndent.cxx
     ../lexers/LexHTML.cxx
     ../lexers/LexInno.cxx
     ../lexers/LexJSON.cxx
@@ -97,12 +102,14 @@ set(SCINTILLA_SOURCES
     ../lexers/LexMake.cxx
     ../lexers/LexMarkdown.cxx
     ../lexers/LexMatlab.cxx
+    ../lexers/LexMaxima.cxx
     ../lexers/LexMetapost.cxx
     ../lexers/LexMMIXAL.cxx
     ../lexers/LexModula.cxx
     ../lexers/LexMPT.cxx
     ../lexers/LexMSSQL.cxx
     ../lexers/LexMySQL.cxx
+    ../lexers/LexNim.cxx
     ../lexers/LexNimrod.cxx
     ../lexers/LexNsis.cxx
     ../lexers/LexNull.cxx
@@ -125,6 +132,8 @@ set(SCINTILLA_SOURCES
     ../lexers/LexRegistry.cxx
     ../lexers/LexRuby.cxx
     ../lexers/LexRust.cxx
+    ../lexers/LexSAS.cxx
+    ../lexers/LexStata.cxx
     ../lexers/LexScriptol.cxx
     ../lexers/LexSmalltalk.cxx
     ../lexers/LexSML.cxx

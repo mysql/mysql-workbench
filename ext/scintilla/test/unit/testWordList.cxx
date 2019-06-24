@@ -6,6 +6,8 @@
 
 #include "catch.hpp"
 
+using namespace Scintilla;
+
 // Test WordList.
 
 TEST_CASE("WordList") {
@@ -54,7 +56,7 @@ TEST_CASE("WordList") {
 		REQUIRE(wl.InListAbridged("w..active", '~'));
 		REQUIRE(!wl.InListAbridged("w.active", '~'));
 		REQUIRE(!wl.InListAbridged("w.x.closed", '~'));
-		
+
 		REQUIRE(wl.InListAbridged("book", '~'));
 		REQUIRE(wl.InListAbridged("bok", '~'));
 		REQUIRE(!wl.InListAbridged("bk", '~'));

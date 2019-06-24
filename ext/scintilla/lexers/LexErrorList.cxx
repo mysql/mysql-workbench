@@ -23,32 +23,32 @@
 #include "CharacterSet.h"
 #include "LexerModule.h"
 
-#ifdef SCI_NAMESPACE
 using namespace Scintilla;
-#endif
 
-static bool strstart(const char *haystack, const char *needle) {
+namespace {
+
+bool strstart(const char *haystack, const char *needle) noexcept {
 	return strncmp(haystack, needle, strlen(needle)) == 0;
 }
 
-static bool Is0To9(char ch) {
+constexpr bool Is0To9(char ch) noexcept {
 	return (ch >= '0') && (ch <= '9');
 }
 
-static bool Is1To9(char ch) {
+constexpr bool Is1To9(char ch) noexcept {
 	return (ch >= '1') && (ch <= '9');
 }
 
-static bool IsAlphabetic(int ch) {
+bool IsAlphabetic(int ch) {
 	return IsASCII(ch) && isalpha(ch);
 }
 
-static inline bool AtEOL(Accessor &styler, Sci_PositionU i) {
+inline bool AtEOL(Accessor &styler, Sci_PositionU i) {
 	return (styler[i] == '\n') ||
 	       ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLine, Sci_Position &startValue) {
+int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLine, Sci_Position &startValue) {
 	if (lineBuffer[0] == '>') {
 		// Command or return status
 		return SCE_ERR_CMD;
@@ -106,7 +106,8 @@ static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLi
 		// perl error message:
 		// <message> at <file> line <line>
 		return SCE_ERR_PERL;
-	} else if ((memcmp(lineBuffer, "   at ", 6) == 0) &&
+	} else if ((lengthLine >= 6) &&
+	           (memcmp(lineBuffer, "   at ", 6) == 0) &&
 	           strstr(lineBuffer, ":line ")) {
 		// A .NET traceback
 		return SCE_ERR_NET;
@@ -141,7 +142,7 @@ static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLi
 		// CTags: <identifier>\t<filename>\t<message>
 		// Lua 5 traceback: \t<filename>:<line>:<message>
 		// Lua 5.1: <exe>: <filename>:<line>:<message>
-		bool initialTab = (lineBuffer[0] == '\t');
+		const bool initialTab = (lineBuffer[0] == '\t');
 		bool initialColonPart = false;
 		bool canBeCtags = !initialTab;	// For ctags must have an identifier with no spaces then a tab
 		enum { stInitial,
@@ -151,7 +152,7 @@ static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLi
 			stUnrecognized
 		} state = stInitial;
 		for (Sci_PositionU i = 0; i < lengthLine; i++) {
-			char ch = lineBuffer[i];
+			const char ch = lineBuffer[i];
 			char chNext = ' ';
 			if ((i + 1) < lengthLine)
 				chNext = lineBuffer[i + 1];
@@ -176,7 +177,7 @@ static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLi
 					canBeCtags = false;
 				}
 			} else if (state == stGccStart) {	// <filename>:
-				state = Is0To9(ch) ? stGccDigit : stUnrecognized;
+				state = ((ch == '-') || Is0To9(ch)) ? stGccDigit : stUnrecognized;
 			} else if (state == stGccDigit) {	// <filename>:<line>
 				if (ch == ':') {
 					state = stGccColumn;	// :9.*: is GCC
@@ -207,14 +208,13 @@ static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLi
 				} else if ((ch == ':' && chNext == ' ') || (ch == ' ')) {
 					// Possibly Delphi.. don't test against chNext as it's one of the strings below.
 					char word[512];
-					Sci_PositionU j, chPos;
 					unsigned numstep;
-					chPos = 0;
 					if (ch == ' ')
 						numstep = 1; // ch was ' ', handle as if it's a delphi errorline, only add 1 to i.
 					else
 						numstep = 2; // otherwise add 2.
-					for (j = i + numstep; j < lengthLine && IsAlphabetic(lineBuffer[j]) && chPos < sizeof(word) - 1; j++)
+					Sci_PositionU chPos = 0;
+					for (Sci_PositionU j = i + numstep; j < lengthLine && IsAlphabetic(lineBuffer[j]) && chPos < sizeof(word) - 1; j++)
 						word[chPos++] = lineBuffer[j];
 					word[chPos] = 0;
 					if (!CompareCaseInsensitive(word, "error") || !CompareCaseInsensitive(word, "warning") ||
@@ -269,13 +269,11 @@ static int RecogniseErrorListLine(const char *lineBuffer, Sci_PositionU lengthLi
 
 #define CSI "\033["
 
-namespace {
-
-bool SequenceEnd(int ch) {
+constexpr bool SequenceEnd(int ch) noexcept {
 	return (ch == 0) || ((ch >= '@') && (ch <= '~'));
 }
 
-int StyleFromSequence(const char *seq) {
+int StyleFromSequence(const char *seq) noexcept {
 	int bold = 0;
 	int colour = 0;
 	while (!SequenceEnd(*seq)) {
@@ -302,9 +300,7 @@ int StyleFromSequence(const char *seq) {
 	return SCE_ERR_ES_BLACK + bold * 8 + colour;
 }
 
-}
-
-static void ColouriseErrorListLine(
+void ColouriseErrorListLine(
     char *lineBuffer,
     Sci_PositionU lengthLine,
     Sci_PositionU endPos,
@@ -312,11 +308,11 @@ static void ColouriseErrorListLine(
 	bool valueSeparate,
 	bool escapeSequences) {
 	Sci_Position startValue = -1;
-	int style = RecogniseErrorListLine(lineBuffer, lengthLine, startValue);
+	const int style = RecogniseErrorListLine(lineBuffer, lengthLine, startValue);
 	if (escapeSequences && strstr(lineBuffer, CSI)) {
-		const int startPos = endPos - lengthLine;
+		const Sci_Position startPos = endPos - lengthLine;
 		const char *linePortion = lineBuffer;
-		int startPortion = startPos;
+		Sci_Position startPortion = startPos;
 		int portionStyle = style;
 		while (const char *startSeq = strstr(linePortion, CSI)) {
 			if (startSeq > linePortion) {
@@ -325,7 +321,7 @@ static void ColouriseErrorListLine(
 			const char *endSeq = startSeq + 2;
 			while (!SequenceEnd(*endSeq))
 				endSeq++;
-			const int endSeqPosition = startPortion + static_cast<int>(endSeq - linePortion) + 1;
+			const Sci_Position endSeqPosition = startPortion + static_cast<Sci_Position>(endSeq - linePortion) + 1;
 			switch (*endSeq) {
 			case 0:
 				styler.ColourTo(endPos, SCE_ERR_ESCSEQ_UNKNOWN);
@@ -355,7 +351,7 @@ static void ColouriseErrorListLine(
 	}
 }
 
-static void ColouriseErrorListDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) {
+void ColouriseErrorListDoc(Sci_PositionU startPos, Sci_Position length, int, WordList *[], Accessor &styler) {
 	char lineBuffer[10000];
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
@@ -366,7 +362,7 @@ static void ColouriseErrorListDoc(Sci_PositionU startPos, Sci_Position length, i
 	//	diagnostics, style the path and line number separately from the rest of the
 	//	line with style 21 used for the rest of the line.
 	//	This allows matched text to be more easily distinguished from its location.
-	bool valueSeparate = styler.GetPropertyInt("lexer.errorlist.value.separate", 0) != 0;
+	const bool valueSeparate = styler.GetPropertyInt("lexer.errorlist.value.separate", 0) != 0;
 
 	// property lexer.errorlist.escape.sequences
 	//	Set to 1 to interpret escape sequences.
@@ -387,8 +383,10 @@ static void ColouriseErrorListDoc(Sci_PositionU startPos, Sci_Position length, i
 	}
 }
 
-static const char *const emptyWordListDesc[] = {
-	0
+const char *const emptyWordListDesc[] = {
+	nullptr
 };
+
+}
 
 LexerModule lmErrorList(SCLEX_ERRORLIST, ColouriseErrorListDoc, "errorlist", 0, emptyWordListDesc);

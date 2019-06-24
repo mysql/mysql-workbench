@@ -176,11 +176,11 @@ TEST_FUNCTION(3) {
   base::remove(tmpFilePath);
   auto currentDir = sftp.pwd();
 
-  ensure_true("Can't use /home directory, check ftp configuration", sftp.cd("/home"));
+  ensure_true("Can't use /home directory, check ftp configuration", sftp.cd("/home") != 0);
   ensure_equals("Invalid current directory information", "/home", sftp.pwd());
-  ensure_true("Can't change to parent dir, check ftp configuration", sftp.cd(".."));
-  ensure_true("Can't change to /home, check ftp configuration", sftp.cd("home"));
-  ensure_true("Unable to switch to initial directory", sftp.cd(currentDir));
+  ensure_true("Can't change to parent dir, check ftp configuration", sftp.cd("..") != 0);
+  ensure_true("Can't change to /home, check ftp configuration", sftp.cd("home") != 0);
+  ensure_true("Unable to switch to initial directory", sftp.cd(currentDir) != 0);
 
   ensure_true("Existing directory /this_is_invalid", sftp.cd("/this_is_invalid") == -1);
   // TODO: This is not portable. Need a better way to check for restricted folders.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -259,7 +259,7 @@ void JsonInputDlg::validate() {
   * @numberOfLines The number of lines which have been added (if positive) or removed (if negative).
   * @inserted True if text was inserted.
   */
-void JsonInputDlg::editorContentChanged(int /*position*/, int /*length*/, int /*numberOfLines*/, bool /*inserted*/) {
+void JsonInputDlg::editorContentChanged(Sci_Position /*position*/, Sci_Position /*length*/, Sci_Position /*numberOfLines*/, bool /*inserted*/) {
   _save->set_enabled(false);
   _validated = false;
   _text = "";
@@ -782,7 +782,7 @@ void JsonTextView::init() {
   _textEditor->set_language(mforms::LanguageJson);
   _textEditor->set_features(mforms::FeatureWrapText, false);
   _textEditor->set_features(mforms::FeatureReadOnly, false);
-  scoped_connect(_textEditor->signal_changed(), [this](int position, int length, int numberOfLines, bool inserted) {
+  scoped_connect(_textEditor->signal_changed(), [this](Sci_Position position, Sci_Position length, Sci_Position numberOfLines, bool inserted) {
     editorContentChanged(position, length, numberOfLines, inserted);
   });
   scoped_connect(_textEditor->signal_dwell(),
@@ -804,7 +804,7 @@ void JsonTextView::init() {
  * @numberOfLines The number of lines which have been added (if positive) or removed (if negative).
  * @inserted True if text was inserted.
  */
-void JsonTextView::editorContentChanged(int position, int length, int numberOfLines, bool inserted) {
+void JsonTextView::editorContentChanged(Sci_Position position, Sci_Position length, Sci_Position numberOfLines, bool inserted) {
   if (_stopTextProcessing)
     _stopTextProcessing();
   _modified = true;

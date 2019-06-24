@@ -11,7 +11,7 @@
 SpeedScript support in html lexer
 Differentiate between labels and variables
   Option 1: By symbols table
-  Option 2: As a single unidentified symbol in a sytactical line 
+  Option 2: As a single unidentified symbol in a sytactical line
 
 **/
 
@@ -25,6 +25,7 @@ Differentiate between labels and variables
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include "ILexer.h"
 #include "Scintilla.h"
@@ -37,10 +38,9 @@ Differentiate between labels and variables
 #include "LexerModule.h"
 #include "OptionSet.h"
 #include "SparseState.h"
+#include "DefaultLexer.h"
 
-#ifdef SCI_NAMESPACE
 using namespace Scintilla;
-#endif
 
 namespace {
    // Use an unnamed namespace to protect the functions and classes from name conflicts
@@ -74,7 +74,7 @@ namespace {
 
    bool IsStreamCommentStyle(int style) {
       return style == SCE_ABL_COMMENT;
-             // style == SCE_ABL_LINECOMMENT;  Only block comments are used for folding 
+             // style == SCE_ABL_LINECOMMENT;  Only block comments are used for folding
    }
 
    // Options used for LexerABL
@@ -121,7 +121,7 @@ namespace {
    };
 }
 
-class LexerABL : public ILexer {
+class LexerABL : public DefaultLexer {
    CharacterSet setWord;
    CharacterSet setNegationOp;
    CharacterSet setArithmethicOp;
@@ -144,37 +144,37 @@ public:
    }
    virtual ~LexerABL() {
    }
-   void SCI_METHOD Release() {
+   void SCI_METHOD Release() override {
       delete this;
    }
-   int SCI_METHOD Version() const {
-      return lvOriginal;
+   int SCI_METHOD Version() const override {
+      return lvRelease4;
    }
-   const char * SCI_METHOD PropertyNames() {
+   const char * SCI_METHOD PropertyNames() override {
       return osABL.PropertyNames();
    }
-   int SCI_METHOD PropertyType(const char *name) {
+   int SCI_METHOD PropertyType(const char *name) override {
       return osABL.PropertyType(name);
    }
-   const char * SCI_METHOD DescribeProperty(const char *name) {
+   const char * SCI_METHOD DescribeProperty(const char *name) override {
       return osABL.DescribeProperty(name);
    }
-   Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) ;
-   
-   const char * SCI_METHOD DescribeWordListSets() {
+   Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override ;
+
+   const char * SCI_METHOD DescribeWordListSets() override {
       return osABL.DescribeWordListSets();
    }
-   Sci_Position SCI_METHOD WordListSet(int n, const char *wl);
-   void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
-   void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+   Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override;
+   void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
+   void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
 
-   void * SCI_METHOD PrivateCall(int, void *) {
+   void * SCI_METHOD PrivateCall(int, void *) override {
       return 0;
    }
-   int SCI_METHOD LineEndTypesSupported() {
+   int SCI_METHOD LineEndTypesSupported() override {
       return SC_LINE_END_TYPE_DEFAULT;
    }
-   static ILexer *LexerFactoryABL() {
+   static ILexer4 *LexerFactoryABL() {
       return new LexerABL();
    }
 };
@@ -236,7 +236,7 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
             continuationLine = styler.SafeGetCharAt(endLinePrevious-1) == '~';
          }
       }
-   } 
+   }
 
     // Look back to set variables that are actually invisible secondary states. The reason to avoid formal states is to cut down on state's bits
    if (startPos > 0) {
@@ -254,9 +254,9 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
          ch = styler.SafeGetCharAt(back);
          styler.Flush();  // looking at styles so need to flush
          st = styler.StyleAt(back);
-         
+
          chPrev = styler.SafeGetCharAt(back-1);
-         // isSentenceStart is a non-visible state, used to identify where statements and preprocessor declerations can start 
+         // isSentenceStart is a non-visible state, used to identify where statements and preprocessor declerations can start
          if (checkIsSentenceStart && st != SCE_ABL_COMMENT && st != SCE_ABL_LINECOMMENT && st != SCE_ABL_CHARACTER  && st != SCE_ABL_STRING ) {
             chPrev_1 = styler.SafeGetCharAt(back-2);
             chPrev_2 = styler.SafeGetCharAt(back-3);
@@ -277,12 +277,17 @@ void SCI_METHOD LexerABL::Lex(Sci_PositionU startPos, Sci_Position length, int i
 
          // commentNestingLevel is a non-visible state, used to identify the nesting level of a comment
          if (checkCommentNestingLevel) {
-            if (chPrev == '/' && ch == '*')
+            if (chPrev == '/' && ch == '*') {
                commentNestingLevel++;
+               // eat the '/' so we don't miscount a */ if we see /*/*
+               --back;
+            }
             if (chPrev == '*' && ch == '/') {
                commentNestingLevel--;
+               // eat the '*' so we don't miscount a /* if we see */*/
+               --back;
             }
-         }         
+         }
          --back;
       }
    }

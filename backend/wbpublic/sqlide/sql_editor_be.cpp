@@ -706,7 +706,7 @@ bool MySQLEditor::has_sql_errors() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MySQLEditor::text_changed(int position, int length, int lines_changed, bool added) {
+void MySQLEditor::text_changed(Sci_Position position, Sci_Position length, Sci_Position lines_changed, bool added) {
   stop_processing();
   if (d->codeEditor->auto_completion_active() && !added) {
     // Update auto completion list if a char was removed, but not added.

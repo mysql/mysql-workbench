@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -125,7 +125,7 @@ bool DrawBox::setFocusOnArea(const base::Point p) {
     return item.getBounds().contains(p.x, p.y);
   });
   if (it != _focusableList.end()) {
-    _focusedItem = it - _focusableList.begin();
+    _focusedItem = static_cast<int>(it - _focusableList.begin());
     set_needs_repaint();
     return true;
   }
@@ -169,7 +169,7 @@ bool DrawBox::keyPress(KeyCode code, ModifierKey modifiers) {
     if (handled > -1 && _focusedItem > -1) {
       auto parent = dynamic_cast<mforms::ScrollPanel*>(get_parent());
       if (parent != nullptr) {
-        parent->scroll_to(_focusableList[_focusedItem].getBounds().pos.x, _focusableList[_focusedItem].getBounds().pos.y);
+        parent->scroll_to(static_cast<int>(_focusableList[_focusedItem].getBounds().pos.x), static_cast<int>(_focusableList[_focusedItem].getBounds().pos.y));
       }
       set_needs_repaint();
     }
@@ -210,7 +210,7 @@ bool DrawBox::mouse_down(mforms::MouseButton button, int x, int y) {
 
     if (it != _focusableList.end()) {
       _lastFocusedItem = _focusedItem;
-      _focusedItem = it - _focusableList.begin();
+      _focusedItem = static_cast<int>(it - _focusableList.begin());
     } else {
       _focusedItem = -1;
     }

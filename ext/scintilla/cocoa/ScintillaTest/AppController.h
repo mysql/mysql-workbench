@@ -16,7 +16,6 @@
   IBOutlet NSBox *mEditHost;
   ScintillaView* mEditor;
   ScintillaView* sciExtra;	// For testing Scintilla tear-down
-  NSString* sql;
 }
 
 - (void) awakeFromNib;

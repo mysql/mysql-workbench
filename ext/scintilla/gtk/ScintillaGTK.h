@@ -6,9 +6,7 @@
 #ifndef SCINTILLAGTK_H
 #define SCINTILLAGTK_H
 
-#ifdef SCI_NAMESPACE
 namespace Scintilla {
-#endif
 
 class ScintillaGTKAccessible;
 
@@ -23,12 +21,14 @@ class ScintillaGTK : public ScintillaBase {
 	Window scrollbarh;
 	GtkAdjustment *adjustmentv;
 	GtkAdjustment *adjustmenth;
+	Window wSelection;
 	int verticalScrollBarWidth;
 	int horizontalScrollBarHeight;
 
 	SelectionText primary;
 
-	GdkEventButton *evbtn;
+	GdkEvent *evbtn;
+	guint buttonMouse;
 	bool capturedMouse;
 	bool dragWasDropped;
 	int lastKey;
@@ -36,7 +36,6 @@ class ScintillaGTK : public ScintillaBase {
 
 	GtkWidgetClass *parentClass;
 
-	static GdkAtom atomClipboard;
 	static GdkAtom atomUTF8;
 	static GdkAtom atomString;
 	static GdkAtom atomUriList;
@@ -68,78 +67,87 @@ class ScintillaGTK : public ScintillaBase {
 	bool repaintFullWindow;
 
 	guint styleIdleID;
+	int accessibilityEnabled;
 	AtkObject *accessible;
-
-	// Private so ScintillaGTK objects can not be copied
-	ScintillaGTK(const ScintillaGTK &);
-	ScintillaGTK &operator=(const ScintillaGTK &);
 
 public:
 	explicit ScintillaGTK(_ScintillaObject *sci_);
+	// Deleted so ScintillaGTK objects can not be copied.
+	ScintillaGTK(const ScintillaGTK &) = delete;
+	ScintillaGTK(ScintillaGTK &&) = delete;
+	ScintillaGTK &operator=(const ScintillaGTK &) = delete;
+	ScintillaGTK &operator=(ScintillaGTK &&) = delete;
 	virtual ~ScintillaGTK();
 	static ScintillaGTK *FromWidget(GtkWidget *widget);
-	static void ClassInit(OBJECT_CLASS* object_class, GtkWidgetClass *widget_class, GtkContainerClass *container_class);
+	static void ClassInit(OBJECT_CLASS *object_class, GtkWidgetClass *widget_class, GtkContainerClass *container_class);
 private:
-	virtual void Initialise();
-	virtual void Finalise();
-	virtual bool AbandonPaint();
-	virtual void DisplayCursor(Window::Cursor c);
-	virtual bool DragThreshold(Point ptStart, Point ptNow);
-	virtual void StartDrag();
-	int TargetAsUTF8(char *text);
-	int EncodedFromUTF8(char *utf8, char *encoded) const;
-	virtual bool ValidCodePage(int codePage) const;
+	void Init();
+	void Finalise() override;
+	bool AbandonPaint() override;
+	void DisplayCursor(Window::Cursor c) override;
+	bool DragThreshold(Point ptStart, Point ptNow) override;
+	void StartDrag() override;
+	Sci::Position TargetAsUTF8(char *text) const;
+	Sci::Position EncodedFromUTF8(const char *utf8, char *encoded) const;
+	bool ValidCodePage(int codePage) const override;
 public: 	// Public for scintilla_send_message
-	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
+	sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
 private:
-	virtual sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
+	sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) override;
 	struct TimeThunk {
 		TickReason reason;
 		ScintillaGTK *scintilla;
 		guint timer;
-		TimeThunk() : reason(tickCaret), scintilla(NULL), timer(0) {}
+		TimeThunk() noexcept : reason(tickCaret), scintilla(nullptr), timer(0) {}
 	};
 	TimeThunk timers[tickDwell+1];
-	virtual bool FineTickerAvailable();
-	virtual bool FineTickerRunning(TickReason reason);
-	virtual void FineTickerStart(TickReason reason, int millis, int tolerance);
-	virtual void FineTickerCancel(TickReason reason);
-	virtual bool SetIdle(bool on);
-	virtual void SetMouseCapture(bool on);
-	virtual bool HaveMouseCapture();
-	virtual bool PaintContains(PRectangle rc);
+	bool FineTickerRunning(TickReason reason) override;
+	void FineTickerStart(TickReason reason, int millis, int tolerance) override;
+	void FineTickerCancel(TickReason reason) override;
+	bool SetIdle(bool on) override;
+	void SetMouseCapture(bool on) override;
+	bool HaveMouseCapture() override;
+	bool PaintContains(PRectangle rc) override;
 	void FullPaint();
-	virtual PRectangle GetClientRectangle() const;
-	virtual void ScrollText(int linesToMove);
-	virtual void SetVerticalScrollPos();
-	virtual void SetHorizontalScrollPos();
-	virtual bool ModifyScrollBars(int nMax, int nPage);
-	void ReconfigureScrollBars();
-	virtual void NotifyChange();
-	virtual void NotifyFocus(bool focus);
-	virtual void NotifyParent(SCNotification scn);
+	PRectangle GetClientRectangle() const override;
+	void ScrollText(Sci::Line linesToMove) override;
+	void SetVerticalScrollPos() override;
+	void SetHorizontalScrollPos() override;
+	bool ModifyScrollBars(Sci::Line nMax, Sci::Line nPage) override;
+	void ReconfigureScrollBars() override;
+	void NotifyChange() override;
+	void NotifyFocus(bool focus) override;
+	void NotifyParent(SCNotification scn) override;
 	void NotifyKey(int key, int modifiers);
 	void NotifyURIDropped(const char *list);
 	const char *CharacterSetID() const;
-	virtual CaseFolder *CaseFolderForEncoding();
-	virtual std::string CaseMapString(const std::string &s, int caseMapping);
-	virtual int KeyDefault(int key, int modifiers);
-	virtual void CopyToClipboard(const SelectionText &selectedText);
-	virtual void Copy();
-	virtual void Paste();
-	virtual void CreateCallTipWindow(PRectangle rc);
-	virtual void AddToPopUp(const char *label, int cmd = 0, bool enabled = true);
+	CaseFolder *CaseFolderForEncoding() override;
+	std::string CaseMapString(const std::string &s, int caseMapping) override;
+	int KeyDefault(int key, int modifiers) override;
+	void CopyToClipboard(const SelectionText &selectedText) override;
+	void Copy() override;
+	void RequestSelection(GdkAtom atomSelection);
+	void Paste() override;
+	void CreateCallTipWindow(PRectangle rc) override;
+	void AddToPopUp(const char *label, int cmd = 0, bool enabled = true) override;
 	bool OwnPrimarySelection();
-	virtual void ClaimSelection();
+	void ClaimSelection() override;
 	void GetGtkSelectionText(GtkSelectionData *selectionData, SelectionText &selText);
+	void InsertSelection(GtkSelectionData *selectionData);
+public:	// Public for SelectionReceiver
+	GObject *MainObject() const noexcept;
+	void ReceivedClipboard(GtkSelectionData *selection_data) noexcept;
+private:
 	void ReceivedSelection(GtkSelectionData *selection_data);
 	void ReceivedDrop(GtkSelectionData *selection_data);
-	static void GetSelection(GtkSelectionData *selection_data, guint info, SelectionText *selected);
+	static void GetSelection(GtkSelectionData *selection_data, guint info, SelectionText *text);
 	void StoreOnClipboard(SelectionText *clipText);
-	static void ClipboardGetSelection(GtkClipboard* clip, GtkSelectionData *selection_data, guint info, void *data);
-	static void ClipboardClearSelection(GtkClipboard* clip, void *data);
+	static void ClipboardGetSelection(GtkClipboard *clip, GtkSelectionData *selection_data, guint info, void *data);
+	static void ClipboardClearSelection(GtkClipboard *clip, void *data);
 
 	void UnclaimSelection(GdkEventSelection *selection_event);
+	static void PrimarySelection(GtkWidget *widget, GtkSelectionData *selection_data, guint info, guint time_stamp, ScintillaGTK *sciThis);
+	static gboolean PrimaryClear(GtkWidget *widget, GdkEventSelection *event, ScintillaGTK *sciThis);
 	void Resize(int width, int height);
 
 	// Callback functions
@@ -192,11 +200,11 @@ private:
 	gboolean ExposePreeditThis(GtkWidget *widget, GdkEventExpose *ose);
 	static gboolean ExposePreedit(GtkWidget *widget, GdkEventExpose *ose, ScintillaGTK *sciThis);
 #endif
-	AtkObject* GetAccessibleThis(GtkWidget *widget);
-	static AtkObject* GetAccessible(GtkWidget *widget);
+	AtkObject *GetAccessibleThis(GtkWidget *widget);
+	static AtkObject *GetAccessible(GtkWidget *widget);
 
 	bool KoreanIME();
-	void CommitThis(char *str);
+	void CommitThis(char *commitStr);
 	static void Commit(GtkIMContext *context, char *str, ScintillaGTK *sciThis);
 	void PreeditChangedInlineThis();
 	void PreeditChangedWindowedThis();
@@ -205,44 +213,44 @@ private:
 	void DrawImeIndicator(int indicator, int len);
 	void SetCandidateWindowPos();
 
-	static void StyleSetText(GtkWidget *widget, GtkStyle *previous, void*);
-	static void RealizeText(GtkWidget *widget, void*);
+	static void StyleSetText(GtkWidget *widget, GtkStyle *previous, void *);
+	static void RealizeText(GtkWidget *widget, void *);
 	static void Dispose(GObject *object);
 	static void Destroy(GObject *object);
 	static void SelectionReceived(GtkWidget *widget, GtkSelectionData *selection_data,
-	                              guint time);
+				      guint time);
 	static void SelectionGet(GtkWidget *widget, GtkSelectionData *selection_data,
-	                         guint info, guint time);
+				 guint info, guint time);
 	static gint SelectionClear(GtkWidget *widget, GdkEventSelection *selection_event);
 	gboolean DragMotionThis(GdkDragContext *context, gint x, gint y, guint dragtime);
 	static gboolean DragMotion(GtkWidget *widget, GdkDragContext *context,
-	                           gint x, gint y, guint dragtime);
+				   gint x, gint y, guint dragtime);
 	static void DragLeave(GtkWidget *widget, GdkDragContext *context,
-	                      guint time);
+			      guint time);
 	static void DragEnd(GtkWidget *widget, GdkDragContext *context);
 	static gboolean Drop(GtkWidget *widget, GdkDragContext *context,
-	                     gint x, gint y, guint time);
+			     gint x, gint y, guint time);
 	static void DragDataReceived(GtkWidget *widget, GdkDragContext *context,
-	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time);
+				     gint x, gint y, GtkSelectionData *selection_data, guint info, guint time);
 	static void DragDataGet(GtkWidget *widget, GdkDragContext *context,
-	                        GtkSelectionData *selection_data, guint info, guint time);
+				GtkSelectionData *selection_data, guint info, guint time);
 	static gboolean TimeOut(gpointer ptt);
 	static gboolean IdleCallback(gpointer pSci);
 	static gboolean StyleIdle(gpointer pSci);
-	virtual void IdleWork();
-	virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo);
-	virtual void SetDocPointer(Document *document);
+	void IdleWork() override;
+	void QueueIdleWork(WorkNeeded::workItems items, Sci::Position upTo) override;
+	void SetDocPointer(Document *document) override;
 	static void PopUpCB(GtkMenuItem *menuItem, ScintillaGTK *sciThis);
 
 #if GTK_CHECK_VERSION(3,0,0)
 	static gboolean DrawCT(GtkWidget *widget, cairo_t *cr, CallTip *ctip);
 #else
-	static gboolean ExposeCT(GtkWidget *widget, GdkEventExpose *ose, CallTip *ct);
+	static gboolean ExposeCT(GtkWidget *widget, GdkEventExpose *ose, CallTip *ctip);
 #endif
 	static gboolean PressCT(GtkWidget *widget, GdkEventButton *event, ScintillaGTK *sciThis);
 
 	static sptr_t DirectFunction(sptr_t ptr,
-	                             unsigned int iMessage, uptr_t wParam, sptr_t lParam);
+				     unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 };
 
 // helper class to watch a GObject lifetime and get notified when it dies
@@ -253,16 +261,16 @@ class GObjectWatcher {
 		PLATFORM_ASSERT(obj == weakRef);
 
 		Destroyed();
-		weakRef = 0;
+		weakRef = nullptr;
 	}
 
 	static void WeakNotify(gpointer data, GObject *obj) {
-		static_cast<GObjectWatcher*>(data)->WeakNotifyThis(obj);
+		static_cast<GObjectWatcher *>(data)->WeakNotifyThis(obj);
 	}
 
 public:
 	GObjectWatcher(GObject *obj) :
-			weakRef(obj) {
+		weakRef(obj) {
 		g_object_weak_ref(weakRef, WeakNotify, this);
 	}
 
@@ -275,15 +283,13 @@ public:
 	virtual void Destroyed() {}
 
 	bool IsDestroyed() const {
-		return weakRef != 0;
+		return weakRef != nullptr;
 	}
 };
 
 std::string ConvertText(const char *s, size_t len, const char *charSetDest,
-                        const char *charSetSource, bool transliterations, bool silent=false);
+			const char *charSetSource, bool transliterations, bool silent=false);
 
-#ifdef SCI_NAMESPACE
 }
-#endif
 
 #endif

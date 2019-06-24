@@ -16,7 +16,10 @@
 
 /* A lexical scanner on a temporary buffer with a yacc interface */
 
-#pragma GCC diagnostic push
+#ifndef _MSC_VER
+  #pragma GCC diagnostic push
+#endif
+
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
@@ -1538,4 +1541,7 @@ bool st_lex::need_correct_ident()
 }
 
 } // namespace mysql_parser
-#pragma GCC diagnostic pop
+
+#ifndef _MSC_VER
+  #pragma GCC diagnostic pop
+#endif

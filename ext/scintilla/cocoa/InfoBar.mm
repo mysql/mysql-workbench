@@ -10,6 +10,8 @@
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
 
+#include <cmath>
+
 #import "InfoBar.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -18,60 +20,62 @@
 
 // Inspired by code from Daniel Jalkut, Red Sweater Software.
 
-- (NSRect) drawingRectForBounds: (NSRect) theRect
-{
-	// Get the parent's idea of where we should draw
-	NSRect newRect = [super drawingRectForBounds: theRect];
+- (NSRect)drawingRectForBounds: (NSRect)theRect {
+  // Get the parent's idea of where we should draw
+  NSRect newRect = [super drawingRectForBounds: theRect];
 
-	// When the text field is being edited or selected, we have to turn off the magic because it
+  // When the text field is being edited or selected, we have to turn off the magic because it
   // screws up the configuration of the field editor. We sneak around this by intercepting
   // selectWithFrame and editWithFrame and sneaking a reduced, centered rect in at the last minute.
-	if (mIsEditingOrSelecting == NO)
-	{
-		// Get our ideal size for current text
-		NSSize textSize = [self cellSizeForBounds: theRect];
+  if (mIsEditingOrSelecting == NO) {
+    // Get our ideal size for current text
+    NSSize textSize = [self cellSizeForBounds: theRect];
 
-		// Center that in the proposed rect
-		CGFloat heightDelta = newRect.size.height - textSize.height;
-		if (heightDelta > 0)
-		{
-			newRect.size.height -= heightDelta;
-			newRect.origin.y += ceil(heightDelta / 2);
-		}
-	}
+    // Center that in the proposed rect
+    CGFloat heightDelta = newRect.size.height - textSize.height;
+    if (heightDelta > 0) {
+      newRect.size.height -= heightDelta;
+      newRect.origin.y += ceil(heightDelta / 2);
+    }
+  }
 
-	return newRect;
+  return newRect;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) selectWithFrame: (NSRect) aRect inView: (NSView*) controlView editor: (NSText*) textObj
-                delegate:(id) anObject start: (NSInteger) selStart length: (NSInteger) selLength
-{
-	aRect = [self drawingRectForBounds: aRect];
-	mIsEditingOrSelecting = YES;
-	[super selectWithFrame: aRect
+- (void)selectWithFrame: (NSRect)aRect
+                 inView: (NSView*)controlView
+                 editor: (NSText*)textObj
+                delegate: (id)anObject
+                  start: (NSInteger)selStart
+                 length: (NSInteger)selLength {
+  aRect = [self drawingRectForBounds: aRect];
+  mIsEditingOrSelecting = YES;
+  [super selectWithFrame: aRect
                   inView: controlView
                   editor: textObj
                 delegate: anObject
                    start: selStart
                   length: selLength];
-	mIsEditingOrSelecting = NO;
+  mIsEditingOrSelecting = NO;
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) editWithFrame: (NSRect) aRect inView: (NSView*) controlView editor: (NSText*) textObj
-              delegate: (id) anObject event: (NSEvent*) theEvent
-{
-	aRect = [self drawingRectForBounds: aRect];
-	mIsEditingOrSelecting = YES;
-	[super editWithFrame: aRect
+- (void)editWithFrame: (NSRect)aRect
+               inView: (NSView*)controlView
+               editor: (NSText*)textObj
+             delegate: (id)anObject
+                event: (NSEvent*)theEvent {
+  aRect = [self drawingRectForBounds: aRect];
+  mIsEditingOrSelecting = YES;
+  [super editWithFrame: aRect
                 inView: controlView
                 editor: textObj
               delegate: anObject
                  event: theEvent];
-	mIsEditingOrSelecting = NO;
+  mIsEditingOrSelecting = NO;
 }
 
 @end
@@ -80,11 +84,9 @@
 
 @implementation InfoBar
 
-- (id) initWithFrame: (NSRect) frame
-{
+- (id)initWithFrame: (NSRect)frame {
   self = [super initWithFrame: frame];
-  if (self)
-  {
+  if (self) {
     mScaleFactor = 1.0;
     mCurrentCaretX = 0;
     mCurrentCaretY = 0;
@@ -103,11 +105,11 @@
  * @param location Carries the new location (e.g. caret) if the type is a caret change or similar type.
  * @param value Carries the new zoom value if the type is a zoom change.
  */
-- (void) notify: (NotificationType) type message: (NSString*) message location: (NSPoint) location
-  value: (float) value
-{
-  switch (type)
-  {
+- (void)notify: (NotificationType)type
+       message: (NSString*)message
+      location: (NSPoint)location
+         value: (float)value {
+  switch (type) {
     case IBNZoomChanged:
       [self setScaleFactor: value adjustPopup: YES];
       break;
@@ -125,7 +127,7 @@
 /**
  * Used to set a protocol object we can use to send change notifications to.
  */
-- (void) setCallback: (id <InfoBarCommunicator>) callback
+- (void)setCallback: (id<InfoBarCommunicator>)callback
 {
   mCallback = callback;
 }
@@ -141,21 +143,19 @@ static float DefaultScaleMenuFactors[] = {
 static unsigned DefaultScaleMenuSelectedItemIndex = 4;
 static float BarFontSize = 10.0;
 
-- (void) createItems
-{
+- (void)createItems {
   // 1) The zoom popup.
   unsigned numberOfDefaultItems = sizeof(DefaultScaleMenuLabels) / sizeof(NSString *);
 
   // Create the popup button.
-  mZoomPopup = [[NSPopUpButton allocWithZone:[self zone]] initWithFrame: NSMakeRect(0.0, 0.0, 1.0, 1.0) pullsDown: NO];
+  mZoomPopup = [[NSPopUpButton alloc] initWithFrame: NSMakeRect(0.0, 0.0, 1.0, 1.0) pullsDown: NO];
 
   // No border or background please.
   [[mZoomPopup cell] setBordered: NO];
   [[mZoomPopup cell] setArrowPosition: NSPopUpArrowAtBottom];
 
   // Fill it.
-  for (unsigned count = 0; count < numberOfDefaultItems; count++)
-  {
+  for (unsigned count = 0; count < numberOfDefaultItems; count++) {
     [mZoomPopup addItemWithTitle: NSLocalizedStringFromTable(DefaultScaleMenuLabels[count], @"ZoomValues", nil)];
     id currentItem = [mZoomPopup itemAtIndex: count];
     if (DefaultScaleMenuFactors[count] != 0.0)
@@ -178,7 +178,6 @@ static float BarFontSize = 10.0;
 
   // put it in the scrollview.
   [self addSubview: mZoomPopup];
-  [mZoomPopup release];
 
   // 2) The caret position label.
   Class oldCellClass = [NSTextField cellClass];
@@ -197,7 +196,6 @@ static float BarFontSize = 10.0;
   [cell setAlignment: NSCenterTextAlignment];
 
   [self addSubview: mCaretPositionLabel];
-  [mCaretPositionLabel release];
 
   // 3) The status text.
   mStatusTextLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0.0, 0.0, 1.0, 1.0)];
@@ -212,7 +210,6 @@ static float BarFontSize = 10.0;
   [cell setPlaceholderString: @""];
 
   [self addSubview: mStatusTextLabel];
-  [mStatusTextLabel release];
 
   // Restore original cell class so that everything else doesn't get broken
   [NSTextField setCellClass: oldCellClass];
@@ -220,18 +217,10 @@ static float BarFontSize = 10.0;
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) dealloc
-{
-  [super dealloc];
-}
-
-//--------------------------------------------------------------------------------------------------
-
 /**
  * Fill the background.
  */
-- (void) drawRect: (NSRect) rect
-{
+- (void)drawRect: (NSRect)rect {
   bool darkMode = false;
   NSAppearance * appearance = self.window.effectiveAppearance;
   if (@available(macOS 10.14, *)) {
@@ -261,8 +250,7 @@ static float BarFontSize = 10.0;
 
   NSBezierPath.defaultLineWidth = 1;
   [NSBezierPath strokeLineFromPoint: { NSMinX(rect), NSMaxY(rect) } toPoint: { NSMaxX(rect), NSMaxY(rect) }];
-  if (mDisplayMask & IBShowZoom)
-  {
+  if (mDisplayMask & IBShowZoom) {
     verticalLineRect = [mZoomPopup frame];
     verticalLineRect.origin.x += verticalLineRect.size.width + 1.0;
     verticalLineRect.size.width = 1.0;
@@ -270,8 +258,7 @@ static float BarFontSize = 10.0;
       NSRectFill(verticalLineRect);
   }
 
-  if (mDisplayMask & IBShowCaretPosition)
-  {
+  if (mDisplayMask & IBShowCaretPosition) {
     verticalLineRect = [mCaretPositionLabel frame];
     verticalLineRect.origin.x += verticalLineRect.size.width + 1.0;
     verticalLineRect.size.width = 1.0;
@@ -282,8 +269,7 @@ static float BarFontSize = 10.0;
 
 //--------------------------------------------------------------------------------------------------
 
-- (BOOL) isOpaque
-{
+- (BOOL)isOpaque {
   return YES;
 }
 
@@ -292,46 +278,38 @@ static float BarFontSize = 10.0;
 /**
  * Used to reposition our content depending on the size of the view.
  */
-- (void) setFrame: (NSRect) newFrame
-{
+- (void)setFrame: (NSRect)newFrame {
   [super setFrame: newFrame];
   [self positionSubViews];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) positionSubViews
-{
-  NSRect currentBounds = {{0, 0}, {0, [self frame].size.height}};
-  if (mDisplayMask & IBShowZoom)
-  {
+- (void)positionSubViews {
+  NSRect currentBounds = {{ 0, 0 }, { 0, [self frame].size.height }};
+  if (mDisplayMask & IBShowZoom) {
     [mZoomPopup setHidden: NO];
     currentBounds.size.width = [mZoomPopup frame].size.width;
     [mZoomPopup setFrame: currentBounds];
     currentBounds.origin.x += currentBounds.size.width + 1; // Add 1 for the separator.
-  }
-  else
+  } else
     [mZoomPopup setHidden: YES];
 
-  if (mDisplayMask & IBShowCaretPosition)
-  {
+  if (mDisplayMask & IBShowCaretPosition) {
     [mCaretPositionLabel setHidden: NO];
     currentBounds.size.width = [mCaretPositionLabel frame].size.width;
     [mCaretPositionLabel setFrame: currentBounds];
     currentBounds.origin.x += currentBounds.size.width + 1;
-  }
-  else
+  } else
     [mCaretPositionLabel setHidden: YES];
 
-  if (mDisplayMask & IBShowStatusText)
-  {
+  if (mDisplayMask & IBShowStatusText) {
     // The status text always takes the rest of the available space (with some padding).
     [mStatusTextLabel setHidden: NO];
     currentBounds.origin.x += 4;
     currentBounds.size.width = [self frame].size.width - currentBounds.origin.x - 8;
     [mStatusTextLabel setFrame: currentBounds];
-  }
-  else
+  } else
     [mStatusTextLabel setHidden: YES];
 }
 
@@ -342,10 +320,8 @@ static float BarFontSize = 10.0;
  *
  * @param display Bitwise ORed IBDisplay values which determine what to show on the bar.
  */
-- (void) setDisplay: (IBDisplay) display
-{
-  if (mDisplayMask != display)
-  {
+- (void)setDisplay: (IBDisplay)display {
+  if (mDisplayMask != display) {
     mDisplayMask = display;
     [self positionSubViews];
     [self needsDisplay];
@@ -357,30 +333,23 @@ static float BarFontSize = 10.0;
 /**
  * Handler for selection changes in the zoom menu.
  */
-- (void) zoomItemAction: (id) sender
-{
-  NSNumber* selectedFactorObject = [[sender selectedCell] representedObject];
+- (void)zoomItemAction: (id)sender {
+  NSNumber *selectedFactorObject = [[sender selectedCell] representedObject];
 
-  if (selectedFactorObject == nil)
-  {
+  if (selectedFactorObject == nil) {
     NSLog(@"Scale popup action: setting arbitrary zoom factors is not yet supported.");
     return;
-  }
-  else
-  {
+  } else {
     [self setScaleFactor: [selectedFactorObject floatValue] adjustPopup: NO];
   }
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) setScaleFactor: (float) newScaleFactor adjustPopup: (BOOL) flag
-{
-  if (mScaleFactor != newScaleFactor)
-  {
+- (void)setScaleFactor: (float)newScaleFactor adjustPopup: (BOOL)flag {
+  if (mScaleFactor != newScaleFactor) {
     mScaleFactor = newScaleFactor;
-    if (flag)
-    {
+    if (flag) {
       unsigned count = 0;
       unsigned numberOfDefaultItems = sizeof(DefaultScaleMenuFactors) / sizeof(float);
 
@@ -390,16 +359,13 @@ static float BarFontSize = 10.0;
         count++;
       if (count == numberOfDefaultItems)
         [mZoomPopup selectItemAtIndex: -1];
-      else
-      {
+      else {
         [mZoomPopup selectItemAtIndex: count];
 
         // Set scale factor to found preset value if it comes close.
         mScaleFactor = DefaultScaleMenuFactors[count];
       }
-    }
-    else
-    {
+    } else {
       // Internally set. Notify owner.
       [mCallback notify: IBNZoomChanged message: nil location: NSZeroPoint value: newScaleFactor];
     }
@@ -411,14 +377,12 @@ static float BarFontSize = 10.0;
 /**
  * Called from the notification method to update the caret position display.
  */
-- (void) setCaretPosition: (NSPoint) position
-{
+- (void)setCaretPosition: (NSPoint)position {
   // Make the position one-based.
   int newX = (int) position.x + 1;
   int newY = (int) position.y + 1;
 
-  if (mCurrentCaretX != newX || mCurrentCaretY != newY)
-  {
+  if (mCurrentCaretX != newX || mCurrentCaretY != newY) {
     mCurrentCaretX = newX;
     mCurrentCaretY = newY;
 
@@ -431,8 +395,7 @@ static float BarFontSize = 10.0;
 /**
  * Makes the bar resize to the smallest width that can accommodate the currently enabled items.
  */
-- (void) sizeToFit
-{
+- (void)sizeToFit {
   NSRect frame = [self frame];
   frame.size.width = 0;
   if (mDisplayMask & IBShowZoom)

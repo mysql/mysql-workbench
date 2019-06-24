@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -27,6 +27,8 @@
 #include "mforms/form.h"
 #include "mforms/panel.h"
 #include "mforms/treeview.h"
+
+#include "Scintilla.h"
 
 #include <set>
 #include <functional>
@@ -80,7 +82,7 @@ namespace mforms {
     void setup(bool showTextEntry);
     void validate();
     void save();
-    void editorContentChanged(int position, int length, int numberOfLines, bool inserted);
+    void editorContentChanged(Sci_Position position, Sci_Position length, Sci_Position numberOfLines, bool inserted);
   };
 
   /**
@@ -107,13 +109,13 @@ namespace mforms {
       std::size_t length;
     };
     void init();
-    void editorContentChanged(int position, int length, int numberOfLines, bool inserted);
+    void editorContentChanged(Sci_Position position, Sci_Position length, Sci_Position numberOfLines, bool inserted);
     void dwellEvent(bool started, size_t position, int x, int y);
 
     CodeEditor *_textEditor;
     bool _modified;
     std::string _text;
-    int _position;
+    Sci_Position _position;
     JsonParser::JsonValue _json;
     std::vector<JsonErrorEntry> _errorEntry;
   };

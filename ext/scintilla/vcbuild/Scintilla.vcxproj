@@ -76,7 +76,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
@@ -90,7 +90,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>imm32.lib;msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -104,7 +104,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
@@ -117,7 +117,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>imm32.lib;msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'">
@@ -128,7 +128,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;SCI_NAMESPACE;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;SCI_LEXER;DECL_SCI_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\lexlib;..\src</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
@@ -141,7 +141,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <AdditionalDependencies>imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>imm32.lib;msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -153,6 +153,7 @@
     <ClInclude Include="..\lexlib\Accessor.h" />
     <ClInclude Include="..\lexlib\CharacterCategory.h" />
     <ClInclude Include="..\lexlib\CharacterSet.h" />
+    <ClInclude Include="..\lexlib\DefaultLexer.h" />
     <ClInclude Include="..\lexlib\LexAccessor.h" />
     <ClInclude Include="..\lexlib\LexerBase.h" />
     <ClInclude Include="..\lexlib\LexerModule.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="..\src\CellBuffer.h" />
     <ClInclude Include="..\src\CharClassify.h" />
     <ClInclude Include="..\src\ContractionState.h" />
+    <ClInclude Include="..\src\DBCS.h" />
     <ClInclude Include="..\src\Decoration.h" />
     <ClInclude Include="..\src\Document.h" />
     <ClInclude Include="..\src\EditModel.h" />
@@ -192,8 +194,8 @@
     <ClInclude Include="..\src\Selection.h" />
     <ClInclude Include="..\src\SplitVector.h" />
     <ClInclude Include="..\src\Style.h" />
-    <ClInclude Include="..\src\UnicodeFromUTF8.h" />
     <ClInclude Include="..\src\UniConversion.h" />
+    <ClInclude Include="..\src\UniqueString.h" />
     <ClInclude Include="..\src\ViewStyle.h" />
     <ClInclude Include="..\src\XPM.h" />
     <ClInclude Include="..\win32\HanjaDic.h" />
@@ -218,6 +220,7 @@
     <ClCompile Include="..\lexers\LexBibTeX.cxx" />
     <ClCompile Include="..\lexers\LexBullant.cxx" />
     <ClCompile Include="..\lexers\LexCaml.cxx" />
+    <ClCompile Include="..\lexers\LexCIL.cxx" />
     <ClCompile Include="..\lexers\LexCLW.cxx" />
     <ClCompile Include="..\lexers\LexCmake.cxx" />
     <ClCompile Include="..\lexers\LexCOBOL.cxx" />
@@ -245,6 +248,7 @@
     <ClCompile Include="..\lexers\LexHaskell.cxx" />
     <ClCompile Include="..\lexers\LexHex.cxx" />
     <ClCompile Include="..\lexers\LexHTML.cxx" />
+    <ClCompile Include="..\lexers\LexIndent.cxx" />
     <ClCompile Include="..\lexers\LexInno.cxx" />
     <ClCompile Include="..\lexers\LexJSON.cxx" />
     <ClCompile Include="..\lexers\LexKix.cxx" />
@@ -257,12 +261,14 @@
     <ClCompile Include="..\lexers\LexMake.cxx" />
     <ClCompile Include="..\lexers\LexMarkdown.cxx" />
     <ClCompile Include="..\lexers\LexMatlab.cxx" />
+    <ClCompile Include="..\lexers\LexMaxima.cxx" />
     <ClCompile Include="..\lexers\LexMetapost.cxx" />
     <ClCompile Include="..\lexers\LexMMIXAL.cxx" />
     <ClCompile Include="..\lexers\LexModula.cxx" />
     <ClCompile Include="..\lexers\LexMPT.cxx" />
     <ClCompile Include="..\lexers\LexMSSQL.cxx" />
     <ClCompile Include="..\lexers\LexMySQL.cxx" />
+    <ClCompile Include="..\lexers\LexNim.cxx" />
     <ClCompile Include="..\lexers\LexNimrod.cxx" />
     <ClCompile Include="..\lexers\LexNsis.cxx" />
     <ClCompile Include="..\lexers\LexNull.cxx" />
@@ -285,6 +291,7 @@
     <ClCompile Include="..\lexers\LexRegistry.cxx" />
     <ClCompile Include="..\lexers\LexRuby.cxx" />
     <ClCompile Include="..\lexers\LexRust.cxx" />
+    <ClCompile Include="..\lexers\LexSAS.cxx" />
     <ClCompile Include="..\lexers\LexScriptol.cxx" />
     <ClCompile Include="..\lexers\LexSmalltalk.cxx" />
     <ClCompile Include="..\lexers\LexSML.cxx" />
@@ -292,6 +299,7 @@
     <ClCompile Include="..\lexers\LexSpecman.cxx" />
     <ClCompile Include="..\lexers\LexSpice.cxx" />
     <ClCompile Include="..\lexers\LexSQL.cxx" />
+    <ClCompile Include="..\lexers\LexStata.cxx" />
     <ClCompile Include="..\lexers\LexSTTXT.cxx" />
     <ClCompile Include="..\lexers\LexTACL.cxx" />
     <ClCompile Include="..\lexers\LexTADS3.cxx" />
@@ -308,6 +316,7 @@
     <ClCompile Include="..\lexlib\Accessor.cxx" />
     <ClCompile Include="..\lexlib\CharacterCategory.cxx" />
     <ClCompile Include="..\lexlib\CharacterSet.cxx" />
+    <ClCompile Include="..\lexlib\DefaultLexer.cxx" />
     <ClCompile Include="..\lexlib\LexerBase.cxx" />
     <ClCompile Include="..\lexlib\LexerModule.cxx" />
     <ClCompile Include="..\lexlib\LexerNoExceptions.cxx" />
@@ -323,6 +332,7 @@
     <ClCompile Include="..\src\CellBuffer.cxx" />
     <ClCompile Include="..\src\CharClassify.cxx" />
     <ClCompile Include="..\src\ContractionState.cxx" />
+    <ClCompile Include="..\src\DBCS.cxx" />
     <ClCompile Include="..\src\Decoration.cxx" />
     <ClCompile Include="..\src\Document.cxx" />
     <ClCompile Include="..\src\EditModel.cxx" />
@@ -341,11 +351,12 @@
     <ClCompile Include="..\src\Selection.cxx" />
     <ClCompile Include="..\src\Style.cxx" />
     <ClCompile Include="..\src\UniConversion.cxx" />
+    <ClCompile Include="..\src\UniqueString.cxx" />
     <ClCompile Include="..\src\ViewStyle.cxx" />
     <ClCompile Include="..\src\XPM.cxx" />
-    <ClCompile Include="..\win32\CheckD2D.cxx" />
     <ClCompile Include="..\win32\HanjaDic.cxx" />
     <ClCompile Include="..\win32\PlatWin.cxx" />
+    <ClCompile Include="..\win32\ScintillaDLL.cxx" />
     <ClCompile Include="..\win32\ScintillaWin.cxx" />
     <ClCompile Include="..\win32\ScintillaWR.cpp" />
   </ItemGroup>
