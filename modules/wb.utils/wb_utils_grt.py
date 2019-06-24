@@ -886,27 +886,27 @@ class SSLWizard_GenerationTask:
         
         commands = [
             #Creating CA key
-            'openssl genrsa -out %(ca_key)s %(keylen)s' % params,
+            'openssl genrsa -out "%(ca_key)s" %(keylen)s' % params,
             # Creating CA Certificate using the authority key
-            'openssl req -new -x509 -nodes -days %(days)s -key %(ca_key)s -out %(ca_cert)s -config %(config_CA)s' % params,
+            'openssl req -new -x509 -nodes -days %(days)s -key "%(ca_key)s" -out "%(ca_cert)s" -config "%(config_CA)s"' % params,
 
             # Create server key and certificate sign request
-            'openssl req -newkey rsa:%(keylen)s -nodes -keyout %(server_key)s -out %(server_req)s -config %(config_server)s' % params,
+            'openssl req -newkey rsa:%(keylen)s -nodes -keyout "%(server_key)s" -out "%(server_req)s" -config "%(config_server)s"' % params,
             # Encrypt the server private key
-            'openssl rsa -in %(server_key)s -out %(server_key)s' % params,
+            'openssl rsa -in "%(server_key)s" -out "%(server_key)s"' % params,
             # Generate self-signed certificate (using the key+csr)
-            'openssl x509 -req -in %(server_req)s -days %(days)s -CA %(ca_cert)s -CAkey %(ca_key)s -set_serial 01 -out %(server_cert)s -extensions v3_req' % params,
+            'openssl x509 -req -in "%(server_req)s" -days %(days)s -CA "%(ca_cert)s" -CAkey "%(ca_key)s" -set_serial 01 -out "%(server_cert)s" -extensions v3_req' % params,
 
             # Create client key and certificate sign request
-            'openssl req -newkey rsa:%(keylen)s -nodes -keyout %(client_key)s -out %(client_req)s -config %(config_client)s' % params,
+            'openssl req -newkey rsa:%(keylen)s -nodes -keyout "%(client_key)s" -out "%(client_req)s" -config "%(config_client)s"' % params,
             # Encrypt the client private key
-            'openssl rsa -in %(client_key)s -out %(client_key)s' % params,
+            'openssl rsa -in "%(client_key)s" -out "%(client_key)s"' % params,
             # Generate self-signed certificate (using the key+csr)
-            'openssl x509 -req -in %(client_req)s -days %(days)s -CA %(ca_cert)s -CAkey %(ca_key)s -set_serial 01 -out %(client_cert)s' % params,
+            'openssl x509 -req -in "%(client_req)s" -days %(days)s -CA "%(ca_cert)s" -CAkey "%(ca_key)s" -set_serial 01 -out "%(client_cert)s"' % params,
         ]
         
         for command in commands:
-            self.run_command(command.split(' '))
+            self.run_command(shlex.split(command))
 
         return True, ca_cert, server_cert, server_key, client_cert, client_key
 
