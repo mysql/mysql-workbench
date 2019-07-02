@@ -245,6 +245,9 @@ void setup_mforms_app(MainWindowController *mwin);
   if (NSAppKitVersionNumber > NSAppKitVersionNumber10_6)
     self.window.collectionBehavior = NSWindowCollectionBehaviorFullScreenPrimary;
 
+  // The full screen menu item is added by our own menu handling.
+  [[NSUserDefaults standardUserDefaults] setBool: NO forKey: @"NSFullScreenMenuItemEverywhere"];
+
   statusBarText.stringValue = @"";
 }
 
