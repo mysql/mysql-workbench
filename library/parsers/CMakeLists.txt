@@ -30,7 +30,8 @@ add_custom_command(OUTPUT ${GENERATED_FILES}
 
 add_custom_target(generate_parser_mysql
                   ALL
-                  DEPENDS ${GENERATED_FILES})
+                  DEPENDS ${GENERATED_FILES}
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_source_files_properties(${GENERATED_FILES} PROPERTIES GENERATED TRUE)
 
