@@ -2725,6 +2725,10 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
     statement.reset(_usr_dbc_conn->ref->createStatement());
 
   auto schemaSymbols = _databaseSymbols.getSymbolsOfType<SchemaSymbol>();
+  bool hasPerformanceSchema = std::find_if(schemaSymbols.begin(), schemaSymbols.end(), [](auto symbol) -> bool {
+    return symbol->name == "performance_schema";
+  }) != schemaSymbols.end();
+
   for (SchemaSymbol *schemaSymbol : schemaSymbols) {
     if (schemaSymbol->name == schema_name) {
       schemaSymbol->clear();
@@ -2766,8 +2770,8 @@ void SqlEditorForm::schema_meta_data_refreshed(const std::string &schema_name, b
 
       if (statement != nullptr) {
         auto metaInfo = _usr_dbc_conn->ref->getMetaData();
-        if (metaInfo->getDatabaseMajorVersion() > 7
-            || (metaInfo->getDatabaseMajorVersion() == 5 && metaInfo->getDatabaseMinorVersion() > 6)) {
+        if (hasPerformanceSchema && (metaInfo->getDatabaseMajorVersion() > 7
+            || (metaInfo->getDatabaseMajorVersion() == 5 && metaInfo->getDatabaseMinorVersion() > 6))) {
           std::unique_ptr<sql::ResultSet> rs(
             statement->executeQuery("SELECT VARIABLE_NAME FROM performance_schema.user_variables_by_thread")
           );
