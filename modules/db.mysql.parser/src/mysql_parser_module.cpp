@@ -929,15 +929,17 @@ size_t MySQLParserServicesImpl::parseTrigger(MySQLParserContext::Ref context, db
 
     // Finished with errors. See if we can get at least the trigger name out.
     auto triggerTree = dynamic_cast<MySQLParser::CreateTriggerContext *>(tree);
-    if (triggerTree->triggerName() != nullptr) {
-      IdentifierListener listener(triggerTree->triggerName());
-      trigger->name(listener.parts.back() + "_SYNTAX_ERROR");
-    }
+    if (triggerTree != nullptr) {
+      if (triggerTree->triggerName() != nullptr) {
+        IdentifierListener listener(triggerTree->triggerName());
+        trigger->name(listener.parts.back() + "_SYNTAX_ERROR");
+      }
 
-    // Another attempt: find the ordering as we may need to manipulate this.
-    if (triggerTree->triggerFollowsPrecedesClause() != nullptr) {
-      trigger->ordering(triggerTree->triggerFollowsPrecedesClause()->ordering->getText());
-      trigger->otherTrigger(triggerTree->triggerFollowsPrecedesClause()->textOrIdentifier()->getText());
+      // Another attempt: find the ordering as we may need to manipulate this.
+      if (triggerTree->triggerFollowsPrecedesClause() != nullptr) {
+        trigger->ordering(triggerTree->triggerFollowsPrecedesClause()->ordering->getText());
+        trigger->otherTrigger(triggerTree->triggerFollowsPrecedesClause()->textOrIdentifier()->getText());
+      }
     }
   }
 
