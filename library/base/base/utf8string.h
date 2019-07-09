@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -177,6 +177,7 @@ namespace base {
     utf8string &operator+=(const utf8string &str);
     utf8string &operator+=(const utf8char &c);
     utf8string &operator+=(const char *s);
+    utf8string &operator=(const utf8string &other) = default;
 
     int compare(size_type pos1, size_type count1, const utf8string &str) const;
     int compare(const utf8string &s) const;

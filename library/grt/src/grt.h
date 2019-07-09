@@ -1091,6 +1091,8 @@ namespace grt {
                        : new internal::List(type, class_name, allow_null)) {
     }
 
+    BaseListRef &operator=(const BaseListRef &other) = default;
+
     inline Type content_type() const {
       return content().content_type();
     };
@@ -1597,6 +1599,8 @@ namespace grt {
     DictRef(Type type, const std::string &cclass, internal::Object *owner, bool allow_null = true)
       : ValueRef(new internal::OwnedDict(type, cclass, owner, allow_null)) {
     }
+
+    DictRef(const DictRef &d) = default;
 
     static DictRef cast_from(const ValueRef &ivalue) {
       if (ivalue.is_valid() && ivalue.type() != DictType)
