@@ -127,4 +127,8 @@
   return NSAccessibilityGroupRole;
 }
 
+- (NSString*)accessibilityLabel {
+  return @"Status Bar";
+}
+
 @end
