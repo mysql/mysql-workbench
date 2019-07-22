@@ -1768,7 +1768,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         args.append("--routines")
                     if dump_events:
                         args.append("--events")
-                    task = self.ViewsRoutinesEventsDumpData(schema, views, args, lambda schema=schema, table=None:self.dump_to_folder(schema, "routines"))
+                    task = self.ViewsRoutinesEventsDumpData(schema, views, args, lambda schema=schema, table=None:self.dump_to_folder(schema, "routines", include_schema))
                     operations.append(task)
         else: # single file
             if not os.path.exists(os.path.dirname(self.path)):

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #if defined(_MSC_VER)
@@ -1600,7 +1600,7 @@ Mysql_sql_parser::Parse_result Mysql_sql_parser::process_create_view_statement(c
   const SqlAstNode *algorithm_node =
     tree->subitem(sql::_view_or_trigger_or_sp_or_event, sql::_view_replace_or_algorithm, sql::_view_algorithm);
   int algorithm = 0;
-  if (algorithm_node->subitem(sql::_UNDEFINED_SYM))
+  if (algorithm_node == nullptr || algorithm_node->subitem(sql::_UNDEFINED_SYM))
     algorithm = 0;
   else if (algorithm_node->subitem(sql::_MERGE_SYM))
     algorithm = 1;
