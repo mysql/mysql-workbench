@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -130,10 +130,12 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
 
         status_message_part = newLabel("The database server instance is ")
         self.short_status_msg = newLabel("...")
+        self.short_status_msg.set_name("Short Status")
         self.short_status_msg.set_color("#DD0000")
 
         self.start_stop_btn = newButton()
         self.start_stop_btn.set_text("Start server")
+        self.start_stop_btn.set_name("Start Stop Server")
         self.start_stop_btn.add_clicked_callback(self.start_stop_clicked)
         
         self.offline_mode_btn = newButton()
