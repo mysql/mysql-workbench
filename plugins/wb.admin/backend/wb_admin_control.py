@@ -90,7 +90,6 @@ class EventManager(object):
             self.deferred_events.append(name)
             return
         name += "_event"
-        log_error("VALID EVENTS: %s" % str(self.valid_events));
         if name not in self.valid_events:
             log_error('EventManager: invalid event: ' + name + '\n')
         elif name in self.events:

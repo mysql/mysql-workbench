@@ -785,11 +785,11 @@ class FirewallCommands:
         return self.set_user_mode(userhost, 'RESET')
 
     def is_enabled(self):
-        if 'mysql_firewall_mode' not in self.owner.ctrl_be.server_variables.keys():
-            return False
+        resultset = self.owner.ctrl_be.exec_query("SHOW VARIABLES LIKE 'mysql_firewall_mode'")
+        resultset.nextRow()
+        result = resultset.unicodeByName("Value")
         
-        result = self.owner.ctrl_be.server_variables.get('mysql_firewall_mode')
-        return result == "1"
+        return result == "ON"
 
 
 class FirewallUserInterfaceBase(mforms.Box):
@@ -832,6 +832,7 @@ class FirewallUserInterfaceBase(mforms.Box):
 
 class FirewallUserInterfaceDummy(FirewallUserInterfaceBase):
     def __init__(self, owner):
+        FirewallUserInterfaceBase.__init__(self, owner)
         return
 
 
@@ -1007,9 +1008,14 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         
     def refresh_row(self, current_row, user, host):
         userhost = u"%s@%s" % (db_utils.escape_sql_string(user), host)
-        current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
-        current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
-        current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
+        if self.commands.is_enabled():
+            current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
+            current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
+            current_row.set_string(4, str(self.commands.get_cached_rule_count(userhost)))
+        else:
+            current_row.set_string(2, 'disabled')
+            current_row.set_string(3, 'disabled')
+            current_row.set_string(4, 'disabled')
             
     def show_user(self, user, host, new_user):
         self.current_user = user
@@ -1018,11 +1024,17 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.new_user = new_user
         self.set_enabled(not new_user)
         self.update_rules()
-        return self.state.set_value(self.commands.get_user_mode(self.current_userhost))
+        result = 'disabled'
+        if self.commands.is_enabled():
+            self.state.set_value(self.commands.get_user_mode(self.current_userhost))
+        return result
       
     def update_rules(self):
         self.white_list.clear()
         self.cache_list.clear()
+
+        if self.commands.is_enabled():
+            return
 
         self.available_rules_label.set_text("Active rules (%s) - These are the rules used in PROTECTED mode for this user" % str(self.commands.get_rule_count(self.current_userhost)))
         for rule in self.commands.get_user_rules(self.current_userhost):
@@ -1170,24 +1182,17 @@ class SecurityAccount(mforms.Box):
         
         self.owner.set_footer(bottom_box)
 
-        account_list_box = newBox(False)
-        account_list_box.set_spacing(8)
-        account_list_box.set_size(220, -1)
+        self.account_list_box = newBox(False)
+        self.account_list_box.set_spacing(8)
+        self.account_list_box.set_size(220, -1)
 
         label = newLabel("User Accounts")
-        account_list_box.add(label, False, True)
+        self.account_list_box.add(label, False, True)
 
-        self.user_list = newTreeView(mforms.TreeFlatList)
-        self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
-        self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
-        
-        self.firewall_rules.tweak_user_list()
-        
-        self.user_list.end_columns()
-        self.user_list.add_changed_callback(self.user_selected)
-        self.user_list.set_allow_sorting(True)
-        account_list_box.add(self.user_list, True, True)
-        self.splitter.add(account_list_box, 200, True)
+        self.user_list = None
+        self.create_user_list()
+
+        self.splitter.add(self.account_list_box, 200, True)
 
         # Right part
 
@@ -1199,8 +1204,8 @@ class SecurityAccount(mforms.Box):
 
         abox.add(self.account_label, False, True)
 
-        tabView = newTabView(False)
-        self.inner_tabview = tabView
+        self.tabView = newTabView(False)
+        self.inner_tabview = self.tabView
 
         # Login Tab
         vbox = newBox(False)
@@ -1322,7 +1327,7 @@ class SecurityAccount(mforms.Box):
         vbox.add_end(self.bottom_message_hbox, False)
         self.bottom_message_hbox.show(False)
 
-        tabView.add_page(vbox, "Login")
+        self.tabView.add_page(vbox, "Login")
 
         # Account Limits Tab
         table = newTable()
@@ -1361,7 +1366,7 @@ class SecurityAccount(mforms.Box):
         table.add(self.max_uconnections, 1, 2, 3, 4, mforms.HFillFlag)
         table.add(dLabel("The number of simultaneous connections to the server the account can have."), 2, 3, 3, 4, mforms.HFillFlag|mforms.HExpandFlag)
         
-        tabView.add_page(table, "Account Limits")
+        self.tabView.add_page(table, "Account Limits")
 
         # Administrative Roles Tab
 
@@ -1393,15 +1398,15 @@ class SecurityAccount(mforms.Box):
         self.role_priv_list.set_size(220, -1)
         self.role_priv_list.set_cell_edited_callback(self.role_priv_list_toggled)
         lbox.add(self.role_priv_list, False, True)
-        tabView.add_page(box, "Administrative Roles")
+        self.tabView.add_page(box, "Administrative Roles")
 
 
         self.schema_privs = SecuritySchemaPrivileges(self)
-        tabView.add_page(self.schema_privs, "Schema Privileges")
+        self.tabView.add_page(self.schema_privs, "Schema Privileges")
 
-        self.firewall_rules.tweak_tabs(tabView)
+        self.firewall_rules.tweak_tabs(self.tabView)
 
-        abox.add(tabView, True, True)
+        abox.add(self.tabView, True, True)
 
         if sys.platform.lower() == "darwin": # No scrollbox on macOS as this is not needed and breaks selection.
             self.splitter.add(abox, 200)
@@ -1421,11 +1426,38 @@ class SecurityAccount(mforms.Box):
             
         self.relayout()
 
+    def create_user_list(self):
+        if self.user_list:
+            self.account_list_box.remove(self.user_list)
+            self.user_list = None
+            
+        self.user_list = newTreeView(mforms.TreeFlatList)
+        self.user_list.add_column(mforms.StringColumnType, "User", 120, False)
+        self.user_list.add_column(mforms.StringColumnType, "From Host", 100, False)
+        
+        self.firewall_rules.tweak_user_list()
+        
+        self.user_list.end_columns()
+        self.user_list.add_changed_callback(self.user_selected)
+        self.user_list.set_allow_sorting(True)
+        self.account_list_box.add(self.user_list, True, True)
+
     def firewall_installed_event(self):
-        self.firewall_rules.set_enabled(True)
+        if isinstance(self.firewall_rules, FirewallUserInterfaceDummy):
+            self.firewall_rules = FirewallUserInterface(self)
+            self.create_user_list()
+            self.firewall_rules.tweak_tabs(self.tabView)
+
+        self.refresh()
 
     def firewall_removed_event(self):
-        self.firewall_rules.set_enabled(False)
+        if isinstance(self.firewall_rules, FirewallUserInterface):
+            view = self.firewall_rules
+            self.firewall_rules = FirewallUserInterfaceDummy(self)
+            self.tabView.remove_page(view)
+            self.create_user_list()
+
+        self.refresh()
 
     def shutdown(self):
        self.password_validator.shutdown() 
