@@ -4515,6 +4515,7 @@
 		2798BFA7118AF2BC0090590E /* MHudController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MHudController.h; path = library/forms/cocoa/MHudController.h; sourceTree = "<group>"; };
 		2798BFA8118AF2BC0090590E /* MHudController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MHudController.mm; path = library/forms/cocoa/MHudController.mm; sourceTree = "<group>"; };
 		2798BFA9118AF2BC0090590E /* WizardWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = WizardWindow.xib; path = library/forms/cocoa/WizardWindow.xib; sourceTree = "<group>"; };
+		279D8F2422F43A8700C96395 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = ../en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		279DDF431D12A52700857C36 /* MySQLLexer.g4 */ = {isa = PBXFileReference; lastKnownFileType = text; name = MySQLLexer.g4; path = library/parsers/grammars/MySQLLexer.g4; sourceTree = "<group>"; };
 		279DDF441D12A52700857C36 /* MySQLParser.g4 */ = {isa = PBXFileReference; lastKnownFileType = text; name = MySQLParser.g4; path = library/parsers/grammars/MySQLParser.g4; sourceTree = "<group>"; };
 		279DDF491D12A55F00857C36 /* mysql-recognition-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-recognition-types.h"; path = "library/parsers/mysql/mysql-recognition-types.h"; sourceTree = "<group>"; };
@@ -5914,7 +5915,6 @@
 		2B7FC4A0112D9C2B008C07BF /* wb_rel_nm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_rel_nm.png; path = images/toolbar/wb_rel_nm.png; sourceTree = "<group>"; };
 		2B7FC4A1112D9C2B008C07BF /* wb_rubber.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_rubber.png; path = images/toolbar/wb_rubber.png; sourceTree = "<group>"; };
 		2B7FEC0812EB9C0A007945E2 /* wb_admin_main.py */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = text.script.python; name = wb_admin_main.py; path = plugins/wb.admin/frontend/wb_admin_main.py; sourceTree = "<group>"; tabWidth = 4; };
-		2B825D1E0E0B578600BE52DF /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
 		2B825D290E0B59A100BE52DF /* libwbbase.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwbbase.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B825D370E0B59EE00BE52DF /* entities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = entities.h; path = library/base/base/entities.h; sourceTree = "<group>"; };
 		2B825D3A0E0B59EE00BE52DF /* util_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util_functions.h; path = library/base/base/util_functions.h; sourceTree = "<group>"; };
@@ -13289,7 +13289,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1020;
+				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					2731DE4E21A2CD70002EEE8A = {
@@ -13305,11 +13305,10 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MySQLWorkbench" */;
 			compatibilityVersion = "Xcode 9.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				en,
-				English,
 				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* MySQLWorkbench */;
@@ -16379,7 +16378,7 @@
 		2B825D1D0E0B578600BE52DF /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				2B825D1E0E0B578600BE52DF /* English */,
+				279D8F2422F43A8700C96395 /* en */,
 			);
 			name = InfoPlist.strings;
 			path = frontend/mac/English.lproj;

@@ -132,6 +132,8 @@ db_mgmt_ServerInstanceRef getServerInstance(const db_mgmt_ConnectionRef &connect
   return db_mgmt_ServerInstanceRef();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 class Timer {
 public:
   Timer(bool run_immediately) : _is_running(false), _start_timestamp(0), _duration(0) {
@@ -177,10 +179,13 @@ private:
   double _duration;
 };
 
+//----------------------------------------------------------------------------------------------------------------------
 
 struct SqlEditorForm::PrivateMutex {
   std::mutex _symbolsMutex;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mgmt_ConnectionRef &conn) {
   SqlEditorForm::Ref instance(new SqlEditorForm(wbsql));
@@ -191,6 +196,8 @@ SqlEditorForm::Ref SqlEditorForm::create(wb::WBContextSQLIDE *wbsql, const db_mg
   return instance;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp) {
   _tabdock = dp;
   grtobj()->dockingPoint(mforms_to_grt(dp));
@@ -198,6 +205,8 @@ void SqlEditorForm::set_tab_dock(mforms::DockingPoint *dp) {
   scoped_connect(_tabdock->signal_view_undocked(),
                  std::bind(&SqlEditorForm::sql_editor_panel_closed, this, std::placeholders::_1));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::report_connection_failure(const std::string &error, const db_mgmt_ConnectionRef &target) {
   std::string message;
@@ -232,6 +241,8 @@ void SqlEditorForm::report_connection_failure(const std::string &error, const db
   logError("%s", (message + '\n').c_str());
   mforms::Utilities::show_error(_("Cannot Connect to Database Server"), message, _("Close"));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::report_connection_failure(const grt::server_denied &info, const db_mgmt_ConnectionRef &target) {
   std::string message;
@@ -300,7 +311,7 @@ SqlEditorForm::SqlEditorForm(wb::WBContextSQLIDE *wbsql)
   _databaseSymbols.addDependencies({ &_staticServerSymbols });
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 SqlEditorForm::~SqlEditorForm() {
   if (_editorRefreshPending.connected())
@@ -340,11 +351,13 @@ SqlEditorForm::~SqlEditorForm() {
   _sshConnection.release();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::cancel_connect() {
   _cancel_connect = true;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::check_server_problems() {
   //_lower_case_table_names
@@ -360,6 +373,8 @@ void SqlEditorForm::check_server_problems() {
         _("OK"), "", "", "SQLIDE::check_server_problems::lower_case_table_names", "");
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::finish_startup() {
   setup_side_palette();
@@ -414,7 +429,7 @@ void SqlEditorForm::finish_startup() {
   _startup_done = true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::RecMutexLock SqlEditorForm::getAuxConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly) {
   RecMutexLock lock(ensure_valid_aux_connection(false, lockOnly));
@@ -422,7 +437,7 @@ base::RecMutexLock SqlEditorForm::getAuxConnection(sql::Dbc_connection_handler::
   return lock;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 base::RecMutexLock SqlEditorForm::getUserConnection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly) {
   RecMutexLock lock(ensure_valid_usr_connection(false, lockOnly));
@@ -430,13 +445,13 @@ base::RecMutexLock SqlEditorForm::getUserConnection(sql::Dbc_connection_handler:
   return lock;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 db_query_EditorRef SqlEditorForm::grtobj() {
   return wbsql()->get_grt_editor_object(this);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the name for this WQE instance derived from the connection it uses.
@@ -452,7 +467,7 @@ std::string SqlEditorForm::get_session_name() {
   return "unconnected";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::restore_last_workspace() {
   std::string name = get_session_name();
@@ -467,6 +482,8 @@ void SqlEditorForm::restore_last_workspace() {
   title_changed();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::title_changed() {
   base::NotificationInfo info;
   info["form"] = form_id();
@@ -474,6 +491,8 @@ void SqlEditorForm::title_changed() {
   info["connection"] = _connection.is_valid() ? _connection->name() : "";
   base::NotificationCenter::get()->send("GNFormTitleDidChange", this, info);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::handle_grt_notification(const std::string &name, grt::ObjectRef sender, grt::DictRef info) {
   if (name == "GRNServerStateChanged") {
@@ -504,6 +523,8 @@ void SqlEditorForm::handle_grt_notification(const std::string &name, grt::Object
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::handle_notification(const std::string &name, void *sender, base::NotificationInfo &info) {
   if (name == "GNMainFormChanged") {
     if (_side_palette)
@@ -526,6 +547,8 @@ void SqlEditorForm::handle_notification(const std::string &name, void *sender, b
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::reset_keep_alive_thread() {
   MutexLock keep_alive_thread_lock(_keep_alive_thread_mutex);
   if (_keep_alive_task_id) {
@@ -533,6 +556,8 @@ void SqlEditorForm::reset_keep_alive_thread() {
     _keep_alive_task_id = 0;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 grt::StringRef SqlEditorForm::do_disconnect() {
   if (_usr_dbc_conn->ref.get()) {
@@ -551,6 +576,8 @@ grt::StringRef SqlEditorForm::do_disconnect() {
 
   return grt::StringRef();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::close() {
   grt::ValueRef option(bec::GRTManager::get()->get_app_option("workbench:SaveSQLWorkspaceOnClose"));
@@ -627,9 +654,13 @@ void SqlEditorForm::close() {
   _toolbar = nullptr;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string SqlEditorForm::get_form_context_name() const {
   return WB_CONTEXT_QUERY;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 db_mgmt_SSHConnectionRef SqlEditorForm::getSSHConnection() {
   try {
@@ -651,6 +682,8 @@ db_mgmt_SSHConnectionRef SqlEditorForm::getSSHConnection() {
   return _sshConnection;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::string &name, std::string &value) {
   if (dbc_conn) {
     SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms(rdbms());
@@ -668,6 +701,8 @@ bool SqlEditorForm::get_session_variable(sql::Connection *dbc_conn, const std::s
   }
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::schema_tree_did_populate() {
   if (!_pending_expand_nodes.empty() &&
@@ -691,6 +726,8 @@ void SqlEditorForm::schema_tree_did_populate() {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_call,
                                                             std::shared_ptr<sql::ResultSet> &rs) {
   std::string ret_val("");
@@ -710,6 +747,8 @@ std::string SqlEditorForm::fetch_data_from_stored_procedure(std::string proc_cal
   return ret_val;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::update_sql_mode_for_editors() {
   for (int c = sql_editor_count(), i = 0; i < c; i++) {
     SqlEditorPanel *panel = sql_editor_panel(i);
@@ -717,6 +756,8 @@ void SqlEditorForm::update_sql_mode_for_editors() {
       panel->editor_be()->set_sql_mode(_sql_mode);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::cache_sql_mode() {
   std::string sql_mode;
@@ -727,6 +768,8 @@ void SqlEditorForm::cache_sql_mode() {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::query_ps_statistics(std::int64_t conn_id, std::map<std::string, std::int64_t> &stats) {
   static const char *stat_fields[] = {"EVENT_ID",
@@ -771,6 +814,8 @@ void SqlEditorForm::query_ps_statistics(std::int64_t conn_id, std::map<std::stri
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(std::int64_t stmt_event_id) {
   RecMutexLock lock(ensure_valid_aux_connection());
 
@@ -811,6 +856,8 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(std::int64_t 
   return stages;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(std::int64_t stmt_event_id) {
   RecMutexLock lock(ensure_valid_aux_connection());
 
@@ -845,6 +892,8 @@ std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(std::int64_t st
   return waits;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 SqlEditorPanel *SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bool reuse_if_possible,
                                                       bool start_collapsed) {
   SqlEditorPanel *editor;
@@ -858,11 +907,15 @@ SqlEditorPanel *SqlEditorForm::run_sql_in_scratch_tab(const std::string &sql, bo
   return editor;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::reset() {
   SqlEditorPanel *panel = active_sql_editor_panel();
   if (panel)
     panel->editor_be()->cancel_auto_completion();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void logToWorkbenchLog(int messageType, std::string const &msg) {
   switch (messageType) {
@@ -888,6 +941,8 @@ void logToWorkbenchLog(int messageType, std::string const &msg) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 int SqlEditorForm::add_log_message(int messageType, const std::string &msg, const std::string &context,
                                    const std::string &duration) {
   RowId new_log_message_index = _log->add_message(messageType, context, msg, duration);
@@ -899,6 +954,8 @@ int SqlEditorForm::add_log_message(int messageType, const std::string &msg, cons
   logToWorkbenchLog(messageType, msg);
   return (int)new_log_message_index;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::set_log_message(RowId log_message_index, int messageType, const std::string &msg,
                                     const std::string &context, const std::string &duration) {
@@ -912,6 +969,8 @@ void SqlEditorForm::set_log_message(RowId log_message_index, int messageType, co
 
   logToWorkbenchLog(messageType, msg);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp) {
   if (_has_pending_log_messages) {
@@ -931,6 +990,8 @@ void SqlEditorForm::refresh_log_messages(bool ignore_last_message_timestamp) {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::init_connection(sql::Connection *dbc_conn_ref, const db_mgmt_ConnectionRef &connectionProperties,
                                     sql::Dbc_connection_handler::Ref &dbc_conn, bool user_connection) {
@@ -991,6 +1052,8 @@ void SqlEditorForm::init_connection(sql::Connection *dbc_conn_ref, const db_mgmt
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 static void set_active_schema(SqlEditorForm::Ptr self, const std::string &schema) {
   SqlEditorForm::Ref ed(self.lock());
@@ -1096,6 +1159,8 @@ struct ConnectionErrorInfo {
   }
 };
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn) {
   if (_connection.is_valid())
     logWarning("Setting connection on an editor with a connection already set\n");
@@ -1126,6 +1191,8 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn) {
   if (_startup_done)
     GRTNotificationCenter::get()->send_grt("GRNSQLEditorOpened", grtobj(), grt::DictRef());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel) {
   sql::Authentication::Ref auth = _dbc_auth; // sql::Authentication::create(_connection, "");
@@ -1205,7 +1272,7 @@ bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel) {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::update_connected_state() {
   grt::DictRef args(true);
@@ -1215,7 +1282,7 @@ void SqlEditorForm::update_connected_state() {
   update_menu_and_toolbar();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Little helper to create a single html line used for info output.
@@ -1224,7 +1291,7 @@ std::string create_html_line(const std::string &name, const std::string &value) 
   return "<div class='line'><span class='name'>" + name + " </span><span class='value'>" + value + "</span></div>";
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string SqlEditorForm::get_client_lib_version() {
   std::string version;
@@ -1234,7 +1301,8 @@ std::string SqlEditorForm::get_client_lib_version() {
   return version;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
 
 grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
                                          ConnectionErrorInfo *err_ptr) {
@@ -1273,7 +1341,8 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     } else {
       _connection_info.append(create_html_line("Host:", _connection->parameterValues().get_string("hostName")));
       _connection_info.append(
-        create_html_line("Port:", strfmt("%i", (int)_connection->parameterValues().get_int("port"))));
+        create_html_line("Port:", std::to_string(_connection->parameterValues().get_int("port")))
+      );
     }
 
     // open connections
@@ -1417,7 +1486,7 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
   return grt::StringRef();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::connected() const {
   // If the conn mutex is locked by someone else, then we assume the conn is in use and thus,
@@ -1429,6 +1498,8 @@ bool SqlEditorForm::connected() const {
     return true; // we don't need to PING the server every time we want to check if the editor is connected
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::checkIfOffline() {
   bool locked = _usr_dbc_conn_mutex.tryLock();
@@ -1456,6 +1527,8 @@ void SqlEditorForm::checkIfOffline() {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::offline() {
   if (_serverIsOffline)
     return true;
@@ -1465,6 +1538,8 @@ bool SqlEditorForm::offline() {
 
   return _serverIsOffline;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::ping() const {
   // If the conn mutex is locked by someone else, then we assume the conn is in use and thus,
@@ -1489,19 +1564,27 @@ bool SqlEditorForm::ping() const {
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 base::RecMutexLock SqlEditorForm::ensure_valid_aux_connection(sql::Dbc_connection_handler::Ref &conn, bool lockOnly) {
   RecMutexLock lock(ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, lockOnly));
   conn = _aux_dbc_conn;
   return lock;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 RecMutexLock SqlEditorForm::ensure_valid_aux_connection(bool throw_on_block, bool lockOnly) {
   return ensure_valid_dbc_connection(_aux_dbc_conn, _aux_dbc_conn_mutex, throw_on_block, lockOnly);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 RecMutexLock SqlEditorForm::ensure_valid_usr_connection(bool throw_on_block, bool lockOnly) {
   return ensure_valid_dbc_connection(_usr_dbc_conn, _usr_dbc_conn_mutex, throw_on_block, lockOnly);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::close_connection(sql::Dbc_connection_handler::Ref &dbc_conn) {
   sql::Dbc_connection_handler::Ref myref(dbc_conn);
@@ -1513,6 +1596,8 @@ void SqlEditorForm::close_connection(sql::Dbc_connection_handler::Ref &dbc_conn)
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_handler::Ref &dbc_conn,
                                                         base::RecMutex &dbc_conn_mutex, bool throw_on_block,
@@ -1554,11 +1639,15 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
   return mutex_lock;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::auto_commit() {
   if (_usr_dbc_conn)
     return _usr_dbc_conn->autocommit_mode;
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::auto_commit(bool value) {
   if (!_usr_dbc_conn)
@@ -1575,10 +1664,14 @@ void SqlEditorForm::auto_commit(bool value) {
   update_menu_and_toolbar();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::toggle_autocommit() {
   auto_commit(!auto_commit());
   update_menu_and_toolbar();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::toggle_collect_field_info() {
   if (_connection.is_valid())
@@ -1586,11 +1679,15 @@ void SqlEditorForm::toggle_collect_field_info() {
   update_menu_and_toolbar();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::collect_field_info() const {
   if (_connection.is_valid())
     return _connection->parameterValues().get_int("CollectFieldMetadata", 1) != 0;
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::toggle_collect_ps_statement_events() {
   if (_connection.is_valid())
@@ -1599,11 +1696,15 @@ void SqlEditorForm::toggle_collect_ps_statement_events() {
   update_menu_and_toolbar();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::collect_ps_statement_events() const {
   if (_connection.is_valid() && is_supported_mysql_version_at_least(rdbms_version(), 5, 6))
     return _connection->parameterValues().get_int("CollectPerfSchemaStatsForQueries", 1) != 0;
   return false;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::cancel_query() {
   std::string query_kill_query;
@@ -1655,13 +1756,19 @@ void SqlEditorForm::cancel_query() {
   CATCH_SQL_EXCEPTION_AND_DISPATCH(STATEMENT, log_message_index, "")
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::commit() {
   exec_sql_retaining_editor_contents("COMMIT", nullptr, false);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::rollback() {
   exec_sql_retaining_editor_contents("ROLLBACK", nullptr, false);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::explain_current_statement() {
   SqlEditorPanel *panel = active_sql_editor_panel();
@@ -1676,6 +1783,8 @@ void SqlEditorForm::explain_current_statement() {
     grt::GRT::get()->call_module_function("SQLIDEQueryAnalysis", "visualExplain", args);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 // Should actually be called _retaining_old_recordsets
 void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_script, SqlEditorPanel *editor, bool sync,
@@ -1696,12 +1805,16 @@ void SqlEditorForm::exec_sql_retaining_editor_contents(const std::string &sql_sc
                                       (ExecFlags)(dont_add_limit_clause ? DontAddLimitClause : 0), RecordsetsRef()));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::run_editor_contents(bool current_statement_only) {
   SqlEditorPanel *panel(active_sql_editor_panel());
   if (panel) {
     exec_editor_sql(panel, false, current_statement_only, current_statement_only);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_script, bool dont_add_limit_clause) {
   if (!connected())
@@ -1714,6 +1827,8 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
 
   return rsets;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Runs the current content of the given editor on the target server and returns true if the query
@@ -1733,7 +1848,6 @@ RecordsetsRef SqlEditorForm::exec_sql_returning_results(const std::string &sql_s
  * @param into_result If not nullptr, the resultset grid will be displayed inside it, instead of creating
  *                     a new one in editor. The query/script must return at most one recordset.
  */
-
 bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool current_statement_only,
                                     bool use_non_std_delimiter, bool dont_add_limit_clause,
                                     SqlEditorResult *into_result) {
@@ -1793,9 +1907,13 @@ bool SqlEditorForm::exec_editor_sql(SqlEditorPanel *editor, bool sync, bool curr
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::update_live_schema_tree(const std::string &sql) {
   bec::GRTManager::get()->run_once_when_idle(this, std::bind(&SqlEditorForm::handle_command_side_effects, this, sql));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::string> sql, SqlEditorPanel *editor,
                                           ExecFlags flags, RecordsetsRef result_list) {
@@ -2242,6 +2360,8 @@ grt::StringRef SqlEditorForm::do_exec_sql(Ptr self_ptr, std::shared_ptr<std::str
   return grt::StringRef("");
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::exec_management_sql(const std::string &sql, bool log) {
   sql::Dbc_connection_handler::Ref conn;
   base::RecMutexLock lock(ensure_valid_aux_connection(conn));
@@ -2266,6 +2386,8 @@ void SqlEditorForm::exec_management_sql(const std::string &sql, bool log) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::exec_main_sql(const std::string &sql, bool log) {
   base::RecMutexLock lock(ensure_valid_usr_connection());
   if (_usr_dbc_conn) {
@@ -2289,6 +2411,8 @@ void SqlEditorForm::exec_main_sql(const std::string &sql, bool log) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static wb::LiveSchemaTree::ObjectType str_to_object_type(const std::string &object_type) {
   if (object_type == "db.Table")
     return LiveSchemaTree::Table;
@@ -2307,6 +2431,8 @@ static wb::LiveSchemaTree::ObjectType str_to_object_type(const std::string &obje
 
   return LiveSchemaTree::NoneType;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::handle_command_side_effects(const std::string &sql) {
   SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms(rdbms());
@@ -2344,6 +2470,8 @@ void SqlEditorForm::handle_command_side_effects(const std::string &sql) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 db_query_ResultsetRef SqlEditorForm::exec_management_query(const std::string &sql, bool log) {
   sql::Dbc_connection_handler::Ref conn;
   base::RecMutexLock lock(ensure_valid_aux_connection(conn));
@@ -2368,6 +2496,8 @@ db_query_ResultsetRef SqlEditorForm::exec_management_query(const std::string &sq
   return db_query_ResultsetRef();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 db_query_ResultsetRef SqlEditorForm::exec_main_query(const std::string &sql, bool log) {
   base::RecMutexLock lock(ensure_valid_usr_connection());
   if (_usr_dbc_conn) {
@@ -2391,9 +2521,13 @@ db_query_ResultsetRef SqlEditorForm::exec_main_query(const std::string &sql, boo
   return db_query_ResultsetRef();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::is_running_query() {
   return _is_running_query;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::continue_on_error(bool val) {
   if (_continueOnError == val)
@@ -2407,6 +2541,8 @@ void SqlEditorForm::continue_on_error(bool val) {
   set_editor_tool_items_checked("query.continueOnError", continue_on_error());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::send_message_keep_alive() {
   try {
     logDebug3("KeepAliveInterval tick\n");
@@ -2417,6 +2553,8 @@ void SqlEditorForm::send_message_keep_alive() {
   } catch (const std::exception &) {
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr) {
   RETURN_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, rs_ptr, rs)
@@ -2486,6 +2624,8 @@ void SqlEditorForm::apply_changes_to_recordset(Recordset::Ptr rs_ptr) {
   CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Apply changes to recordset"))
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool skip_commit) {
   RETVAL_IF_FAIL_TO_RETAIN_WEAK_PTR(Recordset, rs_ptr, rs, false)
 
@@ -2518,6 +2658,8 @@ bool SqlEditorForm::run_data_changes_commit_wizard(Recordset::Ptr rs_ptr, bool s
 
   return !wizard.has_errors();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, bec::DBObjectEditorBE *obj_editor,
                                               RowId log_id) {
@@ -2612,6 +2754,8 @@ void SqlEditorForm::apply_object_alter_script(const std::string &alter_script, b
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::apply_data_changes_commit(const std::string &sql_script_text, Recordset::Ptr rs_ptr,
                                               bool skip_commit) {
@@ -2798,6 +2942,8 @@ void SqlEditorForm::cache_active_schema_name() {
                                         true);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::active_schema(const std::string &value) {
   try {
     if (value == active_schema())
@@ -2841,6 +2987,8 @@ void SqlEditorForm::active_schema(const std::string &value) {
   CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Set active schema"))
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 db_mgmt_RdbmsRef SqlEditorForm::rdbms() {
   if (_connection.is_valid()) {
     if (!_connection->driver().is_valid())
@@ -2849,6 +2997,8 @@ db_mgmt_RdbmsRef SqlEditorForm::rdbms() {
   } else
     return db_mgmt_RdbmsRef::cast_from(grt::GRT::get()->get("/wb/rdbmsMgmt/rdbms/0/"));
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 int SqlEditorForm::count_connection_editors(const std::string &conn_name) {
   int count = 0;
@@ -2869,7 +3019,7 @@ int SqlEditorForm::count_connection_editors(const std::string &conn_name) {
   return count;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string SqlEditorForm::create_title() {
   std::string caption;
@@ -2896,7 +3046,7 @@ std::string SqlEditorForm::create_title() {
   return caption;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::update_title() {
   std::string temp_title = create_title();
@@ -2906,19 +3056,21 @@ void SqlEditorForm::update_title() {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 int SqlEditorForm::getTunnelPort() const {
   if (_tunnel)
     return _tunnel->get_port();
   return -1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 GrtVersionRef SqlEditorForm::rdbms_version() const {
   return _version;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the current server version (or a reasonable default if not connected) in compact form
@@ -2934,7 +3086,7 @@ int SqlEditorForm::server_version() {
     return 50503;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns a list of valid charsets for this connection as needed for parsing.
@@ -2956,7 +3108,7 @@ std::set<std::string> SqlEditorForm::valid_charsets() {
   return _charsets;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::save_snippet() {
   SqlEditorPanel *panel = active_sql_editor_panel();
@@ -2982,11 +3134,13 @@ bool SqlEditorForm::save_snippet() {
   return true;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::can_close() {
   return can_close_(true);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool SqlEditorForm::can_close_(bool interactive) {
   if (exec_sql_task && exec_sql_task->is_busy()) {
@@ -3064,8 +3218,7 @@ bool SqlEditorForm::can_close_(bool interactive) {
         }
       }
     }
-  } else // !interactive, return false if there's any unsaved edits in editor or resultsets
-  {
+  } else { // !interactive, return false if there's any unsaved edits in editor or resultsets
     for (int i = 0; i < sql_editor_count(); i++) {
       SqlEditorPanel *panel = sql_editor_panel(i);
       if (panel) {
@@ -3081,6 +3234,8 @@ bool SqlEditorForm::can_close_(bool interactive) {
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void SqlEditorForm::check_external_file_changes() {
   for (int i = 0; i < sql_editor_count(); i++) {
     SqlEditorPanel *panel = sql_editor_panel(i);
@@ -3089,7 +3244,7 @@ void SqlEditorForm::check_external_file_changes() {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::update_editor_title_schema(const std::string &schema) {
   _live_tree->on_active_schema_change(schema);
@@ -3099,16 +3254,16 @@ void SqlEditorForm::update_editor_title_schema(const std::string &schema) {
   update_title();
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-/* Called whenever a connection to a server is opened, whether it succeeds or not.
-
-
- Call this when a connection to the server is opened. If the connection succeeded, pass 0 as
- the error and if it fails, pass the error code.
-
- The error will be used to determine whether the connection failed because the server is possibly
- down (or doesn't exist) or some other reason (like wrong password).
+/**
+ * Called whenever a connection to a server is opened, whether it succeeds or not.
+ *
+ * Call this when a connection to the server is opened. If the connection succeeded, pass 0 as
+ * the error and if it fails, pass the error code.
+ *
+ * The error will be used to determine whether the connection failed because the server is possibly
+ * down (or doesn't exist) or some other reason (like wrong password).
  */
 void SqlEditorForm::note_connection_open_outcome(int error) {
   ServerState newState;
@@ -3149,5 +3304,4 @@ void SqlEditorForm::note_connection_open_outcome(int error) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
-
+//----------------------------------------------------------------------------------------------------------------------
