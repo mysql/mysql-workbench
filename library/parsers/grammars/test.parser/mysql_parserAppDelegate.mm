@@ -35,7 +35,8 @@ using namespace parsers;
 using namespace antlr4;
 using namespace antlr4::atn;
 
-static std::string last_error;
+static std::string lastErrors;
+
 NSString *sql1 = @"select 2 as expected, /*!01000/**/*/ 2 as result";
 NSString *sql2 = @"select (select\n t1.id as a, sakila.actor.actor_id b, t2.id c, "
                   "(select  1 * 0.123, a from t3) from  `ÄÖÜ丈` t1, sakila.actor as t2\n"
@@ -159,7 +160,9 @@ public:
   virtual void syntaxError(Recognizer *recognizer, antlr4::Token *offendingSymbol, size_t line,
                            size_t charPositionInLine, const std::string &msg, std::exception_ptr e) override {
     // Here we use the message provided by the DefaultErrorStrategy class.
-    last_error = "line " + std::to_string(line) + ":" + std::to_string(charPositionInLine) + " " + msg;
+    if (!lastErrors.empty())
+      lastErrors += "\n";
+    lastErrors += "line " + std::to_string(line) + ":" + std::to_string(charPositionInLine) + " " + msg;
   }
 };
 
@@ -288,13 +291,13 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
   [defaults setObject:singleQueryText.string forKey: @"single-query"];
   [defaults setObject:versionText.stringValue forKey: @"version"];
 
-  last_error = "";
+  lastErrors = "";
   errorText.string = @"";
-  [errorText setNeedsDisplay:YES];
+  [errorText setNeedsDisplay: YES];
   output.string = @"";
-  [output setNeedsDisplay:YES];
+  [output setNeedsDisplay: YES];
   parseTreeView.string = @"";
-  [parseTreeView setNeedsDisplay:YES];
+  [parseTreeView setNeedsDisplay: YES];
 
   size_t errorCount = [self parseQuery: singleQueryText.string
                                version: [self getServerVersion]
@@ -306,11 +309,11 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
   if (errorCount > 0) {
     combinedErrorText =
-      [combinedErrorText stringByAppendingFormat: @"%zu errors found\n%s", errorCount, last_error.c_str()];
+      [combinedErrorText stringByAppendingFormat: @"%zu errors found\n%s", errorCount, lastErrors.c_str()];
   } else {
     combinedErrorText = [combinedErrorText stringByAppendingString: @"No errors found"];
   }
-  [errorText setString:combinedErrorText];
+  [errorText setString: combinedErrorText];
 }
 
 - (IBAction)selectFile: (id)sender {
@@ -352,7 +355,7 @@ static Ref<BailErrorStrategy> errorStrategy = std::make_shared<BailErrorStrategy
 
   stopTests = NO;
   errorQueryText.string = @"";
-  last_error = "";
+  lastErrors = "";
 
   statusText.stringValue = @"Counting queries...";
   stepsList.string = @"Counting queries\n";

@@ -42,7 +42,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		256AC3F00F4B6AF500CF3369 /* mysql_parser_Prefix.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = mysql_parser_Prefix.h; sourceTree = "<group>"; };
@@ -50,6 +49,7 @@
 		273AB865228AE11000FB3602 /* symbol-info.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "symbol-info.cpp"; path = "../../../base/symbol-info.cpp"; sourceTree = "<group>"; };
 		274912421D574E600030C9F5 /* mysql_parserAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mysql_parserAppDelegate.h; sourceTree = "<group>"; };
 		274912431D574E600030C9F5 /* mysql_parserAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = mysql_parserAppDelegate.mm; sourceTree = "<group>"; wrapsLines = 0; };
+		2754C99C22F978DE00AA3B6D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		27AC52C11CE76A110093AAAB /* MySQLBaseLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLBaseLexer.cpp; path = ../../mysql/MySQLBaseLexer.cpp; sourceTree = "<group>"; wrapsLines = 0; };
 		27AC52C21CE76A110093AAAB /* MySQLBaseLexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MySQLBaseLexer.h; path = ../../mysql/MySQLBaseLexer.h; sourceTree = "<group>"; wrapsLines = 0; };
 		27AC52C41CE76B850093AAAB /* MySQLRecognizerCommon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MySQLRecognizerCommon.cpp; path = ../../mysql/MySQLRecognizerCommon.cpp; sourceTree = "<group>"; wrapsLines = 0; };
@@ -247,14 +247,11 @@
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "mysql.parser" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
 				Base,
+				en,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* mysql.parser */;
 			projectDirPath = "";
@@ -322,7 +319,7 @@
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				089C165DFE840E0CC02AAC07 /* English */,
+				2754C99C22F978DE00AA3B6D /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
