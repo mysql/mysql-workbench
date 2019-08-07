@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -28,13 +28,11 @@
 #include "base/file_utilities.h"
 
 #include <errno.h>
-#ifdef _MSC_VER
-#include <windows.h>
-#else
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#ifndef _MSC_VER
+  #include <unistd.h>
+  #include <signal.h>
+  #include <sys/types.h>
+  #include <sys/wait.h>
 #endif
 
 #include <sstream>
@@ -48,66 +46,13 @@ DEFAULT_LOG_DOMAIN("SSH tunnel")
 using namespace wb;
 using namespace base;
 
-class tunnel_auth_error : public std::runtime_error {
-public:
-  tunnel_auth_error(const std::string &err)
-      : std::runtime_error(err) {
-  }
-};
-
-class tunnel_auth_retry : public std::runtime_error {
-public:
-  tunnel_auth_retry(const std::string &err)
-      : std::runtime_error(err) {
-  }
-};
-
-class tunnel_auth_cancelled : public std::runtime_error {
-public:
-  tunnel_auth_cancelled(const std::string &err)
-      : std::runtime_error(err) {
-  }
-};
-
-class tunnel_auth_key_error : public std::runtime_error {
-public:
-  tunnel_auth_key_error(const std::string &err)
-      : std::runtime_error(err) {
-  }
-};
-
-class SSHTunnel : public sql::TunnelConnection {
-  TunnelManager *_tm;
-  int _port;
-  ssh::SSHConnectionConfig _config;
-
-public:
-  SSHTunnel(TunnelManager *tm, int port, const ssh::SSHConnectionConfig &config)
-      : _tm(tm), _port(port), _config(config) {
-    _tm->portUsageIncrement(_config);
-  }
-
-  virtual ~SSHTunnel() {
-    disconnect();
-  }
-
-  virtual int get_port() {
-    return _port;
-  }
-
-  virtual void connect(db_mgmt_ConnectionRef connectionProperties) {
-    if (_port == 0)
-      throw std::runtime_error("Could not connect SSH tunnel");
-  }
-
-  virtual void disconnect() {
-    _tm->portUsageDecrement(_config);
-  }
-};
+//----------------------------------------------------------------------------------------------------------------------
 
 TunnelManager::TunnelManager()
     : _manager(nullptr) {
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void TunnelManager::start() {
   if (_manager == nullptr)
@@ -119,12 +64,16 @@ void TunnelManager::start() {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void TunnelManager::shutdown() {
   if (_manager != nullptr) {
     _manager->setStop();
     _manager->pokeWakeupSocket();
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void TunnelManager::portUsageIncrement(const ssh::SSHConnectionConfig &config) {
   logDebug2("Increment port usage count: %d\n", config.localport);
@@ -136,6 +85,8 @@ void TunnelManager::portUsageIncrement(const ssh::SSHConnectionConfig &config) {
     _portUsage.insert( { config.localport, { config, base::refcount_t(1) } });
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void TunnelManager::portUsageDecrement(const ssh::SSHConnectionConfig &config) {
   logDebug2("Decrement port usage count: %d\n", config.localport);
@@ -150,7 +101,9 @@ void TunnelManager::portUsageDecrement(const ssh::SSHConnectionConfig &config) {
   }
 }
 
-std::shared_ptr<sql::TunnelConnection> TunnelManager::createTunnel(db_mgmt_ConnectionRef connectionProperties) {
+//----------------------------------------------------------------------------------------------------------------------
+
+std::shared_ptr<SSHTunnel> TunnelManager::createTunnel(db_mgmt_ConnectionRef connectionProperties) {
   grt::DictRef parameter_values = connectionProperties->parameterValues();
 
   if (connectionProperties->driver()->name() == "MysqlNativeSSH") {
@@ -168,7 +121,7 @@ std::shared_ptr<sql::TunnelConnection> TunnelManager::createTunnel(db_mgmt_Conne
       bec::GRTManager::get()->replace_status_text("Existing SSH tunnel found, connecting...");
       logInfo("Existing SSH tunnel found, connecting\n");
       config.localport = tunnel_port;
-      return std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, tunnel_port, config));
+      return std::shared_ptr<SSHTunnel>(new ::SSHTunnel(this, config));
     } else {
       bool resetPassword = false;
 
@@ -196,7 +149,7 @@ std::shared_ptr<sql::TunnelConnection> TunnelManager::createTunnel(db_mgmt_Conne
             bec::GRTManager::get()->replace_status_text("SSH tunnel opened");
             logInfo("SSH tunnel opened on port: %d\n", (int )port);
             config.localport = port;
-            return std::shared_ptr<sql::TunnelConnection>(new ::SSHTunnel(this, port, config));
+            return std::shared_ptr<SSHTunnel>(new ::SSHTunnel(this, config));
           }
           case ssh::SSHReturnType::INVALID_AUTH_DATA: {
             std::string errorMsg = std::get<1>(retVal);
@@ -220,8 +173,8 @@ std::shared_ptr<sql::TunnelConnection> TunnelManager::createTunnel(db_mgmt_Conne
           case ssh::SSHReturnType::FINGERPRINT_MISMATCH: {
             std::string fingerprint = std::get<1>(retVal);
             std::string errorMsg =
-                "WARNING: Server public key has changed. It means either you're under attack or the administrator has changed the key. New public fingerprint is: "
-                    + fingerprint;
+              "WARNING: Server public key has changed. It means either you're under attack or the administrator has "
+              "changed the key. New public fingerprint is: " + fingerprint;
             mforms::Utilities::show_error("Could not connect the SSH Tunnel", errorMsg, _("Ok"));
             logDebug("Tunnel auth error, key fingerprint mismatch\n");
             throw grt::user_cancelled("");
@@ -245,8 +198,10 @@ std::shared_ptr<sql::TunnelConnection> TunnelManager::createTunnel(db_mgmt_Conne
       }
     }
   }
-  return std::shared_ptr<sql::TunnelConnection>();
+  return std::shared_ptr<SSHTunnel>();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 TunnelManager::~TunnelManager() {
   shutdown();
@@ -257,3 +212,5 @@ TunnelManager::~TunnelManager() {
     delete _manager;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------

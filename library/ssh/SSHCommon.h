@@ -99,7 +99,6 @@ namespace ssh {
 
   class WBSSHLIBRARY_PUBLIC_FUNC SSHConnectionConfig {
   public:
-    SSHConnectionConfig();
     std::string localhost;
     int localport;
     ssize_t bufferSize;
@@ -117,6 +116,9 @@ namespace ssh {
     std::size_t readWriteTimeout;
     std::size_t commandTimeout;
     std::size_t commandRetryCount;
+
+    SSHConnectionConfig();
+
     std::string getServer() {
       return remoteSSHhost + ":" + std::to_string(remoteSSHport);
     }

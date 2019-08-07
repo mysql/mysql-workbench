@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -788,7 +788,7 @@ void WBContextSQLIDE::finalize() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor) {
-  std::shared_ptr<sql::TunnelConnection> tunnel;
+  std::shared_ptr<wb::SSHTunnel> tunnel;
 
   if (!editor->connection_descriptor().is_valid()) {
     grtui::DbConnectionDialog dialog(wb::WBContextUI::get()->get_wb()->get_root()->rdbmsMgmt());
@@ -822,7 +822,7 @@ void WBContextSQLIDE::reconnect_editor(SqlEditorForm *editor) {
   }
 }
 
-static void *connect_editor(SqlEditorForm::Ref editor, std::shared_ptr<sql::TunnelConnection> tunnel) {
+static void *connect_editor(SqlEditorForm::Ref editor, std::shared_ptr<wb::SSHTunnel> tunnel) {
   try {
     logDebug3("Connecting SQL editor...\n");
     editor->connect(tunnel);
@@ -855,7 +855,7 @@ static bool cancel_connect_editor(SqlEditorForm::Ref editor) {
 
 SqlEditorForm::Ref WBContextSQLIDE::create_connected_editor(const db_mgmt_ConnectionRef &conn) {
   // start by opening the tunnel, if needed
-  std::shared_ptr<sql::TunnelConnection> tunnel;
+  std::shared_ptr<wb::SSHTunnel> tunnel;
 
   if (conn.is_valid())
     tunnel = sql::DriverManager::getDriverManager()->getTunnel(conn);

@@ -2470,11 +2470,11 @@ void SqlEditorTreeController::handle_grt_notification(const std::string &name, g
 //----------------------------------------------------------------------------------------------------------------------
 
 const std::string objectInfoStyles = "<style>"
-  "body { font-family: '" DEFAULT_FONT_FAMILY "'; color: %color1%; }"
-  "div.heading { font-weight: 700; }"
-  "div.line { padding-left: 15px; }"
-  "span.name { color: %color2%; }"
-  "span.value { font-weight: 700; color: %color2%; }"
+  "body { font-family: '" DEFAULT_FONT_FAMILY "'; color: »color1«; }"
+  "tr.heading { font-weight: 700; }"
+  "td.name { color: »color2«; }"
+  "td.value { font-weight: 700; color: »color2«;}"
+  "table { width: 100%; white-space: nowrap; }"
   "</style>"
 ;
 
@@ -2494,26 +2494,22 @@ void SqlEditorTreeController::updateColors() {
   _session_info->set_back_color("#ebebeb");
 #endif
 
-
-
   schema_row_selected(); // Refresh object HTML.
   _object_info->set_needs_repaint();
 
 #ifdef __linux__
-
   _session_info->set_markup_text(_owner->get_connection_info());
-  _session_info->set_needs_repaint();
 #else
   Color textColor = base::Color::getSystemColor(base::LabelColor);
-  std::string html = base::replaceString(objectInfoStyles, "%color1%", textColor.to_html());
+  std::string html = base::replaceString(objectInfoStyles, "»color1«", textColor.to_html());
   textColor.alpha = 0.75;
-  base::replaceStringInplace(html, "%color2%", textColor.to_html());
+  base::replaceStringInplace(html, "»color2«", textColor.to_html());
   html = "<html><head>" + html + "</head>";
   html += _owner->get_connection_info() + "</html>";
-  _session_info->set_markup_text(_owner->get_connection_info());
-  _session_info->set_needs_repaint();
+  _session_info->set_markup_text(html);
 #endif
 
+  _session_info->set_needs_repaint();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

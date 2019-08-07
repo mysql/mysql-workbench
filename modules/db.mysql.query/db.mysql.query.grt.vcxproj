@@ -95,7 +95,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\ssh;$(SolutionDir)\backend\wbprivate\workbench;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -118,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\ssh;$(SolutionDir)\backend\wbprivate\workbench;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -139,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\ssh;$(SolutionDir)\backend\wbprivate\workbench;$(SolutionDir)\library\cdbc\src;$(SolutionDir)\library\grt\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -170,6 +170,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\library\grt\grt.vcxproj">
       <Project>{dc1ddaad-7dc1-4bc4-b6c8-b7cec998c7ed}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\library\ssh\wbssh.vcxproj">
+      <Project>{f678c48f-46ba-4e15-8be2-0d0bd441a23c}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

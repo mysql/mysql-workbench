@@ -87,6 +87,7 @@ target_link_libraries(wbprivate
   PUBLIC
     ${GDAL_LIBRARIES}
     wbprivate_Iface
+    wbssh::wbssh
   PRIVATE
     grt
     mdcanvas
@@ -102,6 +103,8 @@ add_library(wbprivate::wbprivate ALIAS wbprivate_Iface)
 
 target_include_directories(wbprivate_Iface INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/workbench>
+
 )
 
 target_include_directories(wbprivate_Iface

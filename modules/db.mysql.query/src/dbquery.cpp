@@ -29,6 +29,8 @@
 
 #include "grts/structs.db.mgmt.h"
 
+#include "wb_tunnel.h"
+
 #define DOC_DbMySQLQueryImpl                                                       \
   "Query execution and utility routines for  MySQL servers.\n"                     \
   "\n"                                                                             \
@@ -259,7 +261,7 @@ private:
   base::Mutex _mutex;
   std::map<int, ConnectionInfo::Ref> _connections;
   std::map<int, sql::ResultSet *> _resultsets;
-  std::map<int, std::shared_ptr<sql::TunnelConnection> > _tunnels;
+  std::map<int, std::shared_ptr<wb::SSHTunnel> > _tunnels;
   std::string _last_error;
   int _last_error_code;
 
@@ -790,7 +792,7 @@ grt::DictRef DbMySQLQueryImpl::loadSchemaObjectList(int conn, grt::StringRef sch
 
 int DbMySQLQueryImpl::openTunnel(const db_mgmt_ConnectionRef &info) {
   sql::DriverManager *dm = sql::DriverManager::getDriverManager();
-  std::shared_ptr<sql::TunnelConnection> tun = dm->getTunnel(info);
+  std::shared_ptr<wb::SSHTunnel> tun = dm->getTunnel(info);
   if (tun) {
     _tunnels[++_tunnel_id] = tun;
     return _tunnel_id;
@@ -801,7 +803,7 @@ int DbMySQLQueryImpl::openTunnel(const db_mgmt_ConnectionRef &info) {
 int DbMySQLQueryImpl::getTunnelPort(int tunnel) {
   if (_tunnels.find(tunnel) == _tunnels.end())
     throw std::invalid_argument("Invalid tunnel-id");
-  return _tunnels[tunnel]->get_port();
+  return _tunnels[tunnel]->getConfig().localport;
 }
 
 int DbMySQLQueryImpl::closeTunnel(int tunnel) {

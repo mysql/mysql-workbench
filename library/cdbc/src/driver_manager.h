@@ -33,25 +33,21 @@
 #include "grts/structs.db.mgmt.h"
 #include <cppconn/connection.h>
 
+namespace wb {
+  class SSHTunnel;
+}
+
 namespace sql {
   typedef std::shared_ptr<Connection> ConnectionPtr;
 
-  class TunnelConnection {
-  public:
-    virtual void connect(db_mgmt_ConnectionRef connectionProperties) = 0;
-    virtual void disconnect() = 0;
-    virtual int get_port() = 0;
-    virtual ~TunnelConnection(){};
-  };
-
   class ConnectionWrapper {
     ConnectionPtr _conn;
-    std::shared_ptr<TunnelConnection> _tunnel_conn;
+    std::shared_ptr<wb::SSHTunnel> _tunnel_conn;
 
   public:
     ConnectionWrapper() {
     }
-    ConnectionWrapper(std::shared_ptr<Connection> conn, std::shared_ptr<TunnelConnection> tunn_conn)
+    ConnectionWrapper(std::shared_ptr<Connection> conn, std::shared_ptr<wb::SSHTunnel> tunn_conn)
       : _conn(conn), _tunnel_conn(tunn_conn) {
     }
     void reset() {
@@ -144,18 +140,18 @@ namespace sql {
                                     ConnectionInitSlot connection_init_slot = ConnectionInitSlot());
 
     ConnectionWrapper getConnection(const db_mgmt_ConnectionRef &connectionProperties,
-                                    std::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
+                                    std::shared_ptr<wb::SSHTunnel> tunnel, Authentication::Ref password,
                                     ConnectionInitSlot connection_init_slot = ConnectionInitSlot());
 
     void thread_cleanup();
 
-    std::shared_ptr<TunnelConnection> getTunnel(const db_mgmt_ConnectionRef &connectionProperties);
+    std::shared_ptr<wb::SSHTunnel> getTunnel(const db_mgmt_ConnectionRef &connectionProperties);
 
     // Returns the list of available drivers
     std::list<Driver *> getDrivers();
 
   public:
-    typedef std::function<std::shared_ptr<TunnelConnection>(const db_mgmt_ConnectionRef &)> TunnelFactoryFunction;
+    typedef std::function<std::shared_ptr<wb::SSHTunnel>(const db_mgmt_ConnectionRef &)> TunnelFactoryFunction;
     typedef std::function<bool(const db_mgmt_ConnectionRef &, std::string &)> PasswordFindFunction;
     typedef std::function<std::string(const db_mgmt_ConnectionRef &, bool)> PasswordRequestFunction;
 

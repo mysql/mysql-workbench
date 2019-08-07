@@ -67,6 +67,10 @@ class ColumnWidthCache;
 class SqlEditorPanel;
 class SqlEditorResult;
 
+namespace wb {
+  class SSHTunnel;
+}
+
 typedef std::vector<Recordset::Ref> Recordsets;
 typedef std::shared_ptr<Recordsets> RecordsetsRef;
 
@@ -167,7 +171,7 @@ public:
   GrtVersionRef rdbms_version() const;
 
   std::string get_connection_info() const {
-    return _connection_info;
+    return _connectionInfo;
   }
 
 public:
@@ -182,7 +186,7 @@ public:
 private:
   int _sql_editors_serial = 0;
   int _scratch_editors_serial = 0;
-  std::shared_ptr<sql::TunnelConnection> _tunnel;
+  std::shared_ptr<wb::SSHTunnel> _tunnel;
   db_mgmt_SSHConnectionRef _sshConnection;
 
   void sql_editor_panel_switched();
@@ -233,7 +237,7 @@ public:
   std::set<std::string> valid_charsets();
 
 private:
-  grt::StringRef do_connect(std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
+  grt::StringRef do_connect(std::shared_ptr<wb::SSHTunnel> tunnel, sql::Authentication::Ref &auth,
                             struct ConnectionErrorInfo *autherr_ptr);
   std::string get_client_lib_version();
   grt::StringRef do_disconnect();
@@ -241,7 +245,7 @@ private:
   void update_connected_state();
 
 public:
-  bool connect(std::shared_ptr<sql::TunnelConnection> tunnel);
+  bool connect(std::shared_ptr<wb::SSHTunnel> tunnel);
   bool connected() const;
   bool connectionIsValid() const {
     return _connection.is_valid();
@@ -298,7 +302,7 @@ private:
 
 private:
   void create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn,
-                         std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth,
+                         std::shared_ptr<wb::SSHTunnel> tunnel, sql::Authentication::Ref auth,
                          bool autocommit_mode, bool user_connection);
   void init_connection(sql::Connection *dbc_conn_ref, const db_mgmt_ConnectionRef &connectionProperties,
                        sql::Dbc_connection_handler::Ref &dbc_conn, bool user_connection);
@@ -503,7 +507,7 @@ private:
   GrtVersionRef _version;
   mforms::MenuBar *_menu = nullptr;
   mforms::ToolBar *_toolbar = nullptr;
-  std::string _connection_info;
+  std::string _connectionInfo;
   base::LockFile *_autosave_lock = nullptr;
   std::string _autosave_path;
 

@@ -21,6 +21,8 @@ target_compile_options(cdbc PRIVATE ${WB_CXXFLAGS})
 target_link_libraries(cdbc 
   PUBLIC 
     ${MySQLCppConn_LIBRARIES}
+    wbprivate::wbprivate
+    wbssh::wbssh
   PRIVATE
     Boost::boost
     grt::grt

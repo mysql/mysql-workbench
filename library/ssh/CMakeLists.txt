@@ -27,6 +27,12 @@ target_link_libraries(wbssh
     wbbase
 )
 
+add_library(wbssh_Iface INTERFACE)
+add_library(wbssh::wbssh ALIAS wbssh_Iface)
+target_include_directories(wbssh_Iface INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
+
 if(BUILD_FOR_GCOV)
   target_link_libraries(wbssh PRIVATE gcov)
 endif()

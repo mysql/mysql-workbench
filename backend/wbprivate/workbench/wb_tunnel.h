@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,25 +21,15 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _WB_TUNNEL_H_
-#define _WB_TUNNEL_H_
+#pragma once
 
 #include "SSHTunnelManager.h"
 #include "wb_backend_public_interface.h"
 #include "driver_manager.h"
 #include "base/threading.h"
 
-class SSHTunnel;
-
-namespace wb
-{
-  class TunnelManager
-  {
-    ssh::SSHTunnelManager *_manager;
-    friend class ::SSHTunnel;
-
-    std::map<int, std::pair<ssh::SSHConnectionConfig, base::refcount_t>> _portUsage;
-    base::Mutex _usageMapMtx;
+namespace wb {
+  class TunnelManager {
   public:
     TunnelManager();
     ~TunnelManager();
@@ -48,9 +38,39 @@ namespace wb
     void shutdown();
     void portUsageIncrement(const ssh::SSHConnectionConfig &config);
     void portUsageDecrement(const ssh::SSHConnectionConfig &config);
-    std::shared_ptr<sql::TunnelConnection> createTunnel(db_mgmt_ConnectionRef connectionProperties);
+    std::shared_ptr<SSHTunnel> createTunnel(db_mgmt_ConnectionRef connectionProperties);
+
+  private:
+    ssh::SSHTunnelManager *_manager;
+
+    std::map<int, std::pair<ssh::SSHConnectionConfig, base::refcount_t>> _portUsage;
+    base::Mutex _usageMapMtx;
   };
+
+  class SSHTunnel {
+  private:
+    TunnelManager *_tm;
+    ssh::SSHConnectionConfig _config;
+
+  public:
+    SSHTunnel(TunnelManager *tm, const ssh::SSHConnectionConfig &config) : _tm(tm), _config(config) {
+      _tm->portUsageIncrement(_config);
+    }
+
+    virtual ~SSHTunnel() {
+      disconnect();
+    }
+
+    void connect(db_mgmt_ConnectionRef connectionProperties) {
+      if (_config.localport == 0)
+        throw std::runtime_error("Could not connect SSH tunnel");
+    }
+
+    void disconnect() {
+      _tm->portUsageDecrement(_config);
+    }
+
+    const ssh::SSHConnectionConfig getConfig() const { return _config; }
+  };
+
 };
-
-
-#endif

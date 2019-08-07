@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "grts/structs.db.query.h"
@@ -33,8 +33,8 @@
 #include "wb_helpers.h"
 #include "cppconn/driver.h"
 #include "cppconn/sqlstring.h"
-
 #include "sqlide/wb_sql_editor_form.h"
+#include "wb_tunnel.h"
 
 using namespace grt;
 using namespace wb;
@@ -273,7 +273,7 @@ TEST_DATA_CONSTRUCTOR(wb_sql_editor_form_test) {
   db_mgmt_ConnectionRef my_connection(grt::Initialized);
   set_connection_properties(my_connection);
   form = SqlEditorForm::create(wb_context_sqlide, my_connection);
-  form->connect(std::shared_ptr<sql::TunnelConnection>());
+  form->connect(std::shared_ptr<wb::SSHTunnel>());
 
   pmodel_view =
     new mforms::TreeView(mforms::TreeNoColumns | mforms::TreeNoBorder | mforms::TreeSidebar | mforms::TreeNoHeader);

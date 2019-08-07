@@ -23,6 +23,8 @@
 
 #include "driver_manager.h"
 
+#include "wb_tunnel.h"
+
 #include "mysql_driver.h"
 #include "cppconn/driver.h"
 #include "cppconn/statement.h"
@@ -31,6 +33,8 @@
 #include "base/string_utilities.h"
 
 #include <gmodule.h>
+
+using namespace wb;
 
 namespace sql {
 
@@ -154,14 +158,14 @@ namespace sql {
     _driver_path = path;
   }
 
-  std::shared_ptr<TunnelConnection> DriverManager::getTunnel(const db_mgmt_ConnectionRef &connectionProperties) {
+  std::shared_ptr<SSHTunnel> DriverManager::getTunnel(const db_mgmt_ConnectionRef &connectionProperties) {
     db_mgmt_DriverRef drv = connectionProperties->driver();
     if (!drv.is_valid())
       throw SQLException("Invalid connection settings: undefined connection driver");
 
     if (_createTunnel)
       return _createTunnel(connectionProperties);
-    return std::shared_ptr<TunnelConnection>();
+    return std::shared_ptr<SSHTunnel>();
   }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,7 +178,7 @@ namespace sql {
     if (!drv.is_valid())
       throw SQLException("Invalid connection settings: undefined connection driver");
 
-    std::shared_ptr<TunnelConnection> tunnel;
+    std::shared_ptr<SSHTunnel> tunnel;
     if (_createTunnel) {
       tunnel = _createTunnel(connectionProperties);
 
@@ -212,7 +216,7 @@ namespace sql {
   //--------------------------------------------------------------------------------------------------
 
   ConnectionWrapper DriverManager::getConnection(const db_mgmt_ConnectionRef &connectionProperties,
-                                                 std::shared_ptr<TunnelConnection> tunnel, Authentication::Ref password,
+                                                 std::shared_ptr<SSHTunnel> tunnel, Authentication::Ref password,
                                                  ConnectionInitSlot connection_init_slot) {
     grt::DictRef parameter_values = connectionProperties->parameterValues();
     if (parameter_values.get_string("userName").empty())
@@ -369,7 +373,7 @@ namespace sql {
 
     if (tunnel) {
       // Make the driver connect to the local tunnel port.
-      properties["port"] = tunnel->get_port();
+      properties["port"] = tunnel->getConfig().localport;
       properties["hostName"] = sql::SQLString("127.0.0.1");
     } else
       properties["hostName"] = "[" + parameter_values.get_string("hostName") +

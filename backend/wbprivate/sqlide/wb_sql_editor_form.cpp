@@ -75,6 +75,8 @@
 
 #include "grtsqlparser/mysql_parser_services.h"
 
+#include "wb_tunnel.h"
+
 #include <math.h>
 #include <mutex>
 #include <thread>
@@ -86,6 +88,8 @@ using namespace base;
 using namespace parsers;
 
 using boost::signals2::scoped_connection;
+
+using namespace std::string_literals;
 
 DEFAULT_LOG_DOMAIN("SQL Editor Form")
 
@@ -1064,7 +1068,7 @@ static void set_active_schema(SqlEditorForm::Ptr self, const std::string &schema
 //----------------------------------------------------------------------------------------------------------------------
 
 void SqlEditorForm::create_connection(sql::Dbc_connection_handler::Ref &dbc_conn, db_mgmt_ConnectionRef db_mgmt_conn,
-                                      std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref auth,
+                                      std::shared_ptr<SSHTunnel> tunnel, sql::Authentication::Ref auth,
                                       bool autocommit_mode, bool user_connection) {
   dbc_conn->is_stop_query_requested = false;
 
@@ -1194,7 +1198,7 @@ void SqlEditorForm::set_connection(db_mgmt_ConnectionRef conn) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool SqlEditorForm::connect(std::shared_ptr<sql::TunnelConnection> tunnel) {
+bool SqlEditorForm::connect(std::shared_ptr<SSHTunnel> tunnel) {
   sql::Authentication::Ref auth = _dbc_auth; // sql::Authentication::create(_connection, "");
   enum PasswordMethod { NoPassword, KeychainPassword, InteractivePassword } current_method = NoPassword;
 
@@ -1284,15 +1288,6 @@ void SqlEditorForm::update_connected_state() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/**
- * Little helper to create a single html line used for info output.
- */
-std::string create_html_line(const std::string &name, const std::string &value) {
-  return "<div class='line'><span class='name'>" + name + " </span><span class='value'>" + value + "</span></div>";
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 std::string SqlEditorForm::get_client_lib_version() {
   std::string version;
   sql::DriverManager *dbc_driver_man = sql::DriverManager::getDriverManager();
@@ -1303,8 +1298,25 @@ std::string SqlEditorForm::get_client_lib_version() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Formats a single text line for the connection info output.
+ */
+std::string createTableRow(const std::string &name, const std::string &value = "") {
+  if (value.empty()) // Empty value means: heading row.
+    return "<tr class='heading'>"s +
+      "<td style='border:none; padding-left: 0px;' colspan=2>" + name + "</td>"
+      "</tr>";
 
-grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> tunnel, sql::Authentication::Ref &auth,
+  return "<tr>"s +
+    "<td style='border:none; padding-left: 15px;'>" + name + "</td>"
+    "<td style='border:none;'>" + value + "</td>"
+    "</tr>";
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<SSHTunnel> tunnel, sql::Authentication::Ref &auth,
                                          ConnectionErrorInfo *err_ptr) {
   try {
     RecMutexLock aux_dbc_conn_mutex(_aux_dbc_conn_mutex);
@@ -1313,7 +1325,6 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _aux_dbc_conn->ref.reset();
     _usr_dbc_conn->ref.reset();
 
-    // connection info
     _connection_details["name"] = _connection->name();
     _connection_details["hostName"] = _connection->parameterValues().get_string("hostName");
     _connection_details["port"] = strfmt("%li\n", (long)_connection->parameterValues().get_int("port"));
@@ -1323,26 +1334,31 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _connection_details["userName"] = _connection->parameterValues().get_string("userName");
 
     // During the connection process create also a description about the connection details that can be shown
-    // in the SQL IDE.
-    _connection_info = "<body><div class='heading'>Connection:</div><br />";
-    _connection_info.append(create_html_line("Name: ", _connection->name()));
-    // Host:
-    if (_connection->driver()->name() == "MysqlNativeSocket") {
-#ifdef _MSC_VER
-      std::string name = _connection->parameterValues().get_string("socket", "");
-      if (name.empty())
-        name = "pipe";
-#else
-      std::string name = _connection->parameterValues().get_string("socket", "");
-      if (name.empty())
-        name = "UNIX socket";
-#endif
-      _connection_info.append(create_html_line("Host:", "localhost (" + name + ")"));
-    } else {
-      _connection_info.append(create_html_line("Host:", _connection->parameterValues().get_string("hostName")));
-      _connection_info.append(
-        create_html_line("Port:", std::to_string(_connection->parameterValues().get_int("port")))
-      );
+    // in the SQL IDE. Only the body content is created here. Surrounding code is added by the tree controller.
+    // Start with the default content, in case we cannot connect.
+    _connectionInfo = "<b><span style='color: red'>No connection established</span></b>";
+
+    std::string newConnectionInfo = "<body><table style='border: none; border-collapse: collapse;'>" +
+       createTableRow("Connection Details") + createTableRow("Name: ", _connection->name());
+
+    _tunnel = tunnel;
+    if (_tunnel == nullptr) {
+      if (_connection->driver()->name() == "MysqlNativeSocket") {
+      #ifdef _MSC_VER
+        std::string name = _connection->parameterValues().get_string("socket", "");
+        if (name.empty())
+          name = "pipe";
+      #else
+        std::string name = _connection->parameterValues().get_string("socket", "");
+        if (name.empty())
+          name = "UNIX socket";
+      #endif
+
+        newConnectionInfo += createTableRow("Host:", "localhost (" + name + ")");
+      } else {
+        newConnectionInfo += createTableRow("Host:", _connection->parameterValues().get_string("hostName"));
+        newConnectionInfo += createTableRow("Port:", std::to_string(_connection->parameterValues().get_int("port")));
+      }
     }
 
     // open connections
@@ -1351,19 +1367,15 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
     _serverIsOffline = false;
     cache_sql_mode();
 
-    // We need this so later we can get tunnel port
-    _tunnel = tunnel;
     try {
-      {
-        std::string value;
-        get_session_variable(_usr_dbc_conn->ref.get(), "version_comment", value);
-        _connection_details["dbmsProductName"] = value;
-        get_session_variable(_usr_dbc_conn->ref.get(), "version", value);
-        _connection_details["dbmsProductVersion"] = value;
+      std::string value;
+      get_session_variable(_usr_dbc_conn->ref.get(), "version_comment", value);
+      _connection_details["dbmsProductName"] = value;
+      get_session_variable(_usr_dbc_conn->ref.get(), "version", value);
+      _connection_details["dbmsProductVersion"] = value;
 
-        logInfo("Opened connection '%s' to %s version %s\n", _connection->name().c_str(),
-                _connection_details["dbmsProductName"].c_str(), _connection_details["dbmsProductVersion"].c_str());
-      }
+      logInfo("Opened connection '%s' to %s version %s\n", _connection->name().c_str(),
+        _connection_details["dbmsProductName"].c_str(), _connection_details["dbmsProductVersion"].c_str());
 
       _version = parse_version(_connection_details["dbmsProductVersion"]);
       _version->name(grt::StringRef(_connection_details["dbmsProductName"]));
@@ -1372,32 +1384,45 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       if (editor.is_valid()) // this will be valid only on reconnections
         editor->serverVersion(_version);
 
-      // Server:
-      _connection_info.append(create_html_line("Server:", _connection_details["dbmsProductName"]));
-      _connection_info.append(create_html_line("Version:", _connection_details["dbmsProductVersion"]));
-      // User:
-      _connection_info.append(create_html_line("Connector:", get_client_lib_version()));
-      _connection_info.append(create_html_line("Login User:", _connection->parameterValues().get_string("userName")));
+      newConnectionInfo += createTableRow("Login User:", _connection->parameterValues().get_string("userName"));
 
       // check the actual user we're logged in as
       if (_usr_dbc_conn && _usr_dbc_conn->ref.get()) {
         const std::unique_ptr<sql::Statement> statement(_usr_dbc_conn->ref->createStatement());
         const std::unique_ptr<sql::ResultSet> rs(statement->executeQuery("SELECT current_user()"));
         if (rs->next())
-          _connection_info.append(create_html_line("Current User:", rs->getString(1)));
+          newConnectionInfo += createTableRow("Current User:", rs->getString(1));
       }
 
-      _connection_info.append(create_html_line(
-        "SSL:", _usr_dbc_conn->ssl_cipher.empty() ? "Disabled" : "Using " + _usr_dbc_conn->ssl_cipher));
+      newConnectionInfo += createTableRow(
+        "SSL cipher:", _usr_dbc_conn->ssl_cipher.empty() ? "SSL not used" : _usr_dbc_conn->ssl_cipher);
 
-      // get lower_case_table_names value
-      std::string value;
+      if (_tunnel != nullptr) {
+        auto &config = _tunnel->getConfig();
+        newConnectionInfo += createTableRow("SSH Tunnel");
+        newConnectionInfo += createTableRow("Target:", config.remoteSSHhost + ":" + std::to_string(config.remoteSSHport));
+        newConnectionInfo += createTableRow("Local port:", std::to_string(config.localport));
+        newConnectionInfo += createTableRow("Remote port:", std::to_string(config.remoteport));
+        newConnectionInfo += createTableRow("Remote host:", config.remotehost);
+        newConnectionInfo += createTableRow("Config file:", config.configFile);
+      }
+
+      newConnectionInfo += createTableRow("Server");
+      newConnectionInfo += createTableRow("Product:", _connection_details["dbmsProductName"]);
+      newConnectionInfo += createTableRow("Version:", _connection_details["dbmsProductVersion"]);
+
+      newConnectionInfo += createTableRow("Connector");
+      newConnectionInfo += createTableRow("Version:", get_client_lib_version());
+
       if (_usr_dbc_conn && get_session_variable(_usr_dbc_conn->ref.get(), "lower_case_table_names", value))
         _lower_case_table_names = base::atoi<int>(value, 0);
 
       parsers::MySQLParserServices::Ref services = parsers::MySQLParserServices::get();
       _work_parser_context =
         services->createParserContext(rdbms()->characterSets(), _version, _sql_mode, _lower_case_table_names != 0);
+
+      // If we came so far, we probably have a valid connection.
+      _connectionInfo = newConnectionInfo + "</table>";
     }
     CATCH_ANY_EXCEPTION_AND_DISPATCH(_("Get connection information"));
   } catch (sql::AuthenticationError &authException) {
@@ -1416,8 +1441,6 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       case 2013:
       case 2003:
       case 2002: { // ERROR 2003 (HY000): Can't connect to MySQL server on X.Y.Z.W (or via socket)
-        _connection_info.append(create_html_line("", "<b><span style='color: red'>NO CONNECTION</span></b>"));
-        _connection_info.append("</body></html>");
         add_log_message(WarningMsg, exc.what(), "Could not connect, server may not be running.", "");
 
         err_ptr->server_probably_down = true;
@@ -1478,11 +1501,12 @@ grt::StringRef SqlEditorForm::do_connect(std::shared_ptr<sql::TunnelConnection> 
       }
     }
 
-    _connection_info.append("</body>");
+    _connectionInfo += "</body>";
     throw;
   }
 
-  _connection_info.append("</body>");
+  _connectionInfo += "</body>";
+  
   return grt::StringRef();
 }
 
@@ -1623,7 +1647,7 @@ RecMutexLock SqlEditorForm::ensure_valid_dbc_connection(sql::Dbc_connection_hand
 
       if (dbc_conn->autocommit_mode) {
         sql::AuthenticationSet authset;
-        std::shared_ptr<sql::TunnelConnection> tunnel = sql::DriverManager::getDriverManager()->getTunnel(_connection);
+        std::shared_ptr<SSHTunnel> tunnel = sql::DriverManager::getDriverManager()->getTunnel(_connection);
 
         create_connection(dbc_conn, _connection, tunnel, sql::Authentication::Ref(), dbc_conn->autocommit_mode,
                           user_connection);
@@ -3060,7 +3084,7 @@ void SqlEditorForm::update_title() {
 
 int SqlEditorForm::getTunnelPort() const {
   if (_tunnel)
-    return _tunnel->get_port();
+    return _tunnel->getConfig().localport;
   return -1;
 }
 
