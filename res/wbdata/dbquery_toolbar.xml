@@ -183,7 +183,7 @@ context: see wb_context.h for full listing
         <value type="string" key="command">builtin:wb.toggleSidebar</value>
         <value type="string" key="tooltip">Toggle Schema Sidebar</value>
         <value type="int" key="initialState">1</value>
-        <value type="string" key="accessibilityName">Toggle Sidebar</value>
+        <value type="string" key="accessibilityName">Toggle Schema Sidebar</value>
       </value>
       <value type="object" struct-name="app.ToolbarItem" id="com.mysql.wb.dbqtoolbar.outputhide">
         <link type="object" key="owner" struct-name="db.Toolbar">com.mysql.wb.dbqtoolbar.dbquery</link>
@@ -203,9 +203,9 @@ context: see wb_context.h for full listing
         <value type="string" key="altIcon">switcher_right_on.png</value>
         <value type="string" key="itemType">segmentedToggle</value>
         <value type="string" key="command">builtin:wb.toggleSecondarySidebar</value>
-        <value type="string" key="tooltip">Toggle Sidebar</value>
+        <value type="string" key="tooltip">Toggle Secondary Sidebar</value>
         <value type="int" key="initialState">1</value>
-        <value type="string" key="accessibilityName">Toggle Sidebar</value>
+        <value type="string" key="accessibilityName">Toggle Secondary Sidebar</value>
       </value>
     </value>
   </value>

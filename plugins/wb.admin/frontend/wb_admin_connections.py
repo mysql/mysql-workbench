@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -372,6 +372,7 @@ class WbAdminConnections(WbAdminTabBase):
         self.connection_list = newTreeView(mforms.TreeDefault|mforms.TreeFlatList|mforms.TreeAltRowColors)
         self.connection_list.set_selection_mode(mforms.TreeSelectMultiple)
         self.connection_list.add_column_resized_callback(self.column_resized)
+        self.connection_list.set_name("Connection List")
         for i, (field, type, caption, width) in enumerate(self.columns):
             if column_widths and i < len(column_widths):
                 width = column_widths[i]
@@ -389,6 +390,7 @@ class WbAdminConnections(WbAdminTabBase):
         info_table.set_column_count(5)
         info_table.set_row_spacing(4)
         info_table.set_column_spacing(20)
+        info_table.set_name("Counters")
 
         info_table.add(self.create_labeled_info("Threads Connected:", "Threads Connected", "lbl_Threads_connected"),                     0, 1, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
         info_table.add(self.create_labeled_info("Threads Running:", "Threads Running", "lbl_Threads_running"),                          1, 2, 0, 1, mforms.HFillFlag | mforms.VFillFlag)
@@ -409,7 +411,6 @@ class WbAdminConnections(WbAdminTabBase):
 
         box = newBox(True)
         self.button_box = box
-
         self.button_box.set_spacing(12)
         
         refresh_button = newButton()
@@ -419,7 +420,7 @@ class WbAdminConnections(WbAdminTabBase):
 
         self.kill_button = newButton()
         self.kill_button.set_text("Kill Connection(s)")
-        self.kill_button.set_name("Kill Conenctions")
+        self.kill_button.set_name("Kill Connections")
         self.button_box.add_end(self.kill_button, False, True)
         self.kill_button.add_clicked_callback(weakcb(self, "kill_connection"))
         
@@ -460,6 +461,7 @@ class WbAdminConnections(WbAdminTabBase):
 
         self.hide_sleep_connections = newCheckBox()
         self.hide_sleep_connections.set_text('Hide sleeping connections')
+        self.hide_sleep_connections.set_name('Hide sleeping connections')
         self.hide_sleep_connections.add_clicked_callback(self.refresh)
         self.hide_sleep_connections.set_tooltip('Remove connections in the Sleeping state from the connection list.')
         self.check_box.add(self.hide_sleep_connections, False, True)
@@ -470,6 +472,7 @@ class WbAdminConnections(WbAdminTabBase):
             self.hide_background_threads = newCheckBox()
             self.hide_background_threads.set_active(True)
             self.hide_background_threads.set_text('Hide background threads')
+            self.hide_background_threads.set_name('Hide background threads')
             self.hide_background_threads.set_tooltip('Remove background threads (internal server threads) from the connection list.')
             self.hide_background_threads.add_clicked_callback(self.refresh)
             self.check_box.add(self.hide_background_threads, False, True)
@@ -486,6 +489,7 @@ class WbAdminConnections(WbAdminTabBase):
             self.extra_info_tab = mforms.newTabView(mforms.TabViewSystemStandard)
             self.extra_info_tab.set_size(350, -1)
             self.extra_info_tab.add_tab_changed_callback(self.extra_tab_changed)
+            self.extra_info_tab.set_name("Details Sidebar")
 
             self.connection_details_scrollarea = mforms.newScrollPanel()
             self.connection_details = ConnectionDetailsPanel(self)
@@ -564,6 +568,9 @@ class WbAdminConnections(WbAdminTabBase):
         
         dprint_ex(4, "Leave")
         
+        # Call refresh to load list at least once
+        self.refresh()
+
         return uiBox
 
 
@@ -586,6 +593,7 @@ class WbAdminConnections(WbAdminTabBase):
             i = mforms.newImageBox()
             i.set_image(mforms.App.get().get_resource_path("mini_notice.png"))
             i.set_tooltip("")
+            i.set_name(tooltip_name)
             lbox.add(i, False, True)
             setattr(self, tooltip_name, i)
 

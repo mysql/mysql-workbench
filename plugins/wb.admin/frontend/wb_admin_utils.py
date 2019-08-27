@@ -101,13 +101,13 @@ def remove_error_page_if_exists(parent):
 class WbAdminValidationBase:
     def __init__(self, error_message = ""):
         self._error_message = error_message
-        
+
     def validate(self):
         pass
-    
+
     def set_error_message(self, error_message):
         self._error_message = error_message
-    
+
     def errorScreen(self):
         warning = newLabel("\n\n\n\n" + self._error_message)
         warning.set_style(mforms.BigStyle)
@@ -121,7 +121,7 @@ class WbAdminValidationConnection(WbAdminValidationBase):
     def __init__(self, ctrl_be):
         WbAdminValidationBase.__init__(self, ValidationErrorServerNotRunning)
         self._ctrl_be = ctrl_be
-        
+
     def validate(self):
         return self._ctrl_be.is_sql_connected()
 
@@ -130,7 +130,7 @@ class WbAdminValidationConfigFile(WbAdminValidationBase):
     def __init__(self, instance_info):
         WbAdminValidationBase.__init__(self, "Location of MySQL configuration file (ie: my.cnf) not specified")
         self._instance_info = instance_info
-        
+
     def validate(self):
         return self._instance_info.config_file_path
 
@@ -145,74 +145,74 @@ class WbAdminValidationConfigFile(WbAdminValidationBase):
 class WbAdminTabBase(mforms.Box):
     def __init__(self, ctrl_be, instance_info, main_view):
         mforms.Box.__init__(self, False)
-        
+
         self.set_managed()
         self.set_release_on_add()
-                
+
         self._instance_info = instance_info
         self._ctrl_be = ctrl_be
         self._main_view = main_view
-         
+
         self._page_active = False
         self._error_screen_displayed = False
-        
+
         self._page_header = mforms.newBox(False)
-        
+
         if sys.platform.lower() == "darwin": # No scrollbox on macOS as this is not needed and breaks selection.
                 self._page_body = mforms.newBox(False)
         else:
                 self._page_body = mforms.newScrollPanel()
         self._page_body.set_padding(8)
-        
+
         self._page_footer = mforms.newBox(False)
-        
+
         self.add(self._page_header, False, True)
         self.add(self._page_body, True, True)
         self.add(self._page_footer, False, True)
-        
+
         self._header_contents = None
         self._body_contents = None
         self._footer_contents = None
-        
+
          #if sys.platform.lower() != "darwin": # No scrollbox on macOS as this is not needed and breaks selection.
                 #self._body_scroller = mforms.newScrollPanel()
                 #self._page_body.add(self._body_scroller, True, True)
 
         self._validations = []
-        
+
     @property
     def editor(self):
         return self._main_view.editor
-    
+
     @property
     def backend(self):
         return self._ctrl_be
-      
+
     @property
     def ctrl_be(self):
-        return self._ctrl_be    
-      
+        return self._ctrl_be
+
     @property
     def instance_info(self):
         return self._instance_info
-    
+
     @property
     def server_profile(self):
         return self._instance_info
-    
+
     @property
     def main_view(self):
         return self._main_view
-    
+
     def validate(self):
         for validation in self._validations:
             if not validation.validate():
                 return validation
         return None
-      
+
     def add_validation(self, validation):
         self._validations.append(validation)
-      
+
     def create_standard_header(self, icon, title, description, rightViewObject = None):
         header = mforms.newTable()
         header.set_row_count(2)
@@ -220,86 +220,89 @@ class WbAdminTabBase(mforms.Box):
         header.set_row_spacing(0)
         header.set_column_spacing(15)
         header.set_padding(12)
-        
+        header.set_name("Header")
+
         image = mforms.newImageBox()
         image.set_image(mforms.App.get().get_resource_path(icon))
         image.set_image_align(mforms.TopCenter)
-        
+
         label1 = mforms.newLabel(title)
         label1.set_text_align(mforms.BottomLeft)
         label1.set_style(mforms.SmallStyle)
-        
+
         label2 = mforms.newLabel(description)
         label2.set_text_align(mforms.TopLeft)
         label2.set_style(mforms.VeryBigStyle)
-        
+
         header.add(image, 0, 1, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
         header.add(label1, 1, 2, 0, 1, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
         header.add(label2, 1, 2, 1, 2, mforms.HFillFlag | mforms.HExpandFlag | mforms.VFillFlag)
-        
+
         if rightViewObject:
             header.add(rightViewObject, 2, 3, 0, 2, mforms.VFillFlag | mforms.HFillFlag)
-            
+
         return header
-    
+
     def set_header(self, header):
         if self._header_contents:
             self._page_header.remove(self._header_contents)
         self._header_contents = header
         self._header_contents.set_padding(10, 10, 10, 5)
         self._page_header.add(self._header_contents, True, True)
-    
+
     def set_standard_header(self, icon, title, description):
         self.set_header(self.create_standard_header(icon, title, description))
-    
+
     def set_body_contents(self, body_contents):
         if self._body_contents:
             self._body_contents.remove_from_parent()
         self._body_contents = body_contents
 
-        if sys.platform.lower() == "darwin": 
+        if sys.platform.lower() == "darwin":
                 self._page_body.add(self._body_contents, True, True)
         else:
                 self._page_body.add(self._body_contents)
-    
+
     def set_error_screen(self, failedValidation):
         self.set_body_contents(failedValidation.errorScreen())
         self._error_screen_displayed = True
-        
+
     def set_footer(self, footer):
+
         if self._footer_contents:
             self._page_footer.remove(self._footer_contents)
         self._footer_contents = footer
+        self._footer_contents.set_name("Footer")
         self._footer_contents.set_padding(10, 5, 10, 10)
         self._page_footer.add(self._footer_contents, True, True)
-    
+
     def ui_created(self):
         return False if self._body_contents is None else True
-    
+
     def needs_to_create_ui(self):
         if self._error_screen_displayed:
             return True
-        
+
         if not self._body_contents:
             return True
-        
+
         return False
-    
+
     def validation_failed_notification(self, failed_validation):
         pass
-    
+
     def validation_successful_notification(self):
         pass
-    
+
     def create_ui(self):
         pass
-    
+
     def update_ui(self):
         pass
-    
+
     def page_active(self):
         return self._page_active
-    
+
     def page_activated(self):
         self._page_active = True
         try:
@@ -333,7 +336,7 @@ class MessageButtonPanel(mforms.Table):
         mforms.Table.__init__(self)
         self.set_managed()
         self.set_release_on_add()
-        
+
         self.set_padding(-1) # center contents
         self.set_column_spacing(12)
         self.set_row_spacing(12)
@@ -344,13 +347,13 @@ class MessageButtonPanel(mforms.Table):
             image = mforms.newImageBox()
             image.set_image(mforms.App.get().get_resource_path(icon))
             self.add(image, 0, 1, 0, 3, 0)
-        
-        
+
+
         self._label = mforms.newLabel(title)
         self._label.set_style(mforms.BigBoldStyle)
         self._label.set_text_align(mforms.MiddleCenter)
         self.add(self._label, 1, 2, 0, 1, mforms.VFillFlag | mforms.HFillFlag)
-        
+
         self.add(mforms.newLabel(text), 1, 2, 1, 2, mforms.VFillFlag | mforms.HFillFlag)
 
         if button1 or button2:

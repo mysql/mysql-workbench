@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "../lf_mforms.h"
@@ -105,6 +105,10 @@ bool mforms::gtk::MenuItemImpl::create_menu_bar(mforms::MenuBar *item) {
     delete mb;
   mb = Gtk::manage(new MyMenuBar());
   mb->show();
+  auto acc = mb->get_accessible();
+  if (acc) {
+    acc->set_name("MenuBar");
+  }
   item->set_data(mb);
   return mb;
 }
@@ -122,6 +126,18 @@ bool mforms::gtk::MenuItemImpl::create_context_menu(mforms::ContextMenu *menu) {
     Gtk::Menu *mb = new Gtk::Menu();
     menu->set_data(mb, (void (*)(void *))free_menu);
     mb->signal_map_event().connect_notify(sigc::hide(sigc::mem_fun(*menu, &mforms::ContextMenu::will_show)));
+
+    Glib::RefPtr<Atk::Object> acc;
+    auto parent = mb->get_parent();
+    if (parent != nullptr) {
+      acc = parent->get_accessible();
+    } else {
+      acc = mb->get_accessible();
+    }
+    if (acc) {
+      acc->set_name("Context Menu");
+    }
+
   }
   return mb;
 }
@@ -177,7 +193,7 @@ std::string mforms::gtk::MenuItemImpl::get_title(mforms::MenuItem *item) {
 //------------------------------------------------------------------------------
 void mforms::gtk::MenuItemImpl::set_name(mforms::MenuItem *item, const std::string &name) {
   Gtk::MenuItem *mi = cast<Gtk::MenuItem *>(item->get_data_ptr());
-  
+
   if (mi)
     mi->get_accessible()->set_name(name);
 }
@@ -186,7 +202,7 @@ void mforms::gtk::MenuItemImpl::set_name(mforms::MenuItem *item, const std::stri
 std::string mforms::gtk::MenuItemImpl::get_name(mforms::MenuItem *item) {
   std::string ret;
   Gtk::MenuItem *mi = cast<Gtk::MenuItem *>(item->get_data_ptr());
-  
+
   if (mi)
     ret = mi->get_accessible()->get_name();
   return ret;
