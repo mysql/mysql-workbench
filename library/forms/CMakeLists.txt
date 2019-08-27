@@ -127,6 +127,7 @@ target_link_libraries(mforms
     mdcanvasgtk 
     mdcanvas
     parsers::parsers
+    Rapidjson::Rapidjson
 )
 
 add_library(mforms_Iface INTERFACE)

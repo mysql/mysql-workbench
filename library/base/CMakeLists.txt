@@ -15,7 +15,6 @@ add_library(wbbase
     log.cpp 
     threading.cpp 
     profiling.cpp
-    jsonparser.cpp
     drawing_gtk.cpp
     boost_fix.cpp
     utf8string.cpp
@@ -37,6 +36,7 @@ target_compile_definitions(wbbase PUBLIC __STDC_FORMAT_MACROS)
 target_link_libraries(wbbase
   PUBLIC
     wbbase::wbbase
+    Rapidjson::Rapidjson
   PRIVATE
     wbprivate::wbprivate
     ${GLIB_LIBRARIES}

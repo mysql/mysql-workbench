@@ -485,6 +485,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WBTests", "testing\tut\WBTests.vcxproj", "{537A3EA9-E0B9-415B-BCCD-D7FFD69672BF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{85FCF582-B354-4A7D-B31C-534D71BEA53A} = {85FCF582-B354-4A7D-B31C-534D71BEA53A}
+		{1EC37D95-8840-4881-8814-6943938B43BF} = {1EC37D95-8840-4881-8814-6943938B43BF}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wb.mysql.validation.grt", "internal\wb.mysql.validation\wb.mysql.validation.grt.vcxproj", "{11CC6D53-AA7D-4EED-A984-BC1BC1C37C32}"

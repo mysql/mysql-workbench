@@ -80,6 +80,7 @@ configure-stamp:
 	  -DGDAL_LIBRARY=$(BUNDLES_PATH)/lib/libgdal.so \
 	  -DIODBC_CONFIG_PATH=$(BUNDLES_PATH)/bin/iodbc-config \
 	  -DIODBC_INCLUDE_PATH=$(BUNDLES_PATH)/include \
+	  -DRAPIDJSON_INCLUDE_DIR=$(BUNDLES_PATH)/include \
 	  -DIODBC_LIBRARIES_PATH=$(BUNDLES_PATH)/lib \
 	  -DVSQLITE_INCLUDE_DIR=$(BUNDLES_PATH)/include \
 	  -DVSQLITE_LIBRARIES="-L$(BUNDLES_PATH)/lib -lvsqlitepp" \

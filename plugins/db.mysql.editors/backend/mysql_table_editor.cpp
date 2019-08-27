@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "mysql_table_editor.h"
@@ -230,9 +230,11 @@ bool MySQLTableColumnsListBE::get_field_grt(const ::bec::NodeId &node, ColumnId 
         case HasCharset:
           value = grt::IntegerRef(0);
           if (col->simpleType().is_valid()) {
-            if (col->simpleType()->group()->name() == "string" || col->simpleType()->group()->name() == "text" ||
-                col->simpleType()->name() == "ENUM")
+            if (col->simpleType()->name() != "JSON" &&
+            (col->simpleType()->group()->name() == "string" || col->simpleType()->group()->name() == "text" ||
+                col->simpleType()->name() == "ENUM")) {
               value = grt::IntegerRef(1);
+            }
           }
           return true;
       }
@@ -780,7 +782,7 @@ public:
           bool removalDone = false;
           while (true) {
             sql += scanner.tokenText();
-            
+
             scanner.next(false);
             if (scanner.tokenType() == ParserToken::EOF)
               break;

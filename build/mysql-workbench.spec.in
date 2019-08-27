@@ -171,6 +171,7 @@ fi
        -DMySQLCppConn_INCLUDE_DIR=%{bundles_path}/include/cppconn \
        -DIODBC_CONFIG_PATH=%{bundles_path}/bin/iodbc-config \
        -DIODBC_INCLUDE_PATH=%{bundles_path}/include \
+       -DRAPIDJSON_INCLUDE_DIR=%{bundles_path}/include \
        -DIODBC_LIBRARIES_PATH=%{bundles_path}/lib \
        -DGDAL_INCLUDE_DIR=%{bundles_path}/include \
        -DGDAL_LIBRARY=%{bundles_path}/lib/libgdal.so \

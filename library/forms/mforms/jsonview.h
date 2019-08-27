@@ -18,12 +18,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
 
-#include "base/jsonparser.h"
+#include "rapidjson/document.h"
 #include "mforms/form.h"
 #include "mforms/panel.h"
 #include "mforms/treeview.h"
@@ -32,6 +32,7 @@
 
 #include <set>
 #include <functional>
+
 
 /**
  * @brief A Json view tab control with tree diffrent view text, tree and grid.
@@ -43,7 +44,7 @@ namespace mforms {
    */
   class JsonBaseView : public Panel {
   public:
-    JsonBaseView();
+    JsonBaseView(rapidjson::Document &doc);
     virtual ~JsonBaseView();
     void highlightMatch(const std::string &text);
     boost::signals2::signal<void(bool)> *dataChanged();
@@ -52,11 +53,12 @@ namespace mforms {
     virtual void clear() = 0;
     boost::signals2::signal<void(bool)> _dataChanged;
     bool isDateTime(const std::string &text);
+    rapidjson::Document &_document;
   };
 
   /**
-  * @brief Dialog for adding JSON.
-  */
+   * @brief Dialog for adding JSON.
+   */
   class CodeEditor;
   class TextEntry;
   class JsonInputDlg : public mforms::Form {
@@ -64,14 +66,15 @@ namespace mforms {
     JsonInputDlg(mforms::Form *owner, bool showTextEntry);
     virtual ~JsonInputDlg();
     const std::string &text() const;
-    const JsonParser::JsonValue &data() const;
+    const rapidjson::Value &data() const;
     std::string objectName() const;
     void setText(const std::string &text, bool readonly);
-    void setJson(const JsonParser::JsonValue &json);
+    void setJson(const rapidjson::Value &json);
     bool run();
 
   private:
-    JsonParser::JsonValue _value;
+    rapidjson::Value _value;
+    rapidjson::Document _document;
     std::string _text;
     CodeEditor *_textEditor;
     Button *_save;
@@ -91,12 +94,12 @@ namespace mforms {
   class Label;
   class JsonTextView : public JsonBaseView {
   public:
-    JsonTextView();
+    JsonTextView(rapidjson::Document &doc);
     virtual ~JsonTextView();
     void setText(const std::string &jsonText, bool validateJson = true);
     virtual void clear();
     void findAndHighlightText(const std::string &text, bool backward = false);
-    const JsonParser::JsonValue &getJson() const;
+    const rapidjson::Value &getJson() const;
     const std::string &getText() const;
     bool validate();
     std::function<void()> _stopTextProcessing;
@@ -116,7 +119,7 @@ namespace mforms {
     bool _modified;
     std::string _text;
     Sci_Position _position;
-    JsonParser::JsonValue _json;
+    rapidjson::Value _json;
     std::vector<JsonErrorEntry> _errorEntry;
   };
 
@@ -126,40 +129,41 @@ namespace mforms {
     typedef std::vector<TreeNodeRef> TreeNodeVactor;
     typedef std::map<std::string, TreeNodeVactor> TreeNodeVectorMap;
     struct JsonValueNodeData : public mforms::TreeNodeData {
-      JsonValueNodeData(JsonParser::JsonValue &value) : _jsonValue(value) {
+      JsonValueNodeData(rapidjson::Value &value) : _jsonValue(value), type(value.GetType()) {
       }
-      JsonParser::JsonValue &getData() {
+      rapidjson::Value& getData() {
         return _jsonValue;
       }
       ~JsonValueNodeData() {
       }
 
     private:
-      JsonParser::JsonValue &_jsonValue;
+      rapidjson::Value &_jsonValue;
+      int type;
     };
-    JsonTreeBaseView();
+    JsonTreeBaseView(rapidjson::Document &doc);
     virtual ~JsonTreeBaseView();
     enum JsonNodeIcons { JsonObjectIcon, JsonArrayIcon, JsonStringIcon, JsonNumericIcon, JsonNullIcon };
     void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
     void highlightMatchNode(const std::string &text, bool bacward = false);
-    bool filterView(const std::string &text, JsonParser::JsonValue &value);
-    void reCreateTree(JsonParser::JsonValue &value);
+    bool filterView(const std::string &text, rapidjson::Value &value);
+    void reCreateTree(rapidjson::Value &value);
 
   protected:
-    void generateTree(JsonParser::JsonValue &value, int columnId, mforms::TreeNodeRef node, bool addNew = true);
-    virtual void generateArrayInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node) = 0;
-    virtual void generateObjectInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew) = 0;
-    virtual void generateNumberInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node) = 0;
-    virtual void generateBoolInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node) = 0;
-    virtual void generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node) = 0;
+    void generateTree(rapidjson::Value &value, int columnId, mforms::TreeNodeRef node, bool addNew = true);
+    virtual void generateArrayInTree(rapidjson::Value &value, int columnId, TreeNodeRef node) = 0;
+    virtual void generateObjectInTree(rapidjson::Value &value, int columnId, TreeNodeRef node, bool addNew) = 0;
+    virtual void generateNumberInTree(rapidjson::Value &value, int columnId, TreeNodeRef node) = 0;
+    virtual void generateBoolInTree(rapidjson::Value &value, int columnId, TreeNodeRef node) = 0;
+    virtual void generateNullInTree(rapidjson::Value &value, int columnId, TreeNodeRef node) = 0;
     virtual void setStringData(int columnId, TreeNodeRef node, const std::string &text) = 0;
 
-    void generateStringInTree(JsonParser::JsonValue &value, int idx, TreeNodeRef node);
+    void generateStringInTree(rapidjson::Value &value, int idx, TreeNodeRef node);
     void collectParents(TreeNodeRef node, TreeNodeList &parents);
     static std::string getNodeIconPath(JsonNodeIcons icon);
 
     TreeNodeVectorMap _viewFindResult;
-    std::set<JsonParser::JsonValue *> _filterGuard;
+    std::set<rapidjson::Value *> _filterGuard;
     bool _useFilter;
     std::string _textToFind;
     size_t _searchIdx;
@@ -178,60 +182,58 @@ namespace mforms {
    */
   class JsonTreeView : public JsonTreeBaseView {
   public:
-    JsonTreeView();
+    JsonTreeView(rapidjson::Document &doc);
     virtual ~JsonTreeView();
-    void setJson(JsonParser::JsonValue &val);
-    void appendJson(JsonParser::JsonValue &val);
+    void setJson(rapidjson::Value &val);
+    void appendJson(rapidjson::Value &val);
     virtual void clear();
 
   private:
     void init();
-    virtual void generateArrayInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-    virtual void generateObjectInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew);
-    virtual void generateNumberInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-    virtual void generateBoolInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-    virtual void generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
+    virtual void generateArrayInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
+    virtual void generateObjectInTree(rapidjson::Value &value, int columnId, TreeNodeRef node, bool addNew);
+    virtual void generateNumberInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
+    virtual void generateBoolInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
+    virtual void generateNullInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
     virtual void setStringData(int columnId, TreeNodeRef node, const std::string &text);
   };
 
   /**
-     * @brief Json grid view control class definition.
-     */
+   * @brief Json grid view control class definition.
+   */
   class JsonGridView : public JsonTreeBaseView {
   public:
-    typedef JsonParser::JsonObject::Iterator JsonObjectIter;
-    typedef JsonParser::JsonArray::Iterator JsonArrayIter;
-    JsonGridView();
+    JsonGridView(rapidjson::Document &doc);
     virtual ~JsonGridView();
-    void setJson(JsonParser::JsonValue &val);
-    void appendJson(JsonParser::JsonValue &val);
+    void setJson(rapidjson::Value &val);
+    void appendJson(rapidjson::Value &val);
     virtual void clear();
-    void reCreateTree(JsonParser::JsonValue &value);
+    void reCreateTree(rapidjson::Value &value);
 
   private:
     void init();
-    void generateColumnNames(JsonParser::JsonValue &value);
-    void addColumn(int size, JsonParser::DataType type, const std::string &name);
+    void generateColumnNames(rapidjson::Value &value);
+    void addColumn(int size, rapidjson::Type type, rapidjson::Value *value, const std::string &name);
     void nodeActivated(TreeNodeRef row, int column);
     void setCellValue(mforms::TreeNodeRef node, int column, const std::string &value);
     void goUp();
 
-    virtual void generateArrayInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-    virtual void generateObjectInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node, bool addNew);
-    virtual void generateNumberInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-    virtual void generateBoolInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
-    virtual void generateNullInTree(JsonParser::JsonValue &value, int columnId, TreeNodeRef node);
+    virtual void generateArrayInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
+    virtual void generateObjectInTree(rapidjson::Value &value, int columnId, TreeNodeRef node, bool addNew);
+    virtual void generateNumberInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
+    virtual void generateBoolInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
+    virtual void generateNullInTree(rapidjson::Value &value, int columnId, TreeNodeRef node);
     virtual void setStringData(int columnId, TreeNodeRef node, const std::string &text);
 
     virtual void handleMenuCommand(const std::string &command);
-    void openInputJsonWindow(JsonParser::JsonValue &value);
+    void openInputJsonWindow(rapidjson::Value &value);
 
     int _level;
     bool _headerAdded;
     int _noNameColId;
     int _columnIndex;
     int _rowNum;
-    std::vector<JsonParser::JsonValue *> _actualParent;
+    std::vector<rapidjson::Value *> _actualParent;
     std::map<std::string, int> _colNameToColId;
     Button *_goUpButton;
     Box *_content;
@@ -243,13 +245,12 @@ namespace mforms {
   class TabView;
   class MFORMS_EXPORT JsonTabView : public Panel {
   public:
-    typedef std::shared_ptr<JsonParser::JsonValue> JsonValuePtr;
     enum JsonTabViewType { TabText, TabTree, TabGrid };
     void Setup();
     JsonTabView(bool tabLess = false, JsonTabViewType defaultView = TabText);
     ~JsonTabView();
 
-    void setJson(const JsonParser::JsonValue &val);
+    void setJson(const rapidjson::Value &val);
     void setText(const std::string &text, bool validate = true);
     void append2(const std::string &text);
     void tabChanged();
@@ -264,7 +265,7 @@ namespace mforms {
     JsonTabViewType getActiveTab() const;
     boost::signals2::signal<void(const std::string &text)> *editorDataChanged();
     const std::string &text() const;
-    const JsonParser::JsonValue &json() const;
+    const rapidjson::Value &json() const;
 
     void setTextProcessingStartHandler(std::function<void(std::function<bool()>)>);
     void setTextProcessingStopHandler(std::function<void()>);
@@ -275,7 +276,8 @@ namespace mforms {
     JsonGridView *_gridView;
     TabView *_tabView;
     std::string _jsonText;
-    JsonValuePtr _json;
+    rapidjson::Value _json;
+    rapidjson::Document _document;
     int _ident;
     struct {
       int textTabId;
@@ -292,4 +294,4 @@ namespace mforms {
     boost::signals2::signal<void(const std::string &text)> _dataChanged;
     JsonTabViewType _defaultView;
   };
-};
+}; // namespace mforms

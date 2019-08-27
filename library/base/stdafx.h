@@ -31,6 +31,7 @@ typedef int ssize_t;
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#define RAPIDJSON_HAS_STDSTRING 1
 
 #include <windows.h>
 #include <shellapi.h>

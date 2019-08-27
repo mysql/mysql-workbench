@@ -142,8 +142,6 @@
 		270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB581E647FFA00BC573D /* help-5.7.json */; };
 		270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB591E647FFA00BC573D /* help-8.0.json */; };
 		27100A2E1FBC3D8B004AE384 /* accessibility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27100A2C1FBC3CC6004AE384 /* accessibility.cpp */; };
-		271790191C97000B00B6DAC9 /* jsonparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271790171C97000B00B6DAC9 /* jsonparser.cpp */; };
-		2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901B1C97004A00B6DAC9 /* jsonparser.h */; };
 		2717901F1C97004A00B6DAC9 /* scope_exit_trigger.h in Headers */ = {isa = PBXBuildFile; fileRef = 2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */; };
 		27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 4401E1971D994DA50027AD13 /* libmtemplate.dylib */; };
 		271876121E02A2AD00239BB4 /* SymbolTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271876101E02A2AD00239BB4 /* SymbolTable.cpp */; };
@@ -499,7 +497,6 @@
 		27AB27731D2133CB004AC480 /* parsers-common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27AB27711D2133C4004AC480 /* parsers-common.cpp */; };
 		27ABB5EA1BED01BA00BD039F /* jsonview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27ABB5E91BED01BA00BD039F /* jsonview.cpp */; };
 		27ABB5EC1BED01E400BD039F /* jsonview.h in Headers */ = {isa = PBXBuildFile; fileRef = 27ABB5EB1BED01E400BD039F /* jsonview.h */; };
-		27ABB5EE1BED021300BD039F /* json_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27ABB5ED1BED021300BD039F /* json_test.cpp */; };
 		27ABB5EF1BED07A500BD039F /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		27ABB5F01BED07AA00BD039F /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		27AF7C110FC2A913007160EF /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
@@ -2745,7 +2742,6 @@
 		8EF3D2DE205823A400FCF385 /* view.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A831B343FF400D6135D /* view.cpp */; };
 		8EF3D2DF205823A400FCF385 /* test_mysql_sql_facade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B0D1B34440200D6135D /* test_mysql_sql_facade.cpp */; };
 		8EF3D2E0205823A400FCF385 /* dbc_result_set_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A5F1B343EBC00D6135D /* dbc_result_set_test.cpp */; };
-		8EF3D2E1205823A400FCF385 /* json_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27ABB5ED1BED021300BD039F /* json_test.cpp */; };
 		8EF3D2E2205823A400FCF385 /* recordset_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050B221B34456600D6135D /* recordset_test.cpp */; };
 		8EF3D2E3205823A400FCF385 /* sqlstring_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A721B343FB300D6135D /* sqlstring_test.cpp */; };
 		8EF3D2E4205823A400FCF385 /* grouping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27050A7F1B343FF400D6135D /* grouping.cpp */; };
@@ -4335,8 +4331,6 @@
 		27050B2D1B34459300D6135D /* test_utilities_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_utilities_test.cpp; path = testing/tut/modules/test_utilities_test.cpp; sourceTree = "<group>"; };
 		270CE0891725409000BEDDDD /* wb_close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = wb_close.png; path = images/home/wb_close.png; sourceTree = "<group>"; };
 		27100A2C1FBC3CC6004AE384 /* accessibility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = accessibility.cpp; path = library/base/accessibility.cpp; sourceTree = "<group>"; };
-		271790171C97000B00B6DAC9 /* jsonparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jsonparser.cpp; path = library/base/jsonparser.cpp; sourceTree = "<group>"; };
-		2717901B1C97004A00B6DAC9 /* jsonparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonparser.h; path = library/base/base/jsonparser.h; sourceTree = "<group>"; };
 		2717901C1C97004A00B6DAC9 /* scope_exit_trigger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scope_exit_trigger.h; path = library/base/base/scope_exit_trigger.h; sourceTree = "<group>"; };
 		271876101E02A2AD00239BB4 /* SymbolTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SymbolTable.cpp; path = library/parsers/SymbolTable.cpp; sourceTree = "<group>"; };
 		271876111E02A2AD00239BB4 /* SymbolTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SymbolTable.h; path = library/parsers/SymbolTable.h; sourceTree = "<group>"; };
@@ -4558,7 +4552,6 @@
 		27AB27711D2133C4004AC480 /* parsers-common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "parsers-common.cpp"; path = "library/parsers/parsers-common.cpp"; sourceTree = "<group>"; };
 		27ABB5E91BED01BA00BD039F /* jsonview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = jsonview.cpp; path = library/forms/jsonview.cpp; sourceTree = "<group>"; };
 		27ABB5EB1BED01E400BD039F /* jsonview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonview.h; path = library/forms/mforms/jsonview.h; sourceTree = "<group>"; };
-		27ABB5ED1BED021300BD039F /* json_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_test.cpp; path = "library/forms/unit-tests/json_test.cpp"; sourceTree = "<group>"; };
 		27AF386A21A8406700FBD858 /* ps_switcher_text_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ps_switcher_text_dark.png; path = images/admin/ps_switcher_text_dark.png; sourceTree = "<group>"; };
 		27B37DC31A32001B00C73F1F /* mforms_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mforms_prefix.h; path = prefix/mforms_prefix.h; sourceTree = "<group>"; };
 		27B37DC51A32100E00C73F1F /* db.mysql.grt_prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = db.mysql.grt_prefix.h; path = prefix/db.mysql.grt_prefix.h; sourceTree = "<group>"; };
@@ -7769,7 +7762,6 @@
 			isa = PBXGroup;
 			children = (
 				27050AAA1B3443A600D6135D /* code_editor_test.cpp */,
-				27ABB5ED1BED021300BD039F /* json_test.cpp */,
 				27050AAB1B3443A600D6135D /* utilities_test.cpp */,
 			);
 			name = mforms;
@@ -10174,8 +10166,6 @@
 				44683E4B1AC9A40B00C516C5 /* generic_templates.h */,
 				2767F92911635C2500931E27 /* geometry.cpp */,
 				2767F92A11635C2500931E27 /* geometry.h */,
-				271790171C97000B00B6DAC9 /* jsonparser.cpp */,
-				2717901B1C97004A00B6DAC9 /* jsonparser.h */,
 				27B3E25B12E05FBE00FFF572 /* log.cpp */,
 				27B3E25E12E05FC700FFF572 /* log.h */,
 				2B22CAC0146DF8C000625F5C /* notifications.cpp */,
@@ -12049,7 +12039,6 @@
 				ED69F9E815DECA0C00FF2FE3 /* profiling.h in Headers */,
 				44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */,
 				27C3A1311070C3B200DD5717 /* common.h in Headers */,
-				2717901E1C97004A00B6DAC9 /* jsonparser.h in Headers */,
 				2725AD562284419B0049CCB9 /* keyword_list57.h in Headers */,
 				27C47B3F1C80A2BD00559C2B /* data_types.h in Headers */,
 				27ED050B1071D0A000C62B57 /* threaded_timer.h in Headers */,
@@ -14754,7 +14743,6 @@
 				27050A8B1B343FF400D6135D /* view.cpp in Sources */,
 				27FE9ED91B344A27008F6827 /* test_mysql_sql_facade.cpp in Sources */,
 				27050A641B343EBC00D6135D /* dbc_result_set_test.cpp in Sources */,
-				27ABB5EE1BED021300BD039F /* json_test.cpp in Sources */,
 				27050B251B34456600D6135D /* recordset_test.cpp in Sources */,
 				27050A781B343FB300D6135D /* sqlstring_test.cpp in Sources */,
 				27050A871B343FF400D6135D /* grouping.cpp in Sources */,
@@ -15086,7 +15074,6 @@
 				27B3E25C12E05FBE00FFF572 /* log.cpp in Sources */,
 				274E89811313BFCF000459A0 /* drawing.cpp in Sources */,
 				2B497E5F13D0DD4600F6AF47 /* sqlstring.cpp in Sources */,
-				271790191C97000B00B6DAC9 /* jsonparser.cpp in Sources */,
 				2B129A681443E39D00BC78DF /* util_functions.cpp in Sources */,
 				2B6C4FBA18DDD88F00869EBE /* python_utils.cpp in Sources */,
 				27C47B3E1C80A2B900559C2B /* data_types.cpp in Sources */,
@@ -15666,7 +15653,6 @@
 				8EF3D2DE205823A400FCF385 /* view.cpp in Sources */,
 				8EF3D2DF205823A400FCF385 /* test_mysql_sql_facade.cpp in Sources */,
 				8EF3D2E0205823A400FCF385 /* dbc_result_set_test.cpp in Sources */,
-				8EF3D2E1205823A400FCF385 /* json_test.cpp in Sources */,
 				8EF3D2E2205823A400FCF385 /* recordset_test.cpp in Sources */,
 				8EF3D2E3205823A400FCF385 /* sqlstring_test.cpp in Sources */,
 				8EF3D2E4205823A400FCF385 /* grouping.cpp in Sources */,

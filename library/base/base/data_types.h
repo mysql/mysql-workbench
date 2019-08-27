@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 // This file store general data types used between classic and X WB.
@@ -29,9 +29,10 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <map>
 
 #include "common.h"
-#include "jsonparser.h"
+#include "rapidjson/document.h"
 #include <typeinfo>
 #include <iomanip>
 #include <iostream>
@@ -41,13 +42,13 @@ namespace dataTypes {
 
   enum ConnectionType { ConnectionClassic, ConnectionNode };
 
-  JsonParser::JsonValue toJson(const ConnectionType &type);
-  void fromJson(const JsonParser::JsonValue &value, ConnectionType &type);
+  rapidjson::Value toJson(const ConnectionType &type);
+  void fromJson(const rapidjson::Value &value, ConnectionType &type);
 
   enum EditorLanguage { EditorSql, EditorJavaScript, EditorPython };
 
-  JsonParser::JsonValue toJson(const EditorLanguage &lang);
-  void fromJson(const JsonParser::JsonValue &value, EditorLanguage &lang);
+  rapidjson::Value toJson(const EditorLanguage &lang);
+  void fromJson(const rapidjson::Value &value, EditorLanguage &lang);
 
   struct BASELIBRARY_PUBLIC_FUNC AppOptions {
     std::string basedir;
@@ -312,7 +313,7 @@ namespace dataTypes {
     std::string userPassword;
     BaseConnection() : port(0){};
     BaseConnection(ssize_t p) : port(p){};
-    BaseConnection(const JsonParser::JsonValue &value);
+    BaseConnection(const rapidjson::Value &value);
     virtual ~BaseConnection(){};
 
     bool isValid() const {
@@ -322,8 +323,8 @@ namespace dataTypes {
     std::string uri(bool withPassword = false) const;
     std::string hostIdentifier() const;
 
-    virtual JsonParser::JsonValue toJson() const;
-    virtual void fromJson(const JsonParser::JsonValue &value, const std::string &cName = "");
+    virtual rapidjson::Value toJson() const;
+    virtual void fromJson(const rapidjson::Value &value, const std::string &cName = "");
   };
 
   class BASELIBRARY_PUBLIC_FUNC SSHConnection : public BaseConnection {
@@ -334,10 +335,10 @@ namespace dataTypes {
     std::string keyFile;
     SSHConnection() : BaseConnection(22) {
     }
-    SSHConnection(const JsonParser::JsonValue &value);
+    SSHConnection(const rapidjson::Value &value);
     virtual ~SSHConnection(){};
-    virtual JsonParser::JsonValue toJson() const;
-    virtual void fromJson(const JsonParser::JsonValue &value, const std::string &cName = "");
+    virtual rapidjson::Value toJson() const;
+    virtual void fromJson(const rapidjson::Value &value, const std::string &cName = "");
   };
 
   class BASELIBRARY_PUBLIC_FUNC NodeConnection : public BaseConnection {
@@ -351,10 +352,10 @@ namespace dataTypes {
     ConnectionType type;
     EditorLanguage language;
     NodeConnection();
-    NodeConnection(const JsonParser::JsonValue &value);
+    NodeConnection(const rapidjson::Value &value);
     virtual ~NodeConnection();
-    virtual JsonParser::JsonValue toJson() const;
-    virtual void fromJson(const JsonParser::JsonValue &value, const std::string &cName = "");
+    virtual rapidjson::Value toJson() const;
+    virtual void fromJson(const rapidjson::Value &value, const std::string &cName = "");
   };
 
   class BASELIBRARY_PUBLIC_FUNC XProject {
@@ -369,10 +370,10 @@ namespace dataTypes {
       return !name.empty() && connection.isValid();
     };
     XProject() : placeholder(false){};
-    XProject(const JsonParser::JsonValue &value);
+    XProject(const rapidjson::Value &value);
     virtual ~XProject(){};
-    JsonParser::JsonValue toJson() const;
-    void fromJson(const JsonParser::JsonValue &value);
+    rapidjson::Value toJson() const;
+    void fromJson(const rapidjson::Value &value);
   };
 
   class BASELIBRARY_PUBLIC_FUNC ProjectHolder {
@@ -386,10 +387,10 @@ namespace dataTypes {
     std::vector<ProjectHolder> children;
     XProject project;
     ProjectHolder() : isGroup(false), isRoot(false){};
-    ProjectHolder(const JsonParser::JsonValue &value);
+    ProjectHolder(const rapidjson::Value &value);
     virtual ~ProjectHolder(){};
-    JsonParser::JsonValue toJson() const;
-    void fromJson(const JsonParser::JsonValue &value);
+    rapidjson::Value toJson() const;
+    void fromJson(const rapidjson::Value &value);
   };
 
 } /* namespace dataTypes */

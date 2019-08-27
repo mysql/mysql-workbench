@@ -81,6 +81,7 @@ find_package(GDAL REQUIRED)
 find_package(Boost REQUIRED)
 find_package(LibSSH 0.8.5 REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(Rapidjson 1.1.0 REQUIRED)
 
 if (UNIX)
   option(USE_UNIXODBC "Use unixODBC instead of iODBC" OFF)

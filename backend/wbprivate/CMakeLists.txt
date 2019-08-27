@@ -96,6 +96,7 @@ target_link_libraries(wbprivate
     parsers
     mforms
     wbpublic::wbpublic
+    Rapidjson::Rapidjson
 )
 
 add_library(wbprivate_Iface INTERFACE)

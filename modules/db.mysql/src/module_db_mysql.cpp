@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #ifndef _MSC_VER
@@ -504,8 +504,9 @@ namespace {
     sql.append(" ");
 
     if (column->simpleType().is_valid())
-      if (!column->simpleType()->group().is_valid() || *column->simpleType()->group()->name() == "string" ||
-          *column->simpleType()->group()->name() == "text" || *column->simpleType()->name() == "ENUM") {
+      if (*column->simpleType()->name() != "JSON"
+        && (!column->simpleType()->group().is_valid() || *column->simpleType()->group()->name() == "string" ||
+          *column->simpleType()->group()->name() == "text" || *column->simpleType()->name() == "ENUM")) {
         if (!(*column->characterSetName()).empty())
           sql.append("CHARACTER SET '").append(column->characterSetName()).append("' ");
         if (!(*column->collationName()).empty() &&

@@ -321,7 +321,7 @@ private:
 
 class JsonDataViewer : public BinaryDataViewer {
 public:
-  JsonDataViewer(BinaryDataEditor *owner, JsonParser::JsonValue &value, const std::string &encoding)
+  JsonDataViewer(BinaryDataEditor *owner, rapidjson::Value &value, const std::string &encoding)
     : BinaryDataViewer(owner), _encoding(encoding), _currentDelayTimer(nullptr){
     set_spacing(8);
     _jsonView.setJson(value);
@@ -359,12 +359,13 @@ public:
       return;
     }
 
-    JsonParser::JsonValue value;
-    try {
-      JsonParser::JsonReader::read(converted, value);
-      if (_jsonView.text() != converted)
-        _jsonView.setJson(value);
-    } catch (JsonParser::ParserException &) {
+    rapidjson::Value value;
+    rapidjson::Document d;
+    d.Parse(converted);
+    if (!d.HasParseError()) {
+      value.CopyFrom(d, d.GetAllocator());
+      _jsonView.setJson(value);
+    } else {
       _jsonView.setText(converted);
     }
   }
@@ -634,14 +635,11 @@ void BinaryDataEditor::add_json_viewer(bool read_only, const std::string &text_e
   if (pos != std::string::npos && dataToTest.at(pos) != '{' && dataToTest.at(pos) != '[')
     return;
 
-  bool isJson = true;
-  JsonParser::JsonValue value;
-  try {
-    JsonParser::JsonReader::read(converted, value);
-  } catch (JsonParser::ParserException &) {
-    isJson = false;
-  }
-  if (isJson) {
+  rapidjson::Value value;
+  rapidjson::Document d;
+  d.Parse(converted);
+  if (!d.HasParseError()) {
+    value.CopyFrom(d, d.GetAllocator());
     add_viewer(new JsonDataViewer(this, value, text_encoding), title.c_str());
     _type = "JSON";
   }

@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 // This file store general data types used between classic and X WB.
@@ -26,24 +26,27 @@
 #include "base/data_types.h"
 #include <typeinfo>
 
+using namespace rapidjson;
+using namespace std::string_literals;
+
 namespace dataTypes {
 
-  JsonParser::JsonValue toJson(const ConnectionType &type) {
+  Value toJson(const ConnectionType &type) {
     switch (type) {
       case ConnectionClassic:
-        return JsonParser::JsonValue("ConnectionClassic");
+        return Value("ConnectionClassic");
       case ConnectionNode:
-        return JsonParser::JsonValue("ConnectionNode");
+        return Value("ConnectionNode");
     }
-    return JsonParser::JsonValue();
+    return Value();
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void fromJson(const JsonParser::JsonValue &value, ConnectionType &type) {
-    if ((std::string)value == "ConnectionClassic")
+  void fromJson(const Value &value, ConnectionType &type) {
+    if (value.GetString() == "ConnectionClassic"s)
       type = ConnectionClassic;
-    else if ((std::string)value == "ConnectionNode")
+    else if (value.GetString() == "ConnectionNode"s)
       type = ConnectionNode;
     else
       throw std::bad_cast();
@@ -51,26 +54,26 @@ namespace dataTypes {
 
   //--------------------------------------------------------------------------------------------------
 
-  JsonParser::JsonValue toJson(const EditorLanguage &lang) {
+  Value toJson(const EditorLanguage &lang) {
     switch (lang) {
       case EditorSql:
-        return JsonParser::JsonValue("EditorSql");
+        return Value("EditorSql");
       case EditorJavaScript:
-        return JsonParser::JsonValue("EditorJavaScript");
+        return Value("EditorJavaScript");
       case EditorPython:
-        return JsonParser::JsonValue("EditorPython");
+        return Value("EditorPython");
     }
-    return JsonParser::JsonValue();
+    return Value();
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void fromJson(const JsonParser::JsonValue &value, EditorLanguage &lang) {
-    if ((std::string)value == "EditorSql")
+  void fromJson(const Value &value, EditorLanguage &lang) {
+    if (value.GetString() == "EditorSql"s)
       lang = EditorSql;
-    else if ((std::string)value == "EditorJavaScript")
+    else if (value.GetString() == "EditorJavaScript"s)
       lang = EditorJavaScript;
-    else if ((std::string)value == "EditorPython")
+    else if (value.GetString() == "EditorPython"s)
       lang = EditorPython;
     else
       throw std::bad_cast();
@@ -78,7 +81,7 @@ namespace dataTypes {
 
   //--------------------------------------------------------------------------------------------------
 
-  BaseConnection::BaseConnection(const JsonParser::JsonValue &value) : port(0) {
+  BaseConnection::BaseConnection(const Value &value) : port(0) {
     fromJson(value);
   }
 
@@ -107,47 +110,47 @@ namespace dataTypes {
 
   //--------------------------------------------------------------------------------------------------
 
-  JsonParser::JsonValue BaseConnection::toJson() const {
-    JsonParser::JsonObject o;
-    o.insert("className", JsonParser::JsonValue(className));
-    o.insert("hostName", JsonParser::JsonValue(hostName));
-    o.insert("userName", JsonParser::JsonValue(userName));
-    o.insert("port", JsonParser::JsonValue(port));
-    return JsonParser::JsonValue(o);
+  Value BaseConnection::toJson() const {
+    Document document;
+    Value o(kObjectType);
+    o.AddMember("className", className, document.GetAllocator());
+    o.AddMember("hostName", hostName, document.GetAllocator());
+    o.AddMember("userName", userName, document.GetAllocator());
+    o.AddMember("port", static_cast<unsigned>(port), document.GetAllocator());
+    return o;
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void BaseConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName) {
-    const JsonParser::JsonObject o = value; // May throw.
-    if ((std::string)o.get("className") == (cName.empty() ? className : cName))
+  void BaseConnection::fromJson(const Value &value, const std::string &cName) {
+    if (value["className"] == (cName.empty() ? className : cName))
       throw std::bad_cast();
-    hostName = (std::string)o.get("hostName");
-    userName = (std::string)o.get("userName");
-    port = (int)o.get("port");
+    hostName = value["hostName"].GetString();
+    userName = value["userName"].GetString();
+    port = value["port"].GetInt();
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  SSHConnection::SSHConnection(const JsonParser::JsonValue &value) : BaseConnection(22) {
+  SSHConnection::SSHConnection(const Value &value) : BaseConnection(22) {
     fromJson(value);
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  JsonParser::JsonValue SSHConnection::toJson() const {
-    JsonParser::JsonObject o = BaseConnection::toJson();
-    o["className"] = JsonParser::JsonValue(className);
-    o.insert("keyFile", JsonParser::JsonValue(keyFile));
-    return JsonParser::JsonValue(o);
+  Value SSHConnection::toJson() const {
+    Value o = BaseConnection::toJson();
+    Document document;
+    o.AddMember("className", className, document.GetAllocator());
+    o.AddMember("keyFile", keyFile, document.GetAllocator());
+    return o;
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void SSHConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName) {
+  void SSHConnection::fromJson(const Value &value, const std::string &cName) {
     BaseConnection::fromJson(value, className);
-    const JsonParser::JsonObject o = value;
-    keyFile = (std::string)o.get("keyFile");
+    keyFile = value["keyFile"].GetString();
   }
 
   //--------------------------------------------------------------------------------------------------
@@ -158,7 +161,7 @@ namespace dataTypes {
 
   //--------------------------------------------------------------------------------------------------
 
-  NodeConnection::NodeConnection(const JsonParser::JsonValue &value)
+  NodeConnection::NodeConnection(const Value &value)
     : BaseConnection(33060), type(ConnectionNode), language(EditorJavaScript) {
     fromJson(value);
   }
@@ -171,88 +174,90 @@ namespace dataTypes {
 
   //--------------------------------------------------------------------------------------------------
 
-  JsonParser::JsonValue NodeConnection::toJson() const {
-    JsonParser::JsonObject o = BaseConnection::toJson();
-    o["className"] = JsonParser::JsonValue(className);
-    o.insert("defaultSchema", JsonParser::JsonValue(defaultSchema));
-    o.insert("uuid", JsonParser::JsonValue(uuid));
-    o.insert("type", dataTypes::toJson(type));
-    o.insert("language", dataTypes::toJson(language));
-    o.insert("ssh", ssh.toJson());
-    return JsonParser::JsonValue(o);
+  Value NodeConnection::toJson() const {
+    Value o = BaseConnection::toJson();
+    Document document;
+    o.AddMember("className", className, document.GetAllocator());
+    o.AddMember("defaultSchema", defaultSchema, document.GetAllocator());
+    o.AddMember("uuid", uuid, document.GetAllocator());
+    o.AddMember("type", dataTypes::toJson(type), document.GetAllocator());
+    o.AddMember("language", dataTypes::toJson(language), document.GetAllocator());
+    o.AddMember("ssh", ssh.toJson(), document.GetAllocator());
+    return o;
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void NodeConnection::fromJson(const JsonParser::JsonValue &value, const std::string &cName) {
+  void NodeConnection::fromJson(const Value &value, const std::string &cName) {
     BaseConnection::fromJson(value, className);
-    const JsonParser::JsonObject o = value;
-    uuid = (std::string)o.get("uuid");
-    defaultSchema = (std::string)o.get("defaultSchema");
-    ssh = SSHConnection(o.get("ssh"));
-    dataTypes::fromJson(o.get("type"), type);
-    dataTypes::fromJson(o.get("language"), language);
+    uuid = value["uuid"].GetString();
+    defaultSchema = value["defaultSchema"].GetString();
+    ssh = SSHConnection(value["ssh"]);
+    dataTypes::fromJson(value["type"], type);
+    dataTypes::fromJson(value["language"], language);
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  XProject::XProject(const JsonParser::JsonValue &value) : placeholder(false) {
+  XProject::XProject(const Value &value) : placeholder(false) {
     fromJson(value);
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  JsonParser::JsonValue XProject::toJson() const {
-    JsonParser::JsonObject o;
-    o.insert("className", JsonParser::JsonValue(className));
-    o.insert("name", JsonParser::JsonValue(name));
-    o.insert("connection", connection.toJson());
-    return JsonParser::JsonValue(o);
+  Value XProject::toJson() const {
+    Document document;
+    Value val;
+    val.AddMember("className", className, document.GetAllocator());
+    val.AddMember("name", name, document.GetAllocator());
+    val.AddMember("connection", connection.toJson(), document.GetAllocator());
+    return val;
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void XProject::fromJson(const JsonParser::JsonValue &value) {
-    const JsonParser::JsonObject o = value; // May throw.
-    if ((std::string)o.get("className") == className)
+  void XProject::fromJson(const Value &value) {
+    if (value["className"] == className)
       throw std::bad_cast();
-    name = (std::string)o.get("name");
-    connection = NodeConnection(o.get("connection"));
+    name = value["name"].GetString();
+    connection = NodeConnection(value["connection"]);
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  ProjectHolder::ProjectHolder(const JsonParser::JsonValue &value) {
+  ProjectHolder::ProjectHolder(const Value &value) {
     fromJson(value);
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  JsonParser::JsonValue ProjectHolder::toJson() const {
-    JsonParser::JsonObject o;
-    o.insert("className", JsonParser::JsonValue(className));
-    o.insert("isGroup", JsonParser::JsonValue(isGroup));
-    o.insert("isRoot", JsonParser::JsonValue(isRoot));
-    o.insert("project", JsonParser::JsonValue(project.toJson()));
-    JsonParser::JsonArray arr;
+  Value ProjectHolder::toJson() const {
+    Value o;
+    Document document;
+    Document::AllocatorType &allocator = document.GetAllocator();
+    o.AddMember("className", className, allocator);
+    o.AddMember("isGroup", isGroup, allocator);
+    o.AddMember("isRoot", isRoot, allocator);
+    o.AddMember("project", project.toJson(), allocator);
+
+    Value arr(kArrayType);
     for (auto it : children)
-      arr.pushBack(it.toJson());
-    o.insert("children", JsonParser::JsonValue(arr));
-    return JsonParser::JsonValue(o);
+      arr.PushBack(it.toJson(), allocator);
+    o.AddMember("children", arr, allocator);
+    return o;
   }
 
   //--------------------------------------------------------------------------------------------------
 
-  void ProjectHolder::fromJson(const JsonParser::JsonValue &value) {
-    const JsonParser::JsonObject o = value; // May throw.
-    if ((std::string)o.get("className") == className)
+  void ProjectHolder::fromJson(const Value &value) {
+    Document doscument;
+    if (value["className"].GetString() == className)
       throw std::bad_cast();
 
-    isGroup = (bool)o.get("isGroup");
-    isRoot = (bool)o.get("isRoot");
-    project = XProject(o.get("project"));
-    const JsonParser::JsonArray array = o.get("children");
-    for (auto &it : array)
+    isGroup = value["isGroup"].GetBool();
+    isRoot = value["isRoot"].GetBool();
+    project = XProject(value["project"]);
+    for (auto &it : value["children"].GetArray())
       children.push_back(ProjectHolder(it));
   }
 

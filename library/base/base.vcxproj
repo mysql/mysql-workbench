@@ -49,6 +49,7 @@
     <Import Project="..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
+    <Import Project="..\..\vsprops\wb_rapidjson.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -57,6 +58,7 @@
     <Import Project="..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
+    <Import Project="..\..\vsprops\wb_rapidjson.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -65,6 +67,7 @@
     <Import Project="..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
+    <Import Project="..\..\vsprops\wb_rapidjson.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -154,7 +157,6 @@
     <ClCompile Include="file_functions.cpp" />
     <ClCompile Include="file_utilities.cpp" />
     <ClCompile Include="geometry.cpp" />
-    <ClCompile Include="jsonparser.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="mem_stat.cpp" />
     <ClCompile Include="notifications.cpp" />
@@ -189,7 +191,6 @@
     <ClInclude Include="base\file_utilities.h" />
     <ClInclude Include="base\generic_templates.h" />
     <ClInclude Include="base\geometry.h" />
-    <ClInclude Include="base\jsonparser.h" />
     <ClInclude Include="base\log.h" />
     <ClInclude Include="base\mem_stat.h" />
     <ClInclude Include="base\notifications.h" />

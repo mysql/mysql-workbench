@@ -59,4 +59,7 @@
 #include <boost/function.hpp>
 #include <boost/locale/encoding_utf.hpp>
 
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/rapidjson.h>
+
 #endif

@@ -44,6 +44,9 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
+#define RAPIDJSON_HAS_STDSTRING 1
+#include <rapidjson/rapidjson.h>
+
 #include "mforms/mforms.h"
 
 #endif

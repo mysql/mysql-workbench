@@ -55,7 +55,7 @@
       launchAutomaticallySubstyle = "2">
       <RemoteRunnable
          runnableDebuggingMode = "0"
-         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/master/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
+         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/features2/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -68,7 +68,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "only db_mysql_sql_export"
+            argument = "only mforms_utilities_test"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -85,7 +85,7 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "JSON_CONFIG_FILE"
-            value = "config.json"
+            value = "/Users/mike/config.json"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

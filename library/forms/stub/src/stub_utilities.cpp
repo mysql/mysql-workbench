@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "../stub_utilities.h"
@@ -134,23 +134,22 @@ void UtilitiesWrapper::store_password(const std::string &service, const std::str
 bool UtilitiesWrapper::find_password(const std::string &service, const std::string &account, std::string &password) {
   static bool loaded_passwords = false;
   bool ret_val = false;
-
   if (!loaded_passwords) {
-    JsonParser::JsonObject &cnf = *test_params->getConfig();
-    JsonParser::JsonArray pass;
-    try {
-      pass = cnf.get("tutPasswords");
-      for (JsonParser::JsonObject &entry: pass) {
-        passwords()[(std::string)entry.get("service")] = (std::string)entry.get("password");
-        if (getenv("VERBOSE"))
-          g_message("%s=%s", ((std::string)entry.get("service")).c_str(), ((std::string)entry.get("password")).c_str());
+   auto &cnf = *test_params->getConfig();
+    if (cnf.HasMember("tutPasswords")) {
+      auto const& pass = cnf["tutPasswords"].GetArray();
+      for (auto const& entry : pass) {
+        if (entry.IsObject() && entry.HasMember("service")) {
+          passwords()[entry["service"].GetString()] = entry["password"].GetString();
+          if (getenv("VERBOSE"))
+            g_message("%s=%s", entry["service"].GetString(), entry["password"].GetString());
+        }
       }
-    } catch (std::out_of_range &) {
-      g_message("Config file is missing service credentials.\n");
+    } else {
+     g_message("Config file is missing service credentials.\n");
     }
     loaded_passwords = true;
   }
-
   if (passwords().count(service + ":" + account)) {
     password = passwords()[service + ":" + account];
     ret_val = true;

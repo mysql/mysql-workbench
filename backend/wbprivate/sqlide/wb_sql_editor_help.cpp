@@ -23,11 +23,12 @@
 
 #include <pcrecpp.h>
 #include <thread>
+#include <rapidjson/istreamwrapper.h>
+#include <fstream>
 
 #include "base/log.h"
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
-#include "base/jsonparser.h"
 
 #include "mforms/app.h"
 #include "mforms/code_editor.h"
@@ -47,6 +48,7 @@ using namespace parsers;
 using namespace antlr4;
 
 using namespace help;
+using namespace rapidjson;
 
 class HelpContext::Private {
 public:
@@ -179,24 +181,24 @@ std::string convertInternalLinks(std::string const &source) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string convertList(long version, JsonParser::JsonArray const &list) {
+std::string convertList(long version, Value const &list) {
   std::string result;
-  for (JsonParser::JsonObject const &entry: list) {
-    auto iterator = entry.find("para");
-    if (iterator != entry.end()) {
-      std::string text = "<p>" + convertInternalLinks(iterator->second) +  "</p>";
+  for (auto const &entry: list.GetArray()) {
+    auto iterator = entry.FindMember("para");
+    if (iterator != entry.MemberEnd()) {
+      std::string text = "<p>" + convertInternalLinks(iterator->value.GetString()) +  "</p>";
       result += convertXRef(version, convertExternalLinks(version, text));
     } else {
-      auto iterator = entry.find("programlisting");
-      if (iterator != entry.end()) {
-        std::string text = convertInternalLinks(iterator->second);
+      auto iterator = entry.FindMember("programlisting");
+      if (iterator != entry.MemberEnd()) {
+        std::string text = convertInternalLinks(iterator->value.GetString());
         result += "<pre>" + text + "</pre>";
       } else {
-        auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
-        if (iterator != entry.end()) {
+        auto iterator = entry.FindMember("itemizedlist"); // Convert to bullet list.
+        if (iterator != entry.MemberEnd()) {
           result = "<ul>";
-          JsonParser::JsonArray const &itemizedList = iterator->second;
-          for (JsonParser::JsonArray const &listentry: itemizedList) {
+          auto const &itemizedList = iterator->value.GetArray();
+          for (auto const &listentry: itemizedList) {
             result += "<li>" + convertList(version, listentry) + "</li>";
           }
           result += "</ul>";
@@ -213,49 +215,56 @@ std::string convertList(long version, JsonParser::JsonArray const &list) {
 /**
  * Creates the HTML formatted help text from the object that's passed in.
  */
-std::string DbSqlEditorContextHelp::createHelpTextFromJson(long version, JsonParser::JsonObject const &json) {
+std::string DbSqlEditorContextHelp::createHelpTextFromJson(long version, Value const &json) {
   std::string result = "<body>";
-  std::string id = json.get("id");
+  std::string id = json.HasMember("id") ? json["id"].GetString() : "";
   result += "<h3>" + id + " Syntax:</h3>";
 
   // Syntax (the summary), often in a code block.
-  JsonParser::JsonArray const &syntax = json.get("syntax");
-  for (JsonParser::JsonObject const &entry: syntax) {
-    // There are different variants for syntax descriptions. Usually it's encapsulated in a program listing,
-    // but e.g. for functions in a list the syntax is a paragraph.
-    auto iterator = entry.find("programlisting");
-    if (iterator != entry.end()) {
-      std::string text = convertInternalLinks(iterator->second);
-      result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
-    } else {
-      auto iterator = entry.find("para");
-      if (iterator != entry.end()) {
-        result += "<p>" + convertInternalLinks(iterator->second) + "</p>";
+
+  if (json.HasMember("syntax")) {
+    auto &syntax = json["syntax"];
+    if (syntax.IsObject()) {
+      for (auto it = syntax.MemberBegin(); it != syntax.MemberEnd(); ++it) {
+        // There are different variants for syntax descriptions. Usually it's encapsulated in a program listing,
+        // but e.g. for functions in a list the syntax is a paragraph.
+        auto entry = it->value.FindMember("programlisting");
+        if (entry != it->value.MemberEnd()) {
+          std::string text = convertInternalLinks(entry->value.GetString());
+          result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
+        } else {
+          auto para = it->value.FindMember("para");
+          if (para != it->value.MemberEnd()) {
+            result += "<p>" + convertInternalLinks(para->value.GetString()) + "</p>";
+          }
+        }
       }
     }
   }
-
+  
   // The full description, plain text with code examples, lists and more.
-  JsonParser::JsonArray const &description = json.get("description");
-  for (JsonParser::JsonObject const &entry: description) {
-    auto iterator = entry.find("para");
-    if (iterator != entry.end()) {
-      std::string text = "<p>" + convertInternalLinks(iterator->second) + "</p>";
-      result += convertXRef(version, convertExternalLinks(version, text));
-    } else {
-      auto iterator = entry.find("programlisting");
-      if (iterator != entry.end()) {
-        std::string text = convertInternalLinks(iterator->second);
-        result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
+  if (json.HasMember("description")) {
+    auto const &description = json["description"].GetArray();
+    for (auto const &entry : description) {
+      auto iterator = entry.FindMember("para");
+      if (iterator != entry.MemberEnd()) {
+        std::string text = "<p>" + convertInternalLinks(iterator->value.GetString()) + "</p>";
+        result += convertXRef(version, convertExternalLinks(version, text));
       } else {
-        auto iterator = entry.find("itemizedlist"); // Convert to bullet list.
-        if (iterator != entry.end()) {
-          result += "<ul>";
-          JsonParser::JsonArray const &itemizedList = iterator->second;
-          for (JsonParser::JsonArray const &listentry: itemizedList) {
-            result += "<li>" + convertList(version, listentry) + "</li>";
+        auto iterator = entry.FindMember("programlisting");
+        if (iterator != entry.MemberEnd()) {
+          std::string text = convertInternalLinks(iterator->value.GetString());
+          result += "<pre class='programlisting line-numbers language-sql'>" + text + "</pre><br/>";
+        } else {
+          auto iterator = entry.FindMember("itemizedlist"); // Convert to bullet list.
+          if (iterator != entry.MemberEnd()) {
+            result += "<ul>";
+            auto const &itemizedList = iterator->value.GetArray();
+            for (auto const &listentry : itemizedList) {
+              result += "<li>" + convertList(version, listentry) + "</li>";
+            }
+            result += "</ul>";
           }
-          result += "</ul>";
         }
       }
     }
@@ -293,20 +302,29 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
       }
 
       try {
-        JsonParser::JsonValue document;
-        JsonParser::JsonReader::readFromFile(path, document);
+        rapidjson::Value document;
+        std::ifstream ifs(path);
+        IStreamWrapper isw(ifs);
+        Document d;
+        d.ParseStream(isw);
+        if (d.HasParseError()) {
+          logError("Could not read help text file (%s)\nError code: %d\n", fileName.c_str(), d.GetParseError());
+          return;
+        }
 
         std::set<std::string> topics;
-        JsonParser::JsonObject &topicRoot = document;
-        JsonParser::JsonArray &topicList = topicRoot.get("topics");
-        for (JsonParser::JsonObject &topic: topicList) {
-          std::string id = base::toupper(topic.get("id"));
-          topics.insert(id);
-          helpContent[version][id] = createHelpTextFromJson(version, topic);
+        Value topicRoot;
+        topicRoot.CopyFrom(d, d.GetAllocator());
+
+        if (topicRoot.HasMember("topics")) {
+          auto const &topicList = topicRoot["topics"].GetArray();
+          for (auto &topic : topicList) {
+            std::string id = base::toupper(topic["id"].GetString());
+            topics.insert(id);
+            helpContent[version][id] = createHelpTextFromJson(version, topic);
+          }
         }
         helpTopics[version] = topics;
-      } catch (JsonParser::ParserException &e) {
-        logError("Could not read help text file (%s)\nError message: %s\n", fileName.c_str(), e.what());
       } catch (std::bad_cast &e) {
         logError("Unexpected file format (%s)\nError message: %s\n", fileName.c_str(), e.what());
       }

@@ -24,6 +24,7 @@
 #pragma once
 
 #include <thread>
+#include "rapidjson/document.h"
 
 // Helper class to find context sensitive help based on a statement and a position in it.
 
@@ -66,7 +67,7 @@ namespace help {
     DbSqlEditorContextHelp();
     ~DbSqlEditorContextHelp();
 
-    std::string createHelpTextFromJson(long version, JsonParser::JsonObject const &json);
+    std::string createHelpTextFromJson(long version, rapidjson::Value const &json);
     bool topicExists(long serverVersion, const std::string &topic);
   };
 
