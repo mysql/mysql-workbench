@@ -169,8 +169,8 @@
 		27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E67209B2E50002EC0D4 /* libsqlite3.so */; };
 		27189E6B209B2E9E002EC0D4 /* libiconv.2.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E6A209B2E84002EC0D4 /* libiconv.2.dylib */; };
 		27189E6C209B2EA2002EC0D4 /* libintl.8.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E69209B2E84002EC0D4 /* libintl.8.dylib */; };
-		27189E71209B30E2002EC0D4 /* libcrypto.1.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E70209B30DC002EC0D4 /* libcrypto.1.0.0.dylib */; };
-		27189E72209B30EA002EC0D4 /* libssl.1.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E6F209B30C7002EC0D4 /* libssl.1.0.0.dylib */; };
+		27189E71209B30E2002EC0D4 /* libcrypto.1.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */; };
+		27189E72209B30EA002EC0D4 /* libssl.1.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */; };
 		27189E77209B36F7002EC0D4 /* libproj.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E76209B369B002EC0D4 /* libproj.0.dylib */; };
 		271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		271C7F9C1DE2FEF9006D6C88 /* CodeCompletionCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271C7F981DE2FEF9006D6C88 /* CodeCompletionCore.cpp */; };
@@ -4007,7 +4007,7 @@
 				2B7F77EB0F0133EB00C3C53E /* libwbprivate.be.dylib in Copy Files (dylibs) */,
 				27189E53209B2852002EC0D4 /* libantlr4-runtime.dylib in Copy Files (dylibs) */,
 				27189E54209B2856002EC0D4 /* libcairo.2.dylib in Copy Files (dylibs) */,
-				27189E71209B30E2002EC0D4 /* libcrypto.1.0.0.dylib in Copy Files (dylibs) */,
+				27189E71209B30E2002EC0D4 /* libcrypto.1.1.dylib in Copy Files (dylibs) */,
 				27189E5A209B2CDE002EC0D4 /* libgdal.1.dylib in Copy Files (dylibs) */,
 				27189E57209B28E7002EC0D4 /* libpixman-1.0.dylib in Copy Files (dylibs) */,
 				27189E58209B28EB002EC0D4 /* libpng16.16.dylib in Copy Files (dylibs) */,
@@ -4020,7 +4020,7 @@
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
-				27189E72209B30EA002EC0D4 /* libssl.1.0.0.dylib in Copy Files (dylibs) */,
+				27189E72209B30EA002EC0D4 /* libssl.1.1.dylib in Copy Files (dylibs) */,
 				27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */,
 				278DFEC720A2E19000D7E439 /* libz.so.1.2.5 in Copy Files (dylibs) */,
 				27189E65209B2D2F002EC0D4 /* libzip.4.dylib in Copy Files (dylibs) */,
@@ -4339,8 +4339,8 @@
 		27189E67209B2E50002EC0D4 /* libsqlite3.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.so; path = "3rd-party-ce/lib/libsqlite3.so"; sourceTree = "<group>"; };
 		27189E69209B2E84002EC0D4 /* libintl.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libintl.8.dylib; path = "3rd-party-ce/lib/libintl.8.dylib"; sourceTree = "<group>"; };
 		27189E6A209B2E84002EC0D4 /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = "3rd-party-ce/lib/libiconv.2.dylib"; sourceTree = "<group>"; };
-		27189E6F209B30C7002EC0D4 /* libssl.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.1.0.0.dylib; path = "3rd-party-ce/lib/libssl.1.0.0.dylib"; sourceTree = "<group>"; };
-		27189E70209B30DC002EC0D4 /* libcrypto.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.1.0.0.dylib; path = "3rd-party-ce/lib/libcrypto.1.0.0.dylib"; sourceTree = "<group>"; };
+		27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.1.1.dylib; path = "3rd-party-ce/lib/libssl.1.1.dylib"; sourceTree = "<group>"; };
+		27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.1.1.dylib; path = "3rd-party-ce/lib/libcrypto.1.1.dylib"; sourceTree = "<group>"; };
 		27189E76209B369B002EC0D4 /* libproj.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libproj.0.dylib; path = "3rd-party-ce/lib/libproj.0.dylib"; sourceTree = "<group>"; };
 		271A795110A1D8F600058CB4 /* wbtests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = wbtests; sourceTree = BUILT_PRODUCTS_DIR; };
 		271C7F981DE2FEF9006D6C88 /* CodeCompletionCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeCompletionCore.cpp; path = "library/parsers/code-completion/CodeCompletionCore.cpp"; sourceTree = "<group>"; };
@@ -9743,7 +9743,7 @@
 				440DD3F922980A0500EB5F10 /* libssh.dylib */,
 				27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */,
 				27D6EE362099D8210050B26B /* libcairo.2.dylib */,
-				27189E70209B30DC002EC0D4 /* libcrypto.1.0.0.dylib */,
+				27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */,
 				27D6EE402099E2070050B26B /* libgdal.1.dylib */,
 				27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */,
 				27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */,
@@ -9758,7 +9758,7 @@
 				27189E56209B28D8002EC0D4 /* libpng16.16.dylib */,
 				27189E76209B369B002EC0D4 /* libproj.0.dylib */,
 				27189E67209B2E50002EC0D4 /* libsqlite3.so */,
-				27189E6F209B30C7002EC0D4 /* libssl.1.0.0.dylib */,
+				27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */,
 				27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
 				278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */,
