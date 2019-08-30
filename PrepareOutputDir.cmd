@@ -170,9 +170,9 @@ rem =======================================
 
 if %2 == Debug ( set DEBUG_PREFIX=d)
 
-echo * SSL library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\libeay32.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\ssleay32.dll %TARGET_DIR%\.
+echo * SSL libraries ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\libcrypto-1_1-x64.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\libssl-1_1-x64.dll %TARGET_DIR%\.
 
 echo * glib libraries ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\glib.dll %TARGET_DIR%\.

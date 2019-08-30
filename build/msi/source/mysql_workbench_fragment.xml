@@ -43,14 +43,14 @@
 
               <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
                 <?if $(var.LICENSE_TYPE) = "community"?>
-                <File Id="README" Name="README.md"/>
+					<File Id="README" Name="README.md"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-                <File Id="README" Name="README-commercial.md"/>
+					<File Id="README" Name="README-commercial.md"/>
                 <?endif ?>
                 <?if $(var.LICENSE_TYPE) = "community"?>
-                <File Id="License.txt" Name="License.txt"/>
+					<File Id="License.txt" Name="License.txt"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-                <File Id="License_commercial.txt" Name="License-commercial.txt"/>
+					<File Id="License_commercial.txt" Name="License-commercial.txt"/>
                 <?endif ?>
                 <RemoveFolder Directory="Mysql_WB_Dir" Id="RemoveWbDirFolder" On="uninstall"/>
                 <RemoveFolder Directory="MysqlProgramMenuFolder" Id="RemoveProgramMenuFolder" On="uninstall"/>
@@ -60,12 +60,11 @@
                 <File Id="file1023" Name="iconv.dll"/>
                 <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
-                <File Id="ssleay32.dll" Name="ssleay32.dll"/>
-                <File Id="libeay32.dll" Name="libeay32.dll"/>               
+                <File Id="libcrypto-1_1-x64.dll" Name="libcrypto.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-                <File Id="file1035d" Name="libpng16d.dll"/>
+					<File Id="file1035d" Name="libpng16d.dll"/>
                 <?else ?>
-                <File Id="file1035" Name="libpng16.dll"/>
+					<File Id="file1035" Name="libpng16.dll"/>
                 <?endif ?>
                 <File Id="file1036" Name="libxml2.dll"/>
                 <File Id="file1030" Name="glib.dll"/>
@@ -75,17 +74,17 @@
                 <File Id="file1050" Name="Aga.Controls.dll"/>
                 <File Id="file1065" Name="zip.dll"/>              
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-                <File Id="file1083d" Name="zlibd1.dll"/>
+					<File Id="file1083d" Name="zlibd1.dll"/>
                 <?else ?>
-                <File Id="file1083" Name="zlib1.dll"/>
+					<File Id="file1083" Name="zlib1.dll"/>
                 <?endif ?>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-                <File Id="file1099d" Name="python27_d.dll"/>
-                <File Id="python_d.exe" Name="python_d.exe"/>
+					<File Id="file1099d" Name="python27_d.dll"/>
+					<File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
-                <File Id="file1099" Name="python27.dll"/>
-                <File Id="python.exe" Name="python.exe"/>
+					<File Id="file1099" Name="python27.dll"/>
+					<File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
                 <File Id="file1102" Name="mysql.exe"/>
@@ -93,11 +92,11 @@
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-                <File Id="pcred.dll" Name="pcred.dll"/>
-                <File Id="pcrecppd.dll" Name="pcrecppd.dll"/>
+					<File Id="pcred.dll" Name="pcred.dll"/>
+					<File Id="pcrecppd.dll" Name="pcrecppd.dll"/>
                 <?else ?>
-                <File Id="pcre.dll" Name="pcre.dll"/>
-                <File Id="pcrecpp.dll" Name="pcrecpp.dll"/>
+					<File Id="pcre.dll" Name="pcre.dll"/>
+					<File Id="pcrecpp.dll" Name="pcrecpp.dll"/>
                 <?endif ?>
                 <File Id="file68725" Name="sqlite3.dll"/>
                 <File Id="gdal.dll" Name="gdal.dll"/>
@@ -106,6 +105,7 @@
                 <File Id="file1121" Name="vsqlite++.dll"/>
                 <File Id="file1122" Name="antlr4-runtime.dll"/>
                 <File Id="ssh.dll" Name="ssh.dll"/>
+                <File Id="libssl-1_1-x64.dll" Name="libssl-1_1-x64.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
@@ -142,8 +142,8 @@
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
                 <File Id="file1070" Name="wb.model.grt.dll"/>
                 <?if $(var.SETUP_TYPE) != "community" ?>
-                <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
-                <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
+					<File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
+					<File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
                 <?endif ?>
                 <File Id="file1076" Name="wb.printing.wbp.be.dll"/>
                 <File Id="file1077" Name="wb.printing.wbp.fe.dll"/>
@@ -151,11 +151,11 @@
                 <File Id="file1089" Name="mforms.py"/>
                 <File Id="file1090" Name="cairo.py"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-                <File Id="file1098d" Name="_mforms_d.pyd"/>
-                <File Id="file1096d" Name="_cairo_d.pyd"/>
+					<File Id="file1098d" Name="_mforms_d.pyd"/>
+					<File Id="file1096d" Name="_cairo_d.pyd"/>
                 <?else ?>
-                <File Id="file1098" Name="_mforms.pyd"/>
-                <File Id="file1096" Name="_cairo.pyd"/>
+					<File Id="file1098" Name="_mforms.pyd"/>
+					<File Id="file1096" Name="_cairo.pyd"/>
                 <?endif ?>
                 <File Id="file1097" Name="sshtunnel.py"/>
                 <File Id="file1095" Name="db.mysql.query.grt.dll"/>
@@ -170,7 +170,7 @@
                 <File Id="file1115" Name="parsers.dll"/>
                 <File Id="wbcopytables.exe" Name="wbcopytables.exe"/>
                 <?if $(var.SETUP_TYPE) = "commercial" ?>
-                <File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
+					<File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
                 <?endif ?>
                 <File Id="file1116" Name="wbadminhelper.exe"/>
                 <File Id="file1118" Name="mysqlwbmeb.py"/>
@@ -935,53 +935,52 @@
                 <Directory Id="python_dlls" Name="DLLs">
                   <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68002d" Name="_ctypes_d.pyd"/>
+						<File Id="file68002d" Name="_ctypes_d.pyd"/>
                     <?else ?>
-                    <File Id="file68002" Name="_ctypes.pyd"/>
+						<File Id="file68002" Name="_ctypes.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68004d" Name="_elementtree_d.pyd"/>
+						<File Id="file68004d" Name="_elementtree_d.pyd"/>
                     <?else ?>
-                    <File Id="file68004" Name="_elementtree.pyd"/>
+						<File Id="file68004" Name="_elementtree.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68007d" Name="_multiprocessing_d.pyd"/>
+						<File Id="file68007d" Name="_multiprocessing_d.pyd"/>
                     <?else ?>
-                    <File Id="file68007" Name="_multiprocessing.pyd"/>
+						<File Id="file68007" Name="_multiprocessing.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68008d" Name="_socket_d.pyd"/>
+						<File Id="file68008d" Name="_socket_d.pyd"/>
                     <?else ?>
-                    <File Id="file68008" Name="_socket.pyd"/>
+						<File Id="file68008" Name="_socket.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68009d" Name="_sqlite3_d.pyd"/>
+						<File Id="file68009d" Name="_sqlite3_d.pyd"/>
                     <?else ?>
-                    <File Id="file68009" Name="_sqlite3.pyd"/>
+						<File Id="file68009" Name="_sqlite3.pyd"/>
                     <?endif ?>
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68009ddll" Name="sqlite3_d.dll"/>
+						<File Id="file68009ddll" Name="sqlite3_d.dll"/>
                     <?else ?>
-                    <File Id="file68009dll" Name="sqlite3.dll"/>
+						<File Id="file68009dll" Name="sqlite3.dll"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68013d" Name="pyexpat_d.pyd"/>
+						<File Id="file68013d" Name="pyexpat_d.pyd"/>
                     <?else ?>
-                    <File Id="file68013" Name="pyexpat.pyd"/>
+						<File Id="file68013" Name="pyexpat.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68014d" Name="select_d.pyd"/>
+						<File Id="file68014d" Name="select_d.pyd"/>
                     <?else ?>
-                    <File Id="file68014" Name="select.pyd"/>
+						<File Id="file68014" Name="select.pyd"/>
                     <?endif ?>
 
-                    <!--                    <File Id="file68015" Name="unicodedata.pyd"/> -->
                   </Component>
                 </Directory>
                 <Directory Id="python_lib" Name="lib">
@@ -1431,24 +1430,24 @@
                 <Directory Id="python_site_packages" Name="site-packages">
                   <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-                    <File Id="file68021d" Name="pyodbc_d.pyd"/>
+						<File Id="file68021d" Name="pyodbc_d.pyd"/>
                     <?else ?>
-                    <File Id="file68021" Name="pyodbc.pyd"/>
+						<File Id="file68021" Name="pyodbc.pyd"/>
                     <?endif ?>
                   </Component>
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
-                  <Directory Id="python_site_packages_pysqlite2" Name="pysqlite2">
-                    <Component DiskId="1" Guid="1144fb0c-9b34-4d3d-bf0d-7c7811c09677" Id="python_site_packages_pysqlite2" Location="either">
-                      <File Id="file68800" Name="__init__.py"/>
-                      <File Id="file68801" Name="dbapi2.py"/>
-                      <File Id="file68802" Name="dump.py"/>
-                      <?if $(var.LICENSE_TYPE) = "debug"?>
-                      <File Id="file68803" Name="_sqlite_d.pyd"/>
-                      <?else ?>
-                      <File Id="file68804" Name="_sqlite.pyd"/>
-                      <?endif ?>
-                    </Component>
-                  </Directory>
+					  <Directory Id="python_site_packages_pysqlite2" Name="pysqlite2">
+						<Component DiskId="1" Guid="1144fb0c-9b34-4d3d-bf0d-7c7811c09677" Id="python_site_packages_pysqlite2" Location="either">
+						  <File Id="file68800" Name="__init__.py"/>
+						  <File Id="file68801" Name="dbapi2.py"/>
+						  <File Id="file68802" Name="dump.py"/>
+						  <?if $(var.LICENSE_TYPE) = "debug"?>
+							<File Id="file68803" Name="_sqlite_d.pyd"/>
+						  <?else ?>
+							<File Id="file68804" Name="_sqlite.pyd"/>
+						  <?endif ?>
+						</Component>
+					  </Directory>
                   <?endif ?>
                 </Directory>
               </Directory>
@@ -1606,38 +1605,38 @@
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
-                <Directory Id="modules_wba_audit" Name="wba_audit">
-                  <Component DiskId="1" Guid="58D36A5F-774A-443C-9F70-935497D7249C" Id="modules_wba_audit" Location="either">
-                    <File Id="wba_audit01" Name="__init__.py"/>
-                    <File Id="wba_audit02" Name="wb_admin_audit_inspector.py"/>
-                    <File Id="wba_audit03" Name="wb_admin_audit_log_parser.py"/>
-                    <File Id="wba_audit04" Name="wb_admin_audit_browser.py"/>
-                  </Component>
-                </Directory>
+					<Directory Id="modules_wba_audit" Name="wba_audit">
+					  <Component DiskId="1" Guid="58D36A5F-774A-443C-9F70-935497D7249C" Id="modules_wba_audit" Location="either">
+						<File Id="wba_audit01" Name="__init__.py"/>
+						<File Id="wba_audit02" Name="wb_admin_audit_inspector.py"/>
+						<File Id="wba_audit03" Name="wb_admin_audit_log_parser.py"/>
+						<File Id="wba_audit04" Name="wb_admin_audit_browser.py"/>
+					  </Component>
+					</Directory>
 
-                <Directory Id="modules_wba_meb" Name="wba_meb">
-                  <Component DiskId="1" Guid="B3BF58B7-6217-48fb-B1D7-B2265E780CBA" Id="modules_wba_meb" Location="either">
-                    <File Id="wba_meb01" Name="__init__.py"/>
-                    <File Id="wba_meb02" Name="wb_admin_meb_common.py"/>
-                    <File Id="wba_meb03" Name="wb_admin_meb_config.py"/>
-                    <File Id="wba_meb04" Name="wb_admin_meb_editor.py"/>
-                    <File Id="wba_meb05" Name="wb_admin_meb_management.py"/>
-                    <File Id="wba_meb06" Name="wb_admin_meb_overview.py"/>
-                    <File Id="wba_meb07" Name="wb_admin_meb_restore.py"/>
-                    <File Id="wba_meb08" Name="wb_admin_meb_syshelpers.py"/>
-                    <File Id="wba_meb09" Name="wb_admin_meb.py"/>
-                  </Component>
-                </Directory>
+					<Directory Id="modules_wba_meb" Name="wba_meb">
+					  <Component DiskId="1" Guid="B3BF58B7-6217-48fb-B1D7-B2265E780CBA" Id="modules_wba_meb" Location="either">
+						<File Id="wba_meb01" Name="__init__.py"/>
+						<File Id="wba_meb02" Name="wb_admin_meb_common.py"/>
+						<File Id="wba_meb03" Name="wb_admin_meb_config.py"/>
+						<File Id="wba_meb04" Name="wb_admin_meb_editor.py"/>
+						<File Id="wba_meb05" Name="wb_admin_meb_management.py"/>
+						<File Id="wba_meb06" Name="wb_admin_meb_overview.py"/>
+						<File Id="wba_meb07" Name="wb_admin_meb_restore.py"/>
+						<File Id="wba_meb08" Name="wb_admin_meb_syshelpers.py"/>
+						<File Id="wba_meb09" Name="wb_admin_meb.py"/>
+					  </Component>
+					</Directory>
 
-                <Directory Id="modules_wba_firewall" Name="wba_firewall">
-                  <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
-                    <File Id="wba_firewall01" Name="__init__.py"/>
-                    <File Id="wba_firewall02" Name="wb_admin_firewall.py"/>
-                    <File Id="wba_firewall03" Name="wb_admin_firewall_install.py"/>
-                    <File Id="wba_firewall04" Name="wb_admin_firewall_manager.py"/>
-                    <File Id="wba_firewall05" Name="wb_admin_firewall_utils.py"/>
-                  </Component>
-                </Directory>
+					<Directory Id="modules_wba_firewall" Name="wba_firewall">
+					  <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
+						<File Id="wba_firewall01" Name="__init__.py"/>
+						<File Id="wba_firewall02" Name="wb_admin_firewall.py"/>
+						<File Id="wba_firewall03" Name="wb_admin_firewall_install.py"/>
+						<File Id="wba_firewall04" Name="wb_admin_firewall_manager.py"/>
+						<File Id="wba_firewall05" Name="wb_admin_firewall_utils.py"/>
+					  </Component>
+					</Directory>
                 <?endif ?>
 
                 <Directory Id="data" Name="data">
@@ -1707,69 +1706,67 @@
                   </Directory>
 
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
+					  <Directory Id="wb_model_reporting" Name="wb_model_reporting">
+						<Directory Id="HTML_Basic_Frames.tpl" Name="HTML_Basic_Frames.tpl">
+						  <Component DiskId="1" Guid="33A5782A-F387-4986-9655-0E58B093A111" Id="reporting_HTML_Basic_Frames" Location="either">
+							<File Id="file9001" Name="basic.css.tpl"/>
+							<File Id="file9002" Name="index.html.tpl"/>
+							<File Id="file9003" Name="info.xml"/>
+							<File Id="file9004" Name="overview.html.tpl"/>
+							<File Id="file9005" Name="preview_basic.png"/>
+							<File Id="file9006" Name="restrained.css.tpl"/>
+							<File Id="file9007" Name="table_details.html.tpl"/>
+							<File Id="file9009" Name="preview_restrained.png"/>
+						  </Component>
+						</Directory>
 
-                  <Directory Id="wb_model_reporting" Name="wb_model_reporting">
-                    <Directory Id="HTML_Basic_Frames.tpl" Name="HTML_Basic_Frames.tpl">
-                      <Component DiskId="1" Guid="33A5782A-F387-4986-9655-0E58B093A111" Id="reporting_HTML_Basic_Frames" Location="either">
-                        <File Id="file9001" Name="basic.css.tpl"/>
-                        <File Id="file9002" Name="index.html.tpl"/>
-                        <File Id="file9003" Name="info.xml"/>
-                        <File Id="file9004" Name="overview.html.tpl"/>
-                        <File Id="file9005" Name="preview_basic.png"/>
-                        <File Id="file9006" Name="restrained.css.tpl"/>
-                        <File Id="file9007" Name="table_details.html.tpl"/>
-                        <File Id="file9009" Name="preview_restrained.png"/>
-                      </Component>
-                    </Directory>
-
-                    <Directory Id="HTML_Basic_Single_Page.tpl" Name="HTML_Basic_Single_Page.tpl">
-                      <Component DiskId="1" Guid="5DAE3081-0B3E-48d5-9358-4308ADCE2E7D" Id="reporting_HTML_Basic_Single_Page" Location="either">
-                        <File Id="file10001" Name="index.html.tpl"/>
-                        <File Id="file10002" Name="info.xml"/>
-                        <File Id="file10003" Name="basic.css.tpl"/>
-                      </Component>
-                    </Directory>
-
-
-                    <Directory Id="HTML_Detailed_Frames.tpl" Name="HTML_Detailed_Frames.tpl">
-                      <Component DiskId="1" Guid="{95F9FB7C-C071-4e37-8BFF-BDF94670EC8B}" Id="reporting_HTML_Detailed_Frames" Location="either">
-                        <File Id="file16002" Name="overview_list.html.tpl"/>
-                        <File Id="file16003" Name="top.html.tpl"/>
-                        <File Id="file16007" Name="basic.css.tpl"/>
-                        <File Id="file16008" Name="overview.html.tpl"/>
-                        <File Id="file16009" Name="index.html.tpl"/>
-                        <File Id="file16011" Name="info.xml"/>
-                        <File Id="file16012" Name="table_details.html.tpl"/>
-                        <File Id="file16014" Name="coated.css.tpl"/>
-                        <File Id="file16020" Name="routine_details.html.tpl"/>
-                        <File Id="file16021" Name="view_details.html.tpl"/>
-                        <File Id="file16022" Name="table_details_list.html.tpl"/>
-                        <File Id="file16023" Name="table_element_details.html.tpl"/>
-                      </Component>
-
-                      <Directory Id="HTML_Detailed_Frames.tpl_images" Name="images">
-                        <Component DiskId="1" Guid="{98DBFAD3-A42E-49ce-8D8F-3A18D3517D82}" Id="reporting_HTML_Detailed_Frames_images" Location="either">
-                          <File Id="file16005" Name="logo.png"/>
-                          <File Id="file16015" Name="next.png"/>
-                          <File Id="file16016" Name="title-background.png"/>
-                          <File Id="file16017" Name="back.png"/>
-                          <File Id="file16018" Name="preview_coated.png"/>
-                          <File Id="file16019" Name="preview_main.png"/>
-                        </Component>
-                      </Directory>
-                    </Directory>
+						<Directory Id="HTML_Basic_Single_Page.tpl" Name="HTML_Basic_Single_Page.tpl">
+						  <Component DiskId="1" Guid="5DAE3081-0B3E-48d5-9358-4308ADCE2E7D" Id="reporting_HTML_Basic_Single_Page" Location="either">
+							<File Id="file10001" Name="index.html.tpl"/>
+							<File Id="file10002" Name="info.xml"/>
+							<File Id="file10003" Name="basic.css.tpl"/>
+						  </Component>
+						</Directory>
 
 
-                    <Directory Id="Text_Basic.tpl" Name="Text_Basic.tpl">
-                      <Component DiskId="1" Guid="657FBB7A-8E9E-4f20-B93F-E8F8E9D23560" Id="reporting_Text_Basic" Location="either">
-                        <File Id="file11001" Name="preview_basic.png"/>
-                        <File Id="file11002" Name="report.txt.tpl"/>
-                        <File Id="file11003" Name="info.xml"/>
-                      </Component>
-                    </Directory>
-                  </Directory>
+						<Directory Id="HTML_Detailed_Frames.tpl" Name="HTML_Detailed_Frames.tpl">
+						  <Component DiskId="1" Guid="{95F9FB7C-C071-4e37-8BFF-BDF94670EC8B}" Id="reporting_HTML_Detailed_Frames" Location="either">
+							<File Id="file16002" Name="overview_list.html.tpl"/>
+							<File Id="file16003" Name="top.html.tpl"/>
+							<File Id="file16007" Name="basic.css.tpl"/>
+							<File Id="file16008" Name="overview.html.tpl"/>
+							<File Id="file16009" Name="index.html.tpl"/>
+							<File Id="file16011" Name="info.xml"/>
+							<File Id="file16012" Name="table_details.html.tpl"/>
+							<File Id="file16014" Name="coated.css.tpl"/>
+							<File Id="file16020" Name="routine_details.html.tpl"/>
+							<File Id="file16021" Name="view_details.html.tpl"/>
+							<File Id="file16022" Name="table_details_list.html.tpl"/>
+							<File Id="file16023" Name="table_element_details.html.tpl"/>
+						  </Component>
+
+						  <Directory Id="HTML_Detailed_Frames.tpl_images" Name="images">
+							<Component DiskId="1" Guid="{98DBFAD3-A42E-49ce-8D8F-3A18D3517D82}" Id="reporting_HTML_Detailed_Frames_images" Location="either">
+							  <File Id="file16005" Name="logo.png"/>
+							  <File Id="file16015" Name="next.png"/>
+							  <File Id="file16016" Name="title-background.png"/>
+							  <File Id="file16017" Name="back.png"/>
+							  <File Id="file16018" Name="preview_coated.png"/>
+							  <File Id="file16019" Name="preview_main.png"/>
+							</Component>
+						  </Directory>
+						</Directory>
+
+
+						<Directory Id="Text_Basic.tpl" Name="Text_Basic.tpl">
+						  <Component DiskId="1" Guid="657FBB7A-8E9E-4f20-B93F-E8F8E9D23560" Id="reporting_Text_Basic" Location="either">
+							<File Id="file11001" Name="preview_basic.png"/>
+							<File Id="file11002" Name="report.txt.tpl"/>
+							<File Id="file11003" Name="info.xml"/>
+						  </Component>
+						</Directory>
+					  </Directory>
                   <?endif ?>
-
                 </Directory>
               </Directory>
 
