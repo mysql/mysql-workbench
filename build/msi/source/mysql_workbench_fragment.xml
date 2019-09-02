@@ -60,7 +60,7 @@
                 <File Id="file1023" Name="iconv.dll"/>
                 <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
-                <File Id="libcrypto-1_1-x64.dll" Name="libcrypto.dll"/>
+                <File Id="libcrypto11x64.dll" Name="libcrypto-1_1-x64.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
 					<File Id="file1035d" Name="libpng16d.dll"/>
                 <?else ?>
@@ -105,7 +105,7 @@
                 <File Id="file1121" Name="vsqlite++.dll"/>
                 <File Id="file1122" Name="antlr4-runtime.dll"/>
                 <File Id="ssh.dll" Name="ssh.dll"/>
-                <File Id="libssl-1_1-x64.dll" Name="libssl-1_1-x64.dll"/>
+                <File Id="libssl11x64.dll" Name="libssl-1_1-x64.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
