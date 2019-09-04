@@ -5,15 +5,9 @@
 
 
 output_distros = [
+    ("eoan", "ubuntu19.10", "1910", ""),
     ("disco", "ubuntu19.04", "1904", ""),
-    ("cosmic", "ubuntu18.10", "1810", ""),
     ("bionic", "ubuntu18.04", "1804", ""),
-    ("artful", "ubuntu17.10", "1710", ""),
-    ("zesty", "ubuntu17.04", "1704", ""),
-    ("yakkety", "ubuntu16.10", "1610", ""),
-    ("xenial" ,"ubuntu16.04" ,"1604"  ,""),
-    ("trusty" ,"ubuntu14.04" ,"1404"  ,""),
-    ("jessie" ,"debian8"     ,"8"     ,""),
     ("stretch" ,"debian9"     ,"9"     ,""),
 ]
 
