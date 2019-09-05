@@ -996,7 +996,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
     def build_note(self):
         text = ""
         self.note.show(False)
-        if self.commands.is_enabled() == False:
+        if not self.commands.is_enabled():
             text = "The firewall is currently disabled. You can still manage user rules and modes, but changes will not have any effect until the firewall is enabled again."
             self.note.show(True)
         if self.new_user:
@@ -1033,7 +1033,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.white_list.clear()
         self.cache_list.clear()
 
-        if self.commands.is_enabled():
+        if not self.commands.is_enabled():
             return
 
         self.available_rules_label.set_text("Active rules (%s) - These are the rules used in PROTECTED mode for this user" % str(self.commands.get_rule_count(self.current_userhost)))
