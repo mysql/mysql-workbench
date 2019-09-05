@@ -71,7 +71,11 @@ BuildRequires: cmake3 >= 3.6
 BuildRequires: cmake >= 3.6
 %endif
 BuildRequires: libzip-devel libxml2-devel
+%if 0%{?fedora} || 0%{?rhel} > 7
+BuildRequires: python2-devel >= 2.6
+%else
 BuildRequires: python-devel >= 2.6
+%endif
 BuildRequires: gtk3-devel
 BuildRequires: gtkmm30-devel
 BuildRequires: mesa-libGL-devel
