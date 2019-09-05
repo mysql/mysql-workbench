@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -22,6 +22,8 @@
  */
 
 #pragma once
+
+#include "duktape.h"
 
 #include "common.h"
 #include "types.h"
@@ -107,7 +109,7 @@ namespace mga {
     JSVariant get(std::string const& property) const;
     JSVariant get(std::string const& property, JSVariant const& defaultValue) const;
 
-    void setValue(std::string const& property, JSVariant const& value) const;
+    void set(std::string const& property, JSVariant const& value) const;
 
     // Functionality of an object as instance or prototype of a class.
     void defineProperty(std::string const& name, JSVariant const& value, bool readOnly = true) const;

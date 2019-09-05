@@ -52,8 +52,8 @@ namespace aal {
       using(var hkey = RegistryKey.OpenBaseKey(rkey, view)) {
         using(var subKey = hkey.OpenSubKey(keyName)) {
           var names = subKey.GetValueNames();
-          if(names != null && names.Contains(valueName, StringComparer.CurrentCultureIgnoreCase)) {
-            if(subKey.GetValueKind(valueName) == type) {
+          if (names != null && names.Contains(valueName, StringComparer.CurrentCultureIgnoreCase)) {
+            if (subKey.GetValueKind(valueName) == type) {
               subKey.SetValue(keyName, value);
             }
           }
@@ -70,7 +70,7 @@ namespace aal {
       using(var hkey = RegistryKey.OpenBaseKey(rkey, view)) {
         using(var subKey = hkey.OpenSubKey(keyName)) {
           var names = subKey.GetValueNames();
-          if(names != null && names.Contains(valueName, StringComparer.CurrentCultureIgnoreCase)) {
+          if (names != null && names.Contains(valueName, StringComparer.CurrentCultureIgnoreCase)) {
             return subKey.GetValue(valueName);
           }
         }
@@ -88,7 +88,7 @@ namespace aal {
                   RegistryView view) {
       using(var hkey = RegistryKey.OpenBaseKey(rkey, view)) {
         using(var subKey = hkey.OpenSubKey(keyName)) {
-          if(subKey != null) {
+          if (subKey != null) {
             subKey.SetValue(valueName, value, type);
             return true;
           } else {
@@ -109,8 +109,8 @@ namespace aal {
                   RegistryView view) {
       using(var hkey = RegistryKey.OpenBaseKey(rkey, view)) {
         using(var subKey = hkey.OpenSubKey(keyName)) {
-          if(subKey != null) {
-            if(deleteSubTree) {
+          if (subKey != null) {
+            if (deleteSubTree) {
               hkey.DeleteSubKey(keyName);
             } else {
               hkey.DeleteSubKey(keyName);
@@ -145,8 +145,8 @@ namespace aal {
       using(var hkey = RegistryKey.OpenBaseKey(rkey, view)) {
         using(var subKey = hkey.OpenSubKey(keyName)) {
           var names = subKey.GetValueNames();
-          if(names != null && names.Contains(valueName, StringComparer.CurrentCultureIgnoreCase)) {
-            if(checkValueType) {
+          if (names != null && names.Contains(valueName, StringComparer.CurrentCultureIgnoreCase)) {
+            if (checkValueType) {
               return subKey.GetValueKind(valueName) == type;
             } else {
               return true;

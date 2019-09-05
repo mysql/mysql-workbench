@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -35,6 +35,7 @@ namespace aal {
     static bool accessibilitySetup();
     static AccessibleRef getByPid(const int pid);
     static int getRunningProcess(std::wstring const& fileName);
+    static std::vector<int> getRunningProcessByName(std::wstring const& name);
 
     Accessible() = delete;
     Accessible(std::unique_ptr<AccessibleWr> accessible);
@@ -85,17 +86,18 @@ namespace aal {
     AccessibleRef getHeader() const;
     AccessibleRef getCloseButton() const;
 
-    void children(AccessibleVector &result, bool recursive) const;
-    AccessibleVector children() const;
-    AccessibleVector windows() const;
-    AccessibleVector tabPages() const;
-    AccessibleVector rows() const;
-    AccessibleVector rowEntries() const;
-    AccessibleVector columns() const;
-    AccessibleVector columnEntries() const;
+    void children(AccessibleList &result, bool recursive) const;
+    AccessibleList children() const;
+    AccessibleList windows() const;
+    AccessibleList tabPages() const;
+    AccessibleList rows() const;
+    AccessibleList rowEntries() const;
+    AccessibleList columns() const;
+    AccessibleList columnEntries() const;
 
     static AccessibleRef fromPoint(geometry::Point point, Accessible *application);
 
+    std::string getID() const;
     std::string getName() const;
     std::string getHelp() const;
     aal::Role getRole() const;
@@ -105,6 +107,7 @@ namespace aal {
     void setCaretPosition(size_t position);
     
     geometry::Rectangle getBounds(bool screenCoordinates) const;
+    void setBounds(geometry::Rectangle const& bounds);
 
     void insertText(size_t offset, const std::string &text);
     std::string getText() const;
@@ -112,6 +115,9 @@ namespace aal {
     void setText(std::string const& text);
     void setTitle(std::string const& text);
     std::string getDescription() const;
+
+    bool menuShown() const;
+    void showMenu() const;
     
     std::string getSelectedText() const;
     void setSelectedText(std::string const& text);
@@ -134,9 +140,10 @@ namespace aal {
     void mouseDrag(geometry::Point source, geometry::Point target, MouseButton button = MouseButton::Left);
     geometry::Point getMousePosition() const;
 
-    void keyDown(const aal::Key k, aal::Modifier modifier);
-    void keyUp(const aal::Key k, aal::Modifier modifier);
-    void keyPress(const aal::Key k, aal::Modifier modifier);
+    void keyDown(const aal::Key k, aal::Modifier modifier) const;
+    void keyUp(const aal::Key k, aal::Modifier modifier) const;
+    void keyPress(const aal::Key k, aal::Modifier modifier) const;
+    void typeString(std::string const& input) const;
 
     void click();
     void confirm();
@@ -150,6 +157,7 @@ namespace aal {
     void decrement();
     
     void show();
+    void bringToFront();
     void highlight() const;
     void removeHighlight() const;
 
@@ -163,6 +171,9 @@ namespace aal {
     
     bool takeScreenShot(std::string const& path, bool onlyWindow, geometry::Rectangle rect) const;
     void saveImage(std::string const& path) const;
+
+    static std::string getClipboardText();
+    static void setClipboardText(const std::string &content);
 
   private:
     AccessibleRef fromPoint(geometry::Point point);

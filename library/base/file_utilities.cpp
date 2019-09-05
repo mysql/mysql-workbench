@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "base/string_utilities.h"
@@ -321,6 +321,8 @@ namespace base {
     return true;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   bool copyDirectoryRecursive(const std::string &src, const std::string &dst, bool includeFiles) {
     GError *error = NULL;
     GDir *srcDir, *dstDir;
@@ -328,13 +330,16 @@ namespace base {
     gchar *entryPathSrc, *entryPathDst;
 
     srcDir = g_dir_open(src.c_str(), 0, &error);
-    if (!srcDir && error)
+    if (!srcDir && error) {
+      g_error_free(error);
       return false;
+    }
 
     dstDir = g_dir_open(dst.c_str(), 0, &error);
-    if (!dstDir && error)
+    if (!dstDir && error) {
+      g_error_free(error);
       create_directory(dst, 0700);
-    else
+    } else
       g_dir_close(dstDir);
 
     while ((dirEntry = g_dir_read_name(srcDir))) {
@@ -362,6 +367,78 @@ namespace base {
     return true;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
+  std::wifstream openTextInputStream(const std::string &fileName) {
+    std::wifstream result;
+
+#ifdef _MSC_VER
+    result.open(base::string_to_wstring(fileName));
+#else
+    result.open(fileName);
+#endif
+
+    return result;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  std::wofstream openTextOutputStream(const std::string &fileName) {
+    std::wofstream result;
+
+#ifdef _MSC_VER
+    result.open(base::string_to_wstring(fileName));
+#else
+    result.open(fileName);
+#endif
+
+    return result;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  std::ifstream openBinaryInputStream(const std::string &fileName) {
+    std::ifstream result;
+
+#ifdef _MSC_VER
+    result.open(base::string_to_wstring(fileName), std::ios_base::in | std::ios_base::binary);
+#else
+    result.open(fileName, std::ios_base::in | std::ios_base::binary);
+#endif
+
+    return result;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  std::ofstream openBinaryOutputStream(const std::string &fileName) {
+    std::ofstream result;
+
+#ifdef _MSC_VER
+    result.open(base::string_to_wstring(fileName), std::ios_base::out | std::ios_base::binary);
+#else
+    result.open(fileName, std::ios_base::out | std::ios_base::binary);
+#endif
+
+    return result;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  bool copyFile(const std::string &source, const std::string &target) {
+    std::ifstream src = openBinaryInputStream(source);
+    if (src.bad())
+      return false;
+    std::ofstream dst = openBinaryOutputStream(target);
+    if (dst.bad())
+      return false;
+    dst << src.rdbuf();
+
+    return true;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
   void rename(const std::string &from, const std::string &to) {
 #ifdef _MSC_VER
     if (!MoveFile(path_from_utf8(from).c_str(), path_from_utf8(to).c_str()))
@@ -372,6 +449,8 @@ namespace base {
 #endif
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   bool remove_recursive(const std::string &path) {
     GError *error = NULL;
     GDir *dir;
@@ -379,8 +458,10 @@ namespace base {
     gchar *entry_path;
 
     dir = g_dir_open(path.c_str(), 0, &error);
-    if (!dir && error)
+    if (!dir && error) {
+      g_error_free(error);
       return false;
+    }
 
     while ((dir_entry = g_dir_read_name(dir))) {
       entry_path = g_build_filename(path.c_str(), dir_entry, NULL);
@@ -397,7 +478,7 @@ namespace base {
     return true;
   }
 
-  //--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------------------------
 
   /**
    * Deletes file or folder.
@@ -647,6 +728,8 @@ namespace base {
     return result;
   }
 
+  //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Returns temporary file with the given prefix.
    */
@@ -688,4 +771,25 @@ namespace base {
       return s;
     return s + G_SEARCHPATH_SEPARATOR + l;
   }
+
+  std::string cwd() {
+#ifdef _MSC_VER
+    wchar_t widePath[FILENAME_MAX + 1];
+    ::_wgetcwd(widePath, FILENAME_MAX);
+
+    return normalize_path(wstring_to_string(widePath));
+
+#else
+    char currentPath[FILENAME_MAX + 1];
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+    ::getcwd(currentPath, FILENAME_MAX);
+
+    return currentPath;
+#pragma GCC diagnostic pop
+#endif
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
 };

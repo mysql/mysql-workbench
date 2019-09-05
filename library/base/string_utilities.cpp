@@ -45,8 +45,8 @@ namespace base {
 
   //--------------------------------------------------------------------------------------------------
 
-  static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> utf16Converter;
-  static std::wstring_convert<std::codecvt_utf8<__int32>, __int32> utf32Converter;
+  thread_local static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> utf16Converter;
+  thread_local static std::wstring_convert<std::codecvt_utf8<__int32>, __int32> utf32Converter;
 
   /**
    * Converts an UTF-8 encoded string to an UTF-16 string.

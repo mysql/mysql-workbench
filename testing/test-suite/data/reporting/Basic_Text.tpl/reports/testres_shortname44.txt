@@ -1,0 +1,9 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was modified
+  columns:
+  - modified column t2
+  __
+----------------------------------------------
+End of MySQL Workbench Report

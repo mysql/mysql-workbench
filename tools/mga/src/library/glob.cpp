@@ -46,8 +46,8 @@ void globInFolder(std::string const& pattern, std::string const& directory, std:
       globInFolder(pattern, subPath, files);
     else {
 #ifdef _MSC_VER
-      std::wstring convertedPath = Utils::s2ws(subPath);
-      std::wstring convertedPattern = Utils::s2ws(pattern);
+      std::wstring convertedPath = Utilities::s2ws(subPath);
+      std::wstring convertedPattern = Utilities::s2ws(pattern);
       if (PathMatchSpec(convertedPath.c_str(), convertedPattern.c_str()))
         files.push_back(subPath);
       else

@@ -357,7 +357,7 @@ static bool check_if_file_too_big_to_restore(const std::string &path, const std:
 
       fchooser.set_title(_("Save File As..."));
       if (fchooser.run_modal()) {
-        if (!copy_file(path.c_str(), fchooser.get_path().c_str())) {
+        if (!base::copyFile(path.c_str(), fchooser.get_path().c_str())) {
           if (mforms::Utilities::show_error("Save File",
                                             strfmt("File %s could not be saved.", fchooser.get_path().c_str()),
                                             _("Retry"), _("Cancel"), "") == mforms::ResultOk)
@@ -375,8 +375,7 @@ static bool check_if_file_too_big_to_restore(const std::string &path, const std:
 
 SqlEditorPanel::AutoSaveInfo::AutoSaveInfo(const std::string &info_file) : word_wrap(false), show_special(false) {
   wchar_t buffer[4098] = {0};
-  std::wifstream f;
-  openStream(info_file, f);
+  std::wifstream f = openTextInputStream(info_file);
   while (f.getline(buffer, sizeof(buffer))) {
     std::string key, value;
     base::partition(base::wstring_to_string(buffer), "=", key, value);
@@ -637,8 +636,7 @@ std::string SqlEditorPanel::autosave_file_suffix() {
 void SqlEditorPanel::auto_save(const std::string &path) {
   // save info about the file
   {
-    std::wofstream f;
-    openStream(base::makePath(path, _autosave_file_suffix + ".info"), f);
+    std::wofstream f = openTextOutputStream(base::makePath(path, _autosave_file_suffix + ".info"));
     std::string content;
     if (_is_scratch)
       content += "type=scratch\n";

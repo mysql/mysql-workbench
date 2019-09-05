@@ -72,6 +72,10 @@ namespace base {
       bool operator==(char c) const;
       bool operator==(uint32_t c) const;
       bool operator==(const char *c) const;
+      bool operator!=(const utf8char &c) const;
+      bool operator!=(char c) const;
+      bool operator!=(uint32_t c) const;
+      bool operator!=(const char *c) const;
       operator uint32_t() const;
       operator const char *() const;
       size_t length() const;

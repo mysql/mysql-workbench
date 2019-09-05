@@ -294,7 +294,7 @@ Table {{ALTER_TABLE_NAME}} was modified
 {{/ALTER_TABLE_PART_ADDED}}
 
 {{#ALTER_TABLE_PART_MODIFIED}}
-  - partitioning optins were modified
+  - partitioning options were modified
 {{/ALTER_TABLE_PART_MODIFIED}}
 
 {{#ALTER_TABLE_PART_REMOVED}}

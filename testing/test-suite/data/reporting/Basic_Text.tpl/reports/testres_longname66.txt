@@ -1,0 +1,12 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  indices:
+  - added index PRIMARY with columns: id
+  - added index idx1 with columns: id
+  - removed index PRIMARY
+  - removed index idx1
+  __
+----------------------------------------------
+End of MySQL Workbench Report

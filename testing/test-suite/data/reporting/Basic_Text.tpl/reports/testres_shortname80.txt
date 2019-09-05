@@ -1,0 +1,10 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was modified
+  attributes:
+  - default character set: utf8 --> utf8
+  - default collate: utf8_general_ci --> utf8_general_ci
+  __
+----------------------------------------------
+End of MySQL Workbench Report

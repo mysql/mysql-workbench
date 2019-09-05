@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -179,6 +179,22 @@ namespace base {
 
   bool utf8string::utf8char::operator==(const char* c) const {
     return _char == g_utf8_get_char(c);
+  }
+
+  bool utf8string::utf8char::operator!=(const utf8char& c) const {
+    return _char != c._char;
+  }
+
+  bool utf8string::utf8char::operator!=(char c) const {
+    return _char != (uint32_t)c;
+  }
+
+  bool utf8string::utf8char::operator!=(uint32_t c) const {
+    return _char != c;
+  }
+
+  bool utf8string::utf8char::operator!=(const char* c) const {
+    return _char != g_utf8_get_char(c);
   }
 
   utf8string::utf8char::operator uint32_t() const {

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value _ptr_="07938890" type="list" content-type="object" content-struct-name="db.mgmt.Connection">
+    <value type="object" struct-name="db.mgmt.Connection" id="{0E9E1ED0-900E-424A-B63D-506CF3B2D2E6}" struct-checksum="0x81dcf2c5">
+      <link type="object" struct-name="db.mgmt.Driver" key="driver">com.mysql.rdbms.mysql.driver.native</link>
+      <value _ptr_="07F950D8" type="dict" content-type="string" key="modules"/>
+      <value type="string" key="name">Localhost 5.1</value>
+      <value _ptr_="07F951C8" type="dict" content-type="string" key="parameterValues">
+        <value type="string" key="host">localhost</value>
+        <value type="string" key="password">root</value>
+        <value type="int" key="port">3306</value>
+        <value type="string" key="schema"></value>
+        <value type="string" key="socket"></value>
+        <value type="string" key="username">root</value>
+      </value>
+    </value>
+  </value>
+</data>

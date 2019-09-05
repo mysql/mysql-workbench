@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <string>
@@ -79,7 +79,6 @@ std::shared_ptr<WBContextUI> WBContextUI::get() {
 
 //--------------------------------------------------------------------------------------------------
 
-
 WBContextUI::WBContextUI() : _wb(new WBContext(false)), _command_ui(new CommandUI(_wb)) {
   _shell_window = 0;
   _active_form = 0;
@@ -103,14 +102,50 @@ WBContextUI::WBContextUI() : _wb(new WBContext(false)), _command_ui(new CommandU
 
 //--------------------------------------------------------------------------------------------------
 
-WBContextUI::~WBContextUI() {
-  _wb->do_close_document(true);
+void WBContextUI::cleanUp() {
+  if (_wb != nullptr) {
+    _wb->do_close_document(true);
+  }
   delete _addon_download_window;
+  _addon_download_window = nullptr;
+
   delete _plugin_install_window;
+  _plugin_install_window = nullptr;
 
   delete _shell_window;
+  _shell_window = nullptr;
+
+  if (_wb != nullptr && !_wb->cancel_idle_tasks()) {
+    // Idle tasks are currently being executed. Wait a moment and then try again.
+    g_usleep(static_cast<int>(100000));
+    _wb->cancel_idle_tasks();
+  }
+  
   delete _wb;
+  _wb = nullptr;
+
   delete _command_ui;
+  _command_ui = nullptr;
+
+
+  // home screen should be released by undock operation,
+  // but it will be left in bad state, we have to clear this
+  _home_screen = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void WBContextUI::reinit() {
+  if (_wb == nullptr) {
+    _wb = new WBContext(false);
+    _command_ui = new CommandUI(_wb);
+  }
+
+}
+//--------------------------------------------------------------------------------------------------
+
+WBContextUI::~WBContextUI() {
+  cleanUp();
 }
 
 //--------------------------------------------------------------------------------------------------

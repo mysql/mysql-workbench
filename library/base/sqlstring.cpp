@@ -28,17 +28,31 @@ using namespace base;
 
 const sqlstring sqlstring::null(sqlstring("NULL", 0));
 
-sqlstring::sqlstring(const char *format_string, const sqlstringformat format)
+//----------------------------------------------------------------------------------------------------------------------
+
+sqlstring::sqlstring(const std::string &format_string, const sqlstringformat format)
   : _format_string_left(format_string), _format(format) {
   append(consume_until_next_escape());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+sqlstring::sqlstring(const char format_string[], const sqlstringformat format)
+  : sqlstring(std::string(format_string), format) {
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 sqlstring::sqlstring(const sqlstring &copy)
   : _formatted(copy._formatted), _format_string_left(copy._format_string_left), _format(copy._format) {
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 sqlstring::sqlstring() : _format(0) {
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string sqlstring::consume_until_next_escape() {
   std::string::size_type e = _format_string_left.length(), p = 0;
@@ -59,6 +73,8 @@ std::string sqlstring::consume_until_next_escape() {
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 int sqlstring::next_escape() {
   if (_format_string_left.empty())
     throw std::invalid_argument("Error formatting SQL query: more arguments than escapes");
@@ -67,20 +83,28 @@ int sqlstring::next_escape() {
   return c;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 sqlstring &sqlstring::append(const std::string &s) {
   _formatted.append(s);
   return *this;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 sqlstring::operator std::string() const {
   return _formatted + _format_string_left;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool sqlstring::done() const {
   if (_format_string_left.empty())
     return true;
   return _format_string_left[0] != '!' && _format_string_left[0] != '?';
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 sqlstring &sqlstring::operator<<(const double v) {
   int esc = next_escape();
@@ -93,10 +117,14 @@ sqlstring &sqlstring::operator<<(const double v) {
   return *this;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 sqlstring &sqlstring::operator<<(const sqlstringformat format) {
   _format = format;
   return *this;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 sqlstring &sqlstring::operator<<(const std::string &v) {
   int esc = next_escape();
@@ -118,6 +146,8 @@ sqlstring &sqlstring::operator<<(const std::string &v) {
 
   return *this;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 sqlstring &sqlstring::operator<<(const sqlstring &v) {
   next_escape();
@@ -154,3 +184,5 @@ sqlstring &sqlstring::operator<<(const char *v) {
 
   return *this;
 }
+
+//----------------------------------------------------------------------------------------------------------------------

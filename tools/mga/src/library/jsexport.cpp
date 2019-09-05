@@ -30,8 +30,7 @@
 
 using namespace mga;
 
-
-//---------------- Static function to use in this module ---------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Special dump function for functions (which must be on the TOS). No recursion takes place here.
@@ -225,7 +224,7 @@ void JSValueBase::push() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string JSValueBase::dumpObject(bool showHidden, size_t maxDepth) const {
-std::string result;
+  std::string result;
 
   _context->usingStashedValue(_id, [&]() {
     unsigned enumFlags = DUK_ENUM_INCLUDE_SYMBOLS;
@@ -626,7 +625,7 @@ JSVariant JSObject::get(std::string const& property, JSVariant const& defaultVal
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void JSObject::setValue(std::string const& property, JSVariant const& value) const {
+void JSObject::set(std::string const& property, JSVariant const& value) const {
   checkValidity();
 
   _context->usingStashedValue(_id, [&]() {

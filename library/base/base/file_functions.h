@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -49,6 +49,3 @@ BASELIBRARY_PUBLIC_FUNC int base_stat(const char *filename, struct stat *stbuf);
 
 BASELIBRARY_PUBLIC_FUNC int base_rmdir_recursively(const char *dirname);
 BASELIBRARY_PUBLIC_FUNC long base_get_file_size(const char *filename);
-
-BASELIBRARY_PUBLIC_FUNC void openStream(const std::string &fileName, std::wifstream &stream);
-BASELIBRARY_PUBLIC_FUNC void openStream(const std::string &fileName, std::wofstream &stream);

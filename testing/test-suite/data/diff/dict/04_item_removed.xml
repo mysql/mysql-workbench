@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<data>
+  <value _ptr_="00E41210" type="dict">
+    <!-- this value removed -->
+    <!-- value type="string" key="key1">StringValue</value> -->
+    <value type="int" key="key2">99</value>
+    <value _ptr_="00E412A0" type="list" content-type="real" key="key3">
+      <value type="real">5.e+000</value>
+      <value type="real">6.e+000</value>
+    </value>
+    <value type="object" struct-name="test.Book" id="{4A1028B9-118B-4299-A279-7B740A36CE2A}" struct-checksum="0x9ee3e3b6" key="key4">
+      <value _ptr_="00E41340" type="list" content-type="object" content-struct-name="test.Author" key="authors"/>
+      <value _ptr_="00E413D0" type="dict" content-type="string" key="extras">
+        <value type="string" key="extra1">e1</value>
+        <value type="string" key="extra2">e2</value>
+      </value>
+      <value type="int" key="pages">100</value>
+      <value type="real" key="price">0.e+000</value>
+      <value type="string" key="title"></value>
+    </value>
+  </value>
+</data>

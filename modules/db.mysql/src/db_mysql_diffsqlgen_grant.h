@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,10 +21,10 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _DB_MYSQL_DIFFSQLGEN_GRANT_H_
-#define _DB_MYSQL_DIFFSQLGEN_GRANT_H_
+#pragma once
 
 #include "grtpp_module_cpp.h"
+#include "grtpp_util.h"
 #include "grts/structs.db.mysql.h"
 #include "db_mysql_params.h"
 
@@ -121,5 +121,3 @@ inline void MYSQLMODULEDBMYSQL_PUBLIC_FUNC gen_grant_sql(const db_CatalogRef &ca
     gen_grant_sql(catalog, user, out);
   }
 }
-
-#endif // _DB_MYSQL_DIFFSQLGEN_H_

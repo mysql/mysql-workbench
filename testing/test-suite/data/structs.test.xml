@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<gstructs xmlns:attr="http://www.mysql.com/grt/struct-attribute">
+  <gstruct name="test.Base">
+    <members>
+    </members>
+  </gstruct>
+
+  <gstruct name="test.Publication" parent="test.Base" attr:caption="Publication">
+    <members>
+      <member name="title" type="string" attr:caption="Title" attr:desc="title of the book" />
+    </members>
+  </gstruct>
+
+  <gstruct name="test.Book" parent="test.Publication" attr:caption="Book">
+    <members>
+      <member name="pages" type="int" attr:caption="Page Count" attr:desc="number of pages in book" attr:group="group1" />
+      <member name="publisher" type="object" struct-name="test.Publisher" owned="0" attr:caption="Publisher" attr:desc="the book publisher" attr:group="group2" />
+      <member name="authors" type="list" owned="1" content-type="object" content-struct-name="test.Author" attr:caption="Authors" attr:desc="the list of authors" attr:group="group1" />
+      <member name="price" type="real" attr:caption="Price" attr:group="group1" />
+      <member name="extras" type="dict" content-type="string" attr:caption="Extras" attr:desc="extra stuff" attr:group="group2" />
+    </members>
+  </gstruct>
+
+  <gstruct name="test.Author" parent="test.Base">
+    <members>
+      <member name="name" type="string" attr:desc="name of the author" />
+    </members>
+  </gstruct>
+
+  <gstruct name="test.Publisher" parent="test.Base">
+    <members>
+      <member name="name" type="string" attr:desc="name of the publisher" />
+      <member name="phone" type="string" attr:desc="phone of the publisher" />
+      <member name="books" type="list" content-type="object" content-struct-name="test.Book" owned="1" />
+    </members>
+  </gstruct>
+
+  <gstruct name="test.Bridged">
+    <members>
+      <member name="name" type="string" />
+      <member name="x" type="int" />
+      <member name="y" type="int" />
+      <member name="books" type="list" content-type="object" content-struct-name="test.Book" />
+    </members>
+  </gstruct>
+
+</gstructs>
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -271,6 +271,7 @@ namespace grt {
 
     void set_name(const std::string &name);
 
+
   protected:
     CPPModule(CPPModuleLoader *loader);
 
@@ -283,6 +284,7 @@ namespace grt {
     void register_functions(ModuleFunctorBase *first, ...);
 
     virtual void closeModule() noexcept override;
+    virtual GModule* getModule() const override;
   };
 
   typedef CPPModule ModuleImplBase;
@@ -400,7 +402,7 @@ namespace grt {
 
     return p;
   }
-  
+
   class ModuleFunctorBase {
   protected:
     TypeSpec _return_type;

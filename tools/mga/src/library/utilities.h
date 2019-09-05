@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "jsexport.h"
+#include "common.h"
 
 #define SPACES " \t\r\n"
 
@@ -35,9 +35,9 @@ namespace mga {
     NFKD
   };
 
-  // Some general purpose code. Also backing the "util" module.
+  // Some general purpose code.
   // Note: strings are considered to use the UTF-8 encoding, unless otherwise specified.
-  class Utils {
+  class Utilities {
   public:
     static std::string formatTime(std::chrono::milliseconds time);
 
@@ -60,10 +60,8 @@ namespace mga {
     }
 
     // string <-> wstring conversion (UTF-16), e.g. for use with Window's wide APIs.
-#ifdef _MSC_VER
     static std::string ws2s(std::wstring const& wstr);
     static std::wstring s2ws(std::string const& str);
-#endif
 
     static std::string getLastError();
     
@@ -74,9 +72,10 @@ namespace mga {
     static std::string format(const char* format, ...);
     static std::string normalize(std::string const& text, NormalizationForm form);
 
-    static void activate(ScriptingContext &context, JSObject &exports);
+    static std::string readFile(std::string const& fileName);
+    static void writeFile(std::string const& fileName, std::string const& content);
 
-    static bool _registered;
+    static std::string escapeJSONString(std::string const& s);
   };
 
 } // namespace mga

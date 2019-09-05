@@ -15,11 +15,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-include_directories(
-  ${PROJECT_SOURCE_DIR}/src/duktape
-  ${PROJECT_SOURCE_DIR}/src/duktape/extra/module-node
-)
-
 set(libduktape_HEADER_FILES
   ${PROJECT_SOURCE_DIR}/src/duktape/duktape.h
   ${PROJECT_SOURCE_DIR}/src/duktape/extra/module-node/duk_module_node.h
@@ -33,6 +28,12 @@ set(libduktape_SOURCE_FILES
 set(libduktape_SOURCES ${libduktape_SOURCE_FILES} ${libduktape_HEADER_FILES})
 
 add_library(duktape STATIC ${libduktape_SOURCES})
+
+target_include_directories(duktape
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/extra/module-node
+)
 
 foreach(duksrc_file ${libduktape_SOURCE_FILES})
  set_source_files_properties(${duksrc_file} PROPERTIES LANGUAGE CXX)

@@ -1,0 +1,9 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was modified
+  - removed foreign key: c2
+  - removed foreign key: c1
+Table `grtdiff_alter_test`.`t1` was modified
+----------------------------------------------
+End of MySQL Workbench Report

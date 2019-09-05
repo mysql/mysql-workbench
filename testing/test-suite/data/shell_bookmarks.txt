@@ -1,0 +1,10 @@
+/wb/doc/physicalModels/0/catalog
+/wb/doc/physicalModels/0/catalog/schemata/0/tables
+/wb/doc/physicalModels/0/diagrams/0
+/wb/doc/physicalModels/0/diagrams/0/figures
+/wb/sqlEditors
+/wb/migration
+/wb/migration/sourceCatalog
+/wb/migration/targetCatalog
+/wb/registry/plugins
+/

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<data grt_format="2.0" document_type="MySQL Workbench Starters" version="1.0.0">
+  <value _ptr_="0x10ba55160" type="list" content-type="object" content-struct-name="app.Starter">
+    <link type="object">com.mysql.wb.starter.utilities</link>
+    <link type="object">com.mysql.wb.starter.bug-reporter-se</link>
+    <link type="object">com.mysql.wb.starter.team-blog</link>
+    <link type="object">com.mysql.wb.starter.planet-mysql</link>
+    <link type="object">com.mysql.wb.starter.forum</link>
+    <link type="object">com.mysql.wb.starter.grt-shell</link>
+    <link type="object">com.mysql.wb.starter.edelivery</link>
+    <link type="object">com.mysql.wb.starter.support</link>
+  </value>
+</data>

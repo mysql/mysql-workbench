@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -238,30 +238,6 @@ long base_get_file_size(const char *filename) {
 #endif
 
   return result;
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * On Windows, wchar_t is UTF - 16, but there's no direct support for UTF-8 filenames
- * in the standard library (the char datatype is not Unicode on Windows)
- */
-void openStream(const std::string &fileName, std::wifstream &stream) {
-#ifdef WIN32
-  stream.open(base::string_to_wstring(fileName));
-#else
-  stream.open(fileName.c_str());
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void openStream(const std::string &fileName, std::wofstream &stream) {
-#ifdef WIN32
-  stream.open(base::string_to_wstring(fileName));
-#else
-  stream.open(fileName.c_str());
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -97,7 +97,7 @@ std::string Path::extname(std::string const& path) {
  * Join the given sub path elements into a single path and normalize the result.
  */
 std::string Path::join(std::vector<std::string> const& parts) {
-  return normalize(Utils::concat(parts, "/"));
+  return normalize(Utilities::concat(parts, "/"));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ std::string Path::normalize(std::string const& path) {
   if (path.size() < 2)
     return path;
 
-  std::vector<std::string> segments = Utils::splitBySet(path, "/\\");
+  std::vector<std::string> segments = Utilities::splitBySet(path, "/\\");
   if (segments.size() < 2)
     return path;
 
@@ -211,8 +211,8 @@ std::string Path::relative(std::string const& from, std::string const& to) {
     return ".";
   }
   
-  std::vector<std::string> startElements = Utils::splitBySet(start, "\\/");
-  std::vector<std::string> targetElements = Utils::splitBySet(target, "\\/");
+  std::vector<std::string> startElements = Utilities::splitBySet(start, "\\/");
+  std::vector<std::string> targetElements = Utilities::splitBySet(target, "\\/");
 
   size_t i = 0;
   while (i < startElements.size() && i < targetElements.size()) {
@@ -245,7 +245,7 @@ bool Path::isAbsolute(std::string const& path) {
   if (path.size() < 2)
     return false;
 
-  if (Utils::hasPrefix(path, "//") || Utils::hasPrefix(path, "\\\\") || path[1] == ':')
+  if (Utilities::hasPrefix(path, "//") || Utilities::hasPrefix(path, "\\\\") || path[1] == ':')
     return true;
 
   return false;

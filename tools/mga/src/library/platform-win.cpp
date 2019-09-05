@@ -30,6 +30,10 @@
 #include "utilities.h"
 #include "accessible.h"
 
+#define COPYFILE_EXCL 1
+#define COPYFILE_FICLONE 2
+#define COPYFILE_FICLONE_FORCE 4
+
 using namespace mga;
 using namespace aal;
 
@@ -45,8 +49,9 @@ protected:
 class WinPlatform : public Platform {
 public:
   virtual int launchApplication(std::string const& name, std::vector<std::string> const& params,
-    bool async, bool newInstance, ShowState showState, std::map<std::string, std::string> const& env = {}) const override;
+    bool newInstance, ShowState showState, std::map<std::string, std::string> const& env = {}) const override;
 
+  virtual bool isRunning(int processID) const override;
   virtual int getPidByName(std::string const& name) const override;
   virtual std::string getTempDirName() const override;
   virtual bool terminate(int processID, bool force = false) const override;
@@ -59,6 +64,7 @@ public:
   
   virtual geometry::Size WinPlatform::getImageResolution(std::string const& path) const override;
   virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const override;
+  virtual void defineFsConstants(ScriptingContext &context, JSObject &constants) const override;
   virtual std::vector<Cpu> cpuInfo() const override;
   virtual size_t getFreeMem() const override;
   virtual size_t getTotalMem() const override;
@@ -71,6 +77,8 @@ public:
   virtual void loadAvg(double (&avg)[3]) const override;
   virtual UserInfo getCurrentUserInfo() const override;
   virtual UiToolkit getUiToolkit() const override;
+  virtual std::string getClipboardText() const override;
+  virtual void setClipboardText(const std::string &text) const override;
   virtual std::vector<Screen> getScreens() const override;
 };
 
@@ -88,8 +96,8 @@ void WinStat::initialize(const std::string &path, bool followSymlinks) {
   std::ignore = followSymlinks;
 
   // For now we don't support symlinks on Windows. 
-  if (_wstat(Utils::s2ws(path).c_str(), &_buffer) != 0)
-    throw std::runtime_error("Cannot create stats: " + Utils::getLastError());
+  if (_wstat(Utilities::s2ws(path).c_str(), &_buffer) != 0)
+    throw std::runtime_error("Cannot create stats: " + Utilities::getLastError());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -123,9 +131,7 @@ Platform& Platform::get() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, bool async, ShowState showState) {
-  std::ignore = async;
-
+static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, ShowState showState) {
   SHELLEXECUTEINFO shellExeInfo;
   memset(&shellExeInfo, 0, sizeof(shellExeInfo));
   shellExeInfo.cbSize = sizeof(shellExeInfo);
@@ -149,7 +155,7 @@ static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, 
     std::wstring msg = (LPCTSTR)msgBuf;
     LocalFree(msgBuf);
     SetLastError(ERROR_SUCCESS);
-    throw std::runtime_error(Utils::ws2s(msg));
+    throw std::runtime_error(Utilities::ws2s(msg));
   }
 
   return GetProcessId(shellExeInfo.hProcess);
@@ -158,7 +164,7 @@ static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, 
 //----------------------------------------------------------------------------------------------------------------------
 
 int WinPlatform::launchApplication(std::string const& name, std::vector<std::string> const& params,
-                                   bool async, bool newInstance, ShowState showState,
+                                   bool newInstance, ShowState showState,
                                    std::map<std::string, std::string> const& /*env*/) const {
   std::stringstream ss;
   std::copy(params.begin(), params.end(), std::ostream_iterator<std::string>(ss, " "));
@@ -171,22 +177,39 @@ int WinPlatform::launchApplication(std::string const& name, std::vector<std::str
     path = Path::normalize(path);
   }
 
-  std::wstring wexe = Utils::s2ws(path);
-  std::wstring wparam = Utils::s2ws(ss.str());
+  std::wstring wexe = Utilities::s2ws(path);
+  std::wstring wparam = Utilities::s2ws(ss.str());
 
   int processId = 0;
   if (!newInstance)
     processId = Accessible::getRunningProcess(wexe);
   if (processId == 0)
-    processId = runNewInstance(wexe, wparam, async, showState);
+    processId = runNewInstance(wexe, wparam, showState);
   return processId;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool WinPlatform::isRunning(int processID) const {
+  HANDLE runningProcessHandle = OpenProcess(PROCESS_QUERY_INFORMATION, false, processID);
+  bool isRunning = runningProcessHandle != NULL;
+  if (isRunning) {
+    CloseHandle(runningProcessHandle);
+  }
+  return isRunning;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 int WinPlatform::getPidByName(std::string const& name) const {
-  std::ignore = name;
-  NOT_IMPLEMENTED;
+  auto processList = Accessible::getRunningProcessByName(Utilities::s2ws(name));
+  size_t size = processList.size();
+  if (size > 0) {
+    if (size > 1) {
+      std::cout << "\nFound " << size << " processes with name: " << name << std::endl;
+    }
+    return processList.at(0);
+  }
   return 0;
 }
 
@@ -200,7 +223,7 @@ std::string WinPlatform::getTempDirName() const {
   if (retVal > MAX_PATH || (retVal == 0)) {
     throw std::runtime_error("GetTempPath failed");
   }
-  return Utils::ws2s(tempPathBuffer);
+  return Utilities::ws2s(tempPathBuffer);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -262,7 +285,7 @@ void WinPlatform::writeText(std::string const& text, bool error) const {
 
 void WinPlatform::createFolder(std::string const& name) const {
   if (name.back() == ':') {
-    UINT type = GetDriveType(Utils::s2ws(name).c_str());
+    UINT type = GetDriveType(Utilities::s2ws(name).c_str());
     if (type == DRIVE_UNKNOWN) {
       std::string message = "The drive type cannot be determined: '" + name;
       throw std::runtime_error(message);
@@ -270,33 +293,33 @@ void WinPlatform::createFolder(std::string const& name) const {
     return;
   }
 
-  std::wstring converted = Utils::s2ws(name);
+  std::wstring converted = Utilities::s2ws(name);
   if (_wmkdir(converted.c_str()) != 0) {
     wchar_t *error = _wcserror(errno);
     std::string message = "Error while creating folder '" + name + "': ";
-    throw std::runtime_error(message + Utils::ws2s(error));
+    throw std::runtime_error(message + Utilities::ws2s(error));
   }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void WinPlatform::removeFolder(std::string const& name) const {
-  std::wstring converted = Utils::s2ws(name);
+  std::wstring converted = Utilities::s2ws(name);
   if (_wrmdir(converted.c_str()) != 0) {
     wchar_t *error = _wcserror(errno);
     std::string message = "Cannot remove folder '" + name + "': ";
-    throw std::runtime_error(message + Utils::ws2s(error));
+    throw std::runtime_error(message + Utilities::ws2s(error));
   }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void WinPlatform::removeFile(std::string const& name) const {
-  std::wstring converted = Utils::s2ws(name);
+  std::wstring converted = Utilities::s2ws(name);
   if (_wremove(converted.c_str()) != 0) {
     wchar_t *error = _wcserror(errno);
     std::string message = "Cannot remove file '" + name + "': ";
-    throw std::runtime_error(message + Utils::ws2s(error));
+    throw std::runtime_error(message + Utilities::ws2s(error));
   }
 }
 
@@ -415,6 +438,29 @@ void WinPlatform::defineOsConstants(ScriptingContext &context, JSObject &constan
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void WinPlatform::defineFsConstants(ScriptingContext &context, JSObject &constants) const {
+  Platform::defineFsConstants(context, constants);
+  
+  DEFINE_CONSTANT(constants, O_RDONLY);
+  DEFINE_CONSTANT(constants, O_WRONLY);
+  DEFINE_CONSTANT(constants, O_RDWR);
+  DEFINE_CONSTANT(constants, S_IFMT);
+  DEFINE_CONSTANT(constants, S_IFREG);
+  DEFINE_CONSTANT(constants, S_IFDIR);
+  DEFINE_CONSTANT(constants, S_IFCHR);
+  DEFINE_CONSTANT(constants, S_IFLNK);
+  DEFINE_CONSTANT(constants, O_CREAT);
+  DEFINE_CONSTANT(constants, O_EXCL);
+  DEFINE_CONSTANT(constants, O_TRUNC);
+  DEFINE_CONSTANT(constants, O_APPEND);
+
+  DEFINE_CONSTANT(constants, COPYFILE_EXCL);
+  DEFINE_CONSTANT(constants, COPYFILE_FICLONE);
+  DEFINE_CONSTANT(constants, COPYFILE_FICLONE_FORCE);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<Cpu> WinPlatform::cpuInfo() const {
   SYSTEM_INFO systemInfo;
   GetSystemInfo(&systemInfo);
@@ -445,7 +491,7 @@ std::vector<Cpu> WinPlatform::cpuInfo() const {
         keySize = sizeof(brand);
         if (RegQueryValueEx(processorKey, L"ProcessorNameString", nullptr, nullptr, reinterpret_cast<BYTE*>(&brand),
           &keySize) == ERROR_SUCCESS) {
-          cpu.model = Utils::ws2s(brand);
+          cpu.model = Utilities::ws2s(brand);
         }
       }
 
@@ -495,7 +541,7 @@ size_t WinPlatform::getTotalMem() const {
 std::string WinPlatform::getHomeDir() const {
   WCHAR path[MAX_PATH];
   if (GetEnvironmentVariable(L"USERPROFILE", path, MAX_PATH) > 0)
-    return Utils::ws2s(path);
+    return Utilities::ws2s(path);
   else
     throw std::runtime_error("GetEnvironmentVariable failed");
 }
@@ -505,7 +551,7 @@ std::string WinPlatform::getHomeDir() const {
 std::string WinPlatform::getHostName() const {
   WCHAR name[1024];
   if (GetHostNameW(name, 1024) == 0)
-    return Utils::ws2s(name);
+    return Utilities::ws2s(name);
   else
     throw std::runtime_error("GetHostNameW failed");
 }
@@ -543,7 +589,7 @@ std::map<std::string, std::vector<NetworkInterface>> WinPlatform::networkInterfa
     if (adapter->OperStatus != IfOperStatusUp || adapter->FirstUnicastAddress == nullptr)
       continue;
 
-    std::string nicName = Utils::ws2s(adapter->FriendlyName);
+    std::string nicName = Utilities::ws2s(adapter->FriendlyName);
     for (auto address = adapter->FirstUnicastAddress; address != nullptr; address = address->Next) {
       NetworkInterface nic;
 
@@ -551,7 +597,7 @@ std::map<std::string, std::vector<NetworkInterface>> WinPlatform::networkInterfa
       if (adapter->PhysicalAddressLength > 0) {
         std::string macAddress;
         for (size_t i = 0; i < adapter->PhysicalAddressLength; ++i)
-          macAddress += Utils::format("%.2X:", adapter->PhysicalAddress[i]);
+          macAddress += Utilities::format("%.2X:", adapter->PhysicalAddress[i]);
         macAddress.resize(macAddress.size() - 1); // Remove last colon.
         nic.mac = macAddress;
       } else
@@ -609,7 +655,7 @@ std::string WinPlatform::getRelease() const {
   OSVERSIONINFO info;
   info.dwOSVersionInfoSize = sizeof(info);
   if (GetVersionEx(&info) == TRUE)
-    return Utils::format("%d.%d.%d", info.dwMajorVersion, info.dwMinorVersion, info.dwBuildNumber);
+    return Utilities::format("%d.%d.%d", info.dwMajorVersion, info.dwMinorVersion, info.dwBuildNumber);
   else
     throw std::runtime_error("GetVersionEx failed");
 }
@@ -651,14 +697,14 @@ UserInfo WinPlatform::getCurrentUserInfo() const {
     TCHAR path[MAX_PATH];
     DWORD size = MAX_PATH;
     if (GetUserProfileDirectory(token, path, &size) == TRUE)
-      result.homeDir = Utils::ws2s(path);
+      result.homeDir = Utilities::ws2s(path);
   }
   CloseHandle(token);
 
   TCHAR buffer[UNLEN + 1];
   DWORD size = UNLEN;
   if (GetUserName(buffer, &size) == TRUE)
-    result.userName = Utils::ws2s(buffer);
+    result.userName = Utilities::ws2s(buffer);
 
   result.uid = -1;
   result.gid = -1;
@@ -674,9 +720,23 @@ UiToolkit WinPlatform::getUiToolkit() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+std::string WinPlatform::getClipboardText() const {
+  return Accessible::getClipboardText();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void WinPlatform::setClipboardText(const std::string &content) const {
+  if (!content.empty()) {
+    Accessible::setClipboardText(content);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 BOOL MonitorEnumProc(HMONITOR hMonitor, HDC /*hdc*/, LPRECT /*prect*/, LPARAM data) {
   std::vector<Screen> *screens = reinterpret_cast<std::vector<Screen> *>(data);
-  if(screens == nullptr)
+  if (screens == nullptr)
     return false;
 
   MONITORINFOEX info;

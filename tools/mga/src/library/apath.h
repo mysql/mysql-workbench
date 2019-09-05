@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -24,7 +24,7 @@
 #pragma once
 
 #include "common.h"
-#include "uielement.h"
+#include "aalcommon.h"
 
 namespace mga {
 
@@ -35,19 +35,20 @@ namespace mga {
  */
 class APath {
 public:
-  APath(UIElement *root);
+  APath(aal::Accessible *root);
 
-  UIElementList execute(UIElement *anchor, std::string const& path, bool includeEmptyNames, bool includeInternal);
+  aal::AccessibleList execute(aal::Accessible *anchor, std::string const& path, bool includeEmptyNames,
+    bool includeEmptyIDs, bool includeInternal);
 
 private:
-  UIElement *_root;
+  aal::Accessible *_root;
   
   using StringListIterator = std::vector<std::string>::iterator;
 
-  UIElementList executePath(UIElement *anchor, StringListIterator &begin, StringListIterator const& end,
-    bool includeEmptyNames, bool includeInternal);
-  UIElementList getParents(UIElement *element) const;
-  UIElementList getSiblings(UIElement *element, bool leading, bool trailing) const;
+  aal::AccessibleList executePath(aal::Accessible *anchor, StringListIterator &begin, StringListIterator const& end,
+    bool includeEmptyNames, bool includeEmptyIDs, bool includeInternal);
+  aal::AccessibleList getParents(aal::Accessible *element) const;
+  aal::AccessibleList getSiblings(aal::Accessible *element, bool leading, bool trailing) const;
 };
 
 }

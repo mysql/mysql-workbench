@@ -83,6 +83,7 @@
 #include <iomanip>
 #include <signal.h>
 #include <future>
+#include <stack>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -100,3 +101,9 @@
 #include <cppconn/metadata.h>
 
 #pragma warning( default: 4100 4244 )
+
+#define R_OK    4       /* Test for read permission. */
+#define W_OK    2       /* Test for write permission. */
+#define X_OK    1       /* execute permission */
+#define F_OK    0       /* Test for existence. */
+#define S_IFLNK 0xA000  /* Symbolic link */

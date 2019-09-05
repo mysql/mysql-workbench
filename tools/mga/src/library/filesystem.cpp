@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -192,12 +192,12 @@ private:
  */
 std::string FS::contentFromFile(std::string const& fileName) {
 #ifdef _MSC_VER
-  std::ifstream stream(Utils::s2ws(fileName), std::ios::binary);
+  std::ifstream stream(Utilities::s2ws(fileName), std::ios::binary);
 #else
   std::ifstream stream(fileName, std::ios::binary);
 #endif
   if (!stream.good()) {
-    throw std::runtime_error(Utils::getLastError() + " (" + fileName + ")");
+    throw std::runtime_error(Utilities::getLastError() + " (" + fileName + ")");
   }
 
   std::string text(std::istreambuf_iterator<char>{stream}, {});
@@ -212,7 +212,7 @@ static void copyFile(std::string const& source, std::string const& target, CopyO
     return;
 
 #ifdef _MSC_VER
-  auto sourceFilename = Utils::s2ws(source);
+  auto sourceFilename = Utilities::s2ws(source);
   std::ifstream input(sourceFilename, std::ios::binary);
 #else
   std::ifstream input(source, std::ios::binary);
@@ -221,7 +221,7 @@ static void copyFile(std::string const& source, std::string const& target, CopyO
     throw std::runtime_error("Error while opening source file: '" + source + "'");
 
 #ifdef _MSC_VER
-  auto targetFilename = Utils::s2ws(target);
+  auto targetFilename = Utilities::s2ws(target);
   std::ofstream output(targetFilename, std::ios::binary);
 #else
   std::ofstream output(target, std::ios::binary);
@@ -242,8 +242,8 @@ static void copyFile(std::string const& source, std::string const& target, CopyO
       _utimbuf buffer;
       buffer.actime = statBuffer.st_atime;
       buffer.modtime = statBuffer.st_mtime;
-      if(_wutime(targetFilename.c_str(), &buffer) == -1)
-        throw std::runtime_error("Error while setting times to target file('" + target + "'): " + Utils::getLastError());
+      if (_wutime(targetFilename.c_str(), &buffer) == -1)
+        throw std::runtime_error("Error while setting times to target file('" + target + "'): " + Utilities::getLastError());
     }
 #elif defined(__APPLE__)
     struct stat statBuffer;
@@ -252,7 +252,7 @@ static void copyFile(std::string const& source, std::string const& target, CopyO
       buffer.actime = statBuffer.st_atimespec.tv_sec;
       buffer.modtime = statBuffer.st_mtimespec.tv_sec;
       if (utime(target.c_str(), &buffer) == -1)
-        throw std::runtime_error("Error while setting times to target file('" + target + "'): " + Utils::getLastError());
+        throw std::runtime_error("Error while setting times to target file('" + target + "'): " + Utilities::getLastError());
     }
 #else
     struct stat statBuffer;
@@ -266,7 +266,7 @@ static void copyFile(std::string const& source, std::string const& target, CopyO
       int result = futimens(fd, times);
       close(fd);
       if (result == -1)
-        throw std::runtime_error("Error while setting times to target file('" + target + "'): " + Utils::getLastError());
+        throw std::runtime_error("Error while setting times to target file('" + target + "'): " + Utilities::getLastError());
     }
 #endif
   }
@@ -348,7 +348,7 @@ void FS::ensureDir(std::string const& directory) {
     return;
 
   std::string currentPath = Path::normalize(directory);
-  auto segments = Utils::split(currentPath, "/");
+  auto segments = Utilities::split(currentPath, "/");
   currentPath = Path::isAbsolute(currentPath) ? "" : Process::cwd();
   if (segments[0].empty())
     segments[0] = "/";
@@ -372,7 +372,7 @@ void FS::ensureDir(std::string const& directory) {
 bool FS::isDir(std::string const& path) {
 #ifdef _MSC_VER
   struct _stat buffer;
-  std::wstring converted = Utils::s2ws(path);
+  std::wstring converted = Utilities::s2ws(path);
   int result = _wstat(converted.c_str(), &buffer);
   return result == 0 && (buffer.st_mode & _S_IFDIR) != 0;
 #else
@@ -390,7 +390,7 @@ bool FS::isDir(std::string const& path) {
 bool FS::isFile(std::string const& path) {
 #ifdef _MSC_VER
   struct _stat buffer;
-  std::wstring converted = Utils::s2ws(path);
+  std::wstring converted = Utilities::s2ws(path);
   int result = _wstat(converted.c_str(), &buffer);
   return result == 0 && (buffer.st_mode & _S_IFREG) != 0;
 #else
@@ -407,7 +407,7 @@ bool FS::isFile(std::string const& path) {
  */
 bool FS::isSymlink(std::string const& path) {
 #ifdef _MSC_VER
-  std::wstring converted = Utils::s2ws(path);
+  std::wstring converted = Utilities::s2ws(path);
   bool ret = false;
   DWORD attributes =  GetFileAttributes(converted.c_str());
   if (attributes != INVALID_FILE_ATTRIBUTES) {
@@ -441,16 +441,16 @@ void FS::move(std::string const& source, std::string const& target, MoveOptions 
   }
 
 #ifdef _MSC_VER
-  std::wstring convertedSource = Utils::s2ws(source);
-  std::wstring convertedTarget = Utils::s2ws(target);
+  std::wstring convertedSource = Utilities::s2ws(source);
+  std::wstring convertedTarget = Utilities::s2ws(target);
   if (_wrename(convertedSource.c_str(), convertedTarget.c_str()) != 0) {
     wchar_t *error = _wcserror(errno);
     std::string message = "Error while moving '" + source + "': ";
-    throw std::runtime_error(message + Utils::ws2s(error));
+    throw std::runtime_error(message + Utilities::ws2s(error));
   }
 #else
   if (::rename(source.c_str(), target.c_str()) != 0)
-    throw std::runtime_error("Error while moving '" + source + "': " + Utils::getLastError());
+    throw std::runtime_error("Error while moving '" + source + "': " + Utilities::getLastError());
 #endif
 }
 
@@ -470,18 +470,18 @@ void FS::outputFile(std::string const& fileName, std::string const& content, Cre
   }
 
 #ifdef _MSC_VER
-  std::ofstream output(Utils::s2ws(fileName), mode);
+  std::ofstream output(Utilities::s2ws(fileName), mode);
 #else
   std::ofstream output(fileName, mode);
 #endif
 
   if (output.fail())
-    throw std::runtime_error("Error while opening target file: '" + fileName + "'");
+    throw std::runtime_error("Error while opening target file '" + fileName + "': " + Utilities::getLastError());
 
   output << content;
   output.close();
   if (output.bad())
-    throw std::runtime_error("Error while writing target file: '" + fileName + "'");
+    throw std::runtime_error("Error while writing target file '" + fileName + "'" + Utilities::getLastError());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -492,7 +492,7 @@ void FS::outputFile(std::string const& fileName, std::string const& content, Cre
 bool FS::pathExists(std::string const& path) {
 #ifdef _MSC_VER
   struct _stat buffer;
-  std::wstring converted = Utils::s2ws(path);
+  std::wstring converted = Utilities::s2ws(path);
   int result = _wstat(converted.c_str(), &buffer);
 #else
   struct stat buffer;
@@ -528,13 +528,13 @@ std::vector<std::string> FS::readDir(std::string const& directory) {
   // TODO: move to platform layer.
 #ifdef _MSC_VER
   WIN32_FIND_DATA data;
-  HANDLE hFind = FindFirstFile(Utils::s2ws(directory + "/*.*").c_str(), &data);
+  HANDLE hFind = FindFirstFile(Utilities::s2ws(directory + "/*.*").c_str(), &data);
   if (hFind != INVALID_HANDLE_VALUE) {
     do {
       std::wstring name = data.cFileName;
       if (name != L"." && name != L"..") {
         if ((data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == 0) {
-          result.push_back(Utils::ws2s(name));
+          result.push_back(Utilities::ws2s(name));
         }
       }
     } while (FindNextFile(hFind, &data));
@@ -543,7 +543,7 @@ std::vector<std::string> FS::readDir(std::string const& directory) {
 #elif defined(__APPLE__)
   DIR *handle = opendir(directory.c_str());
   if (handle == nullptr)
-    throw std::runtime_error("Error while enumerating folder '" + directory + "': " + Utils::getLastError());
+    throw std::runtime_error("Error while enumerating folder '" + directory + "': " + Utilities::getLastError());
 
   dirent *entry;
   while ((entry = readdir(handle)) != nullptr) {
@@ -559,7 +559,7 @@ std::vector<std::string> FS::readDir(std::string const& directory) {
 #else
   DIR *handle = opendir(directory.c_str());
   if (handle == nullptr)
-    throw std::runtime_error("Error while enumerating folder '" + directory + "': " + Utils::getLastError());
+    throw std::runtime_error("Error while enumerating folder '" + directory + "': " + Utilities::getLastError());
 
   dirent *entry;
   while ((entry = readdir(handle)) != nullptr) {
@@ -586,7 +586,7 @@ void FS::chmod(std::string const& path, int mode) {
   int retval = ::chmod(path.c_str(), mode);
 #endif
   if (retval == -1)
-    throw std::runtime_error("Error setting file mode for '" + path + "': " + Utils::getLastError());
+    throw std::runtime_error("Error setting file mode for '" + path + "': " + Utilities::getLastError());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -691,8 +691,8 @@ void FS::activate(ScriptingContext &context, JSObject &exports) {
 
     try {
       args.pushResult(FS::pathExists(path));
-    } catch (std::runtime_error &e) {
-      args.context()->throwScriptingError(ScriptingError::Error, e.what());
+    } catch (std::runtime_error &) {
+      args.pushResult(false);
     }
   });
 
@@ -749,6 +749,10 @@ void FS::activate(ScriptingContext &context, JSObject &exports) {
     std::string path = args.get(0);
     FS::chmod(path, mode);
   });
+
+  JSObject constants(&context);
+  Platform::get().defineFsConstants(context, constants);
+  exports.defineProperty("constants", constants);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

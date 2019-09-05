@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value type="object" struct-name="db.mysql.Catalog" id="{FB85153C-727E-4AC1-BBCF-D45141AE9E5F}" struct-checksum="0x82ad3466">
+    <value _ptr_="0000004F3BF8B190" type="list" content-type="object" content-struct-name="db.mysql.LogFileGroup" key="logFileGroups">
+      <value type="object" struct-name="db.mysql.LogFileGroup" id="{D5CD17D4-08EF-4EB9-B22A-6F44FB19D064}" struct-checksum="0x7e71e885">
+        <value type="string" key="engine">NDB</value>
+        <value type="int" key="nodeGroupId">0</value>
+        <value type="int" key="wait">0</value>
+        <value type="int" key="initialSize">128</value>
+        <value type="int" key="undoBufferSize">8</value>
+        <value type="string" key="undoFile">undo_file1.dat</value>
+        <value type="int" key="commentedOut">0</value>
+        <value type="string" key="createDate">2015-02-25 12:14</value>
+        <value _ptr_="0000004F39500930" type="dict" key="customData"/>
+        <value type="string" key="lastChangeDate">2015-02-25 12:14</value>
+        <value type="int" key="modelOnly">0</value>
+        <value type="string" key="name">logfile_group1</value>
+        <link type="object" struct-name="GrtNamedObject" key="owner">{FB85153C-727E-4AC1-BBCF-D45141AE9E5F}</link>
+        <value type="string" key="temp_sql"></value>
+        <value type="string" key="comment"></value>
+        <value type="string" key="oldName">logfile_group1</value>
+      </value>
+    </value>
+    <value _ptr_="0000004F3BF5A9F0" type="list" content-type="object" content-struct-name="db.mysql.Schema" key="schemata"/>
+    <value _ptr_="0000004F3B78DF50" type="list" content-type="object" content-struct-name="db.mysql.ServerLink" key="serverLinks"/>
+    <value _ptr_="0000004F394EAA00" type="list" content-type="object" content-struct-name="db.mysql.Tablespace" key="tablespaces">
+      <value type="object" struct-name="db.mysql.Tablespace" id="{476A5A41-4DF8-4762-87F6-DDE79D449B98}" struct-checksum="0xf070bb16">
+        <value type="string" key="engine">NDB</value>
+        <value type="int" key="nodeGroupId">0</value>
+        <value type="int" key="wait">0</value>
+        <value type="int" key="autoExtendSize">0</value>
+        <value type="string" key="dataFile">file1</value>
+        <value type="int" key="extentSize">4</value>
+        <value type="int" key="initialSize">128</value>
+        <link type="object" struct-name="db.mysql.LogFileGroup" key="logFileGroup">{D5CD17D4-08EF-4EB9-B22A-6F44FB19D064}</link>
+        <value type="int" key="maxSize">0</value>
+        <value type="int" key="commentedOut">0</value>
+        <value type="string" key="createDate">2015-02-25 12:14</value>
+        <value _ptr_="0000004F39503840" type="dict" key="customData"/>
+        <value type="string" key="lastChangeDate">2015-02-25 12:14</value>
+        <value type="int" key="modelOnly">0</value>
+        <value type="string" key="name">tablespace1</value>
+        <link type="object" struct-name="GrtNamedObject" key="owner">{FB85153C-727E-4AC1-BBCF-D45141AE9E5F}</link>
+        <value type="string" key="temp_sql"></value>
+        <value type="string" key="comment"></value>
+        <value type="string" key="oldName">tablespace1</value>
+      </value>
+    </value>
+    <value _ptr_="0000004F3BF8D5A0" type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets"/>
+    <value _ptr_="0000004F3BF85570" type="dict" key="customData"/>
+    <value type="string" key="defaultCharacterSetName">utf8</value>
+    <value type="string" key="defaultCollationName">utf8_general_ci</value>
+    <value _ptr_="0000004F394FB720" type="list" content-type="object" content-struct-name="db.Role" key="roles"/>
+    <value _ptr_="0000004F3B78E1E0" type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+      <link type="object">com.mysql.rdbms.mysql.datatype.tinyint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.smallint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.mediumint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.int</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.bigint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.float</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.real</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.double</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.decimal</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.char</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.nchar</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.varchar</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.nvarchar</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.binary</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.varbinary</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.tinytext</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.text</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.mediumtext</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.longtext</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.tinyblob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.blob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.mediumblob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.longblob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.datetime</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.datetime_f</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.date</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.time</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.time_f</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.year</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.timestamp</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.timestamp_f</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.geometry</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.point</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.linestring</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.polygon</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.geometrycollection</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.multipoint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.multilinestring</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.multipolygon</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.bit</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.boolean</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.enum</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.set</link>
+    </value>
+    <value _ptr_="0000004F394E5730" type="list" content-type="object" content-struct-name="db.UserDatatype" key="userDatatypes"/>
+    <value _ptr_="0000004F394FC2E0" type="list" content-type="object" content-struct-name="db.User" key="users"/>
+    <value type="string" key="comment"></value>
+    <value type="string" key="name"></value>
+    <value type="string" key="oldName"></value>
+  </value>
+</data>

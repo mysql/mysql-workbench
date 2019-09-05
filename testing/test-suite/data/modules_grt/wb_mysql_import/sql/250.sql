@@ -1,0 +1,89 @@
+/*
+CREATE
+    [DEFINER = { user | CURRENT_USER }]
+    EVENT
+    [IF NOT EXISTS]
+    event_name
+    ON SCHEDULE schedule
+    [ON COMPLETION [NOT] PRESERVE]
+    [ENABLE | DISABLE | SLAVESIDE_DISABLED]
+    [COMMENT 'comment']
+    DO sql_statement;
+
+schedule:
+    AT timestamp [+ INTERVAL interval]
+  | EVERY interval
+    [STARTS timestamp [+ INTERVAL interval]]
+    [ENDS timestamp [+ INTERVAL interval]]
+
+interval:
+    quantity {YEAR | QUARTER | MONTH | DAY | HOUR | MINUTE |
+              WEEK | SECOND | YEAR_MONTH | DAY_HOUR | DAY_MINUTE |
+              DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND}
+*/
+/*
+SLAVESIDE_DISABLED not supported contrary to documentation
+*/
+
+DELIMITER //
+
+CREATE
+DEFINER = CURRENT_USER
+EVENT
+IF NOT EXISTS
+event1
+ON SCHEDULE AT CURRENT_TIMESTAMP
+ON COMPLETION NOT PRESERVE
+ENABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END //
+
+CREATE
+DEFINER = 'user'@'hostname'
+EVENT
+IF NOT EXISTS
+test.event2
+ON SCHEDULE AT '2006-01-01 23:59:00' + INTERVAL 2 DAY 
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END //
+
+CREATE
+DEFINER = 'user'@'hostname'
+EVENT
+IF NOT EXISTS
+test.event3
+ON SCHEDULE EVERY 1 HOUR
+STARTS '2006-01-01 23:59:00' + INTERVAL 1 HOUR
+ENDS CURRENT_TIMESTAMP + INTERVAL 1 YEAR + INTERVAL 2 DAY 
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END //
+
+CREATE
+DEFINER = 'user'@'hostname'
+EVENT
+IF NOT EXISTS
+event4
+ON SCHEDULE AT ADDTIME('1997-12-31 23:59:59.999999', '1 1:1:1.000002') + INTERVAL 1 DAY
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END //
+
+DELIMITER ;
+;

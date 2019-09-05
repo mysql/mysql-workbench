@@ -1,4 +1,4 @@
-# Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,112 +19,112 @@ add_subdirectory(utf8proc)
 add_subdirectory(duktape)
 add_subdirectory(aal)
 
-include_directories(
-  ${PROJECT_SOURCE_DIR}/src
-  ${PROJECT_SOURCE_DIR}/src/aal
-  ${PROJECT_SOURCE_DIR}/src/library
-  ${PROJECT_SOURCE_DIR}/src/duktape
-  ${PROJECT_SOURCE_DIR}/src/duktape/extra/module-node
-  ${PROJECT_SOURCE_DIR}/src/utf8proc
-  SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-)
-
-if (UNIX AND NOT APPLE)
-  include_directories(
-  SYSTEM ${ATSPI_INCLUDE_DIRS}
-  SYSTEM ${GLIBMM_INCLUDE_DIRS}
-  SYSTEM ${GIOMM_INCLUDE_DIRS}
-  SYSTEM ${CAIROMM_INCLUDE_DIRS}
-  SYSTEM ${GTKMM_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/src/aal/linux)
-
-elseif (APPLE) 
-  include_directories(
-  ${PROJECT_SOURCE_DIR}/src/aal/macos)
-endif()
-
-include_directories(${mga_INCLUDE_DIRS})
-
 set(mga_HEADER_FILES
-  ${PROJECT_SOURCE_DIR}/src/context-management.h
-  ${PROJECT_SOURCE_DIR}/src/application-context.h
-  ${PROJECT_SOURCE_DIR}/src/common.h
-  ${PROJECT_SOURCE_DIR}/src/duktape/duk_config.h
-  ${PROJECT_SOURCE_DIR}/src/duktape/extra/module-node/duk_module_node.h
-  ${PROJECT_SOURCE_DIR}/src/library/apath.h
-  ${PROJECT_SOURCE_DIR}/src/library/db.h
-  ${PROJECT_SOURCE_DIR}/src/library/child_process.h
-  ${PROJECT_SOURCE_DIR}/src/library/debugger.h
-  ${PROJECT_SOURCE_DIR}/src/library/events.h
-  ${PROJECT_SOURCE_DIR}/src/library/filesystem.h
-  ${PROJECT_SOURCE_DIR}/src/library/global.h
-  ${PROJECT_SOURCE_DIR}/src/library/glob.h
-  ${PROJECT_SOURCE_DIR}/src/library/jsexport.h
-  ${PROJECT_SOURCE_DIR}/src/library/os.h
-  ${PROJECT_SOURCE_DIR}/src/library/path.h
-  ${PROJECT_SOURCE_DIR}/src/library/platform.h
-  ${PROJECT_SOURCE_DIR}/src/library/process.h
-  ${PROJECT_SOURCE_DIR}/src/library/dbresult.h
-  ${PROJECT_SOURCE_DIR}/src/library/streams.h
-  ${PROJECT_SOURCE_DIR}/src/library/types.h
-  ${PROJECT_SOURCE_DIR}/src/library/uielement.h
-  ${PROJECT_SOURCE_DIR}/src/library/utilities.h
-  ${PROJECT_SOURCE_DIR}/src/library/scripting-context.h
-  ${PROJECT_SOURCE_DIR}/src/library/tty.h
-  ${PROJECT_SOURCE_DIR}/src/library/internal-tests.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/context-management.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/application-context.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/duktape/duk_config.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/duktape/extra/module-node/duk_module_node.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/apath.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/db.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/child_process.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/debugger.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/events.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/filesystem.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/global.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/glob.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/jsexport.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/os.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/path.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/platform.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/process.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/dbresult.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/streams.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/types.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/uielement.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/utilities.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/utils.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/scripting-context.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/tty.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/internal-tests.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/property.h
 )
 set(mga_SOURCE_FILES
-  ${PROJECT_SOURCE_DIR}/src/main.cpp
-  ${PROJECT_SOURCE_DIR}/src/context-management.cpp
-  ${PROJECT_SOURCE_DIR}/src/application-context.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/apath.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/db.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/child_process.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/debugger.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/events.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/filesystem.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/global.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/glob.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/jsexport.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/os.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/path.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/platform.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/process.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/dbresult.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/streams.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/types.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/uielement.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/utilities.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/scripting-context.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/tty.cpp
-  ${PROJECT_SOURCE_DIR}/src/library/internal-tests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/context-management.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/application-context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/apath.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/db.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/child_process.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/debugger.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/events.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/filesystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/global.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/glob.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/jsexport.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/os.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/path.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/platform.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/process.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/dbresult.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/streams.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/types.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/uielement.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/utilities.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/utils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/scripting-context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/tty.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/internal-tests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/library/property.cpp
 )
 
 if (UNIX AND NOT APPLE)
   list(APPEND mga_SOURCE_FILES
-    ${PROJECT_SOURCE_DIR}/src/library/platform-linux.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/library/platform-linux.cpp
     )
 elseif(APPLE)
   list(APPEND mga_SOURCE_FILES
-    ${PROJECT_SOURCE_DIR}/src/library/platform-mac.mm
+    ${CMAKE_CURRENT_SOURCE_DIR}/library/platform-mac.mm
     )
 endif()
 
 set(mga_SOURCES ${mga_SOURCE_FILES} ${mga_HEADER_FILES})
 add_executable(mga ${mga_SOURCES})
 
+target_include_directories(mga 
+ PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/library
+)
+
 if (UNIX AND NOT APPLE)
-  target_link_libraries(mga utf8proc duktape aal ${GLIBMM_LIBRARIES} ${GIOMM_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${MySQLCppConn_LIBRARIES} ${OPENSSL_LIBRARIES} ${X11_Xinerama_LIB})
+  target_link_libraries(mga 
+    PRIVATE 
+      utf8proc 
+      duktape 
+      aal  
+      ${CMAKE_THREAD_LIBS_INIT} 
+      ${MySQLCppConn_LIBRARIES} 
+      ${OPENSSL_LIBRARIES} 
+      ${X11_Xinerama_LIB}
+  )
 elseif (APPLE)
   foreach(mga_file ${mga_SOURCE_FILES})
     set_source_files_properties(${mga_file} PROPERTIES COMPILE_FLAGS "-x objective-c++")
   endforeach()
-  target_link_libraries(mga utf8proc duktape aal ${CMAKE_THREAD_LIBS_INIT} ${MySQLCppConn_LIBRARIES})
+  
+  target_link_libraries(mga 
+    PRIVATE 
+      utf8proc 
+      duktape 
+      aal 
+      ${CMAKE_THREAD_LIBS_INIT} 
+      ${MySQLCppConn_LIBRARIES})
 endif()
 
 target_compile_options(mga PUBLIC ${MGA_CXXFLAGS})
 if(BUILD_WITH_COVERAGE AND UNIX)
-  target_link_libraries(mga --coverage)
+  target_link_libraries(mga PUBLIC --coverage)
 endif()
 
 install(TARGETS mga RUNTIME COMPONENT main DESTINATION ${INSTALL_BINDIR})

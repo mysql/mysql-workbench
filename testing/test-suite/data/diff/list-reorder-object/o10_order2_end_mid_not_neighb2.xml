@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<data>
+  <value _ptr_="00E412B0" type="list" content-type="object" content-struct-name="test.Author" key="authors">
+    <value type="object" struct-name="test.Author" id="{AAAAAAAA-8A89-46D9-A01D-237A6CB67D04}" struct-checksum="0xbe84ceab">
+      <value type="string" key="name">Grimm' Wives</value>
+    </value>
+    <value type="object" struct-name="test.Author" id="{3BFB0ED1-8A89-46D9-A01D-237A6CB67D01}" struct-checksum="0xbe84ceab">
+      <value type="string" key="name">Grimm I</value>
+    </value>
+    <value type="object" struct-name="test.Author" id="{5DB8C128-D39F-4808-8561-71CC7AEAC203}" struct-checksum="0xbe84ceab">
+      <value type="string" key="name">Grimm III</value>
+    </value>
+    <value type="object" struct-name="test.Author" id="{126A8DD1-26D3-415B-A840-E21813422C02}" struct-checksum="0xbe84ceab">
+      <value type="string" key="name">Grimm II</value>
+    </value>
+  </value>
+</data>

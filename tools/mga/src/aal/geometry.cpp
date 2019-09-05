@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -27,11 +27,35 @@ using namespace geometry;
 
 //----------------- Point ----------------------------------------------------------------------------------------------
 
+bool Point::operator == (Point const& other) const {
+  return other.x == x && other.y == y;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Point::operator != (Point const& other) const {
+  return other.x != x || other.y != y;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string Point::toJson() const {
   return "{\"x\":" + std::to_string(x) + ",\"y\":" + std::to_string(y) + "}";
 }
 
 //----------------- Size -----------------------------------------------------------------------------------------------
+
+bool Size::operator == (Size const& other) const {
+  return other.width == width && other.height == height;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Size::operator != (Size const& other) const {
+  return other.width != width || other.height != height;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string Size::toJson() const {
   return "{\"width\":" + std::to_string(width) + ",\"height\":" + std::to_string(height) + "}";
@@ -47,6 +71,18 @@ bool Rectangle::contains(Point const& p) const {
 
 bool Rectangle::contains(Rectangle const& r) const {
   return r.minX() >= minX() && r.maxX() <= maxX() && r.minY() >= minY() && r.maxY() <= maxY();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Rectangle::operator == (Rectangle const& other) const {
+  return other.position == position && other.size == size;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Rectangle::operator != (Rectangle const& other) const {
+  return other.position != position || other.size != size;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -124,6 +124,8 @@ namespace bec {
     GRTDispatcher::Ref get_dispatcher() const {
       return _dispatcher;
     };
+
+    void cleanUpAndReinitialize();
 
     void initialize(bool init_python, const std::string &loader_module_path = "");
     bool initialize_shell(const std::string &shell_type);
@@ -285,7 +287,6 @@ namespace bec {
 
   private:
     bool _terminated;               // true if application termination was requested by the BE or a plugin.
-    std::shared_ptr<grt::GRT> _grt; // Reference to static grt singleton to avoid static fiasco.
 
     grt::ValueRef setup_grt();
     void shell_write(const std::string &text);

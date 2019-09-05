@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="db.mysql.Catalog" id="{E8A14247-B985-4B6E-8832-64CBE8BCD93F}">
+    <value _ptr_="00EE2390" type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets"/>
+    <value type="string" key="comment"></value>
+    <value type="string" key="defaultCharacterSetName"></value>
+    <value type="string" key="defaultCollationName"></value>
+    <value type="string" key="name"></value>
+    <value type="string" key="oldName"></value>
+    <value _ptr_="00EE2200" type="list" content-type="object" content-struct-name="db.mysql.Schema" key="schemata">
+      <value type="object" struct-name="db.mysql.Schema" id="{3D73A483-C1B9-48BC-8E9C-15D48B1C095F}">
+        <value type="string" key="comment"></value>
+        <value type="int" key="commentedOut">0</value>
+        <value type="string" key="defaultCharacterSetName"></value>
+        <value type="string" key="defaultCollationName"></value>
+        <value type="string" key="name">serg</value>
+        <value type="string" key="oldName"></value>
+        <value _ptr_="00EE8630" type="list" content-type="object" content-struct-name="db.mysql.RoutineGroup" key="routineGroups"/>
+        <value _ptr_="00EE8590" type="list" content-type="object" content-struct-name="db.mysql.Routine" key="routines"/>
+        <value _ptr_="00EE8670" type="list" content-type="object" content-struct-name="db.mysql.Sequence" key="sequences"/>
+        <value type="string" key="temp_sql"></value>
+        <value _ptr_="00EE8410" type="list" content-type="object" content-struct-name="db.mysql.StructuredDatatype" key="structuredTypes"/>
+        <value _ptr_="00EE8440" type="list" content-type="object" content-struct-name="db.mysql.Synonym" key="synonyms"/>
+        <value _ptr_="00EE80D0" type="list" content-type="object" content-struct-name="db.mysql.Table" key="tables">
+          <value type="object" struct-name="db.mysql.Table" id="{8B0BF6BB-7115-456B-A8CA-807665B9E35E}">
+            <value type="string" key="avgRowLength"></value>
+            <value type="int" key="checksum">0</value>
+            <value _ptr_="00EEB8C0" type="list" content-type="object" content-struct-name="db.mysql.Column" key="columns">
+              <value type="object" struct-name="db.mysql.Column" id="{108C3D91-AB1F-46B0-8ABD-06D72DD9B0A8}">
+                <value type="int" key="autoIncrement">1</value>
+                <value type="string" key="characterSetName"></value>
+                <value _ptr_="00EEB910" type="list" content-type="object" content-struct-name="db.CheckConstraint" key="checks"/>
+                <value type="string" key="collationName"></value>
+                <value type="string" key="comment"></value>
+                <value type="string" key="defaultValue">null</value>
+                <value type="int" key="defaultValueIsNull">1</value>
+                <value _ptr_="00EEB940" type="list" content-type="string" key="flags"/>
+                <value type="int" key="isNotNull">0</value>
+                <value type="int" key="length">0</value>
+                <value type="string" key="name">id</value>
+                <value type="string" key="oldName">id</value>
+                <value type="int" key="precision">0</value>
+                <value type="int" key="scale">0</value>
+              </value>
+              <value type="object" struct-name="db.mysql.Column" id="{158B3D70-07B5-4D35-8A7E-3817643EB747}">
+                <value type="int" key="autoIncrement">0</value>
+                <value type="string" key="characterSetName"></value>
+                <value _ptr_="00EEBA30" type="list" content-type="object" content-struct-name="db.CheckConstraint" key="checks"/>
+                <value type="string" key="collationName"></value>
+                <value type="string" key="comment"></value>
+                <value type="string" key="defaultValue"></value>
+                <value type="int" key="defaultValueIsNull">0</value>
+                <value _ptr_="00EEBC10" type="list" content-type="string" key="flags"/>
+                <value type="int" key="isNotNull">0</value>
+                <value type="int" key="length">45</value>
+                <value type="string" key="name">name</value>
+                <value type="string" key="oldName">name</value>
+                <value type="int" key="precision">0</value>
+                <value type="int" key="scale">0</value>
+              </value>
+            </value>
+            <value type="string" key="comment"></value>
+            <value type="int" key="commentedOut">0</value>
+            <value type="string" key="defaultCharacterSetName"></value>
+            <value type="string" key="defaultCollationName"></value>
+            <value type="int" key="delayKeyWrite">0</value>
+            <value _ptr_="00EEBDA0" type="list" content-type="object" content-struct-name="db.ForeignKey" key="foreignKeys"/>
+            <value _ptr_="00EEBB50" type="list" content-type="object" content-struct-name="db.mysql.Index" key="indices">
+              <value type="object" struct-name="db.mysql.Index" id="{4141F0C0-21F9-41DB-AECE-C75FDF04B478}">
+                <value _ptr_="00EEBB90" type="list" content-type="object" content-struct-name="db.IndexColumn" key="columns">
+                  <value type="object" struct-name="db.mysql.IndexColumn" id="{7F1ACCC9-905C-4981-892F-852332D62F9D}">
+                    <value type="int" key="columnLength">0</value>
+                    <value type="string" key="comment"></value>
+                    <value type="int" key="descend">1</value>
+                    <value type="string" key="name">id</value>
+                    <link type="object" key="owner">{4141F0C0-21F9-41DB-AECE-C75FDF04B478}</link>
+                    <link type="object" key="referencedColumn">{108C3D91-AB1F-46B0-8ABD-06D72DD9B0A8}</link>
+                  </value>
+                </value>
+                <value type="string" key="comment"></value>
+                <value type="int" key="deferability">0</value>
+                <value type="string" key="indexKind">PRIMARY</value>
+                <value type="string" key="indexType"></value>
+                <value type="int" key="isPrimary">0</value>
+                <link type="object" key="owner">{8B0BF6BB-7115-456B-A8CA-807665B9E35E}</link>
+                <value type="int" key="unique">0</value>
+              </value>
+            </value>
+            <value type="int" key="isSystem">0</value>
+            <value type="int" key="isTemporary">0</value>
+            <value type="string" key="maxRows"></value>
+            <value type="string" key="mergeInsert"></value>
+            <value type="string" key="mergeUnion"></value>
+            <value type="string" key="minRows"></value>
+            <value type="string" key="name">table1</value>
+            <value type="string" key="nextAutoInc"></value>
+            <value type="string" key="oldName"></value>
+            <value type="string" key="packKeys"></value>
+            <value type="string" key="password"></value>
+            <link type="object" key="primaryKey">{4141F0C0-21F9-41DB-AECE-C75FDF04B478}</link>
+            <value type="string" key="raidChunkSize"></value>
+            <value type="string" key="raidChunks"></value>
+            <value type="string" key="raidType"></value>
+            <value type="string" key="rowFormat"></value>
+            <value type="string" key="temp_sql">CREATE TABLE `serg`.`table1` (
+    `id` INTEGER UNSIGNED NOT NULL DEFAULT NULL AUTO_INCREMENT,
+    `name` VARCHAR(45) NOT NULL,
+    PRIMARY KEY (`id`)
+    )
+    ENGINE = InnoDB;</value>
+            <value type="string" key="tableDataDir"></value>
+            <value type="string" key="tableEngine">InnoDB</value>
+            <value type="string" key="tableIndexDir"></value>
+            <value type="string" key="temporaryScope"></value>
+            <value _ptr_="00EEA870" type="list" content-type="object" content-struct-name="db.mysql.Trigger" key="triggers"/>
+          </value>
+        </value>
+        <value _ptr_="00EE21C0" type="list" content-type="object" content-struct-name="db.mysql.View" key="views"/>
+      </value>
+    </value>
+    <value _ptr_="00EE7ED0" type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes"/>
+    <value _ptr_="00EE2450" type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="userDatatypes"/>
+  </value>
+</data>

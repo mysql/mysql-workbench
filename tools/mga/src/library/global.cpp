@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -103,7 +103,7 @@ void Global::activate(ScriptingContext &context, JSObject &exports) {
       Platform::get().writeText(args.dumpObject(0, showHidden, maxLevel));
   });
 
-  console.defineFunction({ "error" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
+  console.defineFunction({ "error", "warn" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
     std::string text = args.context()->logOutput("Error");
     if (_capturing)
       _capture += text;
@@ -111,7 +111,7 @@ void Global::activate(ScriptingContext &context, JSObject &exports) {
       Platform::get().writeText(text, true);
   });
 
-  console.defineFunction({ "log", "info" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
+  console.defineFunction({ "log", "info", "debug" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
     std::string text = args.context()->logOutput();
     if (_capturing)
       _capture += text;
@@ -121,14 +121,6 @@ void Global::activate(ScriptingContext &context, JSObject &exports) {
 
   console.defineFunction({ "trace" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
     std::string text = args.context()->logOutput("Trace");
-    if (_capturing)
-      _capture += text;
-    else
-      Platform::get().writeText(text, false);
-  });
-
-  console.defineFunction({ "warning" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
-    std::string text = args.context()->logOutput();
     if (_capturing)
       _capture += text;
     else
@@ -150,9 +142,9 @@ void Global::activate(ScriptingContext &context, JSObject &exports) {
     else {
       auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(system_clock::now() - times[label]);
       if (_capturing)
-        _capture += label + ": " + Utils::formatTime(duration) + "\n";
+        _capture += label + ": " + Utilities::formatTime(duration) + "\n";
       else {
-        std::string output = label + ": " + Utils::formatTime(duration) + "\n";
+        std::string output = label + ": " + Utilities::formatTime(duration) + "\n";
         Platform::get().writeText(output);
       }
       times.erase(iterator);

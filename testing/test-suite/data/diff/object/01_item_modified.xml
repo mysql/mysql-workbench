@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<data>
+  <value type="object" struct-name="test.Book" id="{3AE25469-F246-42F4-AE51-39B91F1EAD04}" struct-checksum="0x9ee3e3b6">
+    <value _ptr_="00E412B0" type="list" content-type="object" content-struct-name="test.Author" key="authors">
+      <value type="object" struct-name="test.Author" id="{3BFB0ED1-8A89-46D9-A01D-237A6CB67DE2}" struct-checksum="0xbe84ceab">
+        <value type="string" key="name">Grimm Elder</value>
+      </value>
+      <value type="object" struct-name="test.Author" id="{126A8DD1-26D3-415B-A840-E21813422C30}" struct-checksum="0xbe84ceab">
+        <value type="string" key="name">Grimm Middle</value>
+      </value>
+      <value type="object" struct-name="test.Author" id="{5DB8C128-D39F-4808-8561-71CC7AEAC27B}" struct-checksum="0xbe84ceab">
+        <value type="string" key="name">Grimm Junior</value>
+      </value>
+    </value>
+    <value _ptr_="00E413E0" type="dict" content-type="string" key="extras">
+      <value type="string" key="extra1">e1</value>
+      <value type="string" key="extra2">e2</value>
+      <value type="string" key="extra3">e3</value>
+      <value type="string" key="extra4">e4</value>
+    </value>
+    <value type="int" key="pages">555</value>
+    <value type="real" key="price">9.8989999999999995e+001</value>
+    <!-- this item was modified -->
+    <value type="object" struct-name="test.Publisher" id="{1F47D7A5-EB8C-4BBD-9D33-CDDD119DFA6D}" struct-checksum="0x11666588" key="publisher">
+      <value type="string" key="name">Deutsche Press</value>
+      <value type="string" key="phone">(111) 55-5555-55</value>
+    </value>
+    <value type="string" key="title">Red Hat</value>
+  </value>
+</data>

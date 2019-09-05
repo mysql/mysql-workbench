@@ -1,0 +1,7 @@
+:6:::(exception:invalid index)(AnyType)::0:0(AnyType)
+0:0:::1:authors(ListType)::1:<list>(ListType)
+1:0:::1:extras(DictType)::1:<dict>(DictType)
+2:0:::1:pages(IntegerType)::1:0(IntegerType)
+3:0:::1:price(DoubleType)::1:0.000000(DoubleType)
+4:0:::1:publisher(ObjectType)::1:<>(ObjectType)
+5:0:::1:title(StringType)::1:(StringType)

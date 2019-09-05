@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "wb_tunnel.h" // needs to come 1st because this header include Python.h indirectly
@@ -419,13 +419,8 @@ void WBOptions::analyzeCommandLineArguments() {
 extern void register_all_metaclasses();
 
 WBContext::WBContext(bool verbose) : _frontendCallbacks(nullptr) {
-  static bool registered_metaclasses = false;
 
   logDebug("Creating WBContext\n");
-
-  _grt = grt::GRT::get(); // We need a local reference to the grt as this class is part of a static struct
-                          // in the unit tests, so we need to ensure the grt stays alive as long as we do.
-  _grtManager = bec::GRTManager::get();
 
   _asked_for_saving = false;
   _model_context = nullptr;
@@ -438,8 +433,7 @@ WBContext::WBContext(bool verbose) : _frontendCallbacks(nullptr) {
   g_log_set_handler(NULL, (GLogLevelFlags)0xfffff, log_func, this);
 
   // register GRT object class implementations
-  if (!registered_metaclasses) {
-    registered_metaclasses = true;
+  if (grt::GRT::get()->metaclassesNeedRegister()) {
     register_all_metaclasses();
   }
 
@@ -450,13 +444,13 @@ WBContext::WBContext(bool verbose) : _frontendCallbacks(nullptr) {
   _initialization_finished = false;
   _attachments_changed = false;
 
-  _grtManager->setVerbose(verbose);
-  _grtManager->set_app_option_slots(std::bind(get_app_option, std::placeholders::_1, this),
+  bec::GRTManager::get()->setVerbose(verbose);
+  bec::GRTManager::get()->set_app_option_slots(std::bind(get_app_option, std::placeholders::_1, this),
                                     std::bind(set_app_option, std::placeholders::_1, std::placeholders::_2, this));
-  _grtManager->update_plugin_arguments_pool =
+  bec::GRTManager::get()->update_plugin_arguments_pool =
     std::bind(&WBContext::update_plugin_arguments_pool, this, std::placeholders::_1);
 
-  _grtManager->set_timeout_request_slot(
+  bec::GRTManager::get()->set_timeout_request_slot(
     std::bind(&WBContext::request_refresh, this, RefreshTimer, "", static_cast<NativeHandle>(0)));
 
   NotificationCenter::get()->add_observer(this, "GNDocumentOpened");
@@ -465,18 +459,18 @@ WBContext::WBContext(bool verbose) : _frontendCallbacks(nullptr) {
   register_interfaces();
 
   _clipboard = new bec::Clipboard();
-  _grtManager->set_clipboard(_clipboard);
-  scoped_connect(_grt->get_undo_manager()->signal_changed(),
+  bec::GRTManager::get()->set_clipboard(_clipboard);
+  scoped_connect(grt::GRT::get()->get_undo_manager()->signal_changed(),
                  std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
   if (getenv("DEBUG_UNDO"))
-    _grt->get_undo_manager()->enable_logging_to(&std::cout);
+    grt::GRT::get()->get_undo_manager()->enable_logging_to(&std::cout);
 
-  _plugin_manager = _grtManager->get_plugin_manager();
+  _plugin_manager = bec::GRTManager::get()->get_plugin_manager();
   _plugin_manager->set_registry_paths(PLUGIN_LIST_PATH, PLUGIN_GROUP_PATH);
 
   // create and register the module for Workbench stuff
-  _workbench = _grt->get_native_module<WorkbenchImpl>();
+  _workbench = grt::GRT::get()->get_native_module<WorkbenchImpl>();
   _workbench->set_context(this);
 
   _components.push_back(new WBComponentBasic(this));
@@ -485,6 +479,11 @@ WBContext::WBContext(bool verbose) : _frontendCallbacks(nullptr) {
 }
 
 WBContext::~WBContext() {
+  for(auto const &it: _messageHandlerList) {
+    grt::GRT::get()->removeMessageHandler(it);
+  }
+  _messageHandlerList.clear();
+
   NotificationCenter::get()->remove_observer(this);
 
   logDebug("Destroying WBContext\n");
@@ -504,6 +503,8 @@ WBContext::~WBContext() {
 
   _frontendCallbacks = nullptr;
 
+  closeModelFile();
+
   // unset the log handler user data as the logger will be deleted
   // TODO: no longer needed since we have a static logger now.
   // g_log_set_handler(NULL, (GLogLevelFlags)0xfffff, log_func, NULL);
@@ -514,7 +515,7 @@ WBContext::~WBContext() {
     delete *it;
     *it = 0;
   }
-  closeModelFile();
+
 
   delete _sqlide_context;
   _sqlide_context = 0;
@@ -581,7 +582,7 @@ void WBContext::finalize() {
     save_connections();
   }
 
-  _grtManager->get_dispatcher()->shutdown();
+  bec::GRTManager::get()->get_dispatcher()->shutdown();
   if (_tunnel_manager) {
     delete _tunnel_manager;
     _tunnel_manager = nullptr;
@@ -592,8 +593,8 @@ void WBContext::finalize() {
     _model_context = nullptr;
   }
 
-  // clear slots to managed 
-  _grtManager->set_status_slot(std::function<void(std::string)>{});
+  // clear slots to managed
+  bec::GRTManager::get()->set_status_slot(std::function<void(std::string)>{});
   _plugin_manager->set_gui_plugin_callbacks(PluginManagerImpl::OpenGUIPluginSlot{},
     PluginManagerImpl::ShowGUIPluginSlot{}, PluginManagerImpl::CloseGUIPluginSlot{});
 }
@@ -738,8 +739,8 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   // Set callbacks
   _frontendCallbacks = callbacks;
 
-  _grtManager->set_status_slot(_frontendCallbacks->show_status_text);
-  _grt->setTesting(options->testing);
+  bec::GRTManager::get()->set_status_slot(_frontendCallbacks->show_status_text);
+  grt::GRT::get()->setTesting(options->testing);
 
   // Already blocked (when constructed), but call it again so that lock_gui() gets called now.
   // Unlock not before a new document is created (see new_document()).
@@ -747,14 +748,14 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   block_user_interaction(false); // decrement the block counter to be back at 1
 
   // set the path for the options dictionary that modules should use to store their stuff
-  _grt->set_global_module_data_path("/wb/customData");
-  _grt->set_document_module_data_path("/wb/doc/customData");
+  grt::GRT::get()->set_global_module_data_path("/wb/customData");
+  grt::GRT::get()->set_document_module_data_path("/wb/doc/customData");
 
   mforms::App::get()->setBaseDir(options->basedir);
-  _grtManager->set_datadir(options->basedir);
-  _grtManager->set_basedir(options->basedir);
-  _grtManager->set_user_datadir(options->user_data_dir);
-  _grtManager->cleanup_tmp_dir();
+  bec::GRTManager::get()->set_datadir(options->basedir);
+  bec::GRTManager::get()->set_basedir(options->basedir);
+  bec::GRTManager::get()->set_user_datadir(options->user_data_dir);
+  bec::GRTManager::get()->cleanup_tmp_dir();
 
   mforms::App::get()->set_user_data_folder_path(options->user_data_dir);
   mforms::Utilities::set_message_answers_storage_path(
@@ -814,7 +815,7 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
 
   _plugin_manager->set_gui_plugin_callbacks(callbacks->open_editor, callbacks->show_editor, callbacks->hide_editor);
 
-  _grt->push_message_handler(std::bind(&WBContext::handle_message, this, std::placeholders::_1));
+  pushMessageHandler(new grt::SlotHolder(std::bind(&WBContext::handle_message, this, std::placeholders::_1)));
 
   // Set options
   _datadir = options->basedir;
@@ -847,39 +848,38 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   if (!g_file_test(user_libraries_path.c_str(), (GFileTest)(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)))
     g_mkdir_with_parents(user_libraries_path.c_str(), 0700);
 
-  _grtManager->set_search_paths(
+  bec::GRTManager::get()->set_search_paths(
     modules_path, base::pathlistPrepend(options->struct_search_path, base::makePath(options->basedir, "structs")),
     libraries_path);
 
-  _grtManager->set_user_extension_paths(user_modules_path, user_libraries_path, user_scripts_path);
+  bec::GRTManager::get()->set_user_extension_paths(user_modules_path, user_libraries_path, user_scripts_path);
 
   std::list<std::string> exts;
   exts.push_back(".grt");
 
-  _grtManager->set_module_extensions(exts);
-
+  bec::GRTManager::get()->set_module_extensions(exts);
   // init major parts of the app
   get_sqlide_context()->init();
 
   _frontendCallbacks->show_status_text(_("Initializing GRT..."));
   // Initialize GRT Manager.
-  _grtManager->initialize(options->init_python, loader_module_path);
+  bec::GRTManager::get()->initialize(options->init_python, loader_module_path);
 
-  _grtManager->get_shell()->set_save_directory(options->user_data_dir);
-  _grtManager->get_shell()->set_saves_history(200); // limit history to 200 commands
+  bec::GRTManager::get()->get_shell()->set_save_directory(options->user_data_dir);
+  bec::GRTManager::get()->get_shell()->set_saves_history(200); // limit history to 200 commands
 
   // add some handy shortcuts to shell tree bookmarks list
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/catalog");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/catalog/schemata/0/tables");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/diagrams/0");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/diagrams/0/figures");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/sqlEditors");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/migration");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/migration/sourceCatalog");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/migration/targetCatalog");
-  _grtManager->get_shell()->add_grt_tree_bookmark("/wb/registry/plugins");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/catalog");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/catalog/schemata/0/tables");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/diagrams/0");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/doc/physicalModels/0/diagrams/0/figures");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/sqlEditors");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/migration");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/migration/sourceCatalog");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/migration/targetCatalog");
+  bec::GRTManager::get()->get_shell()->add_grt_tree_bookmark("/wb/registry/plugins");
 
-  _grt->send_output(strfmt("Looking for user plugins in %s\n", user_modules_path.c_str()));
+  grt::GRT::get()->send_output(strfmt("Looking for user plugins in %s\n", user_modules_path.c_str()));
 
   _frontendCallbacks->show_status_text(_("Initializing Workbench components..."));
   res = setup_context_grt(options);
@@ -893,9 +893,9 @@ bool WBContext::init_(WBFrontendCallbacks *callbacks, WBOptions *options) {
   // The GRT shell is now created on demand. No need to do this in advance (which might get us into
   // trouble on Windows, because the main window doesn't exist yet).
   try {
-    _grtManager->initialize_shell(get_root()->options()->options().get_string("grtshell:ShellLanguage", "python"));
+    bec::GRTManager::get()->initialize_shell(get_root()->options()->options().get_string("grtshell:ShellLanguage", "python"));
   } catch (std::exception &) {
-    _grtManager->initialize_shell("python");
+    bec::GRTManager::get()->initialize_shell("python");
   }
 
   get_root()->options()->signal_dict_changed()->connect(std::bind(
@@ -940,7 +940,7 @@ void WBContext::init_finish_(WBOptions *options) {
   // This point is also reached when i.e. a document was opened by double clicking and a WB instance was already open
   // full_init is used to identify the initialization mode.
   if (options->full_init) {
-    const std::vector<grt::Module *> &modules(_grt->get_modules());
+    const std::vector<grt::Module *> &modules(grt::GRT::get()->get_modules());
     grt::BaseListRef args(true);
 
     for (std::vector<grt::Module *>::const_iterator it = modules.begin(); it != modules.end(); ++it) {
@@ -1034,7 +1034,7 @@ void WBContext::init_finish_(WBOptions *options) {
             grt::BaseListRef args(true);
             args.ginsert(grt::StringRef(options->open_connection));
 
-            grt::ValueRef val = _grt->call_module_function("PyWbUtils", "connectionFromString", args);
+            grt::ValueRef val = grt::GRT::get()->call_module_function("PyWbUtils", "connectionFromString", args);
             if (db_mgmt_ConnectionRef::can_wrap(val)) {
               db_mgmt_ConnectionRef tmp = db_mgmt_ConnectionRef::cast_from(val);
               if (!tmp.is_valid())
@@ -1076,9 +1076,9 @@ void WBContext::init_finish_(WBOptions *options) {
     } else if (options->open_at_startup_type == "run-script") {
       std::string script_file = options->open_at_startup;
 
-      _grt->push_message_handler(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2));
-      _grtManager->get_shell()->run_script_file(script_file);
-      _grt->pop_message_handler();
+      pushMessageHandler(new grt::SlotHolder(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2)));
+      bec::GRTManager::get()->get_shell()->run_script_file(script_file);
+      grt::GRT::get()->popMessageHandler();
     } else if (options->open_at_startup_type == "migration") {
       logInfo("Opening Migration Wizard...\n");
       add_new_plugin_window("wb.migration.open", "Migration Wizard");
@@ -1089,11 +1089,12 @@ void WBContext::init_finish_(WBOptions *options) {
 
     if (!options->run_at_startup.empty()) {
       std::string lang = options->run_language;
-      if (lang.empty())
+      if (lang.empty()) {
         lang = "python";
-      _grt->push_message_handler(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2));
-      _grtManager->get_shell()->run_script(options->run_at_startup, lang);
-      _grt->pop_message_handler();
+        pushMessageHandler(new grt::SlotHolder(std::bind(output_to_stdout, std::placeholders::_1, std::placeholders::_2)));
+      }
+      bec::GRTManager::get()->get_shell()->run_script(options->run_at_startup, lang);
+      grt::GRT::get()->popMessageHandler();
     }
   } catch (std::runtime_error &e) {
     // Errors from script execution are logged to the command line so we don't need to print out
@@ -1115,15 +1116,23 @@ void WBContext::init_finish_(WBOptions *options) {
 
 //--------------------------------------------------------------------------------------------------
 
+void WBContext::pushMessageHandler(grt::SlotHolder *slot) {
+  _messageHandlerList.push_back(slot);
+  grt::GRT::get()->pushMessageHandler(slot);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+
 bool WBContext::handle_message(const grt::Message &msg) {
   // No need to log messages here. That happens already in the grt manager.
 
   if (_send_messages_to_shell) {
-    _grtManager->get_shell()->handle_msg(msg);
+    bec::GRTManager::get()->get_shell()->handle_msg(msg);
     return true;
   } else {
-    if (_grtManager->get_messages_list()) {
-      _grtManager->get_messages_list()->handle_message(msg);
+    if (bec::GRTManager::get()->get_messages_list()) {
+      bec::GRTManager::get()->get_messages_list()->handle_message(msg);
       return true;
     }
   }
@@ -1136,18 +1145,18 @@ void WBContext::init_rdbms_modules() {
   logDebug("Initializing rdbms modules\n");
 
   // Init MySQL first.
-  grt::Module *module = _grt->get_module("DbMySQL");
+  grt::Module *module = grt::GRT::get()->get_module("DbMySQL");
   if (!module)
     throw std::logic_error("DbMySQL module not found");
   grt::BaseListRef args(true);
   module->call_function("initializeDBMSInfo", args);
 
   // Will done prior to Migration init, to speed up app startup.
-  //_grt->initializeOtherRDBMS();
+  //grt::GRT::get()->initializeOtherRDBMS();
 }
 
 grt::ValueRef WBContext::setup_context_grt(WBOptions *options) {
-  std::shared_ptr<grt::internal::Unserializer> unserializer = _grt->get_unserializer();
+  std::shared_ptr<grt::internal::Unserializer> unserializer = grt::GRT::get()->get_unserializer();
   // init the GRT tree nodes, set default options
   init_grt_tree(options, unserializer);
 
@@ -1167,8 +1176,9 @@ grt::ValueRef WBContext::setup_context_grt(WBOptions *options) {
   // Table templates can be initialized only after rdbms info because it needs column datatypes.
   init_templates();
 
-  FOREACH_COMPONENT(_components, iter)
-  (*iter)->setup_context_grt(options);
+  for(auto &it: _components) {
+    it->setup_context_grt(options);
+  }
 
   // App options must be loaded after everything else is initialized.
   load_app_options(false);
@@ -1184,7 +1194,7 @@ void WBContext::init_templates() {
   grt::DictRef options(get_root()->options()->options());
   if (!options.has_key("TableTemplates")) {
     grt::ListRef<db_Table> templates =
-      grt::ListRef<db_Table>::cast_from(_grt->unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
+      grt::ListRef<db_Table>::cast_from(grt::GRT::get()->unserialize(base::makePath(get_datadir(), "data/table_templates.xml")));
     options.set("TableTemplates", templates);
   }
 }
@@ -1229,7 +1239,7 @@ void WBContext::init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal:
   {
     app_RegistryRef registry(grt::Initialized);
     registry->owner(app);
-    registry->appDataDirectory(_grtManager->get_basedir());
+    registry->appDataDirectory(bec::GRTManager::get()->get_basedir());
     registry->appExecutablePath(argv0 ? argv0 : "");
 
     app->registry(registry);
@@ -1244,14 +1254,14 @@ void WBContext::init_grt_tree(WBOptions *options, std::shared_ptr<grt::internal:
   ListRef<db_DatatypeGroup> grouplist;
 
   grouplist = ListRef<db_DatatypeGroup>::cast_from(
-    _grt->unserialize(base::makePath(options->basedir, TYPE_GROUP_FILE), unserializer));
+    grt::GRT::get()->unserialize(base::makePath(options->basedir, TYPE_GROUP_FILE), unserializer));
   for (size_t c = grouplist.count(), i = 0; i < c; i++) {
     grouplist[i]->owner(mgmt_info);
     mgmt_info->datatypeGroups().insert(grouplist[i]);
   }
   app->rdbmsMgmt(mgmt_info);
 
-  _grt->set_root(root);
+  grt::GRT::get()->set_root(root);
 }
 
 void WBContext::init_plugin_groups_grt(WBOptions *options) {
@@ -1290,7 +1300,7 @@ void WBContext::init_plugin_groups_grt(WBOptions *options) {
 
   std::map<std::string, app_PluginGroupRef> groups;
 
-  grt::ListRef<app_PluginGroup> group_list = grt::ListRef<app_PluginGroup>::cast_from(_grt->get(PLUGIN_GROUP_PATH));
+  grt::ListRef<app_PluginGroup> group_list = grt::ListRef<app_PluginGroup>::cast_from(grt::GRT::get()->get(PLUGIN_GROUP_PATH));
 
   for (unsigned int i = 0; i < sizeof(std_groups) / sizeof(group_def); i++) {
     app_PluginGroupRef group(grt::Initialized);
@@ -1315,9 +1325,9 @@ void WBContext::init_plugins_grt(WBOptions *options) {
 
   // scan user plugins
   std::string plugin_path = normalize_path(base::makePath(options->user_data_dir, "plugins"));
-  _grt->send_output(strfmt("Looking for user plugins in %s\n", plugin_path.c_str()));
+  grt::GRT::get()->send_output(strfmt("Looking for user plugins in %s\n", plugin_path.c_str()));
 
-  _grtManager->do_scan_modules(plugin_path, exts, false);
+  bec::GRTManager::get()->do_scan_modules(plugin_path, exts, false);
   scanned_dir_list[plugin_path] = true;
 
   std::vector<std::string> paths = base::split(options->plugin_search_path, G_SEARCHPATH_SEPARATOR_S);
@@ -1328,8 +1338,8 @@ void WBContext::init_plugins_grt(WBOptions *options) {
       std::string full_path = normalize_path(base::makePath(options->user_data_dir, paths[i]));
 
       if (scanned_dir_list.find(full_path) == scanned_dir_list.end()) {
-        _grt->send_output(strfmt("Looking for plugins in %s\n", full_path.c_str()));
-        _grtManager->do_scan_modules(paths[i], exts, false);
+        grt::GRT::get()->send_output(strfmt("Looking for plugins in %s\n", full_path.c_str()));
+        bec::GRTManager::get()->do_scan_modules(paths[i], exts, false);
       }
       scanned_dir_list[paths[i]] = true;
     }
@@ -1572,7 +1582,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SSH:readWriteTimeout", 5);
   set_default(options, "SSH:commandTimeout", 1);
   set_default(options, "SSH:commandRetryCount", 3);
-  
+
 #ifndef _MSC_VER
   set_default(options, "SSH:pathtosshconfig", base::expand_tilde("~/.ssh/config"));
 #endif
@@ -1591,7 +1601,7 @@ void WBContext::set_default_options(grt::DictRef options) {
 
 grt::ListRef<app_PaperType> WBContext::get_paper_types(std::shared_ptr<grt::internal::Unserializer> unserializer) {
   return grt::ListRef<app_PaperType>::cast_from(
-    _grt->unserialize(base::makePath(get_datadir(), "data/paper_types.xml"), unserializer));
+    grt::GRT::get()->unserialize(base::makePath(get_datadir(), "data/paper_types.xml"), unserializer));
 }
 
 static void strip_options_dict(grt::DictRef dict) {
@@ -1639,7 +1649,7 @@ void WBContext::load_app_options(bool update) {
     try {
       app_OptionsRef curOptions(get_root()->options());
 
-      xmlDocPtr xmlDocument = _grt->load_xml(options_xml);
+      xmlDocPtr xmlDocument = grt::GRT::get()->load_xml(options_xml);
       if (!xmlDocument) {
         throw std::runtime_error(
           _("The file is not a valid MySQL Workbench options file.\n"
@@ -1649,7 +1659,7 @@ void WBContext::load_app_options(bool update) {
       base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
-      _grt->get_xml_metainfo(xmlDocument, doctype, version);
+      grt::GRT::get()->get_xml_metainfo(xmlDocument, doctype, version);
 
       // Older option files without a version number are considered as 1.0.0 and
       // upgraded from there to latest version.
@@ -1667,7 +1677,7 @@ void WBContext::load_app_options(bool update) {
       if (version != OPTIONS_DOCUMENT_VERSION)
         attempt_options_upgrade(xmlDocument, version);
 
-      grt::ValueRef options_value = _grt->unserialize_xml(xmlDocument, options_xml);
+      grt::ValueRef options_value = grt::GRT::get()->unserialize_xml(xmlDocument, options_xml);
       app_OptionsRef options(app_OptionsRef::cast_from(options_value));
 
       if (options.is_valid()) {
@@ -1721,7 +1731,7 @@ void WBContext::load_app_options(bool update) {
       mforms::Utilities::show_error(_("Error while loading options"),
                                     strfmt("The file '%s' could not be loaded: %s", options_xml.c_str(), exc.what()),
                                     _("Close"));
-      _grt->send_error(strfmt("Error while loading '%s': %s", options_xml.c_str(), exc.what()));
+      grt::GRT::get()->send_error(strfmt("Error while loading '%s': %s", options_xml.c_str(), exc.what()));
     }
   } else {
     // No config file, so maybe initial start. Set at least a default color scheme.
@@ -1734,16 +1744,16 @@ void WBContext::load_app_options(bool update) {
   cleanup_options();
 
   // load options specific for other parts of wb
-  FOREACH_COMPONENT(_components, iter)
-    (*iter)->load_app_options(update);
-
+  for(auto &it: _components) {
+    it->load_app_options(update);
+  }
   // load list of server instances
   db_mgmt_ManagementRef mgmt = get_root()->rdbmsMgmt();
   std::string inst_list_xml = base::makePath(get_user_datadir(), SERVER_INSTANCE_LIST);
   if (g_file_test(inst_list_xml.c_str(), G_FILE_TEST_EXISTS)) {
     try {
       grt::ListRef<db_mgmt_ServerInstance> list(
-        grt::ListRef<db_mgmt_ServerInstance>::cast_from(_grt->unserialize(inst_list_xml)));
+        grt::ListRef<db_mgmt_ServerInstance>::cast_from(grt::GRT::get()->unserialize(inst_list_xml)));
 
       if (list.is_valid()) {
         while (mgmt->storedInstances().count() > 0)
@@ -1755,7 +1765,7 @@ void WBContext::load_app_options(bool update) {
         }
       }
     } catch (std::exception &exc) {
-      _grt->send_warning(strfmt("Error loading '%s': %s", inst_list_xml.c_str(), exc.what()));
+      grt::GRT::get()->send_warning(strfmt("Error loading '%s': %s", inst_list_xml.c_str(), exc.what()));
     }
   }
 }
@@ -1769,7 +1779,7 @@ void WBContext::load_other_connections() {
   if (g_file_test(conn_list_xml.c_str(), G_FILE_TEST_EXISTS)) {
     try {
       grt::ListRef<db_mgmt_Connection> list(
-        grt::ListRef<db_mgmt_Connection>::cast_from(_grt->unserialize(conn_list_xml)));
+        grt::ListRef<db_mgmt_Connection>::cast_from(grt::GRT::get()->unserialize(conn_list_xml)));
       total_connections = (int)list->count();
       if (list.is_valid()) {
         replace_contents(mgmt->otherStoredConns(), list);
@@ -1816,7 +1826,7 @@ void WBContext::save_app_options() {
   GrtObjectRef owner(options->owner());
   options->owner(GrtObjectRef());
 
-  _grt->serialize(options, options_file + ".tmp", OPTIONS_DOCUMENT_FORMAT, OPTIONS_DOCUMENT_VERSION);
+  grt::GRT::get()->serialize(options, options_file + ".tmp", OPTIONS_DOCUMENT_FORMAT, OPTIONS_DOCUMENT_VERSION);
   g_remove(options_file.c_str());
   g_rename(std::string(options_file + ".tmp").c_str(), options_file.c_str());
 
@@ -1832,7 +1842,7 @@ void WBContext::save_instances() {
   if (!mgmt.is_valid())
     return;
   std::string inst_list_xml = base::makePath(get_user_datadir(), SERVER_INSTANCE_LIST);
-  _grt->serialize(mgmt->storedInstances(), inst_list_xml);
+  grt::GRT::get()->serialize(mgmt->storedInstances(), inst_list_xml);
 }
 
 void WBContext::save_connections() {
@@ -1844,11 +1854,11 @@ void WBContext::save_connections() {
   // save other connections list
   if (mgmt->otherStoredConns()->count()) {
     std::string conn_list_xml = base::makePath(get_user_datadir(), FILE_OTHER_CONNECTION_LIST);
-    _grt->serialize(mgmt->otherStoredConns(), conn_list_xml);
+    grt::GRT::get()->serialize(mgmt->otherStoredConns(), conn_list_xml);
     logDebug("Saved connection list (Non-MySQL: %u)\n", (unsigned int)mgmt->otherStoredConns()->count());
   }
 
-  _grt->serialize(mgmt->storedConns(), base::makePath(get_user_datadir(), FILE_CONNECTION_LIST));
+  grt::GRT::get()->serialize(mgmt->storedConns(), base::makePath(get_user_datadir(), FILE_CONNECTION_LIST));
   logDebug("Saved connection list (MySQL: %u)\n", (unsigned int)mgmt->storedConns()->count());
 }
 
@@ -1860,11 +1870,11 @@ void WBContext::load_app_state(std::shared_ptr<grt::internal::Unserializer> unse
   if (g_file_test(state_xml.c_str(), G_FILE_TEST_EXISTS)) {
     xmlDocPtr xmlDocument = NULL;
     try {
-      xmlDocument = _grt->load_xml(state_xml);
+      xmlDocument = grt::GRT::get()->load_xml(state_xml);
       base::ScopeExitTrigger free_on_leave(std::bind(xmlFreeDoc, xmlDocument));
 
       std::string doctype, version;
-      _grt->get_xml_metainfo(xmlDocument, doctype, version);
+      grt::GRT::get()->get_xml_metainfo(xmlDocument, doctype, version);
 
       if (doctype != STATE_DOCUMENT_FORMAT) {
         throw std::runtime_error(
@@ -1873,7 +1883,7 @@ void WBContext::load_app_state(std::shared_ptr<grt::internal::Unserializer> unse
       }
 
       grt::DictRef current_state(get_root()->state());
-      grt::DictRef new_state = grt::DictRef::cast_from(_grt->unserialize_xml(xmlDocument, state_xml));
+      grt::DictRef new_state = grt::DictRef::cast_from(grt::GRT::get()->unserialize_xml(xmlDocument, state_xml));
 
       // Store new state in grt tree.
       grt::merge_contents(current_state, new_state, true);
@@ -1881,12 +1891,12 @@ void WBContext::load_app_state(std::shared_ptr<grt::internal::Unserializer> unse
       mforms::Utilities::show_error(_("Error while loading application state"),
                                     strfmt("The file '%s' could not be loaded: %s", state_xml.c_str(), exc.what()),
                                     _("Close"));
-      _grt->send_warning(strfmt("Error while loading '%s': %s", state_xml.c_str(), exc.what()));
+      grt::GRT::get()->send_warning(strfmt("Error while loading '%s': %s", state_xml.c_str(), exc.what()));
     }
   }
 
   // restore stuff from grt shell
-  _grtManager->get_shell()->restore_state();
+  bec::GRTManager::get()->get_shell()->restore_state();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1898,15 +1908,15 @@ void WBContext::save_app_state() {
   save_state("last-run-as", "global", version);
 
   std::string state_file = base::makePath(_user_datadir, STATE_FILE_NAME);
-  _grt->serialize(get_root()->state(), state_file + ".tmp", STATE_DOCUMENT_FORMAT, STATE_DOCUMENT_VERSION);
+  grt::GRT::get()->serialize(get_root()->state(), state_file + ".tmp", STATE_DOCUMENT_FORMAT, STATE_DOCUMENT_VERSION);
   g_remove(state_file.c_str());
   g_rename(std::string(state_file + ".tmp").c_str(), state_file.c_str());
 
   try {
-    _grtManager->get_shell()->store_state();
+    bec::GRTManager::get()->get_shell()->store_state();
   } catch (std::exception &exc) {
     std::string message = base::strfmt("Error saving GRT shell state: %s", exc.what());
-    _grt->send_error(message);
+    grt::GRT::get()->send_error(message);
   }
 }
 
@@ -1934,7 +1944,7 @@ void WBContext::option_dict_changed(grt::internal::OwnedDict *options, bool, con
     if (undo_size == 0)
       undo_size = 1;
 
-    _grt->get_undo_manager()->set_undo_limit(undo_size);
+    grt::GRT::get()->get_undo_manager()->set_undo_limit(undo_size);
   }
 }
 
@@ -1946,7 +1956,7 @@ void WBContext::option_dict_changed(grt::internal::OwnedDict *options, bool, con
  * Warning: canceling idle tasks unconditionally might lead to other problems, so use with extreme care.
  */
 bool WBContext::cancel_idle_tasks() {
-  bool result = _grtManager->cancel_idle_tasks();
+  bool result = bec::GRTManager::get()->cancel_idle_tasks();
 
   MutexLock lock(_pending_refresh_mutex);
   _pending_refreshes.clear();
@@ -1956,7 +1966,7 @@ bool WBContext::cancel_idle_tasks() {
 
 void WBContext::flush_idle_tasks(bool force) {
   try {
-    _grtManager->perform_idle_tasks();
+    bec::GRTManager::get()->perform_idle_tasks();
 
     if (_user_interaction_blocked) {
       return;
@@ -2100,7 +2110,7 @@ void WBContext::new_document() {
                    std::bind(&WBContext::request_refresh, this, RefreshDocument, "", static_cast<NativeHandle>(0)));
 
     _file->create();
-    _grtManager->set_db_file_path(_file->get_db_file_path());
+    bec::GRTManager::get()->set_db_file_path(_file->get_db_file_path());
 
     _filename = "";
 
@@ -2110,11 +2120,11 @@ void WBContext::new_document() {
 
     reset_document();
 
-    _save_point = _grt->get_undo_manager()->get_latest_undo_action();
+    _save_point = grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
     request_refresh(RefreshDocument, "");
 
-    _grtManager->run_once_when_idle(std::bind(_frontendCallbacks->perform_command, "reset_layout"));
-    _grtManager->run_once_when_idle(std::bind(&WBContext::block_user_interaction, this, false));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(_frontendCallbacks->perform_command, "reset_layout"));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(&WBContext::block_user_interaction, this, false));
 
     _frontendCallbacks->show_status_text(_("New document."));
   } catch (grt::grt_runtime_error &error) {
@@ -2174,14 +2184,14 @@ bool WBContext::open_file_by_extension(const std::string &path, bool interactive
 }
 
 void WBContext::reset_document() {
-  _grt->get_undo_manager()->reset();
+  grt::GRT::get()->get_undo_manager()->reset();
 
   wb::WBContextUI::get()->reset();
 
   _clipboard->clear();
   _clipboard->set_content_description("");
   // refresh internal environment of loaders
-  _grt->refresh_loaders();
+  grt::GRT::get()->refresh_loaders();
 }
 
 int WBContext::closeModelFile() {
@@ -2264,7 +2274,7 @@ bool WBContext::open_document(const std::string &file) {
                                                                "in a moment.\n\n Please stand by..."),
                                                              file.c_str()));
 
-  _grtManager->block_idle_tasks();
+  bec::GRTManager::get()->block_idle_tasks();
 
   workbench_DocumentRef doc;
 
@@ -2279,7 +2289,7 @@ bool WBContext::open_document(const std::string &file) {
 
   try {
     _file->open(file);
-    _grtManager->set_db_file_path(_file->get_db_file_path());
+    bec::GRTManager::get()->set_db_file_path(_file->get_db_file_path());
 
     doc = _file->retrieve_document();
   }
@@ -2299,7 +2309,7 @@ bool WBContext::open_document(const std::string &file) {
   catch (std::exception &exc) {
     show_exception(strfmt(_("Cannot open document '%s'."), file.c_str()), exc);
     // if open fails, just let it fail new_document();
-    _grtManager->unblock_idle_tasks();
+    bec::GRTManager::get()->unblock_idle_tasks();
 
     FOREACH_COMPONENT(_components, iter)
     (*iter)->unblock_model_notifications();
@@ -2331,13 +2341,13 @@ bool WBContext::open_document(const std::string &file) {
       mforms::Utilities::show_warning(_("Corrected Model File"), msg, _("Close"));
     }
 
-    _grt->send_output(
+    grt::GRT::get()->send_output(
       base::strfmt("%i problems found and corrected during load of file '%s':\n", (int)warnings.size(), file.c_str()));
     for (std::list<std::string>::const_iterator iter = warnings.begin(); iter != warnings.end(); ++iter)
-      _grt->send_output(base::strfmt(" - %s\n", iter->c_str()));
+      grt::GRT::get()->send_output(base::strfmt(" - %s\n", iter->c_str()));
 
     _file->copy_file(file, file + ".beforefix");
-    _grt->send_output(base::strfmt("Original file backed up to %s\n", (file + ".beforefix").c_str()));
+    grt::GRT::get()->send_output(base::strfmt("Original file backed up to %s\n", (file + ".beforefix").c_str()));
   }
 
   // 5.0 -> 5.1 was done at 1.2.0, if document is from 5.0, make a backup
@@ -2353,7 +2363,7 @@ bool WBContext::open_document(const std::string &file) {
     _file->copy_file(file, bakpath);
 
     // make backup
-    _grt->send_info(strfmt("Model file is from 5.0, making backup to %s", bakpath.c_str()));
+    grt::GRT::get()->send_info(strfmt("Model file is from 5.0, making backup to %s", bakpath.c_str()));
   } else if (version_parts.size() >= 2 && version_parts[0] == "1" && base::atoi<int>(version_parts[1], 0) <= 3) {
     std::string::size_type dot = file.rfind('.');
     std::string bakpath;
@@ -2365,7 +2375,7 @@ bool WBContext::open_document(const std::string &file) {
     _file->copy_file(file, bakpath);
 
     // make backup
-    _grt->send_info(strfmt("Model file is from 5.1, making backup to %s", bakpath.c_str()));
+    grt::GRT::get()->send_info(strfmt("Model file is from 5.1, making backup to %s", bakpath.c_str()));
   }
 
   // add the file to the recent files list and sync the options file
@@ -2397,7 +2407,7 @@ bool WBContext::open_document(const std::string &file) {
   _model_context->model_loaded(_file, doc);
 
   _filename = file;
-  _save_point = _grt->get_undo_manager()->get_latest_undo_action();
+  _save_point = grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
 
   wb->docPath(_filename);
 
@@ -2405,10 +2415,10 @@ bool WBContext::open_document(const std::string &file) {
 
   _frontendCallbacks->show_status_text(_("Document loaded."));
 
-  _grtManager->unblock_idle_tasks();
+  bec::GRTManager::get()->unblock_idle_tasks();
 
   if (_frontendCallbacks->perform_command)
-    _grtManager->run_once_when_idle(std::bind(_frontendCallbacks->perform_command, "reset_layout"));
+    bec::GRTManager::get()->run_once_when_idle(std::bind(_frontendCallbacks->perform_command, "reset_layout"));
 
   return true;
 }
@@ -2463,7 +2473,7 @@ bool WBContext::close_document() {
 
     block_user_interaction(false);
 
-    _grtManager->has_unsaved_changes(false);
+    bec::GRTManager::get()->has_unsaved_changes(false);
 
     return true;
   }
@@ -2474,7 +2484,7 @@ bool WBContext::close_document() {
 
 void WBContext::do_close_document(bool destroying) {
   // This method must only be called from the main thread.
-  assert(_grtManager->in_main_thread());
+  assert(bec::GRTManager::get()->in_main_thread());
 
   if (_model_context)
     _model_context->model_closed();
@@ -2491,8 +2501,8 @@ void WBContext::do_close_document(bool destroying) {
 
   // reset undo manager before destroying views to make sure that old refs to
   // figures will be released and bridges will be deleted 1st
-  _grt->get_undo_manager()->reset();
-  _save_point = _grt->get_undo_manager()->get_latest_undo_action();
+  grt::GRT::get()->get_undo_manager()->reset();
+  _save_point = grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
 
   FOREACH_COMPONENT(_components, iter)
   (*iter)->close_document();
@@ -2526,8 +2536,8 @@ void WBContext::close_document_finish() {
     doc->reset_references();
 
   // reset once again just to be sure
-  _grt->get_undo_manager()->reset();
-  _save_point = _grt->get_undo_manager()->get_latest_undo_action();
+  grt::GRT::get()->get_undo_manager()->reset();
+  _save_point = grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
 }
 
 //--------------------------------------------------------------------------------
@@ -2580,10 +2590,10 @@ grt::ValueRef WBContext::save_grt() {
     NotificationCenter::get()->send("GNDocumentOpened", 0, info);
   }
 
-  _grtManager->has_unsaved_changes(false);
+  bec::GRTManager::get()->has_unsaved_changes(false);
   _attachments_changed = false;
 
-  _save_point = _grt->get_undo_manager()->get_latest_undo_action();
+  _save_point = grt::GRT::get()->get_undo_manager()->get_latest_undo_action();
   request_refresh(RefreshDocument, "");
 
   return grt::IntegerRef(1);
@@ -2594,7 +2604,7 @@ std::string WBContext::get_filename() const {
 }
 
 std::string WBContext::get_auto_save_dir() {
-  return _grtManager->get_user_datadir();
+  return bec::GRTManager::get()->get_user_datadir();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2649,10 +2659,10 @@ bool WBContext::save_as(const std::string &path) {
 }
 
 bool WBContext::has_unsaved_changes() {
-  if (_grtManager->has_unsaved_changes())
+  if (bec::GRTManager::get()->has_unsaved_changes())
     return true;
 
-  if (_grt->get_undo_manager()->get_latest_closed_undo_action() != _save_point)
+  if (grt::GRT::get()->get_undo_manager()->get_latest_closed_undo_action() != _save_point)
     return true;
 
   if (_file && _file->has_unsaved_changes())
@@ -2698,7 +2708,7 @@ void WBContext::update_plugin_arguments_pool(bec::ArgumentPool &args) {
 void WBContext::report_bug(const std::string &errorInfo) {
   grt::Module *module;
 
-  module = _grt->get_module("Workbench");
+  module = grt::GRT::get()->get_module("Workbench");
 
   if (!module)
     throw std::runtime_error("Workbench module not found");
@@ -2740,7 +2750,7 @@ void WBContext::execute_plugin(const std::string &plugin_name, const ArgumentPoo
     grt::ValueRef result = execute_plugin_grt(plugin, fargs);
     plugin_finished(result, plugin);
   } else {
-    _grtManager->execute_grt_task(strfmt(_("Performing %s..."), plugin->caption().c_str()),
+    bec::GRTManager::get()->execute_grt_task(strfmt(_("Performing %s..."), plugin->caption().c_str()),
                                   std::bind(&WBContext::execute_plugin_grt, this, plugin, fargs),
                                   std::bind(&WBContext::plugin_finished, this, std::placeholders::_1, plugin));
   }
@@ -2780,7 +2790,7 @@ grt::ValueRef WBContext::execute_plugin_grt(const app_PluginRef &plugin, const g
     if (_model_context)
       _model_context->begin_plugin_exec();
 
-    _grtManager->soft_lock_globals_tree();
+    bec::GRTManager::get()->soft_lock_globals_tree();
 
     try {
       bool skip_undo = false;
@@ -2798,11 +2808,11 @@ grt::ValueRef WBContext::execute_plugin_grt(const app_PluginRef &plugin, const g
       // Btw: why is only the catalog tree updated here? It's not the right place here anyway.
       // request_refresh(RefreshSchemaList, "");
     } catch (const std::exception &exc) {
-      _grt->send_error(strfmt("Error executing plugin %s: %s", plugin->name().c_str(), exc.what()));
+      grt::GRT::get()->send_error(strfmt("Error executing plugin %s: %s", plugin->name().c_str(), exc.what()));
       result = grt::StringRef(strfmt("%s", exc.what()));
     }
 
-    _grtManager->soft_unlock_globals_tree();
+    bec::GRTManager::get()->soft_unlock_globals_tree();
 
     if (_model_context)
       _model_context->end_plugin_exec();
@@ -2811,7 +2821,7 @@ grt::ValueRef WBContext::execute_plugin_grt(const app_PluginRef &plugin, const g
     double elapsed = g_timer_elapsed(timer, NULL);
     g_timer_destroy(timer);
 
-    _grt->send_verbose(strfmt("%s finished in %.2fs\n", plugin->name().c_str(), elapsed));
+    grt::GRT::get()->send_verbose(strfmt("%s finished in %.2fs\n", plugin->name().c_str(), elapsed));
   }
 
   return result;
@@ -2979,7 +2989,7 @@ void WBContext::add_new_admin_window(const db_mgmt_ConnectionRef &target) {
     db_query_EditorRef editor(_sqlide_context->get_grt_editor_object(conn.get()));
     args.ginsert(editor);
     args.ginsert(grt::StringRef("admin_server_status"));
-    _grt->call_module_function("WbAdmin", "openAdminSection", args);
+    grt::GRT::get()->call_module_function("WbAdmin", "openAdminSection", args);
   }
 }
 
@@ -3012,7 +3022,7 @@ void WBContext::add_new_plugin_window(const std::string &plugin_id, const std::s
 
 #ifndef Utilities____
 workbench_WorkbenchRef WBContext::get_root() {
-  return workbench_WorkbenchRef::cast_from(grt::DictRef::cast_from(_grt->root()).get("wb"));
+  return workbench_WorkbenchRef::cast_from(grt::DictRef::cast_from(grt::GRT::get()->root()).get("wb"));
 }
 
 workbench_DocumentRef WBContext::get_document() {
@@ -3025,38 +3035,38 @@ grt::DictRef WBContext::get_wb_options() {
 
 // XXX: we have mforms::Utilities::perform_from_main_thread.
 void WBContext::execute_in_main_thread(const std::string &name, const std::function<void()> &function, bool wait) {
-  _grtManager->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
+  bec::GRTManager::get()->get_dispatcher()->call_from_main_thread<void>(function, wait, false);
 }
 
 void WBContext::show_exception(const std::string &operation, const std::exception &exc) {
   const grt::grt_runtime_error *rt = dynamic_cast<const grt::grt_runtime_error *>(&exc);
 
   if (rt) {
-    if (_grtManager->in_main_thread())
+    if (bec::GRTManager::get()->in_main_thread())
       show_error(operation, std::string(rt->what()) + "\n" + rt->detail);
     else
-      _grtManager->run_once_when_idle(
+      bec::GRTManager::get()->run_once_when_idle(
         std::bind(&WBContext::show_error, this, operation, std::string(rt->what()) + "\n" + rt->detail));
   } else {
-    if (_grtManager->in_main_thread())
+    if (bec::GRTManager::get()->in_main_thread())
       show_error(operation, exc.what());
     else
-      _grtManager->run_once_when_idle(std::bind(&WBContext::show_error, this, operation, std::string(exc.what())));
+      bec::GRTManager::get()->run_once_when_idle(std::bind(&WBContext::show_error, this, operation, std::string(exc.what())));
   }
 }
 
 void WBContext::show_exception(const std::string &operation, const grt::grt_runtime_error &exc) {
-  if (_grtManager->in_main_thread())
+  if (bec::GRTManager::get()->in_main_thread())
     show_error(operation, std::string(exc.what()) + "\n" + exc.detail);
   else
-    _grtManager->run_once_when_idle(
+    bec::GRTManager::get()->run_once_when_idle(
       std::bind(&WBContext::show_error, this, operation, std::string(exc.what()) + "\n" + exc.detail));
 }
 
 #endif // Utilities____
 
 bool WBContext::install_module_file(const std::string &path) {
-  std::string module_dir = _grtManager->get_user_module_path();
+  std::string module_dir = bec::GRTManager::get()->get_user_module_path();
   std::string target_path;
   std::string lang_extension;
 
@@ -3121,10 +3131,10 @@ bool WBContext::install_module_file(const std::string &path) {
         return false;
       }
     }
-  } else if (!copy_file(path.c_str(), target_path.c_str())) {
+  } else if (!base::copyFile(path.c_str(), target_path.c_str())) {
     int err = errno;
     show_error("Could Not Install Plugin", g_strerror(err));
-    _grt->send_output(
+    grt::GRT::get()->send_output(
       strfmt("ERROR: could not copy module '%s' to '%s': %s\n", path.c_str(), target_path.c_str(), g_strerror(err)));
     return false;
   }
@@ -3135,8 +3145,8 @@ bool WBContext::install_module_file(const std::string &path) {
   mforms::Utilities::show_message(
     "Plugin Installed", strfmt("Plugin %s was installed, please restart Workbench to use it.", path.c_str()), "OK");
 
-  _grt->send_output(strfmt("Copied module %s to '%s'\n", path.c_str(), target_path.c_str()));
-  _grt->send_output("Please restart Workbench for the change to take effect.\n");
+  grt::GRT::get()->send_output(strfmt("Copied module %s to '%s'\n", path.c_str(), target_path.c_str()));
+  grt::GRT::get()->send_output("Please restart Workbench for the change to take effect.\n");
 
   return true;
 }
@@ -3157,7 +3167,7 @@ bool WBContext::uninstall_module(grt::Module *module) {
   }
 
   // unregister the module
-  _grt->unregister_module(module);
+  grt::GRT::get()->unregister_module(module);
 
   _plugin_manager->rescan_plugins();
 
@@ -3173,6 +3183,7 @@ bool WBContext::uninstall_module(grt::Module *module) {
       mforms::Utilities::move_to_trash(pyc);
   }
   mforms::Utilities::move_to_trash(path);
+  mforms::Utilities::move_to_trash(path + "c");
 
   return false;
 }
@@ -3180,23 +3191,23 @@ bool WBContext::uninstall_module(grt::Module *module) {
 void WBContext::run_script_file(const std::string &filename) {
   logDebug("Executing script %s...\n", filename.c_str());
 
-  _grtManager->push_status_text(base::strfmt("Executing script %s...", filename.c_str()));
+  bec::GRTManager::get()->push_status_text(base::strfmt("Executing script %s...", filename.c_str()));
 
   grt::AutoUndo undo;
 
   try {
-    _grtManager->get_shell()->run_script_file(filename);
+    bec::GRTManager::get()->get_shell()->run_script_file(filename);
   } catch (std::exception &exc) {
     undo.cancel();
     logError("Script failed: %s\n", exc.what());
-    _grtManager->replace_status_text("Script execution failed");
+    bec::GRTManager::get()->replace_status_text("Script execution failed");
     return;
   }
 
   undo.end_or_cancel_if_empty(strfmt("Execute Script %s", base::basename(filename).c_str()));
 
   logDebug("Script finished.\n");
-  _grtManager->pop_status_text();
+  bec::GRTManager::get()->pop_status_text();
 }
 
 std::string WBContext::create_attached_file(const std::string &group, const std::string &tmpl) {

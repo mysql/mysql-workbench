@@ -1,0 +1,9 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  attributes:
+  - pack keys: 1 --> 1
+  __
+----------------------------------------------
+End of MySQL Workbench Report

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -35,11 +35,13 @@ extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID *out);
 // Used for conversion of CFStringRef instances to std::string.
 #define toString(ref) [(__bridge NSString *)ref UTF8String]
 
+std::shared_ptr<Accessible> Accessible::_systemRoot = nullptr;
+
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::string getNativeRole(AXUIElementRef ref) {
+static std::string getNativeRole(AXUIElementRef ref, CFStringRef type = kAXRoleAttribute) {
   CFTypeRef result;
-  AXError error = AXUIElementCopyAttributeValue(ref, kAXRoleAttribute, &result);
+  AXError error = AXUIElementCopyAttributeValue(ref, type, &result);
 
   // Roles are supported for all elements. So, if there is an error it must be something else.
   if (error == kAXErrorCannotComplete || result == nullptr)
@@ -53,13 +55,19 @@ static std::string getNativeRole(AXUIElementRef ref) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static bool nativeRoleIs(AXUIElementRef ref, CFStringRef role) {
+static bool nativeRoleIsOneOf(AXUIElementRef ref, std::vector<CFStringRef> roles, CFStringRef type = kAXRoleAttribute) {
   CFTypeRef value;
-  AXError error = AXUIElementCopyAttributeValue(ref, kAXRoleAttribute, &value);
+  AXError error = AXUIElementCopyAttributeValue(ref, type, &value);
   if (error != kAXErrorSuccess)
     return false;
 
-  bool result = CFEqual(value, role);
+  bool result = false;
+  for (auto &role : roles) {
+    if (CFEqual(value, role)) {
+      result = true;
+      break;
+    }
+  }
   CFRelease(value);
 
   return result;
@@ -70,7 +78,7 @@ static bool nativeRoleIs(AXUIElementRef ref, CFStringRef role) {
 Accessible::Accessible(AXUIElementRef accessible) : _native(accessible), _role(Role::Unknown) {
   if (_native != nullptr) {
     CFRetain(_native);
-    determineRole();
+    _role = determineRole(_native);
   }
 }
 
@@ -126,6 +134,39 @@ bool Accessible::isRoot() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool Accessible::isValid() const {
+  if (_native == nullptr)
+    return false;
+
+  CFTypeRef value;
+  AXError error = AXUIElementCopyAttributeValue(_native, kAXRoleAttribute, &value);
+  if (error == kAXErrorSuccess) {
+    CFRelease(value);
+    return true;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+size_t Accessible::getHash() const {
+  std::hash<std::string> stringHash;
+  std::hash<size_t> numberHash;
+  size_t result = 17;
+
+  result = result * 31 + stringHash(getName());
+  result = result * 31 + numberHash(static_cast<size_t>(getRole()));
+  result = result * 31 + stringHash(getID());
+
+  auto parent = getParent();
+  if (parent)
+    result = result * 31 + parent->getHash();
+
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bool Accessible::canFocus()const {
   // Don't check only for settable values. Sometimes focus cannot be set when it is already.
   return isSettable(_native, kAXFocusedAttribute) || getBoolValue(_native, kAXFocusedAttribute, "focused", true);
@@ -166,10 +207,7 @@ void Accessible::setEnabled(bool value) {
  * It's a value only related to combobox types (NSComboBox + NSPopupButton here).
  */
 bool Accessible::isEditable() const {
-  if (_role != Role::ComboBox)
-    throw std::runtime_error("The editable type is only supported for combobboxes.");
-
-  return nativeRoleIs(_native, kAXComboBoxRole);
+  return nativeRoleIsOneOf(_native, { kAXComboBoxRole });
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -293,7 +331,7 @@ bool Accessible::isExpandable() const {
 bool Accessible::isExpanded() {
   switch (_role) {
     case Role::ComboBox: { // We treat comboboxes and popup buttons both as comboboxes here.
-      if (nativeRoleIs(_native, kAXComboBoxRole))
+      if (nativeRoleIsOneOf(_native, { kAXComboBoxRole }))
         return getBoolValue(_native, kAXExpandedAttribute, "expanded");
 
       auto children = getChildren(_native);
@@ -314,7 +352,7 @@ bool Accessible::isExpanded() {
 void Accessible::setExpanded(bool value) {
   switch (_role) {
     case Role::ComboBox:
-      if (nativeRoleIs(_native, kAXComboBoxRole))
+      if (nativeRoleIsOneOf(_native, { kAXComboBoxRole }))
         setBoolValue(_native, kAXExpandedAttribute, value, "expanded");
       else {
         if (value)
@@ -400,10 +438,13 @@ void Accessible::setActiveTabPage(std::string const& name) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::activate() {
-  if (_role != Role::TabPage && _role != Role::MenuItem)
+  if (_role != Role::TabPage && _role != Role::MenuItem && _role != Role::Menu)
     throw std::runtime_error("Cannot activate this element.");
 
-  press(_native);
+  auto native = _native;
+  if (_role == Role::Menu)
+    native = getParent(_native);
+  press(native);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -453,10 +494,44 @@ void Accessible::setScrollPosition(double value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Show to element's (context) menu, if supported.
+ */
+void Accessible::showMenu() const {
+  AXUIElementSetMessagingTimeout(_native, 0.1);
+  AXError error = AXUIElementPerformAction(_native, kAXShowMenuAction);
+  AXUIElementSetMessagingTimeout(_native, 0);
+  handleUnsupportedError(error, "context menu");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Accessible::menuShown() const {
+  if (_role != Role::Menu)
+    throw std::runtime_error("Shown attribute only valid for menus.");
+
+  auto visibleChildren = getChildren(_native, 10, true);
+  return visibleChildren.count > 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string Accessible::getID() const {
+  return getStringValue(_native, kAXIdentifierAttribute, "id", true);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string Accessible::getName() const {
-  // Don't throw an exception for not found names. Only very few elements have no name defined at all
-  // (like the menubar).
-  return getStringValue(_native, kAXIdentifierAttribute, "name", true);
+  // Accessibility on macOS is pretty confusing. There's a field `accessibilityLabel`, which when set uses the
+  // description key (not the label value key as one would think). Still the content of the description is shown as
+  // label in the accessibility inspector. If a title is set via `accessibilityTitle`, the label is set instead if no
+  // explicit label value has been assigned.
+  auto result = getStringValue(_native, kAXDescriptionAttribute, "name", true);
+  if (result.empty()) // Some elements (particularly those created internally) have no description/label.
+    result = getStringValue(_native, kAXTitleAttribute, "name", true);
+
+  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -468,10 +543,31 @@ std::string Accessible::getHelp() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns true if this is an internal element, like a scrollbar part or other implicitly added content.
+ * Returns true if this is an internal element, like a window zoom button or other implicitly added content.
  */
 bool Accessible::isInternal() const {
-  return mga::Utils::hasPrefix(getName(), "_NS");
+  // There are quite a few containers that are implicitely created (e.g. windows + scrollboxes), which would qualify
+  // as internal elements. However, if they are taken out we lose all their (potentially not-internal) child elements.
+  CFIndex count;
+  AXError error = AXUIElementGetAttributeValueCount(_native, kAXChildrenAttribute, &count);
+  if (error == kAXErrorSuccess && count > 0) {
+    return false;
+  }
+
+  if (getName().empty()) {
+    auto identifier = getID();
+    if (mga::Utilities::hasPrefix(identifier, "_NS:"))
+      return true;
+  }
+
+  // Some internal elements have no internal identifier.
+  if (nativeRoleIsOneOf(_native,
+    { kAXCloseButtonSubrole, kAXZoomButtonSubrole, kAXFullScreenButtonSubrole, kAXMinimizeButtonSubrole },
+    kAXSubroleAttribute)) {
+    return true;
+  }
+
+  return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -506,7 +602,7 @@ AccessibleRef Accessible::getContainingRow() const {
 
   auto run = getParent(_native);
   while (run != nullptr) {
-    if (nativeRoleIs(run, kAXRowRole)) {
+    if (nativeRoleIsOneOf(run, { kAXRowRole })) {
       auto result = AccessibleRef(new Accessible(run));
       CFRelease(run);
       return result;
@@ -584,41 +680,70 @@ void Accessible::show() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void Accessible::bringToFront() {
+  switch (_role) {
+    case Role::Window: {
+      AXError error = AXUIElementPerformAction(_native, kAXRaiseAction);
+      handleUnsupportedError(error, "bringToFront");
+      // fallthrough
+    }
+
+    case Role::Application: {
+      pid_t pid;
+      AXUIElementGetPid(_native, &pid);
+      NSRunningApplication *application = [NSRunningApplication runningApplicationWithProcessIdentifier: pid];
+      [application activateWithOptions: NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps];
+      break;
+    }
+
+    default: {
+      throw std::runtime_error("Action not supported by this element");
+      break;
+    }
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 @interface HighlightWindow : NSWindow
 @end
 
 @implementation HighlightWindow
-- (NSTimeInterval)animationResizeTime:(NSRect)newFrame {
-  return 0.2;
+- (NSTimeInterval)animationResizeTime: (NSRect)newFrame {
+  return 0.05;
 }
 
 @end
 
 static HighlightWindow *highlightWindow = nil;
 
-void Accessible::highlight() const {
-  Rectangle bounds = getBounds(true);
-  NSRect frame = NSMakeRect(bounds.position.x, bounds.position.y, bounds.size.width, bounds.size.height);
-  float screenHeight = NSMaxY([[NSScreen.screens objectAtIndex: 0] frame]);
-  frame.origin.y = screenHeight - (bounds.position.y + bounds.size.height);
+void Accessible::highlight(NSColor *color) const {
+  if (isValid() && hasBounds(_native)) {
+    Rectangle bounds = getBounds(true);
+    NSRect frame = NSMakeRect(bounds.position.x, bounds.position.y, bounds.size.width, bounds.size.height);
+    float screenHeight = NSMaxY([[NSScreen.screens objectAtIndex: 0] frame]);
+    frame.origin.y = screenHeight - (bounds.position.y + bounds.size.height);
 
-  if (highlightWindow == nil) {
-    highlightWindow = [[HighlightWindow alloc] initWithContentRect: frame
-                                                         styleMask: NSWindowStyleMaskBorderless
-                                                           backing: NSBackingStoreBuffered
-                                                             defer: YES];
-    highlightWindow.level = NSStatusWindowLevel;
-    highlightWindow.hasShadow = YES;
-    highlightWindow.opaque = NO;
-    highlightWindow.backgroundColor = NSColor.redColor;
-    highlightWindow.alphaValue = 0.25;
-    highlightWindow.ignoresMouseEvents = YES;
-    [highlightWindow orderFront: nil];
-  } else {
-    [highlightWindow setFrame: frame display: YES animate: YES];
+    if (highlightWindow == nil) {
+      highlightWindow = [[HighlightWindow alloc] initWithContentRect: frame
+                                                           styleMask: NSWindowStyleMaskBorderless
+                                                             backing: NSBackingStoreBuffered
+                                                               defer: YES];
+      highlightWindow.level = NSScreenSaverWindowLevel;
+      highlightWindow.hasShadow = NO;
+      highlightWindow.opaque = NO;
+      highlightWindow.backgroundColor = color;
+      highlightWindow.alphaValue = 0.5;
+      highlightWindow.ignoresMouseEvents = YES;
+      [highlightWindow orderFront: nil];
+    } else {
+      highlightWindow.backgroundColor = color;
+      [highlightWindow setFrame: frame display: YES animate: YES];
+      [highlightWindow orderFront: nil];
+    }
+    //[NSRunLoop.currentRunLoop runMode: NSDefaultRunLoopMode
+    //                       beforeDate: [NSDate.date dateByAddingTimeInterval: 0.010]];
   }
-  [NSRunLoop.currentRunLoop runMode: NSDefaultRunLoopMode
-                         beforeDate: [NSDate.date dateByAddingTimeInterval: 0.010]];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -626,9 +751,15 @@ void Accessible::highlight() const {
 void Accessible::removeHighlight() const {
   if (highlightWindow != nil) {
     [highlightWindow orderOut: nil];
-    [NSRunLoop.currentRunLoop runMode: NSDefaultRunLoopMode
-                           beforeDate: [NSDate.date dateByAddingTimeInterval: 0.010]];
+    //[NSRunLoop.currentRunLoop runMode: NSDefaultRunLoopMode
+    //                       beforeDate: [NSDate.date dateByAddingTimeInterval: 0.010]];
   }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Accessible::isHighlightActive() const {
+  return highlightWindow.visible;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -641,6 +772,352 @@ std::string Accessible::getPlatformRoleName() const {
 
 void Accessible::printNativeInfo() const {
   printInfo(_native);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::map<std::string, std::string> attributeToPropertyMap = {
+  // informational attributes
+  { toString(kAXTitleAttribute), "Title" },
+  { toString(kAXDescriptionAttribute), "Description" },
+  { toString(kAXHelpAttribute), "Help" },
+  { toString(kAXIdentifierAttribute), "Internal Identifier" },
+
+  // hierarchy or relationship attributes
+  { toString(kAXParentAttribute), "Parent" },
+  { toString(kAXChildrenAttribute), "Children" },
+  { toString(kAXSelectedChildrenAttribute), "Selected Children" },
+  { toString(kAXVisibleChildrenAttribute), "Visible Children" },
+  { toString(kAXWindowAttribute), "Window" },
+  { toString(kAXTopLevelUIElementAttribute), "Top Level UI Element" },
+  { toString(kAXTitleUIElementAttribute), "Title UI Element" },
+
+  // visual state attributes
+  { toString(kAXEnabledAttribute), "Enabled" },
+  { toString(kAXFocusedAttribute), "Focused" },
+  { toString(kAXPositionAttribute), "Position" },
+  { toString(kAXSizeAttribute), "Size" },
+
+  // value attributes
+  { toString(kAXValueAttribute), "Value" },
+  { toString(kAXValueDescriptionAttribute), "" },
+  { toString(kAXMinValueAttribute), "Min Value" },
+  { toString(kAXMaxValueAttribute), "Max Value" },
+  { toString(kAXValueIncrementAttribute), "Value Increment" },
+  { toString(kAXValueWrapsAttribute), "Wraps Content" },
+
+  // text-specific attributes
+  { toString(kAXSelectedTextAttribute), "Selected Text" },
+  { toString(kAXSelectedTextRangeAttribute), "Selected Text Range" },
+  { toString(kAXSelectedTextRangesAttribute), "Selected Text Ranges" },
+  { toString(kAXVisibleCharacterRangeAttribute), "Visible Character Range" },
+  { toString(kAXNumberOfCharactersAttribute), "Character Count" },
+
+  // window, sheet, or drawer-specific attributes
+  { toString(kAXMainAttribute), "Main Window" },
+  { toString(kAXMinimizedAttribute), "Minimized" },
+  { toString(kAXCloseButtonAttribute), "Close Button" },
+  { toString(kAXZoomButtonAttribute), "Zoom Button" },
+  { toString(kAXMinimizeButtonAttribute), "Minimize Button" },
+  { toString(kAXToolbarButtonAttribute), "Toolbar Button" },
+  { toString(kAXFullScreenButtonAttribute), "Full Screen Button" },
+  { toString(kAXGrowAreaAttribute), "Grow Area" },
+  { toString(kAXModalAttribute), "Modal" },
+  { toString(kAXDefaultButtonAttribute), "Default Button" },
+  { toString(kAXCancelButtonAttribute), "Cancel Button" },
+
+  // menu or menu item-specific attributes
+  { toString(kAXMenuItemCmdCharAttribute), "" },
+  { toString(kAXMenuItemCmdVirtualKeyAttribute), "" },
+  { toString(kAXMenuItemCmdGlyphAttribute), "" },
+  { toString(kAXMenuItemCmdModifiersAttribute), "" },
+  { toString(kAXMenuItemMarkCharAttribute), "" },
+  { toString(kAXMenuItemPrimaryUIElementAttribute), "" },
+
+  // application element-specific attributes
+  { toString(kAXMenuBarAttribute), "Menu Bar" },
+  { toString(kAXWindowsAttribute), "Windows" },
+  { toString(kAXFrontmostAttribute), "Front Most Application" },
+  { toString(kAXHiddenAttribute), "Hidden" },
+  { toString(kAXMainWindowAttribute), "Main Window" },
+  { toString(kAXFocusedWindowAttribute), "Focused Window" },
+  { toString(kAXFocusedUIElementAttribute), "Focused Element" },
+
+  // date/time-specific attributes
+  { toString(kAXHourFieldAttribute), "Hour Field" },
+  { toString(kAXMinuteFieldAttribute), "Minute Field" },
+  { toString(kAXSecondFieldAttribute), "Second Field" },
+  { toString(kAXAMPMFieldAttribute), "AM/PM Field" },
+  { toString(kAXDayFieldAttribute), "Day Field" },
+  { toString(kAXMonthFieldAttribute), "Month Field" },
+  { toString(kAXYearFieldAttribute), "Year Field" },
+
+  // table, outline, or browser-specific attributes
+  { toString(kAXRowsAttribute), "Rows" },
+  { toString(kAXVisibleRowsAttribute), "Visible Rows" },
+  { toString(kAXSelectedRowsAttribute), "Selected Rows" },
+  { toString(kAXColumnsAttribute), "Columns" },
+  { toString(kAXVisibleColumnsAttribute), "Visible Columns" },
+  { toString(kAXSelectedColumnsAttribute), "Selected Columns" },
+  { toString(kAXSortDirectionAttribute), "Sort Direction" },
+  { toString(kAXColumnHeaderUIElementsAttribute), "Column Headers" },
+  { toString(kAXIndexAttribute), "Index" },
+  { toString(kAXDisclosingAttribute), "Has Disclosing Arrow" },
+  { toString(kAXDisclosedRowsAttribute), "Disclosed Rows" },
+
+  // miscellaneous or role-specific attributes
+  { toString(kAXHorizontalScrollBarAttribute), "Horizontal Scrollbar" },
+  { toString(kAXVerticalScrollBarAttribute), "Vertical Scrollbar" },
+  { toString(kAXOrientationAttribute), "Orientation" },
+  { toString(kAXHeaderAttribute), "Header" },
+  { toString(kAXEditedAttribute), "Edited" },
+  { toString(kAXTabsAttribute), "Tabs" },
+  { toString(kAXOverflowButtonAttribute), "Overflow Button" },
+  { toString(kAXFilenameAttribute), "Filename" },
+  { toString(kAXExpandedAttribute), "Expanded" },
+  { toString(kAXSelectedAttribute), "Selected" },
+  { toString(kAXSplittersAttribute), "Splitters" },
+  { toString(kAXContentsAttribute), "Contents" },
+  { toString(kAXNextContentsAttribute), "Following Elements" },
+  { toString(kAXPreviousContentsAttribute), "Preceding Elements" },
+  { toString(kAXDocumentAttribute), "Document" },
+  { toString(kAXIncrementorAttribute), "Incrementor" },
+  { toString(kAXDecrementButtonAttribute), "Decrement Button" },
+  { toString(kAXIncrementButtonAttribute), "Increment Button" },
+  { toString(kAXColumnTitleAttribute), "Column Title" },
+  { toString(kAXURLAttribute), "URL" },
+  { toString(kAXLabelValueAttribute), "Label Value" },
+  { toString(kAXShownMenuUIElementAttribute), "Context Menu Items" },
+  { toString(kAXIsApplicationRunningAttribute), "Application Running" },
+  { toString(kAXFocusedApplicationAttribute), "Application Focused" },
+  { toString(kAXElementBusyAttribute), "Busy" },
+
+  // Attributes without a constant.
+  { "AXEnhancedUserInterface", "Enhanced UI" },
+  { "AXFullScreen", "Full Screen" },
+  { "AXFrame", "Bounds" },
+  { "AXPlaceholderValue", "Placeholder Value" },
+};
+
+static std::set<std::string> ignoredAttributes = {
+  toString(kAXRoleAttribute),
+  toString(kAXRoleDescriptionAttribute),
+  toString(kAXSubroleAttribute),
+  toString(kAXExtrasMenuBarAttribute),
+  toString(kAXInsertionPointLineNumberAttribute),
+  toString(kAXInsertionPointLineNumberAttribute),
+  toString(kAXGrowAreaAttribute),
+  toString(kAXProxyAttribute),
+  toString(kAXDisclosedByRowAttribute),
+  toString(kAXServesAsTitleForUIElementsAttribute),
+  toString(kAXLinkedUIElementsAttribute),
+  toString(kAXSharedFocusElementsAttribute),
+  toString(kAXAllowedValuesAttribute),
+  toString(kAXSharedTextUIElementsAttribute),
+  toString(kAXSharedCharacterRangeAttribute),
+  toString(kAXProxyAttribute),
+  toString(kAXExtrasMenuBarAttribute),
+
+  // matte-specific attributes
+  toString(kAXMatteHoleAttribute),
+  toString(kAXMatteContentUIElementAttribute),
+
+  // ruler-specific attributes
+  toString(kAXMarkerUIElementsAttribute),
+  toString(kAXUnitsAttribute),
+  toString(kAXUnitDescriptionAttribute),
+  toString(kAXMarkerTypeAttribute),
+  toString(kAXMarkerTypeDescriptionAttribute),
+
+  toString(kAXLabelUIElementsAttribute),
+  toString(kAXAlternateUIVisibleAttribute),
+
+  "AXFunctionRowTopLevelElements",
+  "AXChildrenInNavigationOrder",
+  "AXTextInputMarkedRange",
+  "AXAuditIssues",
+  "AXSections",
+};
+
+static std::map<std::string, std::string> subRoleMap = {
+  // standard subroles
+  { toString(kAXCloseButtonSubrole), "Close Button" },
+  { toString(kAXMinimizeButtonSubrole), "Minimize Button" },
+  { toString(kAXZoomButtonSubrole), "Zoom Button" },
+  { toString(kAXToolbarButtonSubrole), "Toolbar Button" },
+  { toString(kAXFullScreenButtonSubrole), "Full Screen Button" },
+  { toString(kAXSecureTextFieldSubrole), "Secure Text Field" },
+  { toString(kAXTableRowSubrole), "Table Row" },
+  { toString(kAXOutlineRowSubrole), "Outline Row" },
+
+  // new subroles
+  { toString(kAXStandardWindowSubrole), "Standard Window" },
+  { toString(kAXDialogSubrole), "Dialog" },
+  { toString(kAXSystemDialogSubrole), "System Dialog" },
+  { toString(kAXFloatingWindowSubrole), "Floating Window" },
+  { toString(kAXSystemFloatingWindowSubrole), "System Floating Window" },
+  { toString(kAXIncrementArrowSubrole), "Increment Arrow" },
+  { toString(kAXDecrementArrowSubrole), "Decrement Arrow" },
+  { toString(kAXIncrementPageSubrole), "Increment Page" },
+  { toString(kAXDecrementPageSubrole), "Decrement Page" },
+  { toString(kAXSortButtonSubrole), "Sort Button" },
+  { toString(kAXSearchFieldSubrole), "Search Field" },
+  { toString(kAXTimelineSubrole), "Time Line" },
+  { toString(kAXRatingIndicatorSubrole), "Rating Indicator" },
+  { toString(kAXContentListSubrole), "Content List" },
+  { toString(kAXDefinitionListSubrole), "Definition List" },
+  { toString(kAXDescriptionListSubrole), "Description List" },
+  { toString(kAXToggleSubrole), "Toggle" },
+  { toString(kAXSwitchSubrole), "Switch" },
+
+  // dock subroles
+  { toString(kAXApplicationDockItemSubrole), "Application Dock Item" },
+  { toString(kAXDocumentDockItemSubrole), "Document Dock Item" },
+  { toString(kAXFolderDockItemSubrole), "Folder Dock Item" },
+  { toString(kAXMinimizedWindowDockItemSubrole), "Minimized Window Dock Item" },
+  { toString(kAXURLDockItemSubrole), "Dock Item" },
+  { toString(kAXDockExtraDockItemSubrole), "Dock Extra Item" },
+  { toString(kAXTrashDockItemSubrole), "Trash Dock Item" },
+  { toString(kAXSeparatorDockItemSubrole), "Separator Dock Item" },
+  { toString(kAXProcessSwitcherListSubrole), "Process Switcher List" },
+
+  // Others
+  { "AXTabButton", "Tab" },
+  { "AXTextLink", "Hyperlink" },
+};
+
+// Attributes refering to other UI elements.
+static std::set<std::string> references = {
+ toString(kAXParentAttribute),
+ toString(kAXChildrenAttribute),
+ toString(kAXSelectedChildrenAttribute),
+ toString(kAXVisibleChildrenAttribute),
+ toString(kAXWindowAttribute),
+ toString(kAXTopLevelUIElementAttribute),
+ toString(kAXTitleUIElementAttribute),
+ toString(kAXMainAttribute),
+ toString(kAXCloseButtonAttribute),
+ toString(kAXZoomButtonAttribute),
+ toString(kAXMinimizeButtonAttribute),
+ toString(kAXToolbarButtonAttribute),
+ toString(kAXFullScreenButtonAttribute),
+ toString(kAXGrowAreaAttribute),
+ toString(kAXDefaultButtonAttribute),
+ toString(kAXCancelButtonAttribute),
+ toString(kAXMenuBarAttribute),
+ toString(kAXWindowsAttribute),
+ toString(kAXMainWindowAttribute),
+ toString(kAXFocusedWindowAttribute),
+ toString(kAXFocusedUIElementAttribute),
+ toString(kAXHourFieldAttribute),
+ toString(kAXMinuteFieldAttribute),
+ toString(kAXSecondFieldAttribute),
+ toString(kAXAMPMFieldAttribute),
+ toString(kAXDayFieldAttribute),
+ toString(kAXMonthFieldAttribute),
+ toString(kAXYearFieldAttribute),
+ toString(kAXRowsAttribute),
+ toString(kAXVisibleRowsAttribute),
+ toString(kAXSelectedRowsAttribute),
+ toString(kAXColumnsAttribute),
+ toString(kAXVisibleColumnsAttribute),
+ toString(kAXSelectedColumnsAttribute),
+ toString(kAXColumnHeaderUIElementsAttribute),
+ toString(kAXDisclosedRowsAttribute),
+ toString(kAXHorizontalScrollBarAttribute),
+ toString(kAXVerticalScrollBarAttribute),
+ toString(kAXHeaderAttribute),
+ toString(kAXTabsAttribute),
+ toString(kAXOverflowButtonAttribute),
+ toString(kAXSplittersAttribute),
+ toString(kAXContentsAttribute),
+ toString(kAXNextContentsAttribute),
+ toString(kAXPreviousContentsAttribute),
+ toString(kAXDocumentAttribute),
+ toString(kAXIncrementorAttribute),
+ toString(kAXDecrementButtonAttribute),
+ toString(kAXIncrementButtonAttribute),
+ toString(kAXShownMenuUIElementAttribute),
+};
+
+static std::map<std::string, std::string> actionMap = {
+  { toString(kAXPressAction), "Click Element"},
+  { toString(kAXIncrementAction), "Increment Value" },
+  { toString(kAXDecrementAction), "Decrement Value" },
+  { toString(kAXConfirmAction), "Confirm" },
+  { toString(kAXCancelAction), "Cancel" },
+  { toString(kAXShowAlternateUIAction), "Show Alternate UI" },
+  { toString(kAXShowDefaultUIAction), "Show Default UI" },
+  { toString(kAXRaiseAction), "Bring to Front" },
+  { toString(kAXShowMenuAction), "Show Menu" },
+  { toString(kAXPickAction), "Select Item" },
+  { "AXScrollLeftByPage", "Scroll Page Left" },
+  { "AXScrollRightByPage", "Scroll Page Right" },
+  { "AXScrollUpByPage", "Scroll Page Up" },
+  { "AXScrollDownByPage", "Scroll Page Down" },
+};
+
+/**
+ * Returns human readable details about this instance.
+ */
+AccessibleDetails Accessible::getDetails() const {
+  std::string subRole = getNativeRole(_native, kAXSubroleAttribute);
+  auto subRoleIterator = subRoleMap.find(subRole);
+  if (subRoleIterator != subRoleMap.end())
+    subRole = subRoleIterator->second;
+  AccessibleDetails result = { roleToFriendlyString(_role), subRole, {}, {} };
+
+  CFArrayRef array;
+  AXUIElementCopyAttributeNames(_native, &array);
+  if (array != nil) {
+    NSArray *properties = (__bridge NSArray *)array;
+    for (NSString *property in properties) {
+      std::string name = property.UTF8String;
+      if (ignoredAttributes.count(name) > 0)
+        continue;
+
+      bool containsReference = references.count(name) > 0;
+      auto iterator = attributeToPropertyMap.find(name);
+      if (!iterator->second.empty()) {
+        if (iterator != attributeToPropertyMap.end())
+          name = iterator->second;
+        Boolean settable = false;
+        AXUIElementIsAttributeSettable(_native, (CFStringRef)property, &settable);
+
+        std::string stringValue;
+        CFTypeRef value;
+        AXError error = AXUIElementCopyAttributeValue(_native, (CFStringRef)property, &value);
+        if (error == kAXErrorSuccess) {
+          stringValue = valueDescription((AXValueRef)value);
+        }
+
+        result.properties.push_back({ name, stringValue, !settable, containsReference });
+      }
+    }
+
+    CFRelease(array);
+  }
+
+  AXUIElementCopyActionNames(_native, &array);
+  if (array != nil) {
+    NSArray *actions = (__bridge NSArray *)array;
+    for (NSString *action in actions) {
+      std::string description = "<empty>";
+      CFStringRef value;
+      AXError error = AXUIElementCopyActionDescription(_native, (CFStringRef)action, &value);
+      if (error == kAXErrorSuccess)
+        description = toString(value);
+
+      std::string name = action.UTF8String;
+      auto iterator = actionMap.find(name);
+      if (iterator != actionMap.end())
+        name = iterator->second;
+      result.actions.push_back({ name, description });
+    }
+    CFRelease(array);
+  }
+
+  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -700,6 +1177,12 @@ Rectangle Accessible::getBounds(bool screenCoordinates) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void Accessible::setBounds(geometry::Rectangle const& bounds) {
+  Accessible::setBounds(_native, bounds);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string Accessible::getText() const {
   return getStringValue(_native, kAXValueAttribute, "text");
 }
@@ -707,6 +1190,16 @@ std::string Accessible::getText() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string Accessible::getTitle() const {
+  if (_role == Role::GroupBox) {
+    CFTypeRef titleElement;
+    AXError error = AXUIElementCopyAttributeValue(_native, kAXTitleUIElementAttribute, &titleElement);
+    if (error != kAXErrorSuccess || titleElement == nullptr) {
+      return nullptr;
+    }
+    std::string title = getStringValue(static_cast<AXUIElementRef>(titleElement), kAXValueAttribute, "title");
+    return title;
+  }
+
   return getStringValue(_native, kAXTitleAttribute, "title");
 }
 
@@ -754,7 +1247,7 @@ std::set<size_t> Accessible::getSelectedIndexes() const {
     NSArray *contentList = nil;
 
     if (_role == Role::ComboBox) {
-      if (nativeRoleIs(_native, kAXPopUpButtonRole)) {
+      if (nativeRoleIsOneOf(_native, { kAXPopUpButtonRole })) {
         // A popup button then. Can have a single child (a menu).
         AXUIElementRef menu = getFirstChild(_native);
         if (menu != nullptr) {
@@ -817,7 +1310,7 @@ void Accessible::setSelectedIndexes(std::set<size_t> const& indexes) {
     NSArray *contentList = nil;
 
     if (_role == Role::ComboBox) {
-      if (nativeRoleIs(_native, kAXPopUpButtonRole)) {
+      if (nativeRoleIsOneOf(_native, { kAXPopUpButtonRole })) {
         AXUIElementRef menu = getFirstChild(_native);
         if (menu != nullptr) {
           auto children = getChildren(menu);
@@ -885,7 +1378,7 @@ void Accessible::setTitle(std::string const& text) {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string Accessible::getDescription() const {
-  return getStringValue(_native, kAXDescriptionAttribute, "description");
+  return "";
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -955,79 +1448,41 @@ static CGEventType eventTypeFromButton(MouseButton button, bool down) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static void sendMouseEvent(CGEventType type, CGPoint position, CGMouseButton button) {
+  // The mouse button parameter is ignored, except for "other" mouse buttons.
+  CGEventRef mouseEvent = CGEventCreateMouseEvent(nullptr, type, position, button);
+  CGEventSetFlags(mouseEvent, kCGEventFlagMaskNonCoalesced);
+  CGEventPost(kCGSessionEventTap, mouseEvent);
+  CFRelease(mouseEvent);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void Accessible::mouseDown(geometry::Point pos, MouseButton button) {
   CGEventType eventType = eventTypeFromButton(button, true);
-  CGPoint point = CGPointMake(pos.x, pos.y);
-
-  // The mouse button parameter is ignored, except for "other" mouse buttons.
-  CGEventRef mouseDownEvent = CGEventCreateMouseEvent(NULL, eventType, point, kCGMouseButtonCenter);
-  CGEventSetFlags(mouseDownEvent, kCGEventFlagMaskNonCoalesced);
-
-  /*  Can't get it to work this way. Key presses however work.
-  pid_t pid;
-  AXUIElementGetPid(_native, &pid);
-  CGEventPostToPid(pid, mouseDownEvent);
-   */
-  CGEventPost(kCGSessionEventTap, mouseDownEvent);
-
-  CFRelease(mouseDownEvent);
+  sendMouseEvent(eventType, CGPointMake(pos.x, pos.y), kCGMouseButtonRight);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::mouseUp(geometry::Point pos, MouseButton button) {
   CGEventType eventType = eventTypeFromButton(button, false);
-  CGPoint point = CGPointMake(pos.x, pos.y);
-  CGEventRef mouseUpEvent = CGEventCreateMouseEvent(NULL, eventType, point, kCGMouseButtonCenter);
-  CGEventSetFlags(mouseUpEvent, kCGEventFlagMaskNonCoalesced);
-
-  /*
-  pid_t pid;
-  AXUIElementGetPid(_native, &pid);
-  CGEventPostToPid(pid, mouseUpEvent);
-   */
-  CGEventPost(kCGSessionEventTap, mouseUpEvent);
-
-  CFRelease(mouseUpEvent);
+  sendMouseEvent(eventType, CGPointMake(pos.x, pos.y), kCGMouseButtonRight);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::mouseMove(geometry::Point pos) {
+void Accessible::mouseMove(geometry::Point pos) const {
   CGEventRef event = CGEventCreate(nil);
   CGPoint currentPos = CGEventGetLocation(event);
   CFRelease(event);
-  CGPoint point = CGPointMake(currentPos.x + pos.x, currentPos.y + pos.y);
-
-  CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, kCGMouseButtonLeft);
-  CGEventSetFlags(mouseMoveEvent, kCGEventFlagMaskNonCoalesced);
-
-  /*
-  pid_t pid;
-  AXUIElementGetPid(_native, &pid);
-  CGEventPostToPid(pid, mouseMoveEvent);
-   */
-  CGEventPost(kCGSessionEventTap, mouseMoveEvent);
-
-  CFRelease(mouseMoveEvent);
+  sendMouseEvent(kCGEventMouseMoved, CGPointMake(currentPos.x + pos.x, currentPos.y + pos.y), kCGMouseButtonLeft);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::mouseMoveTo(geometry::Point pos) {
-  CGPoint point = CGPointMake(pos.x, pos.y);
-
-  CGEventRef mouseMoveEvent = CGEventCreateMouseEvent(NULL, kCGEventMouseMoved, point, kCGMouseButtonLeft);
-  CGEventSetFlags(mouseMoveEvent, kCGEventFlagMaskNonCoalesced);
-
-  /*
-  pid_t pid;
-  AXUIElementGetPid(_native, &pid);
-  CGEventPostToPid(pid, mouseMoveEvent);
-   */
-  CGEventPost(kCGSessionEventTap, mouseMoveEvent);
-
-  CFRelease(mouseMoveEvent);
+void Accessible::mouseMoveTo(geometry::Point pos) const {
+  sendMouseEvent(kCGEventMouseMoved, CGPointMake(pos.x, pos.y), kCGMouseButtonLeft);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1147,6 +1602,41 @@ void Accessible::keyPress(aal::Key k, aal::Modifier modifier) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Sends key events to the target, generated from a given string. This way there's no need to deal with keyboard layouts.
+ */
+void Accessible::typeString(std::string const& input) const {
+  if (input.empty())
+    return;
+
+  // Apparently there must be an initial HID event for an application (or just the modal runloop?) before the artificial
+  // key events work actually. Otherwise the set unicode string call below might close modal windows under certain
+  // circumstances (e.g. when running as sub process from another GUI app, like XCode), failing so the entire input
+  // method.
+  mouseMove({ 0, -10 });
+  mouseMove({ 0, 10 });
+
+  std::wstring utf16 = mga::Utilities::s2ws(input);
+  CGEventSourceRef eventSource = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+
+  CGEventRef keyDownEvent = CGEventCreateKeyboardEvent(eventSource, 0, true);
+  CGEventRef keyUpEvent = CGEventCreateKeyboardEvent(eventSource, 0, false);
+
+  for (auto iterator : utf16) {
+    UniChar temp = iterator;
+    CGEventKeyboardSetUnicodeString(keyDownEvent, 1, &temp);
+    CGEventPost(kCGSessionEventTap, keyDownEvent);
+    CGEventKeyboardSetUnicodeString(keyUpEvent, 1, &temp);
+    CGEventPost(kCGSessionEventTap, keyUpEvent);
+  }
+
+  CFRelease(keyDownEvent);
+  CFRelease(keyUpEvent);
+  CFRelease(eventSource);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void Accessible::click() {
   press(_native);
 }
@@ -1244,7 +1734,7 @@ void Accessible::decrement() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::children(AccessibleVector &result, bool recursive) const {
+void Accessible::children(AccessibleList &result, bool recursive) const {
   if (_native) {
     auto children = getChildren(_native);
     if (children == nil)
@@ -1263,8 +1753,8 @@ void Accessible::children(AccessibleVector &result, bool recursive) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::children() const {
-  AccessibleVector result;
+AccessibleList Accessible::children() const {
+  AccessibleList result;
   if (_native) {
     auto children = getChildren(_native);
     if (children == nil)
@@ -1280,8 +1770,8 @@ AccessibleVector Accessible::children() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::windows() const {
-  AccessibleVector result;
+AccessibleList Accessible::windows() const {
+  AccessibleList result;
   if (_native) {
     CFArrayRef array;
     AXUIElementCopyAttributeValues(_native, kAXWindowsAttribute, 0, 99999, &array);
@@ -1300,11 +1790,11 @@ AccessibleVector Accessible::windows() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::tabPages() const {
+AccessibleList Accessible::tabPages() const {
   if (_role != Role::TabView)
     throw std::runtime_error("This element has no tabs.");
 
-  AccessibleVector result;
+  AccessibleList result;
   if (_native) {
     CFTypeRef array;
     AXUIElementCopyAttributeValue(_native, kAXTabsAttribute, &array);
@@ -1327,11 +1817,11 @@ AccessibleVector Accessible::tabPages() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::rows() const {
+AccessibleList Accessible::rows() const {
   if (_role != Role::TreeView && _role != Role::Grid)
     throw std::runtime_error("This element has no rows.");
 
-  AccessibleVector result;
+  AccessibleList result;
   if (_native) {
     CFArrayRef rows;
     AXUIElementCopyAttributeValues(_native, kAXRowsAttribute, 0, 99999, &rows);
@@ -1353,11 +1843,11 @@ AccessibleVector Accessible::rows() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::rowEntries() const {
+AccessibleList Accessible::rowEntries() const {
   if (_role != Role::Row)
     throw std::runtime_error("This element has no row entries.");
 
-  AccessibleVector result;
+  AccessibleList result;
   if (_native) {
     auto children = getChildren(_native);
     if (children == nil)
@@ -1367,7 +1857,7 @@ AccessibleVector Accessible::rowEntries() const {
     // We only return that other content.
     if (children.count > 0) {
       AXUIElementRef first = (__bridge AXUIElementRef)(children[0]);
-      if (nativeRoleIs(first, kAXGroupRole)) {
+      if (nativeRoleIsOneOf(first, { kAXGroupRole })) {
         auto groupEntries = getChildren(first);
         for (NSUInteger i = 1; i < groupEntries.count; ++i) {
           AXUIElementRef entryRef = (__bridge AXUIElementRef)(groupEntries[i]);
@@ -1389,11 +1879,11 @@ AccessibleVector Accessible::rowEntries() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::columns() const {
+AccessibleList Accessible::columns() const {
   if (_role != Role::TreeView && _role != Role::Grid)
     throw std::runtime_error("This element has no columns.");
   
-  AccessibleVector result;
+  AccessibleList result;
   if (_native) {
     CFArrayRef columns;
     AXUIElementCopyAttributeValues(_native, kAXColumnsAttribute, 0, 99999, &columns);
@@ -1414,11 +1904,11 @@ AccessibleVector Accessible::columns() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::columnEntries() const {
+AccessibleList Accessible::columnEntries() const {
   if (_role != Role::Column)
     throw std::runtime_error("This element has no column entries.");
 
-  AccessibleVector result;
+  AccessibleList result;
   if (_native) {
     CFArrayRef rows;
     AXUIElementCopyAttributeValues(_native, kAXRowsAttribute, 0, 99999, &rows);
@@ -1429,7 +1919,7 @@ AccessibleVector Accessible::columnEntries() const {
     CFIndex i, c = CFArrayGetCount(rows);
     for (i = 0; i < c; ++i) {
       AXUIElementRef ref = static_cast<AXUIElementRef>(CFArrayGetValueAtIndex(rows, i));
-      if (nativeRoleIs(ref, kAXGroupRole)) {
+      if (nativeRoleIsOneOf(ref, { kAXGroupRole })) {
         auto groupEntries = getChildren(ref);
         for (NSUInteger j = 1; j < groupEntries.count; ++j) {
           AXUIElementRef entryRef = (__bridge AXUIElementRef)(groupEntries[j]);
@@ -1448,8 +1938,21 @@ AccessibleVector Accessible::columnEntries() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 AccessibleRef Accessible::fromPoint(geometry::Point point, Accessible *application) {
+  if (_systemRoot == nullptr)
+    _systemRoot.reset(new Accessible(AXUIElementCreateSystemWide()));
+
   AXUIElementRef element;
-  AXUIElementCopyElementAtPosition(application->_native, point.x, point.y, &element);
+  if (AXUIElementCopyElementAtPosition(_systemRoot->_native, point.x, point.y, &element) != kAXErrorSuccess)
+    return nullptr;
+
+  pid_t elementPid;
+  if (AXUIElementGetPid(element, &elementPid) != kAXErrorSuccess)
+    return nullptr;
+
+  pid_t pid;
+  if (AXUIElementGetPid(application->_native, &pid) != kAXErrorSuccess || pid != elementPid)
+    return nullptr;
+
   auto result = AccessibleRef(new Accessible(element));
   CFRelease(element);
 
@@ -1458,19 +1961,20 @@ AccessibleRef Accessible::fromPoint(geometry::Point point, Accessible *applicati
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::determineRole() {
+Role Accessible::determineRole(AXUIElementRef element) {
   static std::map<std::string, Role> roleMap = {
     { toString(kAXApplicationRole), Role::Application },
     { toString(kAXWindowRole), Role::Window },
     { toString(kAXButtonRole), Role::Button },
-    { toString(kAXDisclosureTriangleRole), Role::Expander },
     { toString(kAXRadioButtonRole), Role::RadioButton },
+    { toString(kAXRadioGroupRole), Role::RadioGroup },
+    { toString(kAXCheckBoxRole), Role::CheckBox },
+    { toString(kAXComboBoxRole), Role::ComboBox },
+    { toString(kAXPopUpButtonRole), Role::ComboBox },
+    { toString(kAXDisclosureTriangleRole), Role::Expander },
     { toString(kAXTableRole), Role::Grid },
     { toString(kAXTextFieldRole), Role::TextBox },
     { toString(kAXTextAreaRole), Role::TextBox },
-    { toString(kAXComboBoxRole), Role::ComboBox },
-    { toString(kAXPopUpButtonRole), Role::ComboBox },
-    { toString(kAXCheckBoxRole), Role::CheckBox },
     { toString(kAXOutlineRole), Role::TreeView },
     { toString(kAXStaticTextRole), Role::Label },
     { toString(kAXMenuRole), Role::Menu },
@@ -1478,38 +1982,57 @@ void Accessible::determineRole() {
     { toString(kAXMenuBarItemRole), Role::MenuItem },
     { toString(kAXMenuItemRole), Role::MenuItem },
     { toString(kAXSplitGroupRole), Role::SplitContainer },
+    { toString(kAXSplitterRole), Role::Splitter },
     { toString(kAXGroupRole), Role::GroupBox },
-    { toString(kAXScrollBarRole), Role::ScrollBar },
-    { toString(kAXValueIndicatorRole), Role::ScrollThumb },
     { toString(kAXImageRole), Role::Image },
     { toString(kAXTabGroupRole), Role::TabView },
     { "AXDateTimeArea", Role::DatePicker }, // Can't find a constant for this role.
     { toString(kAXRowRole), Role::Row },
     { toString(kAXColumnRole), Role::Column },
+    { toString(kAXCellRole), Role::Column },
     { toString(kAXScrollAreaRole), Role::ScrollBox },
-    { toString(kAXProgressIndicatorRole), Role::ProgressIndicator },
-    { toString(kAXBusyIndicatorRole), Role::BusyIndicator },
     { toString(kAXSliderRole), Role::Slider },
     { toString(kAXIncrementorRole), Role::Stepper },
-    { toString(kAXGridRole), Role::IconView },
     { toString(kAXListRole), Role::List },
+    { toString(kAXGridRole), Role::IconView },
+    { toString(kAXProgressIndicatorRole), Role::ProgressIndicator },
+    { toString(kAXBusyIndicatorRole), Role::BusyIndicator },
+    { toString(kAXScrollBarRole), Role::ScrollBar },
+    { toString(kAXValueIndicatorRole), Role::ScrollThumb },
+    { "AXLink", Role::HyperLink },
   };
 
-  std::string roleString = getNativeRole(_native);
+  // For certain elements we use the subrole to get a better role description.
+  std::string subRoleString = getNativeRole(element, kAXSubroleAttribute);
+  if (subRoleString == "AXTabButton")
+    return Role::TabPage;
+
+  std::string roleString = getNativeRole(element);
   if (roleMap.find(roleString) != roleMap.end())
-    _role = roleMap[roleString];
+    return roleMap[roleString];
+
+  return Role::Unknown;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-NSArray* Accessible::getChildren(AXUIElementRef ref, size_t count) {
-  CFArrayRef children = nullptr;
-  AXError error = AXUIElementCopyAttributeValues(ref, kAXChildrenAttribute, 0, static_cast<CFIndex>(count), &children);
+NSArray* Accessible::getChildren(AXUIElementRef ref, size_t count, bool visibleOnly) {
+  auto attribute = kAXChildrenAttribute;
+  if (visibleOnly)
+    attribute = kAXVisibleChildrenAttribute;
+  return getArrayValue(ref, attribute, count);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+NSArray* Accessible::getArrayValue(AXUIElementRef ref, CFStringRef attribute, size_t count) {
+  CFArrayRef result = nullptr;
+  AXError error = AXUIElementCopyAttributeValues(ref, attribute, 0, static_cast<CFIndex>(count), &result);
   if (error != kAXErrorSuccess) {
     return nil;
   }
 
-  return (NSArray *)CFBridgingRelease(children);
+  return (NSArray *)CFBridgingRelease(result);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1620,6 +2143,12 @@ AXUIElementRef Accessible::getElementValue(AXUIElementRef ref, bool noThrow) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool Accessible::hasBounds(AXUIElementRef ref) {
+  return isSupported(ref, kAXPositionAttribute) && isSupported(ref, kAXSizeAttribute);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 Rectangle Accessible::getBounds(AXUIElementRef ref, bool screenCoordinates) {
   AXValueRef valueRef;
   CGSize size;
@@ -1629,7 +2158,7 @@ Rectangle Accessible::getBounds(AXUIElementRef ref, bool screenCoordinates) {
   handleUnsupportedError(error, "position");
 
   Rectangle result;
-  if (error == kAXErrorNoValue || error == kAXErrorCannotComplete) {
+  if (error == kAXErrorNoValue) {
     return result;
   }
 
@@ -1646,7 +2175,7 @@ Rectangle Accessible::getBounds(AXUIElementRef ref, bool screenCoordinates) {
 
   if (!screenCoordinates) {
     AXUIElementRef parent = getParent(ref);
-    if (parent != nullptr) {
+    if (parent != nullptr && hasBounds(parent)) {
       Rectangle parentBounds;
       parentBounds = getBounds(parent, true);
       result = Rectangle(point.x - parentBounds.minX(), point.y - parentBounds.minY(), size.width, size.height);
@@ -1658,6 +2187,23 @@ Rectangle Accessible::getBounds(AXUIElementRef ref, bool screenCoordinates) {
   }
 
   return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Accessible::setBounds(AXUIElementRef ref, geometry::Rectangle const& bounds) {
+  CGSize size = { static_cast<CGFloat>(bounds.size.width), static_cast<CGFloat>(bounds.size.height) };
+  CGPoint point = { static_cast<CGFloat>(bounds.position.x), static_cast<CGFloat>(bounds.position.y) };
+
+  AXValueRef valueRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGPointType), &point);
+  AXError error = AXUIElementSetAttributeValue(ref, kAXPositionAttribute, valueRef);
+  CFRelease(valueRef);
+  handleUnsupportedError(error, "position");
+
+  valueRef = AXValueCreate(static_cast<AXValueType>(kAXValueCGSizeType), &size);
+  error = AXUIElementSetAttributeValue(ref, kAXSizeAttribute, valueRef);
+  CFRelease(valueRef);
+  handleUnsupportedError(error, "size");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1683,7 +2229,7 @@ bool Accessible::isSettable(AXUIElementRef ref, CFStringRef attribute) {
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Returns a one liner description of the given value.
+ * Returns a one line description of the given value.
  */
 std::string Accessible::valueDescription(AXValueRef value) {
   std::stringstream ss;
@@ -1692,43 +2238,53 @@ std::string Accessible::valueDescription(AXValueRef value) {
     case kAXValueCGPointType: {
       CGPoint point;
       if (AXValueGetValue(value, kAXValueTypeCGPoint, &point)) {
-        ss << "<Point: x = " << point.x << ", y = " << point.y << ">";
+        ss << "{ x: " << point.x << ", y: " << point.y << " }";
       }
       break;
     }
+      
     case kAXValueCGSizeType: {
       CGSize size;
       if (AXValueGetValue(value, kAXValueTypeCGSize, &size)) {
-        ss << "<Size: width = " << size.width << ", height = " << size.height << ">";
+        ss << "{ width: " << size.width << ", height: " << size.height << " }";
       }
       break;
     }
+
     case kAXValueCGRectType: {
       CGRect rect;
       if (AXValueGetValue(value, kAXValueTypeCGRect, &rect)) {
-        ss << "<Rectangle: x = " << rect.origin.x << ", y = " << rect.origin.y << ", width = "
-        << rect.size.width << ", height = " << rect.size.height << ">";
+        ss << "{ x: " << rect.origin.x << ", y: " << rect.origin.y << ", width: "
+          << rect.size.width << ", height: " << rect.size.height << " }";
       }
       break;
     }
+
     case kAXValueCFRangeType: {
       CFRange range;
       if (AXValueGetValue(value, kAXValueTypeCFRange, &range)) {
-        ss << "<Range: location = " << range.location << ", length = " << range.length << ">";
+        ss << "{ location: " << range.location << ", length: " << range.length << " }";
       }
       break;
     }
+
     default:
       if (CFGetTypeID(value) == CFArrayGetTypeID()) {
-        ss << "<Array: size = " << [(__bridge NSArray *)value count] << ">";
+        NSArray *array = (__bridge NSArray *)value;
+        ss << array.count << (array.count == 1 ? " element" : " elements");
       } else if (CFGetTypeID(value) == AXUIElementGetTypeID()) {
-        std::string title = getStringValue((AXUIElementRef)value, kAXTitleAttribute, "title", true);
-        if (title.empty()) {
-          ss << "<" << getNativeRole((AXUIElementRef)value);
+        std::string name = getStringValue((AXUIElementRef)value, kAXDescriptionAttribute, "name", true);
+        if (name.empty())
+          name = getStringValue((AXUIElementRef)value, kAXTitleAttribute, "name", true);
+
+        if (name.empty()) {
+          ss << "<no name>";
         } else {
-          ss << "<" << getNativeRole((AXUIElementRef)value) << ": " << title;
+          ss << name;
         }
-        ss << ">";
+
+        Role role = determineRole((AXUIElementRef)value);
+        ss << " (" << roleToFriendlyString(role) << ")";
       } else {
         ss << [[(__bridge id)value description] UTF8String];
       }
@@ -1742,6 +2298,11 @@ std::string Accessible::valueDescription(AXValueRef value) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::handleUnsupportedError(AXError error, std::string const& attribute) {
+  // The two exceptions here use a very short timeout and don't wait for completion (to avoid blocking MGA).
+  // Hence they will also produce the cannot-complete error, but that's ok in those cases.
+  if (error == kAXErrorCannotComplete && attribute != "context menu" && attribute != "press")
+    throw std::runtime_error("Cannot complete the accessibility call. Probably lost connection to target app.");
+
   if (error == kAXErrorAttributeUnsupported)
     throw std::runtime_error("Unsupported attribute: " + attribute);
   if (error == kAXErrorActionUnsupported)
@@ -1879,6 +2440,7 @@ void Accessible::printInfo(AXUIElementRef element) {
     }
     CFRelease(array);
   }
+
   std::cout << std::endl;
 }
 

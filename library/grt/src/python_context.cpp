@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "python_context.h"
@@ -777,10 +777,10 @@ static PyObject *grt_push_message_handler(PyObject *self, PyObject *args) {
   if (!PyCallable_Check(o))
     return NULL;
 
-  grt::GRT::get()->push_message_handler(
-    std::bind(&call_handle_message, std::placeholders::_1, std::placeholders::_2, AutoPyObject(o)));
+  grt::GRT::get()->pushMessageHandler(
+    new grt::SlotHolder(std::bind(&call_handle_message, std::placeholders::_1, std::placeholders::_2, AutoPyObject(o))));
 
-  return Py_BuildValue("i", grt::GRT::get()->message_handler_count());
+  return Py_BuildValue("i", grt::GRT::get()->messageHandlerCount());
 }
 
 static PyObject *grt_pop_message_handler(PyObject *self, PyObject *args) {
@@ -788,9 +788,9 @@ static PyObject *grt_pop_message_handler(PyObject *self, PyObject *args) {
   if (!(ctx = PythonContext::get_and_check()))
     return NULL;
 
-  grt::GRT::get()->pop_message_handler();
+  grt::GRT::get()->popMessageHandler();
 
-  return Py_BuildValue("i", grt::GRT::get()->message_handler_count());
+  return Py_BuildValue("i", grt::GRT::get()->messageHandlerCount());
 }
 
 //
@@ -1669,6 +1669,8 @@ static void create_class_wrapper(grt::MetaClass *meta, PyObject *locals) {
  */
 int PythonContext::refresh() {
   WillEnterPython lock;
+
+  _grt_class_wrappers.clear();
 
   PyModule_AddObject(get_grt_module(), "root", from_grt(grt::GRT::get()->root()));
 

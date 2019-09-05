@@ -235,8 +235,7 @@ bool SqlEditorForm::load_workspace(const std::string &workspace_name) {
 
   if (base::file_exists(base::makePath(workspace_path, "tab_order"))) {
     // new WB 6.2 format workspace
-    std::wifstream f;
-    openStream(base::makePath(workspace_path, "tab_order"), f);
+    std::wifstream f = openTextInputStream(base::makePath(workspace_path, "tab_order"));
     std::vector<std::string> editor_files;
     while (!f.eof()) {
       std::wstring suffix;
@@ -505,8 +504,7 @@ void SqlEditorForm::save_workspace_order(const std::string &prefix) {
     logError("save with empty path\n");
 
   if (_tabdock) {
-    std::wofstream orderFile;
-    openStream(base::makePath(prefix, "tab_order"), orderFile);
+    std::wofstream orderFile = openTextOutputStream(base::makePath(prefix, "tab_order"));
     for (int c = _tabdock->view_count(), i = 0; i < c; i++) {
       SqlEditorPanel *editor = sql_editor_panel(i);
       if (editor && orderFile.good())

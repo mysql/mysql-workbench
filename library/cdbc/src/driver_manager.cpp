@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "driver_manager.h"
@@ -31,6 +31,7 @@
 #include "cppconn/exception.h"
 #include "cppconn/metadata.h"
 #include "base/string_utilities.h"
+#include "grt.h"
 
 #include <gmodule.h>
 
@@ -317,7 +318,7 @@ namespace sql {
       attribs["program_name"] = "MySQLWorkbench";
       properties["OPT_CONNECT_ATTR_ADD"] = attribs;
     }
-    
+
     // If SSL is enabled but there's no certificate or anything, create the sslKey option to force enabling SSL without
     // a key
     // (equivalent to starting cmdline client with mysql --ssl-key=)
@@ -474,7 +475,7 @@ namespace sql {
       } else {
         stmt->executeUpdate("SET NAMES 'utf8'");
       }
-      
+
       std::string def_schema = parameter_values.get_string("schema", "");
       if (!def_schema.empty())
         conn->setSchema(def_schema);

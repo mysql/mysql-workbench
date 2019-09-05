@@ -1,0 +1,10 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was modified
+  indices:
+  - added index PRIMARY with columns: id
+  - removed index PRIMARY
+  __
+----------------------------------------------
+End of MySQL Workbench Report

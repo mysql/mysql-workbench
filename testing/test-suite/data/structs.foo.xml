@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<gstructs xmlns:attr='http://www.mysql.com/grt/struct-attribute'>
+  <gstruct name='foo'>
+    <members>
+      <member attr:group='' name='bar' attr:caption='Bar' type='int' attr:desc='foo bar' />
+    </members>
+  </gstruct>
+
+  <gstruct name='aaa'>
+    <members>
+      <member attr:group='' name='autoIncrement' attr:caption='autoIncrement' type='int' attr:desc='autoIncrement' />
+    </members>
+  </gstruct>
+
+  <gstruct name='xxx'>
+    <members>
+      <member attr:group='' name='columns' attr:caption='aaa' type='object' struct-name='aaa' attr:desc='foo bar' />
+    </members>
+  </gstruct>
+
+</gstructs>

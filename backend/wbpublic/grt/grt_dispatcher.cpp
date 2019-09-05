@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "base/threading.h"
@@ -358,6 +358,10 @@ GRTDispatcher::GRTDispatcher(bool threaded, bool is_main_dispatcher)
 GRTDispatcher::~GRTDispatcher() {
   shutdown();
 
+  if (_thread != nullptr && _thread != g_thread_self()) {
+    g_thread_join(_thread);
+  }
+
   if (_task_queue)
     g_async_queue_unref(_task_queue);
   if (_callback_queue)
@@ -390,8 +394,8 @@ void GRTDispatcher::start() {
   _grtm.lock()->add_dispatcher(shared_from_this());
 
   if (_is_main_dispatcher)
-    grt::GRT::get()->push_message_handler(
-      std::bind(&GRTDispatcher::message_callback, this, std::placeholders::_1, std::placeholders::_2));
+    grt::GRT::get()->pushMessageHandler(
+      new grt::SlotHolder(std::bind(&GRTDispatcher::message_callback, this, std::placeholders::_1, std::placeholders::_2)));
 
   _started = true;
 }
@@ -405,7 +409,7 @@ void GRTDispatcher::shutdown() {
   _shut_down = true;
 
   if (_is_main_dispatcher)
-    grt::GRT::get()->pop_message_handler();
+    grt::GRT::get()->popMessageHandler();
 
   _shutdown_callback = true;
 
@@ -484,7 +488,7 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
       continue;
     }
 
-    int count = grt::GRT::get()->message_handler_count();
+    int count = grt::GRT::get()->messageHandlerCount();
 
     // do pre-execution preparations
     self->prepare_task(task);
@@ -501,9 +505,9 @@ gpointer GRTDispatcher::worker_thread(gpointer data) {
       continue;
     }
 
-    if (count != grt::GRT::get()->message_handler_count()) {
+    if (count != grt::GRT::get()->messageHandlerCount()) {
       logError("INTERNAL ERROR: Message handler count mismatch after executing task '%s' (%i vs %i)",
-               task->name().c_str(), count, grt::GRT::get()->message_handler_count());
+               task->name().c_str(), count, grt::GRT::get()->messageHandlerCount());
     }
 
     g_atomic_int_dec_and_test(&self->_busy);
@@ -662,8 +666,8 @@ void GRTDispatcher::prepare_task(const GRTTaskBase::Ref gtask) {
 
   // Directly set the task callbacks.
   if (_is_main_dispatcher)
-    grt::GRT::get()->push_message_handler(
-      std::bind(call_process_message, std::placeholders::_1, std::placeholders::_2, gtask));
+    grt::GRT::get()->pushMessageHandler(
+      new grt::SlotHolder(std::bind(call_process_message, std::placeholders::_1, std::placeholders::_2, gtask)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,7 +675,7 @@ void GRTDispatcher::prepare_task(const GRTTaskBase::Ref gtask) {
 void GRTDispatcher::restore_callbacks(const GRTTaskBase::Ref task) {
   // Restore originally set msg callbacks.
   if (_is_main_dispatcher)
-    grt::GRT::get()->pop_message_handler();
+    grt::GRT::get()->popMessageHandler();
 
   _current_task.reset();
 }

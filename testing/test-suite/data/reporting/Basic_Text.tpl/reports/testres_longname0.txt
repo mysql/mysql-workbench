@@ -1,0 +1,6 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Schema `grtdiff_alter_test2` was created
+----------------------------------------------
+End of MySQL Workbench Report

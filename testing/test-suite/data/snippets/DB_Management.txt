@@ -1,0 +1,121 @@
+SHOW BINARY LOGS Syntax
+ SHOW BINARY LOGS;
+ SHOW MASTER LOGS;
+
+SHOW BINLOG EVENTS Syntax
+ SHOW BINLOG EVENTS
+  <{[IN 'log_name']}> <{[FROM pos]}> <{[LIMIT [offset,] row_count]}>
+
+SHOW CHARACTER SET Syntax
+ SHOW CHARACTER SET <{[LIKE 'pattern' | WHERE expr]}>
+
+SHOW COLLATION Syntax
+ SHOW COLLATION <{[like_or_where]}>
+
+SHOW COLUMNS Syntax
+ SHOW <{[FULL]}> COLUMNS FROM <{tbl_name}> <{[FROM db_name]}> <{[like_or_where]}>
+
+SHOW CREATE DATABASE Syntax
+ SHOW CREATE DATABASE <{db_name}>
+
+SHOW CREATE EVENT Syntax
+ SHOW CREATE EVENT <{event_name}>
+
+SHOW CREATE FUNCTION Syntax
+ SHOW CREATE FUNCTION <{func_name}>
+
+SHOW CREATE PROCEDURE Syntax
+ SHOW CREATE PROCEDURE <{proc_name}>
+
+SHOW CREATE TABLE Syntax
+ SHOW CREATE TABLE <{tbl_name}>
+
+SHOW CREATE TRIGGER Syntax
+ SHOW CREATE TRIGGER <{trigger_name}>
+
+SHOW CREATE VIEW Syntax
+ SHOW CREATE VIEW <{view_name}>
+
+SHOW DATABASES Syntax
+ SHOW DATABASES <{[like_or_where]}>
+
+SHOW ENGINE Syntax
+ SHOW ENGINE <{engine_name}> <{{STATUS | MUTEX}}>
+
+SHOW ENGINES Syntax
+ SHOW <{[STORAGE]}> ENGINES
+
+SHOW ERRORS Syntax
+ SHOW ERRORS <{[LIMIT [offset,] row_count]}>
+
+SHOW EVENTS Syntax
+ SHOW EVENTS
+
+SHOW FUNCTION CODE Syntax
+ SHOW FUNCTION CODE <{func_name}>
+
+SHOW FUNCTION STATUS Syntax
+ SHOW FUNCTION STATUS <{[like_or_where]}>
+
+SHOW GRANTS Syntax
+ SHOW GRANTS FOR <{user}>
+
+SHOW INDEX Syntax
+ SHOW INDEX FROM <{tbl_name}> <{[FROM db_name]}>
+
+SHOW INNODB STATUS Syntax
+ SHOW INNODB STATUS
+
+SHOW MASTER STATUS Syntax
+ SHOW MASTER STATUS
+
+SHOW OPEN TABLES Syntax
+ SHOW OPEN TABLES <{[FROM db_name]}> <{[like_or_where]}>
+
+SHOW PLUGINS Syntax
+ SHOW PLUGINS
+
+SHOW PRIVILEGES Syntax
+ SHOW PRIVILEGES
+
+SHOW PROCEDURE CODE Syntax
+ SHOW PROCEDURE CODE <{proc_name}>
+
+SHOW PROCEDURE STATUS Syntax
+ SHOW PROCEDURE STATUS <{[like_or_where]}>
+
+SHOW PROCESSLIST Syntax
+ SHOW <{[FULL]}> PROCESSLIST
+
+SHOW PROFILE Syntax
+ SHOW PROFILE <{[types]}> <{[FOR QUERY n]}> <{[OFFSET n]}> <{[LIMIT n]}>
+
+SHOW PROFILES Syntax
+ SHOW PROFILES
+
+SHOW SCHEDULER STATUS Syntax
+ SHOW SCHEDULER STATUS
+
+SHOW SLAVE HOSTS Syntax
+ SHOW SLAVE HOSTS 
+
+SHOW SLAVE STATUS Syntax
+ SHOW SLAVE STATUS
+
+SHOW STATUS Syntax
+ SHOW <{[GLOBAL | SESSION]}> STATUS <{[like_or_where]}>
+
+SHOW TABLE STATUS Syntax
+ SHOW TABLE STATUS <{[FROM db_name]}> <{[like_or_where]}>
+
+SHOW TABLES Syntax
+ SHOW <{[FULL]}> TABLES <{[FROM db_name]}> <{[like_or_where]}>
+
+SHOW TRIGGERS Syntax
+ SHOW TRIGGERS <{[FROM db_name]}> <{[like_or_where]}>
+
+SHOW VARIABLES Syntax
+ SHOW <{[GLOBAL | SESSION]}> VARIABLES <{[like_or_where]}>
+
+SHOW WARNINGS Syntax
+ SHOW WARNINGS <{[LIMIT [offset,] row_count]}>

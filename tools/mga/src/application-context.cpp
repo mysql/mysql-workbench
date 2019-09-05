@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -72,11 +72,13 @@ ExitCode ApplicationContext::initialize() {
     std::cerr << "Fatal: could not acquire permission for MGA to use accessibility for automation." << std::endl;
     return ExitCode::Other;
   }
-  // By default we need to set the default minimal C locale
+
+  // By default we need to set the default minimal C locale.
   setlocale(LC_ALL, "C");
   std::locale::global(std::locale("C"));
   std::cout.imbue(std::locale("C"));
   std::cerr.imbue(std::locale("C"));
+  
   // Keep the current directory, so we can restore it before exit.
   _currentDir = Process::cwd();
 
@@ -106,7 +108,7 @@ ExitCode ApplicationContext::parseParams(int argc, const char **argv, char **env
       showHelp();
       return ExitCode::Success;
     }
-    else if (Utils::hasSuffix(arg, ".json")) {
+    else if (Utilities::hasSuffix(arg, ".json")) {
       _configFile = arg;
       continue;
     }
@@ -118,7 +120,7 @@ ExitCode ApplicationContext::parseParams(int argc, const char **argv, char **env
   }
 
   if (_configFile.empty()) {
-    // we will try to load it up from the user home directory
+    // Try to load it from the user home directory.
 #ifdef _MSC_VER
     std::string configLocation = getenv("HOMEPATH");
     configLocation.append("\\mga.json");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,8 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#ifndef _BASE_SQLSTRING_H_
-#define _BASE_SQLSTRING_H_
+#pragma once
 
 #include "base/string_utilities.h"
 #include <boost/utility/enable_if.hpp>
@@ -55,7 +54,8 @@ namespace base {
     static const sqlstring null;
 
     sqlstring();
-    sqlstring(const char *format_string, const sqlstringformat format);
+    sqlstring(const std::string &format_string, const sqlstringformat format = 0);
+    sqlstring(const char format_string[], const sqlstringformat format = 0);
     sqlstring(const sqlstring &copy);
     bool done() const;
 
@@ -89,7 +89,12 @@ namespace base {
     sqlstring &operator<<(const char *);
     //! replaces a ? or ! with the content of the other string verbatim
     sqlstring &operator<<(const sqlstring &);
+
+    bool operator == (const base::sqlstring &second) const {
+      return (std::string)*this == (std::string)second;
+    }
+    bool operator != (const base::sqlstring &second) const {
+      return (std::string)*this != (std::string)second;
+    }
   };
 };
-
-#endif

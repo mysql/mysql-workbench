@@ -30,6 +30,7 @@
 #include "base/log.h"
 #include "base/common.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "workbench/wb_version.h"
 
 // Windows includes
@@ -746,62 +747,6 @@ const char *strfindword(const char *str, const char *word) {
 
 // TODO: move to file_functions
 /**
- * Copies a file whose name is given by source to target. File names are expected to be encoded
- * as UTF-8.
- *
- * @param source The name + path of the file to copy.
- * @param target The name + path where the new file should be copied to.
- * @return 1 if the operation was successfull, otherwise 0.
- */
-int copy_file(const char *source, const char *target) {
-#ifdef _MSC_VER
-  {
-    const int cch_buf = MAX_PATH;
-    WCHAR src_path[MAX_PATH];
-    WCHAR dest_path[MAX_PATH];
-
-    MultiByteToWideChar(CP_UTF8, 0, source, -1, src_path, cch_buf);
-    MultiByteToWideChar(CP_UTF8, 0, target, -1, dest_path, cch_buf);
-
-    if (!CopyFileW(src_path, dest_path, 0))
-      return 0;
-    return 1;
-  }
-#else
-  // copy contents of original archive to new
-  char buffer[1024 * 4];
-  size_t c;
-  FILE *in, *out;
-  in = base_fopen(source, "r");
-  if (!in)
-    return 0;
-
-  out = base_fopen(target, "w+");
-  if (!out) {
-    fclose(in);
-    return 0;
-  }
-
-  while ((c = fread(buffer, 1, sizeof(buffer), in)) > 0 && c != (size_t)-1) {
-    if (fwrite(buffer, 1, c, out) < c) {
-      int e = errno;
-      fclose(in);
-      fclose(out);
-      errno = e;
-      return 0;
-    }
-  }
-  fclose(in);
-  fclose(out);
-
-  return 1;
-#endif
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-// TODO: move to file_functions
-/**
  * Copies all files non-recursively from source to target. Target will be created on the fly.
  */
 int copy_folder(const char *source_folder, const char *target_folder) {
@@ -818,7 +763,7 @@ int copy_folder(const char *source_folder, const char *target_folder) {
     while ((entry = g_dir_read_name(dir)) != NULL) {
       char *source = g_build_filename(source_folder, entry, NULL);
       char *target = g_build_filename(target_folder, entry, NULL);
-      if (!copy_file(source, target)) {
+      if (!base::copyFile(source, target)) {
         logWarning("Could not copy file %s to %s: %s\n", source, target, g_strerror(errno));
         g_free(source);
         g_free(target);

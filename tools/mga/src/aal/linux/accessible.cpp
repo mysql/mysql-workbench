@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -30,13 +30,14 @@
 #include <gtkmm.h>
 #include <X11/Xlib.h>
 #include <gdk/gdkkeysyms.h>
-
 #include <future>
 #include <map>
 #include <string>
 #include <glib.h>
 #include <glib-object.h>
 #include "utilities.h"
+#include <glib/gunicode.h>
+#include "virtualkeygenerator.h"
 
 #define ATSPI_ROLE_TABLE_COLUMN ATSPI_ROLE_LAST_DEFINED + 10
 
@@ -44,15 +45,16 @@ using namespace aal;
 
 
 #define _HandleAtspiError(err, appMessage) \
-  if(err != nullptr) \
+  if (err != nullptr) \
     throw std::runtime_error(appMessage + ": " + err->message);
 
-#define HandleAtspiError(err, appMessage) _HandleAtspiError(err, mga::Utils::format("%s:%d[%s] %s", __FILE__, __LINE__, __PRETTY_FUNCTION__, appMessage))
+#define HandleAtspiError(err, appMessage) _HandleAtspiError(err, mga::Utilities::format("%s:%d[%s] %s", __FILE__, __LINE__, __PRETTY_FUNCTION__, appMessage))
 
 std::map<int, Role> roleMap = {
      {0, Role::Unknown},
      {ATSPI_ROLE_APPLICATION, Role::Application},
      {ATSPI_ROLE_WINDOW, Role::Window},
+     {ATSPI_ROLE_FILE_CHOOSER, Role::Window},
      {ATSPI_ROLE_FRAME, Role::Window },
      {ATSPI_ROLE_DIALOG, Role::Window },
      {ATSPI_ROLE_ALERT, Role::Window },
@@ -60,6 +62,7 @@ std::map<int, Role> roleMap = {
      {ATSPI_ROLE_RADIO_BUTTON, Role::RadioButton},
      {ATSPI_ROLE_CHECK_BOX, Role::CheckBox},
      {ATSPI_ROLE_LABEL, Role::Label},
+     {ATSPI_ROLE_STATUS_BAR, Role::Label},
      {ATSPI_ROLE_MENU, Role::Menu},
      {ATSPI_ROLE_MENU_BAR, Role::MenuBar},
      {ATSPI_ROLE_MENU_ITEM, Role::MenuItem},
@@ -67,6 +70,7 @@ std::map<int, Role> roleMap = {
      {ATSPI_ROLE_PAGE_TAB, Role::TabPage},
      {ATSPI_ROLE_COMBO_BOX, Role::ComboBox},
      {ATSPI_ROLE_TEXT, Role::TextBox},
+     {ATSPI_ROLE_TERMINAL, Role::TextBox},
      {ATSPI_ROLE_PASSWORD_TEXT, Role::TextBox},
      {ATSPI_ROLE_CALENDAR, Role::DatePicker},
      {ATSPI_ROLE_ICON, Role::Image},
@@ -75,6 +79,7 @@ std::map<int, Role> roleMap = {
      {ATSPI_ROLE_SLIDER, Role::Slider},
      {ATSPI_ROLE_PROGRESS_BAR, Role::ProgressIndicator},
      {ATSPI_ROLE_FILLER, Role::Pane},
+     {ATSPI_ROLE_PANEL, Role::Pane},
      {ATSPI_ROLE_SCROLL_PANE, Role::ScrollBox},
      {ATSPI_ROLE_SCROLL_BAR, Role::ScrollBar},
      {ATSPI_ROLE_ANIMATION, Role::BusyIndicator},
@@ -306,7 +311,7 @@ int Accessible::getIndex() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::children(AccessibleVector &result, bool recursive) const {
+void Accessible::children(AccessibleList &result, bool recursive) const {
   if (_role == ATSPI_ROLE_TABLE_ROW) {
     for (auto &child : rowEntries())
       result.emplace_back(std::move(child));
@@ -325,7 +330,7 @@ void Accessible::children(AccessibleVector &result, bool recursive) const {
   HandleAtspiError(error, std::string("child count of ") + getName());
   for (gint index = 0; index < count; ++index) {
     AtspiAccessible *child = atspi_accessible_get_child_at_index(_accessible, index, &error);
-    HandleAtspiError(error, mga::Utils::format("child of %s at index %d", getName(), index));
+    HandleAtspiError(error, mga::Utilities::format("child of %s at index %d", getName(), index));
     if (!isVisible(child))
       continue;
 
@@ -339,14 +344,14 @@ void Accessible::children(AccessibleVector &result, bool recursive) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::children() const {
+AccessibleList Accessible::children() const {
   if (_role == ATSPI_ROLE_TABLE_ROW)
     return rowEntries();
 
   if (_role == static_cast<AtspiRole>(ATSPI_ROLE_TABLE_COLUMN))
     return columnEntries();
   
-  AccessibleVector result;
+  AccessibleList result;
   GError *error = nullptr;
   gint count = atspi_accessible_get_child_count(_accessible, &error);
   HandleAtspiError(error, "child count");
@@ -362,19 +367,19 @@ AccessibleVector Accessible::children() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::windows() const {
+AccessibleList Accessible::windows() const {
   if (_isRoot)
     return children();
-  return AccessibleVector();
+  return AccessibleList();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::tabPages() const {
+AccessibleList Accessible::tabPages() const {
   if (getRole() != Role::TabView)
     throw std::runtime_error("Can't get tab pages from " + getPlatformRoleName());
   
-  AccessibleVector result;
+  AccessibleList result;
 
   for (auto &child : children()) {
     if (child->getRole() == Role::TabPage)
@@ -386,13 +391,13 @@ AccessibleVector Accessible::tabPages() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::rows() const {
+AccessibleList Accessible::rows() const {
   AtspiTable *tableIface = atspi_accessible_get_table_iface(_accessible);
   
   if (tableIface == nullptr)
     throw std::runtime_error("This element has no rows.");
 
-  AccessibleVector result;
+  AccessibleList result;
   GError *error = nullptr;
   gint rowCount = atspi_table_get_n_rows(tableIface, &error);
   
@@ -406,11 +411,11 @@ AccessibleVector Accessible::rows() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::rowEntries() const {
+AccessibleList Accessible::rowEntries() const {
   if (_role != ATSPI_ROLE_TABLE_ROW)
     throw std::runtime_error("This element has no entries.");
 
-  AccessibleVector result;
+  AccessibleList result;
   GError *error = nullptr;
   AtspiAccessible *parent = atspi_accessible_get_parent(_accessible, &error);
   AtspiTable *parentTable = atspi_accessible_get_table_iface(parent);
@@ -428,10 +433,10 @@ AccessibleVector Accessible::rowEntries() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::columns() const {
+AccessibleList Accessible::columns() const {
   AtspiTable *tableIface = atspi_accessible_get_table_iface(_accessible);
 
-  AccessibleVector result;
+  AccessibleList result;
   GError *error = nullptr;
   int colCount = atspi_table_get_n_columns(tableIface, &error);
   
@@ -444,8 +449,8 @@ AccessibleVector Accessible::columns() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::columnEntries() const {
-  AccessibleVector result;
+AccessibleList Accessible::columnEntries() const {
+  AccessibleList result;
   GError *error = nullptr;
 
   AtspiAccessible *parent = atspi_accessible_get_parent(_accessible, &error);
@@ -529,7 +534,7 @@ AccessibleRef Accessible::fromPoint(geometry::Point point, Accessible *applicati
   GError *error = nullptr;
 
   AtspiComponent *componentInterface = atspi_accessible_get_component(application->_accessible);
-  if(componentInterface != nullptr) {
+  if (componentInterface != nullptr) {
     AtspiAccessible *accessible = atspi_component_get_accessible_at_point(componentInterface, point.x, point.y, ATSPI_COORD_TYPE_SCREEN, &error);
     HandleAtspiError(error, "accessible at point");
 
@@ -613,7 +618,7 @@ bool Accessible::getState(AtspiStateType state, AtspiAccessible *acc) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 // void HandleAtspiError(GError *err, const std::string &attr) {
-//   if(err != nullptr)
+//   if (err != nullptr)
 //     throw std::runtime_error("Unable to access attribute: ["+attr+"] error:" + std::string(err->message));
 // }
 
@@ -635,7 +640,7 @@ bool Accessible::isFocused() const {
         AtspiAccessible *child = atspi_accessible_get_child_at_index(_accessible, index, &error);
         HandleAtspiError(error, "get child at index");
         if (child) {
-          if(getState(ATSPI_STATE_FOCUSED, child))
+          if (getState(ATSPI_STATE_FOCUSED, child))
             return true;
         }
     }
@@ -654,6 +659,12 @@ void Accessible::setFocused() {
     HandleAtspiError(error, "grab focus");
     std::this_thread::sleep_for(std::chrono::milliseconds(100)); // before continuing we have to give it a little bit of time to realy do the focus
   }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string Accessible::getID() const {
+  return "Not supported on this platform";
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -696,6 +707,33 @@ bool Accessible::isInternal() const {
 
 bool Accessible::equals(Accessible *other) const {
   return other->_accessible == _accessible;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Show the element's context menu, if supported
+ */
+
+static glong getKeyCodeFromKeyval(glong keyval);
+
+void Accessible::showMenu() {
+  setFocused();
+  GError *error = nullptr;
+  atspi_generate_keyboard_event(getKeyCodeFromKeyval(GDK_KEY_Menu), nullptr, ATSPI_KEY_PRESSRELEASE, &error);
+  HandleAtspiError(error, "context menu");
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Accessible::menuShown() const {
+    if (_role != ATSPI_ROLE_MENU)
+      throw std::runtime_error("Shown attribute only valid for menus.");
+
+    AccessibleList accessibles;
+    children(accessibles, true);
+    return accessibles.size() > 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -971,7 +1009,7 @@ void Accessible::setActiveTabPage(std::string const& name) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::activate() {
-  if(_role == ATSPI_ROLE_PAGE_TAB) {
+  if (_role == ATSPI_ROLE_PAGE_TAB) {
      getParent()->setActiveTabPage(getName());
   } else if (_role == ATSPI_ROLE_MENU_ITEM || _role == ATSPI_ROLE_MENU) {
     click();
@@ -981,7 +1019,7 @@ void Accessible::activate() {
 //----------------------------------------------------------------------------------------------------------------------
 
 bool Accessible::isActiveTab() const {
-  if(_role == ATSPI_ROLE_PAGE_TAB) {
+  if (_role == ATSPI_ROLE_PAGE_TAB) {
     auto acc = getParent()->_accessible;
     AtspiSelection *selection = atspi_accessible_get_selection_iface(acc);
     if (selection != nullptr) {
@@ -1024,7 +1062,7 @@ void Accessible::setSelected(bool value) {
 //----------------------------------------------------------------------------------------------------------------------
 
 double Accessible::getScrollPosition() const {
-  if(_role != ATSPI_ROLE_SCROLL_BAR) {
+  if (_role != ATSPI_ROLE_SCROLL_BAR) {
     throw std::runtime_error("This is not a scrollbar.");
   }
 
@@ -1034,7 +1072,7 @@ double Accessible::getScrollPosition() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::setScrollPosition(double value) {
-  if(_role != ATSPI_ROLE_SCROLL_BAR) {
+  if (_role != ATSPI_ROLE_SCROLL_BAR) {
     throw std::runtime_error("This is not a scrollbar.");
   }
 
@@ -1044,21 +1082,13 @@ void Accessible::setScrollPosition(double value) {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string Accessible::getTitle() const {
-  if (_role == ATSPI_ROLE_PUSH_BUTTON)
-    throw std::runtime_error("This property is not supported on this platform for ROLE_PUSH_BUTTON");
-
-  GError *error = nullptr;
-  AtspiRole realRole = atspi_accessible_get_role(_accessible, &error);
-  if (realRole == ATSPI_ROLE_TABLE_COLUMN_HEADER || realRole == ATSPI_ROLE_TABLE_ROW_HEADER) 
-    return getName();
-  
-  return getText();
+  throw std::runtime_error("This property is not supported on this platform");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::setTitle(const std::string &title) {
-  setText(title);
+  throw std::runtime_error("This property is not supported on this platform");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1087,8 +1117,10 @@ std::string Accessible::getText() const {
     textIface = atspi_accessible_get_text(textChild);
   }
   
-  if (textIface == nullptr)
+  if (textIface == nullptr) {
+    std::cerr << "This element does not provide Text Interface" << std::endl;
     return "";
+  }
 
   int cCount = atspi_text_get_character_count(textIface, &error);
   HandleAtspiError(error, "get character count");
@@ -1199,6 +1231,12 @@ void Accessible::click() {
 
   auto bounds = getBounds(true);
   GError *error = nullptr;
+
+  // Sometimes the mouse first has to be moved over the element, let's do this.
+  atspi_generate_mouse_event(bounds.position.x + bounds.size.width / 2, bounds.position.y + bounds.size.height / 2, "abs", &error);
+  HandleAtspiError(error, "mouseMove");
+  std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
   atspi_generate_mouse_event(bounds.position.x + bounds.size.width / 2, bounds.position.y + bounds.size.height / 2, "b1c", &error);
   HandleAtspiError(error, "click");
   std::this_thread::sleep_for(std::chrono::milliseconds(20));
@@ -1213,7 +1251,7 @@ void Accessible::confirm() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::stepUp() {
-  if(implementsValue()) {
+  if (implementsValue()) {
     double incVal = getIncrementValue();
     double curVal = getValue();
     setValue(curVal + incVal);
@@ -1225,7 +1263,7 @@ void Accessible::stepUp() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::stepDown() {
-  if(implementsValue()) {
+  if (implementsValue()) {
     double incVal = getIncrementValue();
     double curVal = getValue();
     setValue(curVal - incVal);
@@ -1387,39 +1425,6 @@ geometry::Point Accessible::getMousePosition() const {
   window->get_pointer(x, y, mask);
   return geometry::Point(x, y);
 }
-
-//----------------------------------------------------------------------------------------------------------------------
-//static int getModifierVal(const aal::Modifier mod) {
-//  if (containsModifier(mod, aal::Modifier::NoModifier))
-//    return 0;
-//
-//  if (containsModifier(mod, aal::Modifier::ShiftLeft))
-//    return GDK_KEY_Shift_L;
-//
-//  if (containsModifier(mod, aal::Modifier::ShiftRight))
-//    return GDK_KEY_Shift_R;
-//
-//  if (containsModifier(mod, aal::Modifier::ControlLeft))
-//    return GDK_KEY_Control_L;
-//
-//  if (containsModifier(mod, aal::Modifier::ControlRight))
-//    return GDK_KEY_Control_R;
-//
-//  if (containsModifier(mod, aal::Modifier::AltLeft))
-//    return GDK_KEY_Alt_L;
-//
-//  if (containsModifier(mod, aal::Modifier::AltRight))
-//    return GDK_KEY_Alt_R;
-//
-//  if (containsModifier(mod, aal::Modifier::MetaLeft))
-//    return GDK_KEY_Meta_L;
-//
-//  if (containsModifier(mod, aal::Modifier::MetaRight))
-//    return GDK_KEY_Meta_R;
-//
-//  std::cerr << "Unhandled modifier type" << std::endl;
-//  return 0;
-//}
 
 static int getKeyVal(const aal::Key k) {
   switch(k) {
@@ -1645,6 +1650,35 @@ void Accessible::keyPress(const aal::Key k, aal::Modifier modifier) {
   modifierKey(modifier, false);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Sends key events to the target, generated from a given string. This way there's no need to deal with keyboard layouts.
+ */
+void Accessible::typeString(std::string const& input) const {
+  VirtualKeyGenerator gen;
+
+  GError *error = nullptr;
+  gunichar *ucs4_result = g_utf8_to_ucs4(input.c_str(), -1 , nullptr, nullptr, &error);
+  if (ucs4_result) {
+    gunichar *p;
+    for( p = ucs4_result; p[0]; p++) {
+      auto event = gen.generateEvent(p[0]);
+      event.press();
+      event.release();
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    g_free(ucs4_result);
+  } else {
+    if (error)
+      std::cerr << "typeString caught an error: " << error->message << std::endl;
+  }
+}
+
+void Accessible::bringToFront() {
+  throw std::runtime_error("Accessible::bringToFront is not supported on this platform");
+}
+
 extern GMainContext *mainGlibContext;
 
 class highlightWindow : public Gtk::Window {
@@ -1767,7 +1801,7 @@ void Accessible::setSelectedText(std::string const& text) {
 
   auto range = getSelectionRange();
   GError *error = nullptr;
-  if(!atspi_editable_text_delete_text(editableTextIface, range.start, range.end, &error)) {
+  if (!atspi_editable_text_delete_text(editableTextIface, range.start, range.end, &error)) {
     HandleAtspiError(error, "delete text");
     throw std::runtime_error("Unable to set selected text");
   }
@@ -1843,7 +1877,7 @@ void Accessible::setDate(std::string const& date) {
 
 std::size_t Accessible::getCharacterCount() const {
   AtspiText *textIface = getInterfaceText();
-  if(textIface == nullptr)
+  if (textIface == nullptr)
     return 0;
 
   GError *error = nullptr;
@@ -1933,6 +1967,18 @@ geometry::Rectangle Accessible::getBounds(AtspiAccessible *acc, bool screenCoord
 
 geometry::Rectangle Accessible::getBounds(bool screenCoordinates) const {
   return getBounds(_accessible, screenCoordinates);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Accessible::setBounds(geometry::Rectangle const& bounds) {
+  AtspiComponent *componentInterface = atspi_accessible_get_component(_accessible);
+  if (componentInterface == nullptr)
+    throw std::runtime_error("Unable to get bounds for this accessible");
+
+  GError *error = nullptr;
+  atspi_component_set_extents(componentInterface, bounds.position.x, bounds.position.y, bounds.size.width, bounds.size.height, ATSPI_COORD_TYPE_SCREEN, &error);
+  HandleAtspiError(error, "set extents");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2084,7 +2130,7 @@ void Accessible::setEnabled(bool value) {
 //----------------------------------------------------------------------------------------------------------------------
 
 bool Accessible::isEditable() const {
-  if(_role != ATSPI_ROLE_COMBO_BOX)
+  if (_role != ATSPI_ROLE_COMBO_BOX)
     throw std::runtime_error("The editable type is only supported for combobboxes.");
 
   GError *error = nullptr;

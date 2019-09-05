@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -32,6 +32,7 @@
 #include "utilities.h"
 
 #include "context-management.h"
+#include "property.h"
 
 using namespace mga;
 using namespace aal;
@@ -40,10 +41,10 @@ using namespace std::literals::chrono_literals;
 
 //----------------- AutomationContext ----------------------------------------------------------------------------------
 
-AutomationContext::AutomationContext(const std::string &name, const std::vector<std::string> &params, bool async,
-                                     bool newInstance, ShowState showState, std::chrono::milliseconds timeout) {
+AutomationContext::AutomationContext(const std::string &name, const std::vector<std::string> &params,  bool newInstance,
+                                     ShowState showState, std::chrono::milliseconds timeout) {
 
-  _pid = Platform::get().launchApplication(name, params, async, newInstance, showState);
+  _pid = Platform::get().launchApplication(name, params, newInstance, showState);
 
   bool timeoutReached = false;
   std::future<bool> startup = std::async(std::launch::async, [&]() {
@@ -53,27 +54,63 @@ AutomationContext::AutomationContext(const std::string &name, const std::vector<
       acc = Accessible::getByPid(_pid);
     }
 
-    // The memory of this instance is *not* managed by the context, but by a JS property we set on it's JS equivalent.
-    _root = new UIElement(std::move(acc), nullptr);
+    // The memory of this instance is *not* managed by the context, but by a JS property we set on its JS equivalent.
+    _root = new UIRootElement(*this, std::move(acc));
     return true;
   });
 
   if (startup.wait_for(timeout) == std::future_status::timeout)
     timeoutReached = true;
 
-  if (timeoutReached)
+  if (timeoutReached) {
+    Platform::get().terminate(_pid, true);
     throw std::runtime_error("Unable to get Accessibility Context for the application: " + name + " [" +
       std::to_string(_pid) + "]");
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 AutomationContext::AutomationContext(const int pid) {
-  _root = new UIElement(Accessible::getByPid(pid), nullptr);
+  _root = new UIRootElement(*this, Accessible::getByPid(pid));
   if (_root->isValid())
     _pid = pid;
   else
     _pid = 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Registers property access for a UI element in our statistics (if enabled).
+ */
+void AutomationContext::incStatCount(UIElement *element, StatCounterType type, Property property) {
+  if (_collectStatistics) {
+    std::stack<std::pair<std::string, aal::Role>> path;
+    path.push({ element->getName(), element->getRole() });
+    if (!_root->equals(element)) {
+      auto run = element->getParent();
+      while (true) {
+        path.push({ run->getName(), run->getRole() });
+        if (_root->equals(run.get()))
+          break;
+
+        run = run->getParent();
+      }
+    }
+
+    ElementStatistics *stats = &_statistics;
+    std::pair<ElementStatistics::iterator, bool> lookup;
+    while (true) {
+      lookup = stats->insert({ path.top().first, { path.top().second, {}, {}}});
+      path.pop();
+      if (path.empty())
+        break;
+      stats = &lookup.first->second.children;
+    }
+
+    ++lookup.first->second.counts[static_cast<size_t>(property)][static_cast<size_t>(type)];
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -95,7 +132,6 @@ void AutomationContext::constructor(JSObject *instance, JSValues &args) {
   if (args.is(ValueType::String, 0)) {
     std::string name = args.get(0);
 
-    bool async = true;
     auto timeout = 5000ms;
     bool newInstance = false;
     ShowState showState = ShowState::Normal;
@@ -105,7 +141,6 @@ void AutomationContext::constructor(JSObject *instance, JSValues &args) {
       int value = options.get("showState", static_cast<int>(ShowState::Normal));
       showState = static_cast<ShowState>(value);
       newInstance = options.get("newInstance", false);
-      async = options.get("async", true);
 
       double t = options.get("timeout", 5.0);
       timeout = std::chrono::milliseconds(static_cast<long long>(t * 1000));
@@ -119,7 +154,7 @@ void AutomationContext::constructor(JSObject *instance, JSValues &args) {
 
     // Create the context instance and set the root property for it.
     try {
-      ac = new AutomationContext(name, params, async, newInstance, showState, timeout);
+      ac = new AutomationContext(name, params, newInstance, showState, timeout);
     } catch (std::runtime_error &e) {
       args.context()->throwScriptingError(ScriptingError::Error, e.what());
     }
@@ -144,10 +179,59 @@ void AutomationContext::constructor(JSObject *instance, JSValues &args) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void AutomationContext::enumerateValues(ScriptingContext *context, ElementCounters const& counters, JSObject &target) {
+  JSObject properties(context);
+  size_t count = 0;
+  for (size_t i = 0; i < static_cast<size_t>(Property::PropertyCount); ++i) {
+    Property property = static_cast<Property>(i);
+    auto values = counters.counts[i];
+    if (values[0] > 0 || values[1] > 0 || values[2] > 0) {
+      ++count;
+
+      JSArray counts(context);
+      counts.addValues({ values[0], values[1], values[2] });
+      properties.set(propertyToString(property), counts);
+    }
+  }
+
+  if (count > 0)
+    target.set("properties", properties);
+
+  if (!counters.children.empty()) {
+    JSObject children(context);
+    for (auto entry : counters.children) {
+      JSObject child(context);
+      enumerateValues(context, entry.second, child);
+      children.set(entry.first.empty() ? "<no name>" : entry.first, child);
+    }
+
+    target.set("children", children);
+  }
+
+  target.set("type", roleToJSType(counters.role));
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void AutomationContext::setupPrototype(JSObject &prototype) {
   prototype.defineVirtualProperty("running", [](ScriptingContext *, JSExport *ac, std::string const&) {
-    return dynamic_cast<AutomationContext *>(ac)->_pid != 0;
+    auto aContext = dynamic_cast<AutomationContext *>(ac);
+    if (aContext->_pid == 0)
+      return false;
+
+    // However if the pid is set, we need to check if maybe it's some leftover and update it.
+    bool isRunning = Platform::get().isRunning(aContext->_pid);
+    if (!isRunning) {
+      aContext->_pid = 0;
+    }
+    return isRunning;
   }, nullptr);
+
+  prototype.defineVirtualProperty("collectStatistics", [](ScriptingContext *, JSExport *ac, std::string const&) {
+    return dynamic_cast<AutomationContext *>(ac)->_collectStatistics;
+  }, [](ScriptingContext *, JSExport *ac, std::string const&, JSVariant const& value) {
+    dynamic_cast<AutomationContext *>(ac)->_collectStatistics = value;
+  });
 
   prototype.defineFunction({ "equals" }, 1, [](JSExport *ac, JSValues &args) {
     if (!args.is(ValueType::Object, 0)) {
@@ -299,6 +383,14 @@ void AutomationContext::setupPrototype(JSObject &prototype) {
     me->_root->_accessible->keyPress(static_cast<aal::Key>(key), modifierFromNumber(modifier));
   });
 
+  prototype.defineFunction({ "typeString" }, 1, [](JSExport *ac, JSValues &args) {
+    // parameters: string
+    std::string input = args.as(ValueType::String, 0);
+
+    AutomationContext *me = dynamic_cast<AutomationContext *>(ac);
+    me->_root->_accessible->typeString(input);
+  });
+
   prototype.defineFunction( { "highlight" }, 1, [](JSExport *ac, JSValues &args) {
     // parameter: UIElement?
     JSVariant object = args.get(0);
@@ -311,6 +403,19 @@ void AutomationContext::setupPrototype(JSObject &prototype) {
     UIElement *target = dynamic_cast<UIElement *>(static_cast<JSObject>(object).getBacking());
     if (target != nullptr)
       target->_accessible->highlight();
+  });
+
+  prototype.defineFunction({ "statistics" }, 0, [](JSExport *ac, JSValues &args) {
+    AutomationContext *me = dynamic_cast<AutomationContext *>(ac);
+    JSObject result(args.context());
+
+    for (auto entry : me->_statistics) {
+      JSObject object(args.context());
+      enumerateValues(args.context(), entry.second, object);
+      result.set(entry.first, object);
+    }
+
+    args.pushResult(result);
   });
 
 }
@@ -417,6 +522,17 @@ void JSContext::initialize(std::string const& configFile) {
     }
     args.pushResult(screens);
   });
+
+  mga.defineFunction({ "getClipboardText" }, 0, [](JSExport *ac, JSValues &args) {
+    std::ignore = ac;
+    args.pushResult(Platform::get().getClipboardText());
+  });
+
+  mga.defineFunction({ "setClipboardText" }, 1, [](JSExport *ac, JSValues &args) {
+    std::ignore = ac;
+    Platform::get().setClipboardText(args.get(0));
+  });
+
 
   if (_enableDebugMode)
     _debugAdapter.reset(new DebugAdapter(&_context));

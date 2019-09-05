@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -810,7 +810,7 @@ void ScriptingContext::emitEvent(EventEmitter const* emitter) const {
       // stack: [ event-name <varargs> array listener-object listener this-binding <varargs> ]
       duk_int_t result = duk_pcall_method(_ctx, argCount);
       if (result != DUK_EXEC_SUCCESS) {
-        throwScriptingError(ScriptingError::Error, Utils::format("callback failed, %s", duk_safe_to_string(_ctx, -1)));
+        throwScriptingError(ScriptingError::Error, Utilities::format("callback failed, %s", duk_safe_to_string(_ctx, -1)));
       } else if (once) {
         removalCandidates.insert(index);
       }
@@ -1104,7 +1104,7 @@ void ScriptingContext::getCleanedStackTrace() const {
   duk_pop(_ctx); // Remove stack trace from stack.
 
   // Clean up the stack trace a bit. There's some stuff in it that isn't interesting for JS.
-  std::vector<std::string> lines = Utils::split(error);
+  std::vector<std::string> lines = Utilities::split(error);
   lines.erase(std::remove_if(lines.begin(), lines.end(), [](std::string const& line) {
     return (line.find(".cpp") != std::string::npos) || (line.find("duktape") != std::string::npos);
   }), lines.end());
@@ -1124,7 +1124,7 @@ void ScriptingContext::getCleanedStackTrace() const {
       }
     }
   }
-  error = Utils::concat(lines);
+  error = Utilities::concat(lines);
   duk_push_string(_ctx, error.c_str());
 }
 
@@ -1496,7 +1496,7 @@ std::string ScriptingContext::resolveFolder(ScriptingContext *context, std::stri
  */
 std::set<std::string> ScriptingContext::moduleFolders(std::string const& path) {
   std::set<std::string> result;
-  std::vector<std::string> parts = Utils::splitBySet(path, R"(/\)");
+  std::vector<std::string> parts = Utilities::splitBySet(path, R"(/\)");
 
   for (ssize_t i = static_cast<ssize_t>(parts.size()) - 1; i >= 0; --i) {
     if (parts[static_cast<size_t>(i)] == "node_modules")
@@ -1536,7 +1536,7 @@ duk_ret_t ScriptingContext::resolveModule(duk_context *ctx) {
   std::string cwd = Process::cwd();
 
   try {
-    if (Path::isAbsolute(requestedID) || Utils::hasPrefix(requestedID, ".")) {
+    if (Path::isAbsolute(requestedID) || Utilities::hasPrefix(requestedID, ".")) {
       std::string temp;
       if (Path::isAbsolute(requestedID)) {
         temp = Path::relative(cwd, requestedID);
@@ -1603,7 +1603,7 @@ duk_ret_t ScriptingContext::resolveModule(duk_context *ctx) {
   }
 
   if (resolvedID.empty()) {
-    context->throwScriptingError(ScriptingError::Error, Utils::format("Cannot resolve module %s", requestedID.c_str()));
+    context->throwScriptingError(ScriptingError::Error, Utilities::format("Cannot resolve module %s", requestedID.c_str()));
     return 0;
   }
 
@@ -1632,7 +1632,7 @@ duk_ret_t ScriptingContext::loadModule(duk_context *ctx) {
     return 0;
   }
 
-  std::string extension = Utils::toLower(Path::extname(requestedID));
+  std::string extension = Utilities::toLower(Path::extname(requestedID));
   duk_dup(ctx, -3);
   duk_put_prop_string(ctx, -2, "filename");
   try {
@@ -1644,7 +1644,7 @@ duk_ret_t ScriptingContext::loadModule(duk_context *ctx) {
     return 1; // Use result on stack.
   } catch (std::runtime_error &e) {
     context->throwScriptingError(ScriptingError::Uri,
-                                 Utils::format("Cannot load module %s, %s", requestedID.c_str(), e.what()));
+                                 Utilities::format("Cannot load module %s, %s", requestedID.c_str(), e.what()));
 
     return 0; // Undefined.
   }

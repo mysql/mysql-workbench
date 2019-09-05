@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -37,6 +37,7 @@
 #include <libxml/xmlmemory.h>
 #include "base/threading.h"
 #include <string>
+#include <gmodule.h>
 
 #ifndef _NODLL_
 #if defined(_MSC_VER)
@@ -100,9 +101,9 @@ namespace grt {
 
   class MYSQLGRT_PUBLIC bad_item : public std::logic_error {
   public:
-    bad_item(size_t index, size_t count) : std::logic_error("Index out of range.") {
+    bad_item(size_t index, size_t count) : std::logic_error("Index out of range") {
     }
-    bad_item(const std::string &name) : std::logic_error("Invalid item name '" + name + "'.") {
+    bad_item(const std::string &name) : std::logic_error("Invalid item name '" + name + "'") {
     }
   };
 
@@ -241,7 +242,7 @@ namespace grt {
         _value->retain();
     }
 
-    /*virtual*/ ~ValueRef() {
+    virtual ~ValueRef() {
       if (_value)
         _value->release();
     }
@@ -503,27 +504,27 @@ namespace grt {
 #if 0
   //----------------------------------------------------------------------
   // Weak Object Refs
-  
+
   template<class C> class WeakRef;
-  
-  typedef WeakRef<internal::Object> WeakObjectRef;  
-  
+
+  typedef WeakRef<internal::Object> WeakObjectRef;
+
   /** Holds a weak reference to a GRT object.
-   * 
+   *
    * Use it as WeakRef<db_Table>
-   * 
+   *
    * Weak references will not increment the reference count of the referenced object,
    * but will be able to tell whether it has been deleted. Use it to avoid circular
    * loops and other situations where you don't want a real reference to an object.
    *
    * @ingroup GRT
-   */ 
+   */
   template<class Class>
   class WeakRef
     {
     public:
       typedef Class RefType;
-      
+
       /// unitialized weak reference is invalid
       WeakRef() : _content(0), _valid_flag(false) // unassigned means reference is undefined
       {
@@ -537,19 +538,19 @@ namespace grt {
 
       // Create a weak-ref from a normal ref
       WeakRef(const Ref<Class> &object_ref)
-      : _content(object_ref.is_valid() ? &object_ref.content() : 0), 
+      : _content(object_ref.is_valid() ? &object_ref.content() : 0),
         _valid_flag(object_ref.is_valid() ? object_ref->weakref_valid_flag() : internal::ObjectValidFlag(false))
       {
       }
 
       // gets a real usable reference to the object
       Ref<Class> lock() const
-      { 
+      {
         if (!_valid_flag.valid())
           throw std::logic_error("attempt to access invalid weak-reference");
         return Ref<Class>(_content);
       }
-      
+
       void reset()
       {
         _content= 0; // pointer was nullified, it's a valid reference to null (ie not undefined)
@@ -561,45 +562,45 @@ namespace grt {
       {
         return _valid_flag.valid();
       }
-      
-      WeakRef<Class> &operator= (const WeakRef<Class>& other) 
-      { 
+
+      WeakRef<Class> &operator= (const WeakRef<Class>& other)
+      {
         WeakRef<Class> tmp(other);
         swap(tmp);
-        return *this; 
+        return *this;
       }
 
-      WeakRef<Class> &operator= (const Ref<Class>& other) 
-      { 
+      WeakRef<Class> &operator= (const Ref<Class>& other)
+      {
         WeakRef<Class> tmp(other);
         swap(tmp);
-        return *this; 
+        return *this;
       }
-    
+
       void swap(Ref<Class> &other)
       {
         std::swap(_content, other._content);
         _valid_flag.swap(other._valid_flag);
       }
-      
-      bool operator == (const WeakRef<Class>& other) const 
-      { 
+
+      bool operator == (const WeakRef<Class>& other) const
+      {
         return lock() == other.lock();
       }
 
-      bool operator != (const WeakRef<Class>& other) const 
+      bool operator != (const WeakRef<Class>& other) const
       {
         return lock() != other.lock();
       }
 
     private:
       /* Create a weak reference to a raw object pointer... is not safe, so we just disallow it */
-      explicit WeakRef(Class *instance) 
+      explicit WeakRef(Class *instance)
       : _content(instance),  // if object is null, the reference is valid, just null
       _valid_flag(instance ? instance->weakref_valid_flag() : internal::ObjectValidFlag(true))
       {
       }
-      
+
     private:
       Class *_content;
       internal::ObjectValidFlag _valid_flag;
@@ -2240,6 +2241,8 @@ namespace grt {
     virtual void closeModule() noexcept {
     }
 
+    virtual GModule* getModule() const { return nullptr; };
+
     std::string name() const {
       return _name;
     }
@@ -2381,8 +2384,14 @@ namespace grt {
     std::string format(bool withtype = false) const;
   };
 
+
   typedef std::function<bool(const Message &, void *)> MessageSlot;
   typedef std::function<bool()> StatusQuerySlot;
+
+  struct SlotHolder {
+    MessageSlot slot;
+    SlotHolder(MessageSlot s) : slot(s) {};
+  };
 
   //-----------------------------------------------------------------------------------------------
 
@@ -2457,6 +2466,11 @@ namespace grt {
 
     // metaclasss
 
+    /**
+     * Indicate whenever metaclasses should be registered.
+     */
+    bool metaclassesNeedRegister();
+
     /** Load metaclasses defined in a XML file.
      *
      * @ref end_loading_metaclasses() must be called once no more metaclasses
@@ -2465,6 +2479,15 @@ namespace grt {
      * @param requires list of other XML files required by the loaded one
      */
     void load_metaclasses(const std::string &file, std::list<std::string> *requires = 0);
+
+    /**
+     * This one should not be used during normal workbench run,
+     * it's mean to be used only in the test.
+     * Causes all metaclasses to be unloaded,
+     * and grt to be recreated.
+     */
+    void reinitialiseForTests();
+
     /** Scans a directory for metaclass definition files and load them.
      * Looks in the directory for files with the structs*.xml pattern and loads metaclasses
      * defined in them. The list of other struct files pre-required is returned in the optional
@@ -2688,11 +2711,12 @@ namespace grt {
     void cancel_undoable_action();
 
     // grt logging/messaging
-    int message_handler_count() {
-      return (int)_message_slot_stack.size();
+    int messageHandlerCount() {
+      return (int)_messageSlotStack.size();
     }
-    void push_message_handler(const MessageSlot &slot);
-    void pop_message_handler();
+    void pushMessageHandler(SlotHolder *slot);
+    void popMessageHandler();
+    void removeMessageHandler(SlotHolder *slot);
 
     void push_status_query_handler(const StatusQuerySlot &slot);
     void pop_status_query_handler();
@@ -2727,7 +2751,7 @@ namespace grt {
 
     std::map<std::string, ObjectRef> _objects_cache;
 
-    std::vector<MessageSlot> _message_slot_stack;
+    std::vector<SlotHolder*> _messageSlotStack;
     std::vector<StatusQuerySlot> _status_query_slot_stack;
 
     std::vector<std::pair<float, float> > _progress_step_stack;

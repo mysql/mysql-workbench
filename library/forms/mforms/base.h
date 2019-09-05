@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -48,6 +48,22 @@
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 namespace mforms {
+
+  template<typename T>
+  T setReleaseOnAdd(T obj, bool releaseOnAdd = true) {
+    obj->set_release_on_add(releaseOnAdd);
+    return obj;
+  }
+
+  template<typename T>
+  void retainIfNeeded(T obj) {
+    if (obj != nullptr) {
+      if (!obj->release_on_add())
+        obj->retain();
+      else
+        obj->set_release_on_add(false);
+    }
+  }
 
   // The root of our mforms hierarchy.
   class MFORMS_EXPORT Object {

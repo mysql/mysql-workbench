@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value _ptr_="0x7f22d0001390" type="dict">
+    <value type="int" key="CaseSensitive">1</value>
+    <value type="int" key="GenerateCreateIndex">0</value>
+    <value type="int" key="GenerateDrops">0</value>
+    <value type="int" key="GenerateInserts">0</value>
+    <value type="int" key="GenerateSchemaDrops">0</value>
+    <value type="int" key="GenerateUse">0</value>
+    <value type="int" key="GenerateWarnings">0</value>
+    <value type="int" key="NoFKForInserts">0</value>
+    <value type="int" key="NoUsersJustPrivileges">0</value>
+    <value type="int" key="NoViewPlaceholders">0</value>
+    <value type="string" key="OutputScriptHeader"></value>
+    <value _ptr_="0x7f22d0002bc0" type="list" content-type="string" key="RoutineFilterList">
+      <value type="string">db.mysql.Routine::`sakila_test`.`film_in_stock`::film_in_stock</value>
+      <value type="string">db.mysql.Routine::`sakila_test`.`film_not_in_stock`::film_not_in_stock</value>
+      <value type="string">db.mysql.Routine::`sakila_test`.`get_customer_balance`::get_customer_balance</value>
+      <value type="string">db.mysql.Routine::`sakila_test`.`inventory_held_by_customer`::inventory_held_by_customer</value>
+      <value type="string">db.mysql.Routine::`sakila_test`.`inventory_in_stock`::inventory_in_stock</value>
+      <value type="string">db.mysql.Routine::`sakila_test`.`rewards_report`::rewards_report</value>
+    </value>
+    <value _ptr_="0x7f22d00030e0" type="list" content-type="string" key="SchemaFilterList">
+      <value type="string">db.mysql.Schema::`default`.`sakila_test`::sakila</value>
+    </value>
+    <value type="int" key="SkipFKIndexes">0</value>
+    <value type="int" key="SkipForeignKeys">0</value>
+    <value _ptr_="0x7f22d00010c0" type="list" content-type="string" key="TableFilterList">
+      <value type="string">db.mysql.Table::`sakila_test`.`actor`::actor</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`address`::address</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`category`::category</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`city`::city</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`country`::country</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`customer`::customer</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`film`::film</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`film_actor`::film_actor</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`film_category`::film_category</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`film_text`::film_text</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`inventory`::inventory</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`language`::language</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`payment`::payment</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`rental`::rental</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`staff`::staff</value>
+      <value type="string">db.mysql.Table::`sakila_test`.`store`::store</value>
+    </value>
+    <value _ptr_="0x7f22d0001340" type="list" content-type="string" key="TriggerFilterList">
+      <value type="string">db.mysql.Trigger::`sakila_test`.`del_film`::del_film</value>
+      <value type="string">db.mysql.Trigger::`sakila_test`.`ins_film`::ins_film</value>
+      <value type="string">db.mysql.Trigger::`sakila_test`.`upd_film`::upd_film</value>
+    </value>
+    <value type="int" key="TriggersAfterInserts">0</value>
+    <value type="int" key="UseShortNames">0</value>
+    <value _ptr_="0x7f22d0003050" type="list" content-type="string" key="UserFilterList"/>
+    <value _ptr_="0x7f22d0002870" type="list" content-type="string" key="ViewFilterList">
+      <value type="string">db.mysql.View::`sakila_test`.`actor_info`::actor_info</value>
+      <value type="string">db.mysql.View::`sakila_test`.`customer_list`::customer_list</value>
+      <value type="string">db.mysql.View::`sakila_test`.`film_list`::film_list</value>
+      <value type="string">db.mysql.View::`sakila_test`.`nicer_but_slower_film_list`::nicer_but_slower_film_list</value>
+      <value type="string">db.mysql.View::`sakila_test`.`sales_by_film_category`::sales_by_film_category</value>
+      <value type="string">db.mysql.View::`sakila_test`.`sales_by_store`::sales_by_store</value>
+      <value type="string">db.mysql.View::`sakila_test`.`staff_list`::staff_list</value>
+    </value>
+  </value>
+</data>

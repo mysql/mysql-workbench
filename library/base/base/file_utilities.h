@@ -111,7 +111,15 @@ namespace base {
   // creates the directory, returns false if the directory exists.. throws exception on error
   BASELIBRARY_PUBLIC_FUNC bool create_directory(const std::string &path, int mode, bool with_parents = false);
   BASELIBRARY_PUBLIC_FUNC bool copyDirectoryRecursive(const std::string &src, const std::string &dest,
-                                                      bool includeFiles = true);
+                                                      bool includeFiles = true); // Obsolete with C++17
+
+  BASELIBRARY_PUBLIC_FUNC std::wifstream openTextInputStream(const std::string &fileName);
+  BASELIBRARY_PUBLIC_FUNC std::wofstream openTextOutputStream(const std::string &fileName);
+
+  BASELIBRARY_PUBLIC_FUNC std::ifstream openBinaryInputStream(const std::string &fileName);
+  BASELIBRARY_PUBLIC_FUNC std::ofstream openBinaryOutputStream(const std::string &fileName);
+
+  BASELIBRARY_PUBLIC_FUNC bool copyFile(const std::string &src, const std::string &dest); // Obsolete with C++17
 
   BASELIBRARY_PUBLIC_FUNC bool remove(const std::string &path);
   BASELIBRARY_PUBLIC_FUNC bool tryRemove(const std::string &path);
@@ -143,4 +151,6 @@ namespace base {
 
   BASELIBRARY_PUBLIC_FUNC std::string pathlistAppend(const std::string &l, const std::string &s);
   BASELIBRARY_PUBLIC_FUNC std::string pathlistPrepend(const std::string &l, const std::string &s);
+
+  BASELIBRARY_PUBLIC_FUNC std::string cwd();
 };

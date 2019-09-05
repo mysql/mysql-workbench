@@ -90,7 +90,6 @@ BASELIBRARY_PUBLIC_FUNC const char *strfindword(const char *str, const char *wor
 BASELIBRARY_PUBLIC_FUNC int base_mkdir(const char *filename, int mode, int *error_no);
 BASELIBRARY_PUBLIC_FUNC int base_chdir(const char *path);
 
-BASELIBRARY_PUBLIC_FUNC int copy_file(const char *source, const char *target);
 BASELIBRARY_PUBLIC_FUNC int copy_folder(const char *source_folder, const char *target_folder);
 
 #include <vector>

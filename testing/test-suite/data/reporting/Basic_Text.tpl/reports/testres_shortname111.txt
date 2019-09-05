@@ -1,0 +1,7 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was modified
+Trigger `grtdiff_alter_test`.`tr1` was dropped
+----------------------------------------------
+End of MySQL Workbench Report

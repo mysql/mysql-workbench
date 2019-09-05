@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -26,23 +26,28 @@
 #include "jsexport.h"
 
 namespace mga {
+  class AutomationContext;
   class ScriptingContext;
+  class UIRootElement;
 
-  // That main interface to the accessibility/automation layer on each platform.
+  // The main interface to the accessibility/automation layer on each platform.
   class UIElement : public JSExport {
     friend class APath;
     friend class AutomationContext;
   public:
     UIElement() = delete;
-    UIElement(aal::AccessibleRef ref, UIElement *root);
+    UIElement(aal::AccessibleRef ref, UIRootElement *root);
     virtual ~UIElement();
 
     UIElement* operator = (UIElement const& other) = delete;
     UIElementRef clone() const;
 
     bool isValid() const;
+    std::string getName() const;
+    aal::Role getRole() const;
     
     bool hasChild(UIElement *child) const;
+    UIElementRef childById(std::string const& name, bool throwIfMoreThanOne = true) const;
     UIElementRef childByName(std::string const& name, bool throwIfMoreThanOne = true) const;
     UIElementRef containingRow() const;
     UIElementRef horizontalScrollBar() const;
@@ -71,7 +76,7 @@ namespace mga {
 
   protected:
     aal::AccessibleRef _accessible;
-    UIElement *_root;
+    UIRootElement *_root;
 
     static JSVariant getter(ScriptingContext *context, JSExport *element, std::string const& name);
     static void setter(ScriptingContext *context, JSExport *element, std::string const& name, JSVariant value);
@@ -83,6 +88,7 @@ namespace mga {
     static void defineUIButtonBase(ScriptingContext &context, JSObject &module);
     static void defineUIButton(ScriptingContext &context, JSObject &module);
     static void defineUIRadioButton(ScriptingContext &context, JSObject &module);
+    static void defineUIRadioGroup(ScriptingContext &context, JSObject &module);
     static void defineUICheckBox(ScriptingContext &context, JSObject &module);
     static void defineUIComboBox(ScriptingContext &context, JSObject &module);
     static void defineUIExpander(ScriptingContext &context, JSObject &module);
@@ -99,6 +105,7 @@ namespace mga {
     static void defineUISeparator(ScriptingContext &context, JSObject &module);
 
     static void defineUISplitContainer(ScriptingContext &context, JSObject &module);
+    static void defineUISplitter(ScriptingContext &context, JSObject &module);
     static void defineUIGroupBox(ScriptingContext &context, JSObject &module);
     static void defineUIImage(ScriptingContext &context, JSObject &module);
     static void defineUITabView(ScriptingContext &context, JSObject &module);
@@ -118,5 +125,16 @@ namespace mga {
 
     static void defineUIScrollBar(ScriptingContext &context, JSObject &module);
     static void defineUIScrollThumb(ScriptingContext &context, JSObject &module);
+
+    static void defineUIHyperLink(ScriptingContext &context, JSObject &module);
+  };
+
+  class UIRootElement : public UIElement {
+  public:
+    UIRootElement(AutomationContext &context, aal::AccessibleRef ref);
+
+    AutomationContext& context() { return _context; };
+  private:
+    AutomationContext &_context;
   };
 }

@@ -15,30 +15,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-include_directories(.)
-
-if (UNIX AND NOT APPLE)
-  include_directories(linux
-        ${PROJECT_SOURCE_DIR}/src
-        ${PROJECT_SOURCE_DIR}/src/library
-        ${PROJECT_SOURCE_DIR}/src/duktape
-        SYSTEM ${ATSPI_INCLUDE_DIRS}
-        SYSTEM ${GLIBMM_INCLUDE_DIRS}
-        SYSTEM ${CAIROMM_INCLUDE_DIRS}
-        SYSTEM ${GTKMM_INCLUDE_DIRS}
-        SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-    ) 
-elseif(WIN32)
-  include_directories(windows)
-elseif(APPLE)
-  include_directories(macos
-        ${PROJECT_SOURCE_DIR}/src
-        ${PROJECT_SOURCE_DIR}/src/library
-        ${PROJECT_SOURCE_DIR}/src/duktape
-        SYSTEM ${MySQLCppConn_INCLUDE_DIRS}
-  )
-endif()
-
 set(aal_HEADER_FILE
     ${PROJECT_SOURCE_DIR}/src/aal/aalcommon.h
     ${PROJECT_SOURCE_DIR}/src/aal/geometry.h
@@ -56,10 +32,12 @@ set(aal_SOURCE_FILES
 if (UNIX AND NOT APPLE)
   list(APPEND aal_HEADER_FILES
     linux/accessible.h
+    linux/virtualkeygenerator.h
     )
 
   list(APPEND aal_SOURCE_FILES
     linux/accessible.cpp
+    linux/virtualkeygenerator.cpp
     )
 elseif(APPLE)
   list(APPEND aal_HEADER_FILES
@@ -77,12 +55,63 @@ endif()
 
 set(aal_SOURCES ${aal_SOURCE_FILES} ${aal_HEADER_FILES})
 add_library(aal STATIC ${aal_SOURCES})
-target_compile_options(aal PUBLIC ${MGA_CXXFLAGS})
+
 
 if (UNIX AND NOT APPLE)
-  target_link_libraries(aal ${ATSPI_LIBRARIES} ${GTKMM_LIBRARIES} ${CAIROMM_LIBRARIES} X11)
+  target_include_directories(aal
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/linux 
+    PRIVATE
+      ${PROJECT_SOURCE_DIR}/src
+      ${PROJECT_SOURCE_DIR}/src/library
+      ${PROJECT_SOURCE_DIR}/src/duktape
+    )
+
+    target_include_directories(aal
+      SYSTEM 
+        PUBLIC
+          ${ATSPI_INCLUDE_DIRS}
+          ${GLIBMM_INCLUDE_DIRS}
+          ${CAIROMM_INCLUDE_DIRS}
+          ${GTKMM_INCLUDE_DIRS}
+          ${MySQLCppConn_INCLUDE_DIRS}
+    )
+
+elseif(WIN32)
+  target_include_directories(aal
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE 
+      windows)
+
 elseif(APPLE)
-  target_link_libraries(aal ${Cocoa_LIBRARIES})
+  target_include_directories(aal
+    PUBLIC
+      ${CMAKE_CURRENT_SOURCE_DIR}
+      ${CMAKE_CURRENT_SOURCE_DIR}/macos
+    PRIVATE 
+        macos
+        ${PROJECT_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/src/library
+        ${PROJECT_SOURCE_DIR}/src/duktape
+  )
+  
+  target_include_directories(aal
+    SYSTEM 
+      PUBLIC
+        ${MySQLCppConn_INCLUDE_DIRS}
+  )
+  
+endif()
+
+
+target_compile_options(aal PRIVATE ${MGA_CXXFLAGS})
+
+if (UNIX AND NOT APPLE)
+  target_link_libraries(aal PRIVATE ${ATSPI_LIBRARIES} ${GTKMM_LIBRARIES} ${CAIROMM_LIBRARIES} X11 Xtst)
+elseif(APPLE)
+  target_link_libraries(aal PRIVATE ${Cocoa_LIBRARIES})
 endif()
 
 

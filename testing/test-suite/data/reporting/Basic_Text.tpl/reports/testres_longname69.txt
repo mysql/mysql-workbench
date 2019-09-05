@@ -1,0 +1,8 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  - removed foreign key: c1
+Table `t1` was modified
+----------------------------------------------
+End of MySQL Workbench Report

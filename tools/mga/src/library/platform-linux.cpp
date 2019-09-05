@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -79,7 +79,7 @@ class LinuxPlatform : public Platform {
 public:
   virtual ~LinuxPlatform();
   virtual int launchApplication(const std::string &name, const std::vector<std::string> &params,
-    bool async, bool newInstance, ShowState showState, std::map<std::string, std::string> const& env = {}) const override;
+    bool newInstance, ShowState showState, std::map<std::string, std::string> const& env = {}) const override;
     
   virtual int getPidByName(const std::string &name) const override;
   virtual std::string getTempDirName() const override;
@@ -87,9 +87,11 @@ public:
   virtual void initialize(int argc, const char* argv[], char *envp[]) const override;
   virtual void exit(ExitCode code) const override;
   virtual void runLoopRun(ScriptingContext &context) const override;
+  virtual bool isRunning(int processID) const override;
   
   virtual geometry::Size getImageResolution(std::string const& path) const override;
   virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const override;
+  virtual void defineFsConstants(ScriptingContext &context, JSObject &constants) const override;
   virtual std::vector<Cpu> cpuInfo() const override;
   virtual size_t getFreeMem() const override;
   virtual size_t getTotalMem() const override;
@@ -99,6 +101,8 @@ public:
   virtual Version getVersion() const override;
   virtual std::string getDistroName() const override;
   virtual UiToolkit getUiToolkit() const override;
+  virtual std::string getClipboardText() const override;
+  virtual void setClipboardText(const std::string &text) const override;
   std::vector<mga::Screen> getScreens() const override;
 };
 
@@ -115,10 +119,10 @@ std::unique_ptr<Stat> Stat::get(const std::string &path, bool followSymlinks) {
 void LinuxStat::initialize(const std::string &path, bool followSymlinks) {
   if (followSymlinks) {
     if (stat(path.c_str(), &_buffer) != 0)
-      throw std::runtime_error("Cannot create stats: " + Utils::getLastError());
+      throw std::runtime_error("Cannot create stats: " + Utilities::getLastError());
   } else {
     if (lstat(path.c_str(), &_buffer) != 0)
-      throw std::runtime_error("Cannot create stats: " + Utils::getLastError());
+      throw std::runtime_error("Cannot create stats: " + Utilities::getLastError());
   }
   _blockSize = _buffer.st_blksize;
   _blocks = _buffer.st_blocks;
@@ -164,13 +168,12 @@ static std::string getBasename(const std::string &cmdline) {
 }
 //----------------------------------------------------------------------------------------------------------------------
 
-static int isRunning(const std::string &name) {
+static int isRunningByName(const std::string &name) {
   Glib::Dir dir("/proc");
   for (const auto &elem: dir) {
     try {
-      auto file = Utils::concat({ "/proc", elem, "task", elem, "cmdline" }, "/");
+      auto file = Utilities::concat({ "/proc", elem, "task", elem, "cmdline" }, "/");
       auto cmdline = getBasename(Glib::file_get_contents(file));
-
       if (cmdline.compare(getBasename(name)) == 0) {
         return std::stoi(elem);
       }
@@ -190,11 +193,11 @@ LinuxPlatform::~LinuxPlatform() {
 }
 
 int LinuxPlatform::launchApplication(const std::string &name, const std::vector<std::string> &params,
-                                     bool async, bool newInstance, ShowState showState,
+                                     bool newInstance, ShowState showState,
                                      std::map<std::string, std::string> const& env) const {
 
   if (!newInstance) {
-    Glib::Pid pid = isRunning(name);
+    Glib::Pid pid = isRunningByName(name);
     if (pid != 0)
       return pid;
   }
@@ -218,18 +221,7 @@ int LinuxPlatform::launchApplication(const std::string &name, const std::vector<
   g_strfreev(e);
   Glib::Pid pid = 0;
   try {
-    if (async) {
-      Glib::spawn_async(Glib::get_current_dir(), tmpParams, envp, Glib::SPAWN_SEARCH_PATH, sigc::slot<void>(), &pid);
-    } else {
-      int exitStatus = 0;
-      std::string stdout;
-      std::string stderr;
-      Glib::spawn_sync(Glib::get_current_dir(), tmpParams, envp, Glib::SPAWN_SEARCH_PATH, sigc::slot<void>(), &stdout, &stderr, &exitStatus);
-      if (!stderr.empty())
-        throw std::runtime_error(stderr);
-
-      pid = exitStatus;
-    }
+    Glib::spawn_async(Glib::get_current_dir(), tmpParams, envp, Glib::SPAWN_SEARCH_PATH, sigc::slot<void>(), &pid);
   } catch (Glib::SpawnError &serr) {
     throw std::runtime_error(serr.what());
   }
@@ -239,7 +231,7 @@ int LinuxPlatform::launchApplication(const std::string &name, const std::vector<
 //----------------------------------------------------------------------------------------------------------------------
 
 int LinuxPlatform::getPidByName(const std::string &name) const {
-  return isRunning(name);
+  return isRunningByName(name);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -300,16 +292,62 @@ void LinuxPlatform::runLoopRun(ScriptingContext &context) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool LinuxPlatform::isRunning(int processID) const {
+  pid_t pid = processID;
+  if (pid != 0) {
+    int err = kill(pid, 0);
+    return (err == 0);
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void LinuxPlatform::defineOsConstants(ScriptingContext &context, JSObject &constants) const {
   Platform::defineOsConstants(context, constants);
   
   JSObject signals = constants.get("signals");
+  
+  DEFINE_CONSTANT(signals, SIGHUP);
+  DEFINE_CONSTANT(signals, SIGQUIT);
+  DEFINE_CONSTANT(signals, SIGTRAP);
+  DEFINE_CONSTANT(signals, SIGIOT);
+  DEFINE_CONSTANT(signals, SIGBUS);
+  DEFINE_CONSTANT(signals, SIGKILL);
+  DEFINE_CONSTANT(signals, SIGUSR1);
+  DEFINE_CONSTANT(signals, SIGUSR2);
+  DEFINE_CONSTANT(signals, SIGPIPE);
+  DEFINE_CONSTANT(signals, SIGALRM);
+  DEFINE_CONSTANT(signals, SIGCHLD);
+  DEFINE_CONSTANT(signals, SIGCONT);
+  DEFINE_CONSTANT(signals, SIGSTOP);
+  DEFINE_CONSTANT(signals, SIGTSTP);
+  DEFINE_CONSTANT(signals, SIGTTIN);
+  DEFINE_CONSTANT(signals, SIGTTOU);
+  DEFINE_CONSTANT(signals, SIGURG);
+  DEFINE_CONSTANT(signals, SIGXCPU);
+  DEFINE_CONSTANT(signals, SIGXFSZ);
+  DEFINE_CONSTANT(signals, SIGVTALRM);
+  DEFINE_CONSTANT(signals, SIGPROF);
+  DEFINE_CONSTANT(signals, SIGWINCH);
+  DEFINE_CONSTANT(signals, SIGIO);
+  DEFINE_CONSTANT(signals, SIGSYS);
+
   DEFINE_CONSTANT(signals, SIGSTKFLT);
-  //DEFINE_CONSTANT(signals, SIGBREAK);
   DEFINE_CONSTANT(signals, SIGPOLL);
-  //DEFINE_CONSTANT(signals, SIGLOST);
   DEFINE_CONSTANT(signals, SIGPWR);
-//   DEFINE_CONSTANT(signals, SIGUNUSED);
+
+  JSObject errorNumbers = constants.get("errno");
+  
+  DEFINE_CONSTANT(errorNumbers, EDQUOT);
+  DEFINE_CONSTANT(errorNumbers, EMULTIHOP);
+  DEFINE_CONSTANT(errorNumbers, ESTALE);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void LinuxPlatform::defineFsConstants(ScriptingContext &context, JSObject &constants) const {
+  Platform::defineFsConstants(context, constants);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -435,7 +473,7 @@ static std::string getSystemInfo(const std::string &prefix) {
 
 Version LinuxPlatform::getVersion() const {
   auto stringVersion = getSystemInfo("VERSION_ID=");
-  auto splitVersion = Utils::split(stringVersion, ".");
+  auto splitVersion = Utilities::split(stringVersion, ".");
   Version ver = {0, 0, 0};
   if (splitVersion.size() > 0)
     ver.major = std::atoi(splitVersion[0].c_str());
@@ -474,7 +512,7 @@ std::map<std::string, std::vector<NetworkInterface>> LinuxPlatform::networkInter
   int success = getifaddrs(&interfaces);
   
   if (success == -1)
-    throw std::runtime_error("Unable to get the available network interfacess: " + Utils::getLastError());
+    throw std::runtime_error("Unable to get the available network interfacess: " + Utilities::getLastError());
   
   for(; interfaces != nullptr; interfaces = interfaces->ifa_next) {
     if (interfaces->ifa_addr == nullptr || interfaces->ifa_addr->sa_family != PF_INET || interfaces->ifa_addr->sa_family != AF_INET)
@@ -496,7 +534,7 @@ std::map<std::string, std::vector<NetworkInterface>> LinuxPlatform::networkInter
     int soc = socket(AF_INET, SOCK_DGRAM, 0);
     ioctl(soc, SIOCGIFHWADDR, &ifr);
     unsigned char *macptr = reinterpret_cast<unsigned char *>(ifr.ifr_hwaddr.sa_data);
-    iface.mac = Utils::format("%02x:%02x:%02x:%02x:%02x:%02x", *macptr, *(macptr+1), *(macptr+2), *(macptr+3), *(macptr+4), *(macptr+5));
+    iface.mac = Utilities::format("%02x:%02x:%02x:%02x:%02x:%02x", *macptr, *(macptr+1), *(macptr+2), *(macptr+3), *(macptr+4), *(macptr+5));
 
     result[interfaces->ifa_name].push_back(iface);
   }
@@ -520,10 +558,25 @@ UiToolkit LinuxPlatform::getUiToolkit() const {
   if (searchInVector(std::vector<std::string>({"kde", "lxqt"}), currentDesktop))
     return UiToolkit::Qt;
 
-  if (searchInVector(std::vector<std::string>({"unity", "gnome", "xfce", "lxde"}), currentDesktop))
+  if (searchInVector(std::vector<std::string>({"ubuntu:gnome", "unity", "gnome", "xfce", "lxde"}), currentDesktop))
     return UiToolkit::Gtk;
   
   return UiToolkit::Unknown;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string LinuxPlatform::getClipboardText() const {
+  return Gtk::Clipboard::get()->wait_for_text();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void LinuxPlatform::setClipboardText(const std::string &text) const {
+  Gtk::Clipboard::get()->set_text(text);
+  // Because of MGA nature, we have to explicitly store()
+  // the text so other apps won't hang waiting for mga to finish.
+  Gtk::Clipboard::get()->store();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

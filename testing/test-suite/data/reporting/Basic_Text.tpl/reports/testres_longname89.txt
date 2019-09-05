@@ -1,0 +1,17 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `table2` was modified
+  foreign keys:
+  __
+Table `table2` was modified
+  indices:
+  - added index fk_table2_table1 with columns: t1
+  __
+  foreign keys:
+  - added foreign key fk_table2_table1 with columns: t1, referred table: table1 with columns: idtable1
+    - action on update: NO ACTION
+    - action on delete: NO ACTION
+  __
+----------------------------------------------
+End of MySQL Workbench Report

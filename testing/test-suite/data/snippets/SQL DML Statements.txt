@@ -1,0 +1,140 @@
+SELECT Syntax
+ SELECT
+     [ALL | DISTINCT | DISTINCTROW ]
+       [HIGH_PRIORITY]
+       [STRAIGHT_JOIN]
+       [SQL_SMALL_RESULT] [SQL_BIG_RESULT] [SQL_BUFFER_RESULT]
+       [SQL_CACHE | SQL_NO_CACHE] [SQL_CALC_FOUND_ROWS]
+     select_expr [, select_expr ...]
+     [FROM table_references
+     [WHERE where_condition]
+     [GROUP BY {col_name | expr | position}
+       [ASC | DESC], ... [WITH ROLLUP]]
+     [HAVING where_condition]
+     [ORDER BY {col_name | expr | position}
+       [ASC | DESC], ...]
+     [LIMIT {[offset,] row_count | row_count OFFSET offset}]
+     [PROCEDURE procedure_name(argument_list)]
+     [INTO OUTFILE 'file_name'
+         [CHARACTER SET charset_name]
+         export_options
+       | INTO DUMPFILE 'file_name'
+       | INTO var_name [, var_name]]
+     [FOR UPDATE | LOCK IN SHARE MODE]]
+ 
+
+JOIN Syntax
+ table_references:
+     table_reference [, table_reference] ...
+ 
+ table_reference:
+     table_factor
+   | join_table
+ 
+ table_factor:
+     tbl_name [[AS] alias] [index_hint_list]
+   | table_subquery [AS] alias
+   | ( table_references )
+   | { OJ table_reference LEFT OUTER JOIN table_reference
+         ON conditional_expr }
+ 
+ join_table:
+     table_reference [INNER | CROSS] JOIN table_factor [join_condition]
+   | table_reference STRAIGHT_JOIN table_factor
+   | table_reference STRAIGHT_JOIN table_factor ON conditional_expr
+   | table_reference {LEFT|RIGHT} [OUTER] JOIN table_reference join_condition
+   | table_reference NATURAL [{LEFT|RIGHT} [OUTER]] JOIN table_factor
+ 
+ join_condition:
+     ON conditional_expr
+   | USING (column_list)
+ 
+ index_hint_list:
+     index_hint [, index_hint] ...
+ 
+ index_hint:
+     USE {INDEX|KEY}
+       [{FOR {JOIN|ORDER BY|GROUP BY}] ([index_list])
+   | IGNORE {INDEX|KEY}
+       [{FOR {JOIN|ORDER BY|GROUP BY}] (index_list)
+   | FORCE {INDEX|KEY}
+       [{FOR {JOIN|ORDER BY|GROUP BY}] (index_list)
+ 
+ index_list:
+     index_name [, index_name] ...
+ 
+
+INSERT Syntax
+ INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+     [INTO] tbl_name [(col_name,...)]
+     {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
+     [ ON DUPLICATE KEY UPDATE
+       col_name=expr
+         [, col_name=expr] ... ]
+ # Or
+ INSERT [LOW_PRIORITY | DELAYED | HIGH_PRIORITY] [IGNORE]
+     [INTO] tbl_name
+     SET col_name={expr | DEFAULT}, ...
+     [ ON DUPLICATE KEY UPDATE
+       col_name=expr
+         [, col_name=expr] ... ]
+ # Or
+ INSERT [LOW_PRIORITY | HIGH_PRIORITY] [IGNORE]
+     [INTO] tbl_name [(col_name,...)]
+     SELECT ...
+     [ ON DUPLICATE KEY UPDATE
+       col_name=expr
+         [, col_name=expr] ... ]
+ 
+
+UPDATE Syntax
+ # Single-table syntax:
+ UPDATE [LOW_PRIORITY] [IGNORE] table_reference
+     SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
+     [WHERE where_condition]
+     [ORDER BY ...]
+     [LIMIT row_count]
+ 
+ # Multiple-table syntax:
+ UPDATE [LOW_PRIORITY] [IGNORE] table_references
+     SET col_name1={expr1|DEFAULT} [, col_name2={expr2|DEFAULT}] ...
+     [WHERE where_condition]
+ 
+
+DELETE Syntax
+ # Single-table syntax:
+ 
+ DELETE [LOW_PRIORITY] [QUICK] [IGNORE] FROM tbl_name
+     [WHERE where_condition]
+     [ORDER BY ...]
+     [LIMIT row_count]
+ 
+ # Multiple-table syntax:
+ DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+     tbl_name[.*] [, tbl_name[.*]] ...
+     FROM table_references
+     [WHERE where_condition]
+ 
+ # Or:
+ DELETE [LOW_PRIORITY] [QUICK] [IGNORE]
+     FROM tbl_name[.*] [, tbl_name[.*]] ...
+     USING table_references
+     [WHERE where_condition]
+ 
+
+REPLACE Syntax
+ REPLACE [LOW_PRIORITY | DELAYED]
+     [INTO] tbl_name [(col_name,...)]
+     {VALUES | VALUE} ({expr | DEFAULT},...),(...),...
+ 
+ # Or:
+ REPLACE [LOW_PRIORITY | DELAYED]
+     [INTO] tbl_name
+     SET col_name={expr | DEFAULT}, ...
+ 
+ # Or:
+ REPLACE [LOW_PRIORITY | DELAYED]
+     [INTO] tbl_name [(col_name,...)]
+     SELECT ...
+ 
+

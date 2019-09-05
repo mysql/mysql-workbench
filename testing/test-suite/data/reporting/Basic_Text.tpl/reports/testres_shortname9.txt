@@ -1,0 +1,12 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was modified
+  columns:
+  - added column t of type TEXT
+  - added column t2 of type TEXT
+  - added column t3 of type TEXT
+  - added column t4 of type TEXT
+  __
+----------------------------------------------
+End of MySQL Workbench Report

@@ -1,0 +1,9 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  attributes:
+  - average row length: 101 --> 101
+  __
+----------------------------------------------
+End of MySQL Workbench Report

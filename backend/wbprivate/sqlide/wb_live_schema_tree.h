@@ -37,10 +37,10 @@ namespace wb {
   public:
     friend class LiveSchemaTreeTester;
 
-    static const short COLUMN_DATA = 0x01;
-    static const short TRIGGER_DATA = 0x02;
-    static const short INDEX_DATA = 0x04;
-    static const short FK_DATA = 0x08;
+    static const short COLUMN_DATA;
+    static const short TRIGGER_DATA;
+    static const short INDEX_DATA;
+    static const short FK_DATA;
 
     static const std::string SCHEMA_TAG;
     static const std::string TABLES_TAG;
@@ -372,6 +372,9 @@ namespace wb {
     std::string _active_schema;
     mforms::TreeView* _model_view;
 
+    GPatternSpec* _schema_pattern = nullptr;
+    GPatternSpec* _object_pattern = nullptr;
+
     bool _case_sensitive_identifiers;
 
     void schema_contents_arrived(const std::string& schema_name, base::StringListPtr tables, base::StringListPtr views,
@@ -408,6 +411,8 @@ namespace wb {
                             int fetch_mask);
 
     void set_filter(std::string filter);
+    std::string getFilter() const { return _filter; }
+
     void filter_data();
     void load_data_for_filter(const std::string& schema_filter, const std::string& object_filter);
 
@@ -445,6 +450,8 @@ namespace wb {
       _base = base;
     }
 
+    LiveSchemaTree* getBase() { return _base; }
+
     bool update_node_children(mforms::TreeNodeRef parent, base::StringListPtr children, ObjectType type,
                               bool sorted = false, bool just_append = false);
     void update_change_data(mforms::TreeNodeRef parent, base::StringListPtr children, ObjectType type,
@@ -467,21 +474,22 @@ namespace wb {
     std::string get_schema_name(const mforms::TreeNodeRef& node);
     std::vector<std::string> get_node_path(const mforms::TreeNodeRef& node);
     mforms::TreeNodeRef get_node_from_path(std::vector<std::string> path);
+
     void enable_events(bool enable) {
       _enabled_events = enable;
     }
+
+    bool getEnabledEvents() { return _enabled_events; }
 
   private:
     bool _is_schema_contents_enabled;
     bool _enabled_events;
     base::MySQLVersion _version;
 
-    LiveSchemaTree* _base;
+    LiveSchemaTree *_base = nullptr;
     std::string _filter;
     ObjectType _filter_type;
-    GPatternSpec* _schema_pattern;
-    GPatternSpec* _object_pattern;
-    LSTData* notify_on_reload_data;
+    LSTData *notify_on_reload_data = nullptr;
 
     static const char* _schema_tokens[16];
 

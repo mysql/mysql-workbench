@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -29,6 +29,7 @@
 #include "platform.h"
 
 #include "uielement.h"
+#include "property.h"
 
 using namespace mga;
 using namespace aal;
@@ -36,9 +37,7 @@ using namespace geometry;
 
 //----------------- UIElement ------------------------------------------------------------------------------------------
 
-UIElement::UIElement(AccessibleRef ref, UIElement *root) : _accessible(std::move(ref)), _root(root) {
-  if (_root == nullptr)
-    _root = this;
+UIElement::UIElement(AccessibleRef ref, UIRootElement *root) : _accessible(std::move(ref)), _root(root) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -50,6 +49,18 @@ UIElement::~UIElement() {
 
 bool UIElement::isValid() const {
   return _accessible && _accessible->isValid();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string UIElement::getName() const {
+  return _accessible->getName();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+aal::Role UIElement::getRole() const {
+  return _accessible->getRole();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -83,17 +94,33 @@ bool UIElement::hasChild(UIElement *child) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
+ * Returns the child/grand child with the given identifier. If there's more than one an exception is thrown
+ * (unless throwIfMoreThanOne is false).
+ */
+UIElementRef UIElement::childById(std::string const& name, bool throwIfMoreThanOne) const {
+  APath searcher(_root->_accessible.get());
+  auto searchResult = searcher.execute(_accessible.get(), "descendant[@id='" + name + "']", false, true, false);
+  if (searchResult.size() > 1 && throwIfMoreThanOne)
+    throw std::runtime_error("Found more than one child with that identifier");
+  if (searchResult.empty())
+    return nullptr;
+  return UIElementRef(new UIElement(std::move(searchResult[0]), _root));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
  * Returns the child/grand child with the given name. If there's more than one an exception is thrown
  * (unless throwIfMoreThanOne is false).
  */
 UIElementRef UIElement::childByName(std::string const& name, bool throwIfMoreThanOne) const {
-  APath searcher(_root);
-  auto searchResult = searcher.execute(const_cast<UIElement *>(this), "descendant[@name='" + name + "']", false, false);
+  APath searcher(_root->_accessible.get());
+  auto searchResult = searcher.execute(_accessible.get(), "descendant[@name='" + name + "']", false, true, false);
   if (searchResult.size() > 1 && throwIfMoreThanOne)
     throw std::runtime_error("Found more than one child with that name");
   if (searchResult.empty())
     return nullptr;
-  return std::move(searchResult[0]);
+  return UIElementRef(new UIElement(std::move(searchResult[0]), _root));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -174,7 +201,7 @@ UIElementList UIElement::childrenRecursive() const {
     return {};
   
   UIElementList result;
-  AccessibleVector accessibles;
+  AccessibleList accessibles;
 
   _accessible->children(accessibles, true);
 
@@ -304,120 +331,99 @@ geometry::Point UIElement::convertToTarget(UIElement *target, geometry::Point po
     return geometry::Point();
 
   // Convert the given point to screen coordinates.
-  geometry::Point position = _accessible->getBounds(true).position;
+  auto position = _accessible->getBounds(true).position;
   auto targetPos = target->_accessible->getBounds(true).position;
   return { point.x + position.x - targetPos.x, point.y + position.y - targetPos.y };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static std::map<std::string, size_t> _propertyMap = {
-  { "text", 0 },
-  { "title", 1 },
-  { "description", 2 },
-  { "enabled", 3 },
-  { "canExpand", 4 },
-  { "expanded", 5 },
-  { "canFocus", 6 },
-  { "focused", 7 },
-  { "checkState", 8 },
-  { "value", 9 },
-  { "maxValue", 10 },
-  { "minValue", 11 },
-  { "activeTab", 12 },
-  { "active", 13 },
-  { "editable", 14 }, // Not the same as enabled.
-  { "selectedIndexes", 15 },
-  { "readOnly", 16 },
-  { "isSecure", 17 },
-  { "caretPosition", 18 },
-  { "selectedText", 19 },
-  { "selectionRange", 20 },
-  { "characterCount", 21 },
-  { "horizontal", 22 },
-  { "date", 23 },
-  { "selectedIndex", 24 },
-  { "selected", 25 },
-  { "help", 26 },
-  { "horizontal", 27 },
-  { "range", 28 },
-  { "position", 29 },
-};
-
 JSVariant UIElement::getter(ScriptingContext *context, JSExport *element, std::string const& name) {
   auto me = dynamic_cast<UIElement *>(element);
   if (!me->isValid())
     return JSVariant();
 
-  switch (_propertyMap[name]) {
-    case 0:
+  Property property = propertyFromString(name);
+  me->_root->context().incStatCount(me, StatCounterType::Read, property);
+
+  switch (property) {
+    case Property::Text:
       return me->_accessible->getText();
-    case 1:
+    case Property::Title:
       return me->_accessible->getTitle();
-    case 2:
+    case Property::Description:
       return me->_accessible->getDescription();
-    case 3:
+    case Property::Enabled:
       return me->_accessible->isEnabled();
-    case 4:
+    case Property::CanExpand:
       return me->_accessible->isExpandable();
-    case 5:
+    case Property::Expanded:
       return me->_accessible->isExpanded();
-    case 6:
+    case Property::CanFocus:
       return me->_accessible->canFocus();
-    case 7:
+    case Property::Focused:
       return me->_accessible->isFocused();
-    case 8:
+    case Property::CheckState:
       return static_cast<int>(me->_accessible->getCheckState());
-    case 9:
+    case Property::Value:
       return me->_accessible->getValue();
-    case 10:
+    case Property::MaxValue:
       return me->_accessible->getMaxValue();
-    case 11:
+    case Property::MinValue:
       return me->_accessible->getMinValue();
-    case 12:
+    case Property::ActiveTab:
       return me->_accessible->getActiveTabPage();
-    case 13:
+    case Property::Active:
       return me->_accessible->isActiveTab();
-    case 14:
+    case Property::Editable:
       return me->_accessible->isEditable();
-    case 15: {
+    case Property::SelectedIndexes: {
       JSArray result(context);
       for (auto index : me->_accessible->getSelectedIndexes())
         result.addValue(index);
       return result;
     }
-    case 16:
+    case Property::ReadOnly:
       return me->_accessible->isReadOnly();
-    case 17:
+    case Property::IsSecure:
       return me->_accessible->isSecure();
-    case 18:
+    case Property::CaretPosition:
       return me->_accessible->getCaretPosition();
-    case 19:
+    case Property::SelectedText:
       return me->_accessible->getSelectedText();
-    case 20:
+    case Property::SelectionRange:
       return me->_accessible->getSelectionRange();
-    case 21:
+    case Property::CharacterCount:
       return me->_accessible->getCharacterCount();
-    case 22:
+    case Property::Horizontal:
       return me->_accessible->isHorizontal();
-    case 23:
+    case Property::Date:
       return me->_accessible->getDate();
-    case 24: {
+    case Property::SelectedIndex: {
       auto indexes = me->_accessible->getSelectedIndexes();
       if (indexes.empty())
         return -1;
       return *indexes.begin();
     }
-    case 25:
+    case Property::Selected:
       return me->_accessible->isSelected();
-    case 26:
+    case Property::Help:
       return me->_accessible->getHelp();
-    case 27:
-      return me->_accessible->isHorizontal();
-    case 28:
+    case Property::Range:
       return me->_accessible->getRange();
-    case 29:
+    case Property::Position:
       return me->_accessible->getScrollPosition();
+    case Property::Shown:
+      return me->_accessible->menuShown();
+    case Property::Bounds: {
+      auto bounds = me->_accessible->getBounds(true);
+      JSObject result(context);
+      result.set("x", bounds.position.x);
+      result.set("y", bounds.position.y);
+      result.set("width", bounds.size.width);
+      result.set("height", bounds.size.height);
+      return result;
+    }
     default:
       return JSVariant();
   }
@@ -432,38 +438,41 @@ void UIElement::setter(ScriptingContext *context, JSExport *element, std::string
   if (!me->isValid())
     return;
 
-  switch (_propertyMap[name]) {
-    case 0:
+  Property property = propertyFromString(name);
+  me->_root->context().incStatCount(me, StatCounterType::Write, property);
+
+  switch (property) {
+    case Property::Text:
       me->_accessible->setText(value);
       break;
-    case 1:
+    case Property::Title:
       me->_accessible->setTitle(value);
       break;
-    case 3:
+    case Property::Enabled:
       me->_accessible->setEnabled(value);
       break;
-    case 5:
+    case Property::Expanded:
       me->_accessible->setExpanded(value);
       break;
-    case 7:
+    case Property::Focused:
       if (value)
         me->_accessible->setFocused();
       break;
-    case 8: {
+    case Property::CheckState: {
       int state = value;
-      me->_accessible->setCheckState(static_cast<CheckState>(state));
+      me->_accessible->setCheckState(static_cast<aal::CheckState>(state));
       break;
     }
-    case 9:
+    case Property::Value:
       me->_accessible->setValue(value);
       break;
-    case 12:
+    case Property::ActiveTab:
       me->_accessible->setActiveTabPage(value);
       break;
-    case 13:
+    case Property::Active:
       me->_accessible->activate();
       break;
-    case 15: {
+    case Property::SelectedIndexes: {
       std::set<size_t> indices;
       JSArray entries = value;
       for (size_t i = 0; i < entries.size(); ++ i)
@@ -471,13 +480,13 @@ void UIElement::setter(ScriptingContext *context, JSExport *element, std::string
       me->_accessible->setSelectedIndexes(indices);
       break;
     }
-    case 18:
+    case Property::CaretPosition:
       me->_accessible->setCaretPosition(value);
       break;
-    case 19:
+    case Property::SelectedText:
       me->_accessible->setSelectedText(value);
       break;
-    case 20: {
+    case Property::SelectionRange: {
       JSObject temp = value;
       aal::TextRange range;
       range.start = temp.get("start", 0);
@@ -485,10 +494,10 @@ void UIElement::setter(ScriptingContext *context, JSExport *element, std::string
       me->_accessible->setSelectionRange(range);
       break;
     }
-    case 23:
+    case Property::Date:
       me->_accessible->setDate(value);
       break;
-    case 24: {
+    case Property::SelectedIndex: {
       std::set<size_t> indices;
       ssize_t index = value;
       if (index >= 0)
@@ -499,11 +508,22 @@ void UIElement::setter(ScriptingContext *context, JSExport *element, std::string
 #endif
       break;
     }
-    case 25:
+    case Property::Selected:
       me->_accessible->setSelected(value);
       break;
-    case 29:
+    case Property::Position:
       me->_accessible->setScrollPosition(value);
+      break;
+    case Property::Bounds: {
+      JSObject boundValue = value;
+      geometry::Rectangle bounds(boundValue.get("x", 0), boundValue.get("y", 0),
+                                 boundValue.get("width", 10), boundValue.get("height", 10));
+      me->_accessible->setBounds(bounds);
+
+      break;
+    }
+
+    default:
       break;
   }
 }
@@ -524,48 +544,6 @@ UIElement* UIElement::validate(JSExport *element) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// For certain roles we'll create a dedicated JS class with specific properties/methods.
-static std::map<aal::Role, std::string> _roleToElement {
-  { Role::Unknown, "UIElement" },
-  { Role::Any, "" },
-  { Role::Application, "UIElement" },
-  { Role::Window, "UIWindow" },
-  { Role::Button, "UIButton" },
-  { Role::RadioButton, "UIRadioButton" },
-  { Role::CheckBox, "UICheckBox" },
-  { Role::ComboBox, "UIComboBox" },
-  { Role::Expander, "UIExpander" },
-  { Role::Grid, "UIGrid" },
-  { Role::TextBox, "UITextBox" },
-  { Role::TreeView, "UITreeView" },
-  { Role::Label, "UILabel" },
-  { Role::Pane, "UIPane" },
-  { Role::Menu, "UIMenu" },
-  { Role::MenuBar, "UIMenuBar" },
-  { Role::MenuItem, "UIMenuItem" },
-  { Role::Separator, "UISeparator" },
-  { Role::SplitContainer, "UISplitContainer" },
-  { Role::GroupBox, "UIGroupBox" },
-  { Role::Image, "UIImage" },
-  { Role::TabView, "UITabView" },
-  { Role::TabPage, "UITabPage" },
-  { Role::DatePicker, "UIDatePicker" },
-  { Role::Row, "UIRow" },
-  { Role::Column, "UIColumn" },
-  { Role::Cell, "UICell" },
-  { Role::ScrollBox, "UIScrollBox" },
-  { Role::Slider, "UISlider" },
-  { Role::Stepper, "UIStepper" },
-  { Role::List, "UIList" },
-  { Role::IconView, "UIIconView" },
-  { Role::ProgressIndicator, "UIProgress" },
-  { Role::BusyIndicator, "UIBusy" },
-  { Role::ScrollBar, "UIScrollBar" },
-  { Role::ScrollThumb, "UIScrollThumb" }
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void UIElement::defineUIWindow(ScriptingContext &context, JSObject &module) {
   std::ignore = context;
   module.defineClass("UIWindow", "UIElement", 1, [](JSObject *instance, JSValues &args) {
@@ -576,7 +554,10 @@ void UIElement::defineUIWindow(ScriptingContext &context, JSObject &module) {
     prototype.defineVirtualProperty("title", getter, setter);
     prototype.defineVirtualProperty("screen",  [](ScriptingContext *context, JSExport *element,
                                                   std::string const&) -> JSVariant {
-      geometry::Rectangle bounds = validate(element)->_accessible->getBounds(true);
+      auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Screen);
+
+      geometry::Rectangle bounds = me->_accessible->getBounds(true);
       for (auto &screen : Platform::get().getScreens()) {
         if (screen.bounds.contains({ bounds.position.x, bounds.position.y })) {
           JSObject result(context);
@@ -590,9 +571,13 @@ void UIElement::defineUIWindow(ScriptingContext &context, JSObject &module) {
       return JSVariant();
     }, nullptr);
 
+    prototype.defineVirtualProperty("bounds",  getter, setter);
+
     prototype.defineFunction({ "takeScreenShot" }, 3, [](JSExport *element, JSValues &args) {
       // parameters: path, flag, rectangle
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::TakeScreenShot);
+
       std::string path = args.get(0);
       bool onlyWindow = args.get(1);
       geometry::Rectangle rect = args.getRectangle(2);
@@ -614,6 +599,12 @@ void UIElement::defineUIWindow(ScriptingContext &context, JSObject &module) {
 
       args.pushResult(path);
     });
+
+    prototype.defineFunction({ "bringToFront" }, 0, [](JSExport *element, JSValues &args) {
+      std::ignore = args;
+      auto me = validate(element);
+      me->_accessible->bringToFront();
+    });
   });
 }
 
@@ -628,8 +619,9 @@ void UIElement::defineUIButtonBase(ScriptingContext &context, JSObject &module) 
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("title", getter, setter);
 
-    prototype.defineFunction( { "press" }, 0, [](JSExport *element, JSValues &) {
+    prototype.defineFunction({ "press" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Press);
       me->_accessible->click();
     });
   });
@@ -643,7 +635,8 @@ void UIElement::defineUIButton(ScriptingContext &context, JSObject &module) {
     std::ignore = instance;
     void *backend = args.get(0);
     args.context()->callConstructor("UIButtonBase", { backend });
-  }, [](JSObject &/*prototype*/) {
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
   });
 }
 
@@ -657,6 +650,19 @@ void UIElement::defineUIRadioButton(ScriptingContext &context, JSObject &module)
     args.context()->callConstructor("UIButtonBase", { backend });
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("checkState", getter, setter);
+  });
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void UIElement::defineUIRadioGroup(ScriptingContext &context, JSObject &module) {
+  std::ignore = context;
+  module.defineClass("UIRadioGroup", "UIElement", 1, [](JSObject *instance, JSValues &args) {
+    std::ignore = instance;
+    void *backend = args.get(0);
+    args.context()->callConstructor("UIElement", { backend });
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
   });
 }
 
@@ -714,24 +720,28 @@ void UIElement::defineUIGrid(ScriptingContext &context, JSObject &module) {
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("rows",  [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Rows);
+
       auto rows = me->rows();
 
       JSArray list(context);
       for (size_t i = 0; i < rows.size(); ++i) {
         UIElement *row = rows[i].release();
-        list.addValue(context->createJsInstance(_roleToElement[row->_accessible->getRole()], { row }));
+        list.addValue(context->createJsInstance(roleToJSType(row->_accessible->getRole()), { row }));
       }
       return list;
     }, nullptr);
 
     prototype.defineVirtualProperty("columns",  [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Columns);
+
       auto columns = me->columns();
 
       JSArray list(context);
       for (size_t i = 0; i < columns.size(); ++i) {
         UIElement *column = columns[i].release();
-        list.addValue(context->createJsInstance(_roleToElement[column->_accessible->getRole()], { column }));
+        list.addValue(context->createJsInstance(roleToJSType(column->_accessible->getRole()), { column }));
       }
       return list;
     }, nullptr);
@@ -757,6 +767,8 @@ void UIElement::defineUITextBox(ScriptingContext &context, JSObject &module) {
 
     prototype.defineFunction({ "insertText" }, 2, [](JSExport *element, JSValues &args) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Text);
+
       int offset = args.get(0);
       std::string text = args.get(1);
       me->_accessible->insertText(static_cast<size_t>(offset), text);
@@ -775,24 +787,28 @@ void UIElement::defineUITreeView(ScriptingContext &context, JSObject &module) {
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("rows",  [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Rows);
+
       auto rows = me->rows();
 
       JSArray list(context);
       for (size_t i = 0; i < rows.size(); ++i) {
         UIElement *row = rows[i].release();
-        list.addValue(context->createJsInstance(_roleToElement[row->_accessible->getRole()], { row }));
+        list.addValue(context->createJsInstance(roleToJSType(row->_accessible->getRole()), { row }));
       }
       return list;
     }, nullptr);
 
     prototype.defineVirtualProperty("columns",  [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Columns);
+
       auto columns = me->columns();
 
       JSArray list(context);
       for (size_t i = 0; i < columns.size(); ++i) {
         UIElement *column = columns[i].release();
-        list.addValue(context->createJsInstance(_roleToElement[column->_accessible->getRole()], { column }));
+        list.addValue(context->createJsInstance(roleToJSType(column->_accessible->getRole()), { column }));
       }
       return list;
     }, nullptr);
@@ -820,7 +836,8 @@ void UIElement::defineUIPane(ScriptingContext &context, JSObject &module) {
     std::ignore = instance;
     void *backend = args.get(0);
     args.context()->callConstructor("UIElement", { backend });
-  }, [](JSObject &/*prototype*/) {
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
   });
 }
 
@@ -835,8 +852,11 @@ void UIElement::defineUIMenuBase(ScriptingContext &context, JSObject &module) {
   }, [](JSObject &prototype) {
       prototype.defineFunction({ "activate" }, 2, [](JSExport *element, JSValues &) {
         auto me = validate(element);
+        me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Activate);
         me->_accessible->activate();
       });
+
+    prototype.defineVirtualProperty("shown", getter, nullptr);
   });
 }
 
@@ -848,7 +868,8 @@ void UIElement::defineUIMenu(ScriptingContext &context, JSObject &module) {
     std::ignore = instance;
     void *backend = args.get(0);
     args.context()->callConstructor("UIMenuBase", { backend });
-  }, [](JSObject &/*prototype*/) {
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
   });
 }
 
@@ -860,7 +881,8 @@ void UIElement::defineUIMenuBar(ScriptingContext &context, JSObject &module) {
     std::ignore = instance;
     void *backend = args.get(0);
     args.context()->callConstructor("UIMenuBase", { backend });
-  }, [](JSObject &/*prototype*/) {
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
   });
 }
 
@@ -884,7 +906,8 @@ void UIElement::defineUISeparator(ScriptingContext &context, JSObject &module) {
   module.defineClass("UISeparator", "UIElement", 1, [](JSObject *, JSValues &args) {
     void *backend = args.get(0);
     args.context()->callConstructor("UIElement", { backend });
-  }, [](JSObject &/*prototype*/) {
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
   });
 }
 
@@ -897,6 +920,20 @@ void UIElement::defineUISplitContainer(ScriptingContext &context, JSObject &modu
     args.context()->callConstructor("UIElement", { backend });
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("horizontal", getter, nullptr);
+  });
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void UIElement::defineUISplitter(ScriptingContext &context, JSObject &module) {
+  std::ignore = context;
+  module.defineClass("UISplitter", "UIElement", 1, [](JSObject *, JSValues &args) {
+    void *backend = args.get(0);
+    args.context()->callConstructor("UIElement", { backend });
+  }, [](JSObject &prototype) {
+    prototype.defineVirtualProperty("value", getter, setter);
+    prototype.defineVirtualProperty("minValue", getter, nullptr);
+    prototype.defineVirtualProperty("maxValue", getter, nullptr);
   });
 }
 
@@ -941,12 +978,14 @@ void UIElement::defineUITabView(ScriptingContext &context, JSObject &module) {
 
     prototype.defineFunction({ "tabPages" }, 0, [](JSExport *element, JSValues &args) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Pages);
+
       auto tabs = me->tabPages();
 
       JSArray list(args.context());
       for (size_t i = 0; i < tabs.size(); ++i) {
         UIElement *tab = tabs[i].release();
-        list.addValue(args.context()->createJsInstance(_roleToElement[tab->_accessible->getRole()], { tab }));
+        list.addValue(args.context()->createJsInstance(roleToJSType(tab->_accessible->getRole()), { tab }));
       }
       args.pushResult(list);
     });
@@ -967,11 +1006,15 @@ void UIElement::defineUITabPage(ScriptingContext &context, JSObject &module) {
 
     prototype.defineVirtualProperty("closeButton",
       [](ScriptingContext *context, JSExport *element, std::string const&) -> JSVariant {
-      UIElement *ptr = validate(element)->closeButton().release();
-      if (!ptr->isValid())
-        return JSVariant();
-      return context->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr });
-    }, nullptr);
+        auto me = validate(element);
+        me->_root->context().incStatCount(me, StatCounterType::Read, Property::CloseButton);
+
+        UIElement *ptr = me->closeButton().release();
+        if (!ptr->isValid())
+          return JSVariant();
+        return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
+      }, nullptr
+    );
   });
 }
 
@@ -1003,12 +1046,14 @@ void UIElement::defineUIRow(ScriptingContext &context, JSObject &module) {
 
     prototype.defineVirtualProperty("entries", [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Entries);
+
       auto entries = me->rowEntries();
 
       JSArray list(context);
       for (auto &entry : entries) {
         UIElement *ptr = entry.release();
-        list.addValue(context->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr }));
+        list.addValue(context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
       }
 
       return list;
@@ -1029,12 +1074,14 @@ void UIElement::defineUIColumn(ScriptingContext &context, JSObject &module) {
 
     prototype.defineVirtualProperty("entries", [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Entries);
+
       auto entries = me->columnEntries();
 
       JSArray list(context);
       for (auto &entry : entries) {
         UIElement *ptr = entry.release();
-        list.addValue(context->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr }));
+        list.addValue(context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
       }
 
       return list;
@@ -1042,11 +1089,16 @@ void UIElement::defineUIColumn(ScriptingContext &context, JSObject &module) {
 
     prototype.defineVirtualProperty("header",
       [](ScriptingContext *context, JSExport *element, std::string const&) -> JSVariant {
-      UIElement *ptr = validate(element)->header().release();
-      if (!ptr->isValid())
-        return JSVariant();
-      return context->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr });
-    }, nullptr);
+        auto me = validate(element);
+        me->_root->context().incStatCount(me, StatCounterType::Read, Property::Header);
+
+        UIElement *ptr = me->header().release();
+        if (!ptr->isValid())
+          return JSVariant();
+
+        return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
+      }, nullptr
+    );
   });
 }
 
@@ -1075,29 +1127,45 @@ void UIElement::defineUIScrollBox(ScriptingContext &context, JSObject &module) {
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("horizontalScrollBar", [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Scrollbar);
+
       UIElement *ptr = me->horizontalScrollBar().release();
-      return context->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr });
+      return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
     }, nullptr);
+
     prototype.defineVirtualProperty("verticalScrollBar", [](ScriptingContext *context, JSExport *element, std::string const&) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Scrollbar);
+
       UIElement *ptr = me->verticalScrollBar().release();
-      return context->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr });
+      return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
     }, nullptr);
 
     prototype.defineFunction({ "scrollLeft" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+
       me->_accessible->scrollLeft();
     });
+
     prototype.defineFunction({ "scrollRight" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+
       me->_accessible->scrollRight();
     });
+
     prototype.defineFunction({ "scrollUp" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+
       me->_accessible->scrollUp();
     });
+
     prototype.defineFunction({ "scrollDown" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+
       me->_accessible->scrollDown();
     });
   });
@@ -1119,10 +1187,15 @@ void UIElement::defineUISlider(ScriptingContext &context, JSObject &module) {
 
     prototype.defineFunction({ "increment" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Increment);
+
       me->_accessible->increment();
     });
+
     prototype.defineFunction({ "decrement" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Decrement);
+
       me->_accessible->decrement();
     });
   });
@@ -1144,10 +1217,15 @@ void UIElement::defineUIStepper(ScriptingContext &context, JSObject &module) {
 
     prototype.defineFunction({ "stepUp" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::StepUp);
+
       me->_accessible->stepUp();
     });
+
     prototype.defineFunction({ "stepDown" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::StepDown);
+
       me->_accessible->stepDown();
     });
   });
@@ -1239,10 +1317,20 @@ void UIElement::defineUIScrollThumb(ScriptingContext &context, JSObject &module)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) {
-  // Make sure we are not missing any role in our element map.
-  assert(_roleToElement.size() == static_cast<size_t>(Role::Sentinel));
+void UIElement::defineUIHyperLink(ScriptingContext &context, JSObject &module) {
+  std::ignore = context;
+  module.defineClass("UIHyperLink", "UIElement", 1, [](JSObject *instance, JSValues &args) {
+    std::ignore = instance;
+    void *backend = args.get(0);
+    args.context()->callConstructor("UIElement", { backend });
+  }, [](JSObject &prototype) {
+    std::ignore = prototype;
+  });
+}
 
+//----------------------------------------------------------------------------------------------------------------------
+
+void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) {
   exports.defineClass("UIElement", "", 1, [](JSObject *instance, JSValues &args) {
     void *value = args.get(0);
     auto backend = reinterpret_cast<UIElement *>(value);
@@ -1251,6 +1339,7 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
     // A number of values that can't change, so we can define them as constant properties.
     instance->defineProperty("valid", backend->isValid());
     if (backend->isValid()) {
+      instance->defineProperty("id", backend->_accessible->getID());
       instance->defineProperty("name", backend->_accessible->getName());
       instance->defineProperty("type", static_cast<unsigned>(backend->_accessible->getRole()));
     }
@@ -1269,18 +1358,29 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
       for (size_t i = 0; i < children.size(); ++i) {
         // The UIElement instance will now be managed by the JS object.
         UIElement *child = children[i].release();
-        list.addValue(args.context()->createJsInstance(_roleToElement[child->_accessible->getRole()], { child }));
+        list.addValue(args.context()->createJsInstance(roleToJSType(child->_accessible->getRole()), { child }));
       }
       args.pushResult(list);
     });
-    
+
     prototype.defineFunction({ "hasChild" } , 1, [](JSExport *element, JSValues &args) {
       // parameters: UIElement
       JSObject child = args.get(0);
       auto me = validate(element);
       args.pushResult(me->hasChild(dynamic_cast<UIElement *>(child.getBacking())));
     });
-    
+
+    prototype.defineFunction({ "childById" } , 1, [](JSExport *element, JSValues &args) {
+      // parameters: identifier
+      std::string name = args.get(0);
+      auto me = validate(element);
+      UIElementRef child = me->childById(name);
+      if (child) {
+        UIElement *ptr = child.release();
+        args.pushResult(args.context()->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
+      }
+    });
+
     prototype.defineFunction({ "childByName" } , 1, [](JSExport *element, JSValues &args) {
       // parameters: name
       std::string name = args.get(0);
@@ -1288,7 +1388,18 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
       UIElementRef child = me->childByName(name);
       if (child) {
         UIElement *ptr = child.release();
-        args.pushResult(args.context()->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr }));
+        args.pushResult(args.context()->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
+      }
+    });
+
+    prototype.defineFunction({ "firstChildById" } , 1, [](JSExport *element, JSValues &args) {
+      // parameters: name
+      std::string name = args.get(0);
+      auto me = validate(element);
+      UIElementRef child = me->childById(name, false);
+      if (child) {
+        UIElement *ptr = child.release();
+        args.pushResult(args.context()->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
       }
     });
 
@@ -1299,7 +1410,7 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
       UIElementRef child = me->childByName(name, false);
       if (child) {
         UIElement *ptr = child.release();
-        args.pushResult(args.context()->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr }));
+        args.pushResult(args.context()->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
       }
     });
 
@@ -1313,7 +1424,7 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
       if (candidate->isValid()) {
         if (me->hasChild(candidate.get())) {
           UIElement *ptr = candidate.release();
-          args.pushResult(args.context()->createJsInstance(_roleToElement[ptr->_accessible->getRole()], { ptr }));
+          args.pushResult(args.context()->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr }));
         }
       }
     });
@@ -1321,18 +1432,30 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
     prototype.defineFunction({ "getParent" }, 0, [](JSExport *element, JSValues &args) {
       auto me = validate(element);
       UIElement *parent = me->getParent().release();
-      args.pushResult(args.context()->createJsInstance(_roleToElement[parent->_accessible->getRole()], { parent }));
+      args.pushResult(args.context()->createJsInstance(roleToJSType(parent->_accessible->getRole()), { parent }));
     });
     
     prototype.defineFunction({ "show" }, 0, [](JSExport *element, JSValues &args) {
       std::ignore = args;
-      validate(element)->_accessible->show();
+
+      auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Show);
+      me->_accessible->show();
+    });
+
+    prototype.defineFunction({ "showContextMenu" }, 0, [](JSExport *element, JSValues &args) {
+      std::ignore = args;
+      auto me = validate(element);
+      me->_accessible->showMenu();
     });
 
     prototype.defineFunction({ "getBounds" }, 1, [](JSExport *element, JSValues &args) {
       // parameters: flag?
+      auto me = validate(element);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::GetBounds);
+
       bool screenCoordinates = args.get(0, true);
-      args.pushResult(validate(element)->_accessible->getBounds(screenCoordinates));
+      args.pushResult(me->_accessible->getBounds(screenCoordinates));
     });
     
     prototype.defineFunction({ "convertToScreen" }, 1, [](JSExport *element, JSValues &args) {
@@ -1380,21 +1503,23 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
       // parameters: path, options?
       std::string path = args.get(0);
       JSObject options = args.get(1, JSObject());
-      bool includeEmpty = true;
+      bool includeEmptyNames = true;
+      bool includeEmptyIds = true;
       bool includeInternal = false;
       if (options.isValid()) {
-        includeEmpty = options.get("includeEmptyNames", true);
+        includeEmptyNames = options.get("includeEmptyNames", true);
+        includeEmptyIds = options.get("includeEmptyIds", true);
         includeInternal = options.get("includeInternal", false);
       }
       auto me = validate(element);
 
       JSArray result(args.context());
-      APath searcher(me->_root);
-      auto searchResult = searcher.execute(me, path, includeEmpty, includeInternal);
+      APath searcher(me->_root->_accessible.get());
+      auto searchResult = searcher.execute(me->_accessible.get(), path, includeEmptyNames, includeEmptyIds, includeInternal);
       for (auto &value : searchResult) {
-        UIElement *ptr = value.release();
-        aal::Role r = ptr->_accessible->getRole();
-        result.addValue(args.context()->createJsInstance(_roleToElement[r], { ptr }));
+        aal::Role r = value->getRole();
+        UIElement *ptr = new UIElement(std::move(value), me->_root);
+        result.addValue(args.context()->createJsInstance(roleToJSType(r), { ptr }));
       }
       args.pushResult(result);
     });
@@ -1411,14 +1536,15 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
       args.pushResult(validate(element)->_accessible->dump(recursive));
     });
     
-    prototype.defineFunction( { "printNativeInfo" }, 0, [](JSExport *element, JSValues &/*args*/) {
+    prototype.defineFunction( { "printNativeInfo" }, 0, [](JSExport *element, JSValues &args) {
+      std::ignore = args;
       validate(element)->_accessible->printNativeInfo();
     });
 
     prototype.defineFunction( { "containingRow" }, 0, [](JSExport *element, JSValues &args) {
       auto me = validate(element);
       UIElement *row = me->containingRow().release();
-      args.pushResult(args.context()->createJsInstance(_roleToElement[row->_accessible->getRole()], { row }));
+      args.pushResult(args.context()->createJsInstance(roleToJSType(row->_accessible->getRole()), { row }));
     });
 
   });
@@ -1429,6 +1555,7 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
   defineUIButtonBase(context, exports);
   defineUIButton(context, exports);
   defineUIRadioButton(context, exports);
+  defineUIRadioGroup(context, exports);
   defineUICheckBox(context, exports);
   defineUIComboBox(context, exports);
   defineUIExpander(context, exports);
@@ -1445,6 +1572,7 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
   defineUISeparator(context, exports);
 
   defineUISplitContainer(context, exports);
+  defineUISplitter(context, exports);
   defineUIGroupBox(context, exports);
   defineUIImage(context, exports);
   defineUITabView(context, exports);
@@ -1464,6 +1592,14 @@ void UIElement::registerInContext(ScriptingContext &context, JSObject &exports) 
 
   defineUIScrollBar(context, exports);
   defineUIScrollThumb(context, exports);
+
+  defineUIHyperLink(context, exports);
+}
+
+//----------------- UIRootElement --------------------------------------------------------------------------------------
+
+UIRootElement::UIRootElement(AutomationContext &context, aal::AccessibleRef ref)
+: UIElement(std::move(ref), this), _context(context) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------

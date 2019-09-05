@@ -1,0 +1,10 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  columns:
+  - added column t of type TEXT
+  - modified column id2
+  __
+----------------------------------------------
+End of MySQL Workbench Report

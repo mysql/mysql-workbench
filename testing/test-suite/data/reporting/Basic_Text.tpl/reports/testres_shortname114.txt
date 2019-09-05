@@ -1,0 +1,41 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`types_check` was created
+  columns:
+  - b4 of type BIT
+  - ti of type TINYINT
+  - si of type SMALLINT
+  - mi of type MEDIUMINT
+  - i of type INT
+  - i2 of type INT
+  - bi of type BIGINT
+  - r of type DOUBLE
+  - d of type DOUBLE
+  - f of type FLOAT
+  - dc of type DECIMAL
+  - num of type DECIMAL
+  - dt of type DATE
+  - tm of type TIME
+  - tmst of type TIMESTAMP
+  - dttm of type DATETIME
+  - yr of type YEAR
+  - ch of type CHAR
+  - vchr of type VARCHAR
+  - bnr of type BINARY
+  - vbnr of type VARBINARY
+  - tblb of type TINYBLOB
+  - blb of type BLOB
+  - mblb of type MEDIUMBLOB
+  - lblb of type LONGBLOB
+  - ttxt of type TINYTEXT
+  - mtxt of type MEDIUMTEXT
+  - enm of type ENUM
+  - st of type SET
+  __
+  attributes:
+  - engine: InnoDB
+  - default character set: latin1
+  __
+----------------------------------------------
+End of MySQL Workbench Report

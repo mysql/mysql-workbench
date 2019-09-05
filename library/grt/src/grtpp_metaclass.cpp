@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "grt.h"
@@ -259,8 +259,10 @@ MetaClass *MetaClass::from_xml(const std::string &source, xmlNodePtr node) {
         throw std::runtime_error(
           std::string("Error loading struct from ").append(source).append(": duplicate struct name ").append(name));
       stru->_placeholder = false;
-    } else
+    } else {
       stru = new MetaClass;
+      logDebug3("Creating metaclass %s, from source: %s\n", name.c_str(), source.c_str());
+    }
   } else
     throw std::runtime_error("Invalid struct definition in " + source);
 
@@ -333,6 +335,7 @@ void MetaClass::load_xml(xmlNodePtr node) {
     tmp->_placeholder = true;
     _parent = tmp;
     grt::GRT::get()->add_metaclass(tmp);
+    logDebug3("Creating metaclass placeholder %s", node_property.c_str());
   }
 
   load_attribute_list(node);

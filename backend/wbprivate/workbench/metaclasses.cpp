@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 // code to auto-register all metaclasses/structs used in Workbench
@@ -42,6 +42,7 @@
 #include "grts/structs.workbench.physical.h"
 #include "grts/structs.ui.h"
 #include "grts/structs.wrapper.h"
+#include "wb_backend_public_interface.h"
 
 void register_all_metaclasses() {
   register_structs_app_xml();

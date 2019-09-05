@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "grt_python_debugger.h"
@@ -595,8 +595,8 @@ void GRTShellWindow::execute_file() {
   if (!editor)
     return;
 
-  grt::GRT::get()->push_message_handler(
-    std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, true));
+  grt::GRT::get()->pushMessageHandler(
+    new grt::SlotHolder(std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, true)));
 
   if (_debugger && g_str_has_suffix(editor->get_path().c_str(), ".py")) {
     _run_button->show(false);
@@ -622,7 +622,7 @@ void GRTShellWindow::execute_file() {
       add_output("There were errors during execution. Please review log messages.\n");
     }
 
-  grt::GRT::get()->pop_message_handler();
+  grt::GRT::get()->popMessageHandler();
 }
 
 void GRTShellWindow::debug_step() {
@@ -633,8 +633,8 @@ void GRTShellWindow::debug_step() {
       _debugger->step();
     else {
       // start the program stopping at the 1st line
-      grt::GRT::get()->push_message_handler(
-        std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, true));
+      grt::GRT::get()->pushMessageHandler(
+        new grt::SlotHolder(std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, true)));
 
       _run_button->show(false);
       _continue_button->show(true);
@@ -652,7 +652,7 @@ void GRTShellWindow::debug_step() {
       _stop_button->set_enabled(false);
       _pause_button->set_enabled(false);
 
-      grt::GRT::get()->pop_message_handler();
+      grt::GRT::get()->popMessageHandler();
     }
   }
 }
@@ -836,10 +836,10 @@ void GRTShellWindow::save_snippets() {
   //  If the user snippets were not loaded yet, a save is invalid
   if (!_userSnippetsLoaded || _snippetClicked)
     return;
-  
+
   std::string path = base::makePath(bec::GRTManager::get()->get_user_datadir(), "shell_snippets" + _script_extension);
   std::fstream file(path, std::fstream::out | std::fstream::trunc);
-  
+
   if (!file.is_open()) {
     _shell_text.append_text(base::strfmt("Cannot save snippets to %s: %s", path.c_str(), g_strerror(errno)));
     return;
@@ -848,10 +848,10 @@ void GRTShellWindow::save_snippets() {
   int c = _snippet_list->root_node()->count();
   for (int i = _global_snippet_count; i < c; i++) {
     std::string snippet = _snippet_list->root_node()->get_child(i)->get_tag();
-    
+
     if (i > _global_snippet_count)
-      file << std::endl;     
-    
+      file << std::endl;
+
     file << " " << base::replaceString(snippet, "\n", "\n ") << std::endl;
   }
 }
@@ -890,7 +890,7 @@ void GRTShellWindow::refresh_snippets() {
   _global_snippet_count = _snippet_list->root_node()->count();
   load_snippets_from(base::makePath(bec::GRTManager::get()->get_user_datadir(), "shell_snippets" + _script_extension));
   _userSnippetsLoaded = true;
-  
+
   snippet_selected();
 }
 
@@ -963,21 +963,21 @@ void GRTShellWindow::run_snippet() {
 
     handle_output("Running snippet...\n");
     // redirect snippet output to the shell
-    grt::GRT::get()->push_message_handler(
-      std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, false));
+    grt::GRT::get()->pushMessageHandler(
+      new grt::SlotHolder(std::bind(&GRTShellWindow::capture_output, this, std::placeholders::_1, std::placeholders::_2, false)));
 
     try {
       std::string language = "python";
 
       bool ret = execute_script(script, language);
-      grt::GRT::get()->pop_message_handler();
+      grt::GRT::get()->popMessageHandler();
       if (!ret) {
         handle_output("Snippet execution finished with an error\n");
       } else {
         handle_output("...execution finished\n");
       }
     } catch (const std::exception &exc) {
-      grt::GRT::get()->pop_message_handler();
+      grt::GRT::get()->popMessageHandler();
 
       handle_output("Exception caught while executing snippet:\n");
       handle_output(std::string(exc.what()).append("\n"));
@@ -990,7 +990,7 @@ void GRTShellWindow::run_snippet() {
 void GRTShellWindow::snippet_selected() {
   bool read_only = false;
   _snippetClicked = true;
-  
+
   _snippet_text.set_features(mforms::FeatureReadOnly, false); // Necessary to be able to change the text.
   int sel = _snippet_list->get_selected_row();
   if (sel < 0) {

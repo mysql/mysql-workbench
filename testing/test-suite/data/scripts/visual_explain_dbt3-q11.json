@@ -1,0 +1,131 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "ordering_operation": {
+      "using_filesort": true,
+      "grouping_operation": {
+        "using_temporary_table": true,
+        "using_filesort": false,
+        "nested_loop": [
+          {
+            "table": {
+              "table_name": "nation",
+              "access_type": "ALL",
+              "possible_keys": [
+                "PRIMARY"
+              ],
+              "rows": 25,
+              "filtered": 100,
+              "attached_condition": "(`dbt3`.`nation`.`n_name` = 'KENYA')"
+            }
+          },
+          {
+            "table": {
+              "table_name": "supplier",
+              "access_type": "ref",
+              "possible_keys": [
+                "PRIMARY",
+                "i_s_nationkey"
+              ],
+              "key": "i_s_nationkey",
+              "used_key_parts": [
+                "s_nationkey"
+              ],
+              "key_length": "5",
+              "ref": [
+                "dbt3.nation.n_nationkey"
+              ],
+              "rows": 199,
+              "filtered": 100,
+              "using_index": true
+            }
+          },
+          {
+            "table": {
+              "table_name": "partsupp",
+              "access_type": "ref",
+              "possible_keys": [
+                "PRIMARY",
+                "i_ps_partkey",
+                "i_ps_suppkey"
+              ],
+              "key": "i_ps_suppkey",
+              "used_key_parts": [
+                "ps_suppkey"
+              ],
+              "key_length": "4",
+              "ref": [
+                "dbt3.supplier.s_suppkey"
+              ],
+              "rows": 38,
+              "filtered": 100
+            }
+          }
+        ],
+        "optimized_away_subqueries": [
+          {
+            "dependent": false,
+            "cacheable": true,
+            "query_block": {
+              "select_id": 2,
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "nation",
+                    "access_type": "ALL",
+                    "possible_keys": [
+                      "PRIMARY"
+                    ],
+                    "rows": 25,
+                    "filtered": 100,
+                    "attached_condition": "(`dbt3`.`nation`.`n_name` = 'KENYA')"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "supplier",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "PRIMARY",
+                      "i_s_nationkey"
+                    ],
+                    "key": "i_s_nationkey",
+                    "used_key_parts": [
+                      "s_nationkey"
+                    ],
+                    "key_length": "5",
+                    "ref": [
+                      "dbt3.nation.n_nationkey"
+                    ],
+                    "rows": 199,
+                    "filtered": 100,
+                    "using_index": true
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "partsupp",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "i_ps_suppkey"
+                    ],
+                    "key": "i_ps_suppkey",
+                    "used_key_parts": [
+                      "ps_suppkey"
+                    ],
+                    "key_length": "4",
+                    "ref": [
+                      "dbt3.supplier.s_suppkey"
+                    ],
+                    "rows": 38,
+                    "filtered": 100
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+} 

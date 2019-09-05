@@ -1,0 +1,95 @@
+#!/bin/bash
+
+test_binary=./build/wbtests-bin
+
+program_path=$(cd $(dirname $0);pwd)
+
+root_path=`cd $program_path/../wb-build;pwd`
+
+if ! test -d $root_path; then
+  echo "Must be called from testing/ directory"
+  exit 1
+fi
+
+
+bindirname="$root_path/usr/local/bin"
+if test -d $bindirname; then
+prefix=/usr/local
+else
+bindirname="$root_path/usr/bin"
+if ! test -d $bindirname; then
+  echo "WB installion root must be in top srcdir (make install DESTDIR=$root_path)"
+  exit 1
+fi
+prefix=/usr/local
+fi
+
+basedirname=$(cd "$bindirname/..";pwd)
+
+libdir=$(basename $prefix/lib)
+wblibdir="$basedirname/$libdir/mysql-workbench"
+
+CAIRO=`ldd $bindirname/mysql-workbench-bin | grep libcairo\.so | cut -d " " -f 3`
+PNG=`ldd $CAIRO | grep libpng | cut -d " " -f 3`
+LIBZ=`ldd $PNG | grep libz\.so | cut -d " " -f 3`
+
+if test "$LD_PRELOAD" != ""; then
+  export LD_PRELOAD="$LD_PRELOAD:$LIBZ"
+else
+  export LD_PRELOAD="$LIBZ"
+fi
+
+# if libcairo and pixman are in the wb libraries dir, force them to be preloaded
+if test -f $wblibdir/libcairo.so.2; then
+	if test "$LD_PRELOAD" != ""; then
+		export LD_PRELOAD="$LD_PRELOAD:$wblibdir/libcairo.so.2"
+	else
+		export LD_PRELOAD="$wblibdir/libcairo.so.2"
+	fi
+fi
+if test -f $wblibdir/libpixman-1.so.0; then
+	if test "$LD_PRELOAD" != ""; then
+		export LD_PRELOAD="$LD_PRELOAD:$wblibdir/libpixman.so.0"
+	else
+		export LD_PRELOAD="$wblibdir/libpixman.so.0"
+	fi
+fi
+
+# Setup environment
+#------------------------------------------------------------------
+export LD_LIBRARY_PATH="$wblibdir:$LD_LIBRARY_PATH" #:../../frontend/linux/lib/mysql-workbench"
+
+export MWB_DATA_DIR="$basedirname/share/mysql-workbench"
+export MWB_LIBRARY_DIR="$basedirname/share/mysql-workbench/libraries"
+export MWB_MODULE_DIR="$basedirname/$libdir/mysql-workbench/modules"
+export MWB_PLUGIN_DIR="$basedirname/$libdir/mysql-workbench/plugins"
+
+export DBC_DRIVER_PATH="$basedirname/$libdir/mysql-workbench"
+
+export TEST_MODULES_DIR="$MWB_MODULE_DIR"   #"../../wb-build/usr/local/lib/mysql-workbench/modules"
+#export LD_LIBRARY_PATH=../../frontend/linux/lib/mysql-workbench
+
+
+export G_FILENAME_ENCODING="UTF-8"
+
+
+if test "$1" == "--gdb"; then
+  cgdb $test_binary
+  exit
+fi
+
+if test "$1" == "--cgdb"; then
+  cgdb $test_binary
+  exit
+fi
+
+if test "$1" == "--valgrind"; then
+  if test "$2" == ""; then
+    valgrind --tool=memcheck --leak-check=full --log-file=/tmp/val.log $test_binary
+  else
+    valgrind --tool=memcheck --log-file=/tmp/val.log $test_binary only $2
+  fi
+  exit
+fi
+
+$test_binary

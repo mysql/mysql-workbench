@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -138,12 +138,12 @@ void DebugAdapter::initializeAndWait() {
 
   _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
   if (_serverSocket < 0)
-    throw std::runtime_error("Debug adapter: failed to create server socket: " + Utils::getLastError());
+    throw std::runtime_error("Debug adapter: failed to create server socket: " + Utilities::getLastError());
 
   int on = 1;
   if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on)) < 0) {
     ::close(_serverSocket);
-    throw std::runtime_error("Debug adapter: failed to set SO_REUSEADDR for server socket: " + Utils::getLastError());
+    throw std::runtime_error("Debug adapter: failed to set SO_REUSEADDR for server socket: " + Utilities::getLastError());
   }
 
   struct sockaddr_in addr;
@@ -154,7 +154,7 @@ void DebugAdapter::initializeAndWait() {
 
   if (bind(_serverSocket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
     ::close(_serverSocket);
-    throw std::runtime_error("Debug adapter: failed to bind server socket: " + Utils::getLastError());
+    throw std::runtime_error("Debug adapter: failed to bind server socket: " + Utilities::getLastError());
   }
 
   listen(_serverSocket, 1);
@@ -164,7 +164,7 @@ void DebugAdapter::initializeAndWait() {
   _clientSocket = accept(_serverSocket, (struct sockaddr *)&addr, &length);
   if (_clientSocket < 0) {
     ::close(_serverSocket);
-    throw std::runtime_error("Debug adapter: accept() failed: " + Utils::getLastError());
+    throw std::runtime_error("Debug adapter: accept() failed: " + Utilities::getLastError());
   }
 
 #endif
@@ -197,11 +197,11 @@ duk_size_t DebugAdapter::readCallback(void *data, char *buffer, duk_size_t lengt
   ssize_t ret = recv(adapter->_clientSocket, buffer, len, 0);
   if (ret < 0) {
     adapter->close();
-    std::cerr << "Debug adapter: read failed, closing connection: " << Utils::getLastError() << std::endl;
+    std::cerr << "Debug adapter: read failed, closing connection: " << Utilities::getLastError() << std::endl;
     return 0;
   } else if (ret == 0) {
     adapter->close();
-    std::cerr << "Debug adapter: no more data, closing connection: " << Utils::getLastError() << std::endl;
+    std::cerr << "Debug adapter: no more data, closing connection: " << Utilities::getLastError() << std::endl;
     return 0;
   } else if (ret > (ssize_t) length) {
     adapter->close();
@@ -230,7 +230,7 @@ duk_size_t DebugAdapter::writeCallback(void *data, const char *buffer, duk_size_
   
   if (ret <= 0 || ret > (ssize_t)length) {
     adapter->close();
-    std::cerr << "Debug adapter: write failed, closing connection: " << Utils::getLastError() << std::endl;
+    std::cerr << "Debug adapter: write failed, closing connection: " << Utilities::getLastError() << std::endl;
     return 0;
   }
 
@@ -254,7 +254,7 @@ duk_size_t DebugAdapter::peekCallback(void *data) {
   int rc = ioctlsocket(adapter->_clientSocket, FIONREAD, &avail);
   if (rc != 0) {
     adapter->close();
-    std::cerr << "Debug adapter: peek error, closing connection: " << Utils::getLastError() << std::endl;
+    std::cerr << "Debug adapter: peek error, closing connection: " << Utilities::getLastError() << std::endl;
     return 0;
   } else {
     if (avail == 0)
@@ -271,7 +271,7 @@ duk_size_t DebugAdapter::peekCallback(void *data) {
   int pollResult = poll(fds, 1, 0);
   if (pollResult < 0) {
     adapter->close();
-    std::cerr << "Debug adapter: peek error, closing connection: " << Utils::getLastError() << std::endl;
+    std::cerr << "Debug adapter: peek error, closing connection: " << Utilities::getLastError() << std::endl;
   } else if (pollResult == 0) {
     return 0;
   }

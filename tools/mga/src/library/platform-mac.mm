@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -28,6 +28,8 @@
 
 #include "utilities.h"
 
+#define COPYFILE_EXCL 1
+
 using namespace mga;
 using namespace geometry;
 
@@ -44,14 +46,14 @@ class MacPlatform : public Platform {
 public:
   virtual ~MacPlatform() {};
 
-  virtual int launchApplication(const std::string &name, const std::vector<std::string> &params, bool async,
-                                bool newInstance, ShowState showState, 
-                                std::map<std::string, std::string> const& env = {}) const override;
+  virtual int launchApplication(const std::string &name, const std::vector<std::string> &params, bool newInstance,
+                                ShowState showState, std::map<std::string, std::string> const& env) const override;
 
   virtual int getPidByName(const std::string &name) const override;
   virtual std::string getTempDirName() const override;
   virtual bool terminate(int processID, bool force = false) const override;
   virtual void runLoopRun(ScriptingContext &context) const override;
+  virtual bool isRunning(int processID) const override;
 
   virtual std::vector<Cpu> cpuInfo() const override;
   virtual size_t getFreeMem() const override;
@@ -61,8 +63,11 @@ public:
   virtual double getUptime() const override;
   virtual geometry::Size getImageResolution(std::string const& path) const override;
   virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const override;
+  virtual void defineFsConstants(ScriptingContext &context, JSObject &constants) const override;
   virtual void loadAvg(double (&avg)[3]) const override;
   virtual UiToolkit getUiToolkit() const override;
+  virtual std::string getClipboardText() const override;
+  virtual void setClipboardText(const std::string &text) const override;
   virtual std::vector<Screen> getScreens() const override;
 };
 
@@ -80,10 +85,10 @@ void MacStat::initialize(const std::string &path, bool followLinks) {
   _path = path;
   if (followLinks) {
     if (stat(path.c_str(), &_buffer) != 0)
-      throw std::runtime_error("Cannot create stats: " + Utils::getLastError());
+      throw std::runtime_error("Cannot create stats: " + Utilities::getLastError());
   } else {
     if (lstat(path.c_str(), &_buffer) != 0)
-      throw std::runtime_error("Cannot create stats: " + Utils::getLastError());
+      throw std::runtime_error("Cannot create stats: " + Utilities::getLastError());
   }
 
   _blockSize = _buffer.st_blksize;
@@ -117,9 +122,8 @@ Platform& Platform::get() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int MacPlatform::launchApplication(const std::string &name, const std::vector<std::string> &params,
-                                   bool async, bool newInstance, ShowState showState,
-                                   std::map<std::string, std::string> const& env) const {
+int MacPlatform::launchApplication(const std::string &name, const std::vector<std::string> &params, bool newInstance,
+                                   ShowState showState, std::map<std::string, std::string> const& env) const {
   NSString *path = [NSString stringWithUTF8String: name.c_str()];
 
   NSMutableArray *args = [NSMutableArray new];
@@ -128,8 +132,6 @@ int MacPlatform::launchApplication(const std::string &name, const std::vector<st
 
   NSError *error = nil;
   NSWorkspaceLaunchOptions options = NSWorkspaceLaunchWithoutAddingToRecents;
-  if (async)
-    options |= NSWorkspaceLaunchAsync;
   if (newInstance)
     options |= NSWorkspaceLaunchNewInstance;
   if (showState == ShowState::Hidden)
@@ -137,10 +139,19 @@ int MacPlatform::launchApplication(const std::string &name, const std::vector<st
   else if (showState == ShowState::HideOthers)
     options |= NSWorkspaceLaunchAndHideOthers;
 
+  auto environment = [NSMutableDictionary new];
+  for (auto &pair : env) {
+    environment[[NSString stringWithUTF8String: pair.first.c_str()]] = [NSString stringWithUTF8String: pair.second.c_str()];
+  }
+
+  auto configuration = @{
+    NSWorkspaceLaunchConfigurationEnvironment: environment,
+    NSWorkspaceLaunchConfigurationArguments: args
+  };
   NSRunningApplication *application =
     [NSWorkspace.sharedWorkspace launchApplicationAtURL: [NSURL fileURLWithPath: path]
                                                 options: options
-                                          configuration: @{ NSWorkspaceLaunchConfigurationArguments: args }
+                                          configuration: configuration
                                                   error: &error];
   if (error != nil)
     throw std::runtime_error(error.localizedDescription.UTF8String);
@@ -167,6 +178,10 @@ int MacPlatform::getPidByName(const std::string &name) const {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::string MacPlatform::getTempDirName() const {
+  // Not really system conformal, but we want Node.js compatibility.
+  const char* temp = getenv("TMPDIR");
+  if (temp != nullptr)
+    return temp;
   return [NSTemporaryDirectory() UTF8String];
 }
 
@@ -175,7 +190,19 @@ std::string MacPlatform::getTempDirName() const {
 bool MacPlatform::terminate(int processID, bool force) const {
   NSRunningApplication *application = [NSRunningApplication runningApplicationWithProcessIdentifier: processID];
   if (application != nil && application != NSRunningApplication.currentApplication) {
-    return [application terminate];
+    bool terminationInProgress = false;
+    if (force)
+      terminationInProgress =  [application forceTerminate];
+    else
+      terminationInProgress =  [application terminate];
+    if (terminationInProgress) {
+      // Wait for completion of the termination.
+      while (!application.terminated && [NSRunLoop.currentRunLoop runMode: NSDefaultRunLoopMode
+                                                               beforeDate: [NSDate.date dateByAddingTimeInterval: 0.010]])
+        ;
+
+      return true;
+    }
   }
   return false;
 }
@@ -198,6 +225,13 @@ void MacPlatform::runLoopRun(ScriptingContext &context) const {
     if (!context.callbacksPending())
       break;
   };
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool MacPlatform::isRunning(int processID) const {
+  NSRunningApplication *application = [NSRunningApplication runningApplicationWithProcessIdentifier: processID];
+  return application != nil;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -267,7 +301,7 @@ std::map<std::string, std::vector<NetworkInterface>> MacPlatform::networkInterfa
     if (run->ifa_addr->sa_family == AF_LINK) {
       struct sockaddr_dl *sa_addr = reinterpret_cast<struct sockaddr_dl *>(run->ifa_addr);
       auto macAddress = reinterpret_cast<unsigned char *>(LLADDR(sa_addr));
-      macAddresses[run->ifa_name] = Utils::format("%02x:%02x:%02x:%02x:%02x:%02x",
+      macAddresses[run->ifa_name] = Utilities::format("%02x:%02x:%02x:%02x:%02x:%02x",
                                                   *macAddress, *(macAddress + 1), *(macAddress + 2),
                                                   *(macAddress + 3), *(macAddress + 4), *(macAddress + 5));
     }
@@ -373,6 +407,83 @@ double MacPlatform::getUptime() const {
 
 void MacPlatform::defineOsConstants(ScriptingContext &context, JSObject &constants) const {
   Platform::defineOsConstants(context, constants);
+
+  JSObject signals = constants.get("signals");
+
+  DEFINE_CONSTANT(signals, SIGHUP);
+  DEFINE_CONSTANT(signals, SIGQUIT);
+  DEFINE_CONSTANT(signals, SIGTRAP);
+  DEFINE_CONSTANT(signals, SIGIOT);
+  DEFINE_CONSTANT(signals, SIGBUS);
+  DEFINE_CONSTANT(signals, SIGKILL);
+  DEFINE_CONSTANT(signals, SIGUSR1);
+  DEFINE_CONSTANT(signals, SIGUSR2);
+  DEFINE_CONSTANT(signals, SIGPIPE);
+  DEFINE_CONSTANT(signals, SIGALRM);
+  DEFINE_CONSTANT(signals, SIGCHLD);
+  DEFINE_CONSTANT(signals, SIGCONT);
+  DEFINE_CONSTANT(signals, SIGSTOP);
+  DEFINE_CONSTANT(signals, SIGTSTP);
+  DEFINE_CONSTANT(signals, SIGTTIN);
+  DEFINE_CONSTANT(signals, SIGTTOU);
+  DEFINE_CONSTANT(signals, SIGURG);
+  DEFINE_CONSTANT(signals, SIGXCPU);
+  DEFINE_CONSTANT(signals, SIGXFSZ);
+  DEFINE_CONSTANT(signals, SIGVTALRM);
+  DEFINE_CONSTANT(signals, SIGPROF);
+  DEFINE_CONSTANT(signals, SIGWINCH);
+  DEFINE_CONSTANT(signals, SIGIO);
+  DEFINE_CONSTANT(signals, SIGSYS);
+
+  JSObject errorNumbers = constants.get("errno");
+
+  DEFINE_CONSTANT(errorNumbers, EDQUOT);
+  DEFINE_CONSTANT(errorNumbers, EMULTIHOP);
+  DEFINE_CONSTANT(errorNumbers, ESTALE);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void MacPlatform::defineFsConstants(ScriptingContext &context, JSObject &constants) const {
+  Platform::defineFsConstants(context, constants);
+
+  DEFINE_CONSTANT(constants, O_RDONLY);
+  DEFINE_CONSTANT(constants, O_WRONLY);
+  DEFINE_CONSTANT(constants, O_RDWR);
+  DEFINE_CONSTANT(constants, O_CREAT);
+  DEFINE_CONSTANT(constants, O_EXCL);
+  DEFINE_CONSTANT(constants, O_NOCTTY);
+  DEFINE_CONSTANT(constants, O_TRUNC);
+  DEFINE_CONSTANT(constants, O_APPEND);
+  DEFINE_CONSTANT(constants, O_DIRECTORY);
+  DEFINE_CONSTANT(constants, O_NOFOLLOW);
+  DEFINE_CONSTANT(constants, O_SYNC);
+  DEFINE_CONSTANT(constants, O_DSYNC);
+  DEFINE_CONSTANT(constants, O_SYMLINK);
+  DEFINE_CONSTANT(constants, O_NONBLOCK);
+
+  DEFINE_CONSTANT(constants, S_IFMT);
+  DEFINE_CONSTANT(constants, S_IFREG);
+  DEFINE_CONSTANT(constants, S_IFDIR);
+  DEFINE_CONSTANT(constants, S_IFCHR);
+  DEFINE_CONSTANT(constants, S_IFBLK);
+  DEFINE_CONSTANT(constants, S_IFIFO);
+  DEFINE_CONSTANT(constants, S_IFLNK);
+  DEFINE_CONSTANT(constants, S_IFSOCK);
+  DEFINE_CONSTANT(constants, S_IRWXU);
+  DEFINE_CONSTANT(constants, S_IRUSR);
+  DEFINE_CONSTANT(constants, S_IWUSR);
+  DEFINE_CONSTANT(constants, S_IXUSR);
+  DEFINE_CONSTANT(constants, S_IRWXG);
+  DEFINE_CONSTANT(constants, S_IRGRP);
+  DEFINE_CONSTANT(constants, S_IWGRP);
+  DEFINE_CONSTANT(constants, S_IXGRP);
+  DEFINE_CONSTANT(constants, S_IRWXO);
+  DEFINE_CONSTANT(constants, S_IROTH);
+  DEFINE_CONSTANT(constants, S_IWOTH);
+  DEFINE_CONSTANT(constants, S_IXOTH);
+
+  DEFINE_CONSTANT(constants, COPYFILE_EXCL);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -407,6 +518,21 @@ geometry::Size MacPlatform::getImageResolution(std::string const& path) const {
 
 UiToolkit MacPlatform::getUiToolkit() const {
   return UiToolkit::Cocoa;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string MacPlatform::getClipboardText() const {
+  NSPasteboard *pasteBoard = NSPasteboard.generalPasteboard;
+  return [pasteBoard stringForType: NSPasteboardTypeString].UTF8String ?: "";
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void MacPlatform::setClipboardText(const std::string &text) const {
+  NSPasteboard *pasteBoard = NSPasteboard.generalPasteboard;
+  [pasteBoard declareTypes: @[NSPasteboardTypeString] owner: nil];
+  [pasteBoard setString: @(text.c_str()) forType: NSPasteboardTypeString];
 }
 
 //----------------------------------------------------------------------------------------------------------------------

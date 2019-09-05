@@ -76,13 +76,15 @@ typedef std::shared_ptr<Recordsets> RecordsetsRef;
 
 db_mgmt_ServerInstanceRef getServerInstance(const db_mgmt_ConnectionRef &connection);
 
-class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorForm : public bec::UIForm,
-                                                 grt::GRTObserver,
-                                                 public std::enable_shared_from_this<SqlEditorForm>,
-                                                 mforms::DropDelegate {
+class MYSQLWBBACKEND_PUBLIC_FUNC SqlEditorForm :
+  public bec::UIForm,
+  grt::GRTObserver,
+  public std::enable_shared_from_this<SqlEditorForm>,
+  mforms::DropDelegate {
 public:
 #if defined(ENABLE_TESTING)
   friend class EditorFormTester;
+  friend class LocalEditorFormTester;
 #endif
 
   enum ServerState { UnknownState, RunningState, PossiblyStoppedState, OfflineState };

@@ -1,0 +1,7 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+View `v1` was dropped
+View `v2` was created
+----------------------------------------------
+End of MySQL Workbench Report

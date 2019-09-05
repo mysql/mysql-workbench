@@ -1,0 +1,7 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+Trigger `tr1` was dropped
+----------------------------------------------
+End of MySQL Workbench Report

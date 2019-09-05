@@ -96,6 +96,12 @@
     <ClCompile Include="library\registry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="library\utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="library\property.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application-context.h">
@@ -180,6 +186,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="library\registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="library\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="library\property.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

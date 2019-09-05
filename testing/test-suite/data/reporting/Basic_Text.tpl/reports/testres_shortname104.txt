@@ -1,0 +1,6 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+View `grtdiff_alter_test`.`v1` was dropped
+----------------------------------------------
+End of MySQL Workbench Report

@@ -17,7 +17,7 @@
 
 
 # -*- mode:cmake -*-
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.5 FATAL_ERROR)
 
 # Detect build type, fallback to release and throw a warning if use didn't specify any
 if(NOT CMAKE_BUILD_TYPE)
@@ -29,28 +29,18 @@ if(NOT CMAKE_BUILD_TYPE)
        FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-option(WITH_LIBCXX "Building with clang++ and libc++(in Linux). To enable with: -DWITH_LIBCXX=On" On)
+option(WITH_LIBCXX "Building with clang++ and libc++(in Linux). To enable with: -DWITH_LIBCXX=On" ON)
+option(BUILD_WITH_COVERAGE "Build mga with coverage. To enable with: -DBUILD_WITH_COVERAGE=On" OFF)
 
 project(MGA)
-
-if(CMAKE_VERSION VERSION_EQUAL "3.0.0" OR
-   CMAKE_VERSION VERSION_GREATER "3.0.0")
-  CMAKE_POLICY(SET CMP0045 OLD)
-  CMAKE_POLICY(SET CMP0042 OLD)
-endif()
-
-if(CMAKE_VERSION VERSION_EQUAL "3.3.0" OR
-   CMAKE_VERSION VERSION_GREATER "3.3.0")
-  CMAKE_POLICY(SET CMP0059 OLD)
-endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 find_package(MySQLCppConn 1.1.8 REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package (Threads)
 
-set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk)
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11")
+set(CMAKE_OSX_SYSROOT /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 
 if(UNIX AND NOT APPLE)
   find_package(PkgConfig REQUIRED)
@@ -124,5 +114,5 @@ if(EXISTS LICENSE.txt)
           DESTINATION ${INSTALL_DOCDIR})
 endif()
 
-install(FILES VERSION 
+install(FILES version.txt
       DESTINATION ${INSTALL_DOCDIR})

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "base/log.h"
@@ -145,10 +145,14 @@ void CPPModule::register_functions(ModuleFunctorBase *first, ...) {
 }
 
 void CPPModule::closeModule() noexcept {
-  if (_gmodule != nullptr) {
-    g_module_close(_gmodule);
-    _gmodule = nullptr;
+  for (std::list<ModuleFunctorBase *>::iterator iter = _functors.begin(); iter != _functors.end(); ++iter) {
+    delete *iter;
   }
+  _functors.clear();
+}
+
+GModule* CPPModule::getModule() const {
+  return _gmodule;
 }
 
 //----------------- CPPModule ----------------------------------------------------------------------
@@ -179,8 +183,7 @@ void CPPModule::set_name(const std::string &name) {
 //--------------------------------------------------------------------------------------------------
 
 CPPModule::~CPPModule() {
-  for (std::list<ModuleFunctorBase *>::iterator iter = _functors.begin(); iter != _functors.end(); ++iter)
-    delete *iter;
+  closeModule();
 }
 
 //--------------------------------------------------------------------------------------------------

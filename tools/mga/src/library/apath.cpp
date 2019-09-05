@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -38,6 +38,7 @@ static std::map<std::string, Role> roleMap = {
   { "window", Role::Window },
   { "button", Role::Button },
   { "radiobutton", Role::RadioButton },
+  { "radiogroup", Role::RadioGroup },
   { "checkbox", Role::CheckBox },
   { "combobox", Role::ComboBox },
   { "expander", Role::Expander },
@@ -51,6 +52,7 @@ static std::map<std::string, Role> roleMap = {
   { "menuitem", Role::MenuItem },
   { "separator", Role::Separator },
   { "splitcontainer", Role::SplitContainer },
+  { "splitter", Role::Splitter },
   { "groupbox", Role::GroupBox },
   { "image", Role::Image },
   { "tabview", Role::TabView },
@@ -58,16 +60,17 @@ static std::map<std::string, Role> roleMap = {
   { "datepicker", Role::DatePicker },
   { "row", Role::Row },
   { "column", Role::Column },
+  { "cell", Role::Cell },
   { "scrollbox", Role::ScrollBox },
-  { "progressindicator", Role::ProgressIndicator },
-  { "busyindicator", Role::BusyIndicator },
   { "slider", Role::Slider },
   { "stepper", Role::Stepper },
   { "list", Role::List },
   { "iconview", Role::IconView },
-
+  { "progressindicator", Role::ProgressIndicator },
+  { "busyindicator", Role::BusyIndicator },
   { "scrollbar", Role::ScrollBar },
   { "scrollthumb", Role::ScrollThumb },
+  { "hyperlink", Role::HyperLink },
 };
 
 static std::map<std::string, size_t> axisMap = {
@@ -88,7 +91,7 @@ static std::map<std::string, size_t> axisMap = {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-APath::APath(UIElement *root) : _root(root) {
+APath::APath(Accessible *root) : _root(root) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -134,8 +137,9 @@ static std::vector<std::string> tokenizePath(std::string const& input);
  * @param includeEmptyNames True if elements with empty names should be included in the result.
  * @param includeInternal True if internal elements should be included in the result.
  */
-UIElementList APath::execute(UIElement *anchor, std::string const& path, bool includeEmptyNames, bool includeInternal) {
-  UIElementList result;
+AccessibleList APath::execute(Accessible *anchor, std::string const& path, bool includeEmptyNames, bool includeEmptyIDs,
+  bool includeInternal) {
+  AccessibleList result;
 
   if (path.empty())
     return result;
@@ -143,7 +147,7 @@ UIElementList APath::execute(UIElement *anchor, std::string const& path, bool in
   auto tokens = tokenizePath(path);
   auto begin = tokens.begin();
   while (true) {
-    auto subResult = executePath(anchor, begin, tokens.end(), includeEmptyNames, includeInternal);
+    auto subResult = executePath(anchor, begin, tokens.end(), includeEmptyNames, includeEmptyIDs, includeInternal);
     for (auto &entry : subResult)
       result.push_back(std::move(entry));
     
@@ -157,18 +161,21 @@ UIElementList APath::execute(UIElement *anchor, std::string const& path, bool in
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static UIElementList getChildren(UIElement *element, bool recursive) {
-  if (recursive)
-    return element->childrenRecursive();
+static AccessibleList getChildren(Accessible *element, bool recursive) {
+  if (recursive) {
+    AccessibleList accessibles;
+    element->children(accessibles, true);
+    return accessibles;
+  }
   
   return element->children();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-UIElementList APath::getParents(UIElement *element) const {
-  UIElementList result;
-  while (!element->_accessible->isRoot()) {
+AccessibleList APath::getParents(Accessible *element) const {
+  AccessibleList result;
+  while (!element->isRoot()) {
     result.push_back(element->getParent());
     element = result.back().get();
   }
@@ -178,9 +185,9 @@ UIElementList APath::getParents(UIElement *element) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-UIElementList APath::getSiblings(UIElement *element, bool leading, bool trailing) const {
-  UIElementList result;
-  if (element->_accessible->isRoot())
+AccessibleList APath::getSiblings(Accessible *element, bool leading, bool trailing) const {
+  AccessibleList result;
+  if (element->isRoot())
     return result;
 
   bool foundElement = false;
@@ -206,6 +213,7 @@ enum class PredicateValueType {
   Number,
   Operator,
   Self,
+  ID,
   Name,
   Description,
   Text,
@@ -322,6 +330,7 @@ static std::vector<PredicateValue> tokenizeExpression(std::string const& input) 
 
       case '@': {
         static std::map<std::string, PredicateValueType> propertyMap = {
+          { "id", PredicateValueType::ID },
           { "name", PredicateValueType::Name },
           { "description", PredicateValueType::Description },
           { "text", PredicateValueType::Text },
@@ -532,7 +541,9 @@ static bool getBoolValue(PredicateValue const& value) {
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::string getStringValue(PredicateValue const& value) {
-  if (value.type == PredicateValueType::String)
+  if (value.type == PredicateValueType::String
+      || value.type == PredicateValueType::ID
+      || value.type == PredicateValueType::Name)
     return value.stringValue;
 
   throw std::runtime_error("String value expected");
@@ -553,9 +564,9 @@ static double getNumberValue(PredicateValue const& value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, StringListIterator const& end,
-  bool includeEmptyNames, bool includeInternal) {
-  UIElementList result;
+AccessibleList APath::executePath(Accessible *anchor, StringListIterator &begin, StringListIterator const& end,
+  bool includeEmptyNames, bool includeEmptyIDs, bool includeInternal) {
+  AccessibleList result;
 
   if (*begin == "/" && (end - begin == 1)) {
     ++begin;
@@ -563,7 +574,7 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
     return result;
   }
 
-  UIElement *start = anchor;
+  Accessible *start = anchor;
   if (start == nullptr || (*begin)[0] == '/') // Absolute path or no anchor given?
     start = _root;
 
@@ -574,7 +585,7 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
     if (*begin == "/" || *begin == "./")
       ++begin;
 
-    std::string axis = Utils::toLower(*begin);
+    std::string axis = Utilities::toLower(*begin);
     if (axis == "::") // No axis, use default.
       axis = "child";
     else {
@@ -589,7 +600,7 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
     Role role = Role::Any;
     if (begin != end && *begin == "::") {
       ++begin;
-      std::string roleName = Utils::toLower(*begin++);
+      std::string roleName = Utilities::toLower(*begin++);
       if (roleMap.find(roleName) == roleMap.end())
         throw std::runtime_error("Invalid role specified: " + roleName);
       role = roleMap[roleName];
@@ -601,13 +612,13 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
     size_t axisIndex = axisMap[axis];
     switch (axisIndex) {
       case 0: { // child
-        UIElementList children;
+        AccessibleList children;
         if (result.empty())
           children = getChildren(start, false);
         else {
           for (auto &entry : result) {
             auto temp = getChildren(entry.get(), false);
-            Utils::appendVector(children, temp);
+            Utilities::appendVector(children, temp);
           }
         }
         result = std::move(children);
@@ -617,13 +628,13 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
 
       case 1: // parent
         if (result.empty()) {
-          if (start->_accessible->isRoot())
+          if (start->isRoot())
             throw std::runtime_error("There is no parent for the root node");
           else
             result.push_back(start->getParent());
         } else {
           for (auto &entry : result) {
-            if (entry->_accessible->isRoot())
+            if (entry->isRoot())
               throw std::runtime_error("There is no parent for the root node");
             else
               entry = entry->getParent();
@@ -639,7 +650,7 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
       case 3: // ancestor
       case 4: { // ancestor-or-self
         if (result.empty()) {
-          if (start->_accessible->isRoot())
+          if (start->isRoot())
             throw std::runtime_error("There is no parent for the root node");
           result = getParents(start);
 
@@ -648,13 +659,13 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
           break;
         }
 
-        UIElementList parents;
+        AccessibleList parents;
         for (auto &element : result) {
-          UIElement *raw = element.get();
+          Accessible *raw = element.get();
           if (axisIndex == 4)
             parents.push_back(std::move(element));
           auto temp = getParents(raw);
-          Utils::appendVector(parents, temp);
+          Utilities::appendVector(parents, temp);
         }
         result = std::move(parents);
         break;
@@ -669,13 +680,13 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
           break;
         }
 
-        UIElementList children;
+        AccessibleList children;
         for (auto &element : result) {
-          UIElement *raw = element.get();
+          Accessible *raw = element.get();
           if (axisIndex == 6)
             children.push_back(std::move(element));
           auto temp = getChildren(raw, true);
-          Utils::appendVector(children, temp);
+          Utilities::appendVector(children, temp);
         }
         result = std::move(children);
 
@@ -689,8 +700,8 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
         bool preceding = axisIndex == 9 || axisIndex == 10;
         bool siblingsOnly = axisIndex == 8 || axisIndex == 10;
 
-        UIElementList collected;
-        std::vector<UIElement *> elements;
+        AccessibleList collected;
+        std::vector<Accessible *> elements;
         if (result.empty())
           elements.push_back(start);
         else {
@@ -698,15 +709,15 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
             elements.push_back(element.get());
         }
 
-        for (UIElement *element : elements) {
+        for (Accessible *element : elements) {
           auto siblings = getSiblings(element, preceding, !preceding);
           if (siblingsOnly) {
-            Utils::appendVector(collected, siblings);
+            Utilities::appendVector(collected, siblings);
           } else {
             for (auto &sibling : siblings) {
               result.push_back(std::move(sibling));
               auto children = getChildren(sibling.get(), true);
-              Utils::appendVector(collected, children);
+              Utilities::appendVector(collected, children);
             }
           }
         }
@@ -716,29 +727,38 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
       }
     }
 
-    // Remove internal elements or such with empty names, if specified.
-    if (!includeEmptyNames) {
-      result.erase(std::remove_if(result.begin(), result.end(), [role] (UIElementRef const& element) {
-        return element->_accessible->getName().empty();
-      }), result.end());
-    }
-
-    if (!includeInternal) {
-      result.erase(std::remove_if(result.begin(), result.end(), [role] (UIElementRef const& element) {
-        return element->_accessible->isInternal();
-      }), result.end());
-    }
-
     // Remove all elements which don't match the specified role.
     if (role != Role::Any)
-      result.erase(std::remove_if(result.begin(), result.end(), [role] (UIElementRef const& element) {
-        return element->_accessible->getRole() != role;
+      result.erase(std::remove_if(result.begin(), result.end(), [role] (AccessibleRef const& element) {
+        return element->getRole() != role;
       }), result.end());
+
+    // Remove elements that have no name and/or id assigned (if specified). Same for elements that are
+    // considered to be internal (like those added by the OS).
+    if (!includeEmptyNames) {
+      result.erase(std::remove_if(result.begin(), result.end(), [] (AccessibleRef const& element) {
+        return element->getName().empty();
+      }), result.end());
+    }
+
+    if (!includeEmptyIDs) {
+      result.erase(std::remove_if(result.begin(), result.end(), [] (AccessibleRef const& element) {
+        return element->getID().empty();
+      }), result.end());
+    }
+
+    // TODO: decide if we even can support that internal flag or remove it.
+    std::ignore = includeInternal;
+    /*if (!includeInternal) {
+      result.erase(std::remove_if(result.begin(), result.end(), [role] (AccessibleRef const& element) {
+        return element->isInternal();
+      }), result.end());
+    }*/
 
     // Last step: filter by predicate. In XPath predicates can also contain XPath and some math expressions.
     // We don't go that far atm. and support only these expressions:
     //   - self: (or .) to refer to an element's text (same as @text).
-    //   - properties: @name, @text, @valid, @enabled, @focused, @childCount, @title (not case sensitive).
+    //   - properties: @id, @name, @text, @valid, @enabled, @focused, @childCount, @title (not case sensitive).
     //   - A number as index into the child list.
     // Except for the index the expression must be formulated as a relation (e.g. [@enabled=true]) to be valid.
     while (begin != end && (*begin)[0] == '[') {
@@ -758,7 +778,7 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
           throw std::runtime_error("Index out of range: " + std::to_string(index));
 
         --index;
-        UIElementRef temp = std::move(result[static_cast<size_t>(index)]);
+        AccessibleRef temp = std::move(result[static_cast<size_t>(index)]);
         result.clear();
         result.push_back(std::move(temp));
 
@@ -778,9 +798,10 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
         case PredicateValueType::Self:
         case PredicateValueType::Text: {
           std::string value = getStringValue(expression[2]);
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
             try {
-              return !compareText(element->_accessible->getText(), op, value);
+              //std::cout << element->dump() << std::endl;
+              return !compareText(element->getText(), op, value);
             } catch (...) {
               return true;
             }
@@ -789,31 +810,36 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
           break;
         }
 
+        case PredicateValueType::ID: {
+          std::string value = getStringValue(expression[2]);
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
+            return !compareText(element->getID(), op, value);
+          }), result.end());
+
+          break;
+        }
+
         case PredicateValueType::Name: {
           std::string value = getStringValue(expression[2]);
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
-            return !compareText(element->_accessible->getName(), op, value);
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
+            return !compareText(element->getName(), op, value);
           }), result.end());
 
           break;
         }
 
         case PredicateValueType::Description: {
-          if (expression[2].type != PredicateValueType::String)
-            throw std::runtime_error("Invalid value for this expression: " + *begin);
-
-          std::string value = expression[2].stringValue;
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
-            return !compareText(element->_accessible->getDescription(), op, value);
+          std::string value = getStringValue(expression[2]);
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
+            return !compareText(element->getDescription(), op, value);
           }), result.end());
 
           break;
         }
 
-
         case PredicateValueType::Valid: {
           bool value = getBoolValue(expression[2]);
-          result.erase(std::remove_if(result.begin(), result.end(), [op, value](UIElementRef const& element) {
+          result.erase(std::remove_if(result.begin(), result.end(), [op, value](AccessibleRef const& element) {
             return !compareBool(element->isValid(), op, value);
           }), result.end());
 
@@ -822,9 +848,9 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
 
         case PredicateValueType::Enabled: {
           bool value = getBoolValue(expression[2]);
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
             try {
-              return !compareBool(element->_accessible->isEnabled(), op, value);
+              return !compareBool(element->isEnabled(), op, value);
             } catch (...) {
               return true;
             }
@@ -835,10 +861,10 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
 
         case PredicateValueType::Focused: {
           bool value = getBoolValue(expression[2]);
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
-            bool canFocus = element->_accessible->canFocus();
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
+            bool canFocus = element->canFocus();
             try {
-              return !compareBool(canFocus && element->_accessible->isFocused(), op, value);
+              return !compareBool(canFocus && element->isFocused(), op, value);
             } catch (...) {
               return true;
             }
@@ -852,7 +878,7 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
           if (count < 0)
             throw std::runtime_error("The value must be greater than zero (" + std::to_string(count) + ")");
 
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
             return !compareNumber(static_cast<long>(element->children().size()), op, count);
           }), result.end());
 
@@ -861,9 +887,9 @@ UIElementList APath::executePath(UIElement *anchor, StringListIterator &begin, S
 
         case PredicateValueType::Title: {
           std::string value = getStringValue(expression[2]);
-          result.erase(std::remove_if(result.begin(), result.end(), [&](UIElementRef const& element) {
+          result.erase(std::remove_if(result.begin(), result.end(), [&](AccessibleRef const& element) {
             try {
-              return !compareText(element->_accessible->getTitle(), op, value);
+              return !compareText(element->getTitle(), op, value);
             } catch (...) {
               return true;
             }

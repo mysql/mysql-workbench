@@ -164,9 +164,9 @@ protected:
   public:
     Parse_exception(const std::string &msg_text) : _msg_text(msg_text), _flag(2){};
     Parse_exception(const char *msg_text) : _msg_text(msg_text), _flag(2){};
-    virtual ~Parse_exception() THROW() {
+    virtual ~Parse_exception() throw() {
     }
-    const char *what() const THROW() {
+    const char *what() const throw() {
       return _msg_text.c_str();
     }
     int flag() const {

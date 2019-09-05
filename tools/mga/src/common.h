@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -83,6 +83,7 @@
   #include <iterator>
   #include <iomanip>
   #include <future>
+  #include <stack>
 
   #include <sys/stat.h>
   #include <sys/types.h>
@@ -130,5 +131,4 @@ namespace mga {
     Maximized = 2,
     HideOthers = 3
   };
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -37,6 +37,8 @@ using namespace bec;
 #define HISTORY_FILENAME "shell_history.txt"
 #define BOOKMARKS_FILENAME "shell_bookmarks.txt"
 
+//----------------------------------------------------------------------------------------------------------------------
+
 ShellBE::ShellBE(const GRTDispatcher::Ref dispatcher) : _dispatcher(dispatcher) {
   _shell = 0;
 
@@ -46,16 +48,24 @@ ShellBE::ShellBE(const GRTDispatcher::Ref dispatcher) : _dispatcher(dispatcher) 
   _history_ptr = _history.begin();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 ShellBE::~ShellBE() {
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::set_save_directory(const std::string &path) {
   _savedata_dir = path;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 grt::ValueRef ShellBE::get_shell_variable(const std::string &varname) {
   return _shell->get_global_var(varname);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::set_saves_history(int size) {
   _save_history_size = size;
@@ -69,6 +79,8 @@ void ShellBE::set_saves_history(int size) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::run_script_file(const std::string &path) {
   grt::ModuleLoader *loader = grt::GRT::get()->get_module_loader_for_file(path);
   if (!loader)
@@ -78,12 +90,16 @@ void ShellBE::run_script_file(const std::string &path) {
     throw std::runtime_error("An error occurred while executing the script " + path);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ShellBE::run_script(const std::string &script, const std::string &language) {
   grt::ModuleLoader *loader = grt::GRT::get()->get_module_loader(language);
   if (loader)
     return loader->run_script(script);
   throw std::runtime_error("Language " + language + " is not supported or enabled");
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::process_line_async(const std::string &line) {
   GRTShellTask::Ref task = GRTShellTask::create_task("User shell command", _dispatcher, line);
@@ -96,6 +112,8 @@ void ShellBE::process_line_async(const std::string &line) {
 
   _dispatcher->execute_now(task);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::shell_finished_cb(ShellCommand result, const std::string &prompt, const std::string &line) {
   if (result == ShellCommandExit) {
@@ -132,6 +150,8 @@ void ShellBE::shell_finished_cb(ShellCommand result, const std::string &prompt, 
     _ready_slot(prompt);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ShellBE::setup(const std::string &lang) {
   if (!grt::GRT::get()->init_shell(lang))
     return false;
@@ -146,12 +166,13 @@ bool ShellBE::setup(const std::string &lang) {
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::start() {
-  _skip_history = 1;
-  // trigger a command that will in turn make the GUI receive a ready
-  // callback with the prompt that should be shown
-  process_line_async("print(\"Ready.\\n\")");
+  _skip_history = 0;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::save_history_line(const std::string &line) {
   if (line.empty())
@@ -174,10 +195,14 @@ void ShellBE::save_history_line(const std::string &line) {
   _history_ptr = _history.begin();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::clear_history() {
   _history.clear();
   _history_ptr = _history.end();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 bool ShellBE::previous_history_line(const std::string &current_line, std::string &line) {
   if (_history_ptr == _history.end())
@@ -203,6 +228,8 @@ bool ShellBE::previous_history_line(const std::string &current_line, std::string
   return true;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 bool ShellBE::next_history_line(std::string &line) {
   if (_history_ptr != _history.begin()) {
     --_history_ptr;
@@ -216,19 +243,27 @@ bool ShellBE::next_history_line(std::string &line) {
   return false;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::reset_history_position() {
   _history_ptr = _history.begin();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::set_ready_handler(const std::function<void(const std::string &)> &slot) {
   _ready_slot = slot;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::set_output_handler(const std::function<void(const std::string &)> &slot) {
   _output_slot = slot;
   if (_output_slot)
     flush_shell_output(); // Write out any pending text we might have.
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::handle_msg(const Message &msg) {
   // the default msg handler outputs everything to shell
@@ -253,6 +288,8 @@ void ShellBE::handle_msg(const Message &msg) {
       break;
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::writef(const char *fmt, ...) {
   va_list ap;
@@ -288,13 +325,19 @@ void ShellBE::writef(const char *fmt, ...) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::write_line(const std::string &line) {
   writef("%s\n", line.c_str());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::write(const std::string &text) {
   writef("%s", text.c_str());
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::flush_shell_output() {
   if (!_output_slot)
@@ -314,9 +357,13 @@ void ShellBE::flush_shell_output() {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<std::string> ShellBE::complete_line(const std::string &line, std::string &nprefix) {
   return _shell->complete_line(line, nprefix);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 std::string ShellBE::get_snippet_data() {
   std::string path = base::makePath(_savedata_dir, SNIPPETS_FILENAME);
@@ -331,6 +378,8 @@ std::string ShellBE::get_snippet_data() {
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::set_snippet_data(const std::string &data) {
   std::string path = base::makePath(_savedata_dir, SNIPPETS_FILENAME);
 
@@ -342,20 +391,28 @@ void ShellBE::set_snippet_data(const std::string &data) {
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 std::vector<std::string> ShellBE::get_grt_tree_bookmarks() {
   return _grt_tree_bookmarks;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::add_grt_tree_bookmark(const std::string &path) {
   if (std::find(_grt_tree_bookmarks.begin(), _grt_tree_bookmarks.end(), path) == _grt_tree_bookmarks.end())
     _grt_tree_bookmarks.push_back(path);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void ShellBE::delete_grt_tree_bookmark(const std::string &path) {
   std::vector<std::string>::iterator iter = std::find(_grt_tree_bookmarks.begin(), _grt_tree_bookmarks.end(), path);
   if (iter != _grt_tree_bookmarks.end())
     _grt_tree_bookmarks.erase(iter);
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::store_state() {
   // Make sure path exists, if not create it with privileges 744
@@ -392,6 +449,8 @@ void ShellBE::store_state() {
     fclose(f);
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void ShellBE::restore_state() {
   {
@@ -443,3 +502,5 @@ void ShellBE::restore_state() {
     }
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------

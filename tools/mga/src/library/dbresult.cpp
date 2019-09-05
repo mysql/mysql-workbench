@@ -150,7 +150,7 @@ void DbResult::registerInContext(ScriptingContext &context, JSObject &exports) {
 
         for (unsigned int i = 1; i <= me->_metaData->getColumnCount(); ++i) {
           std::string property = me->_metaData->getColumnLabel(i);
-          object.setValue(property, me->getResultValue(i));
+          object.set(property, me->getResultValue(i));
         }
 
         args.pushResult(object);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -163,46 +163,37 @@ std::string Accessible::dump(bool recursive, std::string const& indentation) con
   if (!isValid())
     return indentation + "<element not valid>";
 
+  std::stringstream ss;
+  ss << indentation << "Element: ";
+
   std::string description;
   try {
     description = getDescription();
   } catch (std::runtime_error &) {
   }
 
-  std::string name = getName();
+  std::string identifier;
+  try {
+    identifier = getID();
+  } catch (std::runtime_error &) {
+  }
+
+  if (identifier.empty())
+    identifier = "<no id>";
+  ss << "id: '" + identifier + "'";
+
+  auto name = getName();
   if (name.empty()) {
     try {
-      name = getTitle();
-    } catch (std::runtime_error &) {
-    }
-
-    if (name.empty()) {
-      try {
-        name = getText();
-      } catch (std::runtime_error &) {
-      }
-
-      if (name.empty()) {
-        // If we neither can get a name nor a title try to get some context
-        // by querying the parent. But only if we're not in a recursion already.
-        if (indentation.empty()) {
-          name = "<no name set>";
-          try {
-            AccessibleRef parent = getParent();
-            if (parent) {
-              std::string parentName = parent->getName();
-              if (!parentName.empty())
-                name += " (parent is: " + parentName + ")";
-            }
-          } catch (std::runtime_error &) {
-          }
-        }
-      }
+      name = getText(); // For certain elements in lists, e.g. in an icon view on macOS.
+    } catch (...) {
     }
   }
 
-  std::stringstream ss;
-  ss << indentation << "Element: '" << name << "', " << roleToString(getRole());
+  if (name.empty())
+    name = "<no name>";
+
+  ss << ", name: '" << name << "', type: " << roleToFriendlyString(getRole());
 
   bool focused = false;
   try {

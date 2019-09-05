@@ -131,8 +131,8 @@ namespace mga {
     static Platform& get();
     virtual ~Platform() {};
 
-    virtual int launchApplication(std::string const& name, std::vector<std::string> const& params, bool async,
-                                  bool newInstance, ShowState showState, std::map<std::string, std::string> const& env = {}) const = 0;
+    virtual int launchApplication(std::string const& name, std::vector<std::string> const& params,  bool newInstance,
+                                  ShowState showState, std::map<std::string, std::string> const& env = {}) const = 0;
 
     virtual int getPidByName(const std::string &name) const = 0;
     virtual std::string getTempDirName() const = 0;
@@ -140,13 +140,15 @@ namespace mga {
     virtual void initialize(int, const char *[], char *[]) const {};
     virtual void exit(ExitCode) const {};
     virtual void runLoopRun(ScriptingContext &context) const;
+    virtual bool isRunning(int processID) const { return false; };
 
     virtual void writeText(std::string const& text, bool error = false) const;
     virtual void createFolder(std::string const& name) const;
     virtual void removeFolder(std::string const& name) const;
     virtual void removeFile(std::string const& name) const;
 
-    virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const = 0;
+    virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const;
+    virtual void defineFsConstants(ScriptingContext &context, JSObject &constants) const;
     virtual geometry::Size getImageResolution(std::string const& path) const = 0;
 
     virtual std::vector<Cpu> cpuInfo() const = 0;
@@ -166,6 +168,8 @@ namespace mga {
     
     virtual UiToolkit getUiToolkit() const = 0;
 
+    virtual std::string getClipboardText() const = 0;
+    virtual void setClipboardText(const std::string &text) const = 0;
     virtual std::vector<Screen> getScreens() const = 0;
   };
 }

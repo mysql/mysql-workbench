@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -137,7 +137,7 @@ namespace mga {
       const std::string toString(const std::string& value) { return (std::string("'") + value + "'"); }
       const std::string toString(const char * value) { return (std::string("'") + value + "'"); }
       const std::string toString(const std::nullptr_t &) { return "null"; }
-      const std::string toString(void *value) { return Utils::format("0x%08x", value); }
+      const std::string toString(void *value) { return Utilities::format("0x%08x", value); }
       const std::string toString(bool value) { return value ? "'true'" : "'false'"; }
       
     public:
@@ -147,28 +147,28 @@ namespace mga {
       template <typename T2, typename T1 = T, typename = EnableIf<IsVoidFunction<T1>>>
       void toBe(T2 value) {
         bool result = _value() == value;
-        std::string error = Utils::format("Expected %s to be %s", toString(result).c_str(), toString(value).c_str());
+        std::string error = Utilities::format("Expected %s to be %s", toString(result).c_str(), toString(value).c_str());
         processResult(result, error);
       }
 
       template <typename T2, typename T1 = T, typename = EnableIfNot<IsVoidFunction<T1>>, typename = void>
       void toBe(const T2 &value) {
         bool result = _value == T(value);
-        std::string error = Utils::format("Expected %s to be %s", toString(_value).c_str(), toString(value).c_str());
+        std::string error = Utilities::format("Expected %s to be %s", toString(_value).c_str(), toString(value).c_str());
         processResult(result, error);
       }
 
       template <typename T2, typename T1 = T, typename = EnableIfNot<IsVoidFunction<T1>>, typename = void>
       void toBe(const char *value) {
         bool result = _value == T(value);
-        std::string error = Utils::format("Expected %s to be %s", toString(_value).c_str(), toString(value).c_str());
+        std::string error = Utilities::format("Expected %s to be %s", toString(_value).c_str(), toString(value).c_str());
         processResult(result, error);
       }
       
       template <typename T2, typename T1 = T, typename = EnableIf<IsString<T1>>>
       void toContain(T2 value) {
         bool result = _value.find(value) != std::string::npos;
-        std::string error = Utils::format("Expected %s to contain %s", toString(_value).c_str(), toString(value).c_str());
+        std::string error = Utilities::format("Expected %s to contain %s", toString(_value).c_str(), toString(value).c_str());
         processResult(result, error);
       }
 
@@ -178,10 +178,10 @@ namespace mga {
             _value();
         } catch(std::exception &e) {
           bool result = std::string(e.what()).substr(0, error.length()) == error;
-          processResult(result, Utils::format("Expected to throw '%s' but it throw '%s'", error.c_str(), e.what()));
+          processResult(result, Utilities::format("Expected to throw '%s' but it throw '%s'", error.c_str(), e.what()));
           return;
         }
-        processResult(false, Utils::format("Expected to throw but it didn't"));
+        processResult(false, Utilities::format("Expected to throw but it didn't"));
       }
       
       auto toContain(...) -> decltype("You need a container or a string to use this functionality") = delete;

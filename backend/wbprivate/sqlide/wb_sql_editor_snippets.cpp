@@ -389,7 +389,7 @@ void DbSqlEditorSnippets::copy_original_file(const std::string &name, bool overw
       g_unlink(dest.c_str());
 
     std::string source = std::string(datadir).append("/").append(name);
-    copy_file(source.c_str(), dest.c_str());
+    base::copyFile(source.c_str(), dest.c_str());
   }
 }
 

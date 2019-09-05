@@ -1,0 +1,198 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "716454.40"
+    },
+    "ordering_operation": {
+      "using_temporary_table": true,
+      "using_filesort": true,
+      "cost_info": {
+        "sort_cost": "282807.00"
+      },
+      "nested_loop": [
+        {
+          "table": {
+            "table_name": "revenue0",
+            "access_type": "ALL",
+            "rows_examined_per_scan": 377076,
+            "rows_produced_per_join": 282807,
+            "filtered": 75,
+            "cost_info": {
+              "read_cost": "37717.60",
+              "eval_cost": "56561.40",
+              "prefix_cost": "94279.00",
+              "data_read_per_join": "8M"
+            },
+            "used_columns": [
+              "supplier_no",
+              "total_revenue"
+            ],
+            "attached_condition": "((`revenue0`.`total_revenue` = (/* select#2 */ select max(`revenue0`.`total_revenue`) from `dbt3`.`revenue0`)) and (`revenue0`.`supplier_no` is not null))",
+            "attached_subqueries": [
+              {
+                "dependent": false,
+                "cacheable": true,
+                "query_block": {
+                  "select_id": 2,
+                  "cost_info": {
+                    "query_cost": "94279.00"
+                  },
+                  "table": {
+                    "table_name": "revenue0",
+                    "access_type": "ALL",
+                    "rows_examined_per_scan": 377076,
+                    "rows_produced_per_join": 377076,
+                    "filtered": 100,
+                    "cost_info": {
+                      "read_cost": "18863.80",
+                      "eval_cost": "75415.20",
+                      "prefix_cost": "94279.00",
+                      "data_read_per_join": "11M"
+                    },
+                    "used_columns": [
+                      "supplier_no",
+                      "total_revenue"
+                    ],
+                    "materialized_from_subquery": {
+                      "using_temporary_table": true,
+                      "dependent": false,
+                      "cacheable": true,
+                      "query_block": {
+                        "select_id": 4,
+                        "cost_info": {
+                          "query_cost": "904983.41"
+                        },
+                        "grouping_operation": {
+                          "using_temporary_table": true,
+                          "using_filesort": true,
+                          "cost_info": {
+                            "sort_cost": "377076.00"
+                          },
+                          "table": {
+                            "table_name": "lineitem",
+                            "access_type": "range",
+                            "possible_keys": [
+                              "i_l_shipdate",
+                              "i_l_suppkey_partkey",
+                              "i_l_suppkey"
+                            ],
+                            "key": "i_l_shipdate",
+                            "used_key_parts": [
+                              "l_shipDATE"
+                            ],
+                            "key_length": "4",
+                            "rows_examined_per_scan": 377076,
+                            "rows_produced_per_join": 377076,
+                            "filtered": 100,
+                            "index_condition": "((`dbt3`.`lineitem`.`l_shipDATE` >= '1996-07-01') and (`dbt3`.`lineitem`.`l_shipDATE` < <cache>(('1996-07-01' + interval '90' day))))",
+                            "cost_info": {
+                              "read_cost": "452492.21",
+                              "eval_cost": "75415.20",
+                              "prefix_cost": "527907.41",
+                              "data_read_per_join": "48M"
+                            },
+                            "used_columns": [
+                              "l_orderkey",
+                              "l_suppkey",
+                              "l_linenumber",
+                              "l_extendedprice",
+                              "l_discount",
+                              "l_shipDATE"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "materialized_from_subquery": {
+              "using_temporary_table": true,
+              "dependent": false,
+              "cacheable": true,
+              "query_block": {
+                "select_id": 3,
+                "cost_info": {
+                  "query_cost": "904983.41"
+                },
+                "grouping_operation": {
+                  "using_temporary_table": true,
+                  "using_filesort": true,
+                  "cost_info": {
+                    "sort_cost": "377076.00"
+                  },
+                  "table": {
+                    "table_name": "lineitem",
+                    "access_type": "range",
+                    "possible_keys": [
+                      "i_l_shipdate",
+                      "i_l_suppkey_partkey",
+                      "i_l_suppkey"
+                    ],
+                    "key": "i_l_shipdate",
+                    "used_key_parts": [
+                      "l_shipDATE"
+                    ],
+                    "key_length": "4",
+                    "rows_examined_per_scan": 377076,
+                    "rows_produced_per_join": 377076,
+                    "filtered": 100,
+                    "index_condition": "((`dbt3`.`lineitem`.`l_shipDATE` >= '1996-07-01') and (`dbt3`.`lineitem`.`l_shipDATE` < <cache>(('1996-07-01' + interval '90' day))))",
+                    "cost_info": {
+                      "read_cost": "452492.21",
+                      "eval_cost": "75415.20",
+                      "prefix_cost": "527907.41",
+                      "data_read_per_join": "48M"
+                    },
+                    "used_columns": [
+                      "l_orderkey",
+                      "l_suppkey",
+                      "l_linenumber",
+                      "l_extendedprice",
+                      "l_discount",
+                      "l_shipDATE"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "table": {
+            "table_name": "supplier",
+            "access_type": "eq_ref",
+            "possible_keys": [
+              "PRIMARY"
+            ],
+            "key": "PRIMARY",
+            "used_key_parts": [
+              "s_suppkey"
+            ],
+            "key_length": "4",
+            "ref": [
+              "revenue0.supplier_no"
+            ],
+            "rows_examined_per_scan": 1,
+            "rows_produced_per_join": 282807,
+            "filtered": 100,
+            "cost_info": {
+              "read_cost": "282807.00",
+              "eval_cost": "56561.40",
+              "prefix_cost": "433647.40",
+              "data_read_per_join": "53M"
+            },
+            "used_columns": [
+              "s_suppkey",
+              "s_name",
+              "s_address",
+              "s_phone"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,8 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  - removed index idx1
+  - removed index PRIMARY
+----------------------------------------------
+End of MySQL Workbench Report

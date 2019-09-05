@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <title>{{TITLE}}</title>
+</head>
+
+<body>
+<span>
+{{#SCHEMATA}}
+Schema {{SCHEMA_NAME}}<br/>
+<br/>
+Tables:<br/>
+<br/>
+{{#TABLES}}
+{{TABLE_NAME}}<br/>
+{{/TABLES}}
+
+<br/>
+{{/SCHEMATA}}
+
+{{FOOTER}}
+</span>
+</body>
+</html>

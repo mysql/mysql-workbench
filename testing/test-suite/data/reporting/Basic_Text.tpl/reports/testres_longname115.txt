@@ -1,0 +1,22 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `keys_check` was created
+  columns:
+  - id of type INT
+  - txt of type VARCHAR
+  - cnt of type INT
+  - chk of type INT
+  __
+  indices:
+  - PRIMARY with columns: id
+  - txt_2 with columns: txt
+  - cnt with columns: cnt
+  - txt with columns: txt
+  __
+  attributes:
+  - engine: MyISAM
+  - default character set: latin1
+  __
+----------------------------------------------
+End of MySQL Workbench Report

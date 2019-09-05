@@ -884,44 +884,41 @@ bool CodeEditor::ensureImage(std::string const& name) {
   if (registeredImages.find(name) != registeredImages.end())
     return true;
 
-  std::string path = App::get()->get_resource_path(name);
-  if (base::file_exists(path) && base::hasSuffix(path, ".png")) {
-    cairo_surface_t* image = Utilities::load_icon(path);
-    if (image == NULL)
-      return false;
+  cairo_surface_t* image = Utilities::load_icon(name);
+  if (image == nullptr)
+    return false;
 
-    if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
-      cairo_surface_destroy(image);
-      return false;
-    }
-
-    int width = cairo_image_surface_get_width(image);
-    int height = cairo_image_surface_get_height(image);
-
-    unsigned char* data = cairo_image_surface_get_data(image);
-
-    // We not only need to keep the data around for the lifetime of the editor we also have
-    // to swap blue and red.
-    unsigned char *target = reinterpret_cast<unsigned char *>(malloc(4 * width * height));
-    if (target != nullptr) {
-      ImageRecord entry = {
-        Utilities::is_hidpi_icon(image),
-        cairo_image_surface_get_width(image),
-        cairo_image_surface_get_height(image),
-        target
-      };
-      registeredImages[name] = entry;
-      int j = 0;
-      while (j < 4 * width * height) {
-        target[j] = data[j + 2];
-        target[j + 1] = data[j + 1];
-        target[j + 2] = data[j];
-        target[j + 3] = data[j + 3];
-        j += 4;
-      }
-    }
+  if (cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
     cairo_surface_destroy(image);
+    return false;
   }
+
+  int width = cairo_image_surface_get_width(image);
+  int height = cairo_image_surface_get_height(image);
+
+  unsigned char* data = cairo_image_surface_get_data(image);
+
+  // We not only need to keep the data around for the lifetime of the editor we also have
+  // to swap blue and red.
+  unsigned char *target = reinterpret_cast<unsigned char *>(malloc(4 * width * height));
+  if (target != nullptr) {
+    ImageRecord entry = {
+      Utilities::is_hidpi_icon(image),
+      cairo_image_surface_get_width(image),
+      cairo_image_surface_get_height(image),
+      target
+    };
+    registeredImages[name] = entry;
+    int j = 0;
+    while (j < 4 * width * height) {
+      target[j] = data[j + 2];
+      target[j + 1] = data[j + 1];
+      target[j + 2] = data[j];
+      target[j + 3] = data[j + 3];
+      j += 4;
+    }
+  }
+  cairo_surface_destroy(image);
 
   return true;
 }

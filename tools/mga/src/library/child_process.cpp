@@ -98,7 +98,7 @@ void ChildProcesses::activate(ScriptingContext &context, JSObject &exports) {
       }
       // Create the context instance and set the root property for it.
       try {
-        args.pushResult(Platform::get().launchApplication(name, params, true, true, mga::ShowState::Normal, envVars));
+        args.pushResult(Platform::get().launchApplication(name, params, true, mga::ShowState::Normal, envVars));
       } catch (std::runtime_error &e) {
         args.context()->throwScriptingError(ScriptingError::Error, e.what());
       }
@@ -147,7 +147,7 @@ void ChildProcesses::activate(ScriptingContext &context, JSObject &exports) {
 
       // Create the context instance and set the root property for it.
       try {
-        args.pushResult(Platform::get().launchApplication(name, params, false, true, mga::ShowState::Normal, envVars));
+        args.pushResult(Platform::get().launchApplication(name, params, true, mga::ShowState::Normal, envVars));
       } catch (std::runtime_error &e) {
         args.context()->throwScriptingError(ScriptingError::Error, e.what());
       }

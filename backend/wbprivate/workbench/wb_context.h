@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -413,6 +413,10 @@ namespace wb {
 
     grt::ListRef<app_PaperType> get_paper_types(std::shared_ptr<grt::internal::Unserializer> unserializer);
 
+    std::vector<grt::SlotHolder*> _messageHandlerList;
+
+    void pushMessageHandler(grt::SlotHolder *slot);
+
     bool _other_connections_loaded;
     // setup
     void init_templates();
@@ -498,9 +502,6 @@ namespace wb {
     std::function<void(std::string, void *)> show_gui_plugin;
 
   private:
-    std::shared_ptr<grt::GRT> _grt; // Keep a local reference to the singleton to avoid static fiasco.
-    std::shared_ptr<bec::GRTManager> _grtManager;
-
     void warnIfRunningOnUnsupportedOS();
   };
 

@@ -74,9 +74,9 @@ void OS::activate(ScriptingContext &context, JSObject &exports) {
     cpuid(0, registers);
 
     // Determine vendor.
-    std::string vendor((char *)&registers[EBX], 4);
-    vendor += std::string((char *)&registers[EDX], 4);
-    vendor += std::string((char *)&registers[ECX], 4);
+    std::string vendor(reinterpret_cast<char *>(&registers[EBX]), 4);
+    vendor += std::string(reinterpret_cast<char *>(&registers[EDX]), 4);
+    vendor += std::string(reinterpret_cast<char *>(&registers[ECX]), 4);
 
     cpuid(0x80000000, registers);
     uint32_t maxExtension = static_cast<uint32_t>(registers[EAX]);
@@ -246,7 +246,7 @@ void OS::activate(ScriptingContext &context, JSObject &exports) {
     args.pushResult(result);
   });
 
-  exports.defineFunction( { "getPidByName" }, 1, [](JSExport *, JSValues &args) {
+  exports.defineFunction({  "getPidByName" }, 1, [](JSExport *, JSValues &args) {
     if (args.is(ValueType::String, 0)) {
       args.pushResult(Platform::get().getPidByName(args.get(0)));
     } else {
@@ -254,7 +254,7 @@ void OS::activate(ScriptingContext &context, JSObject &exports) {
     }
   });
 
-  exports.defineFunction( { "terminate" }, 2, [](JSExport *, JSValues &args) {
+  exports.defineFunction({ "terminate" }, 2, [](JSExport *, JSValues &args) {
     if (args.is(ValueType::Int, 0) && args.is(ValueType::Boolean, 1)) {
       args.pushResult(Platform::get().terminate(args.get(0), args.get(1)));
     } else {
@@ -262,23 +262,23 @@ void OS::activate(ScriptingContext &context, JSObject &exports) {
     }
   });
 
-  exports.defineFunction( { "launchApplication" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
+  exports.defineFunction({ "launchApplication" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
     size_t applicationArgCount = args.size() - 2;
     std::vector<std::string> params;
 
     if (args.is(ValueType::String, 0)) {
        std::string name = args.get(0);
 
-       bool async = true;
        bool newInstance = false;
        ShowState showState = ShowState::Normal;
        std::map<std::string, std::string> envVars;
        if (args.is(ValueType::Object, 1)) {
          JSObject options = args.get(1);
+
          int value = options.get("showState", static_cast<int>(ShowState::Normal));
          showState = static_cast<ShowState>(value);
          newInstance = options.get("newInstance", false);
-         async = options.get("async", true);
+
          JSObject envp = options.get("env", JSObject());
          if (envp.isValid()) {
            auto keys = envp.getPropertyKeys();
@@ -294,14 +294,12 @@ void OS::activate(ScriptingContext &context, JSObject &exports) {
         }
       }
 
-      args.pushResult(Platform::get().launchApplication(name, params, async, newInstance, showState, envVars));
+      args.pushResult(Platform::get().launchApplication(name, params, newInstance, showState, envVars));
 
     } else {
       args.context()->throwScriptingError(ScriptingError::Error, "Unhandled argument type");
     }
   });
-
-
 
 #ifdef _MSC_VER
   exports.defineProperty("EOL", "\r\n");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -165,42 +165,42 @@ void InternalTests::activate(ScriptingContext &context, JSObject &exports) {
         //  This fails and it also throws a weird value
         //     expect((std::string)JSVariant({1, 2, 3, 4})).toThrowError("Bad cast");
 
-        expect([]() { (std::string) JSVariant(nullptr); }).toThrowError("Bad cast");
-        expect([]() { (std::string) JSVariant(JSVariant()); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (std::string) JSVariant(nullptr); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (std::string) JSVariant(JSVariant()); }).toThrowError("Bad cast");
       });
 
       it("cast to JSArray", [&]() {
-        expect([]() { (JSArray) JSVariant(0); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant(1234); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant(false); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant(true); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant(123.45); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant(-123.45); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant("aaa"); }).toThrowError("Bad cast");
-        expect([&]() { (JSArray) JSVariant(jsonObjectString, true); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(0); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(1234); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(false); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(true); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(123.45); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(-123.45); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant("aaa"); }).toThrowError("Bad cast");
+        expect([&]() { std::ignore = (JSArray) JSVariant(jsonObjectString, true); }).toThrowError("Bad cast");
 
         //  This fails and it also throws a weird value
         //     expect((std::string)JSVariant({1, 2, 3, 4})).toThrowError("Bad cast");
 
-        expect([]() { (JSArray) JSVariant(nullptr); }).toThrowError("Bad cast");
-        expect([]() { (JSArray) JSVariant(JSVariant()); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(nullptr); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSArray) JSVariant(JSVariant()); }).toThrowError("Bad cast");
       });
 
       it("cast to JSObject", [&]() {
-        expect([]() { (JSObject) JSVariant(0); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant(1234); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant(false); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant(true); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant(123.45); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant(-123.45); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant("aaa"); }).toThrowError("Bad cast");
-        expect([&]() { (JSObject) JSVariant(jsonObjectString, true); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(0); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(1234); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(false); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(true); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(123.45); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(-123.45); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant("aaa"); }).toThrowError("Bad cast");
+        expect([&]() { std::ignore = (JSObject) JSVariant(jsonObjectString, true); }).toThrowError("Bad cast");
 
         //  This fails and it also throws a weird value
         //     expect((std::string)JSVariant({1, 2, 3, 4})).toThrowError("Bad cast");
 
-        expect([]() { (JSObject) JSVariant(nullptr); }).toThrowError("Bad cast");
-        expect([]() { (JSObject) JSVariant(JSVariant()); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(nullptr); }).toThrowError("Bad cast");
+        expect([]() { std::ignore = (JSObject) JSVariant(JSVariant()); }).toThrowError("Bad cast");
       });
 
       it("cast to boolean", [&]() {
@@ -399,7 +399,7 @@ void InternalTests::activate(ScriptingContext &context, JSObject &exports) {
     describe("Utilities:", [&]() {
       it("normalize", []() {
         std::string str = "some text";
-        expect(Utils::normalize(str, (NormalizationForm)-1)).toBe(str);
+        expect(Utilities::normalize(str, (NormalizationForm)-1)).toBe(str);
       });
 
       it("hasSuffix", []() {
@@ -407,9 +407,9 @@ void InternalTests::activate(ScriptingContext &context, JSObject &exports) {
         std::string str2 = "some text lives inside this string";
         std::string str3 = "not exist";
 
-        expect(Utils::hasSuffix(str2, str1)).toBe(true);
-        expect(Utils::hasSuffix(str1, str2)).toBe(false);
-        expect(Utils::hasSuffix(str1, str3)).toBe(false);
+        expect(Utilities::hasSuffix(str2, str1)).toBe(true);
+        expect(Utilities::hasSuffix(str1, str2)).toBe(false);
+        expect(Utilities::hasSuffix(str1, str3)).toBe(false);
       });
     });
     

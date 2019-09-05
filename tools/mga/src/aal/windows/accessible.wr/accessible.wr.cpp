@@ -72,6 +72,23 @@ int AccessibleWr::getRunningProcess(std::wstring const& fileName) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+std::vector<int> AccessibleWr::getRunningProcessByName(std::wstring const& name) {
+  try {
+    cli::array<int> ^list = AccessibleNet::GetRunningProcessByName(
+      gcnew System::String(name.c_str()));
+    std::vector<int> result(list->Length);
+    if (list->Length > 0) {
+      System::Runtime::InteropServices::Marshal::Copy(list, 0, System::IntPtr(&result[0]), list->Length);
+    }
+    return result;
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 AccessibleWr::AccessibleWr(AccessibleNet ^accessible)
   : _managedObject(accessible) {
 }
@@ -102,8 +119,7 @@ AccessibleWr::Ref AccessibleWr::getHorizontalScrollBar() const {
        return std::unique_ptr<AccessibleWr>(new AccessibleWr(element));
      }
      return Ref();
-   }
-   catch (System::Exception ^e) {
+   } catch (System::Exception ^e) {
      std::string message = NativeToCppString(e->ToString());
      throw std::runtime_error(message.c_str());
    }
@@ -118,8 +134,7 @@ AccessibleWr::Ref AccessibleWr::getVerticalScrollBar() const {
       return std::unique_ptr<AccessibleWr>(new AccessibleWr(element));
     }
     return Ref();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -130,8 +145,7 @@ AccessibleWr::Ref AccessibleWr::getVerticalScrollBar() const {
 double AccessibleWr::getScrollPosition() const {
   try {
     return _managedObject->ScrollPosition;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -142,6 +156,28 @@ double AccessibleWr::getScrollPosition() const {
 void AccessibleWr::setScrollPosition(double value) {
   try {
     _managedObject->ScrollPosition = value;
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool aal::AccessibleWr::menuShown() const {
+  try {
+    return  _managedObject->MenuShown;
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::showMenu() const {
+  try {
+    _managedObject->ShowMenu();
   }
   catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
@@ -151,7 +187,19 @@ void AccessibleWr::setScrollPosition(double value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string AccessibleWr::getName() const{
+std::string AccessibleWr::getID() const {
+  try {
+    System::String ^id = _managedObject->ID;
+    return NativeToCppString(id);
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string AccessibleWr::getName() const {
   try {
     System::String ^name = _managedObject->Name;
     return NativeToCppString(name);
@@ -167,13 +215,11 @@ std::string AccessibleWr::getHelp() const {
   try {
     System::String ^name = _managedObject->HelpText;
     return NativeToCppString(name);
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -274,7 +320,7 @@ Role AccessibleWr::getRole() const {
     case UIA_HeaderControlTypeId:
     case UIA_DataItemControlTypeId:
     case UIA_TreeItemControlTypeId:
-      if(_managedObject->IsVirtualRow)
+      if (_managedObject->IsVirtualRow)
         role = Role::Row;
       else
         role = Role::Cell;
@@ -321,8 +367,7 @@ Role AccessibleWr::getRole() const {
 bool AccessibleWr::isInternal() const {
   try {
     return _managedObject->IsInternal;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -344,8 +389,7 @@ AccessibleWr::Ref AccessibleWr::getParent() {
 bool AccessibleWr::isEnabled() const {
   try {
     return _managedObject->IsEnabled;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -353,12 +397,10 @@ bool AccessibleWr::isEnabled() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool aal::AccessibleWr::isEditable() const
-{
+bool aal::AccessibleWr::isEditable() const {
   try {
     return _managedObject->IsEditable;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -369,11 +411,10 @@ bool aal::AccessibleWr::isEditable() const
 bool aal::AccessibleWr::isReadOnly() const {
   try {
     return _managedObject->IsReadOnly;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
-  };
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -381,11 +422,10 @@ bool aal::AccessibleWr::isReadOnly() const {
 bool aal::AccessibleWr::isSecure() const {
   try {
     return _managedObject->IsSecure;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
-  };
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -393,28 +433,38 @@ bool aal::AccessibleWr::isSecure() const {
 bool aal::AccessibleWr::isHorizontal() const {
   try {
     return _managedObject->IsHorizontal;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
-  };
+  }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 geometry::Rectangle AccessibleWr::getBounds(bool screenCoordinates) {
   try {
-    System::Windows::Rect ^bounds = _managedObject->BoundingRectangle;
+    System::Windows::Rect ^bounds = _managedObject->Bounds;
     if (!screenCoordinates) {
       auto parent = _managedObject->Parent;
       if (parent != nullptr) {
-        auto parentBounds = parent->BoundingRectangle;
+        auto parentBounds = parent->Bounds;
         bounds->X -= parentBounds.X;
         bounds->Y -= parentBounds.Y;
       }
     }
-
     return geometry::Rectangle((int)bounds->X, (int)bounds->Y, (int)bounds->Width, (int)bounds->Height);
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void aal::AccessibleWr::setBounds(geometry::Rectangle const& bounds) {
+  try {
+    System::Windows::Rect managedRect(bounds.position.x, bounds.position.y, bounds.size.width, bounds.size.height);
+    _managedObject->Bounds = managedRect;
   } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
@@ -430,6 +480,19 @@ void AccessibleWr::show() {
     throw std::runtime_error(message.c_str());
   }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::bringToFront() {
+  try {
+    _managedObject->BringToFront();
+  }
+  catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -462,7 +525,6 @@ std::string aal::AccessibleWr::getTitle() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 void aal::AccessibleWr::setTitle(std::string const &text) {
   setText(text);
 }
@@ -473,8 +535,7 @@ void aal::AccessibleWr::setSelectionText(const std::string & text) {
   try {
     System::String ^value = gcnew System::String(text.c_str());
     _managedObject->SelectedText = value;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -498,7 +559,7 @@ std::string aal::AccessibleWr::getDescription() const {
 
 size_t AccessibleWr::getCaretPosition() const {
   try {
-    return 0;
+    return _managedObject->CaretPosition;
   } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
@@ -508,7 +569,7 @@ size_t AccessibleWr::getCaretPosition() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 void aal::AccessibleWr::setCaretPosition(size_t position) {
-  std::ignore = position;
+  _managedObject->CaretPosition = (int)position;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -585,8 +646,7 @@ size_t AccessibleWr::getCharacterCount() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::set<size_t> aal::AccessibleWr::getSelectedIndexes() const
-{
+std::set<size_t> aal::AccessibleWr::getSelectedIndexes() const {
   try {
     cli::array<unsigned __int64> ^list = _managedObject->SelectedIndexes;
     std::set<size_t> result;
@@ -594,8 +654,7 @@ std::set<size_t> aal::AccessibleWr::getSelectedIndexes() const
       result.insert(list[i]);
     }
     return result;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -604,8 +663,7 @@ std::set<size_t> aal::AccessibleWr::getSelectedIndexes() const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void aal::AccessibleWr::setSelectedIndexes(std::set<size_t> const & indexes)
-{
+void aal::AccessibleWr::setSelectedIndexes(std::set<size_t> const & indexes) {
   try {
     cli::array<unsigned __int64> ^list = gcnew cli::array<unsigned __int64>(static_cast<int>(indexes.size()));
     std::set<size_t>::iterator it = indexes.begin();
@@ -613,8 +671,7 @@ void aal::AccessibleWr::setSelectedIndexes(std::set<size_t> const & indexes)
       list[i] = (unsigned __int64)(*it);
     }
     _managedObject->SelectedIndexes = list;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -715,8 +772,7 @@ static unsigned short modifierToFlags(aal::Modifier modifier) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void aal::AccessibleWr::keyDown(const aal::Key k, aal::Modifier modifier)
-{
+void aal::AccessibleWr::keyDown(const aal::Key k, aal::Modifier modifier) const {
   try {
     if (k == Key::NoKey)
       return;
@@ -725,18 +781,15 @@ void aal::AccessibleWr::keyDown(const aal::Key k, aal::Modifier modifier)
     if (modifiers != 0)
       _managedObject->KeyDown(modifiers, false);
     _managedObject->KeyDown(vKey, false);
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void aal::AccessibleWr::keyUp(const aal::Key k, aal::Modifier modifier)
-{
+void aal::AccessibleWr::keyUp(const aal::Key k, aal::Modifier modifier) const {
   try {
     if (k == Key::NoKey)
       return;
@@ -745,20 +798,29 @@ void aal::AccessibleWr::keyUp(const aal::Key k, aal::Modifier modifier)
     _managedObject->KeyUp(vKey, false);
     if (modifiers != 0)
       _managedObject->KeyUp(modifiers, false);
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void aal::AccessibleWr::keyPress(const aal::Key k, aal::Modifier modifier) const {
+  keyDown(k, modifier);
+  keyUp(k, modifier);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::typeString(std::string const& input) const {
+  try {
+    _managedObject->TypeString(gcnew System::String(input.c_str()));
   }
   catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
-
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void aal::AccessibleWr::keyPress(const aal::Key k, aal::Modifier modifier)
-{
-  keyDown(k, modifier);
-  keyUp(k, modifier);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -774,12 +836,10 @@ void AccessibleWr::click() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void AccessibleWr::stepUp()
-{
+void AccessibleWr::stepUp() {
   try {
     _managedObject->StepUp();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -787,12 +847,10 @@ void AccessibleWr::stepUp()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void AccessibleWr::stepDown()
-{
+void AccessibleWr::stepDown() {
   try {
     _managedObject->StepDown();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -800,12 +858,10 @@ void AccessibleWr::stepDown()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void AccessibleWr::scrollLeft()
-{
+void AccessibleWr::scrollLeft() {
   try {
     _managedObject->ScrollLeft();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -813,12 +869,10 @@ void AccessibleWr::scrollLeft()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void AccessibleWr::scrollRight()
-{
+void AccessibleWr::scrollRight() {
   try {
     _managedObject->ScrollRight();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -826,12 +880,10 @@ void AccessibleWr::scrollRight()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void AccessibleWr::scrollUp()
-{
+void AccessibleWr::scrollUp() {
   try {
     _managedObject->ScrollUp();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -839,12 +891,10 @@ void AccessibleWr::scrollUp()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void AccessibleWr::scrollDown()
-{
+void AccessibleWr::scrollDown() {
   try {
     _managedObject->ScrollDown();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -855,8 +905,7 @@ void AccessibleWr::scrollDown()
 void aal::AccessibleWr::increment() {
   try {
     _managedObject->Increment();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -866,19 +915,6 @@ void aal::AccessibleWr::increment() {
 void aal::AccessibleWr::decrement() {
   try {
     _managedObject->Decrement();
-  }
-  catch (System::Exception ^e) {
-    std::string message = NativeToCppString(e->ToString());
-    throw std::runtime_error(message.c_str());
-  }
-
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void AccessibleWr::blink() {
-  try {
-    _managedObject->Blink(false);
   } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
@@ -928,7 +964,6 @@ AccessibleWr::RefList AccessibleWr::children() {
       result.emplace_back(new aal::AccessibleWr(list[i]));
     }
     return result;
-
   } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
@@ -973,8 +1008,7 @@ bool AccessibleWr::equals(AccessibleWr *other) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool aal::AccessibleWr::canFocus() const
-{
+bool aal::AccessibleWr::canFocus() const {
   try {
     return _managedObject->CanFocus;
   } catch (System::Exception ^e) {
@@ -1021,8 +1055,7 @@ void AccessibleWr::setCheckState(CheckState state) {
 CheckState AccessibleWr::getCheckState() const {
   try {
     return mapCheckStateEnum(_managedObject->CheckState);
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1074,12 +1107,10 @@ void AccessibleWr::setValue(const double value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-double aal::AccessibleWr::getRange() const
-{
+double aal::AccessibleWr::getRange() const {
   try {
     return _managedObject->MaxValue - _managedObject->MinValue;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1102,12 +1133,10 @@ void AccessibleWr::setActiveTabPage(std::string const& title) {
   try {
     System::String ^value = gcnew System::String(title.c_str());
     _managedObject->ActiveTabPage = value;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1115,8 +1144,7 @@ void AccessibleWr::setActiveTabPage(std::string const& title) {
 std::string AccessibleWr::getActiveTabPage() const {
   try {
     return NativeToCppString(_managedObject->ActiveTabPage);
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1127,8 +1155,7 @@ std::string AccessibleWr::getActiveTabPage() const {
 bool AccessibleWr::isActiveTabPage() const {
   try {
     return _managedObject->IsActiveTabPage;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1168,8 +1195,7 @@ AccessibleWr::Ref AccessibleWr::fromPoint(geometry::Point point) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleWr::Ref AccessibleWr::getContainingRow() const
-{
+AccessibleWr::Ref AccessibleWr::getContainingRow() const {
   try {
     AccessibleNet ^element = _managedObject->ContainingRow;
     if (element != nullptr) {
@@ -1177,8 +1203,7 @@ AccessibleWr::Ref AccessibleWr::getContainingRow() const
     }
     return Ref();
 
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1186,8 +1211,7 @@ AccessibleWr::Ref AccessibleWr::getContainingRow() const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleWr::RefList AccessibleWr::rows() const
-{
+AccessibleWr::RefList AccessibleWr::rows() const {
   try {
     cli::array<aal::AccessibleNet ^> ^list = _managedObject->Rows();
     RefList result;
@@ -1195,9 +1219,7 @@ AccessibleWr::RefList AccessibleWr::rows() const
       result.emplace_back(new aal::AccessibleWr(list[i]));
     }
     return result;
-
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1205,8 +1227,7 @@ AccessibleWr::RefList AccessibleWr::rows() const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleWr::RefList AccessibleWr::rowEntries() const
-{
+AccessibleWr::RefList AccessibleWr::rowEntries() const {
   try {
     cli::array<aal::AccessibleNet ^> ^list = _managedObject->RowEntries();
     RefList result;
@@ -1214,8 +1235,7 @@ AccessibleWr::RefList AccessibleWr::rowEntries() const
       result.emplace_back(new aal::AccessibleWr(list[i]));
     }
     return result;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1223,8 +1243,7 @@ AccessibleWr::RefList AccessibleWr::rowEntries() const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleWr::RefList AccessibleWr::columns() const
-{
+AccessibleWr::RefList AccessibleWr::columns() const {
   try {
     cli::array<aal::AccessibleNet ^> ^list = _managedObject->Columns();
     RefList result;
@@ -1232,8 +1251,7 @@ AccessibleWr::RefList AccessibleWr::columns() const
       result.emplace_back(new aal::AccessibleWr(list[i]));
     }
     return result;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1241,16 +1259,14 @@ AccessibleWr::RefList AccessibleWr::columns() const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleWr::Ref AccessibleWr::getHeader() const
-{
+AccessibleWr::Ref AccessibleWr::getHeader() const {
   try {
     AccessibleNet ^element = _managedObject->ColumnHeader();
     if (element != nullptr) {
       return std::unique_ptr<AccessibleWr>(new AccessibleWr(element));
     }
     return Ref();
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1258,8 +1274,7 @@ AccessibleWr::Ref AccessibleWr::getHeader() const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleWr::RefList AccessibleWr::columnEntries() const
-{
+AccessibleWr::RefList AccessibleWr::columnEntries() const {
   try {
     cli::array<aal::AccessibleNet ^> ^list = _managedObject->ColumnEntries();
     RefList result;
@@ -1267,8 +1282,7 @@ AccessibleWr::RefList AccessibleWr::columnEntries() const
       result.emplace_back(new aal::AccessibleWr(list[i]));
     }
     return result;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   };
@@ -1279,8 +1293,7 @@ AccessibleWr::RefList AccessibleWr::columnEntries() const
 bool AccessibleWr::isSelected() const {
   try {
     return _managedObject->Selected;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1291,8 +1304,7 @@ bool AccessibleWr::isSelected() const {
 void AccessibleWr::setSelected(bool value) {
   try {
     _managedObject->Selected = value;
-  }
-  catch (System::Exception ^e) {
+  } catch (System::Exception ^e) {
     std::string message = NativeToCppString(e->ToString());
     throw std::runtime_error(message.c_str());
   }
@@ -1365,3 +1377,64 @@ CheckState AccessibleWr::mapCheckStateEnum(SWA::ToggleState state) const {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::printNativeInfo() const {
+  try {
+    _managedObject->PrintNativeInfo();
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::highlight() const {
+  try {
+    _managedObject->Highlight(false);
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::removeHighlight() const {
+  try {
+    _managedObject->Highlight(true);
+  } catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string AccessibleWr::getClipboardText()
+{
+  try {
+    System::String^ text = AccessibleNet::ClipboardText;
+    return  NativeToCppString(text);
+  }
+  catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void AccessibleWr::setClipboardText(const std::string& content)
+{
+  try {
+    AccessibleNet::ClipboardText = gcnew System::String(content.c_str());
+  }
+  catch (System::Exception ^e) {
+    std::string message = NativeToCppString(e->ToString());
+    throw std::runtime_error(message.c_str());
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+

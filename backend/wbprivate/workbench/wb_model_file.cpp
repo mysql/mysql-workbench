@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -805,7 +805,8 @@ void ModelFile::cleanup() {
   delete _temp_dir_lock;
   _temp_dir_lock = 0;
 
-  rmdir_recursively(_content_dir.c_str());
+  if (!_content_dir.empty())
+    rmdir_recursively(_content_dir.c_str());
 }
 
 void ModelFile::add_db_file(const std::string &content_dir) {

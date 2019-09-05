@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -76,7 +76,7 @@ void Platform::createFolder(std::string const& name) const {
   std::ignore = name;
 #else
   if (mkdir(name.c_str(), 0755) != 0)
-    throw std::runtime_error("Error while creating folder '" + name + "': " + Utils::getLastError());
+    throw std::runtime_error("Error while creating folder '" + name + "': " + Utilities::getLastError());
 #endif
 }
 
@@ -87,7 +87,7 @@ void Platform::removeFolder(std::string const& name) const {
   std::ignore = name;
 #else
   if (::remove(name.c_str()) != 0)
-    throw std::runtime_error("Error while removing '" + name + "': " + Utils::getLastError());
+    throw std::runtime_error("Error while removing '" + name + "': " + Utilities::getLastError());
 #endif
 }
 
@@ -98,7 +98,7 @@ void Platform::removeFile(std::string const& name) const {
   std::ignore = name;
 #else
   if (::remove(name.c_str()) != 0)
-    throw std::runtime_error("Error while removing '" + name + "': " + Utils::getLastError());
+    throw std::runtime_error("Error while removing '" + name + "': " + Utilities::getLastError());
 #endif
 }
 
@@ -115,42 +115,8 @@ void Platform::defineOsConstants(ScriptingContext &context, JSObject &constants)
   DEFINE_CONSTANT(signals, SIGSEGV);
   DEFINE_CONSTANT(signals, SIGTERM);
 
-#ifndef _MSC_VER
-  DEFINE_CONSTANT(signals, SIGHUP);
-  DEFINE_CONSTANT(signals, SIGQUIT);
-  DEFINE_CONSTANT(signals, SIGTRAP);
-  DEFINE_CONSTANT(signals, SIGIOT);
-  DEFINE_CONSTANT(signals, SIGBUS);
-  DEFINE_CONSTANT(signals, SIGKILL);
-  DEFINE_CONSTANT(signals, SIGUSR1);
-  DEFINE_CONSTANT(signals, SIGUSR2);
-  DEFINE_CONSTANT(signals, SIGPIPE);
-  DEFINE_CONSTANT(signals, SIGALRM);
-  DEFINE_CONSTANT(signals, SIGCHLD);
-  DEFINE_CONSTANT(signals, SIGCONT);
-  DEFINE_CONSTANT(signals, SIGSTOP);
-  DEFINE_CONSTANT(signals, SIGTSTP);
-  DEFINE_CONSTANT(signals, SIGTTIN);
-  DEFINE_CONSTANT(signals, SIGTTOU);
-  DEFINE_CONSTANT(signals, SIGURG);
-  DEFINE_CONSTANT(signals, SIGXCPU);
-  DEFINE_CONSTANT(signals, SIGXFSZ);
-  DEFINE_CONSTANT(signals, SIGVTALRM);
-  DEFINE_CONSTANT(signals, SIGPROF);
-  DEFINE_CONSTANT(signals, SIGWINCH);
-  DEFINE_CONSTANT(signals, SIGIO);
-  DEFINE_CONSTANT(signals, SIGSYS);
-
-#endif
-
   JSObject errorNumbers(&context);
   constants.defineProperty("errno", errorNumbers);
-
-#ifndef _MSC_VER
-  DEFINE_CONSTANT(errorNumbers, EDQUOT);
-  DEFINE_CONSTANT(errorNumbers, EMULTIHOP);
-  DEFINE_CONSTANT(errorNumbers, ESTALE);
-#endif
 
   DEFINE_CONSTANT(errorNumbers, E2BIG);
   DEFINE_CONSTANT(errorNumbers, EACCES);
@@ -228,6 +194,17 @@ void Platform::defineOsConstants(ScriptingContext &context, JSObject &constants)
   DEFINE_CONSTANT(errorNumbers, ETXTBSY);
   DEFINE_CONSTANT(errorNumbers, EWOULDBLOCK);
   DEFINE_CONSTANT(errorNumbers, EXDEV);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Platform::defineFsConstants(ScriptingContext &context, JSObject &constants) const {
+  std::ignore = context;
+  
+  DEFINE_CONSTANT(constants, F_OK);
+  DEFINE_CONSTANT(constants, R_OK);
+  DEFINE_CONSTANT(constants, W_OK);
+  DEFINE_CONSTANT(constants, X_OK);
 }
 
 

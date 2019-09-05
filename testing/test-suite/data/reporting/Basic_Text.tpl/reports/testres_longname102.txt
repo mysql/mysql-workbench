@@ -1,0 +1,11 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  partitioning:
+  - partitioning options were modified
+  - partitioning options were modified
+  - partitioning options were modified
+  __
+----------------------------------------------
+End of MySQL Workbench Report

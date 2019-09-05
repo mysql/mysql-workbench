@@ -1,0 +1,14 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`t1` was created
+  columns:
+  - id of type INT
+  __
+  attributes:
+  - engine: InnoDB
+  - default character set: latin1
+  - comment: some comment
+  __
+----------------------------------------------
+End of MySQL Workbench Report

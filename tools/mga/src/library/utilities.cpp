@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -22,9 +22,6 @@
  */
 
 #include "utilities.h"
-#include "filesystem.h"
-#include "scripting-context.h"
-#include "platform.h"
 
 #include "utf8proc.h"
 
@@ -44,7 +41,7 @@ void runForEach(const Container& c, Fun fun) {
  * Formats a milliseconds time span into a string with the format HH:MM:SS,mm.
  * Part of the code taken from cppcodereviewers.com.
  */
-std::string Utils::formatTime(std::chrono::milliseconds time) {
+std::string Utilities::formatTime(std::chrono::milliseconds time) {
   using namespace std::chrono;
 
   using T = std::tuple<milliseconds, int, const char *>;
@@ -66,7 +63,7 @@ std::string Utils::formatTime(std::chrono::milliseconds time) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string Utils::format(const char *format, ...) {
+std::string Utilities::format(const char *format, ...) {
   char buffer[1024];
 
   va_list args;
@@ -80,7 +77,7 @@ std::string Utils::format(const char *format, ...) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string Utils::normalize(std::string const& text, NormalizationForm form) {
+std::string Utilities::normalize(std::string const& text, NormalizationForm form) {
   utf8proc_uint8_t *value;
   switch (form) {
     case NormalizationForm::NFC:
@@ -115,7 +112,7 @@ std::string Utils::normalize(std::string const& text, NormalizationForm form) {
  * Convert string to lower case.
  * Note: this only works reliably for ANSI strings, so use it with the appropriate care.
  */
-std::string Utils::toLower(std::string const& s) {
+std::string Utilities::toLower(std::string const& s) {
   std::string result(s);
   std::transform(result.begin(), result.end(), result.begin(), ::tolower);
   return result;
@@ -126,16 +123,16 @@ std::string Utils::toLower(std::string const& s) {
 /**
  * Tests if s begins with part.
  */
-bool Utils::hasPrefix(std::string const& s, std::string const& part) {
+bool Utilities::hasPrefix(std::string const& s, std::string const& part) {
   return s.compare(0, part.length(), part) == 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Tests if s ends with part.
  */
-bool Utils::hasSuffix(std::string const& s, std::string const& part) {
+bool Utilities::hasSuffix(std::string const& s, std::string const& part) {
   if (s.length() < part.length())
     return false;
 
@@ -143,9 +140,9 @@ bool Utils::hasSuffix(std::string const& s, std::string const& part) {
   return s.compare(startAt, std::string::npos, part) == 0;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-std::vector<std::string> Utils::splitBySet(std::string const& text, std::string const& separatorSet, int count) {
+std::vector<std::string> Utilities::splitBySet(std::string const& text, std::string const& separatorSet, int count) {
   std::vector<std::string> parts;
 
   std::string::size_type p;
@@ -172,7 +169,7 @@ std::vector<std::string> Utils::splitBySet(std::string const& text, std::string 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<std::string> Utils::split(std::string const& text, std::string const& sep, int count) {
+std::vector<std::string> Utilities::split(std::string const& text, std::string const& sep, int count) {
   std::vector<std::string> parts;
   std::string ss = text;
 
@@ -199,7 +196,7 @@ std::vector<std::string> Utils::split(std::string const& text, std::string const
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string Utils::concat(std::vector<std::string> const& values, std::string const& separator) {
+std::string Utilities::concat(std::vector<std::string> const& values, std::string const& separator) {
   std::string result;
 
   bool first = true;
@@ -217,7 +214,7 @@ std::string Utils::concat(std::vector<std::string> const& values, std::string co
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Utils::replaceStringInplace(std::string &value, std::string const& search, std::string const& replacement) {
+void Utilities::replaceStringInplace(std::string &value, std::string const& search, std::string const& replacement) {
   for (size_t next = value.find(search); next != std::string::npos; next = value.find(search, next)) {
     value.replace(next, search.length(), replacement);
     next += replacement.length();
@@ -226,8 +223,7 @@ void Utils::replaceStringInplace(std::string &value, std::string const& search, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-#ifdef _MSC_VER
-std::string Utils::ws2s(std::wstring const& wstr) {
+std::string Utilities::ws2s(std::wstring const& wstr) {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   std::string narrow = converter.to_bytes(wstr);
 
@@ -236,25 +232,25 @@ std::string Utils::ws2s(std::wstring const& wstr) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::wstring Utils::s2ws(const std::string &str) {
+std::wstring Utilities::s2ws(const std::string &str) {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   std::wstring wide = converter.from_bytes(str);
 
   return wide;
 }
-#endif
+
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
  * Returns the last error as a string, caused by a previous posix operation (chdir, stat etc.)
  */
-std::string Utils::getLastError() {
+std::string Utilities::getLastError() {
   return strerror(errno);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string Utils::trimRight(std::string s, const std::string &t) {
+std::string Utilities::trimRight(std::string s, const std::string &t) {
   std::string::size_type i(s.find_last_not_of(t));
   if (i == std::string::npos)
     return "";
@@ -262,74 +258,90 @@ std::string Utils::trimRight(std::string s, const std::string &t) {
     return s.erase(s.find_last_not_of(t) + 1);
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-std::string Utils::trimLeft(std::string s, const std::string &t) {
+std::string Utilities::trimLeft(std::string s, const std::string &t) {
   return s.erase(0, s.find_first_not_of(t));
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string Utils::trim(std::string s, const std::string &t) {
-  return trimLeft(trimRight(s, t), t);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void Utils::activate(ScriptingContext &context, JSObject &exports) {
-  exports.defineFunction({ "format" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
-    // parameters: format-string? <varargs>
-    args.format();
-  });
-
-  exports.defineFunction({ "inherit" }, 2, [](JSExport *, JSValues &args) {
-    // parameters: constructor, superConstructor
-    args.context()->establishInheritance();
-  });
-
-  exports.defineFunction({ "inspect" }, 2, [](JSExport *, JSValues &args) {
-    // parameters: object, options
-    bool showHidden = false;
-    size_t maxLevel = 2;
-
-    if (args.is(ValueType::Object, 1)) {
-      JSObject options = args.get(1);
-      showHidden = options.get("showHidden", false);
-      maxLevel = options.get("maxLevel", 2);
-    }
-    std::string dump = args.dumpObject(0, showHidden, maxLevel);
-    args.pushResult(dump);
-  });
-
-  exports.defineFunction({ "getImageResolution" }, 1, [](JSExport *, JSValues &args) {
-    // parameters: path
-    std::string path = args.get(0);
-    args.pushResult(Platform::get().getImageResolution(path));
-  });
-
-  JSClass string = context.getClass("String");
-  string.getPrototype().defineFunction({ "normalize" }, 1, [](JSExport *, JSValues &args) {
-    // parameters: format-string?
-    static std::map<std::string, NormalizationForm> formMap = {
-      { "NFC", NormalizationForm::NFC },
-      { "NFD", NormalizationForm::NFD },
-      { "NFKC", NormalizationForm::NFKC },
-      { "NFKD", NormalizationForm::NFKD },
-    };
-
-    std::string form = args.get(0, "NFC");
-    auto iterator = formMap.find(form);
-    if (iterator == formMap.end())
-      args.context()->throwScriptingError(ScriptingError::Range, "Invalid normalization form specified");
-
-    std::string text = args.getThis().stringContent();
-    args.pushResult(normalize(text, iterator->second));
-  });
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool Utils::_registered = []() {
-  ScriptingContext::registerModule("util", &Utils::activate);
-  return true;
-}();
+std::string Utilities::trim(std::string s, const std::string &t) {
+  return trimLeft(trimRight(s, t), t);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::string Utilities::readFile(std::string const& fileName) {
+#ifdef _MSC_VER
+  std::ifstream stream(s2ws(fileName).c_str(), std::ios::binary);
+#else
+  std::ifstream stream(fileName.c_str(), std::ifstream::binary);
+#endif
+
+  if (!stream.is_open() || stream.eof())
+    return "";
+
+  std::string result;
+  stream >> result;
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Utilities::writeFile(std::string const& fileName, std::string const& content) {
+#ifdef _MSC_VER
+  std::ofstream stream(s2ws(fileName).c_str(), std::ios::binary);
+#else
+  std::ofstream stream(fileName.c_str(), std::ifstream::binary);
+#endif
+
+  if (stream.is_open())
+    stream << content;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Escape a string to be used in a JSON
+ */
+std::string Utilities::escapeJSONString(std::string const& s) {
+  std::string result;
+  result.reserve(s.size());
+  for (auto ch : s) {
+    char escape = 0;
+    switch (ch) {
+      case '"':
+        escape = '"';
+        break;
+      case '\\':
+        escape = '\\';
+        break;
+      case '\b':
+        escape = 'b';
+        break;
+      case '\f':
+        escape = 'f';
+        break;
+      case '\n':
+        escape = 'n';
+        break;
+      case '\r':
+        escape = 'r';
+        break;
+      case '\t':
+        escape = 't';
+        break;
+      default:
+        break;
+    }
+    if (escape) {
+      result.push_back('\\');
+      result.push_back(escape);
+    } else
+      result.push_back(ch);
+  }
+  return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------

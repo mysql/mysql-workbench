@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -165,6 +165,13 @@ void Accessible::setScrollPosition(double value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+std::string aal::Accessible::getID() const
+{
+  return _accessible->getID();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 std::string Accessible::getName() const {
   return _accessible->getName();
 }
@@ -269,20 +276,33 @@ geometry::Rectangle Accessible::getBounds(bool screenCoordinates) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void Accessible::setBounds(geometry::Rectangle const& bounds) {
+  _accessible->setBounds(bounds);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void Accessible::show() { 
   _accessible->show(); 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void Accessible::bringToFront() {
+  _accessible->bringToFront();
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void Accessible::highlight() const {
-  NOT_IMPLEMENTED;
+  _accessible->highlight();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::removeHighlight() const {
-  NOT_IMPLEMENTED;
+  _accessible->removeHighlight();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -320,6 +340,19 @@ std::string Accessible::getTitle() const {
 std::string Accessible::getDescription() const {
   return _accessible->getDescription();
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Accessible::menuShown() const {
+  return _accessible->menuShown();;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Accessible::showMenu() const {
+  _accessible->showMenu();;
+}
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -437,20 +470,26 @@ geometry::Point aal::Accessible::getMousePosition() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::keyDown(const aal::Key k, aal::Modifier modifier) {
+void Accessible::keyDown(const aal::Key k, aal::Modifier modifier) const {
   _accessible->keyDown(k, modifier);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::keyUp(const aal::Key k, aal::Modifier modifier) {
+void Accessible::keyUp(const aal::Key k, aal::Modifier modifier) const {
   _accessible->keyUp(k, modifier);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::keyPress(const aal::Key k, aal::Modifier modifier) {
+void Accessible::keyPress(const aal::Key k, aal::Modifier modifier) const {
   _accessible->keyPress(k, modifier);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Accessible::typeString(std::string const& input) const {
+  _accessible->typeString(input);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -549,8 +588,8 @@ void Accessible::setExpanded(bool value) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::windows() const {
-  AccessibleVector result;
+AccessibleList Accessible::windows() const {
+  AccessibleList result;
   if (isRoot()) {
     // Root is a window as well (the application main window), with other windows (e.g. dialogs) as children.
     AccessibleWr::Ref clone = _accessible->clone();
@@ -567,8 +606,8 @@ AccessibleVector Accessible::windows() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::tabPages() const {
-  AccessibleVector result;
+AccessibleList Accessible::tabPages() const {
+  AccessibleList result;
   if (!isValid())
     return result;
 
@@ -579,11 +618,11 @@ AccessibleVector Accessible::tabPages() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::rows() const {
+AccessibleList Accessible::rows() const {
   if (getRole() != Role::TreeView && getRole() != Role::Grid)
     throw std::runtime_error("This element has no columns.");
 
-  AccessibleVector result;
+  AccessibleList result;
   if (!isValid())
     return result;
 
@@ -594,10 +633,10 @@ AccessibleVector Accessible::rows() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::rowEntries() const {
+AccessibleList Accessible::rowEntries() const {
   if (getRole() != Role::Row)
     throw std::runtime_error("This element has no row entries.");
-  AccessibleVector result;
+  AccessibleList result;
   if (!isValid())
     return result;
 
@@ -625,11 +664,11 @@ AccessibleRef Accessible::getCloseButton() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::columns() const {
+AccessibleList Accessible::columns() const {
   if (getRole() != Role::TreeView && getRole() != Role::Grid)
     throw std::runtime_error("This element has no columns.");
 
-  AccessibleVector result;
+  AccessibleList result;
   if (!isValid())
     return result;
 
@@ -640,10 +679,10 @@ AccessibleVector Accessible::columns() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::columnEntries() const {
+AccessibleList Accessible::columnEntries() const {
   if (getRole() != Role::Column)
     throw std::runtime_error("This element has no column entries.");
-  AccessibleVector result;
+  AccessibleList result;
   if (!isValid())
     return result;
 
@@ -666,6 +705,13 @@ int Accessible::getRunningProcess(std::wstring const& fileName) {
   return AccessibleWr::getRunningProcess(fileName);
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+
+std::vector<int> Accessible::getRunningProcessByName(std::wstring const& name) {
+  return AccessibleWr::getRunningProcessByName(name);
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 bool Accessible::accessibilitySetup() {
@@ -674,7 +720,7 @@ bool Accessible::accessibilitySetup() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::children(AccessibleVector &result, bool recursive) const {
+void Accessible::children(AccessibleList &result, bool recursive) const {
   if (!isValid())
     return;
 
@@ -689,8 +735,8 @@ void Accessible::children(AccessibleVector &result, bool recursive) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-AccessibleVector Accessible::children() const {
-  AccessibleVector result;
+AccessibleList Accessible::children() const {
+  AccessibleList result;
   if (!isValid())
     return result;
 
@@ -738,7 +784,7 @@ std::string Accessible::getPlatformRoleName() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::printNativeInfo() const {
-  NOT_IMPLEMENTED;
+  _accessible->printNativeInfo();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -753,6 +799,22 @@ void Accessible::saveImage(std::string const& path) const {
   std::ignore = path;
 
   NOT_IMPLEMENTED;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+std::string Accessible::getClipboardText()
+{
+  return AccessibleWr::getClipboardText();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+
+void Accessible::setClipboardText(const std::string& content)
+{
+  AccessibleWr::setClipboardText(content);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -38,6 +38,9 @@ namespace geometry {
     Point(int x, int y) : x(x), y(y) {}
     Point(const Point &p) : x(p.x), y(p.y) {}
 
+    bool operator == (Point const& other) const;
+    bool operator != (Point const& other) const;
+
     virtual std::string toJson() const override;
   };
 
@@ -48,6 +51,9 @@ namespace geometry {
     Size() : width(0), height(0) {}
     Size(int width, int height) : width(width), height(height) {}
     Size(const Size &p) : width(p.width), height(p.height) {}
+
+    bool operator == (Size const& other) const;
+    bool operator != (Size const& other) const;
 
     virtual std::string toJson() const override;
   };
@@ -69,6 +75,9 @@ namespace geometry {
     int maxX() const { return position.x + size.width - 1; } // In a 5 pixels wide rect min is 0 and max is 4.
     int minY() const { return position.y; }
     int maxY() const { return position.y + size.height - 1; }
+
+    bool operator == (Rectangle const& other) const;
+    bool operator != (Rectangle const& other) const;
 
     virtual std::string toJson() const override;
   };

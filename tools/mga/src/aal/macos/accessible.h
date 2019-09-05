@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -32,6 +32,29 @@
 
 namespace aal {
 
+// Human readable values of a single accessible property.
+struct AccessibleProperty {
+  std::string name;
+  std::string value;
+  bool readOnly;
+  bool containsReference;
+};
+
+// Ditto for actions.
+struct AccessibleAction {
+  std::string name;
+  std::string description;
+};
+
+// A struct containing human readable names and values of roles + properties for an Accessible instance.
+struct AccessibleDetails {
+  std::string role;
+  std::string subRole;
+
+  std::vector<AccessibleProperty> properties;
+  std::vector<AccessibleAction> actions;
+};
+
 class Accessible {
 public:
   Accessible() = delete;
@@ -44,7 +67,8 @@ public:
   AccessibleRef clone() const;
 
   bool isRoot() const;
-  bool isValid() const { return _native != nullptr; }
+  bool isValid() const;
+  size_t getHash() const;
 
   bool canFocus() const;
   bool isFocused() const;
@@ -82,6 +106,9 @@ public:
   double getScrollPosition() const;
   void setScrollPosition(double value);
 
+  void showMenu() const;
+  bool menuShown() const;
+
   bool equals(Accessible *other) const;
 
   AccessibleRef getParent() const;
@@ -91,23 +118,25 @@ public:
   AccessibleRef getHeader() const;
   AccessibleRef getCloseButton() const;
 
-  void children(AccessibleVector &result, bool recursive) const;
-  AccessibleVector children() const;
-  AccessibleVector windows() const;
-  AccessibleVector tabPages() const;
-  AccessibleVector rows() const;
-  AccessibleVector rowEntries() const;
-  AccessibleVector columns() const;
-  AccessibleVector columnEntries() const;
+  void children(AccessibleList &result, bool recursive) const;
+  AccessibleList children() const;
+  AccessibleList windows() const;
+  AccessibleList tabPages() const;
+  AccessibleList rows() const;
+  AccessibleList rowEntries() const;
+  AccessibleList columns() const;
+  AccessibleList columnEntries() const;
 
   static AccessibleRef fromPoint(geometry::Point point, Accessible *application);
 
+  std::string getID() const;
   std::string getName() const;
   std::string getHelp() const;
   aal::Role getRole() const { return _role; };
   bool isInternal() const;
 
   geometry::Rectangle getBounds(bool screenCoordinates) const;
+  void setBounds(geometry::Rectangle const& bounds);
 
   size_t getCaretPosition() const;
   void setCaretPosition(size_t position);
@@ -120,7 +149,7 @@ public:
   std::string getText() const; // For text *content* only (edits, labels etc.).
   void setText(std::string const& text);
 
-  std::string getTitle() const; // For all captions (buttons, menu items etc.).
+  std::string getTitle() const; // For all captions (buttons, menu items, windows etc.).
   void setTitle(std::string const& text);
 
   void insertText(const std::size_t offset, const std::string &text);
@@ -137,14 +166,15 @@ public:
 
   void mouseDown(geometry::Point pos, MouseButton button = MouseButton::Left);
   void mouseUp(geometry::Point pos, MouseButton button = MouseButton::Left);
-  void mouseMove(geometry::Point pos);
-  void mouseMoveTo(geometry::Point pos);
+  void mouseMove(geometry::Point pos) const;
+  void mouseMoveTo(geometry::Point pos) const;
   void mouseDrag(geometry::Point source, geometry::Point target, MouseButton button = MouseButton::Left);
   geometry::Point getMousePosition() const;
 
   void keyDown(aal::Key k, aal::Modifier modifier) const;
   void keyUp(aal::Key k, aal::Modifier modifier) const;
   void keyPress(aal::Key k, aal::Modifier modifier) const;
+  void typeString(std::string const& input) const;
 
   void click();
   void confirm(bool checkError = true);
@@ -158,12 +188,15 @@ public:
   void decrement();
 
   void show();
-  void highlight() const;
+  void bringToFront();
+  void highlight(NSColor *color = NSColor.systemPinkColor) const;
   void removeHighlight() const;
+  bool isHighlightActive() const;
 
   std::string getPlatformRoleName() const;
   std::string dump(bool recursive = false, std::string const& indentation = "") const;
   void printNativeInfo() const;
+  AccessibleDetails getDetails() const;
 
   void takeScreenShot(std::string const& path, bool onlyWindow, geometry::Rectangle rect) const;
   void saveImage(std::string const& path) const;
@@ -171,11 +204,15 @@ public:
   static void handleUnsupportedError(AXError error, std::string const& attribute);
   
 private:
+  static std::shared_ptr<Accessible> _systemRoot;
+
   AXUIElementRef _native;
   Role _role = Role::Unknown;
 
-  void determineRole();
-  static NSArray* getChildren(AXUIElementRef ref, size_t count = 99999);
+  static Role determineRole(AXUIElementRef element);
+  
+  static NSArray* getChildren(AXUIElementRef ref, size_t count = 99999, bool visibleOnly = false);
+  static NSArray* getArrayValue(AXUIElementRef ref, CFStringRef attribute, size_t count = 99999);
   static std::string getStringValue(AXUIElementRef ref, CFStringRef attribute, std::string const& attributeName,
                              bool noThrow = false);
   static void setStringValue(AXUIElementRef ref, CFStringRef attribute, std::string const& value,
@@ -188,7 +225,9 @@ private:
   static void setNumberValue(AXUIElementRef ref, CFStringRef attribute, NSNumber* value,
                       std::string const& attributeName);
   static AXUIElementRef getElementValue(AXUIElementRef ref, bool noThrow = false);
+  static bool hasBounds(AXUIElementRef ref);
   static geometry::Rectangle getBounds(AXUIElementRef ref, bool screenCoordinates);
+  static void setBounds(AXUIElementRef ref, geometry::Rectangle const& bounds);
 
   static bool isSupported(AXUIElementRef ref, CFStringRef attribute);
   static bool isSettable(AXUIElementRef ref, CFStringRef attribute);

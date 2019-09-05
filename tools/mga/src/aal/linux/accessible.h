@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -78,6 +78,8 @@ public:
   bool isRoot() const { return _isRoot; };
   bool isValid() const { return _accessible != nullptr; }
   bool equals(Accessible *other) const;
+  bool menuShown() const;
+  void showMenu();
   
   AccessibleRef getParent() const;
   AccessibleRef getContainingRow() const;
@@ -86,25 +88,26 @@ public:
   AccessibleRef getHeader() const;
   AccessibleRef getCloseButton() const;
     
-  void children(AccessibleVector &result, bool recursive) const;
-  AccessibleVector children() const;
-  AccessibleVector windows() const;
-  AccessibleVector tabPages() const;
-  AccessibleVector rows() const;
-  AccessibleVector rowEntries() const;
-  AccessibleVector columns() const;
-  AccessibleVector columnEntries() const;
+  void children(AccessibleList &result, bool recursive) const;
+  AccessibleList children() const;
+  AccessibleList windows() const;
+  AccessibleList tabPages() const;
+  AccessibleList rows() const;
+  AccessibleList rowEntries() const;
+  AccessibleList columns() const;
+  AccessibleList columnEntries() const;
     
   static AccessibleRef fromPoint(geometry::Point point, Accessible *application);
 
   bool canFocus() const;
   bool isFocused() const;
   void setFocused();
-  
+
+  std::string getID() const;
   std::string getName() const;
   std::string getHelp() const;
   virtual aal::Role getRole() const;
-  
+
   bool isInternal() const;
   bool isEnabled() const;
   
@@ -170,6 +173,7 @@ public:
   void keyDown(const aal::Key k, aal::Modifier modifier);
   void keyUp(const aal::Key k, aal::Modifier modifier);
   void keyPress(const aal::Key k, aal::Modifier modifier);
+  void typeString(std::string const& input) const;
 
   void click();
   void confirm();
@@ -184,11 +188,13 @@ public:
   
   static geometry::Rectangle getBounds(AtspiAccessible *acc, bool screenCoordinates);
   geometry::Rectangle getBounds(bool screenCoordinates) const;
+  void setBounds(geometry::Rectangle const& bounds);
 
   void takeScreenShot(const std::string &path, bool onlyWindow, geometry::Rectangle rect) const;
   void saveImage(std::string const& path) const;
 
   void show();
+  void bringToFront();
   void highlight() const;
   void removeHighlight() const;
 

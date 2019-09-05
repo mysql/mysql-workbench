@@ -37,6 +37,7 @@ namespace aal {
     static bool accessibilitySetup();
     static Ref getByPid(const int pid);
     static int getRunningProcess(std::wstring const& fileName);
+    static std::vector<int> getRunningProcessByName(std::wstring const& name);
     static std::string NativeToCppString(System::String^ str);
 
     AccessibleWr(AccessibleNet ^accessible);
@@ -87,6 +88,10 @@ namespace aal {
     double getScrollPosition() const;
     void setScrollPosition(double value);
 
+    bool menuShown() const;
+    void showMenu() const;
+
+    std::string getID() const;
     std::string getName() const;
     std::string getHelp() const;
     aal::Role getRole() const;
@@ -100,6 +105,7 @@ namespace aal {
     size_t getCaretPosition() const;
     void setCaretPosition(size_t position);
     geometry::Rectangle getBounds(bool screenCoordinates);
+    void setBounds(geometry::Rectangle const& bounds);
 
     std::string getText() const;
     std::string getTitle() const;
@@ -123,9 +129,10 @@ namespace aal {
     void mouseMoveTo(const geometry::Point &pos);
     geometry::Point getMousePosition() const;
 
-    void keyDown(const aal::Key k, aal::Modifier modifier);
-    void keyUp(const aal::Key k, aal::Modifier modifier);
-    void keyPress(const aal::Key k, aal::Modifier modifier);
+    void keyDown(const aal::Key k, aal::Modifier modifier) const;
+    void keyUp(const aal::Key k, aal::Modifier modifier) const;
+    void keyPress(const aal::Key k, aal::Modifier modifier) const;
+    void typeString(std::string const& input) const;
 
     void click();
     void stepUp();
@@ -138,7 +145,9 @@ namespace aal {
     void decrement();
 
     void show();
-    void blink();
+    void bringToFront();
+    void highlight() const;
+    void removeHighlight() const;
 
     bool isExpandable();
     bool isExpanded();
@@ -146,6 +155,11 @@ namespace aal {
 
     std::string getPlatformRoleName() const;
     bool takeScreenShot(std::string const& path, bool onlyWindow, geometry::Rectangle rect) const;
+
+    void printNativeInfo() const;
+
+    static std::string getClipboardText();
+    static void setClipboardText(const std::string &content);
 
   private:
     gcroot<AccessibleNet^> _managedObject;

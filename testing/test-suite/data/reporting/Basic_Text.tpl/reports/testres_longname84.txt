@@ -1,0 +1,9 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  attributes:
+  - row format: COMPRESSED --> COMPRESSED
+  __
+----------------------------------------------
+End of MySQL Workbench Report

@@ -1,0 +1,32 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `grtdiff_alter_test`.`frn_keys_check_t1` was created
+  columns:
+  - id of type INT
+  __
+  indices:
+  - PRIMARY with columns: id
+  __
+  attributes:
+  - engine: InnoDB
+  - default character set: latin1
+  __
+Table `grtdiff_alter_test`.`frn_keys_check_t2` was created
+  columns:
+  - id of type INT
+  __
+  indices:
+  - fid with columns: id
+  __
+  foreign keys:
+  - fid with columns: id, referred table: frn_keys_check_t1 with columns: id
+    - action on update: CASCADE
+    - action on delete: CASCADE
+  __
+  attributes:
+  - engine: InnoDB
+  - default character set: latin1
+  __
+----------------------------------------------
+End of MySQL Workbench Report

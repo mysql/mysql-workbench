@@ -1,0 +1,6 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Routine `grtdiff_alter_test`.`p1` was dropped
+----------------------------------------------
+End of MySQL Workbench Report

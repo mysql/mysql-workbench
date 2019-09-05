@@ -1,0 +1,103 @@
+###
+### TABLE
+###
+
+0  - manipulation with active schema
+1  - simplest
+2  - table name prefixed by schema name
+3  - quoted identifiers
+4  - keywords: temporary, if not exists
+5  - column data types
+6  - column definition
+7  - reference definition
+8  - create definition
+9  - index options
+10 - table options
+11 - idents containing underscores
+12 - primary, uniqe indexes, foreign key inline with column definitions
+13 - default values
+14 - create database(schema) with options
+15 - character sets & collations
+16 - duplications in object names within single schema & between schemata
+17 - duplications in names within tables/views common namespace
+18 - testing reserved function names as identifiers
+
+###
+### INDEX
+###
+
+50 - index type (1-st form)
+51 - index type (2-nd form)
+
+###
+### VIEW
+###
+
+100 - view
+101 - lazy creation
+
+###
+### ROUTINE
+###
+
+150 - procedure
+151 - function
+
+###
+### TRIGGER
+###
+
+200 - trigger
+
+###
+### EVENT (!!! NOT YET !!!)
+###
+
+250 - event
+251 - event
+252 - event
+253 - event
+
+###
+### LOGFILE GROUP, TABLESPACE
+###
+
+300 - logfile group, tablespace
+
+###
+### SERVER LINK
+###
+
+350 - server link
+
+###
+### ALTER STATEMENTS
+###
+
+400 - alter table (foreign keys)
+
+###
+### DROP STATEMENTS
+###
+
+450 - drop statements
+
+###
+### MISC
+###
+
+600 - reusage of stub tables & columns
+
+###
+### REAL-WORLD SCHEMATA (MANY OBJECTS)
+###
+
+700 - sakila-db: schema structures (except of triggers)
+701 - sakila-db: inserts & triggers
+702 - sakila-db: mysqldump file
+
+###
+### SCHEMA RENAME
+###
+
+900 - rename schema references

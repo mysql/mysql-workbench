@@ -40,6 +40,11 @@ using namespace grt;
 
 DEFAULT_LOG_DOMAIN("SqlEditorSchemaTree");
 
+const short LiveSchemaTree::COLUMN_DATA = 0x01;
+const short LiveSchemaTree::TRIGGER_DATA = 0x02;
+const short LiveSchemaTree::INDEX_DATA = 0x04;
+const short LiveSchemaTree::FK_DATA = 0x08;
+
 const std::string LiveSchemaTree::SCHEMA_TAG = "_SCHEMA_";
 const std::string LiveSchemaTree::TABLES_TAG = "_TABLES_";
 const std::string LiveSchemaTree::VIEWS_TAG = "_VIEWS_";
@@ -424,14 +429,15 @@ std::string LiveSchemaTree::FunctionData::get_details(bool full, const mforms::T
 
 LiveSchemaTree::LiveSchemaTree(MySQLVersion version)
   : _model_view(nullptr),
+    _schema_pattern(0),
+    _object_pattern(0),
     _case_sensitive_identifiers(false),
     _is_schema_contents_enabled(true),
     _enabled_events(false),
     _version(version),
     _base(0),
-    _filter_type(Any),
-    _schema_pattern(0),
-    _object_pattern(0) {
+    _filter(),
+    _filter_type(Any) {
   fill_node_icons();
 
   // Setup the schema node collection skeleton

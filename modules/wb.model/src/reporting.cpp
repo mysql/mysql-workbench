@@ -1280,7 +1280,7 @@ ssize_t WbModelImpl::generateReport(workbench_physical_ModelRef model, const grt
           if (g_file_test(path, G_FILE_TEST_IS_DIR))
             copy_folder(path, target.c_str());
           else
-            copy_file(path, target.c_str());
+            base::copyFile(path, target.c_str());
         }
       }
 

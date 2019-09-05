@@ -61,6 +61,9 @@ def handleContextMenu(name, sender, args):
         elif s.type == 'db.Table':
             user_selection = {'table': to_unicode(s.name), 'schema': to_unicode(s.schemaName)}
             break
+        elif s.type == 'db.View':
+            user_selection = {'table': to_unicode(s.name), 'schema': to_unicode(s.schemaName)}
+            break
         else:
             return
 

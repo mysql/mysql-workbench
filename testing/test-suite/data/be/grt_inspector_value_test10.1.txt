@@ -1,0 +1,7 @@
+:6:::0:0(exception:invalid index)::0:0(exception:invalid index)
+0:0:::1:k1(DoubleType)::1:1.234000(DoubleType)
+1:0:::1:k2(StringType)::1:112233(StringType)
+2:0:::1:k3(StringType)::1:test3(StringType)
+3:0:::1:k4(IntegerType)::1:444(IntegerType)
+4:0:::1:k5(IntegerType)::1:8888(IntegerType)
+5:0:::1:k6(ListType)::1:[1, 2, 3, 4, 5](ListType)

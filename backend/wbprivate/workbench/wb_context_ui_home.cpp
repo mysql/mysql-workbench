@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <glib/gstdio.h>
@@ -56,6 +56,7 @@
 #include "mforms/home_screen.h"
 #include "mforms/home_screen_connections.h"
 #include "mforms/home_screen_documents.h"
+#include "mforms/menubar.h"
 #include <zip.h>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
@@ -275,7 +276,7 @@ void WBContextUI::show_about() {
  */
 
 void WBContextUI::show_home_screen() {
-  if (_home_screen != NULL) {
+  if (_home_screen != nullptr) {
     _home_screen->showSection(0);
     mforms::App::get()->select_view(_home_screen);
     return;
@@ -285,7 +286,7 @@ void WBContextUI::show_home_screen() {
   if (_home_screen == NULL) {
     // The home screen and its content is freed in AppView::close() during undock_view(...).
     _home_screen = mforms::manage(new mforms::HomeScreen, false);
-    _home_screen->set_menubar(_command_ui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL));
+    _home_screen->set_menubar(mforms::setReleaseOnAdd(_command_ui->create_menubar_for_context(WB_CONTEXT_HOME_GLOBAL)));
     _home_screen->onHomeScreenAction =
       std::bind(&WBContextUI::handle_home_action, this, std::placeholders::_1, std::placeholders::_2);
     _home_screen->handleContextMenu =
@@ -362,6 +363,7 @@ void WBContextUI::show_home_screen() {
     menu->add_item(_("Delete All Connections..."), "delete_connection_all");
 
     _home_screen->set_menu(menu, HomeMenuConnection);
+    menu->release();
 
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Move To Top"), "move_connection_to_top");
@@ -385,6 +387,7 @@ void WBContextUI::show_home_screen() {
     menu->add_item(_("Delete Group..."), "delete_connection_group");
 
     _home_screen->set_menu(menu, HomeMenuConnectionGroup);
+    menu->release();
 
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Open Model"), "open_model_from_list");
@@ -407,6 +410,7 @@ void WBContextUI::show_home_screen() {
     menu->add_item(_("Remove Model File from List"), "remove_model");
     menu->add_item(_("Clear List"), "remove_model_all");
     _home_screen->set_menu(menu, HomeMenuDocumentModel);
+    menu->release();
 
     menu = mforms::manage(new mforms::Menu());
     menu->add_item(_("Create EER Model from Database"), "model_from_schema");
@@ -426,6 +430,7 @@ void WBContextUI::show_home_screen() {
     }
 
     _home_screen->set_menu(menu, HomeMenuDocumentModelAction);
+    menu->release();
   }
 
   mforms::App::get()->dock_view(_home_screen, "maintab");
@@ -1078,8 +1083,8 @@ void WBContextUI::refresh_home_connections(bool clear_state) {
     logWarning("Invalid connection detected %s, deleting it\n", (*iterator)->name().c_str());
     remove_connection(*iterator);
   }
-
-  _wb->save_connections();
+  // XXXX TEST PROBLEM
+  // _wb->save_connections();
   _wb->save_instances();
 }
 

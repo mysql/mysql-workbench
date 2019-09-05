@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -59,14 +59,14 @@ std::string workbench_model_ImageFigure::ImplData::set_filename(const std::strin
       cairo_surface_t *img = self()->owner()->owner()->get_data()->get_delegate()->fetch_image(internal_name);
       if (img) {
         _figure->set_image(img);
-
-        g_warning("Could not load image '%s' for '%s'", fn.c_str(), self()->name().c_str());
         cairo_surface_destroy(img);
 
         shrink_if_needed();
 
         self()->_width = _figure->get_size().width;
         self()->_height = _figure->get_size().height;
+      } else {
+        logWarning("Could not load image '%s' for '%s'", fn.c_str(), self()->name().c_str());
       }
     }
 

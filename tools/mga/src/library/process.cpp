@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -47,7 +47,7 @@ void Process::initialize(int argc, const char* argv[], char *envp[]) {
 
   size_t i = 0;
   while (envp && envp[i] != nullptr) {
-    auto parts = Utils::split(envp[i++], "=");
+    auto parts = Utilities::split(envp[i++], "=");
     if (parts.size() > 1)
       environment[parts[0]] = parts[1];
   }
@@ -64,12 +64,12 @@ void Process::initialize(int argc, const char* argv[], char *envp[]) {
 void Process::chdir(std::string const& path) {
   // TODO: should be moved to platform layer (and use Unicode variant on Windows).
 #ifdef _MSC_VER
-  int result = ::_wchdir(Utils::s2ws(path).c_str());
+  int result = ::_wchdir(Utilities::s2ws(path).c_str());
 #else
   int result = ::chdir(path.c_str());
 #endif
   if (result)
-    throw std::runtime_error("could not change directory (" + Utils::getLastError() + ")");
+    throw std::runtime_error("could not change directory (" + Utilities::getLastError() + ")");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ std::string Process::cwd() {
   wchar_t widePath[FILENAME_MAX + 1];
   ::_wgetcwd(widePath, FILENAME_MAX);
 
-  return Path::normalize(Utils::ws2s(widePath));
+  return Path::normalize(Utilities::ws2s(widePath));
 
 #else
   char currentPath[FILENAME_MAX + 1];
@@ -132,7 +132,7 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
   exports.defineClass("Process", "EventEmitter", 0, [](JSObject *process, JSValues &args) {
     std::ignore = args;
     process->setBacking(new Process());
-  }, [](JSObject &prototype) {
+  }, [&](JSObject &prototype) {
     // Publish the entire env map as property on our module.
     prototype.defineProperty("env", environment);
     prototype.defineVirtualArrayProperty("argv", arguments, false);
@@ -141,7 +141,7 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
     prototype.defineProperty("execPath", (*arguments)[0]);
 
 #ifdef _MSC_VER
-    prototype.defineProperty("platform", "windows");
+    prototype.defineProperty("platform", "win32");
     prototype.defineProperty("EOL", "\r\n");
 #elif __APPLE__
     prototype.defineProperty("platform", "macOS");
@@ -150,6 +150,11 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
     prototype.defineProperty("platform", "linux");
     prototype.defineProperty("EOL", "\n");
 #endif
+
+    JSObject values(&context);
+    values.defineProperty("node", "8.12.0");
+    values.defineProperty("unicode", "9.0.0");
+    prototype.defineProperty("versions", values);
 
     prototype.defineProperty("title", "MySQL GUI Automator");
     prototype.defineProperty("version", "0.1.0");

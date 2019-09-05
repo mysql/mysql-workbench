@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<data grt_format="2.0">
+  <value type="object" struct-name="db.mysql.Catalog" id="38131D1A-1467-4EB2-BCF1-5F5EEDF0A73F" struct-checksum="0x82ad3466">
+    <value _ptr_="0x7fab486d9d90" type="list" content-type="object" content-struct-name="db.mysql.LogFileGroup" key="logFileGroups"/>
+    <value _ptr_="0x7fab486cea50" type="list" content-type="object" content-struct-name="db.mysql.Schema" key="schemata">
+      <value type="object" struct-name="db.mysql.Schema" id="736D3A19-2FE3-4F54-AB84-C5513FFE3742" struct-checksum="0x20b94c22">
+        <value _ptr_="0x7fab464c36a0" type="list" content-type="object" content-struct-name="db.mysql.RoutineGroup" key="routineGroups"/>
+        <value _ptr_="0x7fab464b6990" type="list" content-type="object" content-struct-name="db.mysql.Routine" key="routines"/>
+        <value _ptr_="0x7fab464c50a0" type="list" content-type="object" content-struct-name="db.mysql.Sequence" key="sequences"/>
+        <value _ptr_="0x7fab46473650" type="list" content-type="object" content-struct-name="db.mysql.StructuredDatatype" key="structuredTypes"/>
+        <value _ptr_="0x7fab464763b0" type="list" content-type="object" content-struct-name="db.mysql.Synonym" key="synonyms"/>
+        <value _ptr_="0x7fab46478c10" type="list" content-type="object" content-struct-name="db.mysql.Table" key="tables"/>
+        <value _ptr_="0x7fab4647b980" type="list" content-type="object" content-struct-name="db.mysql.View" key="views"/>
+        <value type="string" key="defaultCharacterSetName">utf8</value>
+        <value type="string" key="defaultCollationName"></value>
+        <value _ptr_="0x7fab464ba4f0" type="list" content-type="object" content-struct-name="db.Event" key="events">
+          <value type="object" struct-name="db.mysql.Event" id="B3294C5F-6DC0-4536-B3BF-7FC7705C7E80" struct-checksum="0x17a34a75">
+            <value type="string" key="at">CURRENT_TIMESTAMP</value>
+            <value type="string" key="comment">comment1</value>
+            <value type="string" key="definer">CURRENT_USER</value>
+            <value type="int" key="enabled">1</value>
+            <value type="string" key="interval"></value>
+            <value type="string" key="intervalEnd"></value>
+            <value type="string" key="intervalStart"></value>
+            <value type="string" key="intervalUnit"></value>
+            <value type="string" key="name">event1</value>
+            <value type="int" key="preserved">0</value>
+            <value type="string" key="sqlBody"></value>
+            <value type="int" key="useInterval">0</value>
+            <value type="string" key="sqlDefinition">CREATE
+DEFINER = CURRENT_USER
+EVENT
+IF NOT EXISTS
+event1
+ON SCHEDULE AT CURRENT_TIMESTAMP
+ON COMPLETION NOT PRESERVE
+ENABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END</value>
+            <value type="int" key="commentedOut">0</value>
+            <value type="string" key="createDate">2018-02-08 13:35</value>
+            <value _ptr_="0x7fab464ad530" type="dict" key="customData"/>
+            <value type="string" key="lastChangeDate">2018-02-08 13:35</value>
+            <value type="int" key="modelOnly">0</value>
+            <link type="object" struct-name="GrtNamedObject" key="owner">736D3A19-2FE3-4F54-AB84-C5513FFE3742</link>
+            <value type="string" key="temp_sql"></value>
+            <value type="string" key="oldName"></value>
+          </value>
+          <value type="object" struct-name="db.mysql.Event" id="40AFD6D4-FF80-434D-B571-C79665093961" struct-checksum="0x17a34a75">
+            <value type="string" key="at">ADDTIME('1997-12-31 23:59:59.999999', '1 1:1:1.000002') + INTERVAL 1 DAY</value>
+            <value type="string" key="comment">comment1</value>
+            <value type="string" key="definer">'user'@'hostname'</value>
+            <value type="int" key="enabled">0</value>
+            <value type="string" key="interval"></value>
+            <value type="string" key="intervalEnd"></value>
+            <value type="string" key="intervalStart"></value>
+            <value type="string" key="intervalUnit"></value>
+            <value type="string" key="name">event4</value>
+            <value type="int" key="preserved">1</value>
+            <value type="string" key="sqlBody"></value>
+            <value type="int" key="useInterval">0</value>
+            <value type="string" key="sqlDefinition">CREATE
+DEFINER = 'user'@'hostname'
+EVENT
+IF NOT EXISTS
+event4
+ON SCHEDULE AT ADDTIME('1997-12-31 23:59:59.999999', '1 1:1:1.000002') + INTERVAL 1 DAY
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END</value>
+            <value type="int" key="commentedOut">0</value>
+            <value type="string" key="createDate">2018-02-08 13:35</value>
+            <value _ptr_="0x7fab484e4650" type="dict" key="customData"/>
+            <value type="string" key="lastChangeDate">2018-02-08 13:35</value>
+            <value type="int" key="modelOnly">0</value>
+            <link type="object" struct-name="GrtNamedObject" key="owner">736D3A19-2FE3-4F54-AB84-C5513FFE3742</link>
+            <value type="string" key="temp_sql"></value>
+            <value type="string" key="oldName"></value>
+          </value>
+        </value>
+        <value type="int" key="commentedOut">0</value>
+        <value type="string" key="createDate">2018-02-08 13:35</value>
+        <value _ptr_="0x7fab464b9d00" type="dict" key="customData"/>
+        <value type="string" key="lastChangeDate">2018-02-08 13:35</value>
+        <value type="int" key="modelOnly">0</value>
+        <value type="string" key="name">default_schema</value>
+        <link type="object" struct-name="GrtNamedObject" key="owner">38131D1A-1467-4EB2-BCF1-5F5EEDF0A73F</link>
+        <value type="string" key="temp_sql"></value>
+        <value type="string" key="comment"></value>
+        <value type="string" key="oldName">default_schema</value>
+      </value>
+      <value type="object" struct-name="db.mysql.Schema" id="DC029B16-10A1-485A-8642-0AD40328AE89" struct-checksum="0x20b94c22">
+        <value _ptr_="0x7fab484bf0c0" type="list" content-type="object" content-struct-name="db.mysql.RoutineGroup" key="routineGroups"/>
+        <value _ptr_="0x7fab484a4c00" type="list" content-type="object" content-struct-name="db.mysql.Routine" key="routines"/>
+        <value _ptr_="0x7fab484a4c60" type="list" content-type="object" content-struct-name="db.mysql.Sequence" key="sequences"/>
+        <value _ptr_="0x7fab484c22e0" type="list" content-type="object" content-struct-name="db.mysql.StructuredDatatype" key="structuredTypes"/>
+        <value _ptr_="0x7fab484c2340" type="list" content-type="object" content-struct-name="db.mysql.Synonym" key="synonyms"/>
+        <value _ptr_="0x7fab484c23a0" type="list" content-type="object" content-struct-name="db.mysql.Table" key="tables"/>
+        <value _ptr_="0x7fab484c2400" type="list" content-type="object" content-struct-name="db.mysql.View" key="views"/>
+        <value type="string" key="defaultCharacterSetName">utf8</value>
+        <value type="string" key="defaultCollationName"></value>
+        <value _ptr_="0x7fab484c44f0" type="list" content-type="object" content-struct-name="db.Event" key="events">
+          <value type="object" struct-name="db.mysql.Event" id="CE41E1A9-55A3-4E8C-9345-41A59E5FDBFE" struct-checksum="0x17a34a75">
+            <value type="string" key="at">'2006-01-01 23:59:00' + INTERVAL 2 DAY</value>
+            <value type="string" key="comment">comment1</value>
+            <value type="string" key="definer">'user'@'hostname'</value>
+            <value type="int" key="enabled">0</value>
+            <value type="string" key="interval"></value>
+            <value type="string" key="intervalEnd"></value>
+            <value type="string" key="intervalStart"></value>
+            <value type="string" key="intervalUnit"></value>
+            <value type="string" key="name">event2</value>
+            <value type="int" key="preserved">1</value>
+            <value type="string" key="sqlBody"></value>
+            <value type="int" key="useInterval">0</value>
+            <value type="string" key="sqlDefinition">CREATE
+DEFINER = 'user'@'hostname'
+EVENT
+IF NOT EXISTS
+test.event2
+ON SCHEDULE AT '2006-01-01 23:59:00' + INTERVAL 2 DAY 
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END</value>
+            <value type="int" key="commentedOut">0</value>
+            <value type="string" key="createDate">2018-02-08 13:35</value>
+            <value _ptr_="0x7fab484c20e0" type="dict" key="customData"/>
+            <value type="string" key="lastChangeDate">2018-02-08 13:35</value>
+            <value type="int" key="modelOnly">0</value>
+            <link type="object" struct-name="GrtNamedObject" key="owner">DC029B16-10A1-485A-8642-0AD40328AE89</link>
+            <value type="string" key="temp_sql"></value>
+            <value type="string" key="oldName"></value>
+          </value>
+          <value type="object" struct-name="db.mysql.Event" id="CF14CFFC-CC96-4F9E-B661-1FF0DE30930C" struct-checksum="0x17a34a75">
+            <value type="string" key="at">1</value>
+            <value type="string" key="comment">comment1</value>
+            <value type="string" key="definer">'user'@'hostname'</value>
+            <value type="int" key="enabled">0</value>
+            <value type="string" key="interval"></value>
+            <value type="string" key="intervalEnd">CURRENT_TIMESTAMP + INTERVAL 1 YEAR + INTERVAL 2 DAY</value>
+            <value type="string" key="intervalStart">'2006-01-01 23:59:00' + INTERVAL 1 HOUR</value>
+            <value type="string" key="intervalUnit">HOUR</value>
+            <value type="string" key="name">event3</value>
+            <value type="int" key="preserved">1</value>
+            <value type="string" key="sqlBody"></value>
+            <value type="int" key="useInterval">1</value>
+            <value type="string" key="sqlDefinition">CREATE
+DEFINER = 'user'@'hostname'
+EVENT
+IF NOT EXISTS
+test.event3
+ON SCHEDULE EVERY 1 HOUR
+STARTS '2006-01-01 23:59:00' + INTERVAL 1 HOUR
+ENDS CURRENT_TIMESTAMP + INTERVAL 1 YEAR + INTERVAL 2 DAY 
+ON COMPLETION PRESERVE
+DISABLE
+COMMENT 'comment1'
+DO
+BEGIN
+INSERT INTO table1(id) values (1);
+END</value>
+            <value type="int" key="commentedOut">0</value>
+            <value type="string" key="createDate">2018-02-08 13:35</value>
+            <value _ptr_="0x7fab484d31d0" type="dict" key="customData"/>
+            <value type="string" key="lastChangeDate">2018-02-08 13:35</value>
+            <value type="int" key="modelOnly">0</value>
+            <link type="object" struct-name="GrtNamedObject" key="owner">DC029B16-10A1-485A-8642-0AD40328AE89</link>
+            <value type="string" key="temp_sql"></value>
+            <value type="string" key="oldName"></value>
+          </value>
+        </value>
+        <value type="int" key="commentedOut">0</value>
+        <value type="string" key="createDate">2018-02-08 13:35</value>
+        <value _ptr_="0x7fab484a9720" type="dict" key="customData"/>
+        <value type="string" key="lastChangeDate">2018-02-08 13:35</value>
+        <value type="int" key="modelOnly">0</value>
+        <value type="string" key="name">test</value>
+        <link type="object" struct-name="GrtNamedObject" key="owner">38131D1A-1467-4EB2-BCF1-5F5EEDF0A73F</link>
+        <value type="string" key="temp_sql"></value>
+        <value type="string" key="comment"></value>
+        <value type="string" key="oldName">test</value>
+      </value>
+    </value>
+    <value _ptr_="0x7fab486bb6c0" type="list" content-type="object" content-struct-name="db.mysql.ServerLink" key="serverLinks"/>
+    <value _ptr_="0x7fab486b7cd0" type="list" content-type="object" content-struct-name="db.mysql.Tablespace" key="tablespaces"/>
+    <value _ptr_="0x7fab4869c690" type="list" content-type="object" content-struct-name="db.CharacterSet" key="characterSets"/>
+    <value _ptr_="0x7fab486989c0" type="dict" key="customData"/>
+    <value type="string" key="defaultCharacterSetName">utf8</value>
+    <value type="string" key="defaultCollationName">utf8_general_ci</value>
+    <value _ptr_="0x7fab486d6760" type="list" content-type="object" content-struct-name="db.Role" key="roles"/>
+    <value _ptr_="0x7fab486b9b10" type="list" content-type="object" content-struct-name="db.SimpleDatatype" key="simpleDatatypes">
+      <link type="object">com.mysql.rdbms.mysql.datatype.tinyint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.smallint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.mediumint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.int</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.bigint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.float</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.real</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.double</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.decimal</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.char</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.nchar</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.varchar</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.nvarchar</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.binary</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.varbinary</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.tinytext</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.text</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.mediumtext</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.longtext</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.tinyblob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.blob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.mediumblob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.longblob</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.json</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.datetime</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.datetime_f</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.date</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.time</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.time_f</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.year</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.timestamp</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.timestamp_f</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.geometry</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.point</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.linestring</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.polygon</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.geometrycollection</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.multipoint</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.multilinestring</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.multipolygon</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.bit</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.boolean</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.enum</link>
+      <link type="object">com.mysql.rdbms.mysql.datatype.set</link>
+    </value>
+    <value _ptr_="0x7fab486af490" type="list" content-type="object" content-struct-name="db.UserDatatype" key="userDatatypes"/>
+    <value _ptr_="0x7fab464a9f10" type="list" content-type="object" content-struct-name="db.User" key="users"/>
+    <value type="object" struct-name="GrtVersion" id="06B29C5D-194E-4ABB-A961-16896306B126" struct-checksum="0x7aaa4ede" key="version">
+      <value type="int" key="buildNumber">-1</value>
+      <value type="int" key="majorNumber">5</value>
+      <value type="int" key="minorNumber">6</value>
+      <value type="int" key="releaseNumber">30</value>
+      <value type="int" key="status">0</value>
+      <value type="string" key="name">Version</value>
+    </value>
+    <value type="string" key="comment"></value>
+    <value type="string" key="name"></value>
+    <value type="string" key="oldName"></value>
+  </value>
+</data>

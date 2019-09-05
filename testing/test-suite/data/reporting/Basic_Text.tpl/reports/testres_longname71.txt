@@ -1,0 +1,15 @@
++--------------------------------------------+
+| Catalog Diff Report                        |
++--------------------------------------------+
+Table `t1` was modified
+  foreign keys:
+  - removed foreign key: c1
+  __
+Table `t1` was modified
+  foreign keys:
+  - added foreign key c1 with columns: id, referred table: ref_t2 with columns: id
+    - action on update: none
+    - action on delete: none
+  __
+----------------------------------------------
+End of MySQL Workbench Report

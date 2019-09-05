@@ -42,6 +42,7 @@ namespace aal {
 
     private AutomationElement _element;
     private TreeWalker _treeWalker;
+    private bool _isHighlighted = false;
 
     #endregion
 
@@ -95,6 +96,24 @@ namespace aal {
       return 0;
     }
 
+    public static int[] GetRunningProcessByName(string processName)
+    {
+      var processList = new List<int>();
+      Process[] processes = Process.GetProcesses();
+      foreach (Process process in processes) {
+        try {
+          if (process.MainWindowHandle != IntPtr.Zero) { // We can only deal with GUI processes.
+            ProcessModule module = process.MainModule;
+            string guiModuleName = module.ModuleName;
+            if (guiModuleName.Equals(processName, StringComparison.CurrentCultureIgnoreCase)) {
+              processList.Add(process.Id);
+            }
+          }
+        } catch { }
+      }
+      return processList.ToArray();
+    }
+
     public static AccessibleNet GetByPid(int pid) {
       Condition condition = new PropertyCondition(AutomationElement.ProcessIdProperty, pid);
       TreeWalker treeWalker = new TreeWalker(condition);
@@ -115,6 +134,15 @@ namespace aal {
       TreeWalker treeWalker = new TreeWalker(condition);
       child = treeWalker.Normalize(child);
       return new AccessibleNet(child, treeWalker);
+    }
+
+    public static String ClipboardText {
+      get {
+        throw new NotImplementedException();
+      }
+      set {
+        throw new NotImplementedException();
+      }
     }
 
     #endregion
@@ -146,8 +174,8 @@ namespace aal {
 
     public void TransformUsingScaling(double x, double y, out int newX, out int newY) {
       float scaling = getScalingFactor();
-      newX = (int)((float)x * scaling);
-      newY = (int)((float)y * scaling);
+      newX = Convert.ToInt32((float)x * scaling);
+      newY = Convert.ToInt32((float)y * scaling);
     }
 
     #endregion
@@ -169,9 +197,52 @@ namespace aal {
 
     public ControlType ControlType => _element.Current.ControlType;
 
-    public string Name => _element.Current.Name;
+    public string Name => _element != null ? _element.Current.Name : "";
 
-    public Rect BoundingRectangle => _element.Current.BoundingRectangle;
+    public string ID => _element != null ? _element.Current.AutomationId : "";
+
+    public bool MenuShown {
+      get {
+        if (!Valid)
+          return false;
+        Object expandCollapsePattern = new Object();
+        if (this._element.TryGetCurrentPattern(ExpandCollapsePattern.Pattern, out expandCollapsePattern)) {
+          if (((ExpandCollapsePattern)expandCollapsePattern).Current.ExpandCollapseState == ExpandCollapseState.Expanded)
+            return true;
+          if (((ExpandCollapsePattern)expandCollapsePattern).Current.ExpandCollapseState == ExpandCollapseState.Collapsed)
+            return false;
+        } else {
+          RaiseExpandCollapsePatternError(expandCollapsePattern);
+        }
+        return false;
+      }
+    }
+
+    public Rect Bounds {
+      set {
+        if (!Valid)
+          return;
+        var transformPattern = new Object();
+        if (this._element.TryGetCurrentPattern(TransformPattern.Pattern, out transformPattern)) {
+
+          if (((TransformPattern)transformPattern).Current.CanMove) {
+            ((TransformPattern)transformPattern).Move(value.X, value.Y);
+          }
+          if (((TransformPattern)transformPattern).Current.CanResize) {
+            ((TransformPattern)transformPattern).Resize(value.Width, value.Height);
+          }
+        } else {
+          RaiseTransformPatternError(transformPattern);
+        }
+      }
+      get {
+        if (_element != null) {
+          return _element.Current.BoundingRectangle;
+        } else {
+          return Rect.Empty;
+        }
+      }
+    }
 
     public AccessibleNet Parent {
       get {
@@ -253,17 +324,17 @@ namespace aal {
         if (parent != null && parent.Current.ControlType == ControlType.Spinner && this._element.Current.ControlType == ControlType.Spinner) {
           Condition cond = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Button);
           var button = _element.FindFirst(TreeScope.Children, cond);
-          if(button != null)
+          if (button != null)
             return true;
         }
         // <-- spinner 
         // combobox -->
         if (parent != null && parent.Current.ControlType == ControlType.ComboBox) {
-          if(this._element.Current.ControlType == ControlType.Edit || this._element.Current.ControlType == ControlType.List &&
+          if (this._element.Current.ControlType == ControlType.Edit || this._element.Current.ControlType == ControlType.List &&
             this._element.Current.Name == parent.Current.Name) {
             return true;
           }
-          if (this._element.Current.ControlType == ControlType.Button && String.IsNullOrEmpty(this._element.Current.ClassName)) { 
+          if (this._element.Current.ControlType == ControlType.Button && String.IsNullOrEmpty(this._element.Current.ClassName)) {
             return true;
           }
         }
@@ -401,13 +472,16 @@ namespace aal {
         if (this._element.Current.IsEnabled && this._element.Current.IsKeyboardFocusable) {
           Object textPattern = new Object();
           if (this._element.TryGetCurrentPattern(TextPattern.Pattern, out textPattern)) {
-            this._element.SetFocus();
             TextPatternRange doc = ((TextPattern)textPattern).DocumentRange;
             int length = doc.GetText(-1).Length;
-            TextPatternRange copy = doc.Clone();
-            int moved = copy.Move(TextUnit.Character, length);
-            if (moved <= length)
-              return length - moved;
+            TextPatternRange[] array = ((TextPattern)textPattern).GetSelection();
+            if ((array != null) && (array.Length > 0)) {
+              TextPatternRange copy = array[0].Clone();
+              copy.ExpandToEnclosingUnit(TextUnit.Character);
+              int moved = copy.MoveEndpointByUnit(TextPatternRangeEndpoint.Start, TextUnit.Character, length);
+              if (moved <= length)
+                return length - moved;
+            }
           } else {
             RaiseTextPatternError(textPattern);
           }
@@ -417,16 +491,17 @@ namespace aal {
         return 0;
       }
       set {
+        if (0 == value) {
+          return;
+        }
         if (this._element.Current.IsEnabled && this._element.Current.IsKeyboardFocusable) {
           Object textPattern = new Object();
           if (this._element.TryGetCurrentPattern(TextPattern.Pattern, out textPattern)) {
-            this._element.SetFocus();
             TextPatternRange doc = ((TextPattern)textPattern).DocumentRange;
             int length = doc.GetText(-1).Length;
-            TextPatternRange copy = doc.Clone();
             if (value <= length) {
+              doc.MoveEndpointByUnit(TextPatternRangeEndpoint.End, TextUnit.Character, -1 * value);
               doc.MoveEndpointByUnit(TextPatternRangeEndpoint.Start, TextUnit.Character, value);
-              doc.MoveEndpointByUnit(TextPatternRangeEndpoint.End, TextUnit.Character, value);
               doc.Select();
             }
           } else {
@@ -654,7 +729,7 @@ namespace aal {
         } else {
           RaiseExpandCollapsePatternError(expandCollapsePattern);
         }
-      } 
+      }
       return false;
     }
 
@@ -676,7 +751,7 @@ namespace aal {
         } else {
           RaiseExpandCollapsePatternError(expandCollapsePattern);
         }
-      } 
+      }
     }
 
     #endregion
@@ -845,7 +920,7 @@ namespace aal {
       }
     }
 
-   public ulong[] SelectedIndexes {
+    public ulong[] SelectedIndexes {
       get {
         var list = new List<ulong>();
         Object selectionPattern = new Object();
@@ -955,6 +1030,8 @@ namespace aal {
         Object rangePattern = new Object();
         if (this._element.TryGetCurrentPattern(RangeValuePattern.Pattern, out rangePattern)) {
           Object valuePattern = new Object();
+          if (this.ControlType == ControlType.Slider && value < 0)
+            value = 0;
           ((RangeValuePattern)rangePattern).SetValue(value);
         } else {
           RaiseValueRangePatternError(rangePattern);
@@ -1279,7 +1356,9 @@ namespace aal {
       InternalKeyAction(code, flags);
     }
 
-
+    public void TypeString(string input) {
+      throw new NotImplementedException();
+    }
 
     public bool IsVisible {
       get {
@@ -1333,9 +1412,17 @@ namespace aal {
 
     #region Others
 
+    public void BringToFront() {
+      throw new NotImplementedException();
+    }
+
+    public void ShowMenu() {
+      throw new NotImplementedException();
+    }
+
     public bool Equals(AccessibleNet other) => other._element.Equals(_element);
 
-    public void Blink(bool useFillRect) {
+    public void Highlight(bool remove) {
       if (!Valid)
         return;
 
@@ -1347,20 +1434,68 @@ namespace aal {
         int width = (int)rect.Width + 2;
         int height = (int)rect.Height + 2;
         TransformUsingScaling(width, height, out width, out height);
-        if (useFillRect) {
-          IntPtr desktopPtr = GetDC(IntPtr.Zero);
-          using (Graphics g = Graphics.FromHdc(desktopPtr)) {
-            SolidBrush b = new SolidBrush(Color.FromArgb(128, 255, 0, 0));
-            g.FillRectangle(b, new Rectangle(x, y, width, height));
-            Thread.Sleep(2000);
-            g.Dispose();
-          }
-          ReleaseDC(IntPtr.Zero, desktopPtr);
+        if (_isHighlighted && remove) {
+          ControlPaint.DrawReversibleFrame(new Rectangle(x, y, width, height), Color.FromArgb(72, 255, 0), FrameStyle.Thick);
+          _isHighlighted = false;
+          return;
+        }
+        if (!_isHighlighted) {
+          ControlPaint.DrawReversibleFrame(new Rectangle(x, y, width, height), Color.FromArgb(72, 255, 0), FrameStyle.Thick);
         } else {
           ControlPaint.DrawReversibleFrame(new Rectangle(x, y, width, height), Color.FromArgb(72, 255, 0), FrameStyle.Thick);
-          Thread.Sleep(2000);
           ControlPaint.DrawReversibleFrame(new Rectangle(x, y, width, height), Color.FromArgb(72, 255, 0), FrameStyle.Thick);
         }
+        _isHighlighted = true;
+      }
+    }
+
+    public void PrintNativeInfo() {
+      var parents = new List<string>();
+      var run = Parent;
+      while (run != null && run.Valid) {
+        parents.Insert(0, run.ControlType.ToString() + " :: " + run.Name);
+        run = run.Parent;
+      }
+      int i = 0;
+      foreach (var item in parents) {
+        for (var j = 0; j < i; ++j)
+          Console.Write("*");
+        i++;
+        Console.WriteLine(" " + item);
+      }
+      Console.WriteLine("--------------------------------------------");
+      Console.WriteLine("ControlType: " + this._element.Current.ControlType.ProgrammaticName);
+      Console.WriteLine("FrameworkId: " + this._element.Current.FrameworkId);
+      Console.WriteLine("Orientation: " + this._element.Current.Orientation);
+      Console.WriteLine("IsOffscreen: " + this._element.Current.IsOffscreen);
+      Console.WriteLine("ProcessId: " + this._element.Current.ProcessId);
+      Console.WriteLine("NativeWindowHandle: " + this._element.Current.NativeWindowHandle);
+      Console.WriteLine("ClassName: " + this._element.Current.ClassName);
+      Console.WriteLine("IsPassword: " + this._element.Current.IsPassword);
+      Console.WriteLine("ItemType: " + this._element.Current.ItemType);
+      Console.WriteLine("AutomationId: " + this._element.Current.AutomationId);
+      Console.WriteLine("LabeledBy: " + this._element.Current.LabeledBy);
+      Console.WriteLine("IsContentElement: " + this._element.Current.IsContentElement);
+      Console.WriteLine("IsControlElement: " + this._element.Current.IsControlElement);
+      Console.WriteLine("HelpText: " + this._element.Current.HelpText);
+      Console.WriteLine("BoundingRectangle: " + this._element.Current.BoundingRectangle);
+      Console.WriteLine("IsEnabled: " + this._element.Current.IsEnabled);
+      Console.WriteLine("IsKeyboardFocusable: " + this._element.Current.IsKeyboardFocusable);
+      Console.WriteLine("HasKeyboardFocus: " + this._element.Current.HasKeyboardFocus);
+      Console.WriteLine("AccessKey: " + this._element.Current.AccessKey);
+      Console.WriteLine("AcceleratorKey: " + this._element.Current.AcceleratorKey);
+      Console.WriteLine("Name: " + this._element.Current.Name);
+      Console.WriteLine("IsRequiredForForm: " + this._element.Current.IsRequiredForForm);
+      Console.WriteLine("ItemStatus: " + this._element.Current.ItemStatus);
+      Console.WriteLine("------Supported AutomationPattern ----------");
+      foreach (AutomationPattern item in this._element.GetSupportedPatterns()) {
+        Console.WriteLine("Id: " + item.Id);
+        Console.WriteLine("ProgrammaticName: " + item.ProgrammaticName);
+      }
+      Console.WriteLine("------Supported AutomationProperty ---------");
+      foreach (AutomationProperty item in this._element.GetSupportedProperties()) {
+        Console.WriteLine("Id: " + item.Id);
+        Console.WriteLine("ProgrammaticName: " + item.ProgrammaticName);
       }
     }
 
@@ -1524,6 +1659,17 @@ namespace aal {
       string message = "The control with an AutomationID of " + this._element.Current.AutomationId;
       if (scrollPattern == null) {
         message += " does not support the ScrollItemPattern.\n";
+        throw new Exception(message);
+      }
+      message += " is not accessible. \n";
+      throw new Exception(message);
+    }
+
+    private void RaiseTransformPatternError(object transformPattern)
+    {
+      string message = "The control with an AutomationID of " + this._element.Current.AutomationId;
+      if (transformPattern == null) {
+        message += " does not support the TransformPattern.\n";
         throw new Exception(message);
       }
       message += " is not accessible. \n";

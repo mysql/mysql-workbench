@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -20,6 +20,11 @@
  * along with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
+
+#include <cppconn/driver.h>
+#include <cppconn/connection.h>
+#include <cppconn/statement.h>
+#include <cppconn/metadata.h>
 
 #include "dbresult.h"
 
@@ -262,7 +267,7 @@ static size_t determineStatementRanges(const char *sql, size_t length, const std
             tail = run++;
             while (run < end && !isLineBreak(run, newLine))
               ++run;
-            delimiter = Utils::trim(std::string(reinterpret_cast<const char *>(tail), static_cast<size_t>(run - tail)));
+            delimiter = Utilities::trim(std::string(reinterpret_cast<const char *>(tail), static_cast<size_t>(run - tail)));
             delimiterHead = reinterpret_cast<const unsigned char *>(delimiter.c_str());
 
             // Skip over the delimiter statement and any following line breaks.
@@ -370,8 +375,8 @@ void DbConnection::doExecuteScript(const std::string &script, const std::string 
   for (auto &range : ranges) {
     auto query = std::string(content.c_str() + range.start, range.length);
     try {
-      if (Utils::trimLeft(query).find("source ") == 0) {
-        auto sourceFile = Path::join({ Path::dirname(script), Utils::trim(query.substr(7, query.size())) });
+      if (Utilities::trimLeft(query).find("source ") == 0) {
+        auto sourceFile = Path::join({ Path::dirname(script), Utilities::trim(query.substr(7, query.size())) });
         doExecuteScript(sourceFile, delimiter, ignoreErrors);
         continue;
       }
@@ -438,7 +443,7 @@ JSVariant DbConnection::getter(ScriptingContext *, JSExport *instance, std::stri
 
     case 6: {
       sql::Driver *driver = me->_connection->getDriver();
-      std::string info = Utils::format("%s, %i.%i.%i", driver->getName().c_str(), driver->getMajorVersion(),
+      std::string info = Utilities::format("%s, %i.%i.%i", driver->getName().c_str(), driver->getMajorVersion(),
                                        driver->getMinorVersion(), driver->getPatchVersion());
       return info;
     }
@@ -523,6 +528,10 @@ void Db::establishConnection(JSExport *instance, JSValues &args) {
         opts[property] = static_cast<std::string>(value);
       else
         opts[property] = static_cast<int>(value);
+    }
+
+    if (opts.find("OPT_CHARSET_NAME") == opts.end()) {
+      opts["OPT_CHARSET_NAME"] = "utf8";
     }
 
     if (Db::mysqlDriver == nullptr)

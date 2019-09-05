@@ -15,10 +15,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-include_directories(
-  ${PROJECT_SOURCE_DIR}/src/utf8proc
-)
-
 set(libutf8proc_HEADER_FILES
   ${PROJECT_SOURCE_DIR}/src/utf8proc/utf8proc.h
   ${PROJECT_SOURCE_DIR}/src/utf8proc/utf8proc_data.h
@@ -31,6 +27,11 @@ set(libutf8proc_SOURCE_FILES
 set(libutf8proc_SOURCES ${libutf8proc_SOURCE_FILES} ${libutf8proc_HEADER_FILES})
 
 add_library(utf8proc STATIC ${libutf8proc_SOURCES})
+
+target_include_directories(utf8proc
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 set_target_properties(utf8proc
                       PROPERTIES VERSION   ${MGA_VERSION}

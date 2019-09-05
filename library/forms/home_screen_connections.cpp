@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "mforms/home_screen_connections.h"
@@ -352,7 +352,7 @@ protected:
 
   virtual void accessibilityShowMenu() override {
     if (owner->_folder_context_menu != nullptr) {
-      owner->_folder_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()), 
+      owner->_folder_context_menu->popup_at(owner, static_cast<int>(bounds.xcenter()),
         static_cast<int>(bounds.ycenter()));
     }
   };
@@ -659,7 +659,7 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
 
   cairo_text_extents_t extents;
   cairo_text_extents(cr, _heading.c_str(), &extents);
-  
+
   double x;
   x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
   cairo_move_to(cr, x, yoffset);
@@ -801,7 +801,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
   _manage_button.defaultHandler = [this]() {
     _owner->trigger_callback(HomeScreenAction::ActionManageConnections, base::any());
   };
-  
+
   _rescanButton.title = "Rescan servers";
   _rescanButton.description = "Rescan Servers";
   _rescanButton.defaultHandler = [this]() {
@@ -1096,7 +1096,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     getContainer()->get_parent()->relayout();
     set_layout_dirty(false);
   }
-  
+
   int yoffset = 45;
 
   int width = get_width() - CONNECTIONS_LEFT_PADDING - CONNECTIONS_RIGHT_PADDING;
@@ -1138,29 +1138,29 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
   int row = 0;
 
   base::Rect bounds(0, CONNECTIONS_TOP_PADDING, CONNECTIONS_TILE_WIDTH, CONNECTIONS_TILE_HEIGHT);
-  
+
   if (connections.size() == 0) {
     std::string line1 = "MySQL Workbench could not detect any MySQL server running.";
     std::string line2 = "This means that MySQL is not installed or is not running.";
-    
+
     double x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     int yoffset = static_cast<int>(bounds.top()) + 30;
     cairo_text_extents_t extents;
     cairo_set_source_rgb(cr, _titleColor.red, _titleColor.green, _titleColor.blue);
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_text_extents(cr, line1.c_str(), &extents);
-    
+
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     yoffset += static_cast<int>(extents.height) + 10;
-    
+
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line1.c_str());
-    
+
     cairo_text_extents(cr, line2.c_str(), &extents);
-    
+
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     yoffset += static_cast<int>(extents.height) + 10;
-    
+
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, line2.c_str());
 
@@ -1169,18 +1169,18 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_TITLE_FONT_SIZE * 0.8);
     cairo_set_source_rgb(cr, 0x1b / 255.0, 0xad / 255.0, 0xe8 / 255.0);
     cairo_text_extents(cr, _rescanButton.title.c_str(), &extents);
-    
+
     x = get_width() / 2 - (extents.width / 2 + extents.x_bearing);
     yoffset += static_cast<int>(extents.height) + 10;
-    
+
     cairo_move_to(cr, x, yoffset);
     cairo_show_text(cr, _rescanButton.title.c_str());
-    
+
     _rescanButton.bounds = base::Rect(x, yoffset - extents.height - 5, extents.width, extents.height + 10);
-        
+
     return;
   }
-  
+
   std::size_t index = 0;
   bool done = false;
   while (!done) {
@@ -1520,7 +1520,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
         _owner->trigger_callback(HomeScreenAction::RescanLocalServers, base::any());
         return true;
       }
-      
+
       if (_hot_entry) {
         _hot_entry->activate();
         return true;
@@ -1997,7 +1997,7 @@ mforms::View *ConnectionsSection::getContainer() {
   if (_container == nullptr) {
     _container = mforms::manage(new mforms::Box(false));
     _container->set_name("Home Screen Content Host");
-    _welcomeScreen = new ConnectionsWelcomeScreen(_owner);
+    _welcomeScreen = mforms::manage(new ConnectionsWelcomeScreen(_owner));
     if (!_showWelcomeHeading)
       _welcomeScreen->show(false);
     _welcomeScreen->set_name("Home Screen Welcome Page");

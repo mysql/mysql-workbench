@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "grtpp_shell_python.h"
@@ -41,6 +41,7 @@
 
 #include "serializer.h"
 #include "unserializer.h"
+#include <iostream>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_GRT)
 
@@ -272,8 +273,17 @@ GRT::GRT() : _check_serialized_crc(false), _verbose(false), _testing(false) {
 }
 
 GRT::~GRT() {
+
+  for (auto &it: _messageSlotStack) {
+    delete it;
+  }
+   _messageSlotStack.clear();
+
   delete _shell;
+  _shell = nullptr;
+
   delete _default_undo_manager;
+  _default_undo_manager = nullptr;
 
   // We need to first release PythonLoader so we don't end up Python calling some WB modules
   for (std::list<ModuleLoader *>::iterator iter = _loaders.begin(); iter != _loaders.end(); ++iter) {
@@ -284,8 +294,13 @@ GRT::~GRT() {
     }
   }
 
-  for (const auto &it: _modules)
-    it->closeModule();
+  for (const auto &it: _modules) {
+    auto module = it->getModule();
+    delete it;
+    if (module) {
+      g_module_close(module);
+    }
+  }
 
   _modules.clear();
 
@@ -356,6 +371,10 @@ void GRT::unlock() const {
 
 //--------------------------------------------------------------------------------------------------
 
+bool GRT::metaclassesNeedRegister() {
+  return !internal::ClassRegistry::get_instance()->isEmpty();
+}
+
 void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requires) {
   xmlNodePtr root;
   xmlDocPtr doc;
@@ -395,6 +414,74 @@ void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requ
   xmlFreeDoc(doc);
 }
 
+//--------------------------------------------------------------------------------------------------
+
+void GRT::reinitialiseForTests() {
+  delete _shell;
+  _shell = nullptr;
+  delete _default_undo_manager;
+  _default_undo_manager = nullptr;
+
+  // We need to first release PythonLoader so we don't end up Python calling some WB modules
+  for (std::list<ModuleLoader *>::iterator iter = _loaders.begin(); iter != _loaders.end(); ++iter) {
+    if ((*iter)->get_loader_name() == grt::LanguagePython) {
+      delete *iter;
+      _loaders.erase(iter);
+      break;
+    }
+  }
+
+  for (const auto &it: _modules) {
+    auto module = it->getModule();
+    delete it;
+    if (module) {
+      g_module_close(module);
+    }
+  }
+
+  _modules.clear();
+  _objects_cache.clear();
+  _cached_module_wrapper.clear();
+
+  for (std::map<std::string, Interface *>::iterator iter = _interfaces.begin(); iter != _interfaces.end(); ++iter)
+    delete iter->second;
+  _interfaces.clear();
+
+  for (std::list<ModuleLoader *>::iterator iter = _loaders.begin(); iter != _loaders.end(); ++iter)
+    delete *iter;
+  _loaders.clear();
+
+  for (std::map<std::string, MetaClass *>::iterator iter = _metaclasses.begin(); iter != _metaclasses.end(); ++iter) {
+    logDebug3("Deleting metaclass: %s\n", iter->first.c_str());
+    delete iter->second;
+  }
+  _metaclasses.clear();
+  _metaclasses_list.clear();
+
+  internal::ClassRegistry::get_instance()->cleanUp();
+  _root.clear();
+
+  _scanning_modules = false;
+
+  _tracking_changes = 0;
+
+  if (getenv("GRT_VERBOSE"))
+  _verbose = true;
+
+  GRTNotificationCenter::setup();
+
+  _default_undo_manager = new UndoManager;
+
+  add_module_loader(new CPPModuleLoader());
+
+  // register metaclass for base class
+  add_metaclass(MetaClass::create_base_class());
+
+  _root = grt::DictRef(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::string, std::string> *requires) {
   GDir *dir;
   const char *entry;
@@ -427,7 +514,6 @@ int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::st
   }
 
   g_dir_close(dir);
-
   return (int)(_metaclasses.size() - old_count);
 }
 
@@ -918,39 +1004,50 @@ Shell *GRT::get_shell() {
 
 //--------------------------------------------------------------------------------
 
-void GRT::push_message_handler(const MessageSlot &slot) {
+void GRT::pushMessageHandler(SlotHolder *slot) {
   base::RecMutexLock lock(_message_mutex);
-  _message_slot_stack.push_back(slot);
+  _messageSlotStack.push_back(slot);
 }
 
-void GRT::pop_message_handler() {
+void GRT::popMessageHandler() {
   base::RecMutexLock lock(_message_mutex);
-  if (_message_slot_stack.empty())
-    logError("pop_message_handler() called on empty handler stack");
-  else
-    _message_slot_stack.pop_back();
+  if (_messageSlotStack.empty()) {
+    logError("popMessageHandler() called on empty handler stack");
+  } else {
+    delete _messageSlotStack.back();
+    _messageSlotStack.pop_back();
+  }
+}
+
+void GRT::removeMessageHandler(SlotHolder *slot) {
+  base::RecMutexLock lock(_message_mutex);
+  auto iter = std::find(_messageSlotStack.begin(), _messageSlotStack.end(), slot);
+  if (iter != _messageSlotStack.end()) {
+    delete *iter;
+    _messageSlotStack.erase(iter);
+  }
 }
 
 bool GRT::handle_message(const Message &msg, void *sender) {
   // Don't log any message if there's no message slot is occupied. It just means
   // we don't want anything logged.
-  if (!_message_slot_stack.empty()) {
+  if (!_messageSlotStack.empty()) {
     int i = 0;
-    MessageSlot slot;
+    SlotHolder *slot = nullptr;
     for (;;) {
       {
         base::RecMutexLock lock(_message_mutex);
-        if ((int)_message_slot_stack.size() - i - 1 >= 0) {
-          slot = _message_slot_stack[_message_slot_stack.size() - i - 1];
+        if ((int)_messageSlotStack.size() - i - 1 >= 0) {
+          slot = _messageSlotStack[_messageSlotStack.size() - i - 1];
           ++i;
         } else
           break;
       }
-      if (slot(msg, sender))
+      if (slot->slot(msg, sender))
         return true;
     }
   }
-  logError("Unhandled message (%lu): %s\n", (unsigned long)_message_slot_stack.size(), msg.format().c_str());
+  logError("Unhandled message (%lu): %s\n", (unsigned long)_messageSlotStack.size(), msg.format().c_str());
   return false;
 }
 
