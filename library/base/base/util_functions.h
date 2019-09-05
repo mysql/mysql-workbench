@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -60,8 +60,6 @@
 /*
  * Functions
  */
-BASELIBRARY_PUBLIC_FUNC char *str_g_replace(char *str, const char *search, const char *replace);
-BASELIBRARY_PUBLIC_FUNC char *str_g_subst(const char *str, const char *search, const char *replace);
 BASELIBRARY_PUBLIC_FUNC char *auto_line_break(const char *txt, unsigned int width, char sep);
 
 BASELIBRARY_PUBLIC_FUNC char *str_toupper(char *str);
