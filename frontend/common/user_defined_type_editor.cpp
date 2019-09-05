@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -499,7 +499,7 @@ void UserDefinedTypeEditor::edit_arguments() {
     for (gchar **p = parts; *p; ++p) {
       *p = g_strstrip(*p);
       if (**p == '\'') {
-        g_memmove(*p, *p + 1, strlen(*p)); // copy the ending 0 too
+        std::memmove(*p, *p + 1, strlen(*p)); // copy the ending 0 too
         if (g_str_has_suffix(*p, "'"))
           *strrchr(*p, '\'') = 0;
       }
