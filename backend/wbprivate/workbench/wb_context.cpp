@@ -992,9 +992,9 @@ void WBContext::init_finish_(WBOptions *options) {
       options->open_at_startup_type = "run-script";
     else if (g_str_has_suffix(initial_file.c_str(), ".py") && options->open_at_startup_type == "script") {
       options->open_at_startup_type = "run-script";
-      printf("%s: --script option is meant for SQL scripts, assuming --run-script was meant instead\n", argv0);
+      logWarning("--script option is meant for SQL scripts, assuming --run-script was meant instead\n");
     } else
-      printf("%s: ERROR: Unknown file type %s\n", argv0, initial_file.c_str());
+      logError("Unknown file type %s\n", initial_file.c_str());
   }
 
   block_user_interaction(false);

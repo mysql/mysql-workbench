@@ -333,7 +333,7 @@ void Recordset_cdbc_storage::do_unserialize(Recordset *recordset, sqlite::connec
 
         known_real_types = known_types;
         {
-          long double ld;
+          long double ld = 0;
           known_real_types["DECIMAL"] = ld;
 
           known_real_types["TINYINT"] = int();
