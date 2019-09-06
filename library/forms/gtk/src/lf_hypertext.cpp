@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "../lf_mforms.h"
@@ -92,13 +92,14 @@ namespace mforms {
               std::string tag = s.substr(i, p - i + 1);
               if (tag == "<br>" || tag == "<br/>" || tag == "</div>") {
                 ret.push_back('\n');
-                i += tag.size() + 1;
+                i += tag.size() - 1;
               } else if (tag == "<tr>" || tag.find("<tr ") == 0) {
                 ret.push_back('\n');
-                i += tag.size() + 1;
+                i += tag.size() - 1;
               } else if (tag == "<td>" || tag.find("<td ") == 0) {
                 ret.push_back('\t');
-                i += tag.size() + 1;
+                i += tag.size() - 1;
+                copy = true;
               }
             }
           } else if (s[i] == '>')
