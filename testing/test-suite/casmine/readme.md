@@ -1,5 +1,7 @@
-#Casmine - C++ BDD Testing Framework
-##Description
+# Casmine - C++ BDD Testing Framework
+
+## Description
+
 <img src="images/casmine-256.png" style="float: left; padding: 0px 10px 10px 0px;"/>
 Casmine is a C++ unit and integration testing framework written in C++17 that enables testing C and C++ code with matchers, similar to the way [Jasmine](https://jasmine.github.io/) does for Javascript (hence the similar name). Care has been taken to make the framework very flexible but still easy to write tests and later read them with ease. The framework runs on any platform with a C++17 compiler.
 
@@ -7,7 +9,8 @@ Casmine hides most of the boilerplate code necessary to run the tests and comes 
 
 Each test case and test can be individually disabled or focused on (which disables all non-focused tests). Focused tests in disabled test cases are still disabled, however. Additionally, a test can be marked as pending, which causes Casmine to ignore any result from it and produces a record in the test output that allows you to identify it easily. This helps greatly to start with spec skeletons and fill them later without missing one test or to specifying a reason why a test is not executed *now* (what `$xit` does not allow).
 
-##Main features
+## Main features
+
 - Written in C++17.
 - Type safe tests with type specific matchers.
 - Comprehensive collection of matchers and expects that should cover most of your needs.
@@ -25,7 +28,8 @@ Each test case and test can be individually disabled or focused on (which disabl
 
 ![](images/casmine-in-action.gif)
 
-##Getting Started
+## Getting Started
+
 In its simplest form a test spec file looks like this:
 
 ```c++
@@ -104,7 +108,8 @@ Casmine creates an output folder during the test execution, which you can use to
 
 The temporary data dir as well as the output dir are removed when Casmine finishes (and also on start up, when they were left over from a previous run, which would indicate a crash of the application).
 
-##Overview
+## Overview
+
 A test step (which is part of an `$it` block) has a pretty simple form:
 
     $expect(<actual value>).[Not.]toXXX(<expected value>, <optional message>);
@@ -213,7 +218,8 @@ To invert a test check, use the `Not` member of the Expect class:
 
     $expect(1).Not.toBe(1, "Less surprising");
 
-##Test Data
+## Test Data
+
 Most of the time, when you run tests, you probably need some data to test on or to share between tests. Casmine supports that with a separate macro, named `$TestData`. This is actually a simple `struct` that can hold whatever you need. A typical use case looks like this:
 
 ```c++
@@ -246,11 +252,12 @@ As you can see, this struct is made available as member `data` in the object beh
 
 The `$TestData` macro can be placed anywhere in the file provided it appears before the `$describe` call (where a member of this type is declared, as explained above).
 
-##Configuration
+## Configuration
 
 Casmine provides two types of configurations: settings to control the execution of itself and configuration values that are used by the tests.
 
-###Settings
+### Settings
+
 The follow settings are used by Casmine:
 
   - **`continueOnException`** (**bool**, default: **false**) see below
@@ -271,7 +278,8 @@ std::map<std::string, ConfigMapVariableTypes> settings;
 
 This member is flexible enough to introduce further settings in the future.
 
-###JSON Configuration
+### JSON Configuration
+
 For test configuration you sometimes need sensitive data (like passwords). Passing them on the command line or in the test code is not recommended and unsave. Instead Casmine comes with a JSON document member (provided by [rapidJSON](http://rapidjson.org/)) that can be loaded from an external JSON file. A typical approach is to allow the user to specify the path to such a config file as application parameter and then load it directly into Casmine, like this:
 
 ```c++
@@ -310,10 +318,12 @@ Casmine supports easy access to this config data via `CasmineContext::configurat
   bool getConfigurationBoolValue(std::string const& path, bool defaultValue = false) const;
 ```
 
-##Customizations
+## Customizations
+
 Casmine enables you to customize several aspects in a consistent way, without compromising the overall readability or handling.
 
-###Reporters
+### Reporters
+
 There are 2 predefined reporters currently:
 
 - Terminal/Console with color support (where possible + meaningful, that means no ugly codes in log files)
@@ -323,7 +333,8 @@ Color support is automatically determined (but can also be switched off by assig
 
 It's easy to add own reporters (for example to log results in a database) by deriving from the abstract `Reporter` class and implementing the necessary functions that do the specific handling. The new reporter must be registered via `CasmineContext::addReporter`. Registered reporters can be removed using `CasmineContext::clearReporters`.
 
-###Expects and Matchers
+### Expects and Matchers
+
 Casmine already covers a large part of possible test types, but sometimes it is necessary to expand on that for specific handling, for example to provide own matcher functions for either already covered cases or your own custom types. The main anchor point for extensions is the already mentioned `$ModuleEnvrionment` macro. It consists of two parts:
 
   1. Local extensions
@@ -370,7 +381,7 @@ MyExpect1(const char *file, size_t line, T const& value, bool inverse) :
   MySuperMatcher<T>(file, line, value, inverse) {}
 };
 ```
-An Expect class always has to derive from 2 classes: `Expect` which is the base for all Expect classes and `MatcherBase` which is the base for all Matcher classes. Due to the virtual inheritance used for the matchers, it is necessary to explicitly call the `MatcherBase` constructor, even if the Expect class does not directly derive from it.
+An custom Expect class always has to derive from 2 classes: `Expect` which is the base for all Expect classes and `MatcherBase` which is the base for all Matcher classes. Due to the virtual inheritance used for the matchers, it is necessary to explicitly call the `MatcherBase` constructor, even if the sub Expect class does not directly derive from it.
 
 In addition to these 2 base classes you can derive from any number of your own (or built-in) matcher classes. Each of them can provide a specific set of possible matcher functions. Take a closer look at the built-in matchers to learn how to write such a class.
 
@@ -389,7 +400,8 @@ public:
 }
 
 // The matcher providing specific check functions for this custom class.
-class MatcherFtp : MatcherBase<ftp> {
+template<typename T = FtpClass>
+class MatcherFtp : MatcherBase<T> {
 public:
   MatcherFtp(const char *file, size_t line, T const& actual, bool inverse) :
     MatcherBase<T>(file, line, actual, inverse) {}
@@ -432,22 +444,25 @@ $describe("Test FTP") {
   });
   
   $it("Test Description)", []() {
-    $expect(ftp).toBeConencted();
+    $expect(ftp).toBeConnected();
   });
 });
 ```
 
-##Library Functions
+## Library Functions
+
 In addition to the main functionality for tests, there are some helper functions/structs to ease certain tasks. They are all used in Casmine, but are available also for general use in your tests or custom matchers.
 
-###ANSI Styles
+### ANSI Styles
+
 If you want to print custom messages in your tests or reporters that are colored and/or have a certain style (bold, italic etc.), then you can use the output stream operators in the file `ansi-styles.h`. Here's an example:
 
     std::cout << styleGreenBackgroundOn << styleItalicOn << "Some italic text on a green background << stylesReset << std::endl;
     
 These operators will automatically take care to print nothing if the current output pipe is not a terminal (for example when redirected to a file).
 
-###Type Deduction
+### Type Deduction
+
 Correct type deduction is a key aspect in Casmine to provide the right set of matching functions for a specific group of types. In the file `common.h` are helper templates for more concise factory functions, for example `EnableIf`, `EnableIfNot`, `IsContainer`, `IsSmartPointer` and others. Here's how the scalar Expect factory method uses some:
 
 ```c++
@@ -463,7 +478,8 @@ Correct type deduction is a key aspect in Casmine to provide the right set of ma
 ```
 It is possible to freely mix the helper templates and the standard ones (as shown here for the pointer switch).
 
-###Others
+### Others
+
 The header file `helpers.h` contains a number of other helper functions:
 
   - **`splitBySet`**: splits a string into components using the passed-in separators.
