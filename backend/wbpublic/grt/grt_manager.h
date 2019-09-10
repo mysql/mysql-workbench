@@ -288,6 +288,8 @@ namespace bec {
   private:
     bool _terminated;               // true if application termination was requested by the BE or a plugin.
 
+    std::shared_ptr<grt::GRT> _grt;
+
     grt::ValueRef setup_grt();
     void shell_write(const std::string &text);
     void task_error_cb(const std::exception &error, const std::string &title);
