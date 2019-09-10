@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
 #ifndef _CUSTOM_RENDERERS_H_
@@ -101,7 +101,7 @@ public:
 
 //==============================================================================
 template <typename Renderer, typename RendererValueType, typename ModelValueType>
-class CustomRenderer : public Renderer, public CustomRendererOps {
+class CustomRenderer : public Gtk::CellRenderer, public CustomRendererOps {
 public:
   CustomRenderer();
   virtual ~CustomRenderer() {}
@@ -209,7 +209,7 @@ void init_data_renderer(Gtk::CellRendererSpin* renderer) {
 template <typename Renderer, typename RendererValueType, typename ModelValueType>
 CustomRenderer<Renderer, RendererValueType, ModelValueType>::CustomRenderer()
   : Glib::ObjectBase(typeid(CustomRenderer)),
-    Renderer(),
+    Gtk::CellRenderer(),
     _active_renderer_type(rt_pixbuf),
     _data_renderer(),
     _pixbuf_renderer(),
@@ -273,7 +273,7 @@ void CustomRenderer<Renderer, RendererValueType, ModelValueType>::on_pixbuf_chan
 template <typename Renderer, typename RendererValueType, typename ModelValueType>
 void CustomRenderer<Renderer, RendererValueType, ModelValueType>::on_editable_changed() {
   _data_renderer.property_editable() = _property_editable;
-  Renderer::property_mode() = _data_renderer.property_mode().get_value();
+  property_mode() = _data_renderer.property_mode().get_value();
 }
 
 //------------------------------------------------------------------------------
