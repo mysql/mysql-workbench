@@ -129,7 +129,8 @@ $describe("Test Case Description") {
   size_t count = 42;
   
   $it("Test Description", [&]() {
-    $expect(count).toBe(42);
+    // Crash here because this closure is executed outside of the outer block.
+    $expect(count).toBe(42); 
   });
 });
 
@@ -248,7 +249,7 @@ $describe("Test Case Description") {
 }
 ```
 
-As you can see, this struct is made available as member `data` in the object behind `$describe`. As such, you can access all values via `data->member`, provided you capture the `this` pointer in the `$it` call. The `data` member is not available and produces a compiler error if there's no definition of the `$TestData` struct. Side note: you can also just use `struct TestData {...};`, but we'd like to keep the semantics with the leading `$` to indicate Casmine related code and we may later also enhance this struct and/or macro.
+As you can see, this struct is made available as member `data` in the object behind `$describe`. As such, you can access all values via `data->member`, provided you capture the `this` pointer in the `$it` call. The `data` member is not available and produces a compiler error if there's no definition of the `$TestData` struct.
 
 The `$TestData` macro can be placed anywhere in the file provided it appears before the `$describe` call (where a member of this type is declared, as explained above).
 
@@ -258,7 +259,7 @@ Casmine provides two types of configurations: settings to control the execution 
 
 ### Settings
 
-The follow settings are used by Casmine:
+The following settings are used by Casmine:
 
   - **`continueOnException`** (**bool**, default: **false**) see below
   - **`verbose`** (**bool**, default: **false**) free to use in your tests, for example for debug messages
@@ -381,11 +382,11 @@ MyExpect1(const char *file, size_t line, T const& value, bool inverse) :
   MySuperMatcher<T>(file, line, value, inverse) {}
 };
 ```
-An custom Expect class always has to derive from 2 classes: `Expect` which is the base for all Expect classes and `MatcherBase` which is the base for all Matcher classes. Due to the virtual inheritance used for the matchers, it is necessary to explicitly call the `MatcherBase` constructor, even if the sub Expect class does not directly derive from it.
+A custom Expect class always has to derive from 2 classes: `Expect` which is the base for all Expect classes and `MatcherBase` which is the base for all Matcher classes. Due to the virtual inheritance used for the matchers, it is necessary to explicitly call the `MatcherBase` constructor, even if the sub Expect class does not directly derive from it.
 
 In addition to these 2 base classes you can derive from any number of your own (or built-in) matcher classes. Each of them can provide a specific set of possible matcher functions. Take a closer look at the built-in matchers to learn how to write such a class.
 
-**In summary:** the actual functionality is provided by the matcher classes, while the expect classes are used to select those matchers that provide the correct matching functionality for a given C/C++ type and provide the environment to easily execute normal and inverted expectations.
+**In summary:** the actual testing functionality is provided by the matcher classes, while the expect classes are used to select those matchers that provide the correct functionality for a given C/C++ type and provide the environment to easily execute normal and inverted expectations.
 
 To supplement the previous description of Casmine, see the following concrete example for a custom class:
 
@@ -418,7 +419,7 @@ public:
   }
 }
 
-// The wrapping Except class for the FTP matcher.
+// The wrapping Expect class for the FTP matcher.
 template <typename T>
 class ExpectFtp : public Expect<T>, public MatcherFtp<T> {
 public:
@@ -457,7 +458,9 @@ In addition to the main functionality for tests, there are some helper functions
 
 If you want to print custom messages in your tests or reporters that are colored and/or have a certain style (bold, italic etc.), then you can use the output stream operators in the file `ansi-styles.h`. Here's an example:
 
-    std::cout << styleGreenBackgroundOn << styleItalicOn << "Some italic text on a green background << stylesReset << std::endl;
+    std::cout << styleGreenBackgroundOn << styleItalicOn;
+    std::cout << "Some italic text on a green background";
+    std::cout << stylesReset << std::endl;
     
 These operators will automatically take care to print nothing if the current output pipe is not a terminal (for example when redirected to a file).
 

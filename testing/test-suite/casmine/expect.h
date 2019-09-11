@@ -164,12 +164,12 @@ struct DefaultExpects : EnvironmentBase {
     return ExpectTemplate<ExpectClass<T>>(file, line, value);
   }
 
-  static auto makeExpect(const char *file, size_t line, std::function<void()> func) {
+  static auto makeExpect(const char *file, size_t line, std::function<void()> const& func) {
     return ExpectTemplate<ExpectException<>>(file, line, func);
   }
 
   template<typename CharT, typename Traits, typename Alloc>
-  static auto makeExpect(const char *file, size_t line, std::basic_string<CharT, Traits, Alloc> value) {
+  static auto makeExpect(const char *file, size_t line, std::basic_string<CharT, Traits, Alloc> const& value) {
     return  ExpectTemplate<ExpectString<std::basic_string<CharT, Traits, Alloc>>>(file, line, value);
   }
 
@@ -199,7 +199,7 @@ struct DefaultExpects : EnvironmentBase {
     typename = EnableIf<IsContainer<Container>>,
     typename = EnableIfNot<IsAssociativeContainer<Container>>
   >
-  static auto makeExpect(const char *file, size_t line, Container value, size_t *dummy = nullptr) {
+  static auto makeExpect(const char *file, size_t line, Container const& value, size_t *dummy = nullptr) {
     return ExpectTemplate<ExpectContainer<Container>, Container>(file, line, value);
   }
 
@@ -207,7 +207,7 @@ struct DefaultExpects : EnvironmentBase {
     typename Container,
     typename = EnableIf<IsAssociativeContainer<Container>>
   >
-  static auto makeExpect(const char *file, size_t line, Container value, bool *dummy = nullptr) {
+  static auto makeExpect(const char *file, size_t line, Container const& value, bool *dummy = nullptr) {
     return ExpectTemplate<ExpectAssociativeContainer<Container>, Container>(file, line, value);
   }
 
