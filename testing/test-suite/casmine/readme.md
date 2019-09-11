@@ -148,7 +148,7 @@ Casmine comes with a number of predefined Expect classes, which are automaticall
 - **Exceptions** (exceptions thrown in a `std::function`)
 - **Containers** (`array`, `vector`, `deque`, `forward_list`, `list`, `set`, `multiset` and their unordered variants)
 - **Associative Containers** (`map`, `multi_map` and their unordered variants)
-- **Smart Pointers** (`unique_ptr`, `shared_ptr`)
+- **Smart Pointers** (`unique_ptr`, `shared_ptr`, `weak_ptr`)
 
 Each of the Expect classes is derived from one or more of the following predefined matchers, which provide the type-dependent match functions:
 
