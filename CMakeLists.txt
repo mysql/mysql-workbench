@@ -195,8 +195,8 @@ set(BUILD_SHARED_LIBS ON)  # By default all libs will be built as shared libs
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(WB_CXXFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations -Wno-deprecated-declarations)
-set(WB_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations -Wno-deprecated-declarations)
+set(WB_CXXFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations)
+set(WB_CFLAGS -Wall -Wextra -Wno-unused-parameter -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations)
 
 if(BUILD_FOR_GCOV)
     message ("Enable GCOV due to BUILD_FOR_GCOV")
