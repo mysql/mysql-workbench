@@ -3917,7 +3917,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 13;
+			dstSubfolderSpec = 10;
 			files = (
 				2B52846B0F1A89C0005FBF7C /* db.mysql.editors.wbp.dylib in Copy Library */,
 			);
@@ -17495,7 +17495,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/include/antlr4-runtime",
 					"$(inherited)",
 				);
-				INSTALL_PATH = "@executable_path/../Plugins";
+				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = db.mysql.editors.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17522,7 +17522,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/include/antlr4-runtime",
 					"$(inherited)",
 				);
-				INSTALL_PATH = "@executable_path/../Plugins";
+				INSTALL_PATH = "@loader_path/../Frameworks";
 				PRODUCT_NAME = db.mysql.editors.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
@@ -17559,7 +17559,6 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "plugins/db.mysql.editors/macosx/db.mysql.editors-Info.plist";
-				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -17598,7 +17597,6 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "plugins/db.mysql.editors/macosx/db.mysql.editors-Info.plist";
-				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
