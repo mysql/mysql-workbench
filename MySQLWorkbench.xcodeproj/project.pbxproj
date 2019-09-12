@@ -14469,7 +14469,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Plugins/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Plugins/\n\n# In order for the produced binary to find its frameworks, we have to copy it to the\n# WB bundle and run it from there.\n\ncp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
+			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/\n\n# In order for the produced binary to find its frameworks, we have to copy it to the\n# WB bundle and run it from there.\n\ncp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
 			showEnvVarsInLog = 0;
 		};
 		27BDFA3A184366000028B97E /* Regenerate ANTLR parsers if necessary */ = {
@@ -14614,7 +14614,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Plugins/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Plugins/\n\n# In order for the produced binary to find its frameworks, we have to copy it to the\n# WB bundle and run it from there.\n\ncp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
+			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/\n\n# In order for the produced binary to find its frameworks, we have to copy it to the\n# WB bundle and run it from there.\n\ncp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -17372,7 +17372,7 @@
 					"$(PROJECT_DIR)/plugins",
 					"$(inherited)",
 				);
-				INSTALL_PATH = "@executable_path/../PlugIns";
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wb.model.reporting.wbp;
 				SKIP_INSTALL = YES;
 			};
@@ -17398,7 +17398,7 @@
 					"$(PROJECT_DIR)/plugins",
 					"$(inherited)",
 				);
-				INSTALL_PATH = "@executable_path/../PlugIns";
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = wb.model.reporting.wbp;
 				SKIP_INSTALL = YES;
 				ZERO_LINK = NO;
