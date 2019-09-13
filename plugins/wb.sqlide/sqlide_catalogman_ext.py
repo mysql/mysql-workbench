@@ -330,7 +330,6 @@ class ObjectManager(mforms.Box):
             if not self.filter or self.filter(rset):
                 node = self.tree.add_node()
                 if self.is_row_corrupted(rset):
-                    print rset.stringFieldValueByName("Name"), "IS CORRUPTED"
                     node.set_icon_path(self.icon_column, self.bad_icon_path)
                 elif self.icon_column is not None:
                     node.set_icon_path(self.icon_column, self.icon_path)
@@ -347,7 +346,7 @@ class ObjectManager(mforms.Box):
                     try:
                         field = field_obj['field']
                     except:
-                        if self.target_version.is_supported_mysql_version_at_least(8, 0, 0):
+                        if self.target_version.is_supported_mysql_version_at_least(8, 0, 0)  and type(field) is str:
                             field = field_obj.upper();
                         else:
                             field = field_obj
