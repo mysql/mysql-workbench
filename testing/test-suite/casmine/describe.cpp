@@ -38,7 +38,6 @@ It::It(std::string const& name, std::function<void()> function, char const* file
   result.name = name;
 }
 
-
 //----------------- BeforeAfterInvoker ---------------------------------------------------------------------------------
 
 BeforeAfterInvoker::BeforeAfterInvoker(std::function<void()> function, char const* file, size_t line)
@@ -179,24 +178,19 @@ void Describe::markPending(std::string const& reason) {
 bool Describe::runWithExceptionFrame(TestResult &result, std::function<void()> func) {
   try {
     func();
-  }
-  catch (PendingException &e) {
+  } catch (PendingException &e) {
     result.pending = true;
     result.pendingReason = e.what();
-  }
-  catch (std::exception &e) {
+  } catch (std::exception &e) {
     result.failures.push_back(Failure(_currentFile, _currentLine, "[exception] "s + e.what()));
     return true;
-  }
-  catch (std::string &s) {
+  } catch (std::string &s) {
     result.failures.push_back(Failure(_currentFile, _currentLine, "[exception] "s + s));
     return true;
-  }
-  catch (char const* s) {
+  } catch (char const* s) {
     result.failures.push_back(Failure(_currentFile, _currentLine, "[exception] "s + s));
     return true;
-  }
-  catch (...) {
+  } catch (...) {
     result.failures.push_back(Failure(_currentFile, _currentLine, "[exception] Unknown"));
     return true;
   }
