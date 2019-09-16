@@ -69,7 +69,7 @@ xcopy %MODULES_DIR%\db.msaccess\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_ex
 
 rem copy WBA extension modules
 echo Copy WBA Extension files ..
-xcopy %MODULES_DIR%\..\plugins\wb.admin\internal %TARGET_DIR%\modules\ /S /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
+if not %2 == Release_OSS xcopy %MODULES_DIR%\..\plugins\wb.admin\internal %TARGET_DIR%\modules\ /S /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
 
 rem copy non-binary modules
 xcopy %MODULES_DIR%\..\plugins\wb.admin\frontend\*.py %TARGET_DIR%\modules\ /Y /EXCLUDE:_xcopy_exclude.txt 1> nul 2> nul
