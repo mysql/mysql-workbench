@@ -110,7 +110,6 @@ Provides: mysql-workbench = %{version}-%{release}
 Provides: mysql-workbench%{?_isa} = %{version}-%{release}
 Requires: libzip
 Requires: gnome-keyring
-Requires: proj
 Requires: glib2 >= 2.28
 Requires: gtk3
 Requires: gtkmm30
