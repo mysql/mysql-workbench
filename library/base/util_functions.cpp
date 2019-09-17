@@ -301,22 +301,10 @@ std::string get_local_os_name() {
   *dot_position = 0;
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
+    case 19:
+      return std::string("macOS 10.15.x Catalina ") + info.machine;
     case 18:
       return std::string("macOS 10.14.x Mojave ") + info.machine;
-    case 17:
-      return std::string("macOS 10.13.x High Sierra ") + info.machine;
-    case 16:
-      return std::string("macOS 10.12.x Sierra ") + info.machine;
-    case 15:
-      return std::string("OS X 10.11.x El Capitan ") + info.machine;
-    case 14:
-      return std::string("OS X 10.10.x Yosemite ") + info.machine;
-    case 13:
-      return std::string("OS X 10.9.x Mavericks ") + info.machine;
-    case 12:
-      return std::string("OS X 10.8.x Mountain Lion ") + info.machine;
-    case 11:
-      return std::string("OS X 10.7.x Lion ") + info.machine;
   }
   return "unknown";
 }
