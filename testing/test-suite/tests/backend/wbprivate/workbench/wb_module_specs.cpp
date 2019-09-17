@@ -34,7 +34,7 @@ $TestData {
   std::unique_ptr<WorkbenchTester> tester;
 };
 
-$describe("wb_module tests for Workbench") {
+$fdescribe("wb_module tests for Workbench") {
   $beforeAll([&]() {
     data->tester.reset(new WorkbenchTester());
     // data->tester->initializeRuntime();
@@ -78,14 +78,18 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Ubuntu 15.04 i386")).toBeFalse();
     $expect(isOsSupportedProxy("..... Ubuntu 15.04 i386 .....")).toBeFalse();
     $expect(isOsSupportedProxy("Ubuntu 16.04 x86_64")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Ubuntu ..... 16.04 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("..... Ubuntu 16.04 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("Ubuntu 16.04.2 x86_64")).toBeFalse();
+    $expect(isOsSupportedProxy("Ubuntu 18.10 x86_64")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Ubuntu 18.10 ..... x86_64 .....")).toBeFalse();
 
     $expect(isOsSupportedProxy("Ubuntu 18.04 x86_64")).toBeTrue();
     $expect(isOsSupportedProxy("..... Ubuntu 18.04 ..... x86_64 .....")).toBeTrue();
-    $expect(isOsSupportedProxy("Ubuntu 18.10 x86_64")).toBeTrue();
-    $expect(isOsSupportedProxy("..... Ubuntu 18.10 ..... x86_64 .....")).toBeTrue();
-    $expect(isOsSupportedProxy("..... Ubuntu ..... 16.04 ..... x86_64 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("Ubuntu 18.04 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("..... Ubuntu 18.04 ..... x86_64 .....")).toBeTrue();
+    $expect(isOsSupportedProxy("Ubuntu 19.04 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("Ubuntu 19.10 x86_64")).toBeTrue();
 
     // red-hat based
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release")).toBeFalse();
@@ -99,6 +103,9 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 7.1 x86_64")).toBeTrue();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7.1 ..... x86_64 .....")).toBeTrue();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release ..... 7.1 ..... x86_64 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8 ..... x86_64 .....")).toBeTrue();
+    $expect(isOsSupportedProxy("Red Hat Enterprise Linux release 8.0 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8.0 ..... x86_64 .....")).toBeTrue();
 
     // mac
     $expect(isOsSupportedProxy("OS X")).toBeFalse();
