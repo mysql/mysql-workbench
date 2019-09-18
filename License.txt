@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Workbench 8.0.
 
-   Last updated: June 2019
+   Last updated: September 2019
 
 Licensing Information
 
@@ -3766,4 +3766,3 @@ Written Offer for Source Code
        that included the binary that is the subject of your request, or
     b. in the case of code licensed under the GPL v3 for as long as Oracle
        offers spare parts or customer support for that product model.
-
