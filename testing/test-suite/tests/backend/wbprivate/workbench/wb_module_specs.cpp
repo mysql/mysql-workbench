@@ -34,7 +34,7 @@ $TestData {
   std::unique_ptr<WorkbenchTester> tester;
 };
 
-$fdescribe("wb_module tests for Workbench") {
+$describe("wb_module tests for Workbench") {
   $beforeAll([&]() {
     data->tester.reset(new WorkbenchTester());
     // data->tester->initializeRuntime();
