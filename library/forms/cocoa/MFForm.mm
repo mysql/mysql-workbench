@@ -367,7 +367,7 @@ static void form_set_content(mforms::Form *self, mforms::View *child) {
 //----------------------------------------------------------------------------------------------------------------------
 
 static void form_center(mforms::Form *self) {
-  id form = self->get_data();
+  NSPanel *form = self->get_data();
   if (form) {
     [form center];
   }

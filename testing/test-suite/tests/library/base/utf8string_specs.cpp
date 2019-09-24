@@ -31,7 +31,7 @@ namespace {
 $ModuleEnvironment() {};
 
 struct LangStringDetails {
-  const char *const _text;
+  const char *const _text = nullptr;
   size_t _length;
   size_t _bytes;
   LangStringDetails() = default;

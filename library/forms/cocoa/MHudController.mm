@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,10 +23,9 @@
 
 #import "MHudController.h"
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-@interface MHudController()
-{
+@interface MHudController() {
   IBOutlet NSPanel* hudPanel;
   IBOutlet NSTextField* shortHudDescription;
   IBOutlet NSTextField* longHudDescription;
@@ -42,18 +41,17 @@
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MHudController
 
 static MHudController* instance = nil;
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
-  if (self != nil)
-  {
+  if (self != nil) {
     NSMutableArray *temp;
-    if ([NSBundle.mainBundle loadNibNamed: @"HUDPanel" owner: self topLevelObjects: &temp])
-    {
+    if ([NSBundle.mainBundle loadNibNamed: @"HUDPanel" owner: self topLevelObjects: &temp]) {
       nibObjects = temp;
       [hudPanel setBecomesKeyOnlyIfNeeded: YES];
     }
@@ -61,17 +59,15 @@ static MHudController* instance = nil;
   return self;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void)dealloc
-{
+- (void)dealloc {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-+ (void)showHudWithTitle: (NSString*) title andDescription: (NSString*) description
-{
++ (void)showHudWithTitle: (NSString*) title andDescription: (NSString*) description {
   // TODO: perhaps this should be made thread safe (even tho it must never be called outside the main thread)?
   if (instance == nil)
     instance = [[MHudController alloc] init];
@@ -93,19 +89,22 @@ static MHudController* instance = nil;
   }  
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static NSCondition *modalLoopRunningCond = nil;
 static BOOL modalHUDRunning = NO;
 
-+ (void)initialize
-{
+//----------------------------------------------------------------------------------------------------------------------
+
++ (void)initialize {
   modalLoopRunningCond = [[NSCondition alloc] init];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 + (BOOL)runModalHudWithTitle: (NSString*) title andDescription: (NSString*) description
                  notifyReady: (std::function<void ()>)signalReady
-                cancelAction: (std::function<bool ()>)cancelAction
-{
+                cancelAction: (std::function<bool ()>)cancelAction {
   if (instance == nil)
     instance = [[MHudController alloc] init];
   
@@ -125,8 +124,7 @@ static BOOL modalHUDRunning = NO;
   [instance showAnimatedWithFrame: newFrame title: title andDescription: description];
   
   [modalLoopRunningCond lock];
-  
-  
+
   instance->modalSession = [NSApp beginModalSessionForWindow: instance.hud];
   
   modalHUDRunning = YES;
@@ -137,10 +135,9 @@ static BOOL modalHUDRunning = NO;
     signalReady();
     
   NSInteger ret = -1;
-  // can't use runModalForWindow because it will just block until some event happens
-  // (like mouse move), even after stopModal is called
-  for (;;)
-  {
+  // Can't use runModalForWindow because it will just block until some event happens
+  // (like mouse move), even after stopModal is called.
+  for (;;) {
     if (instance->stopped ||
         (ret = [NSApp runModalSession: instance->modalSession]) != NSModalResponseContinue)
       break;
@@ -151,11 +148,10 @@ static BOOL modalHUDRunning = NO;
   [NSApp endModalSession: instance->modalSession];
   instance->modalSession = nil;
 
-  // make sure shared_refs bound to it are not kept dangling
+  // Make sure shared_refs bound to it are not kept dangling.
   instance->cancelAction = std::function<bool()>();
   
-  if (ret == NSModalResponseAbort)
-  {
+  if (ret == NSModalResponseAbort) {
     [instance hideAnimated];
     return NO; // cancelled
   }
@@ -163,25 +159,24 @@ static BOOL modalHUDRunning = NO;
   return YES;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-+ (void)stopModalHud
-{
-  if (instance)
-  {
++ (void)stopModalHud {
+  if (instance) {
     modalHUDRunning = NO;
-    if (!instance->stopped)
-      [NSApp stopModal];
+    if (!instance->stopped) {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [NSApp stopModal];
+      });
+    }
     instance->stopped = YES;
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-+ (BOOL) hideHud
-{
-  if (instance != nil)
-  {
++ (BOOL)hideHud {
+  if (instance != nil) {
     BOOL result = instance.hud.visible;
     if (result)
       [instance hideAnimated];
@@ -190,21 +185,18 @@ static BOOL modalHUDRunning = NO;
   return NO;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (NSPanel*) hud
-{
+- (NSPanel*)hud {
   return hudPanel;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void) showAnimatedWithFrame: (NSRect) frame title: (NSString*) title andDescription: (NSString*) description
-{
+- (void)showAnimatedWithFrame: (NSRect) frame title: (NSString*) title andDescription: (NSString*) description {
   shortHudDescription.stringValue = title;
   longHudDescription.stringValue = description;
 
-  hudPanel.alphaValue = 1;
   [hudPanel setFrame: frame display: NO];
   [hudPanel makeKeyAndOrderFront: nil];
   
@@ -212,31 +204,26 @@ static BOOL modalHUDRunning = NO;
   [hudPanel animator].alphaValue = 1;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void) orderOutPanel
-{
+- (void)orderOutPanel {
   [hudPanel orderOut: nil];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (void) hideAnimated
-{
+- (void)hideAnimated {
   [NSAnimationContext currentContext].duration = 0.5;
   [hudPanel animator].alphaValue = 0;
   [self performSelector: @selector(orderOutPanel) withObject: nil afterDelay: 0.5];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-- (IBAction)cancelClicked:(id)sender
-{
-  if (cancelAction())
-  {
+- (IBAction)cancelClicked:(id)sender {
+  if (cancelAction()) {
     [modalLoopRunningCond lock];
-    if (modalHUDRunning)
-    {
+    if (modalHUDRunning) {
       modalHUDRunning = NO;
       if (!stopped)
         [NSApp abortModal];
@@ -247,3 +234,5 @@ static BOOL modalHUDRunning = NO;
 }
 
 @end
+
+//----------------------------------------------------------------------------------------------------------------------

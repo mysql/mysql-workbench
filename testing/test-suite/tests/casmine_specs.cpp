@@ -322,31 +322,31 @@ $describe("Casmine internal") {
 
     std::deque d = { 1, 2, 3, 4, 5 };
     $expect(d).toContain(4);
-    $expect(v).toContainValues({ 4, 2, 2 });
+    $expect(d).toContainValues({ 4, 2, 2 });
     $expect(d).toHaveSize(5);
     $expect(d).toEqual({ 1, 2, 3, 4, 5 });
 
     std::forward_list f = { 1, 2, 3, 4, 5 };
     $expect(f).toContain(4);
-    $expect(v).toContainValues({ 4, 2, 2 });
+    $expect(f).toContainValues({ 4, 2, 2 });
     //$expect(f).toHaveSize(5); forward_list has no size() member.
     $expect(f).toEqual({ 1, 2, 3, 4, 5 });
 
     std::list l = { 1, 2, 3, 4, 5 };
     $expect(l).toContain(4);
-    $expect(v).toContainValues({ 4, 2, 2 });
+    $expect(l).toContainValues({ 4, 2, 2 });
     $expect(l).toHaveSize(5);
     $expect(l).toEqual({ 1, 2, 3, 4, 5 });
 
     std::set s = { 1, 2, 3, 4, 5 };
     $expect(s).toContain(4);
-    $expect(v).toContainValues({ 4, 2, 2 });
+    $expect(s).toContainValues({ 4, 2, 2 });
     $expect(s).toHaveSize(5);
     $expect(s).toEqual({ 1, 2, 3, 4, 5 });
 
-    std::multiset ms = { 1, 2, 3, 4, 5 };
+    std::multiset<std::size_t> ms = { 1, 2, 3, 4, 5 };
     $expect(ms).toContain(4);
-    $expect(v).toContainValues({ 4, 2, 2 });
+    $expect(ms).toContainValues({ 4, 2, 2 });
     $expect(ms).toHaveSize(5);
     $expect(ms).toEqual({ 1, 2, 3, 4, 5 });
 
