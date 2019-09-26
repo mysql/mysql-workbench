@@ -470,7 +470,7 @@ def autoDetectLocalInstance(connection):
                 instance.serverInfo.update(profiles[0])
         instance.serverInfo["windowsAdmin"] = 1 # this forces WMI admin for localhost Windows
     elif sys.platform.lower() == "darwin":
-        profiles = get_profiles_for("MacOS X", version)
+        profiles = get_profiles_for("macOS", version)
         if profiles:
             instance.serverInfo.update(profiles[0])
             possible_paths = [instance.serverInfo.get("sys.config.path"), "/etc/my.cnf", "/etc/mysql/my.cnf"]

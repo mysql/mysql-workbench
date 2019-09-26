@@ -43,7 +43,7 @@
  * Because each platform has widgets of different sizes, with different layout characteristics,
  * using absolute coordinates and sizes for layouting would not work very well. A dialog written
  * in Windows containing text and a couple of buttons could look fine in the OS where it was written in,
- * but would look cluttered and probably too small on Mac OS X. To work around that, MForms uses dynamic
+ * but would look cluttered and probably too small on macOS. To work around that, MForms uses dynamic
  * layouting containers instead of static coordinates to place and size controls, similar to what GTK uses.
  * Basically, there are several types of containers where you can place one or more controls inside, each
  * having a specific layouting behavior.

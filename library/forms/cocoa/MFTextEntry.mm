@@ -424,7 +424,7 @@ static void entry_set_placeholder_color(mforms::TextEntry *self, const std::stri
 
 static void entry_set_bordered(mforms::TextEntry *self, bool flag)
 {
-  // Ignored on OS X.
+  // Ignored on macOS.
 }
 
 //----------------------------------------------------------------------------------------------------------------------

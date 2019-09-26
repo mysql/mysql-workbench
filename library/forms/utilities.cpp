@@ -680,7 +680,7 @@ bool Utilities::ask_for_password_check_store(const std::string &title, const std
 
 /**
  * Shows a dialog to request the password for the given service and user name.
- * If requested by the user the password will be saved using either system facilities like OS X Keychain or
+ * If requested by the user the password will be saved using either system facilities like macOS Keychain or
  * Gnome Keyring, or an encrypted file.
  *
  * @param title Optional title describing the reason for the password request (eg. "Connect to MySQL Server")

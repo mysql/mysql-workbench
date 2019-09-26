@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -43,8 +43,10 @@ static struct {
   const char *pattern;
   const char *os_name;
 } platform_strings[] = {
-  {"apple-darwin", "MacOS X"}, // For OS X there's an additional check.
-  {"-linux", "Linux"},         {"win64", "Windows"}, {"win32", "Windows"}, {NULL, NULL},
+  {"apple-darwin", "macOS"}, // For macOS there's an additional check.
+  {"-linux", "Linux"},
+  {"win64", "Windows"}, {"win32", "Windows"},
+  {NULL, NULL},
 };
 
 using namespace base;
@@ -183,8 +185,7 @@ bool TestDatabaseSettingsPage::get_server_version() {
 
 /**
  * This functions attempts to find a clue on which OS this server is running by examining
- * on which is was built. There's usually a good correlation, even though it may not be very precise
- * (e.g. a server built on Win Vista can run on Win 8, similar for OS X etc.).
+ * on which is was built. There's usually a good correlation, even though it may not be very precise.
  */
 bool TestDatabaseSettingsPage::get_server_platform() {
   sql::Statement *pstmt = _dbc_conn->createStatement();
@@ -208,8 +209,8 @@ bool TestDatabaseSettingsPage::get_server_platform() {
 
   os = base::tolower(os);
   std::string os_type = "";
-  if (base::hasPrefix(os, "osx"))
-    os_type = "MacOS X";
+  if (base::hasPrefix(os, "macos"))
+    os_type = "macOS";
 
   if (os.empty()) {
     for (int i = 0; platform_strings[i].pattern; i++) {
@@ -446,7 +447,7 @@ void HostAndRemoteTypePage::toggle_remote_admin() {
 #ifdef _MSC_VER
       detected_os_type = "Windows";
 #elif defined(__APPLE__)
-      detected_os_type = "MacOS X";
+      detected_os_type = "macOS";
 #else
       detected_os_type = "Linux";
 #endif

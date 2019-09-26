@@ -9,8 +9,8 @@
     <value type="string" key="sys.mysqld.stop">launchctl unload -F /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist</value>
     <value type="int" key="sys.usesudo">1</value>
 
-    <value type="string" key="sys.system">MacOS X</value>
-    <value type="string" key="serverVersion">5.7</value>
+    <value type="string" key="sys.system">macOS</value>
+    <value type="string" key="serverVersion">8.0</value>
   </value>
 </data>
   

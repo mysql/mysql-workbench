@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -35,7 +35,7 @@ using namespace grt;
 
 //--------------------------------------------------------------------------------
 
-// A bundle (as in mac os x bundles) is a directory tree containing all files needed for
+// A bundle (as in macOS bundles) is a directory tree containing all files needed for
 // a self contained plugin, including dynamic libraries and data files.
 std::string GRT::module_path_in_bundle(const std::string &path) {
   if (!g_str_has_suffix(path.c_str(), ".mwbplugin") || !g_file_test(path.c_str(), G_FILE_TEST_IS_DIR))
