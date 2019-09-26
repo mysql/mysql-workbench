@@ -1643,7 +1643,6 @@
 
                 <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
-                    <File Id="file7001" Name="mysql_reserved.xml"/>
                     <File Id="file7002" Name="mysql_rdbms_info.xml"/>
                     <File Id="file7003" Name="mysql_engines.xml"/>
                     <File Id="file7004" Name="mssql_rdbms_info.xml"/>

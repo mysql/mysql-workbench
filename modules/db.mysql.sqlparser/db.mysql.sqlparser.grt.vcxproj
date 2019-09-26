@@ -92,7 +92,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4703;5033</DisableSpecificWarnings>
       <BrowseInformation>false</BrowseInformation>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -115,7 +115,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4703;5033</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -137,7 +137,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <DisableSpecificWarnings>4996;4703</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4703;5033</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>src;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\ext\antlr-runtime\include;$(SolutionDir)\generated;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\parsers;$(SolutionDir)\library\sql.parser\include;$(SolutionDir)\library\sql.parser\source\;$(SolutionDir)\library\sql.parser\source\windows;$(SolutionDir)\library\sql.parser\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/w34296 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
