@@ -212,12 +212,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
     return true;
   }
 
-  if (os.find("x86_64") == std::string::npos && os.find("Windows") == std::string::npos) {
-    logWarning("Detected 32-bit non-Windows OS. OS string: '%s'\n", os.c_str());
-    return false;
-  }
-
-  static std::vector<std::string> supportedOsList{
+  static std::vector<std::string> supportedOsList {
     "Ubuntu 19.10", "Ubuntu 18.04", "Debian 9",
 
     "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
