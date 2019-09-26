@@ -1780,7 +1780,7 @@
                   <File Id="file121012a" Name="Fedora_Linux_25_(Vendor_Package).xml"/>
                   <File Id="file12102" Name="FreeBSD_(MySQL_Package).xml"/>
                   <File Id="file12103" Name="Generic_Linux_(MySQL_tar_package).xml"/>
-                  <File Id="file12104" Name="MacOS_X_(MySQL_Package).xml"/>
+                  <File Id="file12104" Name="macOS_(MySQL_Package).xml"/>
                   <File Id="file12105" Name="OpenSolaris_(MySQL_Package).xml"/>
                   <File Id="file12106" Name="RHEL_(MySQL_Package).xml"/>
                   <File Id="file12107" Name="SLES_(MySQL_Package).xml"/>

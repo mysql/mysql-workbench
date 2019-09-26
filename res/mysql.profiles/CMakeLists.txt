@@ -7,7 +7,7 @@ set(DATA_FILES
     "FreeBSD_(MySQL_Package).xml"
     "Generic_Linux_(MySQL_tar_package).xml"
     "Linux_(Custom).xml"
-    "MacOS_X_(MySQL_Package).xml"
+    "macOS_(MySQL_Package).xml"
     "OpenSolaris_(MySQL_Package).xml"
     "RHEL_(MySQL_Package).xml"
     "RHEL_7_(MySQL_Package).xml"
