@@ -464,6 +464,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.out_pipe = None
 
         self.schema_list = newTreeView(mforms.TreeFlatList)
+        self.schema_list.set_name("Schema List")
         self.schema_list.set_min_size(-1, 150)
         self.schema_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.schema_list.add_column(mforms.IconColumnType, "Schema", 300, False)
@@ -473,6 +474,7 @@ class WbAdminSchemaListTab(mforms.Box):
         self.schema_list.set_allow_sorting(True)
 
         self.table_list = newTreeView(mforms.TreeFlatList)
+        self.table_list.set_name("Table List")
         self.table_list.set_min_size(-1, 150)
         self.table_list.add_column(mforms.CheckColumnType, is_importing and "Import" or "Export", 40, True)
         self.table_list.add_column(mforms.IconColumnType, "Schema Objects", 300, False)
@@ -492,17 +494,20 @@ class WbAdminSchemaListTab(mforms.Box):
         if is_importing:
             self.export_objects_panel = None
             optionspanel.set_title("Import Options")
+            optionspanel.set_name("Import Options")
         else:
             self.export_objects_panel = newPanel(mforms.TitledBoxPanel)
             self.export_objects_panel.set_title("Objects to Export")
+            self.export_objects_panel.set_name("Objects To Export")
             optionspanel.set_title("Export Options")
+            optionspanel.set_name("Export Options")
         optionsbox = newBox(False)
         optionsbox.set_padding(8)
         optionsbox.set_spacing(6)
 
         self.file_btn = newButton()
         self.file_btn.set_text("...")
-        self.file_btn.set_name("Browse")
+        self.file_btn.set_name("File Path Browse")
         self.file_btn.enable_internal_padding(False)
         self.file_btn.set_enabled(False)
 
@@ -511,7 +516,9 @@ class WbAdminSchemaListTab(mforms.Box):
         if is_importing:
             self.folderlabel = newLabel("Select the Dump Project Folder to import. You can do a selective restore.")
             self.folderradio = newRadioButton(self._radio_group)
+            self.folderradio.set_name("Import From Dump Project Folder")
             self.statlabel = newLabel("Press [Start Import] to start...")
+            self.statlabel.set_name("Press [Start Import] To Start")
             self.statlabel.set_name("Press Start Info")
             self.filelabel = newLabel("Select the SQL/dump file to import. Please note that the whole file will be imported.")
             self.filelabel.set_name("Select File to Import Info")
@@ -525,13 +532,20 @@ class WbAdminSchemaListTab(mforms.Box):
             self.filelabel = newLabel("All selected database objects will be exported into a single, self-contained file.")
             self.folderlabel = newLabel("Each table will be exported into a separate file. This allows a selective restore, but may be slower.")
             self.folderradio = newRadioButton(self._radio_group)
+            self.folderradio.set_name("Export To Dump Project Folder")
             self.statlabel = newLabel("Press [Start Export] to start...")
+            self.statlabel.set_name("Press [Start Export] To Start")
             self.single_transaction_check = newCheckBox()
+            self.single_transaction_check.set_name("Create Dump In A Single Transaction")
             self.include_schema_check = newCheckBox()
+            self.include_schema_check.set_name("Include Create Schema")
             self.dump_triggers_check = newCheckBox()
+            self.dump_triggers_check.set_name("Dump Triggers")
             #self.dump_view_check = newCheckBox()
             self.dump_routines_check = newCheckBox()
+            self.dump_routines_check.set_name("Dump Stored Procedures and Functions")
             self.dump_events_check = newCheckBox()
+            self.dump_events_check.set_name("Dump Events")
 
         self.filelabel.set_enabled(False)
         self.filelabel.set_style(mforms.SmallStyle)
@@ -539,10 +553,11 @@ class WbAdminSchemaListTab(mforms.Box):
         if is_importing:
             self.fileradio = newRadioButton(self._radio_group)
             self.fileradio.set_text("Import from Self-Contained File")
+            self.fileradio.set_name("Import From Self-Contained File")
         else:
             self.fileradio = newRadioButton(self._radio_group)
             self.fileradio.set_text("Export to Self-Contained File")
-        self.fileradio.set_name("Export or Import")
+            self.fileradio.set_name("Export To Self-Contained File")
 
         self.fileradio.set_size(260,-1)
         self.fileradio.add_clicked_callback(self.set_save_option)
@@ -550,6 +565,7 @@ class WbAdminSchemaListTab(mforms.Box):
         file_path = newBox(True)
         file_path.set_spacing(4)
         self.file_te = newTextEntry()
+        self.file_te.set_name("File Path Entry")
         file_path.add(self.fileradio,False,True)
         file_path.add(self.file_te, True, True)
         file_path.add(self.file_btn, False, True)
@@ -562,8 +578,10 @@ class WbAdminSchemaListTab(mforms.Box):
         folder_path = newBox(True)
         folder_path.set_spacing(4)
         self.folder_te = newTextEntry()
+        self.folder_te.set_name("Folder Path Entry")
         self.folder_btn = newButton()
         self.folder_btn.set_text("...")
+        self.folder_btn.set_name("Folder Path Browse")
         self.folder_btn.enable_internal_padding(False)
         self.folder_btn.add_clicked_callback(self.open_folder_chooser)
         folder_path.add(self.folderradio, False,True)
@@ -575,6 +593,7 @@ class WbAdminSchemaListTab(mforms.Box):
         if is_importing:
             self.folder_load_btn = newButton()
             self.folder_load_btn.set_text("Load Folder Contents")
+            self.folder_load_btn.set_name("Load Folder Contents")
             self.folder_load_btn.add_clicked_callback(self.refresh_table_list)
             tbox = newBox(True)
             tbox.add(self.folder_load_btn, False, True)
@@ -594,6 +613,7 @@ class WbAdminSchemaListTab(mforms.Box):
             self.export_objects_panel.add(export_objects_opts)
             
             export_options = mforms.newTable()
+            export_options.set_name("Export Options")
             export_options.set_homogeneous(True)
             export_options.set_padding(4)
             export_options.set_row_count(1)
@@ -622,8 +642,10 @@ class WbAdminSchemaListTab(mforms.Box):
         selectionpanel = newPanel(mforms.TitledBoxPanel)
         if is_importing:
             selectionpanel.set_title("Select Database Objects to Import (only available for Project Folders)")
+            selectionpanel.set_name("Database Objects To Import")
         else:
             selectionpanel.set_title("Tables to Export")
+            selectionpanel.set_name("Tables To Export")
         selectionvbox = newBox(False)
         selectionvbox.set_padding(8)
         selectionvbox.set_spacing(8)
@@ -638,6 +660,7 @@ class WbAdminSchemaListTab(mforms.Box):
         if not is_importing:
             self.refresh_button = newButton()
             self.refresh_button.set_text("Refresh")
+            self.refresh_button.set_name("Refresh")
             selectionbbox.add(self.refresh_button, False, True)
             self.refresh_button.add_clicked_callback(self.refresh_table_list)
 
@@ -646,19 +669,23 @@ class WbAdminSchemaListTab(mforms.Box):
 
         self.select_all_views_btn = newButton()
         self.select_all_views_btn.set_text("Select Views")
+        self.select_all_views_btn.set_name("Select Views")
         self.select_all_views_btn.add_clicked_callback(self.select_all_views)
         self.select_all_views_btn.set_enabled(False)
         self.select_all_btn = newButton()
         self.select_all_btn.set_text("Select Tables")
+        self.select_all_btn.set_name("Select Tables")
         self.select_all_btn.add_clicked_callback(self.select_all_tables)
         self.select_all_btn.set_enabled(False)
         self.unselect_all_btn = newButton()
         self.unselect_all_btn.set_text("Unselect All")
+        self.unselect_all_btn.set_name("Unselect All")
         self.unselect_all_btn.add_clicked_callback(self.unselect_all_tables)
         self.unselect_all_btn.set_enabled(False)
         
         self.dump_type_selector = newSelector()
         self.dump_type_selector.add_items(["Dump Structure and Data", "Dump Data Only", "Dump Structure Only"]);
+        self.dump_type_selector.set_name("Dump Selector")
         
         selectionbbox.add_end(self.unselect_all_btn, False, True)
         selectionbbox.add_end(self.select_all_btn, False, True)
@@ -672,13 +699,15 @@ class WbAdminSchemaListTab(mforms.Box):
 
             self.import_target_schema_panel = targetpanel = newPanel(mforms.TitledBoxPanel)
             targetpanel.set_title("Default Schema to be Imported To")
+            targetpanel.set_name("Default Schema To Be Imported To")
             hbox = newBox(True)
             hbox.set_spacing(8)
             hbox.add(newLabel("Default Target Schema:"), False, True)
             self.import_target_schema = newSelector()
+            self.import_target_schema.set_name("Target Schema Selector")
             hbox.add(self.import_target_schema, True, True)
             b = newButton()
-            b.set_name("Next")
+            b.set_name("New")
             b.set_text("New...")
             b.add_clicked_callback(self.new_target_schema)
 
@@ -714,6 +743,7 @@ class WbAdminSchemaListTab(mforms.Box):
             self.file_btn.add_clicked_callback(lambda: self.open_file_chooser(mforms.OpenFile))
             self.folderradio.set_text("Import from Dump Project Folder")
             self.export_button.set_text("Start Import")
+            self.export_button.set_name("Start Import")
         else:
             self.file_btn.add_clicked_callback(lambda: self.open_file_chooser(mforms.SaveFile))
             self.single_transaction_check.set_text("Create Dump in a Single Transaction (self-contained file only)")
@@ -727,6 +757,7 @@ class WbAdminSchemaListTab(mforms.Box):
 
             self.folderradio.set_text("Export to Dump Project Folder")
             self.export_button.set_text("Start Export")
+            self.export_button.set_name("Start Export")
 
         self.resume_layout()
 
@@ -2036,6 +2067,7 @@ class WbAdminExportOptionsTab(mforms.Box):
             box.set_spacing(8)
             panel = newPanel(mforms.TitledBoxPanel)
             panel.set_title(groupname)
+            panel.set_name(groupname)
 #            print groupname
             for optname, option_info in reversed(options.items()):
                 option_type = "BOOL"
@@ -2066,6 +2098,7 @@ class WbAdminExportOptionsTab(mforms.Box):
                 if option_type == "BOOL":
                     checkbox = newCheckBox()
                     checkbox.set_text("%s - %s"% (optname, option))
+                    checkbox.set_name(optname)
                     checkbox.set_active(default == "TRUE")
                     box.add(checkbox, False, True)
                     self.options[optname] = self.Check_option_model(optname,checkbox,default)
@@ -2075,6 +2108,7 @@ class WbAdminExportOptionsTab(mforms.Box):
                     label = newLabel("%s - %s"% (optname, option))
                     hbox.add(label, False, True)
                     entry = newTextEntry()
+                    entry.set_name(optname)
                     hbox.add(entry, True, True)
                     entry.set_value(default)
                     box.add(hbox, False, True)
@@ -2148,6 +2182,7 @@ class WbAdminProgressTab(mforms.Box):
         statusbox = newBox(False)
         statusbox.set_spacing(2)
         self.dump_progressbar = newProgressBar()
+        self.dump_progressbar.set_name("Progress")
         self.statlabel = newLabel("")
         statusbox.set_size(400, -1)
         if is_export:
@@ -2163,11 +2198,13 @@ class WbAdminProgressTab(mforms.Box):
         statusbox.add(self.statlabel, False, True)
 
         self.progress_log = newTextBox(mforms.VerticalScrollBar)
+        self.progress_log.set_name("Log Entry")
         self.progress_log.set_read_only(True)
 
         self.add(statusbox, False, True)
 
         label = newLabel("Log:")
+        label.set_name("Log")
         self.add(label, False, True)
         self.add(self.progress_log, True, True)
 
@@ -2180,14 +2217,18 @@ class WbAdminProgressTab(mforms.Box):
         self.export_button = newButton()
         if is_export:
             self.export_button.set_text("Start Export")
+            self.export_button.set_name("Start Export")
         else:
             self.export_button.set_text("Start Import")
+            self.export_button.set_name("Start Import")
             self.export_button.set_enabled(False)
+
         box.add_end(self.export_button, False, True)
         self.export_button.add_clicked_callback(self.start)
 
         self.stop_button = newButton()
         self.stop_button.set_text("Stop")
+        self.stop_button.set_name("Stop")
         self.stop_button.set_enabled(False)
         self.stop_button.add_clicked_callback(self.stop)
         box.add_end(self.stop_button, False, True)
@@ -2270,6 +2311,7 @@ class WbAdminExport(WbAdminTabBase):
     def __init__(self, ctrl_be, instance_info, main_view):
         WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
         
+        self.set_name("Administration - Data Export/Import")
         self.showing_options = False
         
         self.add_validation(WbAdminValidationConnection(ctrl_be))
@@ -2305,6 +2347,7 @@ class WbAdminExport(WbAdminTabBase):
         self.ui_box = mforms.newBox(False)
 
         self.tabview = newTabView(False)
+        self.tabview.set_name("Import/Export Tab Panel")
         self.ui_box.add(self.tabview, True, True)
         self.tabview.show(False)
 
@@ -2394,6 +2437,7 @@ class WbAdminExport(WbAdminTabBase):
 class WbAdminImport(WbAdminTabBase):
     def __init__(self, ctrl_be, instance_info, main_view):
         WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
+        self.set_name("Administration - Data Export/Import")
         self.add_validation(WbAdminValidationConnection(ctrl_be))
         self.set_standard_header("title_import.png", self.instance_info.name, "Data Import")
 
