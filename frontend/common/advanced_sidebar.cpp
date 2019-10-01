@@ -891,7 +891,7 @@ void SimpleSidebar::updateColors() {
   }
 
   double previousAlpha = _activeTextColor.alpha > 0 ? _activeTextColor.alpha : 1;
-  _activeTextColor = Color::getSystemColor(base::SystemColor::LabelColor);
+  _activeTextColor = Color::getSystemColor(base::SystemColor::SelectedTextColor);
   _activeTextColor.alpha = previousAlpha;
   _inactiveTextColor = Color::getSystemColor(base::SystemColor::LabelColor);
   _inactiveTextColor.alpha = previousAlpha;
