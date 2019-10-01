@@ -87,7 +87,7 @@ std::string InsertsExportForm::run() {
         // handle arguments specific to the data storage
         for (std::list<std::pair<std::string, std::string> >::const_iterator arg = info.arguments.begin();
              arg != info.arguments.end(); ++arg)
-          form.add_text_entry(arg->second, arg->first + ":", textStorage->parameter_value(arg->second));
+        form.add_text_entry(arg->second, arg->first + ":", textStorage->parameter_value(arg->second));
         form.set_size(400, -1);
         if (!form.show())
           return "";

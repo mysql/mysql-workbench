@@ -170,7 +170,7 @@ void SimpleForm::parse_definition(const std::string &definition) {
 void SimpleForm::add_label(const std::string &text, bool bold) {
   Label *l = new Label(text);
   _content->set_row_count((int)_rows.size() + 1);
-  _content->add(l, 0, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
+  _content->add(l, 0, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag | VExpandFlag);
 
   Row row;
   row.caption = l;
@@ -191,13 +191,13 @@ void SimpleForm::add_text_entry(const std::string &name, const std::string &capt
   if (!caption.empty()) {
     l = new Label(caption);
     l->set_text_align(MiddleRight);
-    _content->add(l, 0, 1, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
+    _content->add(l, 0, 1, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag | VExpandFlag);
   }
 
   TextEntry *t = new TextEntry();
   t->set_value(default_value);
   t->set_name(name);
-  _content->add(t, 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag);
+  _content->add(t, 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag | VExpandFlag);
 
   Row row;
   row.caption = l;
@@ -272,7 +272,7 @@ void SimpleForm::add_select(const std::string &name, const std::string &caption,
   t->set_selected(default_index);
   t->add_items(items);
   t->set_name(name);
-  _content->add(t, 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
+  _content->add(t, 1, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag);
 
   Row row;
   row.caption = l;
@@ -291,16 +291,16 @@ bool SimpleForm::show() {
     _button_box->set_spacing(8);
 
     _content->set_row_count((int)_rows.size() + 2);
-    _content->add(manage(new Label("")), 0, 2, (int)_rows.size() - 1, (int)_rows.size(), HFillFlag);
-    _content->add(_button_box, 0, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag);
+    _content->add(manage(new Label("")), 0, 2, (int)_rows.size() - 1, (int)_rows.size(), HFillFlag | HExpandFlag);
+    _content->add(_button_box, 0, 2, (int)_rows.size(), (int)_rows.size() + 1, HFillFlag | HExpandFlag | VFillFlag | VExpandFlag);
 
     _ok_button = new Button();
     _ok_button->set_text(_ok_caption);
-    _button_box->add_end(_ok_button, false, true);
+    _button_box->add_end(_ok_button, true, true);
 
     _cancel_button = new Button();
     _cancel_button->set_text("Cancel");
-    _button_box->add_end(_cancel_button, false, true);
+    _button_box->add_end(_cancel_button, true, true);
   }
 
   return run_modal(_ok_button, _cancel_button);
