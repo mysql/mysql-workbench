@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -57,8 +57,7 @@ public:
 
     cr->save();
 
-    for (std::list<mdc::CanvasItem *>::reverse_iterator end = _contents.rend(), iter = _contents.rbegin(); iter != end;
-         ++iter) {
+    for (auto end = _contents.rend(), iter = _contents.rbegin(); iter != end; ++iter) {
       mdc::CanvasItem *item = *iter;
 
       if (item->get_visible() && item->intersects(clipArea)) {

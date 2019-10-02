@@ -47,7 +47,10 @@ BackLayer::BackLayer(CanvasView *view) : Layer(view) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void BackLayer::set_color(const Color &color) {
-  _fill_color = color;
+  // Setting something else but a white background color produces problems with other elements, for instance connections.
+  // Would have to draw them piecewise in different colors, depending on whether a part is over the background or a
+  // layer (particularly important for dark backgrounds).
+  _fill_color = base::Color::white(); //color;
 
   // Compute grid colors that play well with the background (which can be dark or light).
   if (_fill_color.brightness() < 0.5) {
