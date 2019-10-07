@@ -76,7 +76,7 @@ public:
   template<typename T2>
   void reportResult(std::string message, bool result, std::string const& relation, T2 const& expected) const {
     if (message.empty()) {
-      if (std::is_class<std::decay<T>>()) {
+      if (IsClass<T>()) {
         message = "Expected " + typeToString<T>() + " (" + toString(actualValue) + ")";
         if (invertComparison)
           message += " not";
@@ -103,8 +103,7 @@ public:
   // For object pointers we implement a strict identity handling.
   template<typename T2>
   void toEqual(T2 const& expected, std::string message = "") {
-    if constexpr (std::is_pointer<T>()
-      && std::is_class<std::decay<T>>()
+    if constexpr (IsPointer<T>() && IsClass<T>()
       && ImplementsEqualOperator<std::remove_pointer_t<std::decay_t<T2>>>::value)
       reportResult(message, *actualValue == *expected, "equal", expected);
     else
@@ -712,7 +711,7 @@ public:
   }
 };
 
-template<typename T, typename = std::enable_if<std::is_class_v<T>>>
+template<typename T, typename = EnableIf<IsClass<T>>>
 class MatcherClass : public virtual MatcherBase<T> {
 public:
   MatcherClass(const char *file, size_t line, T const& actual, bool inverse)

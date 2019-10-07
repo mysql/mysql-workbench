@@ -54,7 +54,7 @@
       launchAutomaticallySubstyle = "2">
       <RemoteRunnable
          runnableDebuggingMode = "0"
-         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/features/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
+         RemotePath = "/Volumes/Extern/Work/MySQL/workbench/master/DerivedData/MySQLWorkbench/Build/Products/Debug/MySQLWorkbench.app/Contents/MacOS/wbtests">
       </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference

@@ -393,6 +393,22 @@ $describe("Casmine internal") {
     // std::priority_queue<int> pq;
   });
 
+  $it("Pairs and tuples", []() {
+    $pending("not implemented yet");
+  });
+
+  $it("Variants and optionals", []() {
+    $pending("not implemented yet");
+  });
+
+  $it("Any", []() {
+    $pending("not implemented yet");
+  });
+
+  $it("Date and time", []() {
+    $pending("not implemented yet");
+  });
+
   $it("Smart pointers", []() {
     class A {};
     std::unique_ptr<A> up;
