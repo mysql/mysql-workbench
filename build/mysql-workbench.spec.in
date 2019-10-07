@@ -30,7 +30,13 @@
 
 # whether at least Python 2.6 is available
 %define have_python26   1
+if 0%{?fedora} >= 31
+#%global _rpmconfigdir /usr/lib/rpm/macros.d
+#%include %{_rpmconfigdir}/macros.python2
+%include /usr/lib/rpm/macros.d/macros.python2
+%else
 %include %{_rpmconfigdir}/macros.python
+%endif
 
 %if "%{edition}" == "commercial"
 %define commercial       1
