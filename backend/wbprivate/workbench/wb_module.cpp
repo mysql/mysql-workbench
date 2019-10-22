@@ -218,7 +218,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
     "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
                                                  // 7.1 (Maipo)"
     "Red Hat Enterprise Linux release 8",        // Oracle 8.0: Red Hat Enterprise Linux release 8.0 (Ootpa)
-    "Fedora release 29", "Fedora release 30", "CentOS release 7",
+    "Fedora release 29", "Fedora release 30", "Fedora release 31", "CentOS release 7",
 
     "Windows 10", "Windows Server 2016", "Windows Server 2019",
 
