@@ -39,7 +39,7 @@ parser grammar MySQLParser;
  * Written by Mike Lischke. Direct all bug reports, omissions etc. to mike.lischke@oracle.com.
  */
 
-//-------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 // $antlr-format alignTrailingComments on, columnLimit 130, minEmptyLines 1, maxEmptyLinesToKeep 1, reflowComments off
 // $antlr-format useTab off, allowShortRulesOnASingleLine off, allowShortBlocksOnASingleLine on, alignSemicolons ownLine
@@ -50,7 +50,7 @@ options {
     exportMacro = PARSERS_PUBLIC_TYPE;
 }
 
-//-------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 @header {/*
  * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
@@ -80,7 +80,7 @@ options {
 #include "MySQLBaseRecognizer.h"
 }
 
-//-------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 query:
     EOF
@@ -129,7 +129,7 @@ simpleStatement:
     | resignalStatement
 ;
 
-//----------------- DDL statements -----------------------------------------------------------------
+//----------------- DDL statements -------------------------------------------------------------------------------------
 
 alterStatement:
     ALTER_SYMBOL (
@@ -403,7 +403,7 @@ viewCheckOption:
     WITH_SYMBOL (CASCADED_SYMBOL | LOCAL_SYMBOL)? CHECK_SYMBOL OPTION_SYMBOL
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 createStatement:
     CREATE_SYMBOL (
@@ -721,7 +721,7 @@ srsAttribute:
     | DESCRIPTION_SYMBOL TEXT_SYMBOL textStringNoLinebreak
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 dropStatement:
     DROP_SYMBOL (
@@ -810,7 +810,7 @@ dropUndoTablespace:
     UNDO_SYMBOL TABLESPACE_SYMBOL tablespaceRef undoTableSpaceOptions?
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 renameTableStatement:
     RENAME_SYMBOL (TABLE_SYMBOL | TABLES_SYMBOL) renamePair (COMMA_SYMBOL renamePair)*
@@ -820,19 +820,19 @@ renamePair:
     tableRef TO_SYMBOL tableName
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 truncateTableStatement:
     TRUNCATE_SYMBOL TABLE_SYMBOL? tableRef
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 importStatement:
     IMPORT_SYMBOL TABLE_SYMBOL FROM_SYMBOL textStringLiteralList
 ;
 
-//--------------- DML statements -------------------------------------------------------------------
+//--------------- DML statements ---------------------------------------------------------------------------------------
 
 callStatement:
     CALL_SYMBOL procedureRef (OPEN_PAR_SYMBOL exprList? CLOSE_PAR_SYMBOL)?
@@ -892,7 +892,7 @@ handlerReadOrScan:
     )
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 insertStatement:
     INSERT_SYMBOL insertLockOption? IGNORE_SYMBOL? INTO_SYMBOL? tableRef usePartition? (
@@ -943,7 +943,7 @@ insertUpdateList:
     ON_SYMBOL DUPLICATE_SYMBOL KEY_SYMBOL UPDATE_SYMBOL updateList
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 loadStatement:
     LOAD_SYMBOL dataOrXml (LOW_PRIORITY_SYMBOL | CONCURRENT_SYMBOL)? LOCAL_SYMBOL? INFILE_SYMBOL textLiteral (
@@ -976,7 +976,7 @@ fieldOrVariableList:
     (columnRef | userVariable) (COMMA_SYMBOL (columnRef | userVariable))*
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 replaceStatement:
     REPLACE_SYMBOL (LOW_PRIORITY_SYMBOL | DELAYED_SYMBOL)? INTO_SYMBOL? tableRef usePartition? (
@@ -986,7 +986,7 @@ replaceStatement:
     )
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 selectStatement:
     queryExpression
@@ -1405,14 +1405,14 @@ indexListElement:
     | PRIMARY_SYMBOL
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 updateStatement:
     ({serverVersion >= 80000}? withClause)? UPDATE_SYMBOL LOW_PRIORITY_SYMBOL? IGNORE_SYMBOL? tableReferenceList SET_SYMBOL
         updateList whereClause? orderClause? simpleLimitClause?
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 transactionOrLockingStatement:
     transactionStatement
@@ -1487,7 +1487,7 @@ xid:
     textString (COMMA_SYMBOL textString (COMMA_SYMBOL ulong_number)?)?
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 replicationStatement:
     PURGE_SYMBOL (BINARY_SYMBOL | MASTER_SYMBOL) LOGS_SYMBOL (
@@ -1654,7 +1654,7 @@ slaveThreadOption:
 groupReplication: (START_SYMBOL | STOP_SYMBOL) GROUP_REPLICATION_SYMBOL
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 preparedStatement:
     type = PREPARE_SYMBOL identifier FROM_SYMBOL (textLiteral | userVariable)
@@ -1670,7 +1670,7 @@ executeVarList:
     userVariable (COMMA_SYMBOL userVariable)*
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 cloneStatement:
     CLONE_SYMBOL (
@@ -1691,7 +1691,7 @@ ssl:
     REQUIRE_SYMBOL NO_SYMBOL? SSL_SYMBOL
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 // Note: SET PASSWORD is part of the SET statement.
 accountManagementStatement:
@@ -1928,18 +1928,18 @@ role:
     roleIdentifierOrText (AT_SIGN_SYMBOL textOrIdentifier)?
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 tableAdministrationStatement:
-    type = ANALYZE_SYMBOL noWriteToBinLog? TABLE_SYMBOL tableRefList
+    type = ANALYZE_SYMBOL noWriteToBinLog? TABLE_SYMBOL tableRefList (
+        {serverVersion >= 80000}? histogram
+    )?
     | type = CHECK_SYMBOL TABLE_SYMBOL tableRefList checkOption*
     | type = CHECKSUM_SYMBOL TABLE_SYMBOL tableRefList (
         QUICK_SYMBOL
         | EXTENDED_SYMBOL
     )?
-    | type = OPTIMIZE_SYMBOL noWriteToBinLog? TABLE_SYMBOL tableRefList (
-        {serverVersion >= 80000}? histogram
-    )?
+    | type = OPTIMIZE_SYMBOL noWriteToBinLog? TABLE_SYMBOL tableRefList
     | type = REPAIR_SYMBOL noWriteToBinLog? TABLE_SYMBOL tableRefList repairType*
 ;
 
@@ -1961,7 +1961,7 @@ repairType:
     | USE_FRM_SYMBOL
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 installUninstallStatment:
     // COMPONENT_SYMBOL is conditionally set in the lexer.
@@ -1973,7 +1973,7 @@ installUninstallStatment:
     )*
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 setStatement:
     SET_SYMBOL startOptionValueList
@@ -2051,7 +2051,7 @@ setExprOrDefault:
     | {serverVersion >= 80000}? (ROW_SYMBOL | SYSTEM_SYMBOL)
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 showStatement:
     SHOW_SYMBOL (
@@ -2149,7 +2149,7 @@ profileType:
     )
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 otherAdministrativeStatement:
     type = BINLOG_SYMBOL textLiteral
@@ -2247,7 +2247,7 @@ adminPartition:
     PARTITION_SYMBOL OPEN_PAR_SYMBOL allOrPartitionNameList CLOSE_PAR_SYMBOL
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 resourceGroupManagement:
     createResourceGroup
@@ -2297,7 +2297,7 @@ dropResourceGroup:
     DROP_SYMBOL RESOURCE_SYMBOL GROUP_SYMBOL resourceGroupRef FORCE_SYMBOL?
 ;
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 utilityStatement:
     describeCommand
@@ -2345,7 +2345,7 @@ restartServer:
     RESTART_SYMBOL
 ;
 
-//----------------- Expression support -------------------------------------------------------------
+//----------------- Expression support ---------------------------------------------------------------------------------
 
 expr:
     boolPri (IS_SYMBOL notRule? type = (TRUE_SYMBOL | FALSE_SYMBOL | UNKNOWN_SYMBOL))? # exprIs
@@ -2808,7 +2808,7 @@ channel:
     {serverVersion >= 50706}? FOR_SYMBOL CHANNEL_SYMBOL textStringNoLinebreak
 ;
 
-//----------------- Stored program rules -----------------------------------------------------------
+//----------------- Stored routines rules ------------------------------------------------------------------------------
 
 // Compound syntax for stored procedures, stored functions, triggers and events.
 // Implements both, sp_proc_stmt and ev_sql_stmt_inner from the server grammar.
@@ -3017,7 +3017,7 @@ cursorFetch:
     FETCH_SYMBOL (NEXT_SYMBOL? FROM_SYMBOL)? identifier INTO_SYMBOL identifierList
 ;
 
-//----------------- Supplemental rules -------------------------------------------------------------
+//----------------- Supplemental rules ---------------------------------------------------------------------------------
 
 // Schedules in CREATE/ALTER EVENT.
 schedule:
@@ -3591,7 +3591,7 @@ usePartition:
     {serverVersion >= 50602}? PARTITION_SYMBOL identifierListWithParentheses
 ;
 
-//----------------- Object names and references ----------------------------------------------------
+//----------------- Object names and references ------------------------------------------------------------------------
 
 // For each object we have at least 2 rules here:
 // 1) The name when creating that object.
@@ -3787,7 +3787,7 @@ windowName:
     identifier
 ;
 
-//----------------- Common basic rules -------------------------------------------------------------
+//----------------- Common basic rules ---------------------------------------------------------------------------------
 
 // Identifiers excluding keywords (except if they are quoted). IDENT_sys in sql_yacc.yy.
 pureIdentifier:

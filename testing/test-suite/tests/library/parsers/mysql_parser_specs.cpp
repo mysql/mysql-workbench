@@ -633,6 +633,7 @@ $TestData {
     tokens.setTokenSource(&lexer);
 
     parser.reset();
+    errorListener.lastErrors.clear();
     parser.removeErrorListeners();
     parser.setErrorHandler(bailOutErrorStrategy); // Bail out at the first found error.
     parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
@@ -969,6 +970,19 @@ $describe("MySQL parser test suite (ANTLR)") {
 
     $pending("this must be implemented yet");
   });
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  $it("Bug #30449796", [this]() {
+    auto result = data->parse("ANALYZE TABLE emp UPDATE HISTOGRAM ON job WITH 5 BUCKETS;", 50720, "");
+    $expect(result.first).toEqual(1);
+    $expect(result.second).toEqual("line 1:18 no viable alternative at input 'UPDATE'");
+    result = data->parse("ANALYZE TABLE emp UPDATE HISTOGRAM ON job WITH 5 BUCKETS;", 80010, "");
+    $expect(result.first).toEqual(0);
+    $expect(result.second).toBeEmpty();
+  });
+
+  //--------------------------------------------------------------------------------------------------------------------
 
 }
 }
