@@ -95,8 +95,8 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
   if (PyUnicode_Check(attr_name))
     attr_name = tmp = PyUnicode_AsUTF8String(attr_name);
 
-  if (PyString_Check(attr_name)) {
-    const char *attrname = PyString_AsString(attr_name);
+  if (PyUnicode_Check(attr_name)) {
+    const char *attrname = PyUnicode_AsUTF8(attr_name);
 
     PyObject *object;
     if ((object = PyObject_GenericGetAttr((PyObject *)self, attr_name)))
@@ -107,7 +107,7 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
       PyObject *members = Py_BuildValue("[s]", "__contenttype__");
 
       for (grt::DictRef::const_iterator iter = self->dict->begin(); iter != self->dict->end(); ++iter) {
-        PyObject *tmp = PyString_FromString(iter->first.c_str());
+        PyObject *tmp = PyUnicode_FromString(iter->first.c_str());
         PyList_Append(members, tmp);
         Py_DECREF(tmp);
       }
@@ -135,11 +135,11 @@ static PyObject *dict_subscript(PyGRTDictObject *self, PyObject *key) {
   if (PyUnicode_Check(key))
     key = tmp = PyUnicode_AsUTF8String(key);
 
-  if (!PyString_Check(key)) {
+  if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
     return NULL;
   }
-  const char *k = PyString_AsString(key);
+  const char *k = PyUnicode_AsUTF8(key);
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
     return NULL;
@@ -161,11 +161,11 @@ static int dict_ass_subscript(PyGRTDictObject *self, PyObject *key, PyObject *va
   if (PyUnicode_Check(key))
     key = tmp = PyUnicode_AsUTF8String(key);
 
-  if (!PyString_Check(key)) {
+  if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
     return -1;
   }
-  const char *k = PyString_AsString(key);
+  const char *k = PyUnicode_AsUTF8(key);
 
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
@@ -202,7 +202,7 @@ static PyObject *dict_keys(PyGRTDictObject *self, PyObject *args) {
 
   Py_ssize_t i = 0;
   for (grt::DictRef::const_iterator iter = self->dict->begin(); iter != self->dict->end(); ++iter)
-    PyList_SetItem(list, i++, PyString_FromString(iter->first.c_str()));
+    PyList_SetItem(list, i++, PyUnicode_FromString(iter->first.c_str()));
 
   return list;
 }
@@ -220,7 +220,7 @@ static PyObject *dict_items(PyGRTDictObject *self, PyObject *args) {
   Py_ssize_t i = 0;
   for (grt::DictRef::const_iterator iter = self->dict->begin(); iter != self->dict->end(); ++iter) {
     PyObject *tuple = PyTuple_New(2);
-    PyTuple_SetItem(tuple, 0, PyString_FromString(iter->first.c_str()));
+    PyTuple_SetItem(tuple, 0, PyUnicode_FromString(iter->first.c_str()));
     PyTuple_SetItem(tuple, 1, ctx->from_grt(iter->second));
     PyList_SetItem(list, i++, tuple);
   }
@@ -250,7 +250,7 @@ static PyObject *dict_has_key(PyGRTDictObject *self, PyObject *arg) {
     return NULL;
   }
 
-  const char *key_to_find = PyString_AsString(arg);
+  const char *key_to_find = PyUnicode_AsUTF8(arg);
   bool found = false;
 
   if (key_to_find)
@@ -346,7 +346,7 @@ static PyObject *dict_setdefault(PyGRTDictObject *self, PyObject *arg) {
 }
 
 static PyObject *dict_printable(PyGRTDictObject *self) {
-  return PyString_FromString(self->dict->toString().c_str());
+  return PyUnicode_FromString(self->dict->toString().c_str());
 }
 
 static PyObject *dict_get_contenttype(PyGRTDictObject *self, void *closure) {

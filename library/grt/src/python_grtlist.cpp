@@ -183,7 +183,7 @@ static PyObject *list_inplace_concat(PyGRTListObject *self, PyObject *other) {
 }
 
 static PyObject *list_printable(PyGRTListObject *self) {
-  return PyString_FromString(self->list->toString().c_str());
+  return PyUnicode_FromString(self->list->toString().c_str());
 }
 
 static PyObject *list_append(PyGRTListObject *self, PyObject *v) {

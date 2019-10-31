@@ -222,8 +222,8 @@ static void module_dealloc(PyGRTModuleObject *self) {
 }
 
 static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {
-  if (PyString_Check(attr_name)) {
-    const char *attrname = PyString_AsString(attr_name);
+  if (PyUnicode_Check(attr_name)) {
+    const char *attrname = PyUnicode_AsUTF8(attr_name);
 
     PyObject *module;
     if ((module = PyObject_GenericGetAttr((PyObject *)self, attr_name)))
@@ -237,7 +237,7 @@ static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {
       const std::vector<grt::Module::Function> &functions(self->module->get_functions());
       PyObject *methods = PyList_New(functions.size());
       for (size_t c = functions.size(), i = 0; i < c; i++) {
-        PyList_SetItem(methods, i, PyString_FromString(functions[i].name.c_str()));
+        PyList_SetItem(methods, i, PyUnicode_FromString(functions[i].name.c_str()));
       }
       return methods;
     } else if (strcmp(attrname, "__author__") == 0)
@@ -276,7 +276,7 @@ static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {
 }
 
 static PyObject *module_str(PyGRTModuleObject *self) {
-  return PyString_FromString(strfmt("<GRT Module '%s'>", self->module->name().c_str()).c_str());
+  return PyUnicode_FromString(strfmt("<GRT Module '%s'>", self->module->name().c_str()).c_str());
 }
 
 static PyObject *module_get_doc(PyGRTModuleObject *self, void *closure) {

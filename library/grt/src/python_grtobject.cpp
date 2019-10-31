@@ -225,7 +225,7 @@ static void object_dealloc(PyGRTObjectObject *self) {
 }
 
 static PyObject *object_printable(PyGRTObjectObject *self) {
-  return PyString_FromString(self->object->toString().c_str());
+  return PyUnicode_FromString(self->object->toString().c_str());
 }
 
 static int object_compare(PyGRTObjectObject *self, PyGRTObjectObject *other) {
@@ -257,8 +257,8 @@ static long object_hash(PyGRTObjectObject *self) {
 }
 
 static PyObject *object_getattro(PyGRTObjectObject *self, PyObject *attr_name) {
-  if (PyString_Check(attr_name)) {
-    const char *attrname = PyString_AsString(attr_name);
+  if (PyUnicode_Check(attr_name)) {
+    const char *attrname = PyUnicode_AsUTF8(attr_name);
 
     PyObject *object;
     if ((object = PyObject_GenericGetAttr((PyObject *)self, attr_name)))
@@ -294,8 +294,8 @@ static PyObject *object_getattro(PyGRTObjectObject *self, PyObject *attr_name) {
 }
 
 static int object_setattro(PyGRTObjectObject *self, PyObject *attr_name, PyObject *attr_value) {
-  if (PyString_Check(attr_name)) {
-    const char *attrname = PyString_AsString(attr_name);
+  if (PyUnicode_Check(attr_name)) {
+    const char *attrname = PyUnicode_AsUTF8(attr_name);
 
     if (self->object->has_member(attrname)) {
       PythonContext *ctx = PythonContext::get_and_check();
@@ -335,12 +335,12 @@ static int object_setattro(PyGRTObjectObject *self, PyObject *attr_name, PyObjec
 static PyObject *object_callmethod(PyGRTObjectObject *self, PyObject *args) {
   PyObject *method_name;
 
-  if (PyTuple_Size(args) < 1 || !(method_name = PyTuple_GetItem(args, 0)) || !PyString_Check(method_name)) {
+  if (PyTuple_Size(args) < 1 || !(method_name = PyTuple_GetItem(args, 0)) || !PyUnicode_Check(method_name)) {
     PyErr_SetString(PyExc_TypeError, "1st argument must be name of method to call");
     return NULL;
   }
 
-  const grt::ClassMethod *method = self->object->get_metaclass()->get_method_info(PyString_AsString(method_name));
+  const grt::ClassMethod *method = self->object->get_metaclass()->get_method_info(PyUnicode_AsUTF8(method_name));
   if (!method) {
     PyErr_SetString(PyExc_TypeError, "invalid method");
     return NULL;
@@ -376,7 +376,7 @@ static PyObject *object_get_doc(PyGRTObjectObject *self, void *closure) {
 }
 
 static bool add_member_to_list(const grt::MetaClass::Member *member, PyObject *list) {
-  PyObject *tmp = PyString_FromString(member->name.c_str());
+  PyObject *tmp = PyUnicode_FromString(member->name.c_str());
   PyList_Append(list, tmp);
   Py_DECREF(tmp);
 
@@ -384,7 +384,7 @@ static bool add_member_to_list(const grt::MetaClass::Member *member, PyObject *l
 }
 
 static bool add_method_to_list(const grt::MetaClass::Method *method, PyObject *list) {
-  PyObject *tmp = PyString_FromString(method->name.c_str());
+  PyObject *tmp = PyUnicode_FromString(method->name.c_str());
   PyList_Append(list, tmp);
   Py_DECREF(tmp);
 

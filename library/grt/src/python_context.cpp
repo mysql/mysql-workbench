@@ -169,7 +169,7 @@ PythonContext::~PythonContext() {
 void PythonContext::add_module_path(const std::string &modpath, bool prepend) {
   // add the path to the search path so that it can be imported
   PyObject *path_list;
-  PyObject *path = PyString_FromString(modpath.c_str());
+  PyObject *path = PyUnicode_FromString(modpath.c_str());
 
   WillEnterPython lock;
 
@@ -295,7 +295,7 @@ void PythonContext::handle_notification(const std::string &name, void *sender, b
     PyObject *res;
 
     for (base::NotificationInfo::iterator i = info.begin(); i != info.end(); ++i) {
-      PyObject *str = PyString_FromString(i->second.c_str());
+      PyObject *str = PyUnicode_FromString(i->second.c_str());
       PyDict_SetItemString(infodict, i->first.c_str(), str);
       Py_DECREF(str);
     }
@@ -618,7 +618,7 @@ void PythonContext::printResult(std::map<std::string, std::string> &output) {
     PyObject *dict = PyDict_New();
     auto end = output.end();
     for (auto it = output.begin(); it != end; ++it) {
-      PyObject *str = PyString_FromString(it->second.c_str());
+      PyObject *str = PyUnicode_FromString(it->second.c_str());
       PyDict_SetItemString(dict, it->first.c_str(), str);
       Py_DECREF(str);
     }
@@ -757,7 +757,7 @@ static bool call_handle_message(const grt::Message &msg, void *sender, AutoPyObj
   }
   Py_DECREF(args);
 
-  if (ret == Py_None || ret == Py_False || PyInt_AsLong(ret) == 0) {
+  if (ret == Py_None || ret == Py_False || PyLong_AsLong(ret) == 0) {
     Py_DECREF(ret);
     return false;
   }
@@ -808,7 +808,7 @@ static bool call_status_query(AutoPyObject callable) {
   }
   Py_DECREF(args);
 
-  if (ret == Py_None || ret == Py_False || PyInt_AsLong(ret) == 0) {
+  if (ret == Py_None || ret == Py_False || PyLong_AsLong(ret) == 0) {
     Py_DECREF(ret);
     return false;
   }
@@ -1260,7 +1260,7 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
         // should be tested if it can handle the unicode type. For now we just return utf8 strings.
         std::string data = *StringRef::cast_from(value);
         // return PyUnicode_DecodeUTF8(data.data(), data.size(), NULL);
-        return PyString_FromStringAndSize(data.data(), data.size());
+        return PyUnicode_FromStringAndSize(data.data(), data.size());
       }
       case ListType: {
         PyObject *content = PythonContext::internal_cobject_from_value(value);
@@ -1303,7 +1303,7 @@ bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_str
     if (ref) {
       char *s;
       Py_ssize_t len;
-      PyString_AsStringAndSize(ref, &s, &len);
+      PyUnicode_AsUTF8AndSize(ref, &s, &len);
       if (s)
         ret_string = std::string(s, len);
       else
@@ -1314,10 +1314,10 @@ bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_str
     return false;
   }
 
-  if (PyString_Check(strobject)) {
+  if (PyUnicode_Check(strobject)) {
     char *s;
     Py_ssize_t len;
-    PyString_AsStringAndSize(strobject, &s, &len);
+    PyUnicode_AsUTF8AndSize(strobject, &s, &len);
     if (s)
       ret_string = std::string(s, len);
     else
@@ -1341,8 +1341,8 @@ ValueRef PythonContext::from_pyobject(PyObject *object) {
   if (!object || object == Py_None)
     return ValueRef();
 
-  if (PyInt_Check(object))
-    return IntegerRef(PyInt_AsLong(object));
+  if (PyLong_Check(object))
+    return IntegerRef(PyLong_AsLong(object));
 
   if (PyLong_Check(object))
     return IntegerRef(PyLong_AsLong(object));
@@ -1350,7 +1350,7 @@ ValueRef PythonContext::from_pyobject(PyObject *object) {
   if (PyFloat_Check(object))
     return DoubleRef(PyFloat_AsDouble(object));
 
-  if (PyUnicode_Check(object) || PyString_Check(object)) {
+  if (PyUnicode_Check(object) || PyUnicode_Check(object)) {
     std::string tmp;
     if (pystring_to_string(object, tmp))
       return StringRef(tmp);
@@ -1384,7 +1384,7 @@ ValueRef PythonContext::from_pyobject(PyObject *object) {
     Py_ssize_t pos = 0;
 
     while (PyDict_Next(object, &pos, &key, &value)) {
-      dict.set(PyString_AsString(key), from_pyobject(value));
+      dict.set(PyUnicode_AsUTF8(key), from_pyobject(value));
     }
 
     return dict;
@@ -1405,8 +1405,8 @@ ValueRef PythonContext::simple_type_from_pyobject(PyObject *object, const grt::S
       else
         PyErr_Clear();
 
-      if (PyInt_Check(object))
-        return IntegerRef(PyInt_AsLong(object));
+      if (PyLong_Check(object))
+        return IntegerRef(PyLong_AsLong(object));
       else
         PyErr_Clear();
 
@@ -1418,8 +1418,8 @@ ValueRef PythonContext::simple_type_from_pyobject(PyObject *object, const grt::S
       throw grt::type_error("expected integer type x");
     }
     case DoubleType: {
-      if (PyInt_Check(object))
-        return DoubleRef(PyInt_AsLong(object));
+      if (PyLong_Check(object))
+        return DoubleRef(PyLong_AsLong(object));
       else
         PyErr_Clear();
       if (!PyFloat_Check(object))
@@ -1499,10 +1499,10 @@ ValueRef PythonContext::from_pyobject(PyObject *object, const grt::TypeSpec &exp
             case IntegerType:
             case DoubleType:
             case StringType:
-              dict.set(PyString_AsString(key), simple_type_from_pyobject(value, expected_type.content));
+              dict.set(PyUnicode_AsUTF8(key), simple_type_from_pyobject(value, expected_type.content));
               break;
             case AnyType:
-              dict.set(PyString_AsString(key), from_pyobject(value));
+              dict.set(PyUnicode_AsUTF8(key), from_pyobject(value));
               break;
             default:
               logWarning("invalid type spec requested\n");
@@ -1581,8 +1581,8 @@ int PythonContext::run_buffer(const std::string &buffer, std::string *line_buffe
     PyObject *trace;
     PyErr_Fetch(&excep, &value, &trace);
     message = PyTuple_GetItem(value, 0);
-    if (strstr(PyString_AsString(message), "expected an indented block") ||
-        strstr(PyString_AsString(message), "unexpected EOF") || strncmp(PyString_AsString(message), "EOF", 3) == 0) {
+    if (strstr(PyUnicode_AsUTF8(message), "expected an indented block") ||
+        strstr(PyUnicode_AsUTF8(message), "unexpected EOF") || strncmp(PyUnicode_AsUTF8(message), "EOF", 3) == 0) {
       Py_DECREF(excep);
       Py_DECREF(value);
       if (trace) {

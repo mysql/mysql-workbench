@@ -61,14 +61,14 @@ if (USE_BUNDLED_MYSQLDUMP)
 endif ()
 
 # In Ubuntu 13.04, the built-in check for python fails.. so we have to resort to the check with pkg-config (which doesn't work in many distros)
-find_package(PythonLibs 2.6)
+find_package(PythonLibs 3.6)
 if (NOT PYTHONLIBS_FOUND)
     pkg_check_modules(PYTHON REQUIRED python)
 endif ()
 
 
 # We need to be able to detect python module versions and packages hence this function
-find_program(PYTHON_EXEC "python2")
+find_program(PYTHON_EXEC "python3")
 include(FindPackageHandleStandardArgs)
 
 find_package(MySQL 5.6.0 REQUIRED)

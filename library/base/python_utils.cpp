@@ -38,11 +38,11 @@ std::string format_python_traceback(PyObject *tb) {
   stack = "Traceback:\n";
   while (trace && trace->tb_frame) {
     PyFrameObject *frame = (PyFrameObject *)trace->tb_frame;
-    stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyString_AsString(frame->f_code->co_filename),
-                          trace->tb_lineno, PyString_AsString(frame->f_code->co_name));
-    PyObject *code = PyErr_ProgramText(PyString_AsString(frame->f_code->co_filename), trace->tb_lineno);
+    stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyUnicode_AsUTF8(frame->f_code->co_filename),
+                          trace->tb_lineno, PyUnicode_AsUTF8(frame->f_code->co_name));
+    PyObject *code = PyErr_ProgramText(PyUnicode_AsUTF8(frame->f_code->co_filename), trace->tb_lineno);
     if (code) {
-      stack += base::strfmt("    %s", PyString_AsString(code));
+      stack += base::strfmt("    %s", PyUnicode_AsUTF8(code));
       Py_DECREF(code);
     }
     trace = trace->tb_next;
@@ -60,7 +60,7 @@ std::string base::format_python_exception(std::string &summary) {
   if (val) {
     PyObject *tmp = PyObject_Str(val);
     if (tmp) {
-      reason = PyString_AsString(tmp);
+      reason = PyUnicode_AsUTF8(tmp);
       Py_DECREF(tmp);
     }
   }

@@ -43,9 +43,9 @@ PythonModule::~PythonModule() {
 }
 
 static TypeSpec parse_type(PyObject *type) {
-  if (PyString_Check(type)) {
+  if (PyUnicode_Check(type)) {
     TypeSpec s;
-    s.base.type = str_to_type(PyString_AsString(type));
+    s.base.type = str_to_type(PyUnicode_AsUTF8(type));
     return s;
   }
   PyErr_Clear();
@@ -72,18 +72,18 @@ static TypeSpec parse_type(PyObject *type) {
       throw std::runtime_error("Invalid type specification 1");
     }
 
-    s.base.type = str_to_type(PyString_AsString(b));
+    s.base.type = str_to_type(PyUnicode_AsUTF8(b));
     if (s.base.type == grt::ObjectType) {
-      if (PyString_Check(c))
-        s.base.object_class = PyString_AsString(c);
+      if (PyUnicode_Check(c))
+        s.base.object_class = PyUnicode_AsUTF8(c);
       else
         throw std::runtime_error("Invalid object type specification");
     } else {
-      if (PyString_Check(c))
-        s.content.type = str_to_type(PyString_AsString(c));
+      if (PyUnicode_Check(c))
+        s.content.type = str_to_type(PyUnicode_AsUTF8(c));
       else if (PyTuple_Check(c) && PyTuple_Size(c) == 2) {
         s.content.type = grt::ObjectType;
-        s.content.object_class = PyString_AsString(PyTuple_GetItem(c, 1));
+        s.content.object_class = PyUnicode_AsUTF8(PyTuple_GetItem(c, 1));
       } else
         throw std::runtime_error("Invalid type specification");
     }
@@ -118,11 +118,11 @@ void PythonModule::add_parse_function(const std::string &name, PyObject *return_
     }
 
     tmp = PyTuple_GetItem(spec, 0);
-    if (!tmp || !PyString_Check(tmp)) {
+    if (!tmp || !PyUnicode_Check(tmp)) {
       PythonContext::log_python_error("Invalid argument name specification for Python module function");
       throw std::runtime_error("Invalid argument name specification");
     }
-    arg.name = PyString_AsString(tmp);
+    arg.name = PyUnicode_AsUTF8(tmp);
 
     tmp = PyTuple_GetItem(spec, 1);
     if (!tmp) {
@@ -140,7 +140,7 @@ void PythonModule::add_parse_function(const std::string &name, PyObject *return_
 
   PyObject *doc = PyObject_GetAttrString(callable, "__doc__");
   if (doc && doc != Py_None)
-    func.description = PyString_AsString(doc);
+    func.description = PyUnicode_AsUTF8(doc);
 
   func.call = std::bind(&PythonModule::call_python_function, this, std::placeholders::_1, callable, func);
 
@@ -153,7 +153,7 @@ static std::string exception_detail() {
   if (exc) {
     PyObject *str = PyObject_Str(exc);
     if (str) {
-      char *s = PyString_AsString(str);
+      char *s = PyUnicode_AsUTF8(str);
       if (s)
         return s;
       Py_DECREF(str);
@@ -249,7 +249,7 @@ static std::string formatStringList(PyObject *list) {
     ssize_t count = PyList_Size(list);
     for (ssize_t index = 0; index < count; ++index) {
         item = PyList_GetItem(list, index);
-        result += PyString_AsString(item);
+        result += PyUnicode_AsUTF8(item);
     }
     return result;
 }
@@ -263,11 +263,11 @@ static std::string handlePyError() {
 
   PyErr_Fetch(&type, &value, &traceback);
   pythonErrorDescryption = PyObject_Str(value);
-  std::string errorDescription = PyString_AsString(pythonErrorDescryption);
+  std::string errorDescription = PyUnicode_AsUTF8(pythonErrorDescryption);
   std::string result = "Unhandled exception in Python code: \n";
 
   // See if we can get a full traceback
-  moduleName = PyString_FromString("traceback");
+  moduleName = PyUnicode_FromString("traceback");
   pythonModule = PyImport_Import(moduleName);
   Py_DECREF(moduleName);
 
@@ -308,7 +308,7 @@ Module *PythonModuleLoader::init_module(const std::string &path) {
     path_list = PyDict_GetItemString(PyModule_GetDict(sysmod), "path");
     old_path = PyList_GetSlice(path_list, 0, PyList_Size(path_list));
     {
-      PyObject *tmp = PyString_FromString(base::dirname(path).c_str());
+      PyObject *tmp = PyUnicode_FromString(base::dirname(path).c_str());
       PyList_Append(path_list, tmp);
       Py_DECREF(tmp);
     }
@@ -346,8 +346,8 @@ Module *PythonModuleLoader::init_module(const std::string &path) {
     {
       PyObject *name;
       name = PyObject_GetAttrString(moduleInfo, "name");
-      if (name && PyString_Check(name))
-        module->_name = PyString_AsString(name);
+      if (name && PyUnicode_Check(name))
+        module->_name = PyUnicode_AsUTF8(name);
       else {
         PyErr_Print();
         Py_XDECREF(moduleInfo);
@@ -370,8 +370,8 @@ Module *PythonModuleLoader::init_module(const std::string &path) {
           PySys_WriteStderr("ERROR: Invalid module function specification in %s\n", path.c_str());
           PyErr_Print();
           PyObject *tmp = PyTuple_GetItem(item, 0);
-          if (tmp && PyString_Check(tmp)) {
-            PySys_WriteStderr("  for function %s.%s\n", module->_name.c_str(), PyString_AsString(tmp));
+          if (tmp && PyUnicode_Check(tmp)) {
+            PySys_WriteStderr("  for function %s.%s\n", module->_name.c_str(), PyUnicode_AsUTF8(tmp));
           }
           PyErr_Clear();
           delete module;
@@ -397,32 +397,32 @@ Module *PythonModuleLoader::init_module(const std::string &path) {
 
     for (Py_ssize_t c = PyList_Size(implements), i = 0; i < c; i++) {
       PyObject *name = PyList_GetItem(implements, i);
-      if (!PyString_Check(name)) {
+      if (!PyUnicode_Check(name)) {
         PyErr_Print();
         delete module;
         throw grt::module_error("Invalid value for 'implements' list");
       }
 
-      module->_interfaces.push_back(PyString_AsString(name));
+      module->_interfaces.push_back(PyUnicode_AsUTF8(name));
     }
 
     PyObject *meta;
 
     meta = PyObject_GetAttrString(moduleInfo, "author");
-    if (meta && PyString_Check(meta))
-      module->_meta_author = PyString_AsString(meta);
+    if (meta && PyUnicode_Check(meta))
+      module->_meta_author = PyUnicode_AsUTF8(meta);
     else
       PyErr_Print();
 
     meta = PyObject_GetAttrString(moduleInfo, "version");
-    if (meta && PyString_Check(meta))
-      module->_meta_version = PyString_AsString(meta);
+    if (meta && PyUnicode_Check(meta))
+      module->_meta_version = PyUnicode_AsUTF8(meta);
     else
       PyErr_Print();
 
     meta = PyObject_GetAttrString(moduleInfo, "description");
-    if (meta && PyString_Check(meta))
-      module->_meta_description = PyString_AsString(meta);
+    if (meta && PyUnicode_Check(meta))
+      module->_meta_description = PyUnicode_AsUTF8(meta);
     else
       PyErr_Print();
 
@@ -444,7 +444,7 @@ void PythonModuleLoader::add_module_dir(const std::string &dirpath) {
   WillEnterPython lock;
 
   PyObject *sysmod, *path_list;
-  PyObject *path = PyString_FromString(dirpath.c_str());
+  PyObject *path = PyUnicode_FromString(dirpath.c_str());
 
   sysmod = PyImport_AddModule("sys");
 

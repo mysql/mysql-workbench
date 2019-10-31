@@ -79,7 +79,7 @@ bool PythonCopyDataSource::pystring_to_string(PyObject *strobject, std::string &
     if (ref) {
       char *s;
       Py_ssize_t len;
-      PyString_AsStringAndSize(ref, &s, &len);
+      PyUnicode_AsUTF8AndSize(ref, &s, &len);
       if (s)
         ret_string = std::string(s, len);
       else
@@ -90,10 +90,10 @@ bool PythonCopyDataSource::pystring_to_string(PyObject *strobject, std::string &
     return false;
   }
 
-  if (PyString_Check(strobject)) {
+  if (PyUnicode_Check(strobject)) {
     char *s;
     Py_ssize_t len;
-    PyString_AsStringAndSize(strobject, &s, &len);
+    PyUnicode_AsUTF8AndSize(strobject, &s, &len);
     if (s)
       ret_string = std::string(s, len);
     else
@@ -145,7 +145,7 @@ void PythonCopyDataSource::_init() // This has to be executed from the same thre
   }
 
   if (pConnectFunction && PyCallable_Check(pConnectFunction)) {
-    if (PyUnicode_Check(params) || PyString_Check(params)) {
+    if (PyUnicode_Check(params) || PyUnicode_Check(params)) {
       PyObject *connection_arg = PyTuple_Pack(1, params);
       _connection = PyObject_CallObject(pConnectFunction, connection_arg);
       Py_DECREF(connection_arg);
@@ -492,9 +492,9 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
         rowbuffer.prepare_add_tiny(buffer, buffer_len);
         if (!was_null) {
           if (is_unsigned)
-            *((unsigned char *)buffer) = (unsigned char)PyInt_AsLong(element);
+            *((unsigned char *)buffer) = (unsigned char)PyLong_AsLong(element);
           else
-            *buffer = (char)PyInt_AsLong(element);
+            *buffer = (char)PyLong_AsLong(element);
         }
         rowbuffer.finish_field(was_null);
         break;
@@ -503,9 +503,9 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
         rowbuffer.prepare_add_short(buffer, buffer_len);
         if (!was_null) {
           if (is_unsigned)
-            *((unsigned short *)buffer) = (unsigned short)PyInt_AsLong(element);
+            *((unsigned short *)buffer) = (unsigned short)PyLong_AsLong(element);
           else
-            *((short *)buffer) = (short)PyInt_AsLong(element);
+            *((short *)buffer) = (short)PyLong_AsLong(element);
         }
         rowbuffer.finish_field(was_null);
         break;
@@ -516,7 +516,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
           if (is_unsigned)
             *((unsigned long *)buffer) = PyInt_AsUnsignedLongMask(element);
           else
-            *((long *)buffer) = PyInt_AsLong(element);
+            *((long *)buffer) = PyLong_AsLong(element);
         }
         rowbuffer.finish_field(was_null);
         break;
@@ -525,7 +525,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
         if (!was_null) {
           if (is_unsigned)
             *((unsigned long long *)buffer) =
-              PyInt_Check(element) ? PyInt_AsUnsignedLongLongMask(element) : PyLong_AsUnsignedLongLong(element);
+              PyLong_Check(element) ? PyInt_AsUnsignedLongLongMask(element) : PyLong_AsUnsignedLongLong(element);
           else
             *((long long *)buffer) = PyLong_AsLongLong(element);
         }
@@ -562,7 +562,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
             Py_DECREF(old_ref);
           }
           if (PyUnicode_Check(element) ||
-              PyString_Check(element)) // element is a string (sqlite sends time data as strings)
+              PyUnicode_Check(element)) // element is a string (sqlite sends time data as strings)
           {
             std::string elem_str;
             pystring_to_string(element, elem_str);
@@ -588,7 +588,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
         if (!was_null) {
           // Target type can be MYSQL_TYPE_STRING for decimal columns and yet values can be ints or floats
           // If that's the case, get str(element) for insertion:
-          if (PyFloat_Check(element) || PyInt_Check(element) || PyLong_Check(element)) {
+          if (PyFloat_Check(element) || PyLong_Check(element) || PyLong_Check(element)) {
             PyObject *elem_ref = element;
             element = PyObject_Str(element);
             Py_DECREF(elem_ref);
@@ -599,7 +599,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
             if (ref) {
               char *s;
               Py_ssize_t len;
-              PyString_AsStringAndSize(ref, &s, &len);
+              PyUnicode_AsUTF8AndSize(ref, &s, &len);
               if (buffer_len < (size_t)len) {
                 logError("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
                          (*_columns)[i].source_name.c_str(), (long unsigned int)len, (long unsigned int)buffer_len);
@@ -613,10 +613,10 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
               PyGILState_Release(state);
               return false;
             }
-          } else if (PyString_Check(element)) {
+          } else if (PyUnicode_Check(element)) {
             char *s;
             Py_ssize_t len;
-            PyString_AsStringAndSize(element, &s, &len);
+            PyUnicode_AsUTF8AndSize(element, &s, &len);
             if (buffer_len < (size_t)len) {
               logError("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
                        (*_columns)[i].source_name.c_str(), (long unsigned int)len, (long unsigned int)buffer_len);
