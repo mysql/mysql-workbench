@@ -1099,26 +1099,15 @@ fragment BACK_TICK:    '`';
 fragment SINGLE_QUOTE: '\'';
 fragment DOUBLE_QUOTE: '"';
 
-BACK_TICK_QUOTED_ID:
-    BACK_TICK (
-        {!isSqlModeActive(NoBackslashEscapes)}? '\\' BACK_TICK
-        | .
-    )*? BACK_TICK
-;
+BACK_TICK_QUOTED_ID: BACK_TICK (({!isSqlModeActive(NoBackslashEscapes)}? '\\')? .)*? BACK_TICK;
 
 DOUBLE_QUOTED_TEXT: (
-        DOUBLE_QUOTE (
-            {!isSqlModeActive(NoBackslashEscapes)}? '\\' DOUBLE_QUOTE
-            | .
-        )*? DOUBLE_QUOTE
+        DOUBLE_QUOTE (({!isSqlModeActive(NoBackslashEscapes)}? '\\' .)? .)*? DOUBLE_QUOTE
     )+
 ;
 
 SINGLE_QUOTED_TEXT: (
-        SINGLE_QUOTE (
-            {!isSqlModeActive(NoBackslashEscapes)}? '\\' SINGLE_QUOTE
-            | .
-        )*? SINGLE_QUOTE
+        SINGLE_QUOTE (({!isSqlModeActive(NoBackslashEscapes)}? '\\')? .)*? SINGLE_QUOTE
     )+
 ;
 
