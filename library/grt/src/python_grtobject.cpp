@@ -89,7 +89,7 @@ static PyObject *call_object_method(const grt::ObjectRef &object, const grt::Cla
 static void method_dealloc(PyGRTMethodObject *self) {
   delete self->object;
 
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *method_call(PyGRTMethodObject *self, PyObject *args, PyObject *kw) {
@@ -221,7 +221,7 @@ static int object_init(PyGRTObjectObject *self, PyObject *args, PyObject *kwds) 
 static void object_dealloc(PyGRTObjectObject *self) {
   delete self->object;
 
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *object_printable(PyGRTObjectObject *self) {

@@ -82,7 +82,7 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds) {
 static void list_dealloc(PyGRTListObject *self) {
   delete self->list;
 
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
 
 /*

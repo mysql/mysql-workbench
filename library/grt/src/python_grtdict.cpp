@@ -83,7 +83,7 @@ static int dict_init(PyGRTDictObject *self, PyObject *args, PyObject *kwds) {
 static void dict_dealloc(PyGRTDictObject *self) {
   delete self->dict;
 
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
 
 static Py_ssize_t dict_length(PyGRTDictObject *self) {

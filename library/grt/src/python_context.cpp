@@ -109,7 +109,7 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   // Stores the main thread state
   _main_thread_state = PyThreadState_Get();
 
-  PySys_SetArgv(1, (char **)argv);
+  PySys_SetArgv(1, (wchar_t **)argv);
 
   PyEval_InitThreads();
 }
@@ -180,7 +180,7 @@ void PythonContext::add_module_path(const std::string &modpath, bool prepend) {
 
   // check if the path is already in it
   for (i = PyList_Size(path_list) - 1; i >= 0; --i) {
-    if (PyObject_Compare(PyList_GetItem(path_list, i), path) == 0)
+    if (PyObject_RichCompareBool(PyList_GetItem(path_list, i), path, Py_EQ) == 1)
       break;
   }
 
@@ -1079,8 +1079,32 @@ static PyMethodDef GrtModuleMethods[] = {
   {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
+static struct PyModuleDef grtModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "grt",
+  NULL,
+  -1,
+  GrtModuleMethods
+};
+
+static struct PyModuleDef grtModulesModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "grt.modules",
+  NULL,
+  -1,
+  NULL
+};
+
+static struct PyModuleDef grtClassesModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "grt.classes",
+  NULL,
+  -1,
+  NULL
+};
+
 void PythonContext::register_grt_module() {
-  PyObject *module = Py_InitModule("grt", GrtModuleMethods);
+  PyObject *module = PyModule_Create(&grtModuleDef);
   if (module == NULL)
     throw std::runtime_error("Error initializing GRT module in Python support");
 
@@ -1124,7 +1148,7 @@ void PythonContext::register_grt_module() {
     PyModule_AddObject(_grt_module, "DBNotConnected", _grt_db_not_connected);
   }
 
-  _grt_modules_module = Py_InitModule("grt.modules", NULL);
+  _grt_modules_module = PyModule_Create(&grtModulesModuleDef);
   if (!_grt_modules_module)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
 
@@ -1133,7 +1157,7 @@ void PythonContext::register_grt_module() {
   Py_INCREF(_grt_modules_module);
   PyModule_AddObject(_grt_module, "modules", _grt_modules_module);
 
-  _grt_classes_module = Py_InitModule("grt.classes", NULL);
+  _grt_classes_module = PyModule_Create(&grtClassesModuleDef);
   if (!_grt_classes_module)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
 
@@ -1249,7 +1273,7 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
         else
           return PyLong_FromLong(l);
           */
-        return PyInt_FromSsize_t(*IntegerRef::cast_from(value));
+        return PyLong_FromSsize_t(*IntegerRef::cast_from(value));
       }
 
       case DoubleType:

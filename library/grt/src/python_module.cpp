@@ -34,7 +34,7 @@ using namespace grt;
 using namespace base;
 
 static void function_dealloc(PyGRTFunctionObject *self) {
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObject *kw) {
@@ -218,7 +218,7 @@ static int module_init(PyGRTModuleObject *self, PyObject *args, PyObject *kwds) 
 }
 
 static void module_dealloc(PyGRTModuleObject *self) {
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {

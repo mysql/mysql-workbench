@@ -453,7 +453,7 @@ void PythonModuleLoader::add_module_dir(const std::string &dirpath) {
 
   // check if the path is already in it
   for (i = PyList_Size(path_list) - 1; i >= 0; --i) {
-    if (PyObject_Compare(PyList_GetItem(path_list, i), path) == 0)
+    if (PyObject_RichCompareBool(PyList_GetItem(path_list, i), path, Py_EQ) == 1)
       break;
   }
 
