@@ -119,13 +119,14 @@ $describe("wb_module tests for Workbench") {
 
     // other debian-based
     $expect(isOsSupportedProxy("Debian 5 x86_64")).toBeFalse();
-    $expect(isOsSupportedProxy("Debian 9 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("Debian 9 x86_64")).toBeFalse();
+    $expect(isOsSupportedProxy("Debian 10 x86_64")).toBeTrue();
 
     // other red-hat-based
     $expect(isOsSupportedProxy("Fedora release 26 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 27 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 28 x86_64")).toBeFalse();
-    $expect(isOsSupportedProxy("Fedora release 29 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("Fedora release 29 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 30 x86_64")).toBeTrue();
     $expect(isOsSupportedProxy("Fedora release 31 x86_64")).toBeTrue();
   });
