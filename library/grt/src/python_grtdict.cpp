@@ -384,84 +384,86 @@ static PyMappingMethods PyGRTDictObject_as_mapping = {
 };
 
 static PyTypeObject PyGRTDictObjectType = {
-  PyObject_HEAD_INIT(&PyType_Type) // PyObject_VAR_HEAD
-  0,
-  "grt.Dict",                 // char *tp_name; /* For printing, in format "<module>.<name>" */
-  sizeof(PyGRTDictObject), 0, // int tp_basicsize, tp_itemsize; /* For allocation */
-
+  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
+  tp_name: "grt.Dict", 
+  tp_basicsize: sizeof(PyGRTDictObject), 
+  tp_itemsize: 0, /* For allocation */
+  
   /* Methods to implement standard operations */
 
-  (destructor)dict_dealloc, //  destructor tp_dealloc;
-  0,                        //  printfunc tp_print;
-  0,                        //  getattrfunc tp_getattr;
-  0,                        //  setattrfunc tp_setattr;
-  0,                        //(cmpfunc)dict_compare, //  cmpfunc tp_compare;
-  0,                        //(reprfunc)dict_repr,//  reprfunc tp_repr;
+  tp_dealloc: (destructor)dict_dealloc, //  destructor tp_dealloc;
+  tp_print: 0,
+  tp_getattr: 0,
+  tp_setattr: 0,
+  tp_as_async: 0,
+  tp_repr: 0,
 
   /* Method suites for standard classes */
 
-  0,                           //  PyNumberMethods *tp_as_number;
-  0,                           //  PySequenceMethods *tp_as_sequence;
-  &PyGRTDictObject_as_mapping, //  PyMappingMethods *tp_as_mapping;
+  tp_as_number: 0,
+  tp_as_sequence: 0,
+  tp_as_mapping: &PyGRTDictObject_as_mapping,
 
   /* More standard operations (here for binary compatibility) */
 
-  0,                           //  hashfunc tp_hash;
-  0,                           //  ternaryfunc tp_call;
-  (reprfunc)dict_printable,    //  reprfunc tp_str;
-  (getattrofunc)dict_getattro, //  getattrofunc tp_getattro;
-  0,                           //  setattrofunc tp_setattro;
+  tp_hash: 0,
+  tp_call: 0,
+  tp_str: (reprfunc)dict_printable, 
+
+  tp_getattro: (getattrofunc)dict_getattro,
+  tp_setattro: 0,
 
   /* Functions to access object as input/output buffer */
-  0, //  PyBufferProcs *tp_as_buffer;
+  tp_as_buffer: 0,
 
   /* Flags to define presence of optional/expanded features */
-  Py_TPFLAGS_DEFAULT, //  long tp_flags;
+  tp_flags: Py_TPFLAGS_DEFAULT,
 
-  PyGRTDictDoc, //  char *tp_doc; /* Documentation string */
+  tp_doc: PyGRTDictDoc, /* Documentation string */
 
   /* Assigned meaning in release 2.0 */
   /* call function for all accessible objects */
-  0, //  traverseproc tp_traverse;
+  tp_traverse: 0,
 
   /* delete references to contained objects */
-  0, //  inquiry tp_clear;
+  tp_clear: 0,
 
   /* Assigned meaning in release 2.1 */
   /* rich comparisons */
-  0, //  richcmpfunc tp_richcompare;
+  tp_richcompare: 0,
 
   /* weak reference enabler */
-  0, //  long tp_weakdictoffset;
+  tp_weaklistoffset: 0,
 
-  /* Added in release 2.2 */
   /* Iterators */
-  0, //  getiterfunc tp_iter;
-  0, //  iternextfunc tp_iternext;
+  tp_iter: 0,
+  tp_iternext: 0,
 
   /* Attribute descriptor and subclassing stuff */
-  PyGRTDictMethods,    //  struct PyMethodDef *tp_methods;
-  0,                   //  struct PyMemberDef *tp_members;
-  PyGRTDictGetSetters, //  struct PyGetSetDef *tp_getset;
-  0,                   //  struct _typeobject *tp_base;
-  0,                   //  PyObject *tp_dict;
-  0,                   //  descrgetfunc tp_descr_get;
-  0,                   //  descrsetfunc tp_descr_set;
-  0,                   //  long tp_dictoffset;
-  (initproc)dict_init, //  initproc tp_init;
-  PyType_GenericAlloc, //  allocfunc tp_alloc;
-  PyType_GenericNew,   //  newfunc tp_new;
-  0,                   //  freefunc tp_free; /* Low-level free-memory routine */
-  0,                   //  inquiry tp_is_gc; /* For PyObject_IS_GC */
-  0,                   //  PyObject *tp_bases;
-  0,                   //  PyObject *tp_mro; /* method resolution order */
-  0,                   //  PyObject *tp_cache;
-  0,                   //  PyObject *tp_subclasses;
-  0,                   //  PyObject *tp_weakdict;
-  0,                   // tp_del
-#if (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION > 5)
-  0 // tp_version_tag
-#endif
+  tp_methods: PyGRTDictMethods,
+  tp_members: 0,
+  tp_getset: PyGRTDictGetSetters,
+  tp_base: 0,
+  tp_dict: 0,
+  tp_descr_get: 0,
+  tp_descr_set: 0,
+  tp_dictoffset: 0,
+  tp_init: (initproc)dict_init,
+  tp_alloc: PyType_GenericAlloc,
+  tp_new: PyType_GenericNew,
+  tp_free: 0, /* Low-level free-memory routine */
+  tp_is_gc: 0, /* For PyObject_IS_GC */
+  tp_bases: 0,
+  tp_mro: 0, /* method resolution order */
+  tp_cache: 0,
+  tp_subclasses: 0,
+  tp_weaklist: 0,
+  tp_del: 0,
+
+  /* Type attribute cache version tag. Added in version 2.6 */
+  tp_version_tag: 0,
+
+  tp_finalize: 0
 };
 
 void grt::PythonContext::init_grt_dict_type() {

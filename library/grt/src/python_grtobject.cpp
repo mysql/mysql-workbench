@@ -97,84 +97,86 @@ static PyObject *method_call(PyGRTMethodObject *self, PyObject *args, PyObject *
 }
 
 static PyTypeObject PyGRTMethodObjectType = {
-  PyObject_HEAD_INIT(&PyType_Type) // PyObject_VAR_HEAD
-  0,
-  "grt.Object",                 // char *tp_name; /* For printing, in format "<module>.<name>" */
-  sizeof(PyGRTMethodObject), 0, // int tp_basicsize, tp_itemsize; /* For allocation */
-
+  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
+  tp_name: "grt.Object", 
+  tp_basicsize: sizeof(PyGRTMethodObject), 
+  tp_itemsize: 0, /* For allocation */
+  
   /* Methods to implement standard operations */
 
-  (destructor)method_dealloc, //  destructor tp_dealloc;
-  0,                          //  printfunc tp_print;
-  0,                          //  getattrfunc tp_getattr;
-  0,                          //  setattrfunc tp_setattr;
-  0,                          //(cmpfunc)object_compare, //  cmpfunc tp_compare;
-  0,                          //(reprfunc)object_repr,//  reprfunc tp_repr;
+  tp_dealloc: (destructor)method_dealloc, 
+  tp_print: 0,
+  tp_getattr: 0,
+  tp_setattr: 0,
+  tp_as_async: 0,
+  tp_repr: 0,
 
   /* Method suites for standard classes */
 
-  0, //  PyNumberMethods *tp_as_number;
-  0, //  PySequenceMethods *tp_as_sequence;
-  0, //  PyMappingMethods *tp_as_mapping;
+  tp_as_number: 0,
+  tp_as_sequence: 0,
+  tp_as_mapping: 0,
 
   /* More standard operations (here for binary compatibility) */
 
-  0,                        //  hashfunc tp_hash;
-  (ternaryfunc)method_call, //  ternaryfunc tp_call;
-  0,                        //  reprfunc tp_str;
-  PyObject_GenericGetAttr,  //  getattrofunc tp_getattro;
-  PyObject_GenericSetAttr,  //  setattrofunc tp_setattro;
+  tp_hash: 0,
+  tp_call: (ternaryfunc)method_call,
+  tp_str: 0, 
+
+  tp_getattro: PyObject_GenericGetAttr,
+  tp_setattro: PyObject_GenericSetAttr,
 
   /* Functions to access object as input/output buffer */
-  0, //  PyBufferProcs *tp_as_buffer;
+  tp_as_buffer: 0,
 
   /* Flags to define presence of optional/expanded features */
-  Py_TPFLAGS_DEFAULT, //  long tp_flags;
+  tp_flags: Py_TPFLAGS_DEFAULT,
 
-  0, //  char *tp_doc; /* Documentation string */
+  tp_doc: 0, /* Documentation string */
 
   /* Assigned meaning in release 2.0 */
   /* call function for all accessible objects */
-  0, //  traverseproc tp_traverse;
+  tp_traverse: 0,
 
   /* delete references to contained objects */
-  0, //  inquiry tp_clear;
+  tp_clear: 0,
 
   /* Assigned meaning in release 2.1 */
   /* rich comparisons */
-  0, //  richcmpfunc tp_richcompare;
+  tp_richcompare: 0,
 
   /* weak reference enabler */
-  0, //  long tp_weaklistoffset;
+  tp_weaklistoffset: 0,
 
-  /* Added in release 2.2 */
   /* Iterators */
-  0, //  getiterfunc tp_iter;
-  0, //  iternextfunc tp_iternext;
+  tp_iter: 0,
+  tp_iternext: 0,
 
   /* Attribute descriptor and subclassing stuff */
-  0,                   //  struct PyMethodDef *tp_methods;
-  0,                   //  struct PyMemberDef *tp_members;
-  0,                   //  struct PyGetSetDef *tp_getset;
-  0,                   //  struct _typeobject *tp_base;
-  0,                   //  PyObject *tp_dict;
-  0,                   //  descrgetfunc tp_descr_get;
-  0,                   //  descrsetfunc tp_descr_set;
-  0,                   //  long tp_dictoffset;
-  0,                   //  initproc tp_init;
-  PyType_GenericAlloc, //  allocfunc tp_alloc;
-  PyType_GenericNew,   //  newfunc tp_new;
-  0,                   //  freefunc tp_free; /* Low-level free-memory routine */
-  0,                   //  inquiry tp_is_gc; /* For PyObject_IS_GC */
-  0,                   //  PyObject *tp_bases;
-  0,                   //  PyObject *tp_mro; /* method resolution order */
-  0,                   //  PyObject *tp_cache;
-  0,                   //  PyObject *tp_subclasses;
-  0,                   //  PyObject *tp_weaklist;
-  0,                   // tp_del
-#if (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION > 5)
-  0 // tp_version_tag
-#endif
+  tp_methods: 0,
+  tp_members: 0,
+  tp_getset: 0,
+  tp_base: 0,
+  tp_dict: 0,
+  tp_descr_get: 0,
+  tp_descr_set: 0,
+  tp_dictoffset: 0,
+  tp_init: 0,
+  tp_alloc: PyType_GenericAlloc,
+  tp_new: PyType_GenericNew,
+  tp_free: 0, /* Low-level free-memory routine */
+  tp_is_gc: 0, /* For PyObject_IS_GC */
+  tp_bases: 0,
+  tp_mro: 0, /* method resolution order */
+  tp_cache: 0,
+  tp_subclasses: 0,
+  tp_weaklist: 0,
+  tp_del: 0,
+
+  /* Type attribute cache version tag. Added in version 2.6 */
+  tp_version_tag: 0,
+
+  tp_finalize: 0
 };
 
 //----------------------------------------------------------------------------------------------
@@ -228,12 +230,19 @@ static PyObject *object_printable(PyGRTObjectObject *self) {
   return PyUnicode_FromString(self->object->toString().c_str());
 }
 
-static int object_compare(PyGRTObjectObject *self, PyGRTObjectObject *other) {
-  if (self == other || self->object->id() == other->object->id())
-    return 0;
-  if (self->object->id() > other->object->id())
-    return 1;
-  return -1;
+static PyObject *object_compare(PyGRTObjectObject *self, PyGRTObjectObject *other, int op) {
+  // TODO: Implement me
+  Py_RETURN_TRUE;
+  // if(op == Py_EQ)
+  //   return Py_RETURN_RICHCOMPARE(self, other, op) || Py_RETURN_RICHCOMPARE(self->object->id(), other->object->id(), op);
+  // else
+  //   Py_RETURN_RICHCOMPARE(self->object->id(), other->object->id(), op);
+
+  // if (self == other || self->object->id() == other->object->id())
+  //   return 0;
+  // if (self->object->id() > other->object->id())
+  //   return 1;
+  // return -1;
 }
 
 static long object_hash(PyGRTObjectObject *self) {
@@ -426,84 +435,86 @@ static PyGetSetDef PyGRTObjectGetSetters[] = {
 };
 
 static PyTypeObject PyGRTObjectObjectType = {
-  PyObject_HEAD_INIT(&PyType_Type) // PyObject_VAR_HEAD
-  0,
-  "grt.Object",                 // char *tp_name; /* For printing, in format "<module>.<name>" */
-  sizeof(PyGRTObjectObject), 0, // int tp_basicsize, tp_itemsize; /* For allocation */
-
+  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
+  tp_name: "grt.Object", 
+  tp_basicsize: sizeof(PyGRTObjectObject), 
+  tp_itemsize: 0, /* For allocation */
+  
   /* Methods to implement standard operations */
 
-  (destructor)object_dealloc, //  destructor tp_dealloc;
-  0,                          //  printfunc tp_print;
-  0,                          //  getattrfunc tp_getattr;
-  0,                          //  setattrfunc tp_setattr;
-  (cmpfunc)object_compare,    //  cmpfunc tp_compare;
-  0,                          //(reprfunc)object_repr,//  reprfunc tp_repr;
+  tp_dealloc: (destructor)object_dealloc, 
+  tp_print: 0,
+  tp_getattr: 0,
+  tp_setattr: 0,
+  tp_as_async: 0,
+  tp_repr: 0,
 
   /* Method suites for standard classes */
 
-  0, //  PyNumberMethods *tp_as_number;
-  0, //  PySequenceMethods *tp_as_sequence;
-  0, //  PyMappingMethods *tp_as_mapping;
+  tp_as_number: 0,
+  tp_as_sequence: 0,
+  tp_as_mapping: 0,
 
   /* More standard operations (here for binary compatibility) */
 
-  (hashfunc)object_hash,         //  hashfunc tp_hash;
-  0,                             //  ternaryfunc tp_call;
-  (reprfunc)object_printable,    //  reprfunc tp_str;
-  (getattrofunc)object_getattro, //  getattrofunc tp_getattro;
-  (setattrofunc)object_setattro, //  setattrofunc tp_setattro;
+  tp_hash: (hashfunc)object_hash,
+  tp_call: 0,
+  tp_str: (reprfunc)object_printable, 
+
+  tp_getattro: (getattrofunc)object_getattro,
+  tp_setattro: (setattrofunc)object_setattro,
 
   /* Functions to access object as input/output buffer */
-  0, //  PyBufferProcs *tp_as_buffer;
+  tp_as_buffer: 0,
 
   /* Flags to define presence of optional/expanded features */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, //  long tp_flags;
+  tp_flags: Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 
-  PyGRTObjectDoc, //  char *tp_doc; /* Documentation string */
+  tp_doc: PyGRTObjectDoc, /* Documentation string */
 
   /* Assigned meaning in release 2.0 */
   /* call function for all accessible objects */
-  0, //  traverseproc tp_traverse;
+  tp_traverse: 0,
 
   /* delete references to contained objects */
-  0, //  inquiry tp_clear;
+  tp_clear: 0,
 
   /* Assigned meaning in release 2.1 */
   /* rich comparisons */
-  0, //  richcmpfunc tp_richcompare;
+  tp_richcompare: (richcmpfunc)object_compare,
 
   /* weak reference enabler */
-  0, //  long tp_weaklistoffset;
+  tp_weaklistoffset: 0,
 
-  /* Added in release 2.2 */
   /* Iterators */
-  0, //  getiterfunc tp_iter;
-  0, //  iternextfunc tp_iternext;
+  tp_iter: 0,
+  tp_iternext: 0,
 
   /* Attribute descriptor and subclassing stuff */
-  PyGRTObjectMethods,    //  struct PyMethodDef *tp_methods;
-  0,                     //  struct PyMemberDef *tp_members;
-  PyGRTObjectGetSetters, //  struct PyGetSetDef *tp_getset;
-  0,                     //  struct _typeobject *tp_base;
-  0,                     //  PyObject *tp_dict;
-  0,                     //  descrgetfunc tp_descr_get;
-  0,                     //  descrsetfunc tp_descr_set;
-  0,                     //  long tp_dictoffset;
-  (initproc)object_init, //  initproc tp_init;
-  PyType_GenericAlloc,   //  allocfunc tp_alloc;
-  PyType_GenericNew,     //  newfunc tp_new;
-  0,                     //  freefunc tp_free; /* Low-level free-memory routine */
-  0,                     //  inquiry tp_is_gc; /* For PyObject_IS_GC */
-  0,                     //  PyObject *tp_bases;
-  0,                     //  PyObject *tp_mro; /* method resolution order */
-  0,                     //  PyObject *tp_cache;
-  0,                     //  PyObject *tp_subclasses;
-  0,                     //  PyObject *tp_weaklist;
-  0,                     //  tp_del
-#if (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION > 5)
-  0 //  tp_version_tag
-#endif
+  tp_methods: PyGRTObjectMethods,
+  tp_members: 0,
+  tp_getset: PyGRTObjectGetSetters,
+  tp_base: 0,
+  tp_dict: 0,
+  tp_descr_get: 0,
+  tp_descr_set: 0,
+  tp_dictoffset: 0,
+  tp_init: (initproc)object_init,
+  tp_alloc: PyType_GenericAlloc,
+  tp_new: PyType_GenericNew,
+  tp_free: 0, /* Low-level free-memory routine */
+  tp_is_gc: 0, /* For PyObject_IS_GC */
+  tp_bases: 0,
+  tp_mro: 0, /* method resolution order */
+  tp_cache: 0,
+  tp_subclasses: 0,
+  tp_weaklist: 0,
+  tp_del: 0,
+
+  /* Type attribute cache version tag. Added in version 2.6 */
+  tp_version_tag: 0,
+
+  tp_finalize: 0
 };
 
 void grt::PythonContext::init_grt_object_type() {
