@@ -21,12 +21,12 @@ To build MySQL Workbench on Ubuntu and other Debian based distros:
 - Install dependencies
   
   $> sudo apt-get install build-essential cmake cmake-data autoconf automake pkg-config libtool libzip-dev libxml2-dev \
-                          libsigc++-2.0-dev libglade2-dev libgtkmm-2.4-dev libglu1-mesa-dev libgl1-mesa-glx \
+                          libsigc++-2.0-dev libglade2-dev libglu1-mesa-dev libgl1-mesa-glx \
                           mesa-common-dev libmysqlclient-dev libmysqlcppconn-dev uuid-dev libpixman-1-dev libpcre3-dev \
-                          libgnome2-dev libgnome-keyring-dev libgtk2.0-dev libpango1.0-dev libcairo2-dev python-dev \
-                          libboost-dev libctemplate-dev mysql-client python-pysqlite2 libsqlite3-dev \
+                          libpango1.0-dev libcairo2-dev python-dev \
+                          libboost-dev mysql-client python-pysqlite2 libsqlite3-dev \
                           swig libvsqlitepp-dev libgdal-dev libgtk-3-dev libgtkmm-3.0-dev libssl-dev \
-                          libsecret-1-dev libprojX
+                          libsecret-1-dev libproj-dev
 
 * X - put the proper value for your system
 
