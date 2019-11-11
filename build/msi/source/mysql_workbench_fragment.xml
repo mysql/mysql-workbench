@@ -60,8 +60,6 @@
                 <File Id="file1023" Name="iconv.dll"/>
                 <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
-                <File Id="ssleay32.dll" Name="ssleay32.dll"/>
-                <File Id="libeay32.dll" Name="libeay32.dll"/> 
                 <File Id="libcrypto11x64.dll" Name="libcrypto-1_1-x64.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
 					<File Id="file1035d" Name="libpng16d.dll"/>
