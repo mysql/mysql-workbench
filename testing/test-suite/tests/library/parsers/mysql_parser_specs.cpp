@@ -975,10 +975,10 @@ $describe("MySQL parser test suite (ANTLR)") {
 
   $it("Bug #30449796", [this]() {
     auto result = data->parse("ANALYZE TABLE emp UPDATE HISTOGRAM ON job WITH 5 BUCKETS;", 50720, "");
-    $expect(result.first).toEqual(1);
+    $expect(result.first).toEqual(1U);
     $expect(result.second).toEqual("line 1:18 no viable alternative at input 'UPDATE'");
     result = data->parse("ANALYZE TABLE emp UPDATE HISTOGRAM ON job WITH 5 BUCKETS;", 80010, "");
-    $expect(result.first).toEqual(0);
+    $expect(result.first).toEqual(0U);
     $expect(result.second).toBeEmpty();
   });
 
