@@ -658,6 +658,9 @@
 		27E59B86106B914400C2DA47 /* admin_info_running.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B84106B914400C2DA47 /* admin_info_running.png */; };
 		27E59B87106B914400C2DA47 /* admin_info_stopped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B85106B914400C2DA47 /* admin_info_stopped.png */; };
 		27E63EB41FB9E33C001C5BE8 /* accessibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 27E63EB31FB9E33B001C5BE8 /* accessibility.h */; };
+		27E7D797237BF7560006BD1B /* libssh.4.7.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.4.dylib */; };
+		27E7D799237BF7910006BD1B /* libssh.4.7.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.4.dylib */; };
+		27E7D79A237BF7940006BD1B /* libssh.4.7.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.4.dylib */; };
 		27EADE1D18E5707100D3C85D /* cppdbc_public_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */; };
 		27EADE1E18E5707100D3C85D /* cppdbc.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1718E5707100D3C85D /* cppdbc.h */; };
 		27EADE1F18E5707100D3C85D /* driver_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27EADE1818E5707100D3C85D /* driver_manager.cpp */; };
@@ -701,10 +704,6 @@
 		27F35BF02268773100CE5513 /* tree_model_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27F35BEE2268773000CE5513 /* tree_model_specs.cpp */; };
 		27F35BF32268A1DC00CE5513 /* recordset_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27F35BF22268A1DB00CE5513 /* recordset_specs.cpp */; };
 		27F35BF42268A1DC00CE5513 /* recordset_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27F35BF22268A1DB00CE5513 /* recordset_specs.cpp */; };
-		27F4EDB8237ABBCB00A4B0C1 /* libssh.4.7.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F4EDB7237ABBCA00A4B0C1 /* libssh.4.7.4.dylib */; };
-		27F4EDB9237ABBF900A4B0C1 /* libssh.4.7.4.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27F4EDB7237ABBCA00A4B0C1 /* libssh.4.7.4.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		27F4EDBA237ABC1800A4B0C1 /* libssh.4.7.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F4EDB7237ABBCA00A4B0C1 /* libssh.4.7.4.dylib */; };
-		27F4EDBB237ABC2F00A4B0C1 /* libssh.4.7.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F4EDB7237ABBCA00A4B0C1 /* libssh.4.7.4.dylib */; };
 		27F4EDBD237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F4EDBC237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib */; };
 		27F4EDBE237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F4EDBC237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib */; };
 		27F4EDBF237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F4EDBC237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib */; };
@@ -4002,7 +4001,6 @@
 				2B7F77E60F0133EB00C3C53E /* libcdbc.dylib in Copy Files (dylibs) */,
 				2B7F77EA0F0133EB00C3C53E /* libwbpublic.be.dylib in Copy Files (dylibs) */,
 				2B7F77EB0F0133EB00C3C53E /* libwbprivate.be.dylib in Copy Files (dylibs) */,
-				27F4EDB9237ABBF900A4B0C1 /* libssh.4.7.4.dylib in Copy Files (dylibs) */,
 				27189E53209B2852002EC0D4 /* libantlr4-runtime.dylib in Copy Files (dylibs) */,
 				27189E54209B2856002EC0D4 /* libcairo.2.dylib in Copy Files (dylibs) */,
 				27189E71209B30E2002EC0D4 /* libcrypto.1.1.dylib in Copy Files (dylibs) */,
@@ -4338,7 +4336,7 @@
 		27876A2A2267636D0003AF03 /* parse_datatypes_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = parse_datatypes_specs.cpp; path = "testing/test-suite/tests/modules/db.mysql.parser/parse_datatypes_specs.cpp"; sourceTree = "<group>"; };
 		278C5D242241023100CC10CA /* reporter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = reporter.cpp; path = "testing/test-suite/casmine/reporter.cpp"; sourceTree = "<group>"; };
 		278C5D252241023100CC10CA /* reporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = reporter.h; path = "testing/test-suite/casmine/reporter.h"; sourceTree = "<group>"; };
-		278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.so.1.2.5; path = "3rd-party-se/lib/libz.so.1.2.5"; sourceTree = "<group>"; };
+		278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.so.1.2.5; path = "3rd-party-ce/lib/libz.so.1.2.5"; sourceTree = "<group>"; };
 		278DFF0620A2F2AC00D7E439 /* libwbssh.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwbssh.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		278DFF0B20A2F64700D7E439 /* SSHTunnelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSHTunnelManager.h; path = library/ssh/SSHTunnelManager.h; sourceTree = "<group>"; };
 		278DFF0C20A2F64800D7E439 /* SSHTunnelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SSHTunnelManager.cpp; path = library/ssh/SSHTunnelManager.cpp; sourceTree = "<group>"; };
@@ -4592,6 +4590,7 @@
 		27E59B84106B914400C2DA47 /* admin_info_running.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_running.png; path = images/admin/admin_info_running.png; sourceTree = "<group>"; };
 		27E59B85106B914400C2DA47 /* admin_info_stopped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_stopped.png; path = images/admin/admin_info_stopped.png; sourceTree = "<group>"; };
 		27E63EB31FB9E33B001C5BE8 /* accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = accessibility.h; path = library/base/base/accessibility.h; sourceTree = "<group>"; };
+		27E7D796237BF7560006BD1B /* libssh.4.7.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.4.dylib; path = "3rd-party-ce/lib/libssh.4.7.4.dylib"; sourceTree = "<group>"; };
 		27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc_public_interface.h; path = library/cdbc/src/cppdbc_public_interface.h; sourceTree = SOURCE_ROOT; };
 		27EADE1718E5707100D3C85D /* cppdbc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc.h; path = library/cdbc/src/cppdbc.h; sourceTree = SOURCE_ROOT; };
 		27EADE1818E5707100D3C85D /* driver_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = driver_manager.cpp; path = library/cdbc/src/driver_manager.cpp; sourceTree = SOURCE_ROOT; };
@@ -4630,8 +4629,7 @@
 		27F35BEB2268772900CE5513 /* shell_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shell_specs.cpp; sourceTree = "<group>"; };
 		27F35BEE2268773000CE5513 /* tree_model_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tree_model_specs.cpp; sourceTree = "<group>"; };
 		27F35BF22268A1DB00CE5513 /* recordset_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = recordset_specs.cpp; path = sqlide/recordset_specs.cpp; sourceTree = "<group>"; };
-		27F4EDB7237ABBCA00A4B0C1 /* libssh.4.7.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.4.dylib; path = "../mac-res-ce/lib/libssh.4.7.4.dylib"; sourceTree = "<group>"; };
-		27F4EDBC237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.8.0.18.dylib; path = "../mac-res-se/lib/libmysqlcppconn.7.8.0.18.dylib"; sourceTree = "<group>"; };
+		27F4EDBC237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.7.8.0.18.dylib; path = "../3rd-party-ce/lib/libmysqlcppconn.7.8.0.18.dylib"; sourceTree = "<group>"; };
 		27F69FBB21B1451300093B40 /* TabClose_PressedDark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabClose_PressedDark.png; sourceTree = "<group>"; };
 		27F69FBC21B1451800093B40 /* TabClose_UnpressedDark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabClose_UnpressedDark.png; sourceTree = "<group>"; };
 		27F69FBF21B1734100093B40 /* TabMenuIconDark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = TabMenuIconDark.png; sourceTree = "<group>"; };
@@ -6833,8 +6831,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27E7D799237BF7910006BD1B /* libssh.4.7.4.dylib in Frameworks */,
 				278DFF0920A2F52E00D7E439 /* libwbbase.dylib in Frameworks */,
-				27F4EDBA237ABC1800A4B0C1 /* libssh.4.7.4.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7153,8 +7151,8 @@
 				2B6A60C00EB0BBF1008E6D11 /* libcdbc.dylib in Frameworks */,
 				2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */,
 				2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */,
-				27F4EDBB237ABC2F00A4B0C1 /* libssh.4.7.4.dylib in Frameworks */,
 				27D6EE472099E3B10050B26B /* libantlr4-runtime.dylib in Frameworks */,
+				27E7D79A237BF7940006BD1B /* libssh.4.7.4.dylib in Frameworks */,
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
 				27F4EDBF237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib in Frameworks */,
@@ -7314,7 +7312,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				278DFEC520A2E0FF00D7E439 /* libz.so.1.2.5 in Frameworks */,
-				27F4EDB8237ABBCB00A4B0C1 /* libssh.4.7.4.dylib in Frameworks */,
 				2B263B480E94031C00933149 /* libwbbase.dylib in Frameworks */,
 				2B263B490E94031C00933149 /* libgrt.dylib in Frameworks */,
 				2B263B4B0E94031C00933149 /* libmysql.canvas.dylib in Frameworks */,
@@ -7324,6 +7321,7 @@
 				2B9617B50F277C3800F0B599 /* libmforms.dylib in Frameworks */,
 				27E0E21A155173380073FD6F /* libparsers.dylib in Frameworks */,
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
+				27E7D797237BF7560006BD1B /* libssh.4.7.4.dylib in Frameworks */,
 				27810E55209B007F00E6E4CE /* libglib-2.0.0.dylib in Frameworks */,
 				2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */,
 				27F4EDBD237ABC9300A4B0C1 /* libmysqlcppconn.7.8.0.18.dylib in Frameworks */,
@@ -9657,7 +9655,7 @@
 		2B750F9E0E8796310003120A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				27F4EDB7237ABBCA00A4B0C1 /* libssh.4.7.4.dylib */,
+				27E7D796237BF7560006BD1B /* libssh.4.7.4.dylib */,
 				27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */,
 				27D6EE362099D8210050B26B /* libcairo.2.dylib */,
 				27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */,
@@ -16651,7 +16649,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -16669,7 +16666,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -16719,14 +16715,13 @@
 					"$(PROJECT_DIR)/plugins/db.mysql",
 					"$(PROJECT_DIR)/plugins/db.mysql/backend",
 					"$(PROJECT_DIR)/testing/test-suite/tests",
-					"$(PROJECT_DIR)/3rd-party-se/include/antlr4-runtime",
-					"$(PROJECT_DIR)/3rd-party-se/include/cppconn",
-					"$(PROJECT_DIR)/3rd-party-se/include/rapidjson",
+					"$(PROJECT_DIR)/3rd-party-ce/include/antlr4-runtime",
+					"$(PROJECT_DIR)/3rd-party-ce/include/cppconn",
+					"$(PROJECT_DIR)/3rd-party-ce/include/rapidjson",
 					"$(inherited)",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
@@ -16780,14 +16775,13 @@
 					"$(PROJECT_DIR)/plugins/db.mysql",
 					"$(PROJECT_DIR)/plugins/db.mysql/backend",
 					"$(PROJECT_DIR)/testing/test-suite/tests",
-					"$(PROJECT_DIR)/3rd-party-se/include/antlr4-runtime",
-					"$(PROJECT_DIR)/3rd-party-se/include/cppconn",
-					"$(PROJECT_DIR)/3rd-party-se/include/rapidjson",
+					"$(PROJECT_DIR)/3rd-party-ce/include/antlr4-runtime",
+					"$(PROJECT_DIR)/3rd-party-ce/include/cppconn",
+					"$(PROJECT_DIR)/3rd-party-ce/include/rapidjson",
 					"$(inherited)",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
@@ -17741,7 +17735,6 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
 				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER";
@@ -17769,7 +17762,6 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
 				OTHER_CFLAGS = "-DMYSQLCPPCONN_VERSION_1_1_6_OR_HIGHER";
@@ -18352,7 +18344,6 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
@@ -18395,7 +18386,6 @@
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
 				PRODUCT_NAME = wbprivate.be;
@@ -18937,7 +18927,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
@@ -18988,7 +18977,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
-					"$(PROJECT_DIR)/3rd-party-se/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CODE_SIGN_FLAGS = "";
