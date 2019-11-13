@@ -247,8 +247,8 @@ PythonContext *PythonContext::get() {
   if (!ctx)
     throw std::runtime_error("GRT context not found in Python runtime");
 
-  if (PyCObject_GetDesc(ctx) == &GRTTypeSignature)
-    return static_cast<PythonContext *>(PyCObject_AsVoidPtr(ctx));
+  if (PyCapsule_GetContext(ctx) == &GRTTypeSignature)
+    return static_cast<PythonContext *>(PyCapsule_GetPointer(ctx, ""));
 
   throw std::runtime_error("Invalid GRT context in Python runtime");
 }
@@ -1084,7 +1084,11 @@ static struct PyModuleDef grtModuleDef = {
   "grt",
   NULL,
   -1,
-  GrtModuleMethods
+  GrtModuleMethods,
+  NULL,
+  NULL,
+  NULL,
+  NULL
 };
 
 static struct PyModuleDef grtModulesModuleDef = {
@@ -1092,6 +1096,10 @@ static struct PyModuleDef grtModulesModuleDef = {
   "grt.modules",
   NULL,
   -1,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
   NULL
 };
 
@@ -1100,6 +1108,10 @@ static struct PyModuleDef grtClassesModuleDef = {
   "grt.classes",
   NULL,
   -1,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
   NULL
 };
 
@@ -1111,7 +1123,9 @@ void PythonContext::register_grt_module() {
   _grt_module = module;
 
   // add the context ptr
-  PyObject *context_object = PyCObject_FromVoidPtrAndDesc(this, &GRTTypeSignature, NULL);
+  PyObject *context_object = PyCapsule_New(this, "", NULL);
+  PyCapsule_SetContext(context_object, &GRTTypeSignature);
+
   if (context_object != NULL)
     PyModule_AddObject(module, "__GRT__", context_object);
 
@@ -1235,8 +1249,8 @@ bool PythonContext::set_global(const std::string &name, PyObject *value) {
   return true;
 }
 
-static void release_value(void *value, void *desc) {
-  internal::Value *v = reinterpret_cast<internal::Value *>(value);
+static void release_value(PyObject *obj) {
+  internal::Value *v = reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(obj, ""));
 
   v->release();
 }
@@ -1248,12 +1262,14 @@ static void release_value(void *value, void *desc) {
 PyObject *PythonContext::internal_cobject_from_value(const ValueRef &value) {
   internal::Value *v = value.valueptr();
   v->retain();
-  return PyCObject_FromVoidPtrAndDesc(v, &GRTValueSignature, release_value);
+  PyObject *ret = PyCapsule_New(v, "", release_value);
+  PyCapsule_SetContext(ret, &GRTValueSignature);
+  return ret;
 }
 
 ValueRef PythonContext::value_from_internal_cobject(PyObject *value) {
-  if (PyCObject_GetDesc(value) == &GRTValueSignature)
-    return ValueRef(reinterpret_cast<internal::Value *>(PyCObject_AsVoidPtr(value)));
+  if (PyCapsule_GetContext(value) == &GRTValueSignature)
+    return ValueRef(reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(value, "")));
 
   throw std::runtime_error("attempt to extract GRT value from invalid Python object");
 }
@@ -1327,7 +1343,7 @@ bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_str
     if (ref) {
       char *s;
       Py_ssize_t len;
-      PyUnicode_AsUTF8AndSize(ref, &s, &len);
+      s = PyUnicode_AsUTF8AndSize(ref, &len);
       if (s)
         ret_string = std::string(s, len);
       else
@@ -1341,7 +1357,7 @@ bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_str
   if (PyUnicode_Check(strobject)) {
     char *s;
     Py_ssize_t len;
-    PyUnicode_AsUTF8AndSize(strobject, &s, &len);
+    s = PyUnicode_AsUTF8AndSize(strobject, &len);
     if (s)
       ret_string = std::string(s, len);
     else
@@ -1548,19 +1564,19 @@ ValueRef PythonContext::from_pyobject(PyObject *object, const grt::TypeSpec &exp
 }
 
 int PythonContext::run_file(const std::string &file, bool interactive) {
-  PyObject *f = PyFile_FromString((char *)base::string_to_path_for_open(file).c_str(), (char *)"r");
+  FILE* f = base_fopen(file.c_str(), "r");
   if (!f) {
     PythonContext::log_python_error(base::strfmt("Could not open file %s\n", file.c_str()).c_str());
     return -1;
   }
 
   logDebug2("About to pyrun '%s'\n", file.c_str());
-  if (PyRun_SimpleFile(PyFile_AsFile(f), file.c_str()) != 0) {
-    Py_DECREF(f);
+  if (PyRun_SimpleFile(f, file.c_str()) != 0) {
+    fclose(f);
     PythonContext::log_python_error(base::strfmt("Error running file %s\n", file.c_str()).c_str());
     return -1;
   }
-  Py_DECREF(f);
+  fclose(f);
 
   return 0;
 }

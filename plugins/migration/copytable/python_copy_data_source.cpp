@@ -79,7 +79,7 @@ bool PythonCopyDataSource::pystring_to_string(PyObject *strobject, std::string &
     if (ref) {
       char *s;
       Py_ssize_t len;
-      PyUnicode_AsUTF8AndSize(ref, &s, &len);
+      s = PyUnicode_AsUTF8AndSize(ref, &len);
       if (s)
         ret_string = std::string(s, len);
       else
@@ -93,7 +93,7 @@ bool PythonCopyDataSource::pystring_to_string(PyObject *strobject, std::string &
   if (PyUnicode_Check(strobject)) {
     char *s;
     Py_ssize_t len;
-    PyUnicode_AsUTF8AndSize(strobject, &s, &len);
+    s = PyUnicode_AsUTF8AndSize(strobject, &len);
     if (s)
       ret_string = std::string(s, len);
     else
@@ -262,7 +262,7 @@ size_t PythonCopyDataSource::count_rows(const std::string &schema, const std::st
   }
 
   PyObject *element = PySequence_GetItem(row, 0);
-  size_t count = (size_t)PyInt_AsUnsignedLongLongMask(element);
+  size_t count = (size_t)PyLong_AsUnsignedLongLongMask(element);
   Py_DECREF(element);
   Py_DECREF(row);
 
@@ -415,11 +415,11 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
           PyGILState_Release(state);
           return false;
         }
-      } else if (!PyBuffer_Check(element)) // Old-style buffers are the interface specified in PEP 249 for BLOB data.
-                                           // Attempt to convert.
+      } else if (!PyObject_CheckBuffer(element)) // Old-style buffers are the interface specified in PEP 249 for BLOB data.
+                                                 // Attempt to convert.
       {
         PyObject *element_copy = element;
-        element = PyBuffer_FromObject(element, 0, Py_END_OF_BUFFER);
+        // element = PyBuffer_FromObject(element, 0, Py_END_OF_BUFFER); // FIXME: WL-12709 fix buffer
         Py_DECREF(element_copy);
         if (PyErr_Occurred()) {
           PyErr_Print();
@@ -514,7 +514,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
         rowbuffer.prepare_add_long(buffer, buffer_len);
         if (!was_null) {
           if (is_unsigned)
-            *((unsigned long *)buffer) = PyInt_AsUnsignedLongMask(element);
+            *((unsigned long *)buffer) = PyLong_AsUnsignedLongMask(element);
           else
             *((long *)buffer) = PyLong_AsLong(element);
         }
@@ -525,7 +525,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
         if (!was_null) {
           if (is_unsigned)
             *((unsigned long long *)buffer) =
-              PyLong_Check(element) ? PyInt_AsUnsignedLongLongMask(element) : PyLong_AsUnsignedLongLong(element);
+              PyLong_Check(element) ? PyLong_AsUnsignedLongLongMask(element) : PyLong_AsUnsignedLongLong(element);
           else
             *((long long *)buffer) = PyLong_AsLongLong(element);
         }
@@ -599,7 +599,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
             if (ref) {
               char *s;
               Py_ssize_t len;
-              PyUnicode_AsUTF8AndSize(ref, &s, &len);
+              s = PyUnicode_AsUTF8AndSize(ref, &len);
               if (buffer_len < (size_t)len) {
                 logError("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
                          (*_columns)[i].source_name.c_str(), (long unsigned int)len, (long unsigned int)buffer_len);
@@ -616,7 +616,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
           } else if (PyUnicode_Check(element)) {
             char *s;
             Py_ssize_t len;
-            PyUnicode_AsUTF8AndSize(element, &s, &len);
+            s = PyUnicode_AsUTF8AndSize(element, &len);
             if (buffer_len < (size_t)len) {
               logError("Truncating data in column %s from %lul to %lul. Possible loss of data.\n",
                        (*_columns)[i].source_name.c_str(), (long unsigned int)len, (long unsigned int)buffer_len);

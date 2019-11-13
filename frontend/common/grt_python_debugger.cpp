@@ -200,24 +200,38 @@ static void init_pdb_python() {
     {(char *)"ui_add_variable", (PyCFunction)ui_add_variable, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
+  static struct PyModuleDef wbpdbModuleDef = {
+    PyModuleDef_HEAD_INIT,
+    "wbpdb",
+    NULL,
+    -1,
+    ui_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+  };
+
   static PyObject *m = NULL;
 
   if (!m)
-    m = Py_InitModule("wbpdb", ui_methods);
+    m = PyModule_Create(&wbpdbModuleDef);
 }
 
 PyObject *PythonDebugger::as_cobject() {
-  return PyCObject_FromVoidPtrAndDesc(this, &pdb_desc, NULL);
+  PyObject* ret = PyCapsule_New(this, "", NULL);
+  PyCapsule_SetContext(ret, &pdb_desc);
+  return ret;
 }
 
 PythonDebugger *PythonDebugger::from_cobject(PyObject *cobj) {
-  if (!PyCObject_Check(cobj))
+  if (!PyCapsule_CheckExact(cobj))
     return NULL;
 
-  if (PyCObject_GetDesc(cobj) != &pdb_desc)
+  if (PyCapsule_GetContext(cobj) != &pdb_desc)
     return NULL;
 
-  return reinterpret_cast<PythonDebugger *>(PyCObject_AsVoidPtr(cobj));
+  return reinterpret_cast<PythonDebugger *>(PyCapsule_GetPointer(cobj, ""));
 }
 
 PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)

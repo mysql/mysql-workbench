@@ -119,9 +119,9 @@ int main(int argc, char *argv[]) {
   PySys_SetArgv(argc, argv);
 
   // Executes the helper script.
-  PyObject *pFileObject = PyFile_FromString(const_cast<char *>(helper_path.c_str()), "r");
+  FILE* f = base_fopen(helper_path.c_str(), "r");
 
-  PyRun_SimpleFileEx(PyFile_AsFile(pFileObject), "wbadminhelper.py", 1);
+  PyRun_SimpleFileEx(f, "wbadminhelper.py", 1);
 
   finalize_python();
 
