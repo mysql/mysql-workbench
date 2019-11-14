@@ -1778,7 +1778,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                             args.append('--no-create-info')
                         
                         if skip_column_statistics:
-                            args.append('--column-statistics=0')
+                            args.append('--skip-column-statistics')
 
                         include_schema = self.include_schema_check.get_active()
                         if skip_data:
@@ -1799,6 +1799,8 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                         args.append("--routines")
                     if dump_events:
                         args.append("--events")
+                    if skip_column_statistics:
+                            args.append('--skip-column-statistics')
                     task = self.ViewsRoutinesEventsDumpData(schema, views, args, lambda schema=schema, table=None:self.dump_to_folder(schema, "routines", include_schema))
                     operations.append(task)
         else: # single file
