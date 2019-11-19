@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -578,7 +578,7 @@ SQLSMALLINT ODBCCopyDataSource::odbc_type_to_c_type(SQLSMALLINT type, bool is_un
       return _force_utf8_input ? SQL_C_CHAR : SQL_C_WCHAR;
     case SQL_DECIMAL:
     case SQL_NUMERIC:
-      return SQL_C_CHAR;
+      return SQL_C_DOUBLE;
     case SQL_SMALLINT:
       return is_unsigned ? SQL_C_USHORT : SQL_C_SSHORT;
     case SQL_INTEGER:
@@ -1065,6 +1065,11 @@ bool ODBCCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
             ret = SQLGetData(_stmt, i, SQL_C_FLOAT, out_buffer, out_buffer_len, &len_or_indicator);
             if (SQL_SUCCEEDED(ret))
               rowbuffer.finish_field(len_or_indicator == SQL_NULL_DATA);
+           } else if (rowbuffer[i - 1].buffer_type == MYSQL_TYPE_STRING) {
+              if (_column_types[i - 1] == SQL_C_WCHAR)
+                ret = get_wchar_buffer_data(rowbuffer, i);
+              else
+                ret = get_char_buffer_data(rowbuffer, i);
           } else {
             rowbuffer.prepare_add_double(out_buffer, out_buffer_len);
             ret = SQLGetData(_stmt, i, SQL_C_DOUBLE, out_buffer, out_buffer_len, &len_or_indicator);
@@ -1665,7 +1670,8 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
   // convert the resultset types to the PS param types
   switch (ftype) {
     case MYSQL_TYPE_DECIMAL:
-      ftype = MYSQL_TYPE_STRING;
+    case MYSQL_TYPE_NEWDECIMAL:
+      ftype = MYSQL_TYPE_DOUBLE;
       break;
     case MYSQL_TYPE_TINY:
       ftype = MYSQL_TYPE_TINY;
@@ -1714,9 +1720,6 @@ enum enum_field_types MySQLCopyDataTarget::field_type_to_ps_param_type(enum enum
       break;
     case MYSQL_TYPE_BIT:
       ftype = MYSQL_TYPE_BIT;
-      break;
-    case MYSQL_TYPE_NEWDECIMAL:
-      ftype = MYSQL_TYPE_STRING;
       break;
     case MYSQL_TYPE_ENUM:
     case MYSQL_TYPE_SET:
