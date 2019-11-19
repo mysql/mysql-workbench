@@ -230,19 +230,16 @@ static PyObject *object_printable(PyGRTObjectObject *self) {
   return PyUnicode_FromString(self->object->toString().c_str());
 }
 
-static PyObject *object_compare(PyGRTObjectObject *self, PyGRTObjectObject *other, int op) {
-  // TODO: Implement me
-  Py_RETURN_TRUE;
-  // if(op == Py_EQ)
-  //   return Py_RETURN_RICHCOMPARE(self, other, op) || Py_RETURN_RICHCOMPARE(self->object->id(), other->object->id(), op);
-  // else
-  //   Py_RETURN_RICHCOMPARE(self->object->id(), other->object->id(), op);
-
-  // if (self == other || self->object->id() == other->object->id())
-  //   return 0;
-  // if (self->object->id() > other->object->id())
-  //   return 1;
-  // return -1;
+static PyObject *object_rich_compare(PyGRTObjectObject *self, PyGRTObjectObject *other, int op) {  
+  switch(op) {
+    case Py_EQ: if ((self) == (other) || self->object->id() == other->object->id()) Py_RETURN_TRUE; Py_RETURN_FALSE;
+    case Py_NE: if ((self) != (other) && self->object->id() != other->object->id()) Py_RETURN_TRUE; Py_RETURN_FALSE;
+    case Py_LT: if ((self) != (other) && self->object->id() < other->object->id()) Py_RETURN_TRUE; Py_RETURN_FALSE;
+    case Py_GT: if ((self) != (other) && self->object->id() > other->object->id()) Py_RETURN_TRUE; Py_RETURN_FALSE;
+    case Py_LE: if ((self) == (other) || ((self) != (other) && (self->object->id() <= other->object->id()))) Py_RETURN_TRUE; Py_RETURN_FALSE;
+    case Py_GE: if ((self) == (other) || ((self) != (other) && (self->object->id() >= other->object->id()))) Py_RETURN_TRUE; Py_RETURN_FALSE;
+  }
+  Py_RETURN_FALSE;
 }
 
 static long object_hash(PyGRTObjectObject *self) {
@@ -481,7 +478,7 @@ static PyTypeObject PyGRTObjectObjectType = {
 
   /* Assigned meaning in release 2.1 */
   /* rich comparisons */
-  tp_richcompare: (richcmpfunc)object_compare,
+  tp_richcompare: (richcmpfunc)object_rich_compare,
 
   /* weak reference enabler */
   tp_weaklistoffset: 0,

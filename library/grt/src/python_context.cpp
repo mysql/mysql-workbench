@@ -67,7 +67,7 @@ static std::string flatten_class_name(std::string name) {
 //--------------------------------------------------------------------------------------------------
 
 PythonContextHelper::PythonContextHelper(const std::string &module_path) {
-  static const char *argv[2] = {"/dev/null", NULL};
+  static const wchar_t *argv[2] = {L"/dev/null", NULL};
   std::string wb_pythonpath;
   if (getenv("PYTHON_DEBUG"))
     Py_VerboseFlag = 5;
@@ -109,7 +109,7 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   // Stores the main thread state
   _main_thread_state = PyThreadState_Get();
 
-  PySys_SetArgv(1, (wchar_t **)argv);
+  PySys_SetArgv(1, const_cast<wchar_t **>(argv));
 
   PyEval_InitThreads();
 }
@@ -131,9 +131,7 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   _grt_method_class = 0;
 
   register_grt_module();
-
-  PyObject *main = PyImport_AddModule("__main__");
-  PyDict_SetItemString(PyModule_GetDict(main), "grt", PyImport_ImportModule("grt"));
+  import_module("grt");
 
   PySys_SetObject((char *)"real_stdout", PySys_GetObject((char *)"stdout"));
   PySys_SetObject((char *)"real_stderr", PySys_GetObject((char *)"stderr"));
