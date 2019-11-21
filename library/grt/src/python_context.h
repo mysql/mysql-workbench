@@ -98,6 +98,7 @@ namespace grt {
 
   protected:
     PythonContextHelper(const std::string &module_path);
+    void InitPython();
 
   public:
     virtual ~PythonContextHelper();
@@ -177,6 +178,8 @@ namespace grt {
     void setEventlogCallback(PyObject *obj);
     void printResult(std::map<std::string, std::string> &output);
 
+    static PyObject *grt_module_create();
+
   protected:
     std::string _cwd;
     AutoPyObject _grt_module;
@@ -206,7 +209,7 @@ namespace grt {
   private:
     ValueRef simple_type_from_pyobject(PyObject *object, const grt::SimpleTypeSpec &type);
 
-    void register_grt_module();
+    void register_grt_module(PyObject *module);
     void register_grt_functions();
     void redirect_python_output();
 

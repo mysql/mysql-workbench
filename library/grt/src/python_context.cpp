@@ -67,7 +67,6 @@ static std::string flatten_class_name(std::string name) {
 //--------------------------------------------------------------------------------------------------
 
 PythonContextHelper::PythonContextHelper(const std::string &module_path) {
-  static const wchar_t *argv[2] = {L"/dev/null", NULL};
   std::string wb_pythonpath;
   if (getenv("PYTHON_DEBUG"))
     Py_VerboseFlag = 5;
@@ -104,6 +103,12 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
                          wb_pythonpath.c_str()));
 // putenv("PYTHONHOME=C:\\nowhere");
 #endif
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void PythonContextHelper::InitPython() {
+  static const wchar_t *argv[2] = { L"/dev/null", nullptr };
   Py_InitializeEx(0); // skips signal handler init
 
   // Stores the main thread state
@@ -130,8 +135,14 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   _grt_object_class = 0;
   _grt_method_class = 0;
 
-  register_grt_module();
-  import_module("grt");
+  PyImport_AppendInittab("grt", grt_module_create);
+  InitPython();
+
+  PyObject *main = PyImport_AddModule("__main__");
+  PyObject *module = PyImport_ImportModule("grt");
+  PyDict_SetItemString(PyModule_GetDict(main), "grt", module);
+
+  register_grt_module( module );
 
   PySys_SetObject((char *)"real_stdout", PySys_GetObject((char *)"stdout"));
   PySys_SetObject((char *)"real_stderr", PySys_GetObject((char *)"stderr"));
@@ -1113,15 +1124,15 @@ static struct PyModuleDef grtClassesModuleDef = {
   NULL
 };
 
-void PythonContext::register_grt_module() {
-  PyObject *module = PyModule_Create(&grtModuleDef);
-  if (module == NULL)
-    throw std::runtime_error("Error initializing GRT module in Python support");
+void PythonContext::register_grt_module(PyObject *module) {
+  // PyObject *module = PyModule_Create(&grtModuleDef);
+  // if (module == NULL)
+  //   throw std::runtime_error("Error initializing GRT module in Python support");
 
   _grt_module = module;
 
   // add the context ptr
-  PyObject *context_object = PyCapsule_New(this, "", NULL);
+  PyObject *context_object = PyCapsule_New(this, nullptr, nullptr);
   PyCapsule_SetContext(context_object, &GRTTypeSignature);
 
   if (context_object != NULL)
@@ -1177,6 +1188,13 @@ void PythonContext::register_grt_module() {
   PyModule_AddObject(_grt_module, "classes", _grt_classes_module);
 
   PyModule_AddObject(_grt_classes_module, "grt", _grt_module);
+}
+
+PyObject *PythonContext::grt_module_create(){
+  PyObject *module = PyModule_Create(&grtModuleDef);
+  if (module == NULL)
+    throw std::runtime_error("Error initializing GRT module in Python support");
+  return module;
 }
 
 PyObject *PythonContext::get_grt_module() {
