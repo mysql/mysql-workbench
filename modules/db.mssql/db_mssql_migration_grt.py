@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -248,8 +248,6 @@ class MSSQLMigration(GenericMigration):
             elif source_datatype == 'UNIQUEIDENTIFIER':
                 target_datatype = 'VARCHAR'
                 target_column.length = 64
-                if 'UNIQUE' not in target_column.flags:
-                    target_column.flags.append('UNIQUE') # uniqueid must be UNIQUE... bug #43098
                 state.addMigrationLogEntry(0, source_column, target_column,
                         "Source column type %s was migrated to %s(%s)" % (source_datatype, target_datatype, target_column.length))
             elif source_datatype == 'SYSNAME':  # the relevant info is in http://msdn.microsoft.com/en-us/library/ms191240(v=sql.105).aspx
