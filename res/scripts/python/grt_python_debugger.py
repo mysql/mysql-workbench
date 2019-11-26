@@ -5,6 +5,7 @@ import wbpdb
 import traceback
 import tempfile
 import time
+import imp
 
 
 STOP_REASON_STEP = 0
@@ -93,7 +94,7 @@ class PyDebugger(bdb.Bdb):
 
 
     def show_stack(self, stack):
-        import linecache, repr
+        import linecache, reprlib
         self.ui_clear_stack()
         # index 0 is in bdb.py and index 1 is the execfile() command from wdb_run()
         for frame, line in reversed(stack[2:]):
@@ -158,7 +159,7 @@ class PyDebugger(bdb.Bdb):
             self.ui_print("> run\n")
         try:
             self.enable_breakpoints()
-        except Exception, exc:
+        except Exception as exc:
             self.ui_print("Error activating breakpoints: %s\n" % exc)
             self.ui_print(traceback.format_exc()+"\n")
             return
@@ -321,14 +322,14 @@ class PyDebugger(bdb.Bdb):
     def wdb_reload_module_for_file(self, file):
         path = os.path.splitext(self.canonic(file))[0]
         # find out what module the file corresponds to and reload it
-        for module in sys.modules.values():
+        for module in list(sys.modules.values()):
             mpath = getattr(module, "__file__", None)
             if mpath:
                 mpath = os.path.splitext(mpath)[0]
                 if mpath == path:
                     self.ui_print("Reloading module %s..."%file)
                     try:
-                        reload(module)
+                        imp.reload(module)
                     except:
                         self.ui_print("There was an error reloading %s" % file)
                         import traceback

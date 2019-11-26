@@ -101,7 +101,7 @@ class FileUtils(object):
                 f = open(dummy_file, 'w+')
                 f.close()
                 os.remove(dummy_file)
-            except IOError, e:
+            except IOError as e:
                 if e.errno == errno.EACCES:
                     ret_val = False
                 else:
@@ -134,7 +134,7 @@ class FileUtils(object):
         """
         try:
             os.mkdir(path)
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not create directory %s" % path)
             raise
@@ -146,7 +146,7 @@ class FileUtils(object):
         """
         try:
             os.makedirs(path)
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not create directory %s" % path)
             raise
@@ -158,7 +158,7 @@ class FileUtils(object):
         """
         try:
             os.rmdir(path)
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not remove directory %s" % path)
             raise err
@@ -170,7 +170,7 @@ class FileUtils(object):
         """
         try:
             shutil.rmtree(path)
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not remove directory %s" % path)
             raise err
@@ -186,7 +186,7 @@ class FileUtils(object):
                 shutil.copy(target, target_backup)
                 
             shutil.copy(source, target)
-        except (IOError, OSError), e:
+        except (IOError, OSError) as e:
             if e.errno == errno.EACCES:
                 raise PermissionDeniedError("Can't copy %s to %s" % (source, target))
             raise
@@ -199,7 +199,7 @@ class FileUtils(object):
 
         try:
             os.remove(path)
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not delete file %s" % path)
             raise err
@@ -265,7 +265,7 @@ class FileUtils(object):
                                     
                 ret_val = "%s\\%s" % (domain.value, name.value)
             else:
-                print 'Failed to lookup user'
+                print('Failed to lookup user')
                 
         if not ret_val:
             raise IOError(errno.EINVAL, "The given path is not a file or directory")
@@ -307,7 +307,7 @@ class FileUtils(object):
                     
                     if line:
                         output_handler(line)
-        except (IOError, OSError), e:
+        except (IOError, OSError) as e:
             if e.errno == errno.EACCES:
                 raise PermissionDeniedError("Permission denied accessing %s" % path)
             raise
@@ -325,7 +325,7 @@ class FileUtils(object):
                     skipped = skipped + 1
 
             f.close()
-        except (IOError, OSError), e:
+        except (IOError, OSError) as e:
             if e.errno == errno.EACCES:
                 raise PermissionDeniedError("Can't open file '%s'" % path)
             raise
@@ -364,7 +364,7 @@ class OSUtils(object):
             process.wait()
             
             retcode = process.returncode
-        except Exception, exc:
+        except Exception as exc:
             raise
             
         return retcode

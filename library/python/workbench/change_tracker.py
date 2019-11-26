@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -194,7 +194,7 @@ class ChangeNotifierDict(dict, ChangeCounter):
 
     def _clear_changes(self, revert = False):
         if self.change_count:
-            for item in self.keys():
+            for item in list(self.keys()):
                 if revert:
                     self[item].revert_changes()
                 else:
@@ -203,7 +203,7 @@ class ChangeNotifierDict(dict, ChangeCounter):
 
     def get_changes(self):
         changes = {}
-        for key in self.keys():
+        for key in list(self.keys()):
             if self[key].has_changed():
                 changes[key] = self[key].get_changes()
 
@@ -314,7 +314,7 @@ class ChangeTracker(ChangeNotifier):
         """
         Clears any registered changes to create a new starting point.
         """
-        for attr in self.__changed.keys():
+        for attr in list(self.__changed.keys()):
             self.notify_change(False, attr, self.__dict__[attr])
 
         self.__changed={}
@@ -324,7 +324,7 @@ class ChangeTracker(ChangeNotifier):
         """
         Reverts the changes applied.
         """
-        for attr in self.__changed.keys():
+        for attr in list(self.__changed.keys()):
             self.__setattr__(attr, self.__changed[attr])
 
 class ignore_changes(object):

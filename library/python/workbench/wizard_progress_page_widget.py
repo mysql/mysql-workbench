@@ -26,7 +26,7 @@ from collections import deque
 import grt
 import mforms
 
-import wizard_page_widget
+from . import wizard_page_widget
 
 os_icon_suffix = ""
 import sys
@@ -73,9 +73,9 @@ class WizardTask(mforms.Box):
             self.owner.send_info("%s cancelled" % self.label)
             self.set_aborted()
             return
-        except Exception, e:
+        except Exception as e:
             if not isinstance(self, WizardThreadedTask):
-                print
+                print()
                 import traceback
                 traceback.print_exc()
 
@@ -199,8 +199,8 @@ class WizardThreadedTask(WizardTask):
             self.owner.send_info("%s cancelled" % self.label)
             mforms.Utilities.perform_from_main_thread(self.set_aborted, False)
             return
-        except Exception, exc:
-            print
+        except Exception as exc:
+            print()
             import traceback
             traceback.print_exc()
             grt.log_error("Wizard", "Thread '%s' failed: %s\n" % (self.label, exc))
@@ -627,7 +627,7 @@ class WizardProgressPage(wizard_page_widget.WizardPage):
                     mforms.Utilities.show_error("Unable To Continue", error, "OK", "", "")
 
 
-            except Exception, exc:
+            except Exception as exc:
                 #print
                 #import traceback
                 #traceback.print_exc()

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -86,7 +86,7 @@ class DatabaseObjectSelector(mforms.Box):
         
         # Update the ui settings dict with the custom settings supplied by the user (if any):
         if isinstance(ui_settings, dict):
-            for key, value in ui_settings.iteritems():
+            for key, value in ui_settings.items():
                 if key not in self.ui_settings or not isinstance(value, dict):
                     continue
                 self.ui_settings[key].update(value)

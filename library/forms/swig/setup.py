@@ -1,12 +1,12 @@
 
 from distutils.core import setup, Extension
 
-import commands
+import subprocess
 import sys
 
 def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-    for token in commands.getoutput("pkg-config --libs --cflags %s" % ' '.join(packages)).split():
+    for token in subprocess.getoutput("pkg-config --libs --cflags %s" % ' '.join(packages)).split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     return kw
 
@@ -21,7 +21,7 @@ if sys.platform in ["linux2"]:
   options["libraries"].append("mforms")
   extra_sources.append("linux_stubs.cxx")
 else:
-  print "Platform not supported"
+  print("Platform not supported")
   sys.exit(1)
 
 setup(name = "mforms",

@@ -265,7 +265,7 @@ class MySQLConnection:
               flag = result.nextRow()
     """
     def __init__(self, info, status_cb = None, password = None):
-        assert type(status_cb) is not unicode
+        assert type(status_cb) is not str
         self.connect_info = info
         self.connection = 0
         self.server_down = 0
@@ -285,7 +285,7 @@ class MySQLConnection:
         if not self.connection:
             params = self.connect_info.parameterValues
             old_timeout_value = None
-            if params.has_key('OPT_READ_TIMEOUT'):
+            if 'OPT_READ_TIMEOUT' in params:
                 old_timeout_value = params['OPT_READ_TIMEOUT']
             params['OPT_READ_TIMEOUT'] = 5*60
 
@@ -320,7 +320,7 @@ class MySQLConnection:
             return False
         try:
             self.sql.exec_query("select 1")
-        except QueryError, e:
+        except QueryError as e:
             return False
         return True
       
@@ -356,7 +356,7 @@ class MySQLConnection:
     def executeQuery(self, query):
         if self.connection:
             #assert self.thread == thread.get_ident()
-            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is unicode else query)
+            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is str else query)
             if result < 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)
@@ -371,7 +371,7 @@ class MySQLConnection:
 
     def executeQueryMultiResult(self, query):
         if self.connection:
-            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if type(query) is unicode else query)
+            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if type(query) is str else query)
             if len(result) == 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)

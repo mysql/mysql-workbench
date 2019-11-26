@@ -39,7 +39,7 @@ def fill_random_query(editor):
 
 	try:
 		new_script = process_script(script)	
-	except Exception, exc:
+	except Exception as exc:
 		new_script = "Error: %s" % exc
 
 	new_buffer = editor.addQueryBuffer()

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,11 +19,11 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 import platform
 import threading
 import random
-import Queue
+import queue
 import traceback
 import socket
 import select
@@ -110,7 +110,7 @@ class Tunnel(threading.Thread):
     def run(self):
         try:
             self.do_run()
-        except Exception, e:
+        except Exception as e:
             log_error("Unhandled exception in SSH tunnel: %s\n" % e)
 
 
@@ -131,7 +131,7 @@ class Tunnel(threading.Thread):
                     with self.lock:
                         self.local_port = local_port
                     break
-                except socket.error, exc:
+                except socket.error as exc:
                     sys.stdout.write('Socket error: %s for port %d\n' % (exc, local_port) )
                     err, msg = exc.args
                     if err == 22:
@@ -169,7 +169,7 @@ class Tunnel(threading.Thread):
                     socks.append(sock)
                     socks.append(chan)
                 r, w, x = select.select(socks, [], [], TUNNEL_TIMEOUT)
-            except Exception, e:
+            except Exception as e:
                 if not self._shutdown:
                     self.notify_exception_error('ERROR', 'Error while forwarding data: %r' % e, sys.exc_info())
                 break
@@ -293,7 +293,7 @@ class Tunnel(threading.Thread):
 
             try:
                 self._client.load_host_keys(os.path.expanduser(ssh_known_hosts_file))
-            except IOError, e:
+            except IOError as e:
                 log_warning("IOError, probably caused by file %s not found, the message was: %s\n" % (ssh_known_hosts_file, e))
 
             if "stricthostkeychecking" in opts and opts["stricthostkeychecking"].lower() == "no":
@@ -305,30 +305,30 @@ class Tunnel(threading.Thread):
             self._client.connect(self._server[0], self._server[1], username=self._username,
                                  key_filename=self._keyfile, password=self._password,
                                  look_for_keys=has_key, allow_agent=has_key, timeout=SSH_CONNECTION_TIMEOUT)
-        except paramiko.BadHostKeyException, exc:
+        except paramiko.BadHostKeyException as exc:
             self.notify_exception_error('ERROR',format_bad_host_exception(exc, '%s\ssh\known_hosts' % mforms.App.get().get_user_data_folder() if platform.system().lower() == "windows" else "~/.ssh/known_hosts file"))
             return False
-        except paramiko.BadAuthenticationType, exc:
+        except paramiko.BadAuthenticationType as exc:
             self.notify_exception_error('ERROR', "Bad authentication type, the server is not accepting this type of authentication.\nAllowed ones are:\n %s" % exc.allowed_types, sys.exc_info());
             return False
-        except paramiko.AuthenticationException, exc:
+        except paramiko.AuthenticationException as exc:
             self.notify_exception_error('ERROR', "Authentication failed, please check credentials.\nPlease refer to logs for details", sys.exc_info())
             return False
-        except socket.gaierror, exc:
+        except socket.gaierror as exc:
             self.notify_exception_error('ERROR', "Error connecting to SSH server: %s\nPlease refer to logs for details." % str(exc))
             return False
-        except paramiko.ChannelException, exc:
+        except paramiko.ChannelException as exc:
             self.notify_exception_error('ERROR', "Error connecting SSH channel.\nPlease refer to logs for details: %s" % str(exc), sys.exc_info())
             return False
-        except SSHFingerprintNewError, exc:
+        except SSHFingerprintNewError as exc:
             self.notify_exception_error('KEY_ERROR', { 'msg': "The authenticity of host '%(0)s (%(0)s)' can't be established.\n%(1)s key fingerprint is %(2)s\nAre you sure you want to continue connecting?"  % {'0': "%s:%s" % (self._server[0], self._server[1]), '1': exc.key.get_name(), '2': exc.fingerprint}, 'obj': exc})
             return False
-        except IOError, exc:
+        except IOError as exc:
             #Io should be report to the user, so maybe he will be able to fix this issue
             self.notify_exception_error('IO_ERROR', "IO Error: %s.\n Please refer to logs for details." % str(exc), sys.exc_info())
             return False
 
-        except Exception, exc:
+        except Exception as exc:
             self.notify_exception_error('ERROR', "Authentication error, unhandled exception caught in tunnel manager, please refer to logs for details", sys.exc_info())
             return False
         else:
@@ -343,7 +343,7 @@ class Tunnel(threading.Thread):
     def accept_client(self):
         try:
             local_sock, peeraddr = self._listen_sock.accept()
-        except Exception, e:
+        except Exception as e:
             self.notify_exception_error('ERROR', 'Error accepting new tunnel client: %r' % e,sys.exc_info())
             return
         self.notify('INFO', 'Client connection established')
@@ -352,11 +352,11 @@ class Tunnel(threading.Thread):
 
         try:
             sshchan = transport.open_channel('direct-tcpip', self._target, local_sock.getpeername())
-        except paramiko.ChannelException, exc:
+        except paramiko.ChannelException as exc:
             self.notify_exception_error('ERROR', 'Could not open port forwarding SSH channel: %s' % exc)
             local_sock.close()
             return
-        except Exception, e:
+        except Exception as e:
             self.notify_exception_error('ERROR', 'Remote connection to %s:%d failed: %r' % (self._target[0], self._target[1], e), sys.exc_info())
             local_sock.close()
             return
@@ -395,7 +395,7 @@ class TunnelManager:
         server = self._address_port_tuple(server, default_port=SSH_PORT)
         target = self._address_port_tuple(target, default_port=REMOTE_PORT)
 
-        for port, tunnel in self.tunnel_by_port.iteritems():
+        for port, tunnel in self.tunnel_by_port.items():
             if tunnel.match(server, username, target) and tunnel.isAlive():
                 with tunnel.lock:
                     return tunnel.local_port
@@ -420,7 +420,7 @@ class TunnelManager:
             keyfile = keyfile.decode('utf-8')
 
         found = None
-        for tunnel in self.tunnel_by_port.itervalues():
+        for tunnel in self.tunnel_by_port.values():
             if tunnel.match(server, username, target) and tunnel.isAlive():
                 found = tunnel
                 break
@@ -430,7 +430,7 @@ class TunnelManager:
                 log_debug('Reusing tunnel at port %d' % tunnel.local_port)
                 return tunnel.local_port
         else:
-            tunnel = Tunnel(Queue.Queue(), server, username, target, password, keyfile)
+            tunnel = Tunnel(queue.Queue(), server, username, target, password, keyfile)
             tunnel.start()
             tunnel.port_is_set.wait()
             with tunnel.lock:
@@ -452,7 +452,7 @@ class TunnelManager:
                 # If an error is detected in the queue, exit returning its message:
                 try:
                     msg_type, msg = tunnel.q.get_nowait()
-                except Queue.Empty:
+                except queue.Empty:
                     continue
                 else:
                     if msg_type == 'KEY_ERROR':
@@ -468,7 +468,7 @@ class TunnelManager:
                                         open(msg['obj'].client._host_keys_filename, 'a').close()
                                     msg['obj'].client.save_host_keys(msg['obj'].client._host_keys_filename)
                                     log_warning("Successfully saved host_keys file.\n")
-                                except IOError, e:
+                                except IOError as e:
                                     error = str(e)
                                     break;
                             error = "Server key has been stored"
@@ -508,7 +508,7 @@ class TunnelManager:
         tunnel = self.tunnel_by_port[port]
         try:
             return tunnel.q.get_nowait()
-        except Queue.Empty:
+        except queue.Empty:
             return None
 
 
@@ -545,7 +545,7 @@ class TunnelManager:
         self.outpipe.flush()
     
     def shutdown(self):
-        for tunnel in self.tunnel_by_port.itervalues():
+        for tunnel in self.tunnel_by_port.values():
             tunnel.close()
             tunnel.join()
 
@@ -570,13 +570,13 @@ class TunnelManager:
                         self.send("OK", str(port))
                     else:
                         self.send("ERROR", "not found")
-                except Exception, exc:
+                except Exception as exc:
                     self.send("ERROR", str(exc))
             elif cmd == "OPENSSH":
                 try:
                     port = self.open_ssh(*args)
                     self.send("OK", str(port))
-                except Exception, exc:
+                except Exception as exc:
                     self.send("ERROR", str(exc))
             elif cmd == "CLOSE":
                 #self.close(args[0])

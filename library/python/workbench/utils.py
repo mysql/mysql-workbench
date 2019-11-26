@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -21,6 +21,7 @@
 
 import re
 from grt import log_error
+from functools import reduce
 
 def get_exe_path(cmd):
     import os
@@ -99,7 +100,7 @@ def find_object_with_old_name(list, name):
 
 def replace_string_parameters(template_string, params):
     if isinstance(params, dict):
-        params = list( params.iteritems() )
+        params = list( params.items() )
     return reduce( lambda partial_template_string, rep_tuple: partial_template_string.replace('%'+rep_tuple[0]+'%', str(rep_tuple[1])),
                                 [ template_string ] + params
                   )
@@ -121,7 +122,7 @@ def dsn_parameters_to_connection_parameters(dsn_params):
                       'DATABASE': 'schema',
                       'DSN'     : 'dsn',
                     }
-    return dict( (param_mapping.get(dsn_key.upper(), dsn_key), dsn_value) for dsn_key, dsn_value in dsn_params.iteritems() )
+    return dict( (param_mapping.get(dsn_key.upper(), dsn_key), dsn_value) for dsn_key, dsn_value in dsn_params.items() )
     
     
 def check_grt_subtree_consistency(value):
@@ -179,7 +180,7 @@ class Version:
         other_version = None
         if isinstance(other, Version):
             other_version = other
-        elif isinstance(other, basestring):
+        elif isinstance(other, str):
             other_version = Version.fromstr(other)
         else:
             raise TypeError("Unexpected type")
@@ -233,7 +234,7 @@ class Version:
             return self > Version(major, minor, release)
 
 import threading
-import Queue
+import queue
 
 class QueueFile:
     def __init__(self):
@@ -389,7 +390,7 @@ class WorkerThreadHelper:
         self.worker = worker_func
         self.message_handler = message_handler_func
         self.thread = threading.Thread()
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.thread.run = self._run
         self._timeout_handle = None
         self._running = False
@@ -408,7 +409,7 @@ class WorkerThreadHelper:
         while True:
             try:
                 message = self.queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 break
             self.message_handler(message)
         return self._running and self.queue.empty()
@@ -416,7 +417,7 @@ class WorkerThreadHelper:
     def _run(self):
         try:
             self.worker(self.add_message)
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("WorkerThreadHelper", "An exception occurred in the worker thread:\n%s\n" % traceback.format_exc())
             self.add_message(e)

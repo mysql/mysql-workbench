@@ -63,7 +63,7 @@ class DefineModule(dict):
             plug.description= description
             plug.pluginType= type
             plug.moduleName= self.name
-            plug.moduleFunctionName= fn.func_code.co_name
+            plug.moduleFunctionName= fn.__code__.co_name
             for i in input:
               i.owner= plug
               plug.inputValues.append(i)
@@ -95,7 +95,7 @@ class DefineModule(dict):
             plug.caption= caption
             plug.pluginType= "standalone"
             plug.moduleName= self.name
-            plug.moduleFunctionName= fn.func_code.co_name
+            plug.moduleFunctionName= fn.__code__.co_name
             if input:
                 arg = grt.classes.app_PluginInputDefinition()
                 arg.name= input
@@ -106,7 +106,7 @@ class DefineModule(dict):
             self._pluginList.append(plug)
 
             signature= (grt.STRING, [("text", grt.STRING)])
-            self.functions.append((fn.func_code.co_name, signature, fn))
+            self.functions.append((fn.__code__.co_name, signature, fn))
 
             return fn
 
@@ -127,8 +127,8 @@ class DefineModule(dict):
         """
         typenames= [grt.INT,grt.DOUBLE,grt.STRING,grt.LIST,grt.DICT, grt.OBJECT]
         def set_types(fn):
-            if len(argtypes) != fn.func_code.co_argcount:
-              raise TypeError("module function '%s' has %i arguments, but @export declares %i" % (fn.func_code.co_name, fn.func_code.co_argcount, len(argtypes)))
+            if len(argtypes) != fn.__code__.co_argcount:
+              raise TypeError("module function '%s' has %i arguments, but @export declares %i" % (fn.__code__.co_name, fn.__code__.co_argcount, len(argtypes)))
             arglist= []
             for i in range(len(argtypes)+1):
               if i == 0:
@@ -162,10 +162,10 @@ class DefineModule(dict):
               if i == 0:
                 arglist.append(arg)
               else:
-                arglist.append((fn.func_code.co_varnames[i-1], arg))
+                arglist.append((fn.__code__.co_varnames[i-1], arg))
             signature= (arglist[0], arglist[1:])
         
-            self.functions.append((fn.func_code.co_name, signature, fn))
+            self.functions.append((fn.__code__.co_name, signature, fn))
             return fn
         return set_types
  

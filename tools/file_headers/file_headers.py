@@ -113,7 +113,7 @@ class CParser(Parser):
                 self.startLine = line
                 text = text[2:].strip()
             elif text.find('/*') > -1:
-                print("  BOM problem? %s" % filename)
+                print(("  BOM problem? %s" % filename))
                 
             if text.endswith('*/'):
                 inComment = False
@@ -128,7 +128,7 @@ class CParser(Parser):
             
             for str in copyrightStrings:
                 if (inComment or inlineComment) and text.startswith(str):
-                    years = map(int, re.findall(r'\d+', text))
+                    years = list(map(int, re.findall(r'\d+', text)))
                     self.creationYear = years[0]
                     self.updateYear = years[-1]
             
@@ -164,12 +164,12 @@ class PythonParser(Parser):
                 if self.startLine == None:
                     self.startLine = line
                 
-                years = map(int, re.findall(r'\d+', text))
+                years = list(map(int, re.findall(r'\d+', text)))
                 self.creationYear = years[0]
                 self.updateYear = years[-1]
                     
             elif line == 0 and text.find('# Copyright (c) ') > -1:
-                print("    BOM problem?  %s" % filename)
+                print(("    BOM problem?  %s" % filename))
             elif self.startLine is not None and self.creationYear is not None and not text.startswith('#'):
                 self.endLine = line
                 break
@@ -226,7 +226,7 @@ def browseDirectory(directory):
                 continue
             
             if not os.path.exists(fullFilename):
-                print("File does not exist: %s" % fullFilename)
+                print(("File does not exist: %s" % fullFilename))
                 exit(1)
             
             fileContents = getFileContents(fullFilename)
@@ -310,14 +310,14 @@ pythonTemplate = getFileContents('copyright_python_template')
 pythonCommercialTemplate = getFileContents('copyright_python_commercial_template')
 ignoreList = getFileContents('ignore').split('\n')
 
-ignoreList = filter(None, ignoreList)
+ignoreList = [_f for _f in ignoreList if _f]
 for index in range(0, len(ignoreList)):
     if not ignoreList[index].startswith('*'):
         ignoreList[index] = os.path.join(os.path.realpath(rootdir), ignoreList[index])
 
 commercialList = getFileContents('removals').split('\n')
 
-commercialList = filter(None, commercialList)
+commercialList = [_f for _f in commercialList if _f]
 for index in range(0, len(commercialList)):
     if not commercialList[index].startswith('*'):
         commercialList[index] = os.path.join(os.path.realpath(rootdir), commercialList[index])
@@ -329,29 +329,29 @@ def listDiff(first, second):
 
 browseDirectory(os.path.realpath(rootdir))
 
-print('Parsed %d dirs and %d files' % (dirCount, len(updatedFiles)))
+print(('Parsed %d dirs and %d files' % (dirCount, len(updatedFiles))))
 
-print("\n\nAll updated files (%d):" % len(updatedFiles))
+print(("\n\nAll updated files (%d):" % len(updatedFiles)))
 for file in updatedFiles:
     print(file)
 
-print("\n\nFailed files (%d):" % len(failedFiles))
+print(("\n\nFailed files (%d):" % len(failedFiles)))
 for file in failedFiles:
     print(file)
     
-print("\n\nCommercial headers (%d):" % len(commercialFiles))
+print(("\n\nCommercial headers (%d):" % len(commercialFiles)))
 for file in commercialFiles:
     print(file)
 
-print("\n\nAdded headers (%d):" % len(headerAdded))
+print(("\n\nAdded headers (%d):" % len(headerAdded)))
 for file in headerAdded:
-    print(file[3])
+    print((file[3]))
 
-print("\n\nEOL Changed (%d):" % len(eolChanged))
+print(("\n\nEOL Changed (%d):" % len(eolChanged)))
 for file in eolChanged:
     print(file)
 
-print("\n\nBOM removed (%d):" % len(bomRemoved))
+print(("\n\nBOM removed (%d):" % len(bomRemoved)))
 for file in bomRemoved:
     print(file)
 

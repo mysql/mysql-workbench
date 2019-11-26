@@ -24,10 +24,10 @@ CMAKE_FILE = PROJECT_DIR + "res/scripts/CMakeLists.txt"
 clone_repo = False
 
 def print_help():
-    print 'Usage: python update_wbsys.py [Options]'
-    print 'Options:'
-    print '  --clone        Force to clone the repository'
-    print '  --help         Prints this help'
+    print('Usage: python update_wbsys.py [Options]')
+    print('Options:')
+    print('  --clone        Force to clone the repository')
+    print('  --help         Prints this help')
 
 if len(sys.argv) == 1:
     clone_repo = False
@@ -38,7 +38,7 @@ elif len(sys.argv) > 1:
         print_help()
         exit(0)
     else:
-        print 'Unknown option: ' + sys.argv[1]
+        print(('Unknown option: ' + sys.argv[1]))
         print_help()
         exit(0)
 else:
@@ -46,11 +46,11 @@ else:
     exit(0)
 
 
-print "Working dir  : " + WORKING_DIR
-print "Project dir  : " + PROJECT_DIR
-print "MSI Frag file: " + MSI_FRAGMENT_FILE
-print "CMake file   : " + CMAKE_FILE
-print "Clone repo   : " + str(clone_repo)
+print(("Working dir  : " + WORKING_DIR))
+print(("Project dir  : " + PROJECT_DIR))
+print(("MSI Frag file: " + MSI_FRAGMENT_FILE))
+print(("CMake file   : " + CMAKE_FILE))
+print(("Clone repo   : " + str(clone_repo)))
 
 # This class searches a MSI XML fragment file for the wbsys 
 # files, so that they get installed along with WB. The fragment
@@ -112,7 +112,7 @@ class XMLFileManager:
       elif child.lastChild.nodeType != child.TEXT_NODE:
         child.appendChild(childIndent.cloneNode(False))
       else:
-        print 'Node already as indentation'
+        print('Node already as indentation')
         
         
     def add_directory(self, directory):
@@ -291,21 +291,21 @@ def iterate_path(path):
 
 # TODO: Remove this when done
 os.chdir(WORKING_DIR)
-print "Preparing...please be patient..."
+print("Preparing...please be patient...")
 
 if clone_repo == True:
-    print "  - Checking git proxy configuration..."
+    print("  - Checking git proxy configuration...")
     proc = subprocess.Popen(["git", "config", "--global", "http.proxy"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     out, err = proc.communicate()
 
     if not out.strip():
-        print "    - WARNING: No proxy configured. Try using git config --global http.proxy <proxy>"
+        print("    - WARNING: No proxy configured. Try using git config --global http.proxy <proxy>")
     else:
-        print "    - Using proxy: " + out.strip()
+        print(("    - Using proxy: " + out.strip()))
 
 
-    print "  - Cloning remote repository..."  
+    print("  - Cloning remote repository...")  
 
     os.chdir(WORKING_DIR)
     if (os.path.isdir("mysql-sys")):
@@ -316,15 +316,15 @@ if clone_repo == True:
     out, err = proc.communicate()
 
     if proc.returncode > 0:
-        print "    - ERROR[" + str(proc.returncode) + "] - There was an error on 'git clone'"
-        print err
+        print(("    - ERROR[" + str(proc.returncode) + "] - There was an error on 'git clone'"))
+        print(err)
         sys.exit(1)
 
 
 
 
 
-print "Processing files..."
+print("Processing files...")
 
 xml_manager = XMLFileManager()
 cmake_manager = CMakeFileManager()
@@ -336,7 +336,7 @@ if clone_repo == True:
     recursive_copy('mysql-sys', 'sys')
 
 if os.path.isdir('sys') == False:
-    print 'Error: The sys directory does not exist. Please run this script using the --clone parameter.'
+    print('Error: The sys directory does not exist. Please run this script using the --clone parameter.')
     exit(1)
 
 if os.path.isdir('sys/.git'):

@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -30,14 +30,14 @@ try:
 except ImportError:
     pass
 
-from Queue import Queue, Empty
+from queue import Queue, Empty
 from threading import Thread
 import mforms
 import grt
 
 from workbench.log import log_info, log_error, log_debug
 
-from db_utils import ConnectionTunnel
+from .db_utils import ConnectionTunnel
 
 
 def get_path_to_mysql():
@@ -142,7 +142,7 @@ class MySQLScriptImporter(object):
 
 
     def report_output(self, text):
-        print text
+        print(text)
 
     def add_command_parameter(self, param_list, parameter, data = None):
         is_windows = platform.system() == 'Windows'
@@ -182,14 +182,14 @@ class MySQLScriptImporter(object):
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
             fse = sys.getfilesystemencoding()
-            real_command = command.encode(fse) if isinstance(command, unicode) else command
+            real_command = command.encode(fse) if isinstance(command, str) else command
         else:
             real_command = command
         
         try:
             log_debug("Executing command: %s\n" % real_command)
             proc = subprocess.Popen(real_command, cwd=working_directory, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info)
-        except OSError, exc:
+        except OSError as exc:
             log_error("Error executing command %s\n%s\n" % (real_command, exc))
             import traceback
             traceback.print_exc()
@@ -232,7 +232,7 @@ class MySQLScriptImporter(object):
 
             proc.wait()
             self.report_progress("Finished...", 2, 2)
-        except Exception, e:
+        except Exception as e:
             log_error("There was an exception running a process: %s\n%s" % (command, str(e)))
         finally:
             if pwdfilename:
@@ -281,7 +281,7 @@ class MySQLScriptImporter(object):
             if not is_windows:
                 try:
                     p1 = subprocess.Popen(params, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                except OSError, exc:
+                except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (" ".join(params), exc))
                     raise RuntimeError("Error executing %s:\n%s" % (" ".join(params), str(exc)))
 
@@ -303,10 +303,10 @@ class MySQLScriptImporter(object):
                     # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
                     # which probably isn't utf-8 in windows.
                     fse = sys.getfilesystemencoding()
-                    cmd = cmdstr.encode(fse) if isinstance(cmdstr, unicode) else cmdstr
+                    cmd = cmdstr.encode(fse) if isinstance(cmdstr, str) else cmdstr
                     log_debug("Executing command: %s\n" % cmdstr)
                     p1 = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"')
-                except OSError, exc:
+                except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (cmdstr, exc))
                     import traceback
                     traceback.print_exc()
@@ -342,7 +342,7 @@ class MySQLScriptImporter(object):
                 processed += len(line)
                 try:
                     p1.stdin.write(line)
-                except IOError, e:
+                except IOError as e:
                     log_error("Exception writing to stdin from cmdline client: %s\n" % e)
                     if e.errno == 32: # broken pipe
                         log_error("Broken pipe from child process\n")
