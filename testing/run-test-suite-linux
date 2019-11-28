@@ -1,6 +1,6 @@
 #!/bin/bash
 
-test_binary=./build/wbtests-bin
+test_binary=../build/wbtests-bin
 
 program_path=$(cd $(dirname $0);pwd)
 
@@ -72,6 +72,7 @@ export TEST_MODULES_DIR="$MWB_MODULE_DIR"   #"../../wb-build/usr/local/lib/mysql
 
 export G_FILENAME_ENCODING="UTF-8"
 
+pushd test-suite
 
 if test "$1" == "--gdb"; then
   cgdb $test_binary
@@ -93,3 +94,5 @@ if test "$1" == "--valgrind"; then
 fi
 
 $test_binary
+
+popd
