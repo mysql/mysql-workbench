@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -94,7 +94,7 @@ class GenericMigration(object):
             # check the type mapping table
             typemap = self.findDatatypeMapping(state, source_column, source_datatype)
             if typemap:
-                if not mysql_simpleTypes.has_key(typemap.targetDatatypeName.upper()):
+                if typemap.targetDatatypeName.upper() not in mysql_simpleTypes:
                     grt.log_warning("migrateTableColumnsToMySQL", "Can't find mapped datatype %s for type %s\n" % (typemap.targetDatatypeName, source_datatype))
                     state.addMigrationLogEntry(2, source_column, target_column, 
                         'Unknown mapped datatype "%s" for source type "%s" (check type mapping table)' % (typemap.targetDatatypeName, source_datatype) )
@@ -112,7 +112,7 @@ class GenericMigration(object):
                         target_column.flags.append("UNSIGNED")
 
             # try a direct mapping to mysql types
-            elif mysql_simpleTypes.has_key(target_datatype.upper()):
+            elif target_datatype.upper() in mysql_simpleTypes:
                 target_column.simpleType = mysql_simpleTypes[target_datatype.upper()]
             else:
                 grt.log_warning("migrateTableColumnsToMySQL", "Can't find datatype %s for type %s\n" % (target_datatype, source_datatype))
@@ -491,8 +491,8 @@ class GenericMigration(object):
         try:
             referenced_schema = self.findMatchingTargetObject(state, source_fk.referencedTable.owner)
             if not referenced_schema:
-                raise ValueError, 'The referenced schema does not refer to a valid schema object'
-        except Exception, err:
+                raise ValueError('The referenced schema does not refer to a valid schema object')
+        except Exception as err:
             state.addMigrationLogEntry(2, source_fk, target_fk, 
                         '"%s" while trying to get the schema for the table "%s"' % (str(err), source_fk.referencedTable.name) )
             return target_fk
@@ -500,9 +500,9 @@ class GenericMigration(object):
         try:
             referenced_table = self.findMatchingTargetObject(state, source_fk.referencedTable)
             if not referenced_table:
-                raise ValueError, 'The referenced table does not refer to a valid table object'
+                raise ValueError('The referenced table does not refer to a valid table object')
             target_fk.referencedTable = referenced_table
-        except Exception, err:
+        except Exception as err:
             state.addMigrationLogEntry(2, source_fk, target_fk,
                       '"%s" while trying to get the referenced table for the foreign key "%s"' % (str(err), source_fk.name) )
             return target_fk
@@ -513,9 +513,9 @@ class GenericMigration(object):
             try:
                 target_fk_col = self.findMatchingTargetObject(state, source_fk_column)
                 if not target_fk_col:
-                    raise ValueError, 'The column "%s" was not found in table "%s"' % (self.migrateIdentifier(source_fk_column.name, None, dots_allowed=True), targetTable.name)
+                    raise ValueError('The column "%s" was not found in table "%s"' % (self.migrateIdentifier(source_fk_column.name, None, dots_allowed=True), targetTable.name))
                 target_fk.columns.append(target_fk_col)
-            except Exception, err:
+            except Exception as err:
                 state.addMigrationLogEntry(2, source_fk, target_fk,
                           '"%s" while trying to get the target columns for the foreign key "%s"' % (str(err), source_fk.name) )
                 column_errors = True
@@ -529,9 +529,9 @@ class GenericMigration(object):
             try:
                 target_fk_col = self.findMatchingTargetObject(state, source_fk_column)
                 if not target_fk_col:
-                    raise ValueError, 'The column "%s" was not found in table "%s"' % (self.migrateIdentifier(source_fk_column.name, None, dots_allowed=True), target_fk.referencedTable.name)
+                    raise ValueError('The column "%s" was not found in table "%s"' % (self.migrateIdentifier(source_fk_column.name, None, dots_allowed=True), target_fk.referencedTable.name))
                 target_fk.referencedColumns.append(target_fk_col)
-            except Exception, err:
+            except Exception as err:
                 state.addMigrationLogEntry(2, source_fk, target_fk, 
                             'migrateTableForeignKeysToMySQL: "%s" while trying to get the referenced target columns for the foreign key "%s"' % (str(err), source_fk.name) )
                 column_errors = True

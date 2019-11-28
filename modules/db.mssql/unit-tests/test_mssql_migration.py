@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -192,7 +192,7 @@ class TestMSSQLMigration(db_mssql_test_main.MssqlTestCase):
 
         # Second pass through the tables, to be sure that all of the columns are there and to RevEng those
         # objects that require rev eng of table columns:
-        source_target_schemata = zip(source_catalog.schemata, target_catalog.schemata)
+        source_target_schemata = list(zip(source_catalog.schemata, target_catalog.schemata))
         self.assertEqual(len(source_target_schemata), 2)
         test_target_table = None
         for source_schema, target_schema in source_target_schemata:

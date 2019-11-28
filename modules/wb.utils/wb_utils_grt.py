@@ -75,7 +75,7 @@ def backupConnections():
     file_chooser.set_extensions('ZIP Files (*.zip)|*.zip', 'import')
     if file_chooser.run_modal() == mforms.ResultOk:
         backup_path = file_chooser.get_path()
-        if isinstance(backup_path, unicode):
+        if isinstance(backup_path, str):
             backup_path = backup_path.encode('utf-8')
         try:
             backup_file = zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED)
@@ -122,7 +122,7 @@ def restoreConnections():
                 connections_file = tempfile.NamedTemporaryFile(delete=False)
                 connections_file.write(backup_file.read('connections.xml'))
                 connections_file.close()
-            except KeyError, error:
+            except KeyError as error:
                 mforms.Utilities.show_error('Restore Connections Error', 'The selected file is not a valid backup file '
                                             'or the file is corrupted: %s.' % error.message,
                                             'OK', '', '')
@@ -198,12 +198,12 @@ def restoreConnections():
                 message.append(', which were not restored.')
                 mforms.Utilities.show_warning('Restore Connections', ''.join(message), 'OK', '', '')
             
-        except zipfile.BadZipfile, error:
+        except zipfile.BadZipfile as error:
             mforms.Utilities.show_error('Restore Connections Error', 'The selected file is not a valid backup file '
                                         'or the file is corrupted.',
                                         'OK', '', '')
             grt.log_error('restoreConnections', 'The selected file is not a valid backup file or the file is corrupted: %s\n' % error)
-        except IOError, error:
+        except IOError as error:
             mforms.Utilities.show_error('Restore Connections Error', 'Cannot read from file. Please check this file '
                                         'permissions and try again.',
                                         'OK', '', '')
@@ -302,7 +302,7 @@ def connectionFromString(connstr):
             conn.parameterValues["socket"] = socket
 
         hostIdentifier = conn.driver.hostIdentifierTemplate
-        for key, value in conn.parameterValues.items():
+        for key, value in list(conn.parameterValues.items()):
             hostIdentifier = hostIdentifier.replace("%"+key+"%", str(value))
         conn.hostIdentifier = hostIdentifier
 
@@ -321,7 +321,7 @@ def copyConnectionString(conn):
 @ModuleInfo.plugin("wb.tools.copyJDBCConnectionString", caption="Copy JDBC Connection String to Clipboard", input= [wbinputs.selectedConnection()], pluginMenu="Home/Connections", accessibilityName="Copy JBDC String to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def copyJDBCConnectionString(conn):
-    if conn.parameterValues.has_key("schema"):
+    if "schema" in conn.parameterValues:
         params = "/"+conn.parameterValues["schema"]
     else:
         params = "/"
@@ -499,7 +499,7 @@ elif sys.platform == "win32":
 
         # so if we're a 64bit WB, then we run the 64bit odbc tool (since we can't use 32bit drivers anyway)
 
-        if sys.maxint > 2**31:
+        if sys.maxsize > 2**31:
             subprocess.Popen(r"%SYSTEMROOT%\SysWOW64\odbcad32.exe", shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, close_fds=True)
         else:
             subprocess.Popen(r"%SYSTEMROOT%\System32\odbcad32.exe", shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP, close_fds=True)
@@ -565,7 +565,7 @@ def startUtilitiesShell():
                 f.write('rm -f "%s"\n' % setup_script)
                 f.write('sh -i\n')
                 f.close()
-                os.chmod(setup_script, 0700)
+                os.chmod(setup_script, 0o700)
 
                 if 'konsole' in term:
                     subprocess.call([term, "-e", "/bin/sh", setup_script])
@@ -591,7 +591,7 @@ class CheckForUpdateThread(threading.Thread):
         
         self.is_running = True
         try:
-            import urllib2
+            import urllib.request, urllib.error, urllib.parse
             import json
             import base64
 
@@ -628,7 +628,7 @@ class CheckForUpdateThread(threading.Thread):
                 def cancel_clicked(self):
                     self.close()
 
-            class ProxyAuthenticationHandler(urllib2.AbstractBasicAuthHandler, urllib2.BaseHandler):
+            class ProxyAuthenticationHandler(urllib.request.AbstractBasicAuthHandler, urllib.request.BaseHandler):
 
                 auth_header = 'Proxy-authorization'
                 attempts = 0
@@ -709,17 +709,17 @@ class CheckForUpdateThread(threading.Thread):
 
                     return self.parent.open(req, timeout=req.timeout)
 
-            proxy_handler = urllib2.ProxyHandler()
+            proxy_handler = urllib.request.ProxyHandler()
             proxy_auth_handler = ProxyAuthenticationHandler()
 
-            opener = urllib2.build_opener()
+            opener = urllib.request.build_opener()
             opener.add_handler(proxy_handler)
             opener.add_handler(proxy_auth_handler)
 
-            urllib2.install_opener(opener)
+            urllib.request.install_opener(opener)
 
-            self.json = json.load(urllib2.urlopen("http://workbench.mysql.com/current-release")) 
-        except Exception, error:
+            self.json = json.load(urllib.request.urlopen("http://workbench.mysql.com/current-release")) 
+        except Exception as error:
 
             self.json = None
             self.error = "%s\n\nPlease verify that your internet connection is available." % str(error)        
@@ -743,7 +743,7 @@ class CheckForUpdateThread(threading.Thread):
                 else:
                     mforms.Utilities.show_message('MySQL Workbench is Up to Date', 'You are already using the latest version of MySQL Workbench.', 'OK', '', '')
         
-            except Exception, error:
+            except Exception as error:
                 mforms.Utilities.show_error("Check for updates failed", str(error), "OK", "", "")
 
         mforms.App.get().set_status_text('Ready.')
@@ -785,7 +785,7 @@ class SSLWizard_GenerationTask:
         try:
             if not os.path.exists(self.main.certificates_root) or not os.path.isdir(self.main.certificates_root):
                 log_info("Creating certificates toor directory[%s]" % self.main.certificates_root)
-                os.mkdir(self.main.certificates_root, 0700)
+                os.mkdir(self.main.certificates_root, 0o700)
             
             if os.path.exists(self.path) and not os.path.isdir(self.path):
                 self.display_error("Checking requirements", "The selected path is a file. You should select a directory.")
@@ -794,10 +794,10 @@ class SSLWizard_GenerationTask:
                 if mforms.Utilities.show_message("Create directory", "The directory you selected does not exists. Do you want to create it?", "Create", "Cancel", "") == mforms.ResultCancel:
                     self.display_error("Create directory", "The operation was canceled.")
                     return False
-                os.mkdir(self.path, 0700)
+                os.mkdir(self.path, 0o700)
                 
             return True
-        except OSError, e:
+        except OSError as e:
             self.display_error("Create directory", "There was an error (%d) - %s\n%s" % (e.errno, str(e), str(traceback.format_exc())))
             if e.errno == 17:
                 return True
@@ -824,10 +824,10 @@ class SSLWizard_GenerationTask:
                 return False
 
             return True
-        except ValueError, e:
+        except ValueError as e:
             log_error("Running command: %s\nValueError exception\n" % (str(e.cmd)))
             return False
-        except OSError, e:
+        except OSError as e:
             log_error("Running command: %s\nException:\n%s\n" % (str(command), str(e)))
             return False
 
@@ -989,7 +989,7 @@ class SSLWizard_OptionsPage(WizardPage):
             try:
                 if os.path.isfile(filepath):
                     os.unlink(filepath)
-            except Exception, e:
+            except Exception as e:
                 log_error("SSL Wizard: Unable to remove file %s\n%s" % (filepath, str(e)))
                 return
                 
@@ -1238,7 +1238,7 @@ def generateCertificates(parent, conn, conn_id):
         log_info("Running SSL Wizard\n%s\n" % str(p))
         r = SSLWizard(p, conn, conn_id)
         r.run(True)
-    except Exception, e:
+    except Exception as e:
         log_error("There was an exception running SSL Wizard.\n%s\n\n%s" % (str(e), traceback.format_exc()))
 
 

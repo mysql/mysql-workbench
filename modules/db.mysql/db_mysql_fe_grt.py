@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -45,7 +45,7 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
                 obj.customData["migration:new_temp_sql"] = comment_out(obj, sql)
                 obj.customData["migration:temp_sql_changed"] = sql != comment_out(obj, sql)
         else:
-            if obj.customData.has_key("migration:new_temp_sql"):
+            if "migration:new_temp_sql" in obj.customData:
                 del obj.customData["migration:new_temp_sql"]
                 del obj.customData["migration:temp_sql_changed"]
             if sql is not None:
@@ -120,7 +120,7 @@ def getSchemaCreatePostamble(catalog, objectCreationParams):
 _connections = {}
 
 def get_connection(connection_object):
-    if _connections.has_key(connection_object.__id__):
+    if connection_object.__id__ in _connections:
         return _connections[connection_object.__id__]
     else:
         raise NotConnectedError("No open connection to %s" % connection_object.hostIdentifier)
@@ -148,7 +148,7 @@ def connect(connection, password):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def disconnect(connection):
-    if _connections.has_key(connection.__id__):
+    if connection.__id__ in _connections:
         _connections[connection.__id__].disconnect()
         del _connections[connection.__id__]
     return 0
@@ -156,7 +156,7 @@ def disconnect(connection):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def isConnected(connection):
-    return 1 if _connections.has_key(connection.__id__) else 0
+    return 1 if connection.__id__ in _connections else 0
 
 
 def execute_script(connection, script, log):
@@ -171,7 +171,7 @@ def execute_script(connection, script, log):
             grt.send_info("Execute statement", statement)
             grt.log_debug3("DbMySQLFE", "Execute %s\n" % statement)
             connection.execute(statement)
-        except db_utils.QueryError, exc:
+        except db_utils.QueryError as exc:
             if log:
                 entry = grt.classes.GrtLogEntry()
                 entry.owner = log
@@ -181,7 +181,7 @@ def execute_script(connection, script, log):
             grt.send_warning("%s" % exc)
             grt.log_error("DbMySQLFE", "Exception executing '%s': %s\n" % (statement, exc))
             return False
-        except Exception, exc:
+        except Exception as exc:
             if log:
                 entry = grt.classes.GrtLogEntry()
                 entry.owner = log

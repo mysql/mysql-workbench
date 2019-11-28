@@ -122,10 +122,10 @@ def connect(connection, password):
         try:
             if not con.cursor().execute('SELECT 1'):
                 raise Exception("connection error")
-        except Exception, exc:
+        except Exception as exc:
             grt.send_info("Connection to %s apparently lost, reconnecting..." % connection.hostIdentifier)
             raise NotConnectedError("Connection error")
-    except NotConnectedError, exc:
+    except NotConnectedError as exc:
         host_identifier = connection.hostIdentifier
         version = ""
         grt.send_info("Connecting to %s..." % host_identifier)        
@@ -144,7 +144,7 @@ def connect(connection, password):
                     con.add_output_converter(-150, lambda value: value if value is None else str(value))
                     con.add_output_converter(0, lambda value: value if value is None else str(value))
 
-        except pyodbc.Error, odbc_err:
+        except pyodbc.Error as odbc_err:
             # 28000 is from native SQL Server driver... 42000 seems to be from FreeTDS
             if len(odbc_err.args) == 2 and odbc_err.args[0] in ('28000', '42000') and "(18456)" in odbc_err.args[1]:
                 raise grt.DBLoginError(odbc_err.args[1])
@@ -1177,7 +1177,7 @@ def getDataSourceNames():
     result = grt.List(grt.STRING)
     import pyodbc
     sources = pyodbc.dataSources()
-    for key, value in sources.items():
+    for key, value in list(sources.items()):
         result.append("%s|%s (%s)" % (key, key, value))
     return result
 

@@ -146,8 +146,8 @@ class MSSQLMigration(GenericMigration):
             mysql_name = mssql_name[1:-1]
         if not dots_allowed and not mysql_valid_regex.match(mysql_name):
             mysql_name = mysql_name.translate(string.maketrans(r'/\.', '___'))
-            log_message = (u'Schema and table names cannot contain "/", "\\", ".", or characters that are '
-                           u'not permitted in file names. The identifier [%s] was changed to `%s`. ' % (mssql_name, mysql_name))
+            log_message = ('Schema and table names cannot contain "/", "\\", ".", or characters that are '
+                           'not permitted in file names. The identifier [%s] was changed to `%s`. ' % (mssql_name, mysql_name))
         
         # truncate too long identifiers
         if len(mysql_name) > 64:
@@ -155,7 +155,7 @@ class MSSQLMigration(GenericMigration):
             truncated_identifier_serial += 1
             original_mysql_name = mysql_name
             mysql_name = mysql_name[:62]+str(truncated_identifier_serial)
-            log_message += u'Identifier `%s` is too long, truncated to `%s`' % (original_mysql_name, mysql_name)
+            log_message += 'Identifier `%s` is too long, truncated to `%s`' % (original_mysql_name, mysql_name)
 
         if log and log_message:
             entry = grt.classes.GrtLogEntry()
@@ -326,7 +326,7 @@ class MSSQLMigration(GenericMigration):
                 # just fall back to same type name and hope for the best
                 target_datatype = source_datatype
 
-            if mysql_simpleTypes.has_key(target_datatype):
+            if target_datatype in mysql_simpleTypes:
                 target_column.simpleType = mysql_simpleTypes[target_datatype]
             else:
                 grt.log_warning("Migration", "MSSQL migrateTableColumnsToMySQL", "Can't find datatype %s for type %s\n" % (target_datatype, source_datatype))

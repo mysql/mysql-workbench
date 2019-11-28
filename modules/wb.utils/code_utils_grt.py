@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -131,7 +131,7 @@ def _parse_column_name_list_from_query(query):
 
                 duplicates = {}
                 for i, c in enumerate(columns):
-                    if duplicates.has_key(c):
+                    if c in duplicates:
                         columns[i] = "%s%i" % (c, duplicates[c])
                         duplicates[c] += 1
                     duplicates[c] = duplicates.get(c, 0)+1

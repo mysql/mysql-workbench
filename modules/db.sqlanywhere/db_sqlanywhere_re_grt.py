@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -82,10 +82,10 @@ class SQLAnywhereReverseEngineering(GenericReverseEngineering):
             try:
                 if not con.cursor().execute('SELECT 1'):
                     raise Exception('connection error')
-            except Exception, exc:
+            except Exception as exc:
                 grt.send_info('Connection to %s apparently lost, reconnecting...' % connection.hostIdentifier)
                 raise NotConnectedError('Connection error')
-        except NotConnectedError, exc:
+        except NotConnectedError as exc:
             grt.send_info('Connecting to %s...' % connection.hostIdentifier)
             if connection.driver.driverLibraryName == 'sqlanydb':
                 import sqlanydbwrapper as sqlanydb  # Replace this to a direct sqlanydb import when it complies with PEP 249
@@ -94,11 +94,11 @@ class SQLAnywhereReverseEngineering(GenericReverseEngineering):
                 import ast
                 try:
                     all_params_dict = ast.literal_eval(connstr)
-                except Exception, exc:
+                except Exception as exc:
                     grt.send_error('The given connection string is not a valid python dict: %s' % connstr)
                     raise
                 # Remove unreplaced parameters:
-                params = dict( (key, value) for key, value in all_params_dict.iteritems()
+                params = dict( (key, value) for key, value in all_params_dict.items()
                                             if not (value.startswith('%') and value.endswith('%'))
                              )
                 params['password'] = password

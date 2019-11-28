@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -92,7 +92,7 @@ class GenericReverseEngineering(object):
         result = grt.List(grt.STRING)
         import pyodbc
         sources = pyodbc.dataSources()
-        for key, value in sources.items():
+        for key, value in list(sources.items()):
             result.append("%s|%s (%s)" % (key, key, value))
         return result
 
@@ -139,10 +139,10 @@ class GenericReverseEngineering(object):
             try:
                 if not con.cursor().execute('SELECT 1'):
                     raise Exception("connection error")
-            except Exception, exc:
+            except Exception as exc:
                 grt.send_info("Connection to %s apparently lost, reconnecting..." % connection.hostIdentifier)
                 raise NotConnectedError("Connection error")
-        except NotConnectedError, exc:
+        except NotConnectedError as exc:
             grt.send_info("Connecting to %s..." % connection.hostIdentifier)
             con = db_driver.connect(connection, password)
             if not con:
@@ -516,7 +516,7 @@ class GenericReverseEngineering(object):
                 row = Row(None, schema.name, table.name, 0, None, pk_index_name, 1, 1, pk_index_row.column_name, 'A', None, None, None)
                 indices_dict.setdefault(pk_index_name, []).append(row)
         
-        for index_name, row_list in indices_dict.iteritems():
+        for index_name, row_list in indices_dict.items():
             index = grt.classes.db_Index()
             index.name = index_name
             index.isPrimary = 1 if index_name == pk_index_name else 0
@@ -612,13 +612,13 @@ class GenericReverseEngineering(object):
         for row in cls.get_connection(connection).cursor().foreignKeys(foreignSchema=schema.name, foreignTable=table.name):
             fk_dict.setdefault(row.fk_name, []).append(row)
 
-        for fk_name, fk_columns in fk_dict.iteritems():
+        for fk_name, fk_columns in fk_dict.items():
             if not fk_name:  # If there are unnamed fks we might have several fks merged, need to separate them
                 # Partition the list based on key_seq so that if the key_seq list is, for instance, [1, 2, 3, 1, 2, 1]
                 # we can have [ [1, 2, 3], [1, 2], [1] ]
                 indices = [idx for idx, item in enumerate(fk_columns) if item.key_seq == 1]
                 slices = [fk_columns[i:j] for i, j in zip(indices, indices+[None])]
-                random_names = ['FK_generated_%06d' % id for id in random.sample(range(1000000), len(slices))] # Random names for each fk
+                random_names = ['FK_generated_%06d' % id for id in random.sample(list(range(1000000)), len(slices))] # Random names for each fk
                 for slice, random_name in zip(slices, random_names):
                     if slice:
                         process_fk(catalog, table, random_name, slice)

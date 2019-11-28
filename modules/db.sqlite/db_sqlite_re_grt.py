@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -63,10 +63,10 @@ class SQLiteReverseEngineering(GenericReverseEngineering):
             try:
                 if not con.cursor().execute('SELECT 1'):
                     raise Exception('connection error')
-            except Exception, exc:
+            except Exception as exc:
                 grt.send_info('Connection to %s apparently lost, reconnecting...' % connection.hostIdentifier)
                 raise NotConnectedError('Connection error')
-        except NotConnectedError, exc:
+        except NotConnectedError as exc:
             grt.send_info('Connecting to %s...' % connection.hostIdentifier)
             con = sqlite3.connect(connection.parameterValues['dbfile'])
             if not con:

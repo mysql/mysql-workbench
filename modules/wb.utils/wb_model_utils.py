@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -29,10 +29,10 @@ from wb_utils_grt import ModuleInfo
 
 # this is just a function used by the plugin, it's not exported
 def printTableLine(fields, filler= " "):
-    print "|",
+    print("|", end=' ')
     for text, size in fields:
-        print text.ljust(size, filler), "|",
-    print
+        print(text.ljust(size, filler), "|", end=' ')
+    print()
 
 
 # @wbexport makes this function be exported by the module and also describes the return and
@@ -67,7 +67,7 @@ def printAllColumns(catalog):
         printTableLine([(s, schemalen), (t, tablelen), (c, columnlen), (dt, typelen)])
 
     printTableLine([("-", schemalen), ("-", tablelen), ("-", columnlen), ("-", typelen)], "-")
-    print len(lines), "columns printed"
+    print(len(lines), "columns printed")
     
     return 0
 
