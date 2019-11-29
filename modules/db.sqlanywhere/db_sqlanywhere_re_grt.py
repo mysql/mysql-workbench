@@ -98,7 +98,7 @@ class SQLAnywhereReverseEngineering(GenericReverseEngineering):
                     grt.send_error('The given connection string is not a valid python dict: %s' % connstr)
                     raise
                 # Remove unreplaced parameters:
-                params = dict( (key, value) for key, value in all_params_dict.items()
+                params = dict( (key, value) for key, value in list(all_params_dict.items())
                                             if not (value.startswith('%') and value.endswith('%'))
                              )
                 params['password'] = password

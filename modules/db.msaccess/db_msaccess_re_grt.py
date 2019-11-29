@@ -505,7 +505,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
                 continue
             indices_dict.setdefault(row.index_name, []).append(row)
 
-        for index_name, row_list in indices_dict.items():
+        for index_name, row_list in list(indices_dict.items()):
             index = grt.classes.db_Index()
             index.name = index_name
             index.isPrimary = 1 if index_name == pk_index_name else 0
@@ -630,7 +630,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
                 return 1
             raise
 
-        for fk_name, fk_columns in fk_dict.items():
+        for fk_name, fk_columns in list(fk_dict.items()):
             process_fk(catalog, table, fk_name, fk_columns)
         return 0
 

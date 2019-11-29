@@ -516,7 +516,7 @@ class GenericReverseEngineering(object):
                 row = Row(None, schema.name, table.name, 0, None, pk_index_name, 1, 1, pk_index_row.column_name, 'A', None, None, None)
                 indices_dict.setdefault(pk_index_name, []).append(row)
         
-        for index_name, row_list in indices_dict.items():
+        for index_name, row_list in list(indices_dict.items()):
             index = grt.classes.db_Index()
             index.name = index_name
             index.isPrimary = 1 if index_name == pk_index_name else 0
@@ -612,7 +612,7 @@ class GenericReverseEngineering(object):
         for row in cls.get_connection(connection).cursor().foreignKeys(foreignSchema=schema.name, foreignTable=table.name):
             fk_dict.setdefault(row.fk_name, []).append(row)
 
-        for fk_name, fk_columns in fk_dict.items():
+        for fk_name, fk_columns in list(fk_dict.items()):
             if not fk_name:  # If there are unnamed fks we might have several fks merged, need to separate them
                 # Partition the list based on key_seq so that if the key_seq list is, for instance, [1, 2, 3, 1, 2, 1]
                 # we can have [ [1, 2, 3], [1, 2], [1] ]
