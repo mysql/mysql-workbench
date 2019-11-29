@@ -395,7 +395,7 @@ class TunnelManager:
         server = self._address_port_tuple(server, default_port=SSH_PORT)
         target = self._address_port_tuple(target, default_port=REMOTE_PORT)
 
-        for port, tunnel in self.tunnel_by_port.items():
+        for port, tunnel in list(self.tunnel_by_port.items()):
             if tunnel.match(server, username, target) and tunnel.isAlive():
                 with tunnel.lock:
                     return tunnel.local_port
@@ -420,7 +420,7 @@ class TunnelManager:
             keyfile = keyfile.decode('utf-8')
 
         found = None
-        for tunnel in self.tunnel_by_port.values():
+        for tunnel in list(self.tunnel_by_port.values()):
             if tunnel.match(server, username, target) and tunnel.isAlive():
                 found = tunnel
                 break
@@ -545,7 +545,7 @@ class TunnelManager:
         self.outpipe.flush()
     
     def shutdown(self):
-        for tunnel in self.tunnel_by_port.values():
+        for tunnel in list(self.tunnel_by_port.values()):
             tunnel.close()
             tunnel.join()
 

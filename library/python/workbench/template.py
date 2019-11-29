@@ -35,7 +35,7 @@ class MiniTemplate:
       
         if debug:
             import traceback
-            print("ENTER render_() from %s" % traceback.format_stack()[-2].split(",", 1)[-1].strip().split("\n")[0].strip())
+            print(("ENTER render_() from %s" % traceback.format_stack()[-2].split(",", 1)[-1].strip().split("\n")[0].strip()))
     
         def get(d, key, default=""):
             for k in key.split("."):
@@ -51,7 +51,7 @@ class MiniTemplate:
         while i < len(self._tokens):
             orig_token = token = self._tokens[i]
             if debug:
-                print("--"*len(context)+"> process %s: %s, token: %s (%i)" % (self.t2l(i), ".".join(context), token.strip(), i))
+                print(("--"*len(context)+"> process %s: %s, token: %s (%i)" % (self.t2l(i), ".".join(context), token.strip(), i)))
             if token.startswith("{{") and token.endswith("}}"):
                 token = token[2:-2]
                 try:
@@ -72,11 +72,11 @@ class MiniTemplate:
                     result.append(out)
             elif token.startswith("[[") and token.endswith("]]"):
                 if debug:
-                    print("Found block %s" % token)
+                    print(("Found block %s" % token))
                 token = token[2:-2]
                 if token[0] in ("/", "!") and token[1:] == (context[-1] if not context[-1].startswith("[") else context[-2]):
                     if debug:
-                        print("%s: leaving context %s through %s at %s" % (self.t2l(i), ".".join(context), token, i))
+                        print(("%s: leaving context %s through %s at %s" % (self.t2l(i), ".".join(context), token, i)))
                     if token[0] == "!":
                         # skip until the real end of the block
                         count = 1
@@ -97,19 +97,19 @@ class MiniTemplate:
                         try:
                             enter = eval(token[3:], data, data)
                             if debug:
-                                print("%s: evaluated %s in context %s to %s" % (self.t2l(i), token, list(data.keys()), enter))
+                                print(("%s: evaluated %s in context %s to %s" % (self.t2l(i), token, list(data.keys()), enter)))
                             token = "if"
                         except Exception as exc:
-                            print("%s: Error evaluating %s in context %s: %s" % (self.t2l(i), token, list(data.keys()), exc))
+                            print(("%s: Error evaluating %s in context %s: %s" % (self.t2l(i), token, list(data.keys()), exc)))
                             raise
 
                     if enter or token in data and get(data, token):
                         if debug:
-                            print("%s: entering context %s at %s" % (self.t2l(i), ".".join(context + [token]), i+1))
+                            print(("%s: entering context %s at %s" % (self.t2l(i), ".".join(context + [token]), i+1)))
                         i = self.render_(data, i+1, result, context+[token])
                     else:
                         if debug:
-                            print("%s: context %s at %s has no value for block %s, trynig to find !%s or /%s" % (self.t2l(i), ".".join(context + [token]), i+1, token, token, token))
+                            print(("%s: context %s at %s has no value for block %s, trynig to find !%s or /%s" % (self.t2l(i), ".".join(context + [token]), i+1, token, token, token)))
                         count = 1
                         i += 1
                         while i < len(self._tokens):
@@ -126,7 +126,7 @@ class MiniTemplate:
                                 count += 1
                             i += 1
                         if count != 0:
-                            print("/%s not found!" % token)
+                            print(("/%s not found!" % token))
                 else:
                     try:
                         sub = get(data, token)
@@ -135,7 +135,7 @@ class MiniTemplate:
 
                     if type(sub) is list:
                         if debug:
-                            print("%s: token %s in context %s is a list of size %i" % (self.t2l(i), ".".join(context), token, len(sub)))
+                            print(("%s: token %s in context %s is a list of size %i" % (self.t2l(i), ".".join(context), token, len(sub))))
                         k = i
                         for j, item in enumerate(sub):
                             itemd = dict(item)
@@ -145,7 +145,7 @@ class MiniTemplate:
                             else:
                                 itemd["needsep"] = 0
                             if debug:
-                                print("%s: entering lcontext %s at %s" % (self.t2l(i), ".".join(context + [token, "[%s]"%j]), i+1))
+                                print(("%s: entering lcontext %s at %s" % (self.t2l(i), ".".join(context + [token, "[%s]"%j]), i+1)))
                             k = self.render_(itemd, i+1, result, context + [token, "[%s]"%j])
                         if not sub:
                             # empty list, go through tokens until we find the closing one
@@ -153,7 +153,7 @@ class MiniTemplate:
                             k += 1
                             while k < len(self._tokens):
                                 if debug:
-                                    print("empty list %s, skip %s (%i)" % (token, self._tokens[k], count))
+                                    print(("empty list %s, skip %s (%i)" % (token, self._tokens[k], count)))
                                 if self._tokens[k] == "[[/"+token+"]]":
                                     count -= 1
                                     if count == 0:
@@ -164,13 +164,13 @@ class MiniTemplate:
                         i = k
                     else:
                         if debug:
-                            print("%s: entering context %s at %s" % (self.t2l(i), ".".join(context + [token]), i+1))
+                            print(("%s: entering context %s at %s" % (self.t2l(i), ".".join(context + [token]), i+1)))
                         i = self.render_(sub, i+1, result, context + [token])
             else:
                 result.append(token)
             i += 1
         if debug:
-            print("leaving at token %i" % i)
+            print(("leaving at token %i" % i))
         return i
 
     def render(self, data):
@@ -227,5 +227,5 @@ Value: {{value}}
 }
 
     tem = MiniTemplate(template)
-    print(tem.render(data).replace("\\\n", ""))
+    print((tem.render(data).replace("\\\n", "")))
 

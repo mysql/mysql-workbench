@@ -144,7 +144,7 @@ class HandShakeHandler(BaseRequestHandler):
 
       except Exception as e:
           # Error 10054 indicates the client connection terminated
-          print("EXCEPTION : ", e)
+          print(("EXCEPTION : ", e))
           #if e.errno == 10054:
           #  self._client_connected = False
           #else:

@@ -122,7 +122,7 @@ def dsn_parameters_to_connection_parameters(dsn_params):
                       'DATABASE': 'schema',
                       'DSN'     : 'dsn',
                     }
-    return dict( (param_mapping.get(dsn_key.upper(), dsn_key), dsn_value) for dsn_key, dsn_value in dsn_params.items() )
+    return dict( (param_mapping.get(dsn_key.upper(), dsn_key), dsn_value) for dsn_key, dsn_value in list(dsn_params.items()) )
     
     
 def check_grt_subtree_consistency(value):

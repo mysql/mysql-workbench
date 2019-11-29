@@ -97,7 +97,7 @@ class DatabaseSchemaSelector(mforms.Box):
         
         # Update the ui settings dict with the custom settings supplied by the user (if any):
         if isinstance(ui_settings, dict):
-            for key, value in ui_settings.items():
+            for key, value in list(ui_settings.items()):
                 if key not in self.ui_settings or not isinstance(value, dict):
                     continue
                 self.ui_settings[key].update(value)
