@@ -36,7 +36,7 @@ using namespace base;
 
 static std::set<std::string> empty;
 
-std::set<std::string>& MySQLSymbolInfo::systemFunctionsForVersion(MySQLVersion version) {
+std::set<std::string> const& MySQLSymbolInfo::systemFunctionsForVersion(MySQLVersion version) {
   switch (version) {
     case MySQLVersion::MySQL56:
       return systemFunctions56;
@@ -54,7 +54,7 @@ std::set<std::string>& MySQLSymbolInfo::systemFunctionsForVersion(MySQLVersion v
 
 static std::map<MySQLVersion, std::set<std::string>> keywords;
 static std::map<MySQLVersion, std::set<std::string>> reservedKeywords;
-std::set<std::string>& MySQLSymbolInfo::keywordsForVersion(MySQLVersion version) {
+std::set<std::string> const& MySQLSymbolInfo::keywordsForVersion(MySQLVersion version) {
   if (keywords.count(version) == 0) {
     std::set<std::string> list;
     std::set<std::string> reservedList;

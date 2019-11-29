@@ -1925,7 +1925,7 @@ roleList:
 ;
 
 role:
-    roleIdentifierOrText (AT_SIGN_SYMBOL textOrIdentifier)?
+    roleIdentifierOrText (AT_SIGN_SYMBOL textOrIdentifier | AT_TEXT_SUFFIX)?
 ;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2682,7 +2682,8 @@ variable:
     | systemVariable
 ;
 
-userVariable: (AT_SIGN_SYMBOL textOrIdentifier)
+userVariable:
+    AT_SIGN_SYMBOL textOrIdentifier
     | AT_TEXT_SUFFIX
 ;
 

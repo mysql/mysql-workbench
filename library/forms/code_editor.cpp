@@ -936,23 +936,23 @@ void CodeEditor::loadConfiguration(SyntaxHighlighterLanguage language) {
         version = MySQLVersion::MySQL56;
         break;
       case LanguageMySQL57:
-        version = MySQLVersion::MySQL56;
+        version = MySQLVersion::MySQL57;
         break;
       default:
         version = MySQLVersion::MySQL80;
         break;
     }
 
-    auto &names = MySQLSymbolInfo::systemFunctionsForVersion(version);
+    auto &functions = MySQLSymbolInfo::systemFunctionsForVersion(version);
     std::string list;
-    for (auto const& name : names)
+    for (auto const& name : functions)
       list += base::tolower(name) + " "; // Keyword matching in Scintilla uses lower case compare.
 
     _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 3, (sptr_t)list.c_str());
 
-    names = MySQLSymbolInfo::keywordsForVersion(version);
+    auto &keywords = MySQLSymbolInfo::keywordsForVersion(version);
     list = "";
-    for (auto const& name : names)
+    for (auto const& name : keywords)
       list += base::tolower(name) + " ";
 
     _code_editor_impl->send_editor(this, SCI_SETKEYWORDS, 1, (sptr_t)list.c_str());

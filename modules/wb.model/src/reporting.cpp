@@ -700,7 +700,7 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
 
   if (result != NULL) {
     mforms::CodeEditorConfig config(mforms::LanguageMySQL);
-    std::map<std::string, std::string> keywords = config.get_keywords();
+    std::map<std::string, std::string> keywordMap = config.get_keywords();
 
     // Create the keyword lists used for lexing.
     for (int i = 0; i <= KEYWORDSET_MAX; i++)
@@ -713,20 +713,20 @@ const Scintilla::LexerModule *setup_syntax_highlighter(db_mgmt_RdbmsRef rdbms) {
     if (!version.is_valid())
       version = bec::parse_version("8.0.16");
 
-    auto &names = MySQLSymbolInfo::systemFunctionsForVersion(bec::versionToEnum(version));
+    auto &functions = MySQLSymbolInfo::systemFunctionsForVersion(bec::versionToEnum(version));
     std::string list;
-    for (auto &name : names)
+    for (auto &name : functions)
       list += base::tolower(name) + " ";
     ((SCI_WRAPPER_NS WordList *)keywordLists[3])->Set(list.c_str());
 
-    names = MySQLSymbolInfo::keywordsForVersion(bec::versionToEnum(version));
+    auto &keywords = MySQLSymbolInfo::keywordsForVersion(bec::versionToEnum(version));
     list = "";
-    for (auto &name : names)
+    for (auto &name : keywords)
       list += base::tolower(name) + " ";
     ((SCI_WRAPPER_NS WordList *)keywordLists[1])->Set(list.c_str());
 
-    ((SCI_WRAPPER_NS WordList *)keywordLists[5])->Set(keywords["Procedure keywords"].c_str());
-    ((SCI_WRAPPER_NS WordList *)keywordLists[6])->Set(keywords["User Keywords 1"].c_str());
+    ((SCI_WRAPPER_NS WordList *)keywordLists[5])->Set(keywordMap["Procedure keywords"].c_str());
+    ((SCI_WRAPPER_NS WordList *)keywordLists[6])->Set(keywordMap["User Keywords 1"].c_str());
 
     // TODO: adjust CSS files so the color values correspond to what the user has set currently.
   }
