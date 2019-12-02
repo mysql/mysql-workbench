@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-std::set<std::string> systemFunctions55 = {
+static const std::set<std::string> systemFunctions55 = {
   "abs", "acos", "adddate", "addtime", "aes_decrypt", "aes_encrypt", "area", "asbinary", "ascii", "asin", "astext", "atan", "atan2", "atan", "avg",
   "benchmark", "bin", "bit_and", "bit_count", "bit_length", "bit_or", "bit_xor", "boundary",
   "cast", "ceil", "ceiling", "char_length", "char", "character_length", "charset", "coalesce", "coercibility", "collation", "compress", "concat_ws", "concat", "connection_id",
@@ -56,7 +56,7 @@ std::set<std::string> systemFunctions55 = {
   "y", "year", "yearweek"
 };
 
-std::set<std::string> systemFunctions56 = {
+static const std::set<std::string> systemFunctions56 = {
   "abs", "acos", "adddate", "addtime", "aes_decrypt", "aes_encrypt", "area", "asbinary", "ascii", "asin", "astext", "atan", "atan2", "atan", "avg",
   "benchmark", "bin", "bit_and", "bit_count", "bit_length", "bit_or", "bit_xor", "boundary", "buffer",
   "cast", "ceil", "ceiling", "char_length", "char", "character_length", "charset", "coalesce", "coercibility", "collation", "compress", "concat_ws", "concat", "connection_id",
@@ -92,7 +92,7 @@ std::set<std::string> systemFunctions56 = {
   "y", "year", "yearweek"
 };
 
-std::set<std::string> systemFunctions57 = {
+static const std::set<std::string> systemFunctions57 = {
   "abs", "acos", "adddate", "addtime", "aes_decrypt", "aes_encrypt", "area", "asbinary", "ascii", "asin", "astext", "atan", "atan2", "atan", "avg",
   "benchmark", "bin", "bit_and", "bit_count", "bit_length", "bit_or", "bit_xor", "boundary", "buffer",
   "cast", "ceil", "ceiling", "char_length", "char", "character_length", "charset", "coalesce", "coercibility", "collation", "compress", "concat_ws", "concat", "connection_id",

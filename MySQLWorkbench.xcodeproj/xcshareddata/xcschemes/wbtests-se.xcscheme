@@ -68,7 +68,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "--config ~/casmine-config.json"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--list-specs"
@@ -87,7 +87,7 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "JSON_CONFIG_FILE"
+            key = "CASMINE_CONFIG_FILE"
             value = "~/casmine-config.json"
             isEnabled = "YES">
          </EnvironmentVariable>

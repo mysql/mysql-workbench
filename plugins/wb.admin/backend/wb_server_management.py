@@ -1104,7 +1104,7 @@ class FileOpsLinuxBase(object):
         else:
             try:
                 if include_size:
-                    file_list = [(f, int(s)) for _, _, _, _, s, _, _, _, f in [s.strip().split(None, 8) for s in output.split("\n") if not s.startswith('total')]]
+                    file_list = [(f, int(s)) for _, _, _, _, s, _, _, _, f in [s.strip().split(None, 8) for s in output.split("\n") if s.startswith('-')]]
                 else:
                     file_list = [s.strip() for s in output.split("\n")]
                     

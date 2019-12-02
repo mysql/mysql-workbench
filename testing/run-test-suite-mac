@@ -17,10 +17,6 @@ fi
 
 pushd test-suite
 
-if [ -f "config.json" ]; then
-  export JSON_CONFIG_FILE="config.json"
-fi
-
 export MWB_DATA_DIR="$root_path/Resources"
 export TEST_MODULES_DIR="$root_path/Plugins"
 
@@ -28,7 +24,7 @@ echo "PATHS:"
 echo $MWB_DATA_DIR
 echo $TEST_MODULES_DIR
 
-$test_binary --config ~/casmine-config.json
+$test_binary
 
 # Enable the crash reporter again.
 defaults write com.apple.CrashReporter DialogType crashreport

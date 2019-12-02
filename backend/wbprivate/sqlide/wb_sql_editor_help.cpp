@@ -309,7 +309,7 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
         d.ParseStream(isw);
         if (d.HasParseError()) {
           logError("Could not read help text file (%s)\nError code: %d\n", fileName.c_str(), d.GetParseError());
-          return;
+          continue;
         }
 
         std::set<std::string> topics;
@@ -1113,10 +1113,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
           return "ALTER VIEW";
         if (alterContext->alterEvent() != nullptr)
           return "ALTER EVENT";
-        // No tablespace or logfile group topics.
+        if (alterContext->alterTablespace() != nullptr || alterContext->alterUndoTablespace() != nullptr)
+          return "ALTER TABLESPACE";
+        if (alterContext->alterLogfileGroup() != nullptr)
+          return "ALTER LOGFILE GROUP";
         if (alterContext->alterServer() != nullptr)
           return "ALTER SERVER";
-        // No alter instance topic.
+        if (alterContext->INSTANCE_SYMBOL() != nullptr)
+          return "ALTER INSTANCE";
 
         break;
       }
@@ -1134,7 +1138,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
         if (createContext->createUdf() != nullptr)
           return "CREATE FUNCTION UDF";
         if (createContext->createLogfileGroup() != nullptr)
-          return "CREATE TABLESPACE";
+          return "CREATE LOGFILE GROUP";
         if (createContext->createView() != nullptr)
           return "CREATE VIEW";
         if (createContext->createTrigger() != nullptr)

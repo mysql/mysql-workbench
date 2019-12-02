@@ -145,7 +145,7 @@ static std::vector<HelpTestEntry> singleTokenTests = {
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "binlog \"codecodecode\"", 3, "BINLOG", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "create table a (id bit)", 20, "BIT", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do a = bit_and(b)", 8, "BIT_AND", __LINE__ },
-  { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do a = bit_count(b)", 8, "BIT_COUNT", __LINE__ },
+  { MYSQL_VERSION_LOWER, MYSQL_VERSION_8_0_0, "do a = bit_count(b)", 8, "BIT_COUNT", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do a = bit_length(b)", 8, "BIT_LENGTH", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "select bit_or(a)", 8, "BIT_OR", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do a = bit_xor(b)", 8, "BIT_XOR", __LINE__ },
@@ -253,7 +253,8 @@ static std::vector<HelpTestEntry> singleTokenTests = {
   { MYSQL_VERSION_8_0_0, MYSQL_VERSION_HIGHER, "do a = geomcollfromtext(b)", 8, "DO", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_8_0_0, "do a = geomcollfromwkb(b)", 8, "GEOMCOLLFROMWKB", __LINE__ },
   { MYSQL_VERSION_8_0_0, MYSQL_VERSION_HIGHER, "do a = geomcollfromwkb(b)", 8, "DO", __LINE__ },
-  { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "CREATE TABLE geom (g GEOMETRY);", 25, "GEOMETRY", __LINE__ }, // Topic "geometry" doesn't contain much. "Hierarchy" is better suited.
+  { MYSQL_VERSION_LOWER, MYSQL_VERSION_8_0_0, "CREATE TABLE geom (g GEOMETRY);", 25, "GEOMETRY",
+    __LINE__ }, // Topic "geometry" doesn't contain much. "Hierarchy" is better suited.
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_HIGHER, "do a = geometrycollection(b, c, d, e)", 8, "GEOMETRYCOLLECTION", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_5_7_6, "SELECT AsText(GeometryN(GeomFromText(@gc),1));", 15, "GEOMETRYN", __LINE__ },
   { MYSQL_VERSION_LOWER, MYSQL_VERSION_5_7_6, "SELECT GeometryType(GeomFromText('POINT(1 1)'));", 15, "GEOMETRYTYPE", __LINE__ },
