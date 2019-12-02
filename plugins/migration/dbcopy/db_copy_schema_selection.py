@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -66,7 +66,7 @@ class SchemaMainView(WizardPage):
         self.main.plan.migrationSource.selectedCatalogName = 'def'
         try:
             self.main.plan.migrationSource.selectedSchemataNames = self.schema_selector.get_selected()
-        except Exception, e:
+        except Exception as e:
             mforms.Utilities.show_error("Invalid Selection", str(e), "OK", "", "")
             return
             

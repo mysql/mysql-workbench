@@ -457,7 +457,7 @@ class VariablesViewer(mforms.Box):
                 try:
                     self.ctrl_be.exec_query("RESET PERSIST %s" % value_name)
                     return True
-                except Exception, e:
+                except Exception as e:
                     log_error("Error occured while unsetting persisting variables: %s" % e)
             return False
 
@@ -477,7 +477,7 @@ class VariablesViewer(mforms.Box):
                     mforms.Utilities.show_message('Information', 'Unable to store status of the value: %s' % name, 'Ok', '', '')
                     return False
                 return True
-        except Exception, e:
+        except Exception as e:
             log_error("Error occured while persisting variables: %s" % e)
             return False
 
@@ -511,7 +511,7 @@ class VariablesViewer(mforms.Box):
 def _decode_list(data):
     rv = []
     for item in data:
-        if isinstance(item, unicode):
+        if isinstance(item, str):
             item = item.encode('utf-8')
         elif isinstance(item, list):
             item = _decode_list(item)
@@ -523,10 +523,10 @@ def _decode_list(data):
 
 def _decode_dict(data):
     rv = {}
-    for key, value in data.iteritems():
-        if isinstance(key, unicode):
+    for key, value in data.items():
+        if isinstance(key, str):
             key = key.encode('utf-8')
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             value = value.encode('utf-8')
         elif isinstance(value, list):
             value = _decode_list(value)

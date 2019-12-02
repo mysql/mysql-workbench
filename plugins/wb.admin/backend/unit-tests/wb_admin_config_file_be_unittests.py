@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -85,7 +85,7 @@ def unit_test_1():
 
     ret = False
 
-    for name, opt in cfg.options.iteritems():
+    for name, opt in cfg.options.items():
         values  = opt.get_values()
         default = opt.default_value()
         if len(values) > 0:
@@ -106,15 +106,15 @@ def unit_test_2():
     ret = False
 
     cfg_opts = {}
-    for name, opt in cfg.options.iteritems():
+    for name, opt in cfg.options.items():
         values  = opt.get_values()
         default = opt.default_value()
         if len(values) == 2:
             cfg_opts[id(opt)] = opt
 
-    ret = len(cfg_opts) == 1 and len(cfg_opts.values()[0].get_values()) == 2
+    ret = len(cfg_opts) == 1 and len(list(cfg_opts.values())[0].get_values()) == 2
 
-    values = cfg_opts.values()[0].get_values()
+    values = list(cfg_opts.values())[0].get_values()
     ret = ret and values[0].value == "db1" and values[1].value == "db2"
 
     return (ret, "Reading simple config with multiline option")
@@ -331,7 +331,7 @@ def unit_test_12():
     (c, r, a) = opt.get_changeset()
 
     cont = cfg.generate_file_content()
-    print cont
+    print(cont)
 
     return (ret, "Testing cfg")
 
@@ -347,21 +347,21 @@ def unit_test_12():
 
 #-------------------------------------------------------------------------------
 results = []
-tests = sorted(filter(lambda x: "unit_test" in x, dir()))
+tests = sorted([x for x in dir() if "unit_test" in x])
 
-tests_numbers = sorted(map(lambda x: int(x[10:]), tests))
+tests_numbers = sorted([int(x[10:]) for x in tests])
 
 for testnr in tests_numbers:
     test = "unit_test_%i" % testnr
-    print "--------------------------------------------------------------------"
-    print "-- %s starting" % test
+    print("--------------------------------------------------------------------")
+    print("-- %s starting" % test)
     ret = eval(test + "()")
-    print "-- %s %s:   %s\n" % (test, str(ret[0]), ret[1])
+    print("-- %s %s:   %s\n" % (test, str(ret[0]), ret[1]))
     results.append((ret[0], ret[1], test))
 
 
 
-print "============================== SUMMARY ==================================="
+print("============================== SUMMARY ===================================")
 for res in results:
     ch = "+" if res[0] else "-"
-    print "%s %s - %s" % (ch, res[2], res[1])
+    print("%s %s - %s" % (ch, res[2], res[1]))

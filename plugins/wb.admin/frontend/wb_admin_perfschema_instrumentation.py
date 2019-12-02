@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -199,7 +199,7 @@ class EasySetupPage(mforms.Box):
 
             return "custom"
 
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("MySQL error querying PS instrumentation/consumers: %s\n" % e)
             mforms.Utilities.show_error("Check Performance Schema Configuration State", "Error checking configuration state of Performance Schema: %s" % e, "OK", "", "")
 
@@ -251,7 +251,7 @@ class EasySetupPage(mforms.Box):
                     consumers = DEFAULT_CONSUMERS_56
                 mforms.App.get().set_status_text("Resetting Performance Schema settings to default instrumentation...")
                 sql = self.generate_updates_for_reset(instruments, consumers)
-                print sql
+                print(sql)
             for s in sql:
                 log_info("Executing %s...\n" % s)
                 self.owner.main_view.editor.executeManagementCommand(s, 0)
@@ -261,7 +261,7 @@ class EasySetupPage(mforms.Box):
                 mforms.App.get().set_status_text("Disabled Performance Schema Settings")
 
             self.owner.rebuild_ui(False)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("MySQL error toggling (%s) PS Instrumentation\n" % e)
             mforms.App.get().set_status_text("Error toggling Performance Schema Instrumentation: %s" % e)
             mforms.Utilities.show_error("Toggle Performance Schema Instrumentation",
@@ -296,7 +296,7 @@ class EasySetupPage(mforms.Box):
 
     def reload(self):
         state = self.check_instrumentation_level()
-        print state
+        print(state)
         self.logo.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo_enabled.png" if state != "disabled" else "ps_easysetup_logo.png"))
         self.switch_image.set_state(state)
 
@@ -351,7 +351,7 @@ The timed column indicates whether information about the event duration is recor
         """
         changes = self._data.get_changes()
 
-        for item in changes.keys():
+        for item in list(changes.keys()):
             tokens = item.split('/')
             node = self._instruments.root_node()
             for token in tokens:
@@ -379,7 +379,7 @@ The timed column indicates whether information about the event duration is recor
         Inserts nodes based on the model which is an instance
         of PSInstrumentGroup.
         """
-        for child in model.keys():
+        for child in list(model.keys()):
             node = None
             tag = child
             if parent:
@@ -401,7 +401,7 @@ The timed column indicates whether information about the event duration is recor
             self.tag_models[tag] = model[child]
 
             # Inserts children
-            if not model[child].has_key('_data_'):
+            if '_data_' not in model[child]:
                 self.insert_nodes(model[child], node)
 
 
@@ -469,7 +469,7 @@ class SetupDataCollection(mforms.Box):
         self._data[name].enabled = is_active
 
         # Enables/disables child controls based on paren's status
-        if self._child_controls.has_key(caller):
+        if caller in self._child_controls:
             for child in self._child_controls[caller]:
                 child.set_enabled(is_active)
 
@@ -492,7 +492,7 @@ class SetupDataCollection(mforms.Box):
 
         # If the control has a parent, adds the relation
         if parent:
-            if not self._child_controls.has_key(parent):
+            if parent not in self._child_controls:
                 self._child_controls[parent] = []
             
             self._child_controls[parent].append(checkbox)
@@ -654,18 +654,18 @@ class SetupDataCollection(mforms.Box):
         """
         changes = self._data.get_changes()
 
-        for item in changes.keys():
+        for item in list(changes.keys()):
             # There's only one possible change
             (att, old, new) = changes[item][0]
 
             # This validation is needed cuz not all the consumers
             # have a checkbox on this screen
-            if self._controls.has_key(item):
+            if item in self._controls:
                 item_ctrl = self._controls[item]
 
                 item_ctrl.set_active(bool(old))
 
-                if self._child_controls.has_key(item_ctrl):
+                if item_ctrl in self._child_controls:
                     for control in self._child_controls[item_ctrl]:
                         control.set_enabled(bool(old))
     
@@ -1104,7 +1104,7 @@ class SetupOptions(mforms.Box):
 
         self.owner = owner
         self._timers = timers
-        self._timer_names = self._timers.keys()
+        self._timer_names = list(self._timers.keys())
         self._timer_names.sort()
 
         self._controls = {}
@@ -1341,7 +1341,7 @@ class SetupThreads(mforms.Box):
         """
         self.threads.clear()
 
-        items = self._threads.keys()
+        items = list(self._threads.keys())
         items.sort()
         for item in items:
             node = self.threads.add_node()
@@ -1578,7 +1578,7 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
                                          "Clear Tables", "Cancel", "") == mforms.ResultOk:
             try:
                 self.main_view.editor.executeManagementCommand('call sys.ps_truncate_all_tables(0)', 1)
-            except Exception, e:
+            except Exception as e:
                 log_error("Error calling sys.ps_truncate_all_tables(0): %s\n" % e)
                 mforms.Utilities.show_error("Clear Event Tables", "An error occurred truncating performance_schema event tables.\n%s"%e, "OK", "", "")
 
@@ -1588,7 +1588,7 @@ class WbAdminPerformanceSchemaInstrumentation(WbAdminPSBaseTab, ChangeCounter):
                                          "Reset", "Cancel", "") == mforms.ResultOk:
             try:
                 self.main_view.editor.executeManagementCommand('call sys.ps_setup_reset_to_default(0)', 1)
-            except Exception, e:
+            except Exception as e:
                 log_error("Error calling sys.ps_reset_to_default(0): %s\n" % e)
                 mforms.Utilities.show_error("Reset Performance Schema Settings", "An error occurred resetting performance_schema instrumentation settings.\n%s"%e, "OK", "", "")
                 return

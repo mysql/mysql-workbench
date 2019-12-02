@@ -1,4 +1,4 @@
-# Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -233,16 +233,16 @@ class SourceRDBMS:
 
 class SourceRDBMSMssql(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
-        return 'bcp "SELECT %(select_expression)s FROM %(unquoted_source_schema)s.%(unquoted_source_table)s" queryout %(source_table)s.csv -c -t, -T -S .\%(source_instance)s -U %(source_user)s -P %%arg_source_passwords' % dict(table.items() + connection_args.items())
+        return 'bcp "SELECT %(select_expression)s FROM %(unquoted_source_schema)s.%(unquoted_source_table)s" queryout %(source_table)s.csv -c -t, -T -S .\%(source_instance)s -U %(source_user)s -P %%arg_source_passwords' % dict(list(table.items()) + list(connection_args.items()))
 
 
 
 class SourceRDBMSMysql(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
         if self.source_os == 'windows':
-            return 'mysqldump.exe --login-path=wb_migration_source -t --tab=. %(source_schema)s %(source_table)s --fields-terminated-by=,' % dict(table.items() + connection_args.items())
+            return 'mysqldump.exe --login-path=wb_migration_source -t --tab=. %(source_schema)s %(source_table)s --fields-terminated-by=,' % dict(list(table.items()) + list(connection_args.items()))
         else:
-            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  --tab=/tmp %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(table.items() + connection_args.items())
+            return 'MYSQL_PWD=$arg_source_password mysqldump -h127.0.0.1 -P%(source_port)s -u%(source_user)s -t  --tab=/tmp %(source_schema)s %(source_table)s --fields-terminated-by=\',\'' % dict(list(table.items()) + list(connection_args.items()))
 
     def get_cfg_editor_cmd(self, connection_args):
         if self.source_os == 'windows':
@@ -251,15 +251,15 @@ class SourceRDBMSMysql(SourceRDBMS):
 
 class SourceRDBMSPostgresql(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
-        return 'psql -U %(source_user)s -d %(source_schema)s -c "COPY %(source_table)s TO stdout DELIMITER \',\';" > %(source_table)s.csv' % dict(table.items() + connection_args.items())
+        return 'psql -U %(source_user)s -d %(source_schema)s -c "COPY %(source_table)s TO stdout DELIMITER \',\';" > %(source_table)s.csv' % dict(list(table.items()) + list(connection_args.items()))
 
 
 class SourceRDBMSSqlAnywhere(SourceRDBMS):
     def get_copy_table_cmd(self, table, connection_args):
         if self.source_os == 'windows':
-            return """dbisql.exe -c "DBN=%(source_schema)s;UID=%(source_user)s;PWD=%arg_source_password%" "SELECT * FROM %(source_table)s; OUTPUT TO '%(source_table)s.csv' FORMAT TEXT DELIMITED BY ',' QUOTE '';""" % dict(table.items() + connection_args.items())
+            return """dbisql.exe -c "DBN=%(source_schema)s;UID=%(source_user)s;PWD=%arg_source_password%" "SELECT * FROM %(source_table)s; OUTPUT TO '%(source_table)s.csv' FORMAT TEXT DELIMITED BY ',' QUOTE '';""" % dict(list(table.items()) + list(connection_args.items()))
         else:
-            return """dbisql -c "DBN=%(source_schema)s;UID=%(source_user)s;PWD=$arg_source_password" "SELECT * FROM %(source_table)s; OUTPUT TO '%(source_table)s.csv' FORMAT TEXT DELIMITED BY ',' QUOTE '';""" % dict(table.items() + connection_args.items())
+            return """dbisql -c "DBN=%(source_schema)s;UID=%(source_user)s;PWD=$arg_source_password" "SELECT * FROM %(source_table)s; OUTPUT TO '%(source_table)s.csv' FORMAT TEXT DELIMITED BY ',' QUOTE '';""" % dict(list(table.items()) + list(connection_args.items()))
 
 
 
@@ -416,7 +416,7 @@ class DataCopyScriptLinux(DataCopyScript):
         import_sql_file_name = 'import_%s.sql' % source_schema
     
         with open(script_path, 'w+') as f:
-            os.chmod(script_path, 0700)
+            os.chmod(script_path, 0o700)
             f.write('#!/bin/bash\n\n')
             f.write('MYPATH=`pwd`\n')
             
@@ -520,7 +520,7 @@ class DataCopyScriptDarwin(DataCopyScript):
         import_sql_file_name = 'import_%s.sql' % source_schema
     
         with open(script_path, 'w+') as f:
-            os.chmod(script_path, 0700)
+            os.chmod(script_path, 0o700)
             f.write('#!/bin/bash\n\n')
             f.write('MYPATH=`pwd`\n')
             

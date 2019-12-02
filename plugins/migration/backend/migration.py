@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -333,7 +333,7 @@ class MigrationSource(object):
 
 
     def setIgnoredObjectsOfType(self, otype, iglist):
-        for i in reversed(range(len(self.ignoreList))):
+        for i in reversed(list(range(len(self.ignoreList)))):
             if self.ignoreList[i].startswith(otype+":"):
                 del self.ignoreList[i]
         for item in iglist:
@@ -341,7 +341,7 @@ class MigrationSource(object):
 
 
     def setIgnoreObjectType(self, otype, flag):
-        for i in reversed(range(len(self.ignoreList))):
+        for i in reversed(list(range(len(self.ignoreList)))):
             if self.ignoreList[i].startswith(otype+":"):
                 del self.ignoreList[i]
         if flag:
@@ -424,10 +424,10 @@ class MigrationPlan(object):
         else:
             self.wbcopytables_path = self.wbcopytables_path_bin
 
-        if type(self.wbcopytables_path_bin) == unicode:
+        if type(self.wbcopytables_path_bin) == str:
             self.wbcopytables_path_bin = self.wbcopytables_path_bin.encode("UTF-8")
 
-        if type(self.wbcopytables_path) == unicode:
+        if type(self.wbcopytables_path) == str:
             self.wbcopytables_path = self.wbcopytables_path.encode("UTF-8")
 
     def close(self):

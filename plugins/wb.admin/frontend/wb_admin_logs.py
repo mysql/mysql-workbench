@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -265,7 +265,7 @@ class LogView(mforms.Box):
         
         try:
             self.log_reader = self.BackendLogReaderClass(*self.args)
-        except Exception, error:
+        except Exception as error:
             import traceback
             log_error("Exception creating log reader: %s\n%s\n" % (error, traceback.format_exc()))
             self._show_error("Error creating log reader: %s\n" % error)
@@ -418,7 +418,7 @@ class LogView(mforms.Box):
                 self.eof_button.set_enabled(self.log_reader.has_next())
                 self.next_button.set_enabled(self.log_reader.has_next())
                 self.refresh_button.set_enabled(True)
-            except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
+            except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
                 self._show_error(error)
 
     def copy_details(self):
@@ -443,27 +443,27 @@ class LogView(mforms.Box):
     def go_bof(self):
         try:
             self.refresh(self.log_reader.first())
-        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
+        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
     def go_eof(self):
         try:
             self.refresh(self.log_reader.last())
-        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
+        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
     def go_back(self):
         try:
             records = self.log_reader.previous() if self.log_reader.has_previous() else None
             self.refresh(records)
-        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
+        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
     def go_next(self):
         try:
-            records = self.log_reader.next() if self.log_reader.has_next() else None
+            records = next(self.log_reader) if self.log_reader.has_next() else None
             self.refresh(records)
-        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError), error:
+        except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
 
@@ -492,7 +492,7 @@ class LogViewGeneric(LogView):
         return self.filter_box
     
     def filter_handler(self):
-        for text, filter in self.filter_list.iteritems():
+        for text, filter in self.filter_list.items():
             if filter.get_active():
                 self.filter_text = text
 
@@ -738,7 +738,7 @@ class WbAdminLogs(WbAdminTabBase):
         
         try:
             self.refresh()
-        except Exception, e:
+        except Exception as e:
             r = mforms.Utilities.show_warning("Log Refresh", "An error occurred while displaying MySQL server logs: %s" % e, "Ignore", "Cancel", "")
             if r == mforms.ResultCancel:
                 self.disable_log_refresh = True        
@@ -756,22 +756,22 @@ class WbAdminLogs(WbAdminTabBase):
             cfg_be.open_configuration_file(self.instance_info.config_file_path, warn_missing=False)
             options = dict(cfg_be.get_options(self.instance_info.config_file_section))
 
-            if not self.instance_info.log_output and options.has_key('log-output'):
+            if not self.instance_info.log_output and 'log-output' in options:
                 self.instance_info.log_ouput = options['log-output']
 
             if not self.instance_info.general_log_file_path:
-                path = options['general_log_file'] if options.has_key('general_log_file') else (
-                       options['log'] if options.has_key('log') else '')  # the 'log' option is deprecated but still allowed
+                path = options['general_log_file'] if 'general_log_file' in options else (
+                       options['log'] if 'log' in options else '')  # the 'log' option is deprecated but still allowed
                 if path:
                     self.instance_info.general_log_file_path = path.strip('"')
 
             if not self.instance_info.slow_log_file_path:
-                path = options['slow_query_log_file'] if options.has_key('slow_query_log_file') else (
-                       options['log-slow-queries'] if options.has_key('log-slow-queries') else '')  # the 'log-slow-queries' option is deprecated but still allowed
+                path = options['slow_query_log_file'] if 'slow_query_log_file' in options else (
+                       options['log-slow-queries'] if 'log-slow-queries' in options else '')  # the 'log-slow-queries' option is deprecated but still allowed
                 if path:
                     self.instance_info.slow_log_file_path = path.strip('"')
 
-            if not self.instance_info.error_log_file_path and options.has_key('log-error'):
+            if not self.instance_info.error_log_file_path and 'log-error' in options:
                 self.instance_info.error_log_file_path = options['log-error'].strip('"')
 
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -145,7 +145,7 @@ and the destination server where they should be copied to.'''), False, True)
                 info_label.set_text('Connection succeeded.')
                 self.connections_ok = True
                 break
-            except (DBLoginError, SystemError), e:
+            except (DBLoginError, SystemError) as e:
                 if attempt > 0:
                     if isinstance(e, DBLoginError) and not force_password:
                         force_password = True
@@ -163,7 +163,7 @@ and the destination server where they should be copied to.'''), False, True)
                 username = source.connection.parameterValues.userName
                 storage_string = source.connection.hostIdentifier
                 source.password = request_password(source.connection, username, storage_string, force_password)
-            except Exception, e:
+            except Exception as e:
                 etext = str(e)
                 if etext.startswith('Error(') and etext.endswith(')'):
                     etext = eval(etext[6:-1], {}, {})[1]

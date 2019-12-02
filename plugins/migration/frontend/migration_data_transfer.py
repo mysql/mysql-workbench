@@ -209,13 +209,13 @@ All tables are copied by default.""")
         if self.CopyScript_radiobutton.get_active():
             self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"] = self.CopyScript_entry.get_string_value()
         else:
-            if self.main.plan.state.dataBulkTransferParams.has_key("GenerateCopyScript"):
+            if "GenerateCopyScript" in self.main.plan.state.dataBulkTransferParams:
                 del self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"]
 
         if self.BulkCopyScript_radiobutton.get_active():
             self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"] = self.BulkCopyScript_entry.get_string_value()
         else:
-            if self.main.plan.state.dataBulkTransferParams.has_key("GenerateBulkCopyScript"):
+            if "GenerateBulkCopyScript" in self.main.plan.state.dataBulkTransferParams:
                 del self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
 
         self.main.plan.state.dataBulkTransferParams["LiveDataCopy"] = 1 if self._copy_db.get_active() else 0
@@ -223,7 +223,7 @@ All tables are copied by default.""")
         self.main.plan.state.dataBulkTransferParams["DriverSendsDataAsUTF8"] = 1 if self._driver_sends_utf8.get_active() else 0
         self.main.plan.state.dataBulkTransferParams["TruncateTargetTables"] = 1 if self._truncate_db.get_active() else 0
 
-        for key in self.main.plan.state.dataBulkTransferParams.keys():
+        for key in list(self.main.plan.state.dataBulkTransferParams.keys()):
             if key.endswith(":rangeKey"):
                 del self.main.plan.state.dataBulkTransferParams[key]
             if key.endswith(":rangeStart"):
@@ -276,7 +276,7 @@ All tables are copied by default.""")
                 self._copy_db.set_active(False)
 
             self.refresh_table_list()
-            for k in self.main.plan.state.dataBulkTransferParams.keys():
+            for k in list(self.main.plan.state.dataBulkTransferParams.keys()):
                 del self.main.plan.state.dataBulkTransferParams[k]
 
 
@@ -463,7 +463,7 @@ class TransferMainView(WizardProgressPage):
         target_db_module = self.main.plan.migrationTarget.module_db()
         ttimeout = str(self.main.plan.migrationTarget.connection.parameterValues['timeout'])
         stimeout = ''
-        if self.main.plan.migrationSource.connection.parameterValues.has_key('timeout'):
+        if 'timeout' in self.main.plan.migrationSource.connection.parameterValues:
             stimeout = str(self.main.plan.migrationSource.connection.parameterValues['timeout'])
 
         self._working_set = {}
@@ -539,7 +539,7 @@ class TransferMainView(WizardProgressPage):
             def cmt(s):
                 return "REM "+s+"\n"
         else:
-            os.chmod(path, 0700)
+            os.chmod(path, 0o700)
             def cmt(s):
                 return "# "+s+"\n"
             f.write("#!/bin/sh\n")
@@ -602,7 +602,7 @@ IF [%arg_source_password%] == [] (
             f.write("set table_file=%s\n" % filename)
             f.write("TYPE NUL > %s\n" % filename)
 
-            for table in self._working_set.values():
+            for table in list(self._working_set.values()):
                 fields = []
                 fields.append(table["source_schema"])
                 fields.append(table["source_table"])
@@ -660,7 +660,7 @@ fi
 
             f.write(' --thread-count=$arg_worker_count \\\n $arg_truncate_target \\\n $arg_debug_output \\\n')
 
-            for table in self._working_set.values():
+            for table in list(self._working_set.values()):
                 opt = "--table '%s' '%s' '%s' '%s' '%s' '%s' '%s'" % (table["source_schema"], 
                                                                       table["source_table"], 
                                                                       table["target_schema"], 
@@ -687,7 +687,7 @@ fi
         target_os = self.main.plan.migrationTarget.get_os()
 
         script = DataCopyFactory(source_os, target_os, conn_args['source_rdbms'])
-        script.generate(self._working_set.values(), conn_args, script_path)
+        script.generate(list(self._working_set.values()), conn_args, script_path)
 
 
 
@@ -696,7 +696,7 @@ fi
         total = self._transferer.count_table_rows(self._working_set)
 
         self.send_info("%i total rows in %i tables need to be copied:" % (total, len(self._working_set)))
-        for task in self._working_set.values():
+        for task in list(self._working_set.values()):
             self.send_info("- %s.%s: %s" % (task["source_schema"], task["source_table"], task.get("row_count", "error")))
 
 
@@ -704,7 +704,7 @@ fi
         # update the label with the number of rows to copy here, since this is in the main thread
         total = 0
         table_count = len (self._working_set);
-        for task in self._working_set.values():
+        for task in list(self._working_set.values()):
             total += task.get("row_count", 0)
             self.create_transfer_log(task["target_table_object"])
 
@@ -727,7 +727,7 @@ fi
             fully_copied = 0
             self._tables_to_exclude = list()
             self._count_of_failed_tables = 0
-            for task in self._working_set.values():
+            for task in list(self._working_set.values()):
                 info = succeeded_tasks.get(task["target_schema"]+"."+task["target_table"], None)
                 row_count = task.get("row_count", 0)
                 if info:

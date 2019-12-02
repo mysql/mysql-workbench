@@ -31,7 +31,7 @@ from workbench.utils import human_size, Version
 def show_schema_manager(editor, selection, table_maintenance=False):
     try:
         editor.executeManagementQuery("select 1", 0)
-    except grt.DBError, e:
+    except grt.DBError as e:
         mforms.Utilities.show_error("Schema Inspector", "Can not launch the Schema Inspector because the server is unreacheble.", "OK", "", "")
         log_error("Can not launch the Schema Inspector because the server is unreacheble.\n")
         return False
@@ -269,7 +269,7 @@ class ObjectManager(mforms.Box):
                         else:
                             parent_name = node.get_string(self.parent_name_column)
                         
-                        if parent_nodes.has_key(parent_name):
+                        if parent_name in parent_nodes:
                             obj.owner = parent_nodes[parent_name]
                         else:
                             pobj = grt.classes.db_query_LiveDBObject()
@@ -319,7 +319,7 @@ class ObjectManager(mforms.Box):
     def preload_data(self,query):
         try:
             rset = self.editor.executeManagementQuery(query, 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             if e.args[1] == 1044 or e.args[1] == 1142:
                 mforms.Utilities.show_error("Access Error", "The current user does not have enough privileges to execute %s.\n\n%s"%(query, e.args[0]), "OK", "", "")
             else:
@@ -357,9 +357,9 @@ class ObjectManager(mforms.Box):
                             node.set_int(i, rset.intFieldValueByName(field) or 0)
                     elif ctype is mforms.LongIntegerColumnType:
                         if type(field) is int:
-                            node.set_long(i, long(rset.stringFieldValue(field) or 0))
+                            node.set_long(i, int(rset.stringFieldValue(field) or 0))
                         else:
-                            node.set_long(i, long(rset.stringFieldValueByName(field) or 0))
+                            node.set_long(i, int(rset.stringFieldValueByName(field) or 0))
                     else:
                         if type(field) is int:
                             node.set_string(i, rset.stringFieldValue(field) or "" if format_func is None else format_func(rset.stringFieldValue(field)))
@@ -399,10 +399,10 @@ class TableManager(ObjectManager):
                ("Row_format", StringColumnType, "Row Format", 100, None),
                ("Rows", LongIntegerColumnType, "Rows", 80, None),
                ("Avg_row_length", LongIntegerColumnType, "Avg Row Length", 100, None),
-               ({'field' : "Data_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Data Length", 100, None),
-               ({'field' : "Max_data_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Max Data Length", 100, None),
-               ({'field' : "Index_length", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Index Length", 100, None),
-               ({'field' : "Data_free", 'format_func' : lambda x: human_size(long(x)) if x else ""}, NumberWithUnitColumnType, "Data Free", 80, None),
+               ({'field' : "Data_length", 'format_func' : lambda x: human_size(int(x)) if x else ""}, NumberWithUnitColumnType, "Data Length", 100, None),
+               ({'field' : "Max_data_length", 'format_func' : lambda x: human_size(int(x)) if x else ""}, NumberWithUnitColumnType, "Max Data Length", 100, None),
+               ({'field' : "Index_length", 'format_func' : lambda x: human_size(int(x)) if x else ""}, NumberWithUnitColumnType, "Index Length", 100, None),
+               ({'field' : "Data_free", 'format_func' : lambda x: human_size(int(x)) if x else ""}, NumberWithUnitColumnType, "Data Free", 80, None),
                ("Auto_increment", LongIntegerColumnType, "Auto Increment", 80, None),
                ("Create_time", StringColumnType, "Create Time", 150, None),
                ("Update_time", StringColumnType, "Update Time", 150, None),
@@ -773,7 +773,7 @@ class IndexManager(ObjectManager):
         for table in self.table_manager.table_names or []:
             try:
                 rset = self.editor.executeManagementQuery(self.show_query % {'table' : table.replace("`", "``"), 'schema' : self.schema.replace("`", "``")}, 0)
-            except grt.DBError, err:
+            except grt.DBError as err:
                 log_warning("Error querying index info for %s.%s: %s\n" % (self.schema, table, err[0]))
                 continue
             ok = rset.goToFirstRow()
@@ -1017,7 +1017,7 @@ class SchemaInfoPanel(mforms.Box):
     def refresh(self):
         try:
             rset = self.editor.executeManagementQuery("select * from information_schema.schemata WHERE schema_name = '%s'" % self._schema, 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("select * from information_schema.schemata WHERE schema_name = '%s' : %s\n" % (self._schema, e))
             rset = None
             
@@ -1031,7 +1031,7 @@ class SchemaInfoPanel(mforms.Box):
                         
         try:
             rset = self.editor.executeManagementQuery("select sum(data_length) + sum(index_length) database_size,count(*) table_count from information_schema.tables WHERE table_schema = '%s'" % self._schema, 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("select sum(data_length) + sum(index_length) database_size,count(*) table_count from information_schema.tables WHERE table_schema = '%s' : %s\n" % (self._schema, e))
             rset = None
             

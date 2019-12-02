@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -84,8 +84,8 @@ class StepListNode(TreeNode):
 
     def process(self):
         for step in self.data:
-            name, value = step.items()[0]
-            print "#"*20,name, value
+            name, value = list(step.items())[0]
+            print("#"*20,name, value)
             node = TreeStepNode(self, name, name, value)
             self.children.append(node)
 
@@ -120,7 +120,7 @@ class TreeLayouter:
             for step in node.children:
                 step.pos = x, y
                 if node.name == "join_optimization":
-                    print "put ", step.name, x + self.xspacing
+                    print("put ", step.name, x + self.xspacing)
                 if step.is_step_list:
                     sw, sh = self.layout(ctx, step, x, y)
                 else:
@@ -216,7 +216,7 @@ def tree_from_json(parent, name, json):
     node = process_node(parent, name, json)
     if not node:
         return None
-    for key, value in json.items():
+    for key, value in list(json.items()):
         if type(value) is dict:
             ch = tree_from_json(node, key, value)
             if ch:

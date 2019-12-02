@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -118,7 +118,7 @@ def parse_version_str(version_str):
             else:
                 version = (int(tokens[3]), int(tokens[4]))
     except ValueError:
-        print "ERROR! Incorrect version attribute value '" + version_str + "', ", type(version_str)
+        print("ERROR! Incorrect version attribute value '" + version_str + "', ", type(version_str))
 
     return version
 
@@ -341,18 +341,18 @@ class ApplyWizard(Form):
                 try:
                     self.accept_action(text_from_box) # call action passed from caller(client)
                     App.get().set_status_text("Configuration File Saved.")
-                except InvalidPasswordError, exc:
+                except InvalidPasswordError as exc:
                     r = Utilities.show_error("Could not Save Configuration File",
                                              "Invalid admin password while saving the configuration file.\nClick Retry to enter the password again.",
                                   "Retry", "Cancel", "")
                     if r == mforms.ResultOk:
                         continue
-                except OperationCancelledError, exc:
+                except OperationCancelledError as exc:
                     r = Utilities.show_message("Could not Save Configuration File",
                                       "Password input was cancelled. The file was not saved.",
                                       "OK", "", "")
                     return
-                except Exception, exc:
+                except Exception as exc:
                     import traceback
                     traceback.print_exc()
                     App.get().set_status_text("Error Saving Configuration File.")
@@ -507,7 +507,7 @@ class WbAdminConfigFileBE(object):
             tabs[tabname] = new_tab_cont
 
         self.option_set_stats = {"version": server_version, "added" : added, "skipped" : skipped, "skipped_no_value" : no_value, "deprecated" : deprecated}
-        print "Prepared options set for server version '%s' on '%s' platform: added - %i, skipped - %i, skipped with no value - %i, deprecated - %i" % (server_version, platform, added, skipped, no_value, deprecated)
+        print("Prepared options set for server version '%s' on '%s' platform: added - %i, skipped - %i, skipped with no value - %i, deprecated - %i" % (server_version, platform, added, skipped, no_value, deprecated))
         return tabs
 
     #---------------------------------------------------------------------------
@@ -535,7 +535,7 @@ class WbAdminConfigFileBE(object):
     #---------------------------------------------------------------------------
     def get_options_containing(self, fragment):
         # We are fine here with alias names as opt_rindex has all possible names
-        return [name for name in  self.opt_rindex.keys() if fragment in name]
+        return [name for name in  list(self.opt_rindex.keys()) if fragment in name]
 
     #---------------------------------------------------------------------------
     def normalize_bool(self, value):
@@ -544,7 +544,7 @@ class WbAdminConfigFileBE(object):
         if type(value) == bool:
             ret = value
         else:
-            if value and (type(value) is str or type(value) is unicode):
+            if value and (type(value) is str or type(value) is str):
                 value = value.lower()
 
             if value == 'checked' or value == "on" or value == "true" or value == "1":
@@ -582,7 +582,7 @@ class WbAdminConfigFileBE(object):
         self.needs_root_for_file_read = False
         try:
             open(file_name)
-        except IOError, error:
+        except IOError as error:
             if error.errno == errno.EACCES:
                 self.needs_root_for_file_read = True
         except:
@@ -592,7 +592,7 @@ class WbAdminConfigFileBE(object):
         exception = None
         try:
             content = self.read_mysql_cfg_file(file_name)
-        except (OSError, IOError), e:
+        except (OSError, IOError) as e:
             if e.errno != errno.ENOENT:
                 exception = e
             else:
@@ -618,7 +618,7 @@ class WbAdminConfigFileBE(object):
                 log_debug('Trying to read without sudo\n')
                 content = self.ctrl_be.server_helper.get_file_content(file_name, as_user=Users.CURRENT, user_password=None)
                 log_debug('%i bytes read from file\n' % len(content or []) )
-            except PermissionDeniedError, e:
+            except PermissionDeniedError as e:
                 log_debug('Permissin denied; sudo needed to read config file: "%r"\n' % e)
                 self.needs_root_for_file_read = True
 
@@ -630,7 +630,7 @@ class WbAdminConfigFileBE(object):
             try:
                 log_debug('Reading...\n')
                 content = self.ctrl_be.server_helper.get_file_content(file_name, as_user, user_password)
-            except InvalidPasswordError, err:
+            except InvalidPasswordError as err:
                 log_debug('Invalid password error: "%r"\n' % err)
                 self.ctrl_be.password_handler.reset_password_for("file")
                 raise err
@@ -670,7 +670,7 @@ class WbAdminConfigFileBE(object):
 
             try:
                 helper.set_file_content_and_backup(self.file_name, user_modified_file_content, ".wba.bak", as_user, password)
-            except InvalidPasswordError, err:
+            except InvalidPasswordError as err:
                 self.ctrl_be.password_handler.reset_password_for("file")
                 if first_try:
                     first_try = False
@@ -869,7 +869,7 @@ class WbAdminConfigFileBE(object):
             else:
                 ci = WbAdminConfigFileBE.ChangesetItem(ADD, section, name, value)
 
-                if self.original_opts.has_key(name) and self.original_opts[name].section == section:
+                if name in self.original_opts and self.original_opts[name].section == section:
                     opt = self.original_opts[name]
                     ci.mod = CHANGE
                     ci.orig_opt = opt
@@ -904,7 +904,7 @@ class WbAdminConfigFileBE(object):
             if orig_opt is None:
                 if off_value == 'disabledby':
                     if disabledby is None:
-                        print "Error, option definition does not have disabledby"
+                        print("Error, option definition does not have disabledby")
                     else:
                         if disabledby not in self.original_opts:
                             ci = WbAdminConfigFileBE.ChangesetItem(ADD, section, disabledby, None)
@@ -914,12 +914,12 @@ class WbAdminConfigFileBE(object):
                         ci = WbAdminConfigFileBE.ChangesetItem(ADD, section, name, off_value)
                         self.changeset[name] = ci
             else:
-                print "got orig opt"
+                print("got orig opt")
                 #orig_value = orig_opt.val(0)
 
                 if off_value == 'disabledby':
                     if disabledby is None:
-                        print "Error, option definition does not have disbledby"
+                        print("Error, option definition does not have disbledby")
                     else:
                         ci = WbAdminConfigFileBE.ChangesetItem(DELETE, section, name, "")
                         ci.orig_opt = self.original_opts.get(name)
@@ -941,7 +941,7 @@ class WbAdminConfigFileBE(object):
                     self.changeset[name] = ci
                 #print self.changeset
         else:
-            if self.original_opts.has_key(name):
+            if name in self.original_opts:
                 value = ""
                 ci = WbAdminConfigFileBE.ChangesetItem(DELETE, section, name, value)
                 ci.orig_opt = self.original_opts[name]
@@ -950,7 +950,7 @@ class WbAdminConfigFileBE(object):
                 # Here we handle a situation when boolean option has default value = true and is not present in config file
                 # In this case option is ticked in the ui, so user unticking it must result in adding
                 # <option_name> = FALSE to the config file.
-                if self.changeset.has_key(name):
+                if name in self.changeset:
                     ci = self.changeset[name]
                     if ci.section == section:
                         del self.changeset[name]
@@ -960,11 +960,11 @@ class WbAdminConfigFileBE(object):
         log_debug('Option changed: "%s", "%r"\n' % (name, value) )
 
         if type(value) is not tuple:
-            print "Warning setting option", name, "from non-tuple value", value
+            print("Warning setting option", name, "from non-tuple value", value)
 
         # If we have change for the option recorded in the changeset, we simply overwrite
         # changed value with a new one, otherwise we add a new value to changeset
-        if self.original_opts.has_key(name):
+        if name in self.original_opts:
             opt = self.original_opts[name]
             ci = WbAdminConfigFileBE.ChangesetItem(CHANGE, section, name, value)
             ci.orig_opt = opt
@@ -975,10 +975,10 @@ class WbAdminConfigFileBE(object):
     #---------------------------------------------------------------------------
     def get_options(self, section):
         options = []
-        for (name, opt) in self.original_opts.iteritems():
+        for (name, opt) in self.original_opts.items():
             name = name.strip()
             if opt.section == section:
-                if self.changeset.has_key(name):
+                if name in self.changeset:
                     options.append((name, self.changeset[name].value))
                 else:
                     odef = self.get_option_def(name)
@@ -1018,13 +1018,13 @@ class WbAdminConfigFileBE(object):
     #---------------------------------------------------------------------------
     def validate_changes(self, options):
         option_types = {}
-        for item in options.itervalues():
+        for item in options.values():
             for group in item["groups"]:
                 for control in group["controls"]:
                     option_types[control["name"]] = control["type"]
 
         errors = ""
-        for change in self.changeset.itervalues():
+        for change in self.changeset.values():
             otype = option_types.get(change.name)
             if not otype: continue
             if change.mod in (CHANGE, ADD):
@@ -1061,7 +1061,7 @@ class WbAdminConfigFileBE(object):
                 r = cmp(sections_map[y.section][0], sections_map[x.section][0])
             return r
 
-        change = sorted(self.changeset.itervalues(), sort_fn)
+        change = sorted(iter(self.changeset.values()), sort_fn)
         second_pass_changes = []
 
         # Now we have sorted items (CHANGE, DEL, ADD). This is the order we will apply changes
@@ -1071,7 +1071,7 @@ class WbAdminConfigFileBE(object):
 
             # Walk values and change boolean to 0/1
             if type(c.value) is list or type(c.value) is tuple:
-                c.value = map(map_bool, c.value)
+                c.value = list(map(map_bool, c.value))
             else:
                 c.value = map_bool(c.value)
 
@@ -1128,7 +1128,7 @@ class WbAdminConfigFileBE(object):
                         else:
                             file_lines.insert(lines_range[1], c.name + "\n")
                 else:
-                    print "Can't add option"
+                    print("Can't add option")
 
         # handle only addition for now, as change and delete can be done in place earlier
         for c in second_pass_changes:
@@ -1136,12 +1136,12 @@ class WbAdminConfigFileBE(object):
                 lines_range = sections_map[c.section]
                 if lines_range[1] >= 0:
                     vtype = type(c.value)
-                    if vtype is str or vtype is unicode:
+                    if vtype is str or vtype is str:
                         file_lines.insert(lines_range[1], c.name + " = " + c.value + "\n")
                     else:
                         file_lines.insert(lines_range[1], c.name + " = " + c.value + "\n")
                 else:
-                    print "Can't add option"
+                    print("Can't add option")
 
         tempdir = tempfile.gettempdir()
         self.temp_file_name = os.path.join(tempdir, "mysql_workbench_config.temp")
@@ -1173,7 +1173,7 @@ class WbAdminConfigFileBE(object):
             outf = open(self.temp_file_name, "r")
             temp_file_content = outf.read()
             outf.close()
-        except BaseException, e:
+        except BaseException as e:
             temp_file_content = "Can not read file " + self.temp_file_name + "\n" + str(e)
 
         self.apply_form.show(changes_text, temp_file_content, self.save_config_file)
@@ -1184,7 +1184,7 @@ class WbAdminConfigFileBE(object):
             # re-read the file
             data = self.read_mysql_cfg_file(self.file_name)
             self.parse_file_contents(data)
-        except Exception, exc:
+        except Exception as exc:
             Utilities.show_error("Could not Re-read configuration file",
                     "An error occurred while reading %s:\n%s" % (self.file_name, exc),
                     "OK", "", "")
@@ -1280,7 +1280,7 @@ def unit_test_3(ctx):
 
     if len(test_vector) > 0:
         status = False
-        msg = "Values " + ",".join(test_vector.keys()) + " were not parsed from config " + cfgfile
+        msg = "Values " + ",".join(list(test_vector.keys())) + " were not parsed from config " + cfgfile
 
     return (name, status, msg)
 
@@ -1679,7 +1679,7 @@ def unit_test_14(ctx):
 
     cfg_be.parse_file()
     innodb = cfg_be.original_opts.get('innodb')
-    print cfg_be.original_opts
+    print(cfg_be.original_opts)
     if None == innodb:
         status = False
         msg += "innodb option disappeared after change"

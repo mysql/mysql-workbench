@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -116,7 +116,7 @@ class FinalReportView(WizardPage):
     def page_activated(self, advancing):
         if advancing:
             self.generate_migration_report()
-            if "GenerateBulkCopyScript" in self.main.plan.state.dataBulkTransferParams.keys():
+            if "GenerateBulkCopyScript" in list(self.main.plan.state.dataBulkTransferParams.keys()):
                 self.advanced_button.set_text("Open folder that contains generated script")
                 self.advanced_button.show(True)
             else:
@@ -153,7 +153,7 @@ class FinalReportView(WizardPage):
             if object:
                 for member in object.__grtmembers__:
                     v = getattr(object, member)
-                    if type(v) in (int, float, str, unicode):
+                    if type(v) in (int, float, str, str):
                         o[member] = v
                     elif type(v) is grt.List:
                         if v.__contenttype__[0] in (grt.STRING, grt.INT):
@@ -234,7 +234,7 @@ class FinalReportView(WizardPage):
     
         try:
             report = MiniTemplate(text_template).render(report_data)
-        except Exception, exc:
+        except Exception as exc:
             report = "Error generating report: %s" % exc
         self._report.set_value(report)
 

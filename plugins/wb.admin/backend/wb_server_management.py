@@ -26,7 +26,7 @@ import ntpath
 import errno
 import threading
 import tempfile
-import StringIO
+import io
 import pipes
 import subprocess
 import time
@@ -134,7 +134,7 @@ def useAbsPath(param):
             if path_index is not None:
                 path_value = args[path_index]
                 
-                if type(path_value) not in [str, unicode] or not os.path.isabs(path_value):
+                if type(path_value) not in [str, str] or not os.path.isabs(path_value):
                     raise ValueError('Error on path validation for function "%s", parameter "%s" must be an absolute path: %s' % (function.__name__, param, path_value))
                 
             return function(*args, **kw)
@@ -167,7 +167,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         while len(data) < size:
             try:
                 r, _, _ = select.select([fd], [], [], timeout)
-            except select.error, e:
+            except select.error as e:
                 if e.args[0] == 4:
                     timeout -= time.time() - t
                     if timeout < 0:
@@ -188,7 +188,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         while time.time() - t < timeout:
             try:
                 r, _, _ = select.select([fd], [], [], timeout - (time.time() - t))
-            except select.error, e:
+            except select.error as e:
                 if e.args[0] == 4:
                     continue
                 raise
@@ -376,7 +376,7 @@ def local_run_cmd_windows(command, as_user=Users.CURRENT, user_password=None, su
                 if listener.exit_status:
                     try:
                         helper_exception = eval(listener.exit_message)
-                    except Exception, e:
+                    except Exception as e:
                         # Some networking exceptions can't be evaluated
                         # So a runtime exception will be created on those cases
                         helper_exception = RuntimeError(listener.exit_message)
@@ -394,14 +394,14 @@ def local_run_cmd_windows(command, as_user=Users.CURRENT, user_password=None, su
                 else:
                     log_error('local_run_cmd_windows(): Error %i executing "%s"\n' % (ret, command) )
             return retcode
-        except Exception, e:
+        except Exception as e:
           # These errors will contain information probably sent by the helper so
           # they will be rethrow so they get properly displayed
           raise
     else:
         try:
             retcode = OSUtils.exec_command(command, output_handler)
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Exception executing local command: %s: %s\n%s\n" % (command, e, traceback.format_exc()))
             retcode = 1
@@ -452,7 +452,8 @@ class ProcessOpsBase(object):
 
 class ProcessOpsNope(ProcessOpsBase):
     @classmethod
-    def match(cls, (host, target, connect)):
+    def match(cls, xxx_todo_changeme):
+        (host, target, connect) = xxx_todo_changeme
         return connect == 'none'
 
     def expand_path_variables(self, path):
@@ -472,7 +473,8 @@ _process_ops_classes.append(ProcessOpsNope)
 
 class ProcessOpsLinuxLocal(ProcessOpsBase):
     @classmethod
-    def match(cls, (host, target, connect)):
+    def match(cls, xxx_todo_changeme1):
+        (host, target, connect) = xxx_todo_changeme1
         return connect == 'local' and (host in (wbaOS.linux, wbaOS.darwin) and target in (wbaOS.linux, wbaOS.darwin))
 
     def __init__(self, **kwargs):
@@ -485,7 +487,7 @@ class ProcessOpsLinuxLocal(ProcessOpsBase):
     def spawn_process(self, command, as_user=Users.CURRENT, user_password=None, output_handler=None, options=None):
         
         sudo_prefix = self.sudo_prefix
-        if options and options.has_key(CmdOptions.CMD_HOME):
+        if options and CmdOptions.CMD_HOME in options:
             sudo_prefix = "%s HOME=%s" % (sudo_prefix, options[CmdOptions.CMD_HOME])
         
         # wrap cmd
@@ -515,8 +517,9 @@ _process_ops_classes.append(ProcessOpsLinuxLocal)
 
 class ProcessOpsLinuxRemote(ProcessOpsBase):
     @classmethod
-    def match(cls, (host, target, connect)):
+    def match(cls, xxx_todo_changeme2):
         # host doesn't matter
+        (host, target, connect) = xxx_todo_changeme2
         return connect == 'ssh' and target in (wbaOS.linux, wbaOS.darwin)
 
     def __init__(self, **kwargs): # Here should be at least commented list of args
@@ -539,7 +542,7 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
 
                 ret = dummy_text['status']
                 dummy_text = handle_ssh_command_output(dummy_text, True)
-            except Exception, ex:
+            except Exception as ex:
                 # executeCommand can throw Exception when command doesn't exists or there's an error
                 ret = 1
                 log_error("Unable to execute: %s, error was: %s\n" % (command, str(ex)))
@@ -562,7 +565,7 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
             # This is required to prevent nohup raising a Permission Denied error trying
             # to write the nohup.out on a non writable folder
             sudo_prefix = self.sudo_prefix
-            if options and options.has_key(CmdOptions.CMD_HOME):
+            if options and CmdOptions.CMD_HOME in options:
                 sudo_prefix = "%s HOME=%s" % (sudo_prefix, options[CmdOptions.CMD_HOME])
 
             command = wrap_for_sudo(command, sudo_prefix, as_user, True)
@@ -603,7 +606,8 @@ WIN_PROGRAM_DATA_VAR = "%ProgramData%"
 
 class ProcessOpsWindowsLocal(ProcessOpsBase):
     @classmethod
-    def match(cls, (host, target, connect)):
+    def match(cls, xxx_todo_changeme3):
+        (host, target, connect) = xxx_todo_changeme3
         return (host == wbaOS.windows and target == wbaOS.windows and connect in ('wmi', 'local'))
 
     def __init__(self, **kwargs):
@@ -621,7 +625,7 @@ class ProcessOpsWindowsLocal(ProcessOpsBase):
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(command, shell=True, close_fds = True, creationflags=DETACHED_PROCESS)
             #process = subprocess.Popen(command, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell=True)
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             log_error("Error executing local Windows command: %s: %s\n%s\n" % (command, exc, traceback.format_exc()))
             #out_str = "Internal error: %s"%exc
@@ -632,7 +636,7 @@ class ProcessOpsWindowsLocal(ProcessOpsBase):
         Windows. Uses self.target_shell_variables for the substitutions, which should have been
         filled when the ssh connection to the remote host was made.
         """
-        for k, v in self.target_shell_variables.iteritems():
+        for k, v in self.target_shell_variables.items():
             path = path.replace(k, v)
         return path
 
@@ -679,7 +683,7 @@ class ProcessOpsWindowsLocal(ProcessOpsBase):
             if ProgramFilesVar != "%ProgramFiles%":
                 self.target_shell_variables[ProgramFilesVar] = result.strip("\r\n")
         else:
-            print "WARNING: Unable to fetch ProgramFiles value in Windows machine: %s"%result
+            print("WARNING: Unable to fetch ProgramFiles value in Windows machine: %s"%result)
             log_warning('%s.fetch_windows_shell_info(): WARNING: Unable to fetch ProgramFiles value in Windows machine: "%s"\n' % (self.__class__.__name__, str(result)) )
 
         # this one only exists in 64bit windows
@@ -687,7 +691,7 @@ class ProcessOpsWindowsLocal(ProcessOpsBase):
         if code == 0:
             self.target_shell_variables["%ProgramFiles(x86)%"] = result.strip("\r\n")
         else:
-            print "WARNING: Unable to fetch ProgramFiles(x86) value in local Windows machine: %s"%result
+            print("WARNING: Unable to fetch ProgramFiles(x86) value in local Windows machine: %s"%result)
             log_warning('%s.fetch_windows_shell_info(): WARNING: Unable to fetch ProgramFiles(x86) value in local Windows machine: "%s"\n' % (self.__class__.__name__, str(result)) )
 
         # Fetches the ProgramData path
@@ -697,7 +701,7 @@ class ProcessOpsWindowsLocal(ProcessOpsBase):
         else:
             # If not found, it will use the %ProgramFiles% variable value
             self.target_shell_variables[WIN_PROGRAM_DATA_VAR] = self.target_shell_variables[ProgramFilesVar]
-            print "WARNING: Unable to fetch ProgramData value in local Windows machine: %s, using ProgramFiles path instead: %s" % (result, self.target_shell_variables[WIN_PROGRAM_DATA_VAR])
+            print("WARNING: Unable to fetch ProgramData value in local Windows machine: %s, using ProgramFiles path instead: %s" % (result, self.target_shell_variables[WIN_PROGRAM_DATA_VAR]))
             log_warning('%s.fetch_windows_shell_info(): WARNING: Unable to fetch ProgramData value in local Windows machine: "%s"\n' % (self.__class__.__name__, str(result)) )
 
         log_debug('%s.fetch_windows_shell_info(): Encoding: "%s", Shell Variables: "%s"\n' % (self.__class__.__name__, self.cmd_output_encoding, str(self.target_shell_variables)))
@@ -711,8 +715,9 @@ _process_ops_classes.append(ProcessOpsWindowsLocal)
 
 class ProcessOpsWindowsRemoteSSH(ProcessOpsWindowsLocal):
     @classmethod
-    def match(cls, (host, target, connect)):
+    def match(cls, xxx_todo_changeme4):
         # host doesn't matter
+        (host, target, connect) = xxx_todo_changeme4
         return (target == wbaOS.windows and connect == 'ssh')
 
     def __init__(self, **kwargs):
@@ -740,7 +745,7 @@ class ProcessOpsWindowsRemoteSSH(ProcessOpsWindowsLocal):
             ret = dummy_text['status']
             dummy_text = handle_ssh_command_output(dummy_text, True)
 
-        except Exception, ex:
+        except Exception as ex:
             # executeCommand can throw Exception when command doesn't exists or there's an error
             ret = 1
             log_error("Unable to execute: %s, error was: %s\n" % (command, str(ex)))
@@ -852,7 +857,7 @@ class FileOpsLinuxBase(object):
     
     @useAbsPath("path")
     def get_available_space(self, path, as_user=Users.CURRENT, user_password=None):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         res = self.process_ops.exec_cmd("LC_ALL=C df -Ph %s" % quote_path(path),
                             as_user,
                             user_password,
@@ -874,7 +879,7 @@ class FileOpsLinuxBase(object):
         else:
           command = 'LC_ALL=C /usr/bin/stat -f "%Su" '
       
-        output = StringIO.StringIO()
+        output = io.StringIO()
         command = command + quote_path(path)
         
         res = self.process_ops.exec_cmd(command,
@@ -890,7 +895,7 @@ class FileOpsLinuxBase(object):
     
     @useAbsPath("path")
     def create_directory(self, path, as_user = Users.CURRENT, user_password = None, with_owner=None):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         if with_owner:
             # Chown is usually restricted to the root user
             if as_user == Users.CURRENT:
@@ -918,7 +923,7 @@ class FileOpsLinuxBase(object):
         if head and tail and not self.file_exists(head):
             try:
                 self.create_directory_recursive(head, as_user, user_password, with_owner)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
 
@@ -926,7 +931,7 @@ class FileOpsLinuxBase(object):
 
     @useAbsPath("path")
     def remove_directory(self, path, as_user = Users.CURRENT, user_password = None):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         res = self.process_ops.exec_cmd('/bin/rmdir ' + quote_path(path),
                                         as_user   = as_user,
                                         user_password = user_password,
@@ -939,7 +944,7 @@ class FileOpsLinuxBase(object):
 
     @useAbsPath("path")
     def remove_directory_recursive(self, path, as_user = Users.CURRENT, user_password = None):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         res = self.process_ops.exec_cmd('/bin/rm -R ' + quote_path(path),
                                         as_user   = as_user,
                                         user_password = user_password,
@@ -952,7 +957,7 @@ class FileOpsLinuxBase(object):
 
     @useAbsPath("path")
     def delete_file(self, path, as_user = Users.CURRENT, user_password = None):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         res = self.process_ops.exec_cmd("/bin/rm " + quote_path(path),
                                         as_user   = as_user,
                                         user_password = user_password,
@@ -966,7 +971,7 @@ class FileOpsLinuxBase(object):
     @useAbsPath("filename")
     def get_file_content(self, filename, as_user = Users.CURRENT, user_password = None, skip_lines=0): # may raise IOError
         command = ''
-        output = StringIO.StringIO()
+        output = io.StringIO()
 
         if skip_lines == 0:
             command = 'LC_ALL=C cat %s' % quote_path(filename)
@@ -992,14 +997,14 @@ class FileOpsLinuxBase(object):
             f = open(path, 'w')
             f.write(content)
             f.close()
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not open file %s for writing" % path)
             raise err
         
         
     def _copy_file(self, source, dest, as_user = Users.CURRENT, user_password = None):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         
         res = self.process_ops.exec_cmd("LC_ALL=C /bin/cp " + quote_path(source) + " " + quote_path(dest),
                       as_user   = as_user,
@@ -1015,7 +1020,7 @@ class FileOpsLinuxBase(object):
     def check_file_readable(self, path, as_user=Users.CURRENT, user_password=None):
         ret_val = True
         
-        output = StringIO.StringIO()
+        output = io.StringIO()
         
         path = quote_path(path)
         command = "test -e %s;_fe=$?;test -f %s;_fd=$?;test -r %s;echo $_fe$_fd$?" % (path, path, path)
@@ -1044,7 +1049,7 @@ class FileOpsLinuxBase(object):
     def check_dir_writable(self, path, as_user=Users.CURRENT, user_password=None):
         ret_val = True
         
-        output = StringIO.StringIO()
+        output = io.StringIO()
         
         path = quote_path(path)
         command = "test -e %s;_fe=$?;test -d %s;_fd=$?;test -w %s;echo $_fe$_fd$?" % (path, path, path)
@@ -1081,7 +1086,7 @@ class FileOpsLinuxBase(object):
         else:
             command = 'LC_ALL=C /bin/ls -1 -p %s' % quote_path(path)
             
-        output = StringIO.StringIO()
+        output = io.StringIO()
         res = self.process_ops.exec_cmd(command,
                                         as_user,
                                         user_password,
@@ -1103,7 +1108,7 @@ class FileOpsLinuxBase(object):
                 else:
                     file_list = [s.strip() for s in output.split("\n")]
                     
-            except Exception, e:
+            except Exception as e:
                 log_error("%s: Could not parse output of remote ls %s command: '%s'\n"% (e, path, output))
     
         return file_list        
@@ -1122,7 +1127,7 @@ class FileOpsLinuxBase(object):
             log_debug('%s: Writing file contents to tmp file "%s"\n' %  (self.__class__.__name__, tmp_name) )
             tmp.write(content)
             tmp.flush()
-        except Exception, exc:
+        except Exception as exc:
             log_error('%s: Exception caught: %s\n' % (self.__class__.__name__, str(exc)) )
             if tmp:
                 tmp.close()
@@ -1214,7 +1219,7 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
 
     # Still need to differentiate whether it is an OSError or an IOError
     def raise_exception(self, message, custom_messages = {}):
-        for code, name in errno.errorcode.iteritems():
+        for code, name in errno.errorcode.items():
             if os.strerror(code) in message:
                 if code == errno.EACCES:
                     raise PermissionDeniedError(custom_messages.get(code, message))
@@ -1234,7 +1239,7 @@ class FileOpsLocalUnix(FileOpsLinuxBase):
         if as_user == Users.CURRENT:
             try:
                 f = open(filename, 'r')
-            except (IOError, OSError), e:
+            except (IOError, OSError) as e:
                 if e.errno == errno.EACCES:
                     raise PermissionDeniedError("Can't open file '%s'" % filename)
                 raise e
@@ -1438,7 +1443,7 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
             else:
                 FileUtils.copy_file(tmp_name, filename, backup_file)
 
-        except Exception, exc:
+        except Exception as exc:
             log_error('%s: Exception caught: %s\n' % (self.__class__.__name__, str(exc)) )
             raise
 
@@ -1566,7 +1571,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
                 
             try:
                 self.ssh.mkdir(path)
-            except (IOError, OSError), err:
+            except (IOError, OSError) as err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not create directory %s" % path)
                 raise err
@@ -1577,7 +1582,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
         if as_user == Users.CURRENT:
             try:
                 self.ssh.unlink(path)
-            except (IOError, OSError), err:
+            except (IOError, OSError) as err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not delete file %s" % path)
                 raise err
@@ -1594,7 +1599,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
         
         try:
             self.ssh.setContent(path, content)
-        except (IOError, OSError), err:
+        except (IOError, OSError) as err:
             if err.errno == errno.EACCES:
                 raise PermissionDeniedError("Could not open file %s for writing" % path)
             raise err
@@ -1614,7 +1619,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
                     self.ssh.setContent(tmpfilename, content)
                     log_debug2('Created temp file: "%s".\n' % tmpfilename)
                     done = True
-                except IOError, exc:
+                except IOError as exc:
                     # This is the only hting reported on a failure due to an attempt to
                     # create a file that already exists
                     if exc.message == "Failure":
@@ -1628,7 +1633,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
                     else:
                         log_warning('ERROR: Unable to create temp file: "%s" : %s.\n' % (tmpfilename, exc))
                         raise exc
-                except Exception, exc:
+                except Exception as exc:
                     log_warning('ERROR: Unable to create temp file: "%s" : %s.\n' % (tmpfilename, exc))
                     raise exc
         else:
@@ -1653,7 +1658,7 @@ _file_ops_classes.append(FileOpsRemoteUnix)
 class FileOpsRemoteWindows(object):
     @classmethod
     def match(cls, target_os, connection_method):
-        print "AAAAAAAAA - TARGETOS: %s - %s" % (target_os, wbaOS.windows)
+        print("AAAAAAAAA - TARGETOS: %s - %s" % (target_os, wbaOS.windows))
         return connection_method == "ssh" and target_os == wbaOS.windows
 
     def __init__(self, process_ops, ssh, target_os):
@@ -1664,11 +1669,11 @@ class FileOpsRemoteWindows(object):
         if self.ssh:
             try:
                 return self.ssh.fileExists(filename)
-            except Exception, io:
+            except Exception as io:
                 log_debug2("Error on ssh.stat(%s), %s" % filename, io)
                 return False
         else:
-            print "Attempt to read remote file with no ssh session"
+            print("Attempt to read remote file with no ssh session")
             log_error('%s: Attempt to read remote file with no ssh session\n' % self.__class__.__name__)
             raise Exception("Cannot read remote file without an SSH session")
         return False
@@ -1713,7 +1718,7 @@ class FileOpsRemoteWindows(object):
         if as_user == Users.CURRENT:
             try:
                 self.ssh.mkdir(path)
-            except OSError, err:
+            except OSError as err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not create directory %s" % path)
                 raise err
@@ -1730,7 +1735,7 @@ class FileOpsRemoteWindows(object):
         if head and tail and not self.file_exists(head):
             try:
                 self.create_directory_recursive(head, as_user, user_password, with_owner)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.EEXIST:
                     raise
 
@@ -1740,7 +1745,7 @@ class FileOpsRemoteWindows(object):
         if as_user == Users.CURRENT:
             try:
                 self.ssh.rmdir(path)
-            except OSError, err:
+            except OSError as err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not remove directory %s" % path)
                 raise err
@@ -1756,7 +1761,7 @@ class FileOpsRemoteWindows(object):
         if as_user == Users.CURRENT:
             try:
                 self.ssh.unlink(path)
-            except OSError, err:
+            except OSError as err:
                 if err.errno == errno.EACCES:
                     raise PermissionDeniedError("Could not delete file %s" % path)
                 raise err
@@ -1774,7 +1779,7 @@ class FileOpsRemoteWindows(object):
         if self.ssh is not None:
             ## Get temp dir for using as tmpdir
             tmpdir, status = self.process_ops.get_cmd_output("echo %temp%")
-            if type(tmpdir) is unicode:
+            if type(tmpdir) is str:
                 tmpdir = tmpdir.encode("utf8")
             if type(tmpdir) is str:
                 tmpdir = tmpdir.strip(" \r\t\n")
@@ -1801,7 +1806,7 @@ class FileOpsRemoteWindows(object):
                 backup_cmd = "copy /y " + quote_path_win(path) + " " + quote_path_win(path+backup_extension)
                 msg, code = self.process_ops.get_cmd_output(backup_cmd)
                 if code != 0:
-                    print backup_cmd, "->", msg
+                    print(backup_cmd, "->", msg)
                     log_error('%s: Error backing up file: %s\n' % (self.__class__.__name__, backup_cmd+'->'+msg) )
                     raise RuntimeError("Error backing up file: %s" % msg)
 
@@ -1810,13 +1815,13 @@ class FileOpsRemoteWindows(object):
             log_debug('%s: Copying file to final destination: "%s"\n' % (self.__class__.__name__, copy_to_dest) )
             msg, code = self.process_ops.get_cmd_output(copy_to_dest)
             if code != 0:
-                print copy_to_dest, "->", msg
+                print(copy_to_dest, "->", msg)
                 log_error('%s: Error copying temporary file over destination file: %s\n%s to %s\n' % (self.__class__.__name__, msg, tmpfilename, path) )
                 raise RuntimeError("Error copying temporary file over destination file: %s\n%s to %s" % (msg, tmpfilename, path))
             log_debug('%s: Deleting tmp file: "%s"\n' % (self.__class__.__name__, delete_tmp) )
             msg, code = self.process_ops.get_cmd_output(delete_tmp)
             if code != 0:
-                print "Could not delete temporary file %s: %s" % (tmpfilename, msg)
+                print("Could not delete temporary file %s: %s" % (tmpfilename, msg))
                 log_info('%s: Could not delete temporary file "%s": %s\n' % (self.__class__.__name__, tmpfilename, msg) )
         else:
             raise Exception("No SSH session active, cannot save file remotely")
@@ -1827,11 +1832,11 @@ class FileOpsRemoteWindows(object):
             # Supposedly in Windows, sshd account has admin privileges, so Users.ADMIN can be ignored
             try:
                 return self.ssh.getContent(filename)
-            except IOError, exc:
+            except IOError as exc:
                 if exc.errno == errno.EACCES:
                     raise PermissionDeniedError("Permission denied attempting to read file %s" % filename)
         else:
-            print "Attempt to read remote file with no ssh session"
+            print("Attempt to read remote file with no ssh session")
             raise Exception("Cannot read remote file without an SSH session")
 
     #TODO fix for windows
@@ -1877,7 +1882,7 @@ class ServerManagementHelper(object):
         # Resets the sudo prefix accordingly
         reset_sudo_prefix()
         
-        if serverInfo.has_key('sys.mysqld.sudo_override'):
+        if 'sys.mysqld.sudo_override' in serverInfo:
             sudo_override = serverInfo['sys.mysqld.sudo_override']
         
             if sudo_override.strip():
@@ -1991,7 +1996,7 @@ class ServerManagementHelper(object):
 
     #-----------------------------------------------------------------------------
     def set_file_content_and_backup(self, path, contents, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
-        if type(contents) is unicode:
+        if type(contents) is str:
             contents = contents.encode("utf8")
         return self.file.save_file_content_and_backup(path, contents, backup_extension, as_user=as_user, user_password=user_password, mode = mode)
 
@@ -2063,7 +2068,7 @@ class SFTPInputFile(object):
     def size(self):
         try :
             return self.ctrl_be.editor.sshConnection.stat(self.path)["size"]
-        except SystemError, e:
+        except SystemError as e:
             import traceback
             log_error("Exception executing size: %s\n%s\n" % (e, traceback.format_exc()))
             return -1;
@@ -2072,7 +2077,7 @@ class SFTPInputFile(object):
         try:
             self._f.seek(start)
             return self._f.read(end-start)
-        except SystemError, e:
+        except SystemError as e:
             import traceback
             log_error("Exception executing get_range: %s\n%s\n" % (e, traceback.format_exc()))
             return -1;
@@ -2080,7 +2085,7 @@ class SFTPInputFile(object):
     def start_read_from(self, offset):
         try:
             self._f.seek(offset)
-        except SystemError, e:
+        except SystemError as e:
             import traceback
             log_error("Exception executing read_from: %s\n%s\n" % (e, traceback.format_exc()))
             return -1;
@@ -2092,7 +2097,7 @@ class SFTPInputFile(object):
                 return -1
 
             return self._f.read(count)
-        except SystemError, e:
+        except SystemError as e:
             import traceback
             log_error("Exception executing read: %s\n%s\n" % (e, traceback.format_exc()))
             return -1;
@@ -2100,7 +2105,7 @@ class SFTPInputFile(object):
     def readline(self):
         try:
             return self._f.readline()
-        except SystemError, e:
+        except SystemError as e:
             import traceback
             log_error("Exception executing readline: %s\n%s\n" % (e, traceback.format_exc()))
             return "";
@@ -2128,7 +2133,7 @@ class SudoTailInputFile(object):
                     if not self.server_helper.check_file_readable(self.path):
                         self._need_sudo = True 
                     break
-                except OSError, e:
+                except OSError as e:
                     log_debug3("check_file_readable returned OSError, we will try with sudo then")
                     self._need_sudo = True
             else:
@@ -2158,7 +2163,7 @@ class SudoTailInputFile(object):
         return files[0][1]
 
     def get_range(self, start, end):
-        f = StringIO.StringIO()
+        f = io.StringIO()
         if not self._need_sudo:
             ret = self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i count=%i 2> /dev/null" % (quote_path(self.path), start, end-start), as_user = Users.CURRENT, user_password=None, output_handler=f.write)
         else:
@@ -2197,7 +2202,7 @@ class SudoTailInputFile(object):
         if self._is_local:
             return self.start_read_task_from(offset)
         self._pos = offset
-        f = StringIO.StringIO()
+        f = io.StringIO()
         if not self._need_sudo:
             self.server_helper.execute_command("/bin/dd if=%s ibs=1 skip=%i 2> /dev/null" % (quote_path(self.path), offset), as_user = Users.CURRENT, user_password=None, output_handler=f.write)
         else:
@@ -2256,7 +2261,7 @@ class AdminTailInputFile(object):
         return files[0][1]
 
     def get_range(self, start, end):
-        f = StringIO.StringIO()
+        f = io.StringIO()
         ret = self.server_helper.execute_command("GETFILE %i %i file=%s" % (start, end-start, quote_path(self.path)), as_user = Users.ADMIN, user_password=self._password, output_handler=f.write)
         if ret != 0:
             raise RuntimeError("Could not get data from file %s" % self.path)
@@ -2281,7 +2286,7 @@ class AdminTailInputFile(object):
 
     def start_read_from(self, offset):
         self._pos = offset
-        f = StringIO.StringIO()
+        f = io.StringIO()
         self.server_helper.execute_command("GETFILE %i 0 %s" % (offset, quote_path(self.path)), as_user = Users.ADMIN, user_password=self._password, output_handler=f.write)
         self.data = f
         self.data.seek(0)

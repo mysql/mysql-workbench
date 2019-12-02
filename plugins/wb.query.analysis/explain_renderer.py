@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -29,12 +29,12 @@ from workbench.graphics.canvas import VBoxFigure, Canvas, DiamondShapeFigure, Re
 from workbench.graphics.cairo_utils import ImageSurface, Context
 import cairo
 
-import StringIO
+import io
 import json
 
 
 def decode_json(text):
-    fp = StringIO.StringIO(text)
+    fp = io.StringIO(text)
     return json.load(fp)
 
 def reformat_expression(expression):
@@ -343,7 +343,7 @@ class ExplainNode(VBoxFigure):
 
         text = self.get_hint_text()
         if text:
-            if type(text) is unicode:
+            if type(text) is str:
                 text = text.encode("utf8")
             self._context.tooltip = mforms.newPopover(None, mforms.PopoverStyleTooltip)
 
@@ -612,8 +612,8 @@ This could also mean the search range is so broad that the index would be useles
         return self._figure.root_x + self._figure.width
 
     def _hint_line(self, label, key, always_show=False, value_format=None):
-        if self.info.has_key(key) or always_show:
-            if value_format and self.info.has_key(key):
+        if key in self.info or always_show:
+            if value_format and key in self.info:
                 value = value_format % self.info[key]
             else:
                 value = self.info.get(key, "-")
@@ -643,7 +643,7 @@ This could also mean the search range is so broad that the index would be useles
             # create a formatted version of attached_condition, so it will not be too wide
             try:
                 self.info["attached_condition_fmt"] = reformat_expression(self.info["attached_condition"])
-            except Exception, e:
+            except Exception as e:
                 log_error("Could not reformat %s: %s\n" % (self.info["attached_condition"], e))
                 self.info["attached_condition_fmt"] = self.info["attached_condition"]
 
@@ -965,7 +965,7 @@ class OperationNode(ExplainNode):
         if self.children:
             return self.children[0].rows_count
         else:
-            print "Node", self, "has no children"
+            print("Node", self, "has no children")
             return 0
 
 
@@ -1354,7 +1354,7 @@ class UnionResult(SubQueries):
         # this is called by handle_materialized_from_subquery, but the attributes don't belong
         # to the UNION node, they belong to the materialized table node
         pass
-        print attributes, self, "!!!!!!"
+        print(attributes, self, "!!!!!!")
 
 
     def get_hint_text(self):
@@ -1392,9 +1392,9 @@ class ExplainContext:
             self._root = nodes[0]
         
             if False:
-                s = StringIO.StringIO()
+                s = io.StringIO()
                 self._root.dump(s)
-                print s.getvalue()
+                print(s.getvalue())
 
         self._old_offset = None
         self.overview_mode = False
@@ -1499,7 +1499,7 @@ class ExplainContext:
         for data in subquery_list:
             qblock = None
             attributes = {}
-            for key, value in data.items():
+            for key, value in list(data.items()):
                 if key == "query_block":
                     qblock = self.handle_query_block(key, value, True)
                 elif key in ("dependent", "cacheable", "using_temporary_table"):
@@ -1516,7 +1516,7 @@ class ExplainContext:
         for data in subquery_list:
             qblock = None
             attributes = {}
-            for key, value in data.items():
+            for key, value in list(data.items()):
                 if key == "query_block":
                     qblock = self.handle_query_block(key, value, True)
                 elif key in ("dependent", "cacheable", "using_temporary_table"):
@@ -1534,7 +1534,7 @@ class ExplainContext:
     def handle_materialized_from_subquery(self, name, data):
         inner_qblock = None
         attributes = {}
-        for key, value in data.items():
+        for key, value in list(data.items()):
             if key == "query_block":
                 inner_qblock = self.handle_query_block(key, value, is_subquery=True, is_materialized=True)
             elif key in ("dependent", "cacheable", "using_temporary_table"):
@@ -1547,7 +1547,7 @@ class ExplainContext:
     def handle_union_result(self, name, data):
         info = {}
         qblocks = []
-        for key, value in data.items():
+        for key, value in list(data.items()):
             if key in ("using_temporary_table", "access_type", "table_name"):
                 info[key] = value
             elif key == "query_specifications":
@@ -1567,7 +1567,7 @@ class ExplainContext:
         attributes = {}
         select_list_subqueries = None
         optimized_away_subqueries = None
-        for key, value in data.items():
+        for key, value in list(data.items()):
             if key == "nested_loop":
                 assert content is None
                 content = self.handle_nested_loop(value)
@@ -1634,7 +1634,7 @@ class ExplainContext:
 
     def handle(self, data):
         output = []
-        for key, value in data.items():
+        for key, value in list(data.items()):
             if key == "query_block":
                 output.append(self.handle_query_block(key, value))
         return output
@@ -1647,9 +1647,9 @@ class ExplainContext:
     # Public interface
     def dump(self):
         if self._root:
-            s = StringIO.StringIO()
+            s = io.StringIO()
             self._root.dump(s, 0)
-            print s.getvalue()
+            print(s.getvalue())
 
 
     def _set_tooltip(self, v):

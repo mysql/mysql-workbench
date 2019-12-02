@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 import os
 import sys
@@ -95,7 +95,7 @@ def scan_admin_modules():
     if len(extra_mods) != 0:
         import collections
         od = collections.OrderedDict(sorted(extra_mods.items()))
-        for mod in od.values():
+        for mod in list(od.values()):
             modules.append(mod)
         
     grt.log_info("WBA", "%i extension modules found\n" % init_count)
@@ -212,7 +212,7 @@ class AdministratorTab(mforms.AppView):
         if panel is not None and hasattr(panel, "page_activated"):
             try:
                 panel.page_activated()
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_error("Unhandled exception in Admin for %s: %s\n" % (panel, traceback.format_exc()))
                 mforms.Utilities.show_error("Error", "An unhandled exception occurred (%s). Please refer to the log files for details." % e, "OK", "", "")

@@ -26,7 +26,7 @@ import grt
 import mforms
 
 from threading import Thread
-from Queue import Queue, Empty
+from queue import Queue, Empty
 
 from workbench.log import log_info, log_error
 from workbench.client_utils import MySQLScriptImporter
@@ -138,13 +138,13 @@ class RunPanel(mforms.Table):
             self.importer.import_script(file, default_schema = schema, default_charset = charset)
 
             log_info("Run script finished\n")
-        except grt.DBLoginError, e:
+        except grt.DBLoginError as e:
             log_error("MySQL login error running script: %s\n" % e)
             self._worker_queue.put(e)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("MySQL error running script: %s\n" % e)
             self._worker_queue.put(e)
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Unexpected exception running script: %s\n%s\n" % (e, traceback.format_exc()))
             self._worker_queue.put(e)
@@ -259,7 +259,7 @@ class ParameterDialog(mforms.Form):
 
             self.file_info.set_text("%i total bytes in file, displaying first %i bytes" % (os.stat(file).st_size, len(self.preview_data)))
             self.update_preview()
-        except Exception, e:
+        except Exception as e:
             mforms.Utilities.show_error("Run SQL Script", str(e), "OK", "", "")
             return
 

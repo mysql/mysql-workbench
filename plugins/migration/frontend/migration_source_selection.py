@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -80,7 +80,8 @@ def test_connectivity(connection, error_title):
         s.settimeout(10) # 10s timeout
         try:
             s.connect((hostname, port))
-        except socket.gaierror, (errno, e):
+        except socket.gaierror as xxx_todo_changeme:
+            (errno, e) = xxx_todo_changeme.args
             if errno == 8: # cannot resolve
                 mforms.Utilities.show_message(error_title,
                         "Unable to connect to the provided host and port combination.\n\n"+
@@ -97,7 +98,7 @@ def test_connectivity(connection, error_title):
                         "- your network connection is properly functioning",
                         "OK", "", "")
                 return False
-        except socket.timeout, e:
+        except socket.timeout as e:
             if ping_host(hostname):
                 mforms.Utilities.show_message(error_title,
                         "Timed out connecting to %s:%s, although the host could be pinged.\n\n%s\n\n" % (hostname, port, e)+
@@ -117,7 +118,8 @@ def test_connectivity(connection, error_title):
                         "- your network connection is properly functioning",
                         "OK", "", "")
             return False
-        except socket.error, (errno, e):
+        except socket.error as xxx_todo_changeme1:
+            (errno, e) = xxx_todo_changeme1.args
             if errno == 61: # connection refused
                 if ping_host(hostname):
                     mforms.Utilities.show_message(error_title,
@@ -201,7 +203,7 @@ class SourceWizardPage(WizardPage):
         
         try:
             self.panel.saveConnectionAs(name)
-        except Exception, e:
+        except Exception as e:
             mforms.Utilities.show_error("Store Connection", str(e), "OK", "", "")
             return False
         return True
@@ -230,7 +232,7 @@ class SourceWizardPage(WizardPage):
                 if source.password is None:
                     source.password = "" # connection succeeded with no password, so it must be blank
                 break
-            except (DBLoginError, SystemError), e:
+            except (DBLoginError, SystemError) as e:
                 if attempt == 0 and "[Driver Manager]" in e.message and "image not found" in e.message:
                     set_status_text("Specified ODBC driver not found")
                     show_missing_driver_error(e)
@@ -261,10 +263,10 @@ class SourceWizardPage(WizardPage):
                     mforms.Utilities.show_error("Test %s DBMS Connection" % caption, "Operation cancelled", "OK", "", "")
                     break
                     
-            except migration.NotSupportedError, e:
+            except migration.NotSupportedError as e:
                 mforms.Utilities.show_message('Unsupported Connection Method', e.message, 'OK', '', '')
                 return
-            except Exception, e:
+            except Exception as e:
                 log_error("Exception testing connection: %s\n" % e)
                 set_status_text("Could not connect to DBMS: %s" % e)
                 if is_odbc:
@@ -441,7 +443,7 @@ class FetchProgressView(WizardProgressPage):
                     self.main.plan.migrationSource.password = ""
                 self.main.plan.migrationSource.checkVersion()
                 break
-            except (DBLoginError, SystemError), e:
+            except (DBLoginError, SystemError) as e:
                 if attempt == 0:
                     if "[Driver Manager]" in e.message and "image not found" in e.message:
                         show_missing_driver_error(e)
@@ -464,7 +466,7 @@ class FetchProgressView(WizardProgressPage):
 
     def task_fetch_schemata(self):
         connection = self.main.plan.migrationSource.connection
-        only_these_catalogs = ( [connection.parameterValues['schema']] if (connection.parameterValues.has_key('schema') and connection.parameterValues['schema'])
+        only_these_catalogs = ( [connection.parameterValues['schema']] if ('schema' in connection.parameterValues and connection.parameterValues['schema'])
                                                                        else []  )
         self.main.plan.migrationSource.doFetchSchemaNames(only_these_catalogs)
         self.main.plan.migrationSource.disconnect()
@@ -485,7 +487,7 @@ class FetchProgressView(WizardProgressPage):
                     self.main.plan.migrationTarget.password = ""
                 self.main.plan.migrationTarget.checkVersion()
                 break
-            except (DBLoginError, SystemError), e:
+            except (DBLoginError, SystemError) as e:
                 if attempt > 0:
                     if isinstance(e, DBLoginError) and not force_password:
                         force_password = True

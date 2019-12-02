@@ -22,7 +22,7 @@
 import os
 import sys
 import subprocess
-import Queue
+import queue
 import grt
 import re
 import tempfile
@@ -106,7 +106,7 @@ class TableCopyWorker(Thread):
 
     def feed_input(self, text):
         if self.process.poll() is None:
-            if type(text) is unicode:
+            if type(text) is str:
                 text = text.encode("utf-8")
             self.process.stdin.write(text)
             self.process.stdin.flush()
@@ -142,11 +142,11 @@ class TableCopyWorker(Thread):
                 self.result_queue.put(("DONE", "Worker exited with status %s" % self.process.returncode))
             else:
                 self.result_queue.put(("DONE", None))
-        except grt.UserInterrupt, e:
+        except grt.UserInterrupt as e:
             self._owner.send_info("Copy task interrupted by user, terminating %s..." % self.name)
             self.terminate()
             self.result_queue.put(("INTERRUPTED", None))
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             self.result_queue.put(("DONE", str(e)))
@@ -173,7 +173,7 @@ class TableCopyWorker(Thread):
                 else:
                     import signal
                     os.kill(self.process.pid, signal.SIGTERM)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == 3:
                     pass
                 else:
@@ -206,7 +206,7 @@ class DataMigrator(object):
         if sys.platform == "win32":
             try:
                 with tempfile.NamedTemporaryFile("w", delete=False) as table_file:
-                    for task in working_set.values():
+                    for task in list(working_set.values()):
                         fields = []
                         fields.append(task["source_schema"])
                         fields.append(task["source_table"])
@@ -224,10 +224,10 @@ class DataMigrator(object):
 
                     table_param.append("--table-file=%s" % table_file.name)
 
-            except IOError, e:
+            except IOError as e:
                 raise Exception ("Error creating table file: %s" % e.strerror)
         else:
-            for task in working_set.values():
+            for task in list(working_set.values()):
                 if self._resume:
                     table_param += ["--table", task["source_schema"], task["source_table"], task["target_schema"], task["target_table"], task["source_primary_key"], task["target_primary_key"]]
                     if task.get("select_expression", None):
@@ -289,7 +289,7 @@ class DataMigrator(object):
         if sys.platform == "win32":
             try:
                 with tempfile.NamedTemporaryFile("w", delete=False) as table_file:
-                    for task in working_set.values():
+                    for task in list(working_set.values()):
                         fields = []
                         fields.append(task["source_schema"])
                         fields.append(task["source_table"])
@@ -306,10 +306,10 @@ class DataMigrator(object):
 
                     table_param.append("--table-file=%s" % table_file.name)
 
-            except IOError, e:
+            except IOError as e:
                 raise Exception ("Error creating table file: %s" % e.strerror)
         else:
-            for task in working_set.values():
+            for task in list(working_set.values()):
                 table_param += ["--table", task["source_schema"], task["source_table"], task["target_schema"], task["target_table"], task["source_primary_key"], task["target_primary_key"]]
                 if task.get("select_expression", None):
                     table_param.append(task["select_expression"])
@@ -335,7 +335,7 @@ class DataMigrator(object):
         if 'ttimeout' in task:
             args.append('--target-timeout=%s' % task['ttimeout'])
 
-        if 'defaultCharSet' in self._src_conn_object.parameterValues.keys():
+        if 'defaultCharSet' in list(self._src_conn_object.parameterValues.keys()):
             default_charset = self._src_conn_object.parameterValues.get("defaultCharSet")
             if default_charset:
                 args.append('--source-charset=%s' % default_charset)
@@ -346,7 +346,7 @@ class DataMigrator(object):
         argv = [self.copytable_path] + args + table_param
 
         self._working_set = working_set
-        self._result_queue = Queue.Queue(len(working_set))
+        self._result_queue = queue.Queue(len(working_set))
 
         worker = TableCopyWorker(self._owner, argv, self._result_queue)
         worker.feed_input(self._src_password+"\t"+self._tgt_password+"\n")
@@ -428,7 +428,7 @@ class DataMigrator(object):
 
     def process_until_done(self):
         total_row_count = 0
-        for table in self._working_set.values():
+        for table in list(self._working_set.values()):
             total_row_count += table["row_count"]
 
         progress_row_count = {}
@@ -447,7 +447,7 @@ class DataMigrator(object):
                     if callable(_update_resume_status):
                         _update_resume_status(self._resume)
                     msgtype, message = self._result_queue.get_nowait()
-                except Queue.Empty:
+                except queue.Empty:
                     break
             else:
                 msgtype, message = self._result_queue.get()
@@ -476,7 +476,7 @@ class DataMigrator(object):
             elif msgtype == "PROGRESS":
                 target_table, current, total = message.split(":")
                 progress_row_count[target_table] = (False, int(current))
-                self._owner.send_progress(float(sum([x[1] for x in progress_row_count.values()])) / total_row_count, "Copying %s" % ", ".join(active_job_names))
+                self._owner.send_progress(float(sum([x[1] for x in list(progress_row_count.values())])) / total_row_count, "Copying %s" % ", ".join(active_job_names))
             elif msgtype == "LOG":
                 self._owner.send_info(message)
             elif msgtype == "DONE":

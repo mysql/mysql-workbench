@@ -274,11 +274,11 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
             try:
                 self.error_log_reader = ErrorLogFileReader(self._ctrl_be, self.server_profile.error_log_file_path)
                 self.error_log_position = self.error_log_reader.file_size
-            except OperationCancelledError, e:
+            except OperationCancelledError as e:
                 self.startup_msgs_log.append_text_with_encoding("Cancelled password input to open error log file: %s\n" % e,
                                                               self._ctrl_be.server_helper.cmd_output_encoding, True)
                 raise
-            except Exception, e:
+            except Exception as e:
                 self.startup_msgs_log.append_text_with_encoding("Could not open error log file: %s\n" % e,
                                                                 self._ctrl_be.server_helper.cmd_output_encoding, True)
 
@@ -324,7 +324,7 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
-                except Exception, exc:
+                except Exception as exc:
                     if self._ctrl_be.target_version and self._ctrl_be.target_version.is_supported_mysql_version_at_least(5, 7, 5):
                         self.offline_mode_btn.show(True)
 
@@ -344,7 +344,7 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
                         self.start_stop_btn.set_enabled(True)
                         self.refresh_button.set_enabled(True)
                         return
-                except Exception, exc:
+                except Exception as exc:
                     self.start_stop_btn.set_enabled(True)
                     self.refresh_button.set_enabled(True)
                     Utilities.show_error("Start Server",

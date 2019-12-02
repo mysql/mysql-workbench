@@ -3,6 +3,7 @@ import xml.dom.minidom
 import re
 import pprint
 import missing_info
+from functools import reduce
 
 skip_list = set(['version', 'help', 'license', 'version_comment', 'version_compile_machine', 'version_compile_os'])
 
@@ -28,7 +29,7 @@ for tup in bool_tuples:
 tags = {}
 types = {}
 
-print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
+print(('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__))
 
 
 def count_tag(dic, tag):
@@ -45,27 +46,27 @@ def parse_boolean(node, value, opt):
     for t in node.childNodes:
         if t.nodeType == t.ELEMENT_NODE:
             if t.tagName == 'value':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname == 'default':
                         if aname in value:
-                            print "existing bool value tag", aname, value
+                            print("existing bool value tag", aname, value)
                         else:
                             value[str(aname)] = str(aval.lower())
                     else:
-                        print "Uknown attr in value", aname, opt['name']
+                        print("Uknown attr in value", aname, opt['name'])
                         quit()
             elif t.tagName == 'choice':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname == 'value':
                         if 'choice' in value:
                             value['choice'].append(str(aval.lower()))
                         else:
                             value['choice'] = [str(aval.lower())]
                     else:
-                        print "Uknown attr in choice", aname, opt['name']
+                        print("Uknown attr in choice", aname, opt['name'])
                         quit()
             else:
-                print "Warning unkown tag in boolean value", aname, aval
+                print("Warning unkown tag in boolean value", aname, aval)
                 quit()
 
     default = None
@@ -94,25 +95,25 @@ def parse_string(node, value, opt):
     for t in node.childNodes:
         if t.nodeType == t.ELEMENT_NODE:
             if t.tagName == 'value':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname in value:
-                        print "existing str value tag", aname, value
+                        print("existing str value tag", aname, value)
                     else:
                         value[str(aname)] = str(aval)
                         if aname == 'default' and str(aval) == "empty string":
                             value[str(aname)] = ""
             elif t.tagName == 'choice':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname == 'value':
                         if 'choice' in value:
                             value['choice'].append(str(aval))
                         else:
                             value['choice'] = [str(aval)]
                     else:
-                        print "Uknown attr in choice", aname, opt['name']
+                        print("Uknown attr in choice", aname, opt['name'])
                         quit()
             else:
-                print "Warning unkown tag in boolean value", aname, aval
+                print("Warning unkown tag in boolean value", aname, aval)
                 quit()
 
 #-------------------------------------------------------------------------------
@@ -120,23 +121,23 @@ def parse_numeric(node, value, opt):
     for t in node.childNodes:
         if t.nodeType == t.ELEMENT_NODE:
             if t.tagName == 'value':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname in value:
-                        print "existing num value tag", opt.get("name"), aname, value
+                        print("existing num value tag", opt.get("name"), aname, value)
                     else:
                         value[str(aname)] = str(aval)
             elif t.tagName == 'choice':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname == 'value':
                         if 'choice' in value:
                             value['choice'].append(str(aval))
                         else:
                             value['choice'] = [str(aval)]
                     else:
-                        print "Uknown attr in choice", aname, opt['name']
+                        print("Uknown attr in choice", aname, opt['name'])
                         quit()
             else:
-                print "Warning unkown tag in boolean value", aname, aval
+                print("Warning unkown tag in boolean value", aname, aval)
                 quit()
 
 #-------------------------------------------------------------------------------
@@ -144,7 +145,7 @@ def parse_filename(node, value, opt):
     for t in node.childNodes:
         if t.nodeType == t.ELEMENT_NODE:
             if t.tagName == 'value':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     value[str(aname)] = str(aval)
                     if aname == 'default' and str(aval) == "empty string":
                         value[str(aname)] = ""
@@ -154,29 +155,29 @@ def parse_enumeration(node, value, opt):
     for t in node.childNodes:
         if t.nodeType == t.ELEMENT_NODE:
             if t.tagName == 'value':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname == 'default':
                         if aname in value:
-                            print "existing enum value tag", aname, value
+                            print("existing enum value tag", aname, value)
                         else:
                             value[str(aname)] = str(aval)
                     elif aname == 'se':
                         pass
                     else:
-                        print "Uknown attr in value", aname, opt['name']
+                        print("Uknown attr in value", aname, opt['name'])
 #quit()
             elif t.tagName == 'choice':
-                for (aname, aval) in t.attributes.items():
+                for (aname, aval) in list(t.attributes.items()):
                     if aname == 'value':
                         if 'choice' in value:
                             value['choice'].append(str(aval))
                         else:
                             value['choice'] = [str(aval)]
                     else:
-                        print "Uknown attr in choice", aname, opt['name']
+                        print("Uknown attr in choice", aname, opt['name'])
                         quit()
             else:
-                print "Warning unkown tag in boolean value", aname, aval
+                print("Warning unkown tag in boolean value", aname, aval)
                 quit()
     value['type'] = 'enum'
 
@@ -215,14 +216,14 @@ def parse_version_str(version_str):
             else:
                 version = (int(tokens[3]), int(tokens[4]))
     except ValueError:
-        print "ERROR! incorrect version attribute value '" + version_str + "', ", type(version_str)
+        print("ERROR! incorrect version attribute value '" + version_str + "', ", type(version_str))
 
     return version
 
 #-------------------------------------------------------------------------------
 def parse_values(node, opt):
     value = {}
-    for n,v in node.attributes.items():
+    for n,v in list(node.attributes.items()):
         value[str(n)] = str(v)
 
     vartype = str(value['vartype'])
@@ -254,7 +255,7 @@ def guess_values(opt):
 #-------------------------------------------------------------------------------
 def parse_optype(node, option):
     optype = {}
-    for i in node.attributes.items():
+    for i in list(node.attributes.items()):
         optype[str(i[0])] = str(i[1])
 
     # make cleanup
@@ -285,7 +286,7 @@ def parse_versions(versions_node, option):
                 version = parse_version_str(version_str)
                 if version:
                     if len(version) > 2:
-                        print "Error: manual version is set in x.y.z format", option
+                        print("Error: manual version is set in x.y.z format", option)
                         quit()
                     vers.append(version)
             elif node.tagName == 'introduced':
@@ -330,7 +331,7 @@ def parse_var_types(node, option):
     for t in node.childNodes:
         if t.nodeType == t.ELEMENT_NODE and t.hasAttribute('isdynamic'):
             if t.getAttribute('isdynamic') not in ('yes','no'):
-                print "Invalid isdynamic value", t.getAttribute('isdynamic')
+                print("Invalid isdynamic value", t.getAttribute('isdynamic'))
             return t.getAttribute('isdynamic') == 'yes', t.nodeName
     return None, None
 
@@ -338,13 +339,13 @@ def parse_var_types(node, option):
 
 def check_redundant_option(opts, optid):
     if '-' in optid and optid.replace('-', '_') in [o['name'] for o in opts]:
-        print 'Skipped redundant option: %s'%o['name']
+        print('Skipped redundant option: %s'%o['name'])
         return True
     elif '_' in optid and optid.replace('_', '-') in [o['name'] for o in opts]:
         for o in opts:
             if optid.replace('_', '-') == o['name']:
                 opts.remove(o)
-                print 'Removed redundant option: %s'%o['name']
+                print('Removed redundant option: %s'%o['name'])
     return False
 #-------------------------------------------------------------------------------
 for option in doc.documentElement.getElementsByTagName('mysqloption'):
@@ -366,13 +367,13 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
         is_variable_dynamic, variable_class = parse_var_types(t, opt)
 
     for t in option.getElementsByTagName('disabledby'):
-        items = t.attributes.items()
+        items = list(t.attributes.items())
         # items usually look like [('xref', 'skip-merge')] for optid 'merge'
         if len(items) == 1:
             items = items[0]
             opt['disabledby'] = str(items[1])
         else:
-            print "Warning: disabledby has more that one value or no values", optid, items
+            print("Warning: disabledby has more that one value or no values", optid, items)
 
     for node in option.childNodes:
         if node.nodeType == node.ELEMENT_NODE:
@@ -407,7 +408,7 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
         if 'values' in opt and len(opt['values']) == 0:
             guess_values(opt)
     elif variable_class == "system":
-        print "-", optid
+        print("-", optid)
 
     if is_variable_dynamic is not None:
         if variable_class == "system":
@@ -424,11 +425,11 @@ for option in doc.documentElement.getElementsByTagName('mysqloption'):
 for o in opts:
     missing_def = missing_info.get_def(o['name'])
     if missing_def:
-        for k,v in missing_def.iteritems():
+        for k,v in missing_def.items():
             o[k] = v
-        print "Merged", missing_def
-        print "    to", o
-        print "----"
+        print("Merged", missing_def)
+        print("    to", o)
+        print("----")
 
 for o in missing_info.non_requested:
     missing_def = missing_info.get_def(o)
@@ -441,7 +442,7 @@ for o in opts:
         o['values'] = values = list(o['values'])
 for o in opts:
     if not 'values' in o or len(o['values']) == 0:
-        print "Warning: option", o['name'], "has no values"
+        print("Warning: option", o['name'], "has no values")
 
     if 'skip-' in o['name']:
         for opt in opts:
@@ -449,22 +450,22 @@ for o in opts:
                 for v in opt['values']:
                     if 'default' in v:
                         if v['default'].lower() in ['1', 'on', 'true', 'yes']:
-                            print 'Removed option %s'%(opt['name'])
+                            print('Removed option %s'%(opt['name']))
                             opts.remove(opt)
                         else:
-                            print 'Removed option %s'%(o['name']) 
+                            print('Removed option %s'%(o['name'])) 
                             opts.remove(o)
                         break
                 break
 
-print "Writing to raw_opts.py..."
+print("Writing to raw_opts.py...")
 f = open('raw_opts.py', 'w+')
 f.write("ropts = ")
 pp = pprint.PrettyPrinter(indent=2, stream=f)
 pp.pprint(opts)
 f.close()
 
-print "Writing to wb_admin_variable_list.py..."
+print("Writing to wb_admin_variable_list.py...")
 f = open('raw_vars.py', 'w+')
 f.write("system_vars_list =")
 pp = pprint.PrettyPrinter(indent=2, stream=f)

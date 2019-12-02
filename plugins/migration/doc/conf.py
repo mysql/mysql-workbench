@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -69,8 +69,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'MySQL Workbench Migration Tool'
-copyright = u'2012, Oracle MySQL Developer Tools Team'
+project = 'MySQL Workbench Migration Tool'
+copyright = '2012, Oracle MySQL Developer Tools Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -207,8 +207,8 @@ htmlhelp_basename = 'MySQLWorkbenchMigrationTooldoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'MySQLWorkbenchMigrationTool.tex', u'MySQL Workbench Migration Tool Documentation',
-   u'Oracle MySQL Developer Tools Team', 'manual'),
+  ('index', 'MySQLWorkbenchMigrationTool.tex', 'MySQL Workbench Migration Tool Documentation',
+   'Oracle MySQL Developer Tools Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -240,6 +240,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'mysqlworkbenchmigrationtool', u'MySQL Workbench Migration Tool Documentation',
-     [u'Oracle MySQL Developer Tools Team'], 1)
+    ('index', 'mysqlworkbenchmigrationtool', 'MySQL Workbench Migration Tool Documentation',
+     ['Oracle MySQL Developer Tools Team'], 1)
 ]

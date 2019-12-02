@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -61,7 +61,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
         Set the attribute's state to a specific value 
         on a complete branch of the hierarchy tree
         """
-        for key in self.keys():
+        for key in list(self.keys()):
             if attr == 'enabled':
                 self[key].enabled = value
             elif attr == 'timed':
@@ -69,7 +69,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
 
             # If the tree is not a leaf node continues
             # updating the children nodes
-            if not self.has_key('_data_'):
+            if '_data_' not in self:
                 self[key].set_children_state(attr, value)
 
     def update_parents_state(self, attr):
@@ -104,7 +104,7 @@ class PSInstrumentGroup(ChangeNotifierDict):
         on the status of its immediate childrens
         """
         counter = 0
-        for child in self.keys():
+        for child in list(self.keys()):
             if attr == 'enabled':
                 new_value = self[child].enabled 
             elif attr == 'timed':
@@ -137,8 +137,8 @@ class PSInstrumentGroup(ChangeNotifierDict):
         the hierarchy groups based on the status of the
         leaf elements
         """
-        if not self.has_key('_data_'):
-            for key in self.keys():
+        if '_data_' not in self:
+            for key in list(self.keys()):
                 self[key].set_initial_states()
 
         self.set_state_from_children('enabled')
@@ -180,7 +180,7 @@ class PSInstruments(ChangeCounter):
                     tokens = result.stringByName('NAME').split('/')
                     cur_dict = self.instruments
                     for token in tokens:
-                        if not cur_dict.has_key(token):
+                        if token not in cur_dict:
                             cur_dict[token] = PSInstrumentGroup(cur_dict)
 
                         cur_dict = cur_dict[token]
@@ -193,7 +193,7 @@ class PSInstruments(ChangeCounter):
             # Updates the groups states
             self.instruments.set_initial_states()
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -205,7 +205,7 @@ class PSInstruments(ChangeCounter):
         queries = []
         changes={'enabled':{True:[], False:[]}, 'timed':{True:[], False:[]}}
 
-        for instrument in instrument_changes.keys():
+        for instrument in list(instrument_changes.keys()):
             change_set = instrument_changes[instrument]
 
 
@@ -249,7 +249,7 @@ class PSInstruments(ChangeCounter):
         self.instruments.set_initial_states()
 
     def set_change(self, instrument, storage, changes):
-        if not storage.has_key(instrument):
+        if instrument not in storage:
             storage[instrument] = []
 
         storage[instrument].extend(changes)
@@ -259,7 +259,7 @@ class PSInstruments(ChangeCounter):
         Retrieves the minimal change sets done on a specific attribute
         of the instruments.
         """
-        for item in data.keys():
+        for item in list(data.keys()):
             # If there are changes
             if data[item].changes[attr]:
                 new_path = list(path)
@@ -273,7 +273,7 @@ class PSInstruments(ChangeCounter):
 
                 if state >= 0:
                     instrument = '/'.join(new_path)
-                    if not data[item].has_key('_data_'):
+                    if '_data_' not in data[item]:
                         instrument += '*'
 
                     new_value = True if state == 1 else False
@@ -323,7 +323,7 @@ class PSConsumers(dict, ChangeCounter):
 
                     self[name] = PSConsumer(enabled)
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -333,7 +333,7 @@ class PSConsumers(dict, ChangeCounter):
         queries = []
         enabled = []
         disabled = []
-        for consumer in self.keys():
+        for consumer in list(self.keys()):
             if self[consumer].has_changed():
                 if self[consumer].enabled:
                     enabled.append('"%s"' % consumer)
@@ -350,18 +350,18 @@ class PSConsumers(dict, ChangeCounter):
 
     def get_changes(self):
         changes = {}
-        for key in self.keys():
+        for key in list(self.keys()):
             if self[key].has_changed():
                 changes[key] = self[key].get_changes()
 
         return changes
 
     def revert_changes(self):
-        for key in self.keys():
+        for key in list(self.keys()):
             self[key].revert_changes()
 
     def reset_changes(self):
-        for key in self.keys():
+        for key in list(self.keys()):
             self[key].reset_changes()
 
 
@@ -407,7 +407,7 @@ class PSVariables(dict, ChangeCounter):
 
                     self[name] = PSVariable(value)
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -446,7 +446,7 @@ class PSActors(ChangeNotifierList):
                 # Clears out the change records
                 self.reset_changes()
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -515,7 +515,7 @@ class PSObjects(ChangeNotifierList):
                 # Clears out the change records
                 self.reset_changes()
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -587,7 +587,7 @@ class PSTimers(ChangeNotifierDict):
                 # Clears out the change records
                 self.reset_changes()
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -662,7 +662,7 @@ class PSThreads(ChangeNotifierDict):
                 # Clears out the change records
                 self.reset_changes()
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -720,7 +720,7 @@ class PSConfiguration(ChangeCounter):
         self.variables = PSVariables(self.ctrl_be)
 
         # Tracks changes on elements
-        for element in self.sections.values():
+        for element in list(self.sections.values()):
             self.count_changes_on(element)
 
         self.timer_types = []
@@ -746,7 +746,7 @@ class PSConfiguration(ChangeCounter):
                     overhead = result.stringByIndex(4)
                     self.timer_types.append(PSTimerType(name, frequency, resolution, overhead))
 
-        except QueryError, err:
+        except QueryError as err:
             if err.error == MYSQL_ERR_TABLE_DOESNT_EXIST:
                 return
             else:
@@ -754,7 +754,7 @@ class PSConfiguration(ChangeCounter):
 
 
     def load(self):
-        for element in self.sections.values():
+        for element in list(self.sections.values()):
             element.load()
 
         self.variables.load()
@@ -767,14 +767,14 @@ class PSConfiguration(ChangeCounter):
 
             # Gets the statements needed to commit the changes on the different
             # sections.
-            for element in self.sections.values():
+            for element in list(self.sections.values()):
                 if element.change_count:
                     statements = element.get_commit_statements()
 
                     for statement in statements:
                         try:
                             self.ctrl_be.exec_sql(statement)
-                        except QueryError, err:
+                        except QueryError as err:
                             log_error('ERROR : [%s] %s [%s]\n' % (err.error, err.msg, err.errortext))
                             raise
             
@@ -783,13 +783,13 @@ class PSConfiguration(ChangeCounter):
 
     def revert_changes(self):
         # Reverts the changes on elements with changes
-        for element in self.sections.values():
+        for element in list(self.sections.values()):
             if element.change_count:
                 element.revert_changes()
 
     def reset_changes(self):
         # Reverts the changes on elements with changes
-        for element in self.sections.values():
+        for element in list(self.sections.values()):
             if element.change_count:
                 element.reset_changes()
         

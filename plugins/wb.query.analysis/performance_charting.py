@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -45,7 +45,7 @@ class TreePieChart:
     def plot_chart_level(self, data, depth = 0, start_angle = 0, end_angle = 360, color = None):
         total = 0
         # calculate total value for the level and their fractions
-        for c, v in data.values():
+        for c, v in list(data.values()):
             total += v
         if total == 0 or depth > 2:
             return
@@ -54,7 +54,7 @@ class TreePieChart:
         i = 0
         text_to_show = []
         # calculate the percentage of each part in relation to the total and render it
-        for k, (child_dict, v) in data.items():
+        for k, (child_dict, v) in list(data.items()):
             if v == 0:
                 continue
             pct = float(v) / total
@@ -111,7 +111,7 @@ def event_waits_summary_by_thread_by_event_name_to_tree(before_rows, after_rows)
         node = root
         old_count_star, old_sum_timer_wait, old_min_timer_wait, old_avg_timer_wait, old_max_timer_wait = before_values[event_name]
         for p in path:
-            if node.has_key(p):
+            if p in node:
                 node = node[p][0]
             else:
                 new_node = {}
@@ -120,7 +120,7 @@ def event_waits_summary_by_thread_by_event_name_to_tree(before_rows, after_rows)
     
     def sum_up(node):
         total = 0
-        for k, (d, v) in node.items():
+        for k, (d, v) in list(node.items()):
             s = sum_up(d)
             node[k] = d, s+v
             total += s+v

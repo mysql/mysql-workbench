@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -97,7 +97,7 @@ class ServerProfile(object):
             value = default_value
         if value is None:
             value= default_value
-        elif type(value) is not str and type(value) is not unicode:
+        elif type(value) is not str and type(value) is not str:
             value= str(value)
         return value
 
@@ -109,7 +109,7 @@ class ServerProfile(object):
             value = default_value
         if value is None:
             value= default_value
-        elif type(value) is not str and type(value) is not unicode:
+        elif type(value) is not str and type(value) is not str:
             value= str(value)
         return value
 
@@ -143,7 +143,7 @@ class ServerProfile(object):
             system = self.__settings.serverInfo['sys.system']
         except:
             system = None
-        if system is not None and type(system) is str or type(system) is unicode:
+        if system is not None and type(system) is str or type(system) is str:
             system = system.strip(" \r\t\n").lower()
             if system == 'windows':
                 ret = wbaOS.windows
@@ -194,9 +194,9 @@ class ServerProfile(object):
                             return False
                     else:
                         from wb_common import NoDriverInConnection
-                        raise NoDriverInConnection, """Workbench has not found a driver for the connection
+                        raise NoDriverInConnection("""Workbench has not found a driver for the connection
 that is being used by this server instance.
-Please edit your connection settings and try again."""
+Please edit your connection settings and try again.""")
             return False
 
 
@@ -457,7 +457,7 @@ Please edit your connection settings and try again."""
         settings_object = self.get_settings_object()
         serverInfo = settings_object.serverInfo
         
-        if serverInfo.has_key('sys.mysqld.sudo_override'):
+        if 'sys.mysqld.sudo_override' in serverInfo:
           sudo_override = serverInfo['sys.mysqld.sudo_override']
           
           if sudo_override.strip():
@@ -567,7 +567,7 @@ class PasswordHandler(object):
     # call this if a InvalidPasswordError is caught
     def reset_password_for(self, service_type):
         password_type = self.get_password_type(service_type)
-        if self.pwd_store.has_key(password_type):
+        if password_type in self.pwd_store:
             # None means the stored password was bad
             self.pwd_store[password_type] = None
 
@@ -576,7 +576,7 @@ class PasswordHandler(object):
         force_reset = False
         password_type = self.get_password_type(service_type)
 
-        if self.pwd_store.has_key(password_type):
+        if password_type in self.pwd_store:
             if self.pwd_store[password_type] is None:
                 force_reset = True
             else:
@@ -643,12 +643,12 @@ class ServerControlBase(object):
         try:
             action(password)
             finish_callback("success")
-        except InvalidPasswordError, err:
+        except InvalidPasswordError as err:
             if password is None:
                 finish_callback("need_password")
             else:
                 finish_callback("bad_password")
-        except Exception, err:
+        except Exception as err:
             import traceback
             traceback.print_exc()
             finish_callback(err)
@@ -704,7 +704,7 @@ class ServerControlShell(ServerControlBase):
             r = self.helper.execute_command(self.profile.start_server_cmd,
                                     as_user=as_user,
                                     user_password=password,
-                                    output_handler=lambda s:self.info("Start server: %s"%(s if ((type(s) is str) or (type(s) is unicode)) else "").replace(password or "", "")))
+                                    output_handler=lambda s:self.info("Start server: %s"%(s if ((type(s) is str) or (type(s) is str)) else "").replace(password or "", "")))
         except InvalidPasswordError:
             # forget password, so that next time it will be requested
             self.password_delegate.reset_password_for("service.startstop")
@@ -720,7 +720,7 @@ class ServerControlShell(ServerControlBase):
         self.info("Stopping server...")
         try:
             def strip_pwd(output):
-                if output is not None and (type(output) is str or type(output) is unicode):
+                if output is not None and (type(output) is str or type(output) is str):
                     if password is not None and password != "":
                         output = output.replace(password, "")
                 else:
@@ -764,7 +764,7 @@ class ServerControlWMI(ServerControlBase):
         try:
             sess = self.wmi.wmiOpenSession(server, user, password or "")
             self.wmi_session_ids[currentThread()] = sess
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
             raise RuntimeError("Could not initialize WMI interface: %s"%exc)
@@ -786,11 +786,11 @@ class ServerControlWMI(ServerControlBase):
 
         if profile.start_server_cmd == "" or (service not in profile.start_server_cmd):
             serverInfo["sys.mysqld.start"] = "sc start " + service
-            print "WMIShell: start command set to '%s'"%profile.start_server_cmd
+            print("WMIShell: start command set to '%s'"%profile.start_server_cmd)
 
         if profile.stop_server_cmd == "" or (service not in profile.stop_server_cmd):
             serverInfo["sys.mysqld.stop"] = "sc stop " + service
-            print "WMIShell: stop command set to '%s'"%profile.stop_server_cmd
+            print("WMIShell: stop command set to '%s'"%profile.stop_server_cmd)
 
 
     def get_password(self):
@@ -819,7 +819,7 @@ class ServerControlWMI(ServerControlBase):
         return sess
 
     def close(self):
-        for s in self.wmi_session_ids.values():
+        for s in list(self.wmi_session_ids.values()):
             self.wmi.wmiCloseSession(s)
         self.wmi_session_ids = {}
         ServerControlBase.close() # not certain if the call is needed.

@@ -315,7 +315,7 @@ class MainView(WizardPage):
                         try:
                             if not object.setParseType(type, None):
                                 raise Exception("Could not parse column type string '%s'" % type)
-                        except Exception, exc:
+                        except Exception as exc:
                             mforms.Utilities.show_error("Change Column Type", "Error changing column type: %s" % exc, "OK", "", "")
                             return
                         node.set_string(1, name+"  "+object.formattedRawType)
@@ -348,7 +348,7 @@ class MainView(WizardPage):
                 try:
                     if not object.setParseType(value, None):
                         raise Exception("Could not parse column type string '%s'" % value)
-                except Exception, exc:
+                except Exception as exc:
                     mforms.Utilities.show_error("Change Column Type", "Error changing column type: %s" % exc, "OK", "", "")
                     return
                 node.set_string(column, value)                

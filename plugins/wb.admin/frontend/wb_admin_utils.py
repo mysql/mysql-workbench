@@ -35,7 +35,7 @@ def weakcb(object, cbname):
     def call(ref, cbname):
         callback = getattr(ref(), cbname, None)
         if callback is None:
-            print "Object has no callback %s"%cbname
+            print("Object has no callback %s"%cbname)
         else:
             return callback()
 
@@ -323,7 +323,7 @@ class WbAdminTabBase(mforms.Box):
                 self.set_body_contents(self.create_ui())
             else:
                 self.update_ui()
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             log_error("Exception activating the page - %s" % str(e))

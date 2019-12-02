@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -52,9 +52,9 @@ class Task(object):
             self.owner.send_info("%s cancelled" % self.label)
             self.set_aborted()
             return
-        except Exception, e:
+        except Exception as e:
             if not isinstance(self, ThreadedTask):
-                print
+                print()
                 import traceback
                 traceback.print_exc()
 
@@ -157,8 +157,8 @@ class ThreadedTask(Task):
             self.owner.send_info("%s cancelled" % self.label)
             mforms.Utilities.perform_from_main_thread(self.set_aborted, False)
             return
-        except Exception, exc:
-            print
+        except Exception as exc:
+            print()
             import traceback
             traceback.print_exc()
             grt.log_error("Wizard", "Thread '%s' failed: %s\n" % (self.label, exc))
@@ -372,7 +372,7 @@ class ProgressMainView(WizardPage):
 
             try:
                 task.run()
-            except Exception, exc:
+            except Exception as exc:
                 self.send_error("Exception in task '%s': %r\n" % (task.label, exc))
                 self._status_label.set_text("%s" % self.format_exception_text(exc))
                 self._failed()
@@ -648,7 +648,7 @@ class ProgressMainView(WizardPage):
         self.send_progress(0, 'Data copy starting')
         total = 0
         table_count = len (self._working_set);
-        for task in self._working_set.values():
+        for task in list(self._working_set.values()):
             total += task.get("row_count", 0)
             self.create_transfer_log(task["target_table_object"])
 
@@ -669,7 +669,7 @@ class ProgressMainView(WizardPage):
                 
             self.send_info("Data copy results:")
             fully_copied = 0
-            for task in self._working_set.values():
+            for task in list(self._working_set.values()):
                 info = succeeded_tasks.get(task["target_schema"]+"."+task["target_table"], None)
                 row_count = task.get("row_count", 0)
                 if info:

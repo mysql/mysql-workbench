@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 # import the mforms module for GUI stuff
 import mforms
@@ -172,8 +172,8 @@ class SimpleTabExport(mforms.Box):
             limit = "LIMIT %d" % int(self.limit_entry.get_string_value())
             if self.offset_entry.get_string_value():
                 limit = "LIMIT %d,%d" % (int(self.offset_entry.get_string_value()), int(self.limit_entry.get_string_value()))
-        table_w_prefix = u"%s.%s" % (self.owner.main.source_table['schema'], self.owner.main.source_table['table'])
-        return u"""SELECT %s FROM %s %s""" % (",".join(selected_columns), table_w_prefix, limit)
+        table_w_prefix = "%s.%s" % (self.owner.main.source_table['schema'], self.owner.main.source_table['table'])
+        return """SELECT %s FROM %s %s""" % (",".join(selected_columns), table_w_prefix, limit)
         
 class AdvancedTabExport(mforms.Box):
     def __init__(self, editor, owner):
@@ -420,7 +420,7 @@ class SelectFilePage(WizardPage):
         
         userpath = self.exportfile_path.get_string_value()
         try:
-            if (not isinstance(userpath, str) and not isinstance(userpath, unicode)) or not userpath:
+            if (not isinstance(userpath, str) and not isinstance(userpath, str)) or not userpath:
                 return False
             
             rootdrive, path = os.path.splitdrive(userpath)
@@ -491,7 +491,7 @@ class SelectFilePage(WizardPage):
             self.optbox = mforms.newBox(False)
             self.optbox.set_spacing(8)
             self.optbox.set_padding(8)
-            for name, opts in self.active_module.options.iteritems():
+            for name, opts in self.active_module.options.items():
                 label_box = mforms.newBox(True)
                 label_box.set_spacing(8)
                 label_box.add(mforms.newLabel(opts['description']), False, True)
@@ -505,7 +505,7 @@ class SelectFilePage(WizardPage):
                     opt_val = mforms.newSelector()
                     opt_val.set_size(75, -1)
                     opt_val.add_items([v for v in opts['opts']])
-                    opt_val.set_selected(opts['opts'].values().index(opts['value']))
+                    opt_val.set_selected(list(opts['opts'].values()).index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
                     label_box.add_end(opt_val, False, True)
                 self.optbox.add(label_box, False, True)
@@ -565,11 +565,11 @@ class DataInputPage(WizardPage):
         self.source_table_sel = mforms.newSelector()
         self.source_table_sel.set_size(self.get_width(), -1)
         self.preload_existing_tables()
-        sorted_keys = self.table_list.keys()
+        sorted_keys = list(self.table_list.keys())
         sorted_keys.sort()
         self.source_table_sel.add_items(sorted_keys)
-        table_name = u"%s.%s" % (self.main.source_table['schema'], self.main.source_table['table'])
-        if table_name in self.table_list.keys():
+        table_name = "%s.%s" % (self.main.source_table['schema'], self.main.source_table['table'])
+        if table_name in list(self.table_list.keys()):
             self.source_table_sel.set_selected(sorted_keys.index(table_name))
         self.source_table_sel.add_changed_callback(lambda selector = self.source_table_sel: self.source_table_changed(to_unicode(selector.get_string_value())))
         headingBox.add(self.source_table_sel, False, True)
@@ -591,9 +591,9 @@ class DataInputPage(WizardPage):
     def get_table_columns(self, table):
         cols = []
         try:
-            rset = self.main.editor.executeManagementQuery(u"SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
-        except grt.DBError, e:
-            log_error(u"SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], to_unicode(e.message)))
+            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
+        except grt.DBError as e:
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], to_unicode(e.message)))
             rset = None
             
         if rset:
@@ -623,11 +623,11 @@ class DataInputPage(WizardPage):
     def preload_existing_tables(self):
         self.table_list = {}
        
-        rset = self.main.editor.executeManagementQuery(u"SHOW TABLES FROM `%s`" % self.main.source_table['schema'], 0)
+        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s`" % self.main.source_table['schema'], 0)
         if rset:
             ok = rset.goToFirstRow()
             while ok:
-                self.table_list[u"%s.%s" % (self.main.source_table['schema'], to_unicode(rset.stringFieldValue(0)))] = {'schema': self.main.source_table['schema'], 'table': to_unicode(rset.stringFieldValue(0))}
+                self.table_list["%s.%s" % (self.main.source_table['schema'], to_unicode(rset.stringFieldValue(0)))] = {'schema': self.main.source_table['schema'], 'table': to_unicode(rset.stringFieldValue(0))}
                 ok = rset.nextRow()
         
     def go_advanced(self):

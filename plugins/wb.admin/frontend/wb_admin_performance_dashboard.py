@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -40,12 +40,12 @@ class MyDict:
 
 
     def __contains__(self, k):
-        print "contains", k
+        print("contains", k)
         return self.d.__contains__(k)
 
 
     def __getitem__(self, k):
-        print "getit", k
+        print("getit", k)
         return self.d.__getitem__(k)
 
 
@@ -97,7 +97,7 @@ class RenderBox(mforms.PyDrawBox):
                 xx -= xx % 2
                 yy -= yy % 2
                 self.drag_object.move(xx, yy)
-                print self.drag_object.pos
+                print(self.drag_object.pos)
 
             self.drag_offset = None
             self.drag_object = None
@@ -231,7 +231,7 @@ class CDifferencePerSecond(object):
       
         try:
             value = eval(self.expr % values)
-        except Exception, e:
+        except Exception as e:
             value = 0
       
         if self.old_value and self.old_value_timestamp:
@@ -275,7 +275,7 @@ class CRawValue(object):
             return None
         try:
             value = eval(self.expr % values)
-        except Exception, e:
+        except Exception as e:
             value = 0
 
         return value

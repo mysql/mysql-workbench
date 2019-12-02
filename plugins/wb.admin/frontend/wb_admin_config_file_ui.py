@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -43,7 +43,7 @@ if CATOPTS is not None:
     cat_grp = ('Networking', 'Advanced log options', 'Slave replication objects', 'Slave default connection values', 'Activate Logging', 'Memory', 'Fulltext search', 'Data / Memory size', 'Datafiles', 'Localization', 'Thread specific settings', 'Advanced', 'Advanced Settings', 'Various', 'Binlog Options', 'Memory usage', 'Directories', 'Logfiles', 'Relay Log', 'Master', 'General slave', 'Security', 'Activate InnoDB', 'Slave Identification', 'Query cache', 'General', 'Insert delayed settings', 'Slow query log options', 'Naming', 'Timeout Settings')
 
     def handle_cat_opt(cat, grp, enabled):
-        print "CATOPT", "'" + enabled + "', '" + cat.get_string_value() + "', '" + grp.get_string_value()
+        print("CATOPT", "'" + enabled + "', '" + cat.get_string_value() + "', '" + grp.get_string_value())
 
 # The list of versions to show to user when detected/given version is not supported
 supported_versions = [5.5, 5.6, 5.7, 8.0]
@@ -78,7 +78,7 @@ def run_version_select_form(version):
     right_vbox = newBox(False)
     right_vbox.set_spacing(12)
 
-    warn_label = newLabel("Server version %s is not supported by Workbench\nconfiguration file management tool." % ".".join(map(lambda x: str(x), version)))
+    warn_label = newLabel("Server version %s is not supported by Workbench\nconfiguration file management tool." % ".".join([str(x) for x in version]))
     right_vbox.add(warn_label, False, True)
 
     warn_label = newLabel("Although, you can select different server version\nfor the tool to use. Suggested version "
@@ -111,7 +111,7 @@ def run_version_select_form(version):
 
     version_selector = newSelector(SelectorCombobox)
     versions.reverse()
-    version_selector.add_items(map(lambda x: str(x), versions))
+    version_selector.add_items([str(x) for x in versions])
     version_selector.set_value(str(guessed_version))
     right_vbox.add(version_selector, False, True)
     version_selector.add_changed_callback(lambda: verify_selected_version(version_selector, True))
@@ -275,7 +275,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             return
 
         if page_number not in self.pages:
-            print "Unknown page number ", page_number
+            print("Unknown page number ", page_number)
             self.loading = False
             return
 
@@ -331,7 +331,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 # instead of official option name to use for this WBA session. From now
                 # on all operation with the option are done through alias.
                 names = self.cfg_be.option_alt_names(name) #(name, name.replace("-","_"), name.replace("_","-"))
-                right_name = filter(lambda x: x in opts_map, names)
+                right_name = [x for x in names if x in opts_map]
                 if len(right_name) > 0:
                     right_name = right_name[0]
                     caption = ctrl_def.get('caption')
@@ -355,7 +355,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 if ctrl is not None and ctrl_def is not None:
                     ctrl[0].set_active(False)
                     self.enabled_checkbox_click(name, False)
-                    if ctrl_def.has_key('default'):
+                    if 'default' in ctrl_def:
                         default = ctrl_def['default']
                         if default is not None:
                             self.set_string_value_to_control(ctrl_tuple, str(default))
@@ -389,7 +389,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         for opt in self.cfg_be.get_options_containing(option_name_fragment):
             (tab_name, group_name) = self.cfg_be.get_option_location(opt)
             if tab_name is not None:
-                for page_idx, page in self.pages.iteritems():
+                for page_idx, page in self.pages.items():
                     if page.page_name == tab_name:
                         self.create_page(page_idx)
                         self.tab_view.set_active_tab(page_idx - 1)
@@ -430,7 +430,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 added = option_stats.get("added", None)
                 if added is not None and added < 10:
                     user_selected_version = run_version_select_form(option_stats["version"])
-                    self.server_profile.set_server_version(".".join(map(lambda x: str(x), user_selected_version)))
+                    self.server_profile.set_server_version(".".join([str(x) for x in user_selected_version]))
                     self.cfg_be.reload_possible_options()
                     self.myopts = self.cfg_be.get_possible_options()
                     option_stats = self.cfg_be.get_option_set_stats()
@@ -444,11 +444,11 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         # Values into pages will be load as soon as page is switched to.
         self.pages = {}
 
-        for page_name, page_content in self.myopts.iteritems():
+        for page_name, page_content in self.myopts.items():
             self.pages[int(page_content['position'])] = Page(page_name, page_content, page_content['width']) # False means page not created
         # page key is its position in UI. As we can have pages positions set like (1,2,4,5)
         # the position set needs to be sorted so pages appear in specified order
-        page_positions = self.pages.keys()
+        page_positions = list(self.pages.keys())
         page_positions.sort()
 
         # Create dummy pages according to assigned position
@@ -570,7 +570,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                         if user_password is not None:
                             as_user = Users.ADMIN
                         file_exists = self.ctrl_be.server_helper.file_exists(remote_path, as_user, user_password)
-                    except InvalidPasswordError, e:  # Wrong pwd, retry:
+                    except InvalidPasswordError as e:  # Wrong pwd, retry:
                         self.ctrl_be.password_handler.reset_password_for("file")
                         pass
                     except OperationCancelledError:  # The user chose Cancel in pwd input dialog
@@ -588,19 +588,19 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 content = None
                 try:
                     content = self.ctrl_be.server_helper.get_file_content(remote_path, as_user, user_password)
-                except PermissionDeniedError, e:
+                except PermissionDeniedError as e:
                     try:
                         user_password = self.ctrl_be.password_handler.get_password_for("file")
-                    except Exception, e:
+                    except Exception as e:
                         return
                     if user_password is not None:
                         as_user = Users.ADMIN
                     try:
                         content = self.ctrl_be.server_helper.get_file_content(remote_path, as_user, user_password)
-                    except InvalidPasswordError, err:
+                    except InvalidPasswordError as err:
                         self.ctrl_be.password_handler.reset_password_for("file")
                         raise err
-                except Exception, e:
+                except Exception as e:
                     mforms.Utilities.show_error('Error while reading from "%s"' % remote_path,
                         str(e),
                         'OK', '', '')
@@ -610,7 +610,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                     local_path = filechooser.get_path()
                     try:
                         local_file = open(local_path, 'w')
-                    except IOError, e:
+                    except IOError as e:
                         mforms.Utilities.show_error('Error while opening "%s" for writing' % local_path,
                             str(e),
                             'OK', '', '')
@@ -658,7 +658,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 local_path = filechooser.get_path()
                 try:
                     local_file = open(local_path)
-                except IOError, e:
+                except IOError as e:
                     mforms.Utilities.show_error('Error while opening "%s"' % local_path,
                         str(e),
                         'OK', '', '')
@@ -667,19 +667,19 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 try:
                     content = local_file.read()
                     self.ctrl_be.server_helper.set_file_content(remote_path, content, as_user=Users.CURRENT, user_password=None)
-                except PermissionDeniedError, e:
+                except PermissionDeniedError as e:
                     try:
                         user_password = self.ctrl_be.password_handler.get_password_for("file")
-                    except Exception, e:
+                    except Exception as e:
                         return
                     if user_password is not None:
                         as_user = Users.ADMIN
                     try:
                         self.ctrl_be.server_helper.set_file_content(remote_path, content, as_user, user_password)
-                    except InvalidPasswordError, err:
+                    except InvalidPasswordError as err:
                         self.ctrl_be.password_handler.reset_password_for("file")
                         raise err
-                except Exception, e:
+                except Exception as e:
                     mforms.Utilities.show_error('Error while uploading the file to "%s"' % remote_path,
                         str(e),
                         'OK', '', '')
@@ -780,7 +780,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             dropbox.add_item(i)
         dropbox.set_enabled(False)
 
-        if ctrl_def.has_key('default'):
+        if 'default' in ctrl_def:
             default = ctrl_def['default']
             idx = 0
             for i in items:
@@ -889,14 +889,14 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             from wba_ssh_ui import remote_file_selector
             filename = remote_file_selector(self.server_profile, self.ctrl_be.password_handler, self.ctrl_be.ssh)
 
-        if filename and (type(filename) is str or type(filename) is unicode):
+        if filename and (type(filename) is str or type(filename) is str):
             filename = filename.replace("\\", "/") # TODO: Check for backslashed spaces and so on
             textfield.set_value('"' + filename + '"')
             self.control_action(name)
 
     #---------------------------------------------------------------------------
     def enabled_checkbox_click(self, name, force_enabled = None):
-        if self.opt2ctrl_map.has_key(name):
+        if name in self.opt2ctrl_map:
             ctrl = self.opt2ctrl_map[name]
 
             def control(idx):
@@ -943,7 +943,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         if self.loading:
             return
 
-        if self.opt2ctrl_map.has_key(name):
+        if name in self.opt2ctrl_map:
             ctrl = self.opt2ctrl_map[name]
 
             if not self.loading:
@@ -991,11 +991,11 @@ class WbAdminConfigFileUI(WbAdminTabBase):
         if type(value) is tuple:
             value_len = len(value)
             if value_len == 1: # Check only single item tuples
-                is_string = type(value[0]) is str or type(value[0]) is unicode
+                is_string = type(value[0]) is str or type(value[0]) is str
                 if is_string:
                     has_separator = value[0].find(multi_separator) > 0
         else:
-            is_string = type(value) is str or type(value) is unicode
+            is_string = type(value) is str or type(value) is str
             has_separator = value.find(multi_separator) > 0
 
         if is_multiple == False and is_string and has_separator and not self.loading and option_name not in self.not_multiline_options:
@@ -1016,7 +1016,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
 
             # skip multi line values - no need to convert. Also skip non-string option values
             if type(value) is not tuple:
-                value = map(lambda x: x.strip(multi_separator), value.split(multi_separator))
+                value = [x.strip(multi_separator) for x in value.split(multi_separator)]
 
         if type(value) is not list and type(value) is not tuple:
             value = (value,)
@@ -1055,7 +1055,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                         suffix = cur_unit
                         value = value[:-suffix_length]
 
-        return (filter(lambda x: x.isdigit() or x == '-', value), suffix)
+        return ([x for x in value if x.isdigit() or x == '-'], suffix)
 
     #---------------------------------------------------------------------------
     def set_string_value_to_control(self, ctrl, value):
@@ -1069,7 +1069,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             control(1).set_name("Single")
 
         if tag in ['txt', 'dir', 'fed']:
-            if value is None or not isinstance(value, (str, unicode)):
+            if value is None or not isinstance(value, str):
                 # TODO: Add config file error message
                 value = ""
             value = value.strip(" \r\n\t")
@@ -1109,7 +1109,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
             value = self.cfg_be.normalize_bool(value)
             control(1).set_active(value)
         else:
-            print "Error"
+            print("Error")
 
     #---------------------------------------------------------------------------
     def config_apply_changes_clicked(self):
@@ -1138,7 +1138,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
 
         try:
             self.cfg_be.open_configuration_file(self.server_profile.config_file_path or "")
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
             mforms.Utilities.show_error("Error opening configuration file",
@@ -1196,7 +1196,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
     #---------------------------------------------------------------------------
     def load_defaults(self):
         self.loading = True
-        for name,ctrl_tuple in self.opt2ctrl_map.iteritems():
+        for name,ctrl_tuple in self.opt2ctrl_map.items():
             if ctrl_tuple is not None:
                 #tag      = ctrl_tupple[0]
                 ctrl     = ctrl_tuple[1]
@@ -1205,7 +1205,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
                 if ctrl is not None and ctrl_def is not None:
                     ctrl[0].set_active(False)
                     self.enabled_checkbox_click(ctrl_def['name'], False)
-                    if ctrl_def.has_key('default'):
+                    if 'default' in ctrl_def:
                         default = ctrl_def['default']
                         if default is not None:
                             self.set_string_value_to_control(ctrl_tuple, str(default))

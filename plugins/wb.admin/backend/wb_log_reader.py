@@ -118,7 +118,7 @@ def ts_iso_to_local(ts, fmt):
     try:
         local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
         return time.strftime(fmt, time.localtime(local_time))+ms
-    except Exception, e:
+    except Exception as e:
         log_warning("Error parsing timestamp %s: %s\n" % (ts, e))
         return ts
 
@@ -171,7 +171,7 @@ class BaseQueryLogReader(object):
         self.show_start = max(self.show_start - self.show_count, 0)
         return self._query_records()
 
-    def next(self):
+    def __next__(self):
         self.show_start = min(self.show_start + self.show_count, self.total_count)
         return self._query_records()
 
@@ -194,7 +194,7 @@ class BaseQueryLogReader(object):
     def refresh(self):
         try:
             result = self.ctrl_be.exec_query("SELECT count(*) AS count FROM %s" % self.log_table)
-        except Exception, e:
+        except Exception as e:
             raise ServerIOError('Error fetching log contents: %s' % e)
         if not result or not result.nextRow():
             raise ServerIOError('Error fetching log contents')
@@ -208,7 +208,7 @@ class BaseQueryLogReader(object):
                         self.show_count)
         try:
             result = self.ctrl_be.exec_query(query)
-        except Exception, e:
+        except Exception as e:
             raise ServerIOError('Error fetching log contents: %s' % e)
 
         records = []
@@ -359,7 +359,7 @@ class BaseLogFileReader(object):
             try:
                 self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
                 self.file_size = self.log_file.size
-            except InvalidPasswordError, error:
+            except InvalidPasswordError as error:
                 if password is None:
                     retry = True
                 else:
@@ -371,7 +371,7 @@ class BaseLogFileReader(object):
                 try:
                     self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
                     self.file_size = self.log_file.size
-                except InvalidPasswordError, error:
+                except InvalidPasswordError as error:
                     log_error("Invalid password to sudo %s\n" % error)
                     ctrl_be.password_handler.reset_password_for('file')
                     raise
@@ -512,7 +512,7 @@ class BaseLogFileReader(object):
         self.chunk_start = max(0, self.chunk_start - self.chunk_size)
         return self.current()
     
-    def next(self):
+    def __next__(self):
         '''
             Returns a list with the records in the next chunk.
             Each record is a list with the values for each column of

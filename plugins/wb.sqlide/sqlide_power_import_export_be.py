@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 # import the mforms module for GUI stuff
 import mforms
@@ -269,7 +269,7 @@ class base_module:
             for col in self._mapping:
                 col['dest_col'] = col['name']
             return True
-        except Exception, e:
+        except Exception as e:
             log_error("Error creating table for import: %s" % e)
             if len(e.args) == 2 and e.args[1] == 1050 and self._force_drop_table:
                 try:
@@ -314,7 +314,7 @@ class Utf8Reader:
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         return self.reader.next().encode("utf-8")
 
 class UniReader:
@@ -322,9 +322,9 @@ class UniReader:
         f = Utf8Reader(f, encoding)
         self.csvreader = csv.reader(f, dialect=dialect, **args)
 
-    def next(self):
-        row = self.csvreader.next()
-        return [unicode(s, "utf-8") for s in row]
+    def __next__(self):
+        row = next(self.csvreader)
+        return [str(s, "utf-8") for s in row]
         
     @property
     def line_num(self):
@@ -507,13 +507,13 @@ class csv_module(base_module):
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                             self.item_count = self.item_count + 1
                             self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
-                        except Exception, e:
+                        except Exception as e:
                             log_error("Row import failed with error: %s" % e)
                             self.update_progress(round(self._current_row / self._max_rows, 2), "Row import failed with error: %s" % e)
                             result = False
 
                 self.update_progress(1.0, "Import finished")
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)
@@ -554,8 +554,8 @@ class csv_module(base_module):
                 self._columns = []
                 row_line = None
                 try:
-                    row_line = reader.next()
-                except StopIteration, e:
+                    row_line = next(reader)
+                except StopIteration as e:
                     pass
                 
                 
@@ -610,7 +610,7 @@ class csv_module(base_module):
                                         col[attrib] = True
                                     else:
                                         col[attrib] = False
-            except (UnicodeError, UnicodeDecodeError), e:
+            except (UnicodeError, UnicodeDecodeError) as e:
                 import traceback
                 log_error("Error analyzing file, probably encoding issue: %s\n Traceback is: %s" % (e, traceback.format_exc()))
                 self._last_analyze = False
@@ -633,7 +633,7 @@ class json_module(base_module):
             limit = "LIMIT %d" % int(self._limit)
             if self._offset:
                 limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
-        return u"""SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
+        return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
     
     def start_export(self):
         if self._user_query:
@@ -678,11 +678,11 @@ class json_module(base_module):
                             row.append("\"%s\":%s" % (col['name'], rset.geoJsonFieldValueByName(col['name'])))
                         else:
                             if col['type'] == "json":
-                                row.append(u"\"%s\":%s" % (col['name'], to_unicode(rset.stringFieldValueByName(col['name']))))
+                                row.append("\"%s\":%s" % (col['name'], to_unicode(rset.stringFieldValueByName(col['name']))))
                             else:
                                 row.append("\"%s\":%s" % (col['name'], json.dumps(to_unicode(rset.stringFieldValueByName(col['name'])))))
                     ok = rset.nextRow()
-                    line = u"{%s}%s" % (', '.join(row), ",\n " if ok else "")
+                    line = "{%s}%s" % (', '.join(row), ",\n " if ok else "")
                     jsonfile.write(line.encode('utf-8'))
                     jsonfile.flush()
                 jsonfile.write(']')
@@ -751,10 +751,10 @@ class json_module(base_module):
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                             self.item_count = self.item_count + 1
-                        except Exception, e:
+                        except Exception as e:
                             log_error("Row import failed with error: %s" % e)
                         
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)
@@ -797,7 +797,7 @@ class json_module(base_module):
                 prevchar = c
             try:
                 data = json.loads("".join(datachunk))
-            except Exception, e:
+            except Exception as e:
                 log_error("Unable to parse JSON file: %s,%s " % (self._filepath, e))
                 self._last_analyze = False
                 return False

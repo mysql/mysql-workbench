@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -183,7 +183,7 @@ class PSHelperViewTab(mforms.Box):
         try:
             self.result = self.execute()
             error = None
-        except Exception, e:
+        except Exception as e:
             error = str(e)
             log_error("Error executing '%s': %s\n" % (self.get_query(), error))
 
@@ -231,7 +231,7 @@ class PSHelperViewTab(mforms.Box):
                     for r in range(root.count()):
                         node = root.get_child(r)
                         output.writerow(self._get_node_values(node))
-                except Exception, e:
+                except Exception as e:
                     log_error("Error exporting PS report: %s\n" % e)
                     mforms.Utilities.show_error("Export Report", "Error exporting PS report.\n%s" % e, "OK", "", "")
 
@@ -303,7 +303,7 @@ class PSHelperViewTab(mforms.Box):
                             node.set_long(i, s or 0)
                         elif self._column_types[i] == mforms.LongIntegerColumnType:
                             s = result.stringByName(self._column_names[i])
-                            node.set_long(i, long(s) if s else 0)
+                            node.set_long(i, int(s) if s else 0)
                         elif self._column_types[i] == mforms.FloatColumnType:
                             unit = self._column_units[i]
                             node.set_float(i, result.floatByName(self._column_names[i]))
@@ -322,7 +322,7 @@ class PSHelperViewTab(mforms.Box):
                             if i == self._column_file and self._owner.instance_info.datadir:
                                 s = s.replace(self._owner.instance_info.datadir, "<datadir>")
                             node.set_string(i, s or "")
-                    except Exception, e:
+                    except Exception as e:
                         import traceback
                         traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
@@ -340,14 +340,14 @@ class PSHelperViewTab(mforms.Box):
                 elif dtype.lower().startswith("char") and "(" in dtype:
                     try:
                         length = int(dtype[dtype.find("(")+1:-1]) * 10
-                    except Exception, e:
+                    except Exception as e:
                         log_error("Error parsing datatype %s from PS view %s: %s\n" % (dtype, self.view, e))
                         length = 120
                     ctype = mforms.StringColumnType
                 elif dtype.lower().startswith("varchar") and "(" in dtype:
                     try:
                         length = min(int(dtype[dtype.find("(")+1:-1]) * 10, 150)
-                    except Exception, e:
+                    except Exception as e:
                         log_error("Error parsing datatype %s from PS view %s: %s\n" % (dtype, self.view, e))
                         length = 120
                     ctype = mforms.StringColumnType
@@ -503,7 +503,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
 
         try:
             report_data = json.load(open(os.path.join(mforms.App.get().get_resource_path("sys"), "sys_reports.js")))
-        except Exception, e:
+        except Exception as e:
             log_error("Error loading sys_reports.js: %s\n" % e)
             mforms.Utilities.show_error("Error Loading Report Definitions",
                                         "An error occurred loading file %s\n%s" % (os.path.join(mforms.App.get().get_resource_path("sys"), "sys_reports.js"), e),
@@ -524,7 +524,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
 
             try:
                 tab = JSSourceHelperViewTab(self, report)
-            except Exception, e:
+            except Exception as e:
                 log_error("Error processing PS report definition %s:\n%s\n" % (e, report))
                 continue
             setattr(self, "tab_"+tab.caption, tab)
@@ -544,7 +544,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
         if parent:
             parent.expand()
 
-        print "The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"])
+        print("The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"]))
         return self.content
 
 

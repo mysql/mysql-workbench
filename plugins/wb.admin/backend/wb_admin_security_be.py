@@ -40,37 +40,37 @@ ZOMBIE_COLUMN_PRIVS_QUERY = "SELECT c.User, c.Host, c.Db, c.Table_name, c.Column
 ZOMBIE_PROCS_PRIVS_QUERY = "SELECT p.User, p.Host, p.Db, p.Routine_name, p.Routine_type FROM mysql.procs_priv AS p LEFT JOIN mysql.user AS u ON p.User = u.user AND p.Host = u.Host WHERE u.User IS NULL"
 
 
-GET_ACCOUNT_QUERY = u"SELECT * FROM mysql.user WHERE User='%(user)s' AND Host='%(host)s' ORDER BY User, Host"
+GET_ACCOUNT_QUERY = "SELECT * FROM mysql.user WHERE User='%(user)s' AND Host='%(host)s' ORDER BY User, Host"
 
-GET_ACCOUNT_SCHEMA_PRIVS_QUERY = u"SELECT * FROM mysql.db WHERE User='%(user)s' AND Host='%(host)s' ORDER BY Db"
+GET_ACCOUNT_SCHEMA_PRIVS_QUERY = "SELECT * FROM mysql.db WHERE User='%(user)s' AND Host='%(host)s' ORDER BY Db"
 
-GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY = u"SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='mysql'"
+GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY = "SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='mysql'"
 #GET_ACCOUNT_IS_TABLE_PRIVS_QUERY = "SELECT * FROM mysql.tables_priv WHERE Host='%(host)s' AND User='%(user)s' AND Db='information_schema'"
 
-CREATE_USER_QUERY = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_STRING = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
-CREATE_USER_QUERY_PLUGIN = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
-CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE = u"CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH 'mysql_native_password' BY '%(password)s'"
+CREATE_USER_QUERY = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_STRING = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s' AS '%(auth_string)s'"
+CREATE_USER_QUERY_PLUGIN = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_CACHING = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH '%(auth_plugin)s' BY '%(password)s'"
+CREATE_USER_QUERY_PLUGIN_AUTH_NATIVE = "CREATE USER '%(user)s'@'%(host)s' IDENTIFIED WITH 'mysql_native_password' BY '%(password)s'"
 
-ALTER_USER_RESOURCES = u"ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
-GRANT_GLOBAL_PRIVILEGES_QUERY = u"GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
-REVOKE_GLOBAL_PRIVILEGES_QUERY = u"REVOKE %(revoked_privs)s ON *.* FROM '%(user)s'@'%(host)s'"
-GRANT_LIMITS_QUERY = u"GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s"
-RENAME_USER_QUERY = u"RENAME USER '%(old_user)s'@'%(old_host)s' TO '%(user)s'@'%(host)s'"
-CHANGE_PASSWORD_QUERY = u"SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')"
-BLANK_PASSWORD_QUERY = u"SET PASSWORD FOR '%(user)s'@'%(host)s' = ''"
-CHANGE_PASSWORD_QUERY_576 = u"ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
-BLANK_PASSWORD_QUERY_576 = u"ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY ''"
+ALTER_USER_RESOURCES = "ALTER USER '%(user)s'@'%(host)s'" # A WITH clause will be added
+GRANT_GLOBAL_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON *.* TO '%(user)s'@'%(host)s'"  # A WITH clause will be added if needed
+REVOKE_GLOBAL_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON *.* FROM '%(user)s'@'%(host)s'"
+GRANT_LIMITS_QUERY = "GRANT USAGE ON *.* TO '%(user)s'@'%(host)s' WITH %(limit)s"
+RENAME_USER_QUERY = "RENAME USER '%(old_user)s'@'%(old_host)s' TO '%(user)s'@'%(host)s'"
+CHANGE_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = PASSWORD('%(password)s')"
+BLANK_PASSWORD_QUERY = "SET PASSWORD FOR '%(user)s'@'%(host)s' = ''"
+CHANGE_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY '%(password)s'"
+BLANK_PASSWORD_QUERY_576 = "ALTER USER '%(user)s'@'%(host)s' IDENTIFIED BY ''"
 
-REVOKE_SCHEMA_PRIVILEGES_QUERY = u"REVOKE %(revoked_privs)s ON `%(db)s`.* FROM '%(user)s'@'%(host)s'"
-GRANT_SCHEMA_PRIVILEGES_QUERY = u"GRANT %(granted_privs)s ON `%(db)s`.* TO '%(user)s'@'%(host)s'"
+REVOKE_SCHEMA_PRIVILEGES_QUERY = "REVOKE %(revoked_privs)s ON `%(db)s`.* FROM '%(user)s'@'%(host)s'"
+GRANT_SCHEMA_PRIVILEGES_QUERY = "GRANT %(granted_privs)s ON `%(db)s`.* TO '%(user)s'@'%(host)s'"
 
-EXPIRE_PASSWORD = u"ALTER USER '%(user)s'@'%(host)s' PASSWORD EXPIRE"
+EXPIRE_PASSWORD = "ALTER USER '%(user)s'@'%(host)s' PASSWORD EXPIRE"
 FLUSH_PRIVILEGES = "FLUSH PRIVILEGES"
 
-REVOKE_ALL = u"REVOKE ALL PRIVILEGES, GRANT OPTION FROM '%(user)s'@'%(host)s'"
-REMOVE_USER = u"DROP USER '%(user)s'@'%(host)s'"
+REVOKE_ALL = "REVOKE ALL PRIVILEGES, GRANT OPTION FROM '%(user)s'@'%(host)s'"
+REMOVE_USER = "DROP USER '%(user)s'@'%(host)s'"
 
 # Map of user table's column name to privilege and its description.
 # It has the form { 'TableColumnPrivName': ('PrettyName', 'ADescriptionOfThePrivilege'), ... }
@@ -130,7 +130,7 @@ connect (once) even if the connection limit controlled by the max_connections sy
 #"IS_monitor_innodb_attr" : ("* InnoDB monitoring in INFO SCHEMA", "")
 }
 
-PrivilegeReverseDict = dict( (val[0], key) for key, val in PrivilegeInfo.iteritems() )
+PrivilegeReverseDict = dict( (val[0], key) for key, val in PrivilegeInfo.items() )
 
 ## Special Tables
 
@@ -166,7 +166,7 @@ AdminAttributes = {
 # For a list of available privileges, look at the mysql.user table
 SecurityAdminRoles = [
 ("DBA", "grants the rights to perform all tasks",
-    PrivilegeInfo.keys()),
+    list(PrivilegeInfo.keys())),
 ("MaintenanceAdmin", "grants rights needed to maintain server",
     ["Event_priv", "Reload_priv", "Show_db_priv", "Shutdown_priv", "Super_priv"]), # , "IS_monitor_attr" File_priv?
 ("ProcessAdmin", "rights needed to assess, monitor, and kill any user process running in server",
@@ -266,7 +266,7 @@ class AdminSecurity(object):
         if not self.schema_privilege_names:
             try:
                 result = self.ctrl_be.exec_query("DESCRIBE mysql.db")
-            except QueryError, e:
+            except QueryError as e:
                 if e.error == 1142:
                     raise PermissionDeniedError("Please make sure the account used has rights to the MySQL grant tables.\n%s" % e)
                 raise e
@@ -280,7 +280,7 @@ class AdminSecurity(object):
         if not self.user_table_fields:
             try:
                 result = self.ctrl_be.exec_query("DESCRIBE mysql.user")
-            except QueryError, e:
+            except QueryError as e:
                 if e.error == 1142:
                     raise PermissionDeniedError("Please make sure the account used has rights to the MySQL grant tables.\n%s" % e)
                 raise e
@@ -304,11 +304,11 @@ class AdminSecurity(object):
         schema_names = []
         try:
             result = self.ctrl_be.exec_query(LIST_SCHEMAS_QUERY)
-        except QueryError, e:
+        except QueryError as e:
             if e.error == 1142:
                 raise PermissionDeniedError("Please make sure the account used has rights to the MySQL grant tables.\n%s" % e)
             raise e
-        except Exception, e:
+        except Exception as e:
             raise Exception("Error querying privilege information: %s" % e)
 
         if result is not None:
@@ -323,7 +323,7 @@ class AdminSecurity(object):
         accounts = []
         try:
             result = self.ctrl_be.exec_query(LIST_ACCOUNTS_QUERY)
-        except Exception, e:
+        except Exception as e:
             raise Exception("Error querying privilege information: %s" % e)
 
         if result:
@@ -337,7 +337,7 @@ class AdminSecurity(object):
         def get_zombies(query, fields):
             try:
                 result = self.ctrl_be.exec_query(query)
-            except Exception, e:
+            except Exception as e:
                 log_error("Could not get list of invalid privs: %s\nQuery: %s\n" % (e, query))
                 return []
             privs = []
@@ -362,7 +362,7 @@ class AdminSecurity(object):
                 zombies[account] = []
             zombies[account].append(priv)
         self._zombie_privs = zombies
-        accounts += zombies.keys()
+        accounts += list(zombies.keys())
 
         accounts.sort(acl_compare)
 
@@ -392,7 +392,7 @@ class AdminSecurity(object):
         try:
             self.ctrl_be.exec_sql("use mysql")
             self.ctrl_be.exec_sql(query)
-        except QueryError, e:
+        except QueryError as e:
             log_error('Error removing account %s@%s:\n%s' % (username, host, str(e)))
             if e.error == 1227: # MySQL error code 1227 (ER_SPECIFIC_ACCESS_DENIED_ERROR)
                 raise Exception('Error removing the account  %s@%s:' % (username, host),
@@ -404,7 +404,7 @@ class AdminSecurity(object):
         if account.is_commited:
             self.do_delete_account(account.username, account.host)
             
-        if self._account_info_cache.has_key((account.username, account.host, True)):
+        if (account.username, account.host, True) in self._account_info_cache:
             del self._account_info_cache[account.username+"@"+account.host]
             
         if self.is_zombie(account.username, account.host):
@@ -448,15 +448,15 @@ class AdminSecurity(object):
             return name
 
         acct = AdminAccount(self)
-        acct.host = u"%"
-        acct.username = to_unicode(unique_name(u'newuser', acct.host))
+        acct.host = "%"
+        acct.username = to_unicode(unique_name('newuser', acct.host))
         self._account_info_cache[acct.username+"@"+acct.host] = acct
         self._accounts.append((acct.username, acct.host, False))
         return acct
 
 
     def is_zombie(self, user, host):
-        return self._zombie_privs.has_key((user,host, True))
+        return (user,host, True) in self._zombie_privs
 
 
     def get_zombie_privs(self, user, host):
@@ -467,7 +467,7 @@ class AdminSecurity(object):
         try:
           key = name+"@"+host
 
-          if self._account_info_cache.has_key(key):
+          if key in self._account_info_cache:
               callback(self._account_info_cache[key])
               return
 
@@ -544,7 +544,7 @@ class AdminUserDbPrivs(object):
         query = GET_ACCOUNT_SCHEMA_PRIVS_QUERY % {"user": escape_sql_string(self._owner.username), "host": escape_sql_string(self._owner.host)}
         try:
             result = self._owner.ctrl_be.exec_query(query)
-        except Exception, e:
+        except Exception as e:
             raise Exception("Error querying security information: %s" % e)
 
         self.entries = []
@@ -589,7 +589,7 @@ class AdminUserDbPrivs(object):
                 fields['granted_privs'] = ', '.join(granted_privs)
                 try:
                     self._owner.ctrl_be.exec_sql(GRANT_SCHEMA_PRIVILEGES_QUERY % fields)
-                except QueryError, e:
+                except QueryError as e:
                     if e.error in [1045, 1044]:
                         raise Exception('Error assigning privileges for %(user)s@%(host)s in schema %(db)s' % fields,
                                         'You must have the GRANT OPTION privilege, and you must have the privileges that you are granting')
@@ -599,7 +599,7 @@ class AdminUserDbPrivs(object):
                 fields['revoked_privs'] = ', '.join(revoked_privs)
                 try:
                     self._owner.ctrl_be.exec_sql(REVOKE_SCHEMA_PRIVILEGES_QUERY % fields)
-                except QueryError, e:
+                except QueryError as e:
                     if e.error in [1045, 1044]:
                         raise Exception('Error revoking privileges for %(user)s@%(host)s in schema %(db)s' % fields,
                                         'You must have the GRANT OPTION privilege, and you must have the privileges that you are revoking')
@@ -737,7 +737,7 @@ class AdminAccount(object):
         try:
             self._owner.ctrl_be.exec_sql("use mysql")
             self._owner.ctrl_be.exec_sql(command)
-        except QueryError, e:
+        except QueryError as e:
             if e.error == 1227:
                 raise Exception('Error revoking privileges for the account  %s@%s:' % (self.username, self.host),
                                 'You must have the global CREATE USER privilege or the UPDATE privilege for the mysql '
@@ -750,7 +750,7 @@ class AdminAccount(object):
         try:
             self._owner.ctrl_be.exec_sql("use mysql")
             self._owner.ctrl_be.exec_sql(command)
-        except QueryError, e:
+        except QueryError as e:
             raise Exception('Error expiring password for account  %s@%s: %s' % (self.username, self.host, e))
         self.password_expired = True
 
@@ -815,7 +815,7 @@ class AdminAccount(object):
 
         names = ["MAX_QUERIES_PER_HOUR", "MAX_UPDATES_PER_HOUR", "MAX_CONNECTIONS_PER_HOUR"] + (self._owner.has_max_user_connections and ["MAX_USER_CONNECTIONS"] or [])
         values = [str(s) for s in [self.max_questions, self.max_updates, self.max_connections] + (self._owner.has_max_user_connections and [self.max_user_connections] or [])]
-        account_limits = dict(zip(names, values))
+        account_limits = dict(list(zip(names, values)))
         limits_changed = account_limits != self._orig_account_limits
 
         is_normal_priv =  lambda priv: ( PrivilegeInfo.get(priv, (None,None))[0] and 
@@ -840,7 +840,7 @@ class AdminAccount(object):
             grant_query = GRANT_GLOBAL_PRIVILEGES_QUERY % fields
 
             with_clause = ''
-            for key, value in account_limits.iteritems(): #name, value in zip(names, values):
+            for key, value in account_limits.items(): #name, value in zip(names, values):
                 if value != self._orig_account_limits.get(key):
                     if key == "GRANT" and value == "OPTION":
                         queries.append(grant_query + "WITH GRANT OPTION")
@@ -882,12 +882,12 @@ class AdminAccount(object):
         for query in queries:
             try:
                 self._owner.ctrl_be.exec_sql(query)
-            except QueryError, e:
+            except QueryError as e:
                 if e.error == 1142:
                     raise Exception("Error %s account %s@%s: Insufficient rights to perform operation"%(action, self.username, self.host))
                 else:
                     raise Exception("Error %s account %s@%s: %s"%(action, self.username, self.host, e.errortext or e))
-            except Exception, e:
+            except Exception as e:
                 raise Exception("Error %s account %s@%s: %s"%(action, self.username, self.host, e))
 
 
@@ -935,7 +935,7 @@ class AdminAccount(object):
         query = GET_ACCOUNT_QUERY % {"user":escape_sql_string(username),"host":escape_sql_string(hostname)}
         try:
             result = self._owner.ctrl_be.exec_query(query)
-        except Exception, e:
+        except Exception as e:
             raise Exception("Error querying security information: %s" % e)
 
         if not result.nextRow():
@@ -944,7 +944,7 @@ class AdminAccount(object):
         self.username = to_unicode(result.stringByName("User"))
         self.host = to_unicode(result.stringByName("Host"))
 
-        self._orig_password = u"UnchangedPassword\t"
+        self._orig_password = "UnchangedPassword\t"
         self.password = self._orig_password
         self._orig_username = self.username
         self._orig_host = self.host
@@ -1001,7 +1001,7 @@ class AdminAccount(object):
         query = GET_ACCOUNT_MYSQL_TABLE_PRIVS_QUERY % {"user":escape_sql_string(username),"host":escape_sql_string(hostname)}
         try:
             result = self._owner.ctrl_be.exec_query(query)
-        except Exception, e:
+        except Exception as e:
             raise Exception("Error querying mysql table: %s" % e)
 
         mysql_privs = {}
@@ -1011,11 +1011,11 @@ class AdminAccount(object):
             mysql_privs[table] = table_privs and table_privs.split(",") or []
 
         # interpret the privileges
-        for name, (db, tables, required_privs, grant, revoke) in AdminAttributes.items():
+        for name, (db, tables, required_privs, grant, revoke) in list(AdminAttributes.items()):
             if db == "mysql":
                 ok = True
                 for table in tables:
-                    if not mysql_privs.has_key(table):
+                    if table not in mysql_privs:
                         ok = False
                         break
                     if not set(required_privs).issubset(set(mysql_privs[table])):
@@ -1056,10 +1056,10 @@ class AdminAccount(object):
         for query in queries:
             try:
                 self._owner.ctrl_be.exec_sql(query)
-            except QueryError, e:
+            except QueryError as e:
                 if e.error == 1142:
                     raise Exception("Error %s account %s@%s: Insufficient rights to perform operation"%(action, self.username, self.host))
                 else:
                     raise Exception("Error %s account %s@%s: %s"%(action, self.username, self.host, e.errortext or e))
-            except Exception, e:
+            except Exception as e:
                 raise Exception("Error %s account %s@%s: %s"%(action, self.username, self.host, e))

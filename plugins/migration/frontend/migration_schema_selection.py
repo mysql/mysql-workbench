@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -77,7 +77,7 @@ class SchemaMainView(WizardPage):
                 self.catalog_schemata = {}
                 for catalog_name, schema_name in catalog_schemata_list:
                     self.catalog_schemata.setdefault(catalog_name, []).append(schema_name)
-                self.catalog_schemata = self.catalog_schemata.items()
+                self.catalog_schemata = list(self.catalog_schemata.items())
                 
                 self._optionspanel.show(True)
                 #self.advanced_button.show(True)
@@ -123,7 +123,7 @@ class SchemaMainView(WizardPage):
         if self.doesSupportCatalogs > 0:
             if len(selected) > 1:
                 raise Exception('Cannot select multiple schemas from different catalogs')
-            catalog = selected.keys()[0]
+            catalog = list(selected.keys())[0]
             return catalog, selected[catalog]
         else:
             return "def", selected
@@ -135,7 +135,7 @@ class SchemaMainView(WizardPage):
     def go_next(self):
         try:
             self.main.plan.migrationSource.selectedCatalogName, self.main.plan.migrationSource.selectedSchemataNames = self.schemata_to_migrate()
-        except Exception, e:
+        except Exception as e:
             mforms.Utilities.show_error("Invalid Selection", str(e), "OK", "", "")
             return
 

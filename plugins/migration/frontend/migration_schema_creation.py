@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -137,7 +137,7 @@ class MainView(WizardPage):
                                             "Replace", "Cancel", "") == mforms.ResultCancel:
                     return
             self.main.plan.state.objectCreationParams["CreateSQLFile"] = path
-        elif self.main.plan.state.objectCreationParams.has_key("CreateSQLFile"):
+        elif "CreateSQLFile" in self.main.plan.state.objectCreationParams:
             del self.main.plan.state.objectCreationParams["CreateSQLFile"]
         
         WizardPage.go_next(self)
