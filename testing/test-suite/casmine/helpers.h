@@ -53,7 +53,7 @@ template <class T>
 std::string typeToString() {
 #ifdef __clang__
   std::string_view p = __PRETTY_FUNCTION__;
-  return std::string(p.data() + 32, p.size() - 33);
+  return std::string(p.data() + p.find('[') + 5, p.data() + p.rfind(']'));
 #elif defined(__GNUC__)
   std::string_view p = __PRETTY_FUNCTION__;
   #if __cplusplus < 201402

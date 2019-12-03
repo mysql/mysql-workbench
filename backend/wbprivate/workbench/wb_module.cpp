@@ -90,7 +90,7 @@ std::string WorkbenchImpl::getSystemInfo(bool indent) {
 #if defined(_MSC_VER)
   #define PLATFORM_NAME "Windows"
 #elif defined(__APPLE__)
-  #define PLATFORM_NAME "Mac OS X"
+  #define PLATFORM_NAME "macOS"
 #else
   #define PLATFORM_NAME "Linux/Unix"
 #endif
@@ -198,12 +198,8 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap() {
   result["os"] = get_local_os_name();
   result["cpu"] = get_local_hardware_info();
 
-#ifdef _MSC_VER
-  result["platform"] = "Windows";
-#elif defined(__APPLE__)
-  result["platform"] = "Mac OS X";
-#else
-  result["platform"] = "Linux/Unix";
+  result["platform"] = PLATFORM_NAME;
+#if __linux__
   result["distribution"] = result["os"];
 #endif
 
@@ -212,26 +208,21 @@ std::map<std::string, std::string> WorkbenchImpl::getSystemInfoMap() {
 
 int WorkbenchImpl::isOsSupported(const std::string &os) {
   if (os.find("unknown") != std::string::npos) {
-    logWarning("OS detection failed, skipping OS support check.  OS string: '%s'\n", os.c_str());
+    logWarning("OS detection failed, skipping OS support check. OS string: '%s'\n", os.c_str());
     return true;
   }
 
-  if (os.find("x86_64") == std::string::npos && os.find("Windows") == std::string::npos) {
-    logWarning("Detected 32-bit non-Windows OS. OS string: '%s'\n", os.c_str());
-    return false;
-  }
-
-  static std::vector<std::string> supportedOsList{
-    "Ubuntu 19.10", "Ubuntu 19.04", "Ubuntu 18.04", "Debian 9",
+  static std::vector<std::string> supportedOsList {
+    "Ubuntu 19.10", "Ubuntu 18.04", "Debian 10",
 
     "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
                                                  // 7.1 (Maipo)"
     "Red Hat Enterprise Linux release 8",        // Oracle 8.0: Red Hat Enterprise Linux release 8.0 (Ootpa)
-    "Fedora release 28", "Fedora release 29", "Fedora release 30", "CentOS release 7",
+    "Fedora release 30", "Fedora release 31", "CentOS release 7",
 
-    "Windows 10", "Windows Server 2016",
+    "Windows 10", "Windows Server 2016", "Windows Server 2019",
 
-    "macOS 10.13", "macOS 10.14", "macOS 10.15"
+    "macOS 10.14", "macOS 10.15"
   };
 
   for (std::string s : supportedOsList) {
@@ -1246,7 +1237,7 @@ int WorkbenchImpl::reportBug(const std::string error_info) {
   if (sys_info["platform"] == "Linux/Unix") {
     os_id = 5;
     os_details = sys_info["distribution"];
-  } else if (sys_info["platform"] == "Mac OS X")
+  } else if (sys_info["platform"] == "macOS")
     os_id = 6;
   else if (sys_info["platform"] == "Windows")
     os_id = 7;
@@ -1808,7 +1799,7 @@ int WorkbenchImpl::createInstancesFromLocalServers() {
       instance->loginInfo().gset("wmi.hostName", ""); // Only used for remote connections.
       instance->serverInfo().gset("sys.mysqld.service_name", service_name);
 #elif defined(__APPLE__)
-      instance->serverInfo().gset("sys.system", "MacOS X");
+      instance->serverInfo().gset("sys.system", "macOS");
 #else
       instance->serverInfo().gset("sys.system", "Linux");
 #endif

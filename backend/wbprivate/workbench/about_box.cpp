@@ -82,7 +82,7 @@ AboutBox::AboutBox(const std::string &edition) : Popup(mforms::PopupPlain), _edi
   set_size((int)size.width, (int)size.height);
   base::Rect bounds = mforms::App::get()->get_application_bounds();
 
-  // On OS X the vertical screen coordinate points up.
+  // On macOS the vertical screen coordinate points up.
   int left = (int)(bounds.left() + (bounds.width() - size.width) / 2);
 #ifdef __APPLE__
   int top = (int)(bounds.top() - (bounds.height() - size.height) / 2);

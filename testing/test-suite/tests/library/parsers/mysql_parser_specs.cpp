@@ -360,6 +360,21 @@ static bool versionMatches(std::string &statement, unsigned long serverVersion) 
 
 //----------------------------------------------------------------------------------------------------------------------
 
+class TestErrorListener : public BaseErrorListener {
+public:
+  std::string lastErrors;
+
+  virtual void syntaxError(Recognizer *recognizer, antlr4::Token *offendingSymbol, size_t line,
+                           size_t charPositionInLine, const std::string &msg, std::exception_ptr e) override {
+    // Here we use the message provided by the DefaultErrorStrategy class.
+    if (!lastErrors.empty())
+      lastErrors += "\n";
+    lastErrors += "line " + std::to_string(line) + ":" + std::to_string(charPositionInLine) + " " + msg;
+  }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 $TestData {
   /**
    * This test generates queries with many (all?) MySQL function names used in foreign key creation
@@ -494,17 +509,17 @@ $TestData {
   };
 
   const std::vector<VersionTestData> versionTestResults = {
-    VersionTestData(50100, "grant all privileges on a to mike", 0U),
-    VersionTestData(50100, "grant all privileges on a to mike identified by 'blah'", 0U),
-    VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U),
-    VersionTestData(50100, "grant all privileges on a to mike identified by password 'blah'", 0U),
-    VersionTestData(50500, "grant all privileges on a to mike identified by password 'blah'", 0U),
+    VersionTestData(50600, "grant all privileges on a to mike", 0U),
+    VersionTestData(50600, "grant all privileges on a to mike identified by 'blah'", 0U),
+    VersionTestData(50600, "grant all privileges on a to mike identified by password 'blah'", 0U),
+    VersionTestData(50600, "grant all privileges on a to mike identified by password 'blah'", 0U),
+    VersionTestData(50600, "grant all privileges on a to mike identified by password 'blah'", 0U),
     VersionTestData(50710, "grant all privileges on a to mike identified by password 'blah'", 0U),
-    VersionTestData(50100, "grant select on *.* to mike identified with 'blah'", 1U),
     VersionTestData(50600, "grant select on *.* to mike identified with 'blah'", 0U),
-    VersionTestData(50100, "grant select on *.* to mike identified with blah as 'blubb'", 2U),
+    VersionTestData(50600, "grant select on *.* to mike identified with 'blah'", 0U),
     VersionTestData(50600, "grant select on *.* to mike identified with blah as 'blubb'", 0U),
-    VersionTestData(50100, "grant select on *.* to mike identified with blah by 'blubb'", 1U),
+    VersionTestData(50600, "grant select on *.* to mike identified with blah as 'blubb'", 0U),
+    VersionTestData(50600, "grant select on *.* to mike identified with blah by 'blubb'", 1U),
     VersionTestData(50600, "grant select on *.* to mike identified with blah by 'blubb'", 1U),
     VersionTestData(50706, "grant select on *.* to mike identified with blah by 'blubb'", 0U),
     VersionTestData(80011, "grant select on *.* to mike identified with blah by 'blubb'", 1U),
@@ -596,6 +611,7 @@ $TestData {
   MySQLParser parser;
   Ref<BailErrorStrategy> bailOutErrorStrategy = std::make_shared<BailErrorStrategy>();
   Ref<DefaultErrorStrategy> defaultErrorStrategy = std::make_shared<DefaultErrorStrategy>();
+  TestErrorListener errorListener;
   MySQLParser::QueryContext *lastParseTree;
 
   MySQLParserServices *services;
@@ -605,7 +621,7 @@ $TestData {
   /**
    * Parses the given string and returns the number of errors found.
    */
-  size_t parse(const std::string sql, long version, const std::string &mode) {
+  std::pair<std::size_t, std::string> parse(const std::string sql, long version, const std::string &mode) {
     parser.serverVersion = version;
     lexer.serverVersion = version;
     parser.sqlModeFromString(mode);
@@ -617,13 +633,15 @@ $TestData {
     tokens.setTokenSource(&lexer);
 
     parser.reset();
+    errorListener.lastErrors.clear();
+    parser.removeErrorListeners();
     parser.setErrorHandler(bailOutErrorStrategy); // Bail out at the first found error.
     parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::SLL);
 
     try {
       tokens.fill();
-    } catch (IllegalStateException &) {
-      return 1;
+    } catch (IllegalStateException &e) {
+      return { 1, e.what() };
     }
 
     try {
@@ -635,10 +653,12 @@ $TestData {
       parser.reset();
       parser.setErrorHandler(defaultErrorStrategy);
       parser.getInterpreter<ParserATNSimulator>()->setPredictionMode(PredictionMode::LL);
+      parser.addErrorListener(&errorListener);
+      errorListener.lastErrors.clear();
       lastParseTree = parser.query();
     }
 
-    return lexer.getNumberOfSyntaxErrors() + parser.getNumberOfSyntaxErrors();
+    return { lexer.getNumberOfSyntaxErrors() + parser.getNumberOfSyntaxErrors(), errorListener.lastErrors };
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -662,17 +682,18 @@ $TestData {
   /**
    * Parses the given string and checks the built AST. Returns true if no error occurred, otherwise false.
    */
-  bool parseAndCompare(const std::string &sql, long version, const std::string &mode, std::vector<size_t> expected,
-                       size_t expectedErrorCount = 0) {
-    if (parse(sql, version, mode) != expectedErrorCount)
-      return false;
+  std::pair<bool, std::string> parseAndCompare(const std::string &sql, long version, const std::string &mode,
+                                               std::vector<size_t> expected, size_t expectedErrorCount = 0) {
+    auto result = parse(sql, version, mode);
+    if (result.first != expectedErrorCount)
+      return { false, result.second };
 
-    // Walk the tokens stored in the parse tree produced by the parse call above and match exactly the given list of token
-    // types.
+    // Walk the tokens stored in the parse tree produced by the parse call above and match exactly the given
+    // list of token types.
     std::vector<size_t> tokens;
     collectTokenTypes(lastParseTree, tokens);
 
-    return tokens == expected;
+    return { tokens == expected, "Found token differences" };
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -734,7 +755,7 @@ $describe("MySQL parser test suite (ANTLR)") {
   //--------------------------------------------------------------------------------------------------------------------
 
   $it("Parse a number of files with various statements", [this]() {
-    size_t count = 0;
+    std::size_t count = 0;
     for (auto entry : testFiles) {
       std::string fileName = data->dataDir + entry.name;
 
@@ -751,26 +772,28 @@ $describe("MySQL parser test suite (ANTLR)") {
                                                entry.line_break);
       count += ranges.size();
 
-      // Two loops here, one for an older server and one for the current release.
       for (auto &range : ranges) {
         std::string statement(sql.c_str() + range.start, range.length);
-        if (versionMatches(statement, 50610)) {
-          if (data->parse(statement, 50610, "ANSI_QUOTES") > 0U) {
-            std::string query(sql.c_str() + range.start, range.length);
-            $fail("This query failed to parse:\n" + query);
+
+        if (versionMatches(statement, 50620)) {
+          auto result = data->parse(statement, 50620, "ANSI_QUOTES");
+          if (result.first > 0U) {
+            $fail("This query failed to parse (5.6.20):\n" + statement + "\n with error: " + result.second);
           }
-        }
+        } else if (versionMatches(statement, 50720)) {
+          auto result = data->parse(statement, 50720, "ANSI_QUOTES");
+          if (result.first > 0U) {
+            $fail("This query failed to parse (5.7.20):\n" + statement + "\n with error: " + result.second);
+          }
+        } else if (versionMatches(statement, 80018)) {
+          auto result = data->parse(statement, 80018, "ANSI_QUOTES");
+          if (result.first > 0U) {
+            $fail("This query failed to parse (8.0.18):\n" + statement + "\n with error: " + result.second);
+          }
+        } else
+          $fail("Invalid version number found in query: " + statement);
       }
 
-      for (auto &range : ranges) {
-        std::string statement(sql.c_str() + range.start, range.length);
-        if (versionMatches(statement, 80016)) {
-          if (data->parse(statement, 80016, "ANSI_QUOTES") > 0U) {
-            std::string query(sql.c_str() + range.start, range.length);
-            $fail("This query failed to parse:\n" + query);
-          }
-        }
-      }
     }
   });
 
@@ -779,10 +802,12 @@ $describe("MySQL parser test suite (ANTLR)") {
   $it("Queries with function names as identifiers", [this]() {
     for (const char *name : data->functions) {
       std::string query = base::strfmt(data->query1, name);
-      $expect(data->parse(query, 50530, "ANSI_QUOTES")).toBe(0U, "A statement failed to parse");
+      auto result = data->parse(query, 50530, "ANSI_QUOTES");
+      $expect(result.first).toBe(0U, "Query: " + query + " failed to parse with error: " + result.second);
 
       query = base::strfmt(data->query2, name, name);
-      $expect(data->parse(query, 50530, "ANSI_QUOTES")).toBe(0U, "A statement failed to parse");
+      result = data->parse(query, 50530, "ANSI_QUOTES");
+      $expect(result.first).toBe(0U, "Query: " + query + " failed to parse with error: " + result.second);
     }
   });
 
@@ -845,7 +870,8 @@ $describe("MySQL parser test suite (ANTLR)") {
         continue;
       }
 
-      $expect(data->parse(sql, 80012, "") == 0).toBe(!expectError,
+      auto result = data->parse(sql, 80012, "");
+      $expect(result.first == 0).toBe(!expectError,
         "Error status is unexpected for query (" + std::to_string(counter) + "): \n" + sql + "\n");
       if (expectError) {
         ++counter;
@@ -887,8 +913,9 @@ $describe("MySQL parser test suite (ANTLR)") {
   $it("SQL mode dependent parsing", [this]() {
     for (size_t i = 0; i < data->sqlModeTestQueries.size(); i++) {
       auto &entry = data->sqlModeTestQueries[i];
-      if (!data->parseAndCompare(entry.query, 80012, entry.sqlMode, data->sqlModeTestResults[i], entry.errors)) {
-        $fail("SQL mode test " + std::to_string(i) + " failed: " + entry.query);
+      auto result = data->parseAndCompare(entry.query, 80012, entry.sqlMode, data->sqlModeTestResults[i], entry.errors);
+      if (!result.first) {
+        $fail("SQL mode test " + std::to_string(i) + " failed: " + entry.query + "\nwith error: " + result.second);
       }
     }
   });
@@ -905,7 +932,8 @@ $describe("MySQL parser test suite (ANTLR)") {
       }
     };
 
-    $expect(data->parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 80012, "")).toBe(0U, "String concatenation");
+    auto result = data->parse("select \"abc\" \"def\" 'ghi''\\n\\z'", 80012, "");
+    $expect(result.first).toBe(0U, "String concatenation");
 
     TestListener listener;
     tree::ParseTreeWalker::DEFAULT.walk(&listener, data->lastParseTree);
@@ -917,7 +945,8 @@ $describe("MySQL parser test suite (ANTLR)") {
   $it("Version dependent parts of GRANT", [this]() {
     for (size_t i = 0; i < data->versionTestResults.size(); ++i) {
       auto &entry = data->versionTestResults[i];
-      $expect(data->parse(entry.sql, entry.version, "")).toBe(entry.errorCount, "GRANT parsing failed (" +
+      auto result = data->parse(entry.sql, entry.version, "");
+      $expect(result.first).toBe(entry.errorCount, "GRANT parsing failed (" +
         std::to_string(i) + "): ");
     }
   });
@@ -927,8 +956,9 @@ $describe("MySQL parser test suite (ANTLR)") {
   $it("Hex, binary, float, decimal and int number handling", [this]() {
     for (size_t i = 0; i < data->numbersTestQueries.size(); i++) {
       auto &entry = data->numbersTestQueries[i];
-      if (!data->parseAndCompare(entry.query, 80012, entry.sqlMode, data->numbersTestResults[i], entry.errors)) {
-        $fail("Number test (" + std::to_string(i) + ") failed: " + entry.query);
+      auto result = data->parseAndCompare(entry.query, 80012, entry.sqlMode, data->numbersTestResults[i], entry.errors);
+      if (!result.first) {
+        $fail("Number test (" + std::to_string(i) + ") failed: " + entry.query + "\nwith error: " + result.second);
       }
     }
   });
@@ -940,6 +970,19 @@ $describe("MySQL parser test suite (ANTLR)") {
 
     $pending("this must be implemented yet");
   });
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  $it("Bug #30449796", [this]() {
+    auto result = data->parse("ANALYZE TABLE emp UPDATE HISTOGRAM ON job WITH 5 BUCKETS;", 50720, "");
+    $expect(result.first).toEqual(1U);
+    $expect(result.second).toEqual("line 1:18 no viable alternative at input 'UPDATE'");
+    result = data->parse("ANALYZE TABLE emp UPDATE HISTOGRAM ON job WITH 5 BUCKETS;", 80010, "");
+    $expect(result.first).toEqual(0U);
+    $expect(result.second).toBeEmpty();
+  });
+
+  //--------------------------------------------------------------------------------------------------------------------
 
 }
 }

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -75,7 +75,7 @@ def joinpath(path, *comps):
 
 
 def sanitize_sudo_output(output):
-    # in Mac OS X, XCode sets some DYLD_ environment variables when debugging which dyld
+    # in macOS, XCode sets some DYLD_ environment variables when debugging which dyld
     # doesn't like and will print a warning to stderr, so we must filter that out
     if output.startswith("dyld: "):
         warning, _, output = output.partition("\n")

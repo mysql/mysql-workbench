@@ -210,7 +210,7 @@ $TestData {
     { "identifier", {
       {{{ true, true, false, special_id }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // IDENTIFIER
       {{{ true, true, false, "`identifier`" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION }, // BACK_TICK_QUOTED_ID
-      {{{ true, true, false, "host" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION } // (certain } keywords
+      {{{ true, true, false, "host" }}, MIN_SERVER_VERSION, MAX_SERVER_VERSION } // (certain) keywords
     }},
 
     { "nchar_literal", {
@@ -420,7 +420,7 @@ $describe("Data type parsing") {
       $expect(validity.empty() || validity.size() > 2).toBeTrue("Invalid data type validity");
 
       if (validity.empty())
-        validity = "<8.0.11"; // Default is latest GA server at this time.
+        validity = "<8.0.18"; // Default is latest GA server at this time.
 
       std::size_t offset = 1;
       if (validity[1] == '=')

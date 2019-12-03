@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -355,9 +355,12 @@ void MiniView::set_active_view(mdc::CanvasView *canvas_view, const model_Diagram
 //----------------------------------------------------------------------------------------------------------------------
 
 void MiniView::setBackgroundColor(base::Color const& color) {
-  _backgroundColor = color;
+  // The same applies here like for the mdc back layer: drawing anything else but a white background produces
+  // problems with other elements. In the mini view this is not that apparent, but we have to follow the color
+  // of the main canvas.
+  _backgroundColor = base::Color::white(); // color;
   if (_viewport_figure != nullptr)
-    _viewport_figure->set_pen_color(color.invert());
+    _viewport_figure->set_pen_color(base::Color::black());
   
   set_needs_render();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1158,6 +1158,12 @@ void Recordset::update_selection_for_menu(const std::vector<int> &rows, int clic
       "Copy Row With Names and Unquoted)", "copy_row_unquoted_with_names");
 
     item = _context_menu->add_item_with_title(
+      "Copy Row (with names, tab separated)",
+      std::bind(&Recordset::activate_menu_item, this, "copy_row_with_names_tabsep", rows, clicked_column),
+      "Copy Row with Names Tab Separated", "copy_row_with_names_tabsep");
+    item->set_enabled(rows.size() > 0);
+    
+    item = _context_menu->add_item_with_title(
       "Copy Row (tab separated)",
       std::bind(&Recordset::activate_menu_item, this, "copy_row_tabsep", rows, clicked_column),
       "Copy Row Tab Separated", "copy_row_tabsep");
@@ -1244,6 +1250,8 @@ void Recordset::activate_menu_item(const std::string &action, const std::vector<
     }
   } else if (action == "copy_row_unquoted_with_names") {
     copy_rows_to_clipboard(rows, ", ", false, true);
+  }  else if (action == "copy_row_with_names_tabsep") {
+    copy_rows_to_clipboard(rows, "\t", false, true);
   } else if (action == "copy_row_tabsep") {
     if (rows.size() > 0) {
       copy_rows_to_clipboard(rows, "\t", false);

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -1099,7 +1099,7 @@ class FileOpsLinuxBase(object):
         else:
             try:
                 if include_size:
-                    file_list = [(f, int(s)) for _, _, _, _, s, _, _, _, f in [s.strip().split(None, 8) for s in output.split("\n") if not s.startswith('total')]]
+                    file_list = [(f, int(s)) for _, _, _, _, s, _, _, _, f in [s.strip().split(None, 8) for s in output.split("\n") if s.startswith('-')]]
                 else:
                     file_list = [s.strip() for s in output.split("\n")]
                     
@@ -2188,7 +2188,8 @@ class SudoTailInputFile(object):
         self._proc.start()
         sys.stdout, sys.stderr, sys.stdin = stdo, stde, stdi
         if self.skip_first_newline:
-            # for some reason (in Mac OS X) the output is prefixed with a newline, which breaks the XML parsing.. so check for that and skip it if its the case
+            # For some reason (in macOS) the output is prefixed with a newline, which breaks the XML parsing.
+            # So check for that and skip it if that's the case.
             if self.data.peek(1) == '\n':
                 self.data.read(1)
 
@@ -2204,7 +2205,7 @@ class SudoTailInputFile(object):
         self.data = f
         self.data.seek(0)
         if self.skip_first_newline:
-            # for some reason (in Mac OS X) the output is prefixed with a newline, which breaks the XML parsing.. so check for that and skip it if its the case
+            # Same new line handling as above.
             if self.data.read(1) != '\n':
                 self.data.seek(0)
 

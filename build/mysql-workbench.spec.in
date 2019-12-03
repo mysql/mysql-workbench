@@ -8,7 +8,7 @@
 # Here's a usage example:
 # rpmbuild -ba mysql-workbench.spec --target=`arch` \
 #                                   --define='edition community' \
-#                                   --define='version 8.0.18' \
+#                                   --define='version 8.0.19' \
 #                                   --define='release 1'
 ####################################################################
 

@@ -151,26 +151,44 @@ int main(int argc, const char *argv[]) {
 
   }
 
+  // Determine and load the configuration file. The search order is:
+  // - application parameter
+  // - CASMINE_CONFIG_FILE env var
+  // - local dir
+  // - home dir
   std::ifstream configStream;
-  configFile = expandPath(configFile);
-  if (!configFile.empty())
-    configStream.open(configFile);
+  auto openConfig = [&](std::string const& name, bool failAllowed) -> bool {
+    if (configStream.is_open())
+      return true;
 
-  if (!configStream.good() || configFile.empty()) {
-    // Try to load it from the user home directory.
-  #ifdef _MSC_VER
-    configFile = expandPath("%HOMEDRIVE%/%HOMEPATH%/casmine-config.json");
-  #else
-    configFile = expandPath("$HOME/casmine-config.json");
-  #endif
-    configStream.open(configFile);
-  }
+    auto configFile = expandPath(name);
+    if (!configFile.empty()) {
+      configStream.open(configFile);
+      if (!configStream.good() && !failAllowed) {
+        std::cerr << "Error while opening the configuration file " << configFile << ": " << strerror(errno) << std::endl;
+        return false;
+      }
+    }
 
-  if (!configStream.good() || configFile.empty()) {
-    std::cerr << "Error while opening the configuration file " << configFile << ": " << strerror(errno) << std::endl;
-    configFile = "casmine-config.json";
-    configStream.open(configFile);
-  }
+    return true;
+  };
+
+  if (!openConfig(configFile, false))
+    return 1;
+
+  if (!openConfig(casmine::getEnvVar("CASMINE_CONFIG_FILE"), false))
+      return 1;
+
+  if (!openConfig("casmine-config.json", true))
+    return 1;
+
+#ifdef _MSC_VER
+  if (!openConfig("%HOMEDRIVE%/%HOMEPATH%/casmine-config.json", true))
+    return 1;
+#else
+  if (!openConfig("$HOME/casmine-config.json", true))
+    return 1;
+#endif
 
   if (configStream.good()) {
     rapidjson::IStreamWrapper streamWrapper(configStream);
@@ -187,7 +205,9 @@ int main(int argc, const char *argv[]) {
       return 1;
     }
   } else {
-    std::cerr << "Error while opening the configuration file " << configFile << ": " << strerror(errno) << std::endl;
+    std::cerr << std::endl;
+    std::cerr << "Error: no configuration was specified and no file was found either in the home or the current folder";
+    std:: cerr << std::endl;
     return 1;
   }
 

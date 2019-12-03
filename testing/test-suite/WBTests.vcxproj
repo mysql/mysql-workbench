@@ -20,26 +20,26 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>wbtests</RootNamespace>
     <ProjectName>WBTests</ProjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -104,7 +104,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>tests;casmine;tests/library/forms/stub;../../generated;../../library;../../library/grt/src;../../library/forms;../../library/mysql.canvas/src;../../library/base;../../library/base/base;../../library/parsers;../../library/ssh;../../library/cdbc/src;../../plugins/db.mysql/backend;../../modules/db.mysql.sqlparser/src;../../library/sql.parser/include;../../library/sql.parser/source;../../backend/wbprivate;../../backend/wbpublic;../../ext/scintilla/include;../../plugins/db.mysql;../../modules/db.mysql/src;../../modules;../../plugins/db.mysql.editors/backend;../../backend/wbprivate/workbench;../../internal/wb.mysql.validation/src;../../backend/wbprivate/model;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>tests;casmine;tests/library/forms/stub;../../generated;../../library;../../library/grt/src;../../library/forms;../../library/mysql.canvas/src;../../library/base;../../library/base/base;../../library/parsers;../../library/ssh;../../library/cdbc/src;../../plugins/db.mysql/backend;../../modules/db.mysql.sqlparser/src;../../library/sql.parser/include;../../library/sql.parser/source;../../backend/wbprivate;../../backend/wbpublic;../../ext/scintilla/include;../../plugins/db.mysql;../../modules/db.mysql/src;../../modules;../../plugins/db.mysql.editors/backend;../../backend/wbprivate/workbench;../../internal/wb.mysql.validation/src;../../backend/wbprivate/model;../../backend/wbpublic/grtdb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessToFile>false</PreprocessToFile>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>5040</DisableSpecificWarnings>
@@ -127,7 +127,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>tests;casmine;tests/library/forms/stub;../../generated;../../library;../../library/grt/src;../../library/forms;../../library/mysql.canvas/src;../../library/base;../../library/base/base;../../library/parsers;../../library/ssh;../../library/cdbc/src;../../plugins/db.mysql/backend;../../modules/db.mysql.sqlparser/src;../../library/sql.parser/include;../../library/sql.parser/source;../../backend/wbprivate;../../backend/wbpublic;../../ext/scintilla/include;../../plugins/db.mysql;../../modules/db.mysql/src;../../modules;../../plugins/db.mysql.editors/backend;../../backend/wbprivate/workbench;../../internal/wb.mysql.validation/src;../../backend/wbprivate/model;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>tests;casmine;tests/library/forms/stub;../../generated;../../library;../../library/grt/src;../../library/forms;../../library/mysql.canvas/src;../../library/base;../../library/base/base;../../library/parsers;../../library/ssh;../../library/cdbc/src;../../plugins/db.mysql/backend;../../modules/db.mysql.sqlparser/src;../../library/sql.parser/include;../../library/sql.parser/source;../../backend/wbprivate;../../backend/wbpublic;../../ext/scintilla/include;../../plugins/db.mysql;../../modules/db.mysql/src;../../modules;../../plugins/db.mysql.editors/backend;../../backend/wbprivate/workbench;../../internal/wb.mysql.validation/src;../../backend/wbprivate/model;../../backend/wbpublic/grtdb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessToFile>false</PreprocessToFile>
       <DisableSpecificWarnings>5040</DisableSpecificWarnings>
     </ClCompile>
@@ -151,7 +151,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>tests;casmine;tests/library/forms/stub;../../generated;../../library;../../library/grt/src;../../library/forms;../../library/mysql.canvas/src;../../library/base;../../library/base/base;../../library/parsers;../../library/ssh;../../library/cdbc/src;../../plugins/db.mysql/backend;../../modules/db.mysql.sqlparser/src;../../library/sql.parser/include;../../library/sql.parser/source;../../backend/wbprivate;../../backend/wbpublic;../../ext/scintilla/include;../../plugins/db.mysql;../../modules/db.mysql/src;../../modules;../../plugins/db.mysql.editors/backend;../../backend/wbprivate/workbench;../../internal/wb.mysql.validation/src;../../backend/wbprivate/model;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>tests;casmine;tests/library/forms/stub;../../generated;../../library;../../library/grt/src;../../library/forms;../../library/mysql.canvas/src;../../library/base;../../library/base/base;../../library/parsers;../../library/ssh;../../library/cdbc/src;../../plugins/db.mysql/backend;../../modules/db.mysql.sqlparser/src;../../library/sql.parser/include;../../library/sql.parser/source;../../backend/wbprivate;../../backend/wbpublic;../../ext/scintilla/include;../../plugins/db.mysql;../../modules/db.mysql/src;../../modules;../../plugins/db.mysql.editors/backend;../../backend/wbprivate/workbench;../../internal/wb.mysql.validation/src;../../backend/wbprivate/model;../../backend/wbpublic/grtdb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessToFile>false</PreprocessToFile>
       <DisableSpecificWarnings>5040</DisableSpecificWarnings>
     </ClCompile>

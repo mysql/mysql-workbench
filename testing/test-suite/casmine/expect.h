@@ -152,7 +152,7 @@ struct DefaultExpects : EnvironmentBase {
 
   template<
     typename T,
-    typename = EnableIf<std::is_class<T>>,
+    typename = EnableIf<IsClass<T>>,
     typename = EnableIfNot<IsVoidFunction<T>>,
     typename = EnableIfNot<IsContainer<T>>,
     typename = EnableIfNot<IsAssociativeContainer<T>>,

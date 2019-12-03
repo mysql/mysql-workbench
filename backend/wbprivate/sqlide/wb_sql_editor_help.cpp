@@ -309,7 +309,7 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
         d.ParseStream(isw);
         if (d.HasParseError()) {
           logError("Could not read help text file (%s)\nError code: %d\n", fileName.c_str(), d.GetParseError());
-          return;
+          continue;
         }
 
         std::set<std::string> topics;
@@ -653,7 +653,6 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleRevoke, "REVOKE" },
   { MySQLParser::RuleSavepointStatement, "SAVEPOINT" },
   { MySQLParser::RuleSelectStatement, "SELECT" },
-  { MySQLParser::RuleSetPassword, "SET PASSWORD" },
   { MySQLParser::RuleTransactionStatement, "START TRANSACTION" },
   { MySQLParser::RuleTruncateTableStatement, "TRUNCATE TABLE" },
   { MySQLParser::RuleUpdateStatement, "UPDATE" },
@@ -868,15 +867,21 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
       }
 
       case MySQLParser::RuleSetStatement: {
-        auto setStatementContext = dynamic_cast<MySQLParser::SetStatementContext *>(context);
-        if (setStatementContext->TRANSACTION_SYMBOL() != nullptr)
+        auto setContext = dynamic_cast<MySQLParser::SetStatementContext *>(context);
+        auto setValueListContext = setContext->startOptionValueList();
+        if (setValueListContext->TRANSACTION_SYMBOL() != nullptr)
           return "ISOLATION";
 
+        if (setValueListContext->PASSWORD_SYMBOL().size() > 0)
+          return "SET PASSWORD";
+
+        // TODO: handle the assignment at the caret instead of looking for specific names in the first assignment.
         ParserRuleContext *variableName = nullptr;
-        if (setStatementContext->optionValueFollowingOptionType() != nullptr)
-          variableName = setStatementContext->optionValueFollowingOptionType()->internalVariableName();
-        else if (setStatementContext->optionValueNoOptionType() != nullptr)
-          variableName = setStatementContext->optionValueNoOptionType()->internalVariableName();
+        if (setValueListContext->startOptionValueListFollowingOptionType() != nullptr) {
+          auto subContext = setValueListContext->startOptionValueListFollowingOptionType();
+          variableName = subContext->optionValueFollowingOptionType()->internalVariableName();
+        } else if (setValueListContext->optionValueNoOptionType() != nullptr)
+          variableName = setValueListContext->optionValueNoOptionType()->internalVariableName();
         if (variableName != nullptr) {
           std::string option = base::toupper(variableName->getText());
           if (option == "SQL_SLAVE_SKIP_COUNTER")
@@ -1079,9 +1084,9 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
         break;
       }
 
-      case MySQLParser::RuleSetTransactionCharacteristic: {
-        auto characteristicsContext = dynamic_cast<MySQLParser::SetTransactionCharacteristicContext *>(context);
-        if (characteristicsContext->ISOLATION_SYMBOL() != nullptr)
+      case MySQLParser::RuleTransactionCharacteristics: {
+        auto characteristicsContext = dynamic_cast<MySQLParser::TransactionCharacteristicsContext *>(context);
+        if (characteristicsContext->isolationLevel() != nullptr)
           return "ISOLATION";
         break;
       }
@@ -1108,10 +1113,14 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
           return "ALTER VIEW";
         if (alterContext->alterEvent() != nullptr)
           return "ALTER EVENT";
-        // No tablespace or logfile group topics.
+        if (alterContext->alterTablespace() != nullptr || alterContext->alterUndoTablespace() != nullptr)
+          return "ALTER TABLESPACE";
+        if (alterContext->alterLogfileGroup() != nullptr)
+          return "ALTER LOGFILE GROUP";
         if (alterContext->alterServer() != nullptr)
           return "ALTER SERVER";
-        // No alter instance topic.
+        if (alterContext->INSTANCE_SYMBOL() != nullptr)
+          return "ALTER INSTANCE";
 
         break;
       }
@@ -1129,7 +1138,7 @@ std::string DbSqlEditorContextHelp::helpTopicFromPosition(HelpContext *helpConte
         if (createContext->createUdf() != nullptr)
           return "CREATE FUNCTION UDF";
         if (createContext->createLogfileGroup() != nullptr)
-          return "CREATE TABLESPACE";
+          return "CREATE LOGFILE GROUP";
         if (createContext->createView() != nullptr)
           return "CREATE VIEW";
         if (createContext->createTrigger() != nullptr)

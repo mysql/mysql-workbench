@@ -48,6 +48,8 @@ using namespace antlr4;
 using namespace antlr4::atn;
 using namespace antlr4::tree;
 
+using namespace std::string_literals;
+
 DEFAULT_LOG_DOMAIN("parser")
 
 GRT_MODULE_ENTRY_POINT(MySQLParserServicesImpl);
@@ -481,11 +483,11 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
 
   switch (context->getRuleIndex()) {
     case MySQLParser::RuleFunctionCall:
-      expectedText =  " a complete function call or other expression";
+      expectedText =  "a complete function call or other expression";
       break;
 
     case MySQLParser::RuleExpr:
-      expectedText = " an expression";
+      expectedText = "an expression";
       break;
 
     case MySQLParser::RuleColumnName:
@@ -507,9 +509,9 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     case MySQLParser::RuleWindowName: {
       auto iterator = objectNames.find(context->getRuleIndex());
       if (iterator == objectNames.end())
-        expectedText = " a new object name";
+        expectedText = "a new object name";
       else
-        expectedText = std::string(" a new ") + iterator->second + " name";
+        expectedText = "a new "s + iterator->second + " name";
       break;
     }
 
@@ -535,14 +537,14 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     case MySQLParser::RuleResourceGroupRef: {
       auto iterator = objectNames.find(context->getRuleIndex());
       if (iterator == objectNames.end())
-        expectedText = " the name of an existing object";
+        expectedText = "the name of an existing object";
       else
-        expectedText = std::string(" the name of an existing ") + iterator->second;
+        expectedText = "the name of an existing "s + iterator->second;
       break;
     }
 
     case MySQLParser::RuleColumnInternalRef:
-      expectedText = " a column name from this table";
+      expectedText = "a column name from this table";
       break;
 
     default: {
@@ -552,9 +554,9 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
       // Hence we check for the identifier entry and assume we *only* want an identifier. This gives an unprecise
       // result if both certain keywords *and* an identifier are expected.
       if (expected.contains(static_cast<ssize_t>(MySQLLexer::IDENTIFIER)))
-        expectedText = " an identifier";
+        expectedText = "an identifier";
       else
-        expectedText = ": " + intervalToString(expected, 6, parser->getVocabulary());
+        expectedText = intervalToString(expected, 6, parser->getVocabulary());
       break;
     }
   }
@@ -566,10 +568,10 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
     // Missing or unwanted tokens.
     if (msg.find("missing") != std::string::npos) {
       if (expected.size() == 1) {
-        message = std::string("Expected") + expectedText + ", but found " + wrongText + " instead";
+        message = "Missing "s + expectedText;
       }
     } else {
-      message = std::string("Extraneous input ") + wrongText + " found, expecting" + expectedText;
+      message = "Extraneous input "s + wrongText + " found, expecting " + expectedText;
     }
   } else {
     try {
@@ -581,7 +583,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
         message = wrongText + " is not valid at this position";
 
       if (!expectedText.empty())
-        message += ", expecting" + expectedText;
+        message += ", expecting " + expectedText;
     } catch (FailedPredicateException &e) {
       // For cases like "... | a ({condition}? b)", but not "... | a ({condition}? b)?".
       std::string condition = e.what();
@@ -608,7 +610,7 @@ void ParserErrorListener::syntaxError(Recognizer *recognizer, Token *offendingSy
       }
 
       if (!expectedText.empty())
-        message += ", expecting" + expectedText;
+        message += ", expecting " + expectedText;
     }
   }
 
@@ -2545,15 +2547,14 @@ public:
     if (ctx->CURRENT_USER_SYMBOL() != nullptr)
       name = ctx->CURRENT_USER_SYMBOL()->getText();
     else {
-      name = MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()[0]);
+      auto userIdContext = ctx->userIdentifierOrText();
+      name = MySQLBaseLexer::sourceTextForContext(userIdContext->textOrIdentifier()[0]);
 
-      if (ctx->AT_SIGN_SYMBOL() != nullptr) {
-        // Host part.
-        if (ctx->AT_TEXT_SUFFIX() != nullptr)
-          user.gset("host", base::unquote(ctx->AT_TEXT_SUFFIX()->getText().substr(1))); // Omit the @ char.
-        else
-          user.gset("host", MySQLBaseLexer::sourceTextForContext(ctx->textOrIdentifier()[1]));
-      }
+      // Host part.
+      if (userIdContext->AT_SIGN_SYMBOL() != nullptr)
+        user.gset("host", MySQLBaseLexer::sourceTextForContext(userIdContext->textOrIdentifier()[1]));
+      else if (userIdContext->AT_TEXT_SUFFIX() != nullptr)
+        user.gset("host", base::unquote(userIdContext->AT_TEXT_SUFFIX()->getText().substr(1))); // Omit the @ char.
     }
 
     user.gset("user", name);

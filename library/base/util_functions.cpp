@@ -68,7 +68,6 @@
 #include <unistd.h>
 #endif
 
-// MacOS X
 #if defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #include <mach/machine.h>
@@ -415,7 +414,7 @@ static const char *get_cpu_type_name(int cpu_type, int cpu_subtype) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// MacOS X
+// macOS
 static int _get_hardware_info(hardware_info &info) {
   int mib[2];
   size_t length;

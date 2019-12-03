@@ -873,9 +873,9 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             
             
             os_type: one of the main types of OS supported (one of wbaOS.windows, wbaOS.linux, wbaOS.darwin)
-            os_name: the exact name of the OS (eg Windows, Linux, Mac OS X, Solaris)
-            os_variant: the variant of the OS, esp for Linux distributions (eg Ubuntu, Fedora etc)
-            os_version: the version of the OS (eg 12.04, XP etc)
+            os_name: the exact name of the OS (for example Windows, Linux, macOS, Solaris)
+            os_variant: the variant of the OS, especially for Linux distributions (for example Ubuntu, Fedora etc.)
+            os_version: the version of the OS (for example 19.10)
         """
         if self.is_ssh_connected() or self.server_profile.is_local:
             o = StringIO.StringIO()

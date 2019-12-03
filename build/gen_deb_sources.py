@@ -9,6 +9,7 @@ output_distros = [
     ("disco", "ubuntu19.04", "1904", ""),
     ("bionic", "ubuntu18.04", "1804", ""),
     ("stretch" ,"debian9"     ,"9"     ,""),
+    ("buster" ,"debian10"     ,"10"     ,""),
 ]
 
 editions = ["community", "commercial"]

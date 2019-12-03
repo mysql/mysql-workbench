@@ -215,6 +215,7 @@ class WbAdminTabBase(mforms.Box):
 
     def create_standard_header(self, icon, title, description, rightViewObject = None):
         header = mforms.newTable()
+        header.set_name(description + " Header")
         header.set_row_count(2)
         header.set_column_count(3)
         header.set_row_spacing(0)
@@ -225,12 +226,14 @@ class WbAdminTabBase(mforms.Box):
         image = mforms.newImageBox()
         image.set_image(mforms.App.get().get_resource_path(icon))
         image.set_image_align(mforms.TopCenter)
-
+        image.set_name(description + " Image")
         label1 = mforms.newLabel(title)
+        label1.set_name(title)
         label1.set_text_align(mforms.BottomLeft)
         label1.set_style(mforms.SmallStyle)
 
         label2 = mforms.newLabel(description)
+        label2.set_name(description)
         label2.set_text_align(mforms.TopLeft)
         label2.set_style(mforms.VeryBigStyle)
 

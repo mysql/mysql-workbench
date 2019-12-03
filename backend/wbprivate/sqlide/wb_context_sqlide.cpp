@@ -740,8 +740,6 @@ void WBContextSQLIDE::init() {
   cmdui->add_builtin_command("query.newQueryNoconnection", std::bind(call_no_connection_empty_tab, this));
   cmdui->add_builtin_command("query.newQuery",
                              std::bind(&WBContextSQLIDE::call_in_editor, this, &SqlEditorForm::new_scratch_area));
-  // cmdui->add_builtin_command("query.newFile", std::bind(&WBContextSQLIDE::call_in_editor, this,
-  // &SqlEditorForm::new_sql_script_file));
   cmdui->add_builtin_command("query.newFile", std::bind(new_script_tab, this));
   cmdui->add_builtin_command(
     "query.openFile",

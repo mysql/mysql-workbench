@@ -60,8 +60,6 @@
                 <File Id="file1023" Name="iconv.dll"/>
                 <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
-                <File Id="ssleay32.dll" Name="ssleay32.dll"/>
-                <File Id="libeay32.dll" Name="libeay32.dll"/> 
                 <File Id="libcrypto11x64.dll" Name="libcrypto-1_1-x64.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
 					<File Id="file1035d" Name="libpng16d.dll"/>
@@ -1643,7 +1641,6 @@
 
                 <Directory Id="data" Name="data">
                   <Component DiskId="1" Guid="2bfa656d-c6a9-4c05-b7d8-155ccb03fc21" Id="modules_data" Location="either">
-                    <File Id="file7001" Name="mysql_reserved.xml"/>
                     <File Id="file7002" Name="mysql_rdbms_info.xml"/>
                     <File Id="file7003" Name="mysql_engines.xml"/>
                     <File Id="file7004" Name="mssql_rdbms_info.xml"/>
@@ -1781,7 +1778,7 @@
                   <File Id="file121012a" Name="Fedora_Linux_25_(Vendor_Package).xml"/>
                   <File Id="file12102" Name="FreeBSD_(MySQL_Package).xml"/>
                   <File Id="file12103" Name="Generic_Linux_(MySQL_tar_package).xml"/>
-                  <File Id="file12104" Name="MacOS_X_(MySQL_Package).xml"/>
+                  <File Id="file12104" Name="macOS_(MySQL_Package).xml"/>
                   <File Id="file12105" Name="OpenSolaris_(MySQL_Package).xml"/>
                   <File Id="file12106" Name="RHEL_(MySQL_Package).xml"/>
                   <File Id="file12107" Name="SLES_(MySQL_Package).xml"/>

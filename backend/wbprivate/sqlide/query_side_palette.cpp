@@ -430,18 +430,20 @@ void QuerySidePalette::updateColors() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void QuerySidePalette::show_help_text_for_topic(const std::string &topic) {
-  _currentHelpTopic = topic;
-  if (_currentHelpTopic.empty()) {
-    _help_text->set_markup_text(std::string("<hmtl><body style=\"font-family:'") + DEFAULT_FONT_FAMILY + "'; \">"
-      "<div style='text-align: center;'><b style='color: gray; font-size: 16pt;'>No Context Help</b></div></body></html>");
-  } else {
-    std::string text;
-    help::DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
-    _help_text->set_markup_text(text);
+  if (_currentHelpTopic != topic) {
+    _currentHelpTopic = topic;
+    if (_currentHelpTopic.empty()) {
+      _help_text->set_markup_text(std::string("<hmtl><body style=\"font-family:'") + DEFAULT_FONT_FAMILY + "'; \">"
+                                  "<div style='text-align: center;'><b style='color: gray; font-size: 16pt;'>No Context Help</b></div></body></html>");
+    } else {
+      std::string text;
+      help::DbSqlEditorContextHelp::get()->helpTextForTopic(_helpContext, _currentHelpTopic, text);
+      _help_text->set_markup_text(text);
 
-    _switching_help = true;
-    _quick_jump_item->set_text(_currentHelpTopic);
-    _switching_help = false;
+      _switching_help = true;
+      _quick_jump_item->set_text(_currentHelpTopic);
+      _switching_help = false;
+    }
   }
 }
 

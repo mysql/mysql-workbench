@@ -566,24 +566,16 @@ void DbConnectPanel::save_connection_as(const std::string &name) {
   db_mgmt_ConnectionRef conn(_connection->get_connection());
 
   grt::ListRef<db_mgmt_Connection> list(_connection->get_db_mgmt()->storedConns());
-  if (list.get_index(conn) != grt::BaseListRef::npos)
-    throw std::invalid_argument("The connection cannot be saved because it is already stored");
 
   db_mgmt_ConnectionRef dup;
   if ((dup = find_named_object_in_list(list, name, true, "name")).is_valid()) {
     list->remove(dup);
-    // throw std::invalid_argument(strfmt("The connection cannot be saved. There already is a connection named '%s'",
-    // name.c_str()));
   }
 
   list = _connection->get_db_mgmt()->otherStoredConns();
-  if (list.get_index(conn) != grt::BaseListRef::npos)
-    throw std::invalid_argument("The connection cannot be saved because it is already stored");
 
   if ((dup = find_named_object_in_list(list, name, true, "name")).is_valid()) {
     list->remove(dup);
-    // throw std::invalid_argument(strfmt("The connection cannot be saved. There already is a connection named '%s'",
-    // name.c_str()));
   }
 
   conn->name(name);

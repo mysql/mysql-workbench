@@ -659,17 +659,7 @@ static bool validate_redo(MainWindowController *controller) {
 
   commands.push_back("overview.mysql_model");
   commands.push_back("diagram_size");
-  //  commands.push_back("view_model_navigator");
-  //  commands.push_back("view_catalog");
-  //  commands.push_back("view_layers");
-  //  commands.push_back("view_user_datatypes");
-  //  commands.push_back("view_object_properties");
-  //  commands.push_back("view_object_description");
-  //  commands.push_back("view_undo_history");
-  //  commands.push_back("reset_layout");
   commands.push_back("wb.page_setup");
-  //  commands.push_back("help_index");
-  //  commands.push_back("help_version_check");
 
   commands.push_back("wb.toggleSidebar");
   commands.push_back("wb.toggleSecondarySidebar");
@@ -680,36 +670,35 @@ static bool validate_redo(MainWindowController *controller) {
   commands.push_back("wb.next_query_tab");
   commands.push_back("wb.back_query_tab");
 
-  wb::WBContextUI::get()->get_command_ui()->add_frontend_commands(commands);
+  auto commandUI = wb::WBContextUI::get()->get_command_ui();
+  commandUI->add_frontend_commands(commands);
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command(
+  commandUI->add_builtin_command(
     "closetab", std::bind(call_closetab_old, mainController), std::bind(validate_closetab_old, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("close_tab", std::bind(call_close_tab, mainController),
+  commandUI->add_builtin_command("close_tab", std::bind(call_close_tab, mainController),
                                                                 std::bind(validate_close_tab, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command(
+  commandUI->add_builtin_command(
     "close_editor", std::bind(call_close_editor, mainController), std::bind(validate_close_editor, mainController));
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("toggle_fullscreen",
+  commandUI->add_builtin_command("toggle_fullscreen",
                                                                 std::bind(call_toggle_fullscreen, mainController),
                                                                 std::bind(validate_toggle_fullscreen, mainController));
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find", std::bind(call_find, mainController),
+  commandUI->add_builtin_command("find", std::bind(call_find, mainController),
                                                                 std::bind(validate_find, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("find_replace", std::bind(call_find_replace, true),
+  commandUI->add_builtin_command("find_replace", std::bind(call_find_replace, true),
                                                                 std::bind(validate_find_replace));
 
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("undo", std::bind(call_undo, mainController),
+  commandUI->add_builtin_command("undo", std::bind(call_undo, mainController),
                                                                 std::bind(validate_undo, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("redo", std::bind(call_redo, mainController),
+  commandUI->add_builtin_command("redo", std::bind(call_redo, mainController),
                                                                 std::bind(validate_redo, mainController));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("copy", std::bind(call_copy), std::bind(validate_copy));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("cut", std::bind(call_cut), std::bind(validate_cut));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("paste", std::bind(call_paste),
+  commandUI->add_builtin_command("copy", std::bind(call_copy), std::bind(validate_copy));
+  commandUI->add_builtin_command("cut", std::bind(call_cut), std::bind(validate_cut));
+  commandUI->add_builtin_command("paste", std::bind(call_paste),
                                                                 std::bind(validate_paste));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("delete", std::bind(call_delete),
-                                                                std::bind(validate_delete));
-  wb::WBContextUI::get()->get_command_ui()->add_builtin_command("selectAll", std::bind(call_select_all),
-                                                                std::bind(validate_select_all));
+  commandUI->add_builtin_command("delete", std::bind(call_delete), std::bind(validate_delete));
+  commandUI->add_builtin_command("selectAll", std::bind(call_select_all), std::bind(validate_select_all));
 }
 
 static void flush_main_thread() {
@@ -883,8 +872,8 @@ static NSString *applicationSupportFolder() {
 //--------------------------------------------------------------------------------------------------
 
 extern "C" {
-extern void mforms_cocoa_init();
-extern void mforms_cocoa_check();
+  extern void mforms_cocoa_init();
+  extern void mforms_cocoa_check();
 };
 
 static void init_mforms() {
@@ -906,7 +895,7 @@ static void init_mforms() {
   if (self != nil) {
     [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector: @selector(textSelectionChanged:)
-                                                 name:NSTextViewDidChangeSelectionNotification
+                                                 name: NSTextViewDidChangeSelectionNotification
                                                object: nil];
 
     _editorWindows = [NSMutableArray array];

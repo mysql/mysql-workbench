@@ -155,8 +155,8 @@ Connection::Connection(mdc::Layer *layer, FigureEventHub *hub, model_Object *rep
   _start_figure = 0;
   _end_figure = 0;
 
-  set_pen_color(base::Color::getSystemColor(base::TextColor));
-  set_fill_color(base::Color::getSystemColor(base::TextBackgroundColor));
+  set_pen_color(base::Color::black());
+  set_fill_color(base::Color::white());
 }
 
 void Connection::set_start_figure(mdc::CanvasItem *item) {

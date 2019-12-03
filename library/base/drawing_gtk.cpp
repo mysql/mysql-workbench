@@ -165,7 +165,7 @@ base::Color Color::getSystemColor(base::SystemColor type) {
       if (it != colors.end())
         ret = it->second;
       else {
-        Gtk::Entry e;
+        Gtk::Label e;
         auto styleCtx = e.get_style_context();
         ret = base::Color(rgba_color_to_mforms(styleCtx->get_color(Gtk::STATE_FLAG_SELECTED)));
         colors[type] = ret;

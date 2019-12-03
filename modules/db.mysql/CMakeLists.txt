@@ -8,7 +8,6 @@ install(FILES ${PY_FILES} DESTINATION ${WB_PYTHON_MODULES_DIR})
 set(MODULE_DATA_FILES
     res/mysql_engines.xml
     res/mysql_rdbms_info.xml
-    res/mysql_reserved.xml
 )
 install(FILES ${MODULE_DATA_FILES} DESTINATION ${WB_PYTHON_MODULES_DATA_DIR})
 

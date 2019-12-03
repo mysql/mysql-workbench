@@ -122,6 +122,9 @@ namespace casmine {
   struct IsPointer : public std::is_pointer<Type>::type {};
 
   template<typename Type>
+  struct IsClass : public std::is_class<typename std::remove_pointer_t<typename std::remove_reference_t<Type>>>::type {};
+
+  template<typename Type>
   struct IsArithmetic : public std::is_arithmetic<Type>::type {};
 
   template<typename T, typename T2 = void>
