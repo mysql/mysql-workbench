@@ -1651,8 +1651,7 @@ slaveThreadOption:
     | SQL_THREAD_SYMBOL
 ;
 
-groupReplication: (START_SYMBOL | STOP_SYMBOL) GROUP_REPLICATION_SYMBOL
-;
+groupReplication: (START_SYMBOL | STOP_SYMBOL) GROUP_REPLICATION_SYMBOL;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -2691,8 +2690,7 @@ systemVariable:
     AT_AT_SIGN_SYMBOL varIdentType? textOrIdentifier dotIdentifier?
 ;
 
-internalVariableName:
-    (
+internalVariableName: (
         // Check in semantic phase that the first id is not global/local/session/default.
         {serverVersion < 80017}? identifier dotIdentifier?
         | {serverVersion >= 80017}? lValueIdentifier dotIdentifier?

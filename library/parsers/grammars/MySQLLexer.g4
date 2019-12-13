@@ -895,7 +895,7 @@ UNLOCK_SYMBOL:                   U N L O C K;
 UNSIGNED_SYMBOL:                 U N S I G N E D;                            // MYSQL
 UNTIL_SYMBOL:                    U N T I L;
 UPDATE_SYMBOL:                   U P D A T E;                                // SQL-2003-R
-UPGRADE_SYMBOL:                  U P G R A D E?;
+UPGRADE_SYMBOL:                  U P G R A D E;
 USAGE_SYMBOL:                    U S A G E;                                  // SQL-2003-N
 USER_RESOURCES_SYMBOL:
     U S E R '_' R E S O U R C E S
@@ -928,8 +928,6 @@ WHEN_SYMBOL:                     W H E N;                                    // 
 WHERE_SYMBOL:                    W H E R E;                                  // SQL-2003-R
 WHILE_SYMBOL:                    W H I L E;
 WITH_SYMBOL:                     W I T H;                                    // SQL-2003-R
-WITH_CUBE_SYMBOL:                W I T H '_' C U B E                         {serverVersion < 80000}?; // INTERNAL
-WITH_ROLLUP_SYMBOL:              W I T H '_' R O L L U P;                    // INTERNAL
 WITHOUT_SYMBOL:                  W I T H O U T;                              // SQL-2003-R
 WORK_SYMBOL:                     W O R K;                                    // SQL-2003-N
 WRAPPER_SYMBOL:                  W R A P P E R;
@@ -1079,7 +1077,7 @@ INVALID_INPUT:
 
 // The underscore charset token is used to defined the repertoire of a string, though it conflicts
 // with normal identifiers, which also can start with an underscore.
-UNDERSCORE_CHARSET: UNDERLINE_SYMBOL IDENTIFIER { setType(checkCharset(getText())); };
+UNDERSCORE_CHARSET: UNDERLINE_SYMBOL [a-z0-9]+ { setType(checkCharset(getText())); };
 
 // Identifiers might start with a digit, even though it is discouraged, and may not consist entirely of digits only.
 // All keywords above are automatically excluded.
