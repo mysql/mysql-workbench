@@ -201,6 +201,13 @@ namespace sql {
 
   //--------------------------------------------------------------------------------------------------
 
+  unsigned int DriverManager::getClientLibVersionNumeric(Driver *driver) {
+    assert(driver != NULL);
+    return driver->getMajorVersion() * 10000 + driver->getMinorVersion() * 100 + driver->getPatchVersion();
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
   void DriverManager::getClientLibVersion(Driver *driver) {
     assert(driver != NULL);
     _versionInfo = "C++ " + std::to_string(driver->getMajorVersion()) + ".";
@@ -483,9 +490,11 @@ namespace sql {
       return ConnectionWrapper(std::move(conn), tunnel);
     } catch (sql::SQLException &exc) {
       // authentication error
-      if (exc.getErrorCode() == 1045 || exc.getErrorCode() == 1044 ||
-          exc.getErrorCode() == 1968 // ER_ACCESS_DENIED_NO_PASSWORD_ERROR
-          ) {
+      if (exc.getErrorCode() == 0 && getClientLibVersionNumeric(driver) >= 80019) {
+         throw sql::SQLException(exc.what(), exc.getSQLStateCStr(), 2003);  //  Convert to to error 2003 as the previous connector
+      } else if (exc.getErrorCode() == 1045 || exc.getErrorCode() == 1044 ||
+                 exc.getErrorCode() == 1968 // ER_ACCESS_DENIED_NO_PASSWORD_ERROR
+                ) {
         if (!force_ask_password) {
           if (authref) {
             authref->invalidate();
