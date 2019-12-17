@@ -257,7 +257,7 @@ PythonContext *PythonContext::get() {
     throw std::runtime_error("GRT context not found in Python runtime");
 
   if (PyCapsule_GetContext(ctx) == &GRTTypeSignature)
-    return static_cast<PythonContext *>(PyCapsule_GetPointer(ctx, ""));
+    return static_cast<PythonContext *>(PyCapsule_GetPointer(ctx, "contextObject"));
 
   throw std::runtime_error("Invalid GRT context in Python runtime");
 }
@@ -1132,7 +1132,7 @@ void PythonContext::register_grt_module(PyObject *module) {
   _grt_module = module;
 
   // add the context ptr
-  PyObject *context_object = PyCapsule_New(this, nullptr, nullptr);
+  PyObject *context_object = PyCapsule_New(this, "contextObject", nullptr);
   PyCapsule_SetContext(context_object, &GRTTypeSignature);
 
   if (context_object != NULL)
@@ -1266,7 +1266,7 @@ bool PythonContext::set_global(const std::string &name, PyObject *value) {
 }
 
 static void release_value(PyObject *obj) {
-  internal::Value *v = reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(obj, ""));
+  internal::Value *v = reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(obj, "contextObject"));
 
   v->release();
 }
@@ -1278,14 +1278,14 @@ static void release_value(PyObject *obj) {
 PyObject *PythonContext::internal_cobject_from_value(const ValueRef &value) {
   internal::Value *v = value.valueptr();
   v->retain();
-  PyObject *ret = PyCapsule_New(v, "", release_value);
+  PyObject *ret = PyCapsule_New(v, "contextObject", release_value);
   PyCapsule_SetContext(ret, &GRTValueSignature);
   return ret;
 }
 
 ValueRef PythonContext::value_from_internal_cobject(PyObject *value) {
   if (PyCapsule_GetContext(value) == &GRTValueSignature)
-    return ValueRef(reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(value, "")));
+    return ValueRef(reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(value, "contextObject")));
 
   throw std::runtime_error("attempt to extract GRT value from invalid Python object");
 }

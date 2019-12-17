@@ -219,7 +219,7 @@ static void init_pdb_python() {
 }
 
 PyObject *PythonDebugger::as_cobject() {
-  PyObject* ret = PyCapsule_New(this, "", NULL);
+  PyObject* ret = PyCapsule_New(this, "PythonDebugger", NULL);
   PyCapsule_SetContext(ret, &pdb_desc);
   return ret;
 }
@@ -231,7 +231,7 @@ PythonDebugger *PythonDebugger::from_cobject(PyObject *cobj) {
   if (PyCapsule_GetContext(cobj) != &pdb_desc)
     return NULL;
 
-  return reinterpret_cast<PythonDebugger *>(PyCapsule_GetPointer(cobj, ""));
+  return reinterpret_cast<PythonDebugger *>(PyCapsule_GetPointer(cobj, "PythonDebugger"));
 }
 
 PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
