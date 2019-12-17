@@ -170,6 +170,7 @@ namespace sql {
 
   private:
     void getClientLibVersion(Driver *driver);
+    unsigned int getClientLibVersionNumeric(Driver *driver);
 
     TunnelFactoryFunction _createTunnel;
     PasswordFindFunction _findPassword;
