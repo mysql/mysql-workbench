@@ -1,12 +1,12 @@
 
 import grt
 
-# NOTE: If you're using this in a module, it should be imported as 
+# NOTE: If you're using this in a module, it should be imported as
 # from wb import *
 
 
 class DefineModule(dict):
-    def __init__(self, name, implements=None, author="", version= "", description= ""):
+    def __init__(self, name, implements=None, author="", version="", description=""):
         """Define a GRT module. Must be called before any function declaration as
         wbmodule = DefineModule('modname')
         """
