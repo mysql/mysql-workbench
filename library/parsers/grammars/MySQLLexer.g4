@@ -1,7 +1,7 @@
 lexer grammar MySQLLexer;
 
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -46,8 +46,7 @@ lexer grammar MySQLLexer;
 
 options {
     superClass = MySQLBaseLexer;
-    tokenVocab = predefined;
-    // Certain tokens in a predefined order for simpler checks.
+    tokenVocab = predefined; // Certain tokens in a predefined order for simpler checks.
     exportMacro = PARSERS_PUBLIC_TYPE;
 }
 
