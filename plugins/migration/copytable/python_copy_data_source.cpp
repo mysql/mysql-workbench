@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -77,7 +77,7 @@ bool PythonCopyDataSource::pystring_to_string(PyObject *strobject, std::string &
   if (PyUnicode_Check(strobject)) {
     PyObject *ref = PyUnicode_AsUTF8String(strobject);
     if (ref) {
-      char *s;
+      const char *s;
       Py_ssize_t len;
       s = PyUnicode_AsUTF8AndSize(ref, &len);
       if (s)
@@ -91,7 +91,7 @@ bool PythonCopyDataSource::pystring_to_string(PyObject *strobject, std::string &
   }
 
   if (PyUnicode_Check(strobject)) {
-    char *s;
+    const char *s;
     Py_ssize_t len;
     s = PyUnicode_AsUTF8AndSize(strobject, &len);
     if (s)
@@ -597,7 +597,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
           if (PyUnicode_Check(element)) {
             PyObject *ref = PyUnicode_AsUTF8String(element);
             if (ref) {
-              char *s;
+              const char *s;
               Py_ssize_t len;
               s = PyUnicode_AsUTF8AndSize(ref, &len);
               if (buffer_len < (size_t)len) {
@@ -614,7 +614,7 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
               return false;
             }
           } else if (PyUnicode_Check(element)) {
-            char *s;
+            const char *s;
             Py_ssize_t len;
             s = PyUnicode_AsUTF8AndSize(element, &len);
             if (buffer_len < (size_t)len) {

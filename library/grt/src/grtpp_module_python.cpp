@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -153,7 +153,7 @@ static std::string exception_detail() {
   if (exc) {
     PyObject *str = PyObject_Str(exc);
     if (str) {
-      char *s = PyUnicode_AsUTF8(str);
+      const char *s = PyUnicode_AsUTF8(str);
       if (s)
         return s;
       Py_DECREF(str);
