@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1354,43 +1354,26 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
 }
 
 bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_string, bool convert) {
-  if (PyUnicode_Check(strobject)) {
-    PyObject *ref = PyUnicode_AsUTF8String(strobject);
-    if (ref) {
-      char *s;
-      Py_ssize_t len;
-      s = PyUnicode_AsUTF8AndSize(ref, &len);
-      if (s)
-        ret_string = std::string(s, len);
-      else
-        ret_string = "";
-      Py_DECREF(ref);
-      return true;
-    }
-    return false;
-  }
-
-  if (PyUnicode_Check(strobject)) {
-    char *s;
-    Py_ssize_t len;
-    s = PyUnicode_AsUTF8AndSize(strobject, &len);
-    if (s)
-      ret_string = std::string(s, len);
+  PyObject *ref = strobject;
+  ret_string = "";
+  
+  if (!PyUnicode_Check(strobject)) {
+    if (convert)
+      ref = PyObject_Str(strobject);
     else
-      ret_string = "";
-    return true;
+      ref = PyUnicode_AsUTF8String(strobject);
   }
+  
+  if (ref == nullptr)
+    return false;
 
-  if (convert) {
-    PyObject *str = PyObject_Str(strobject);
-    if (str) {
-      bool ret = pystring_to_string(str, ret_string, false);
-      Py_DECREF(str);
-      return ret;
-    }
-  }
+  const char *str;
+  Py_ssize_t len;
+  str = PyUnicode_AsUTF8AndSize(ref, &len);
+  if (str)
+    ret_string = std::string(str, len);
 
-  return false;
+  return str != nullptr;
 }
 
 ValueRef PythonContext::from_pyobject(PyObject *object) {
@@ -1717,8 +1700,10 @@ static void create_class_wrapper(grt::MetaClass *meta, PyObject *locals) {
     script = strfmt(create_class_template, flatten_class_name(meta->name()).c_str(), meta->name().c_str());
   }
 
+  PyDict_SetItemString(locals, "__builtins__", PyEval_GetBuiltins());
+  
   if (!PyRun_String(script.c_str(), Py_single_input, locals, locals))
-    PythonContext::log_python_error(NULL);
+    PythonContext::log_python_error((std::string("Error creating class wrapper:\n") + script).c_str());
 }
 
 /** Refresh Python environment with GRT information.
@@ -1760,24 +1745,44 @@ int PythonContext::refresh() {
 
   return 0;
 }
+#include <frameobject.h>
 
 void PythonContext::log_python_error(const char *message) {
   PythonContext *ctx = PythonContext::get();
-  if (ctx) {
-    if (message)
-      base::Logger::log(base::Logger::LogLevel::Error, "python", "%s", message);
-    PyObject *grt_dict = PyModule_GetDict(ctx->get_grt_module());
-    PyObject *_stderr = PyDict_GetItemString(grt_dict, "_log_stderr");
-    PyObject *old_stderr = PySys_GetObject((char *)"stderr");
-    Py_INCREF(old_stderr);
-    if (_stderr)
-      PySys_SetObject((char *)"stderr", _stderr);
-    PyErr_Print();
+  if (!ctx)
+    return;
+  std::string reason = message, stack = "Traceback:\n  No stack information.\n";
+  PyObject *exc, *val, *tb;
 
-    if (_stderr)
-      PySys_SetObject((char *)"stderr", old_stderr);
-    Py_DECREF(old_stderr);
+  PyErr_Fetch(&exc, &val, &tb);
+  PyErr_NormalizeException(&exc, &val, &tb);
+
+  if (val) {
+    PyObject *tmp = PyObject_Str(val);
+    if (tmp) {
+      reason = PyUnicode_AsUTF8(tmp);
+      Py_DECREF(tmp);
+    }
   }
+  
+  if (tb) {
+    PyTracebackObject *trace = (PyTracebackObject *)tb;
+
+    stack = "Traceback:\n";
+    while (trace && trace->tb_frame) {
+      PyFrameObject *frame = (PyFrameObject *)trace->tb_frame;
+      stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyUnicode_AsUTF8(frame->f_code->co_filename),
+                            trace->tb_lineno, PyUnicode_AsUTF8(frame->f_code->co_name));
+      PyObject *code = PyErr_ProgramText(PyUnicode_AsUTF8(frame->f_code->co_filename), trace->tb_lineno);
+      if (code) {
+        stack += base::strfmt("    %s", PyUnicode_AsUTF8(code));
+        Py_DECREF(code);
+      }
+      trace = trace->tb_next;
+    }
+  }
+
+  base::Logger::log(base::Logger::LogLevel::Error, "python", "%s\n%sNameError: %s\n", message, stack.c_str(), reason.c_str());
 }
 
 // script to be executed once GRT is initialized
