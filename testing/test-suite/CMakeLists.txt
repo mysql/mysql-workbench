@@ -12,6 +12,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${workbench_dir}/build/cmake/Modules
 #  set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
 #endif()
 
+if(DISABLE_SPECIAL_CHARACTERS)
+  add_compile_definitions(DISABLE_SPECIAL_CHARACTERS)
+endif()
+
 set(path_to_binaries "${workbench_dir}/wb-build/usr/local")
 set(path_to_libraries "${path_to_binaries}/lib/mysql-workbench")
 set(path_to_modules "${path_to_libraries}/modules")
