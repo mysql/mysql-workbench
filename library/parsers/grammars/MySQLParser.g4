@@ -1,7 +1,7 @@
 parser grammar MySQLParser;
 
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -2995,7 +2995,7 @@ signalStatement:
 ;
 
 resignalStatement:
-    RESIGNAL_SYMBOL (SQLSTATE_SYMBOL VALUE_SYMBOL? textOrIdentifier)? (
+    RESIGNAL_SYMBOL (identifier | sqlstate)? (
         SET_SYMBOL signalInformationItem (COMMA_SYMBOL signalInformationItem)*
     )?
 ;
@@ -3944,9 +3944,8 @@ precision:
 ;
 
 textOrIdentifier:
-    SINGLE_QUOTED_TEXT
-    | identifier
-    //| AT_TEXT_SUFFIX // LEX_HOSTNAME in the server grammar. Handled differently.
+    identifier
+    | textStringLiteral
 ;
 
 lValueIdentifier:
@@ -3957,7 +3956,6 @@ lValueIdentifier:
 roleIdentifierOrText:
     roleIdentifier
     | textStringLiteral
-    // also here LEX_HOSTNAME
 ;
 
 sizeNumber:

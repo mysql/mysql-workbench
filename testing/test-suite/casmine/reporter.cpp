@@ -34,6 +34,18 @@ using namespace std::chrono;
 
 using namespace std::string_literals;
 
+#ifdef DISABLE_SPECIAL_CHARACTERS
+  #define DISABLED_TEST "- "
+  #define PENDING_TEST "* "
+  #define FAILED_TEST "x"
+  #define SUCCESSFUL_TEST "o"
+#else
+  #define DISABLED_TEST "⊘ "
+  #define PENDING_TEST "* "
+  #define FAILED_TEST "x"
+  #define SUCCESSFUL_TEST "√"
+#endif
+
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
@@ -228,17 +240,17 @@ void ConsoleReporter::specDone(TestResult const& result) {
   std::cout << std::endl << indent;
 
   if (result.runType == ItemRuntimeSpec::Disabled) {
-      std::cout << styleBlueOn << "⊘ " << styleBlueOff << result.name << styleBlueOn << " (disabled)" << styleBlueOff;
+      std::cout << styleBlueOn << DISABLED_TEST << styleBlueOff << result.name << styleBlueOn << " (disabled)" << styleBlueOff;
   } else {
     if (result.pending) {
-      std::cout << styleBlueOn << "* " << styleBlueOff << styleDimOn << result.name << styleDimOff;
+      std::cout << styleBlueOn << PENDING_TEST << styleBlueOff << styleDimOn << result.name << styleDimOff;
       std::cout << " (suspended because " << result.pendingReason << ")";
     } else {
       bool failed = result.succeeded != result.total || !result.failures.empty();
       if (!failed)
-        std::cout << styleGreenOn << "√" << styleGreenOff;
+        std::cout << styleGreenOn << SUCCESSFUL_TEST << styleGreenOff;
       else
-        std::cout << styleBoldOn << styleRedOn << "x" << styleRedOff << styleBoldOff;
+        std::cout << styleBoldOn << styleRedOn << FAILED_TEST << styleRedOff << styleBoldOff;
 
       std::cout << " " << styleDimOn << result.name << styleDimOff;
       if (result.total == 0) {
