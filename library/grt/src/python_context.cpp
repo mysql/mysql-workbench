@@ -163,7 +163,7 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
     Py_XDECREF(path);
   }
 
-  PyEval_SaveThread();
+  PyEval_SaveThread(); // Started in InitPython()
 
   // listen to all notifications so it can be forwarded to python
   GRTNotificationCenter::get()->add_grt_observer(this);
@@ -1125,9 +1125,9 @@ static struct PyModuleDef grtClassesModuleDef = {
 };
 
 void PythonContext::register_grt_module(PyObject *module) {
-  // PyObject *module = PyModule_Create(&grtModuleDef);
-  // if (module == NULL)
-  //   throw std::runtime_error("Error initializing GRT module in Python support");
+//   PyObject *module = PyModule_Create(&grtModuleDef);
+//   if (module == NULL)
+//     throw std::runtime_error("Error initializing GRT module in Python support");
 
   _grt_module = module;
 
@@ -1178,16 +1178,19 @@ void PythonContext::register_grt_module(PyObject *module) {
   // AutoPyObject need to keep a reference but PyModule_AddObject steals it
   // so it is needed to increase it to avoid problems on destruction
   Py_INCREF(_grt_modules_module);
-  PyModule_AddObject(_grt_module, "modules", _grt_modules_module);
+  if(PyModule_AddObject(_grt_module, "modules", _grt_modules_module) < 0)
+    throw std::runtime_error("Error initializing grt.modules module in Python support");
 
   _grt_classes_module = PyModule_Create(&grtClassesModuleDef);
   if (!_grt_classes_module)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
 
   Py_INCREF(_grt_classes_module);
-  PyModule_AddObject(_grt_module, "classes", _grt_classes_module);
+  if (PyModule_AddObject(_grt_module, "classes", _grt_classes_module) < 0)
+    throw std::runtime_error("Error initializing grt.classes module in Python support");
 
-  PyModule_AddObject(_grt_classes_module, "grt", _grt_module);
+  if(PyModule_AddObject(_grt_classes_module, "grt", _grt_module) < 0)
+    throw std::runtime_error("Error initializing grt module in Python support");
 }
 
 PyObject *PythonContext::grt_module_create(){
@@ -1733,7 +1736,8 @@ int PythonContext::refresh() {
   // Generate module wrappers
   const std::vector<grt::Module *> &modules(grt::GRT::get()->get_modules());
   for (std::vector<grt::Module *>::const_iterator iter = modules.begin(); iter != modules.end(); ++iter) {
-    PyObject *arg = Py_BuildValue("(s)", (*iter)->name().c_str());
+    std::string name = (*iter)->name();
+    PyObject *arg = Py_BuildValue("(s)", name.c_str());
     PyObject *r = PyObject_Call(_grt_module_class, arg, NULL);
     Py_DECREF(arg);
 
