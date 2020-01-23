@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -32,15 +32,15 @@
 
 DEFAULT_LOG_DOMAIN("utilities");
 
-static void util_beep()
-{
+static void util_beep() {
   NSBeep();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 static int util_show_message(const std::string &title, const std::string &text,
                              const std::string &ok, const std::string &cancel,
-                             const std::string &other)
-{
+                             const std::string &other) {
   NSAlert *alert = [NSAlert new];
   alert.messageText = wrap_nsstring(title);
   alert.informativeText = [wrap_nsstring(text) stringByReplacingOccurrencesOfString: @"%" withString: @"%%"];
@@ -60,12 +60,12 @@ static int util_show_message(const std::string &title, const std::string &text,
     return mforms::ResultCancel;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static int util_show_message_with_checkbox(const std::string &title, const std::string &text,
                                            const std::string &ok, const std::string &cancel,
                                            const std::string &other,
-                                           const std::string &cb_message, bool &cb_answer)
-{
+                                           const std::string &cb_message, bool &cb_answer) {
   NSAlert *alert = [NSAlert new];
   
   alert.messageText = wrap_nsstring(title);
@@ -95,23 +95,25 @@ static int util_show_message_with_checkbox(const std::string &title, const std::
     return mforms::ResultCancel;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static void util_set_clipboard_text(const std::string &text)
-{
+static void util_set_clipboard_text(const std::string &text) {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
   [pasteBoard declareTypes: @[NSPasteboardTypeString] owner:nil];
   [pasteBoard setString: @(text.c_str())
                                       forType: NSPasteboardTypeString];
 }
 
-static std::string util_get_clipboard_text()
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static std::string util_get_clipboard_text() {
   NSPasteboard *pasteBoard= [NSPasteboard generalPasteboard];
   return [pasteBoard stringForType: NSPasteboardTypeString].UTF8String ?:"";
 }
 
-static void util_open_url(const std::string &url)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static void util_open_url(const std::string &url) {
   if (g_file_test(url.c_str(), G_FILE_TEST_EXISTS) || (!url.empty() && url[0] == '/'))
     [[NSWorkspace sharedWorkspace] openURL: [NSURL fileURLWithPath: @(url.c_str())]];
   else {
@@ -130,7 +132,8 @@ static void util_open_url(const std::string &url)
 
       NSString *fragment = tmpUrl.fragment;
       if (fragment != nil) {
-        urlString = [urlString stringByAppendingString: [fragment stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLFragmentAllowedCharacterSet]];
+        urlString = [urlString stringByAppendingString:
+                     [fragment stringByAddingPercentEncodingWithAllowedCharacters: NSCharacterSet.URLFragmentAllowedCharacterSet]];
       }
     }
 
@@ -139,11 +142,10 @@ static void util_open_url(const std::string &url)
   }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static std::string get_special_folder(mforms::FolderType type)
-{
-  switch (type)
-  {
+static std::string get_special_folder(mforms::FolderType type) {
+  switch (type) {
     case mforms::Documents:
       return NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject.UTF8String;
     case mforms::Desktop:
@@ -159,9 +161,9 @@ static std::string get_special_folder(mforms::FolderType type)
   return "";
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-@interface MFTimerHandler : NSObject
-{
+@interface MFTimerHandler : NSObject {
   std::function<bool ()> *callback;
 }
 
@@ -170,6 +172,7 @@ static std::string get_special_folder(mforms::FolderType type)
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static std::map<mforms::TimeoutHandle, NSTimer*> active_timeouts;
 static mforms::TimeoutHandle current_timeout = 0;
@@ -177,109 +180,106 @@ static base::Mutex timeout_lock;
 
 @implementation MFTimerHandler
 
-- (instancetype)initWithSlot:(std::function<bool ()>)slot
-{
+- (instancetype)initWithSlot:(std::function<bool ()>)slot {
   self = [super init];
-  if (self)
-  {
+  if (self) {
     callback = new std::function<bool ()>(slot);
   }
   return self;
 }
 
--(instancetype)init
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+-(instancetype)init {
   return [self initWithSlot: std::function<bool ()>()];
 }
 
-- (void)dealloc
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)dealloc {
   delete callback;
 }
 
-- (void)fire: (NSTimer*)timer
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)fire: (NSTimer*)timer {
   try
   {
     bool ret = (*callback)();
-    if (!ret)
-    {
+    if (!ret) {
       {
         base::MutexLock lock(timeout_lock);
 
         for (std::map<mforms::TimeoutHandle, NSTimer*>::iterator it = active_timeouts.begin();
-             it != active_timeouts.end(); ++it)
-        {
-          if (it->second == timer)
-          {
+             it != active_timeouts.end(); ++it) {
+          if (it->second == timer) {
             active_timeouts.erase(it);
             break;
           }
         }
       }
+
       [timer invalidate];
     }
   }
-  catch (std::exception &exc)
-  {
+  catch (std::exception &exc) {
     logError("Unhandled exception calling timer callback: %s\n", exc.what());
   }
 }
 
 @end
 
-static mforms::TimeoutHandle util_add_timeout(float interval, const std::function<bool ()> &callback)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static mforms::TimeoutHandle util_add_timeout(float interval, const std::function<bool ()> &callback) {
   base::MutexLock lock(timeout_lock);
   
   MFTimerHandler *handler = [[MFTimerHandler alloc] initWithSlot:callback];
 
-  active_timeouts[++current_timeout] = [NSTimer scheduledTimerWithTimeInterval:interval
-                                                                        target:handler selector:@selector(fire:)
-                                                                      userInfo:nil repeats:YES];
+  active_timeouts[++current_timeout] = [NSTimer scheduledTimerWithTimeInterval: interval
+                                                                        target: handler
+                                                                      selector: @selector(fire:)
+                                                                      userInfo: nil
+                                                                       repeats: YES];
   return current_timeout;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static void util_cancel_timeout(mforms::TimeoutHandle handle)
-{
+static void util_cancel_timeout(mforms::TimeoutHandle handle) {
   base::MutexLock lock(timeout_lock);
   std::map<mforms::TimeoutHandle, NSTimer*>::iterator it;
   
-  if ((it = active_timeouts.find(handle)) != active_timeouts.end())
-  {
+  if ((it = active_timeouts.find(handle)) != active_timeouts.end()) {
     [it->second invalidate];
     active_timeouts.erase(it);
-  }
-  else
+  } else
     logWarning("cancel_timeout called on invalid handle %i\n", handle);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static std::string os_error_to_string(OSErr error)
-{
+static std::string os_error_to_string(OSErr error) {
   CFStringRef ref = SecCopyErrorMessageString(error, nil);
 
-  std::string result = ((__bridge NSString*)ref).UTF8String; // Toll-free-bridged.
+  std::string result = ((__bridge NSString*)ref).UTF8String;
   CFRelease(ref);
   return result;
 }
 
-static void util_store_password(const std::string &service, const std::string &account, const std::string &password)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static void util_store_password(const std::string &service, const std::string &account, const std::string &password) {
   // See if we already have a password for this service + account. If so, modify this, otherwise add a new password.
   SecKeychainItemRef item;
-  OSErr code = SecKeychainFindGenericPassword(NULL, (uint32_t)service.length(), service.c_str(), (uint32_t)account.length(),
-                                              account.c_str(), NULL, NULL, &item);
-  if (code == 0)
-  {
+  OSErr code = SecKeychainFindGenericPassword(NULL, (uint32_t)service.length(), service.c_str(),
+                                              (uint32_t)account.length(), account.c_str(), NULL, NULL, &item);
+  if (code == 0) {
     code = SecKeychainItemModifyAttributesAndData(item, NULL, (uint32_t)password.length(), password.c_str());
     CFRelease(item);
     if (code == 0)
       return;
-  }
-  else
-  {
+  } else {
     code = SecKeychainAddGenericPassword(NULL, (uint32_t)service.length(), service.c_str(), (uint32_t)account.length(),
                                          account.c_str(), (uint32_t)password.length(), password.c_str(), NULL);
     if (code == 0)
@@ -289,24 +289,33 @@ static void util_store_password(const std::string &service, const std::string &a
   throw std::runtime_error("Error storing password:" + os_error_to_string(code));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static bool util_find_password(const std::string &service, const std::string &account, std::string &password)
-{
-  UInt32 password_length= 0;
-  void *password_data= NULL;
+static bool util_find_password(const std::string &service, const std::string &account, std::string &password) {
+  UInt32 password_length = 0;
+  void *password_data = nullptr;
   
-  if (SecKeychainFindGenericPassword(NULL,
-                                     (uint32_t)service.length(),
+  auto result = SecKeychainFindGenericPassword(nullptr,
+                                     (uint32_t)service.size(),
                                      service.c_str(),
-                                     (uint32_t)account.length(),
+                                     (uint32_t)account.size(),
                                      account.c_str(),
                                      &password_length,
                                      &password_data,
-                                     NULL) != 0)
-    return false;
+                                               nullptr);
 
-  if (password_data)
-  {
+  if (result != 0) {
+    CFStringRef s = SecCopyErrorMessageString(result, nullptr);
+    NSString *message = (NSString *)CFBridgingRelease(s);
+    message = [NSString stringWithFormat: @"%@ (%d)", message, result];
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = message;
+    [alert runModal];
+
+    return false;
+  }
+
+  if (password_data) {
     password = std::string((char*)password_data, (size_t)password_length);
     SecKeychainItemFreeContent(NULL, password_data);
     return true;
@@ -314,22 +323,27 @@ static bool util_find_password(const std::string &service, const std::string &ac
   return false;  
 }
 
-static void util_forget_password(const std::string &service, const std::string &account)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static void util_forget_password(const std::string &service, const std::string &account) {
   SecKeychainItemRef item;
   OSErr code;
-  
-  if ((code = SecKeychainFindGenericPassword(NULL,
-                                             (uint32_t)service.length(),
+
+#if 0
+  NSAlert *alert = [NSAlert new];
+  alert.messageText = @"Removing password entry";
+  [alert runModal];
+#endif
+
+  if ((code = SecKeychainFindGenericPassword(nullptr,
+                                             (uint32_t)service.size(),
                                              service.c_str(),
-                                             (uint32_t)account.length(),
+                                             (uint32_t)account.size(),
                                              account.c_str(),
-                                             NULL,
-                                             NULL,
-                                             &item)) == 0)
-  {
-    if ((code = SecKeychainItemDelete(item)) != 0)
-    {
+                                             nullptr,
+                                             nullptr,
+                                             &item)) == 0) {
+    if ((code = SecKeychainItemDelete(item)) != 0) {
       CFRelease(item);
       throw std::runtime_error("Error deleting password entry: "+os_error_to_string(code));
     }
@@ -337,42 +351,39 @@ static void util_forget_password(const std::string &service, const std::string &
   }
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static void util_show_wait_message(const std::string &title, const std::string &message)
-{
+static void util_show_wait_message(const std::string &title, const std::string &message) {
   [MHudController showHudWithTitle: @(title.c_str())
                     andDescription: @(message.c_str())];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 static bool util_run_cancelable_wait_message(const std::string &title, const std::string &text,
                                              const std::function<void ()> &start_task, 
-                                             const std::function<bool ()> &cancel_task)
-{
+                                             const std::function<bool ()> &cancel_task) {
   return [MHudController runModalHudWithTitle: @(title.c_str())
                                andDescription: @(text.c_str())
                                   notifyReady: start_task
                                  cancelAction: cancel_task];
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static void util_stop_cancelable_wait_message()
-{
+static void util_stop_cancelable_wait_message() {
   [MHudController stopModalHud];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static bool util_hide_wait_message()
-{
+static bool util_hide_wait_message() {
   return [MHudController hideHud];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static bool util_move_to_trash(const std::string &path)
-{
+static bool util_move_to_trash(const std::string &path) {
   NSFileManager *manager = NSFileManager.defaultManager;
   NSString *nativePath = @(path.c_str());
   NSURL *url = [NSURL fileURLWithPath: nativePath];
@@ -382,17 +393,15 @@ static bool util_move_to_trash(const std::string &path)
   return error == nil;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-static void reveal_file(const std::string &path)
-{
+static void reveal_file(const std::string &path) {
   [[NSWorkspace sharedWorkspace] selectFile: wrap_nsstring(path) inFileViewerRootedAtPath: @""];
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-@interface MainThreadRunner : NSObject
-{
+@interface MainThreadRunner : NSObject {
 @public
   std::function<void* ()> slot;
   void *result;
@@ -400,15 +409,17 @@ static void reveal_file(const std::string &path)
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
+
 @implementation MainThreadRunner
 
-- (void)dealloc
-{
+- (void)dealloc {
   [NSObject cancelPreviousPerformRequestsWithTarget: self];
 }
 
-- (void)perform
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+- (void)perform {
   if (slot)
     result = slot();
   else
@@ -417,13 +428,12 @@ static void reveal_file(const std::string &path)
 
 @end
 
+//----------------------------------------------------------------------------------------------------------------------
 
-static void *util_perform_from_main_thread(const std::function<void* ()> &slot, bool wait_response)
-{
+static void *util_perform_from_main_thread(const std::function<void* ()> &slot, bool wait_response) {
   if ([NSThread isMainThread])
     return slot ? slot() : NULL;
-  else
-  {
+  else {
     MainThreadRunner *tmp = [[MainThreadRunner alloc] init];
     tmp->slot = slot;
     tmp->result = NULL;
@@ -435,29 +445,29 @@ static void *util_perform_from_main_thread(const std::function<void* ()> &slot, 
   }
 }
 
-static void util_set_thread_name(const std::string &name)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static void util_set_thread_name(const std::string &name) {
   @autoreleasepool {
     [NSThread currentThread].name = @(name.c_str());
   }
 }
 
-static double util_get_text_width(const std::string &text, const std::string &font_desc)
-{
+//----------------------------------------------------------------------------------------------------------------------
+
+static double util_get_text_width(const std::string &text, const std::string &font_desc) {
   static NSDictionary *attributeDict = nil;
   static std::string cachedFontName;
 
-  if (!attributeDict || cachedFontName != font_desc)
-  {
+  if (!attributeDict || cachedFontName != font_desc) {
     std::string font;
     float size;
     bool bold, italic;
     attributeDict = nil;
-    if (base::parse_font_description(font_desc, font, size, bold, italic))
-    {
+    if (base::parse_font_description(font_desc, font, size, bold, italic)) {
       NSFontDescriptor *fd = [NSFontDescriptor fontDescriptorWithName: @(font.c_str()) size: size];
       NSFont *font = [NSFont fontWithDescriptor: [fd fontDescriptorWithSymbolicTraits: (bold ? NSFontBoldTrait : 0) | (italic ? NSFontItalicTrait : 0)]
-                                      size: size];
+                                           size: size];
 
       attributeDict = @{NSFontAttributeName: font};
     }
@@ -470,10 +480,9 @@ static double util_get_text_width(const std::string &text, const std::string &fo
   return w;
 }
 
-//--------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-void cf_util_init()
-{
+void cf_util_init() {
   ::mforms::ControlFactory *f = ::mforms::ControlFactory::get_instance();
 
   f->_utilities_impl.beep = &util_beep;
@@ -500,3 +509,5 @@ void cf_util_init()
   f->_utilities_impl.set_thread_name= &util_set_thread_name;
   f->_utilities_impl.get_text_width = &util_get_text_width;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
