@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -765,47 +765,18 @@ class json_module(base_module):
     def analyze_file(self):
         data = []
         with open(self._filepath, 'rb') as f:
-            prevchar = None
-            stropen = False
-            inside = 0
-            datachunk = []
-            rowcount = 0 
-            while True:
-                if f.tell() >= 20480:
-                    log_error("JSON file contains data that's in unknown structure: %s" % (self._filepath))
-                    return False
-                c = f.read(1)
-                if c == "":
-                    break
-            
-                if c == '"' and prevchar != '\\':
-                    stropen = True if stropen == False else False
-            
-                if stropen == False:
-                    if c == '{' and prevchar != '\\':
-                        inside = inside + 1
-                    if c == '}' and prevchar != '\\':
-                        inside = inside - 1
-                        if inside == 0:
-                            if rowcount >= 4:
-                                datachunk.append(c)
-                                datachunk.append(']')
-                                break
-                            else:
-                                rowcount = rowcount + 1 
-                datachunk.append(c)
-                prevchar = c
             try:
-                data = json.loads("".join(datachunk))
-            except Exception, e:
-                log_error("Unable to parse JSON file: %s,%s " % (self._filepath, e))
+                data = json.load(f)
+            except ValueError as e:
+                log_error("JSON file is invalid: %s\n" % (self._filepath))
                 self._last_analyze = False
                 return False
+                
         if len(data) == 0:
-            log_error("JSON file contains no data, or data is invalid: %s" % (self._filepath))
+            log_error("JSON file contains no data: %s\n" % (self._filepath))
             self._last_analyze = False
             return False
-        
+                
         self._columns = []
         
         if type(data) == dict: # We need to have list so if it's dict after that we will be able to handle it.
@@ -835,7 +806,6 @@ class json_module(base_module):
                             col[attrib] = False
         self._last_analyze = True
         return True
-        
 
 def create_module(type, editor, is_import):
     if type == "csv":
