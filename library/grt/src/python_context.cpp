@@ -143,7 +143,7 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   PyDict_SetItemString(PyModule_GetDict(main), "grt", module);
 
   register_grt_module( module );
-
+  
   PySys_SetObject((char *)"real_stdout", PySys_GetObject((char *)"stdout"));
   PySys_SetObject((char *)"real_stderr", PySys_GetObject((char *)"stderr"));
   PySys_SetObject((char *)"real_stdin", PySys_GetObject((char *)"stdin"));
@@ -1090,38 +1090,38 @@ static PyMethodDef GrtModuleMethods[] = {
 
 static struct PyModuleDef grtModuleDef = {
   PyModuleDef_HEAD_INIT,
-  "grt",
-  NULL,
-  -1,
+  "grt",    // name
+  nullptr,  // documentation
+  -1,       // size -1 meand it can not be re-initialized
   GrtModuleMethods,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+  nullptr,  // reload method
+  nullptr,  // traverse method
+  nullptr,  // clear method
+  nullptr   //  free method
 };
 
 static struct PyModuleDef grtModulesModuleDef = {
   PyModuleDef_HEAD_INIT,
-  "grt.modules",
-  NULL,
-  -1,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+  "grt.modules",  // name
+  nullptr,  // documentation
+  -1,       // size -1 meand it can not be re-initialized
+  nullptr,  // methods
+  nullptr,  // reload method
+  nullptr,  // traverse method
+  nullptr,  // clear method
+  nullptr   // free method
 };
 
 static struct PyModuleDef grtClassesModuleDef = {
   PyModuleDef_HEAD_INIT,
-  "grt.classes",
-  NULL,
-  -1,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  NULL
+  "grt.classes",  // name
+  nullptr,  // documentation
+  -1,       // size -1 meand it can not be re-initialized
+  nullptr,  // methods
+  nullptr,  // reload method
+  nullptr,  // traverse method
+  nullptr,  // clear method
+  nullptr   // free method
 };
 
 void PythonContext::register_grt_module(PyObject *module) {
@@ -1174,16 +1174,22 @@ void PythonContext::register_grt_module(PyObject *module) {
   _grt_modules_module = PyModule_Create(&grtModulesModuleDef);
   if (!_grt_modules_module)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
-
+  PyObject *obj = PyImport_ImportModule("grt.modules");
+  obj = obj;
+//   PyObject *mod = PyImport_AddModule("grt.modules");
+//   mod = mod;
   // AutoPyObject need to keep a reference but PyModule_AddObject steals it
   // so it is needed to increase it to avoid problems on destruction
   Py_INCREF(_grt_modules_module);
   if(PyModule_AddObject(_grt_module, "modules", _grt_modules_module) < 0)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
-
+  
   _grt_classes_module = PyModule_Create(&grtClassesModuleDef);
+  
   if (!_grt_classes_module)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
+  
+//   PyDict_SetItemString(PyModule_GetDict(module), "classes", (PyObject *)_grt_classes_module);
 
   Py_INCREF(_grt_classes_module);
   if (PyModule_AddObject(_grt_module, "classes", _grt_classes_module) < 0)
