@@ -27,6 +27,7 @@
 #include <gtkmm/eventbox.h>
 #include <gtkmm/fixed.h>
 #include <gtkmm/main.h>
+#include <gtkmm/settings.h>
 #include <atkmm.h>
 #include "main_form.h"
 #include "active_label.h"
@@ -1619,8 +1620,7 @@ static void end_event_loop(mforms::App *, int rc) {
 }
 
 static bool isDarkModeActive(mforms::App *) {
-	// On Linux we can't just say if theme is dark or light
-	return false;
+        return (bool)Gtk::Settings::get_default()->property_gtk_application_prefer_dark_theme();
 }
 
 static float backing_scale_factor(mforms::App *) {
