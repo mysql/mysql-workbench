@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -130,6 +130,7 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Fedora release 29 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 30 x86_64")).toBeTrue();
     $expect(isOsSupportedProxy("Fedora release 31 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("Fedora release 32 x86_64")).toBeTrue();
   });
 }
 }
