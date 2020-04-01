@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -548,6 +548,13 @@ class PasswordExpiredDialog(mforms.Form):
     def __init__(self, conn):
         mforms.Form.__init__(self, None)
         self._conn = conn
+        self.versionstr = conn.parameterValues.get("serverVersion", None)
+        
+        try:
+            self.version = Version.fromstr(self.versionstr)
+        except:
+            self.version = None
+        
         self.set_title("Password Expired")
 
         vbox = mforms.newBox(False)
@@ -589,6 +596,15 @@ class PasswordExpiredDialog(mforms.Form):
         box.add(newLabel("Confirm:", True), 0, 1, 2, 3, mforms.HFillFlag|mforms.VFillFlag)
         box.add(self.confirm, 1, 2, 2, 3, mforms.HFillFlag|mforms.HExpandFlag)
 
+        self.legacy = mforms.newCheckBox()
+        self.legacy.set_text("This server version is < 5.7")
+        if self.version:
+            self.legacy.set_active(not self.version.is_supported_mysql_version_at_least(5, 7))
+            self.legacy.show(False)
+        else:
+            self.legacy.show(True)
+        vbox.add(self.legacy, mforms.HFillFlag|mforms.VFillFlag)
+
         bbox = newBox(True)
         bbox.set_spacing(8)
         self.ok = newButton()
@@ -616,9 +632,10 @@ class PasswordExpiredDialog(mforms.Form):
             old_multi_statements = con.parameterValues.get("CLIENT_MULTI_STATEMENTS")
             old_script = con.parameterValues.get("preInit")
             con.parameterValues["CLIENT_MULTI_STATEMENTS"] = 1
-            con.parameterValues["preInit"] = "SET PASSWORD = '%s'" % escape_sql_string(self.password.get_string_value())
-            #con.parameterValues["preInit"] = "ALTER USER '%s'@'%s' IDENTIFIED BY '%s'" % (con.parameterValues["userName"], con.hostIdentifier.replace("Mysql@", ""), escape_sql_string(self.password.get_string_value()))
-            #change_pw = "ALTER USER '%s'@'%s' IDENTIFIED BY '%s'" % (con.parameterValues["userName"], con.hostIdentifier.replace("Mysql@", ""), escape_sql_string(self.password.get_string_value())) 
+            if self.legacy.get_active():
+                con.parameterValues["preInit"] = "SET PASSWORD = PASSWORD('%s')" % escape_sql_string(self.password.get_string_value())
+            else:
+                con.parameterValues["preInit"] = "SET PASSWORD = '%s'" % escape_sql_string(self.password.get_string_value())
             retry = False
             result = 1
 

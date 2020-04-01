@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1120"
+   LastUpgradeVersion = "1130"
    version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "# Need to copy some binaries manually. A copy build phase won&apos;t work.&#10;&#10;# This dylib is part of a plugin framework, but can only be used directly.&#10;cp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/&#10;&#10;# In order for the produced binary to find its frameworks, we have to copy it to the&#10;# WB bundle and run it from there.&#10;&#10;cp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "2797DAD4223BA56A00BD1BD6"
+                     BuildableName = "wbtests"
+                     BlueprintName = "wbtests-ce"
+                     ReferencedContainer = "container:MySQLWorkbench.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"

@@ -1,4 +1,4 @@
-/* Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+/* Copyright (c) 2017, 2020, Oracle and/or its affiliates. All rights reserved.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License, version 2.0,
@@ -723,4 +723,16 @@ static const keyword_t keyword_list80[]= {
   { "YEAR", 0 },
   { "YEAR_MONTH", 1 },
   { "ZEROFILL", 1 },
+
+  { "MASTER_COMPRESSION_ALGORITHM", 0 },
+  { "MASTER_ZSTD_COMPRESSION_LEVEL", 0 },
+  { "PRIVILEGE_CHECKS_USER", 0 },
+  { "MASTER_TLS_CIPHERSUITES", 0 },
+  { "REQUIRE_ROW_FORMAT", 0 },
+  { "PASSWORD_LOCK_TIME", 0 },
+  { "FAILED_LOGIN_ATTEMPTS", 0 },
+  { "REQUIRE_TABLE_PRIMARY_KEY_CHECK", 0 },
+  { "STREAM", 0 },
+  { "OFF", 0 },
+
 };/*keyword_list*/

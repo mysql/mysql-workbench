@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,6 +96,8 @@ enum MySQLQueryType {
   QtLoadXML,
   QtReplace,
   QtSelect,
+  QtTable, // Explicit table statement.
+  QtValues, // Table value constructor.
   QtUpdate,
 
   QtPartition, // Cannot be used standalone.
@@ -179,7 +181,6 @@ enum MySQLQueryType {
   QtShowFunctionStatus,
   QtShowGrants,
   QtShowIndexes, // Index, Indexes, Keys
-  QtShowInnoDBStatus,
   QtShowMasterStatus,
   QtShowOpenTables,
   QtShowPlugins,
