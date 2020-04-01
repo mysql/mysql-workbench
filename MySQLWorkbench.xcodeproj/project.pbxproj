@@ -3833,24 +3833,6 @@
 			name = "Copy Files (python plugins)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2797DACB223BA56200BD1BD6 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2797DAD8223BA56A00BD1BD6 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		27D807AD1A3F30B000EDCA8F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -12577,8 +12559,6 @@
 			buildPhases = (
 				2797DAC9223BA56200BD1BD6 /* Sources */,
 				443A1F6C22E9CFC200BA8C12 /* Frameworks */,
-				2797DACB223BA56200BD1BD6 /* CopyFiles */,
-				2797DB1C223BE43500BD1BD6 /* Copy Binary */,
 			);
 			buildRules = (
 			);
@@ -12596,8 +12576,6 @@
 			buildPhases = (
 				2797DAD5223BA56A00BD1BD6 /* Sources */,
 				443A1F8322E9D16A00BA8C12 /* Frameworks */,
-				2797DAD8223BA56A00BD1BD6 /* CopyFiles */,
-				443A1F6922E9CE4500BA8C12 /* Copy Binary */,
 			);
 			buildRules = (
 			);
@@ -14455,25 +14433,6 @@
 			shellScript = "# The test binary must be in the MacOS folder to find its resource paths.\ncp ${BUILT_PRODUCTS_DIR}/genwrap ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
 			showEnvVarsInLog = 0;
 		};
-		2797DB1C223BE43500BD1BD6 /* Copy Binary */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Binary";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/\n\n# In order for the produced binary to find its frameworks, we have to copy it to the\n# WB bundle and run it from there.\n\ncp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
-			showEnvVarsInLog = 0;
-		};
 		27BDFA3A184366000028B97E /* Regenerate ANTLR parsers if necessary */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -14599,24 +14558,6 @@
 			shellPath = /bin/sh;
 			shellScript = "# Install commercial plugins (dylibs)\n\n# Put all commercial plugin dylibs in the Input Files list below.\n# For dylibs, you must add it as a dependency in the MySQLWorkbenchCom scheme (not in the project dependencies)\n# so that they get built only for commercial builds\ni=0\nwhile true; do\n    path=$(eval \"echo \\$SCRIPT_INPUT_FILE_$i\")\n    if test \"$path\" = \"\"; then\n        break\n    fi\n    if [ -f $path -o -d $path ]; then\n        echo \"Copy $path to $BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\"\n        cp -r $path $BUILT_PRODUCTS_DIR/$PLUGINS_FOLDER_PATH\n    fi\n    i=$(($i+1))\ndone\n";
 			showEnvVarsInLog = 0;
-		};
-		443A1F6922E9CE4500BA8C12 /* Copy Binary */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Binary";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Need to copy some binaries manually. A copy build phase won't work.\n\n# This dylib is part of a plugin framework, but can only be used directly.\ncp ${BUILT_PRODUCTS_DIR}/db.mysql.editors.mwbplugin/Contents/Frameworks/db.mysql.editors.wbp.dylib ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/Frameworks/\n\n# In order for the produced binary to find its frameworks, we have to copy it to the\n# WB bundle and run it from there.\n\ncp ${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME} ${BUILT_PRODUCTS_DIR}/MySQLWorkbench.app/Contents/MacOS/\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

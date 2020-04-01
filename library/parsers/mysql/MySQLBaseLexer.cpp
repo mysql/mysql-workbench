@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -417,6 +417,12 @@ MySQLQueryType MySQLBaseLexer::determineQueryType() {
     case MySQLLexer::SELECT_SYMBOL:
       return QtSelect;
 
+    case MySQLLexer::TABLE_SYMBOL:
+      return QtTable;
+
+    case MySQLLexer::VALUES_SYMBOL:
+      return QtValues;
+
     case MySQLLexer::UPDATE_SYMBOL:
       return QtUpdate;
 
@@ -744,9 +750,6 @@ MySQLQueryType MySQLBaseLexer::determineQueryType() {
         case MySQLLexer::INDEXES_SYMBOL:
         case MySQLLexer::KEY_SYMBOL:
           return QtShowIndexes;
-
-        case MySQLLexer::INNODB_SYMBOL:
-          return QtShowInnoDBStatus;
 
         case MySQLLexer::MASTER_SYMBOL:
           return QtShowMasterStatus;

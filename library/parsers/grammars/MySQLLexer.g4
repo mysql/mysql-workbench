@@ -24,7 +24,7 @@ lexer grammar MySQLLexer;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [65e41a818c0] (28. May 2019).
+ * Merged in all changes up to mysql-trunk git revision [6d4f66a] (16. January 2020).
  *
  * MySQL grammar for ANTLR 4.5+ with language features from MySQL 5.6.0 up to MySQL 8.0.
  * The server version in the generated parser can be switched at runtime, making it so possible
@@ -46,7 +46,7 @@ lexer grammar MySQLLexer;
 
 options {
     superClass = MySQLBaseLexer;
-    tokenVocab = predefined; // Certain tokens in a predefined order for simpler checks.
+    tokenVocab = predefined; // Keyword tokens in a predefined order for simpler checks.
     exportMacro = PARSERS_PUBLIC_TYPE;
 }
 
@@ -67,7 +67,7 @@ tokens {
 //-------------------------------------------------------------------------------------------------
 
 @header {/*
- * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1040,6 +1040,21 @@ PRIVILEGE_CHECKS_USER_SYMBOL:
 MASTER_TLS_CIPHERSUITES_SYMBOL:
     M A S T E R '_' T L S '_' C I P H E R S U I T E S                        {serverVersion >= 80018}?
 ;                                                                            // MYSQL
+
+REQUIRE_ROW_FORMAT_SYMBOL:
+    R E Q U I R E '_' R O W '_' F O R M A T                                  {serverVersion >= 80019}?
+;                                                                            // MYSQL
+PASSWORD_LOCK_TIME_SYMBOL:
+    P A S S W O R D '_' L O C K '_' T I M E                                  {serverVersion >= 80019}?
+;                                                                            // MYSQL
+FAILED_LOGIN_ATTEMPTS_SYMBOL:
+    F A I L E D '_' L O G I N '_' A T T E M P T S                            {serverVersion >= 80019}?
+;                                                                            // MYSQL
+REQUIRE_TABLE_PRIMARY_KEY_CHECK_SYMBOL:
+    R E Q U I R E '_' T A B L E '_' P R I M A R Y '_' K E Y '_' C H E C K    {serverVersion >= 80019}?
+;                                                                            // MYSQL
+STREAM_SYMBOL:                   S T R E A M                                 {serverVersion >= 80019}?; // MYSQL
+OFF_SYMBOL:                      O F F                                       {serverVersion >= 80019}?; // SQL-1999-R
 
 // $antlr-format groupedAlignments on, alignTrailers off, alignLexerCommands on
 

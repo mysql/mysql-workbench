@@ -362,7 +362,7 @@ SHOW CREATE VIEW viewey$$
 SELECT statementt0_ . type_id as type1_3_ , statementt0_ . type_name AS type2_3_ , statementt0_ . namespace_id AS namespace3_3_ , statementt0_ . insert_count AS insert4_3_ FROM inventory_types statementt0_ , inventory_namespaces hibnamespa1_ WHERE ( SELECT CONCAT( inv_ns . namespace , ? , `t` . type_name ) FROM inventory_namespaces inv_ns JOIN inventory_types `t` ON ( inv_ns . namespace_id = `t` . namespace_id ) WHERE `t` . type_id = statementt0_ . type_id ) = ? AND statementt0_ . namespace_id = hibnamespa1_ . namespace_id AND hibnamespa1_ . namespace = ? AND statementt0_ . type_name = ?$$
 select statementt0_.type_id as type1_3_, statementt0_.type_name as type2_3_, statementt0_.namespace_id as namespace3_3_, statementt0_.insert_count as insert4_3_ from inventory_types statementt0_, inventory_namespaces hibnamespa1_ where (select concat(inv_ns.namespace, '.', t.type_name) from inventory_namespaces inv_ns join inventory_types t on (inv_ns.namespace_id=t.namespace_id) where t.type_id=statementt0_.type_id) ='mysql.Statement' and statementt0_.namespace_id=hibnamespa1_.namespace_id and hibnamespa1_.namespace='mysql' and statementt0_.type_name='Statement'$$
 SELECT 1 FROM dual where 1 = 2$$
-select * from (select 1 from dual) = one$$
+[<80017]select * from (select 1 from dual) = one$$
 DELETE FROM TABLE1 LIMIT 1$$
 SELECT * FROM a_a_ AS b_b_, a_a_ AS c_c_ limit 5$$
 SELECT  hibinvento0_.instance_id as instance1_5_2_, hibinvento0_.instance_name as instance2_5_2_, hibinvento0_.type_id as type3_5_2_, hibinvento0_.parent_id as parent4_5_2_, hibinvento0_.insert_count as insert5_5_2_, hibtype1_.type_id as type1_3_0_, hibtype1_.type_name as type2_3_0_, hibtype1_.namespace_id as namespace3_3_0_, hibtype1_.insert_count as insert4_3_0_, hibnamespa2_.namespace_id as namespace1_2_1_, hibnamespa2_.namespace as namespace2_1_  from inventory_instances hibinvento0_ inner join inventory_types hibtype1_ on hibinvento0_.type_id=hibtype1_.type_id left outer join inventory_namespaces hibnamespa2_ on hibtype1_.namespace_id=hibnamespa2_.namespace_id where hibinvento0_.instance_id=1835721$$
@@ -2123,7 +2123,7 @@ alter logfile group grp add undofile 'blah' initial_size 12345 wait engine = Inn
 alter function func1 comment 'blah' language sql contains sql reads sql data no sql modifies sql data sql security invoker contains sql$$
 alter procedure proc1 comment 'blah' language sql contains sql reads sql data no sql modifies sql data sql security invoker contains sql$$
 alter server server1 options (host 'host', database 'database', user 'user', password 'pw', socket 'socket', owner 'owner', port 1234, user 'user')$$
-alter ignore table table1 discard tablespace$$
+[<50700]alter ignore table table1 discard tablespace$$
 alter table table1 import tablespace$$
 alter table table1 change column column1 column2 bit (5) column_format dynamic storage memory not null default now() key remove partitioning$$
 
@@ -2187,7 +2187,7 @@ call sakila.rewards_report ((select * from actor where actor_id = 1), 22, @a)$$
 
 delete low_priority quick ignore from sakila.actor where actor_id = 1 order by actor_id limit 22$$
 delete from sakila.city.*, payment.*, staff using { OJ (select * from actor a) as oneone inner join sakila.store as s on s.store_id = a.actor_id } where payment.payment_id = 1$$
-delete sakila.city.*, payment.*, staff from { one (select * from actor a) as oneone inner join sakila.store as s on s.store_id = a.actor_id } where payment.payment_id = 1$$
+[<80017]delete sakila.city.*, payment.*, staff from { one (select * from actor a) as oneone inner join sakila.store as s on s.store_id = a.actor_id } where payment.payment_id = 1$$
 
 do (select 1 from city), @a := 1,  111 >> 222 and 333$$
 
@@ -2239,7 +2239,8 @@ grant insert (a, b, c), references (d, e, f) on function *.* to mike@'localhost'
 rename user mike to ekim, ekim to mike, me to myself$$
 revoke all privileges, grant option from mike$$
 revoke insert (a, b, c), references (d, e, f) on sakily.* from mike, alex, alfredo, rene, sergio, carlos$$
-set password for mike := password('blah')$$
+[<80014]set password for mike := password('blah')$$
+[>=80014]set password for mike := 'blah'$$
 
 analyze no_write_to_binlog table sakila.city, customer, film$$
 check table sakila.actor, sakila.country for upgrade$$
@@ -2882,4 +2883,9 @@ create user mike identified by 'a'$$
   PRIMARY KEY (id),
   UNIQUE INDEX id_UNIQUE (id ASC) VISIBLE,
   INDEX func_idx ((INET_NTOA(ipaddr4)))
-);
+)$$
+[>=80018]set password for mike to random replace 'abc' retain current password$$
+[>=80019]TABLE t1 UNION TABLE t2$$
+[>=80019]SELECT * FROM t1 WHERE a IN (TABLE t2)$$
+[>=80019]TABLE t ORDER BY b LIMIT 3 OFFSET 2$$
+[>=80019]VALUES ROW(1,2),ROW(3,4),ROW(5,6) UNION VALUES ROW(10,15),ROW(20,25)$$

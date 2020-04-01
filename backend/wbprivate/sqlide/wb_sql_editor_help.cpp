@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -576,7 +576,6 @@ static std::unordered_map<size_t, std::string> tokenToTopic = {
   { MySQLLexer::GRANTS_SYMBOL, "SHOW GRANTS" },
   { MySQLLexer::INDEX_SYMBOL, "SHOW INDEX" },
   { MySQLLexer::INDEXES_SYMBOL, "SHOW INDEX" },
-  { MySQLLexer::INNODB_SYMBOL, "SHOW INNODB STATUS" },
   { MySQLLexer::INSTALL_SYMBOL, "INSTALL PLUGIN" },
   { MySQLLexer::KEYS_SYMBOL, "SHOW INDEX" },
   { MySQLLexer::LOGS_SYMBOL, "SHOW BINARY LOGS" },
@@ -626,8 +625,8 @@ static std::unordered_map<size_t, std::string> contextToTopic = {
   { MySQLParser::RuleDoStatement, "DO" },
   { MySQLParser::RuleDropUser, "DROP USER" },
   { MySQLParser::RuleExecuteStatement, "EXECUTE STATEMENT" },
-  { MySQLParser::RuleDescribeCommand, "EXPLAIN" },
-  { MySQLParser::RuleExplainCommand, "EXPLAIN" },
+  { MySQLParser::RuleDescribeStatement, "EXPLAIN" },
+  { MySQLParser::RuleExplainStatement, "EXPLAIN" },
   { MySQLParser::RuleGrant, "GRANT" },
   { MySQLParser::RuleHandlerStatement, "HANDLER" },
   { MySQLParser::RuleHandlerDeclaration, "DECLARE HANDLER" },

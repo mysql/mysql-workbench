@@ -24,7 +24,7 @@ parser grammar MySQLParser;
  */
 
 /*
- * Merged in all changes up to mysql-trunk git revision [65e41a818c0] (28. May 2019).
+ * Merged in all changes up to mysql-trunk git revision [6d4f66a] (16. January 2020).
  *
  * MySQL grammar for ANTLR 4.5+ with language features from MySQL 5.6.0 up to MySQL 8.0.
  * The server version in the generated parser can be switched at runtime, making it so possible
@@ -53,7 +53,7 @@ options {
 //----------------------------------------------------------------------------------------------------------------------
 
 @header {/*
- * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -224,7 +224,6 @@ alterPartition:
     | REPAIR_SYMBOL PARTITION_SYMBOL noWriteToBinLog? allOrPartitionNameList repairType*
     | COALESCE_SYMBOL PARTITION_SYMBOL noWriteToBinLog? real_ulong_number
     | TRUNCATE_SYMBOL PARTITION_SYMBOL allOrPartitionNameList
-    | reorgPartitionRule
     | REORGANIZE_SYMBOL PARTITION_SYMBOL noWriteToBinLog? (
         identifierList INTO_SYMBOL partitionDefinitions
     )?
@@ -266,6 +265,8 @@ alterListItem:
         )
         | PRIMARY_SYMBOL KEY_SYMBOL
         | keyOrIndex indexRef
+        | {serverVersion >= 80017}? CHECK_SYMBOL identifier
+        | {serverVersion >= 80019}? CONSTRAINT_SYMBOL identifier
     )
     | DISABLE_SYMBOL KEYS_SYMBOL
     | ENABLE_SYMBOL KEYS_SYMBOL
@@ -278,6 +279,7 @@ alterListItem:
     )
     | {serverVersion >= 80000}? ALTER_SYMBOL INDEX_SYMBOL indexRef visibility
     | {serverVersion >= 80017}? ALTER_SYMBOL CHECK_SYMBOL identifier constraintEnforcement
+    | {serverVersion >= 80019}? ALTER_SYMBOL CONSTRAINT_SYMBOL identifier constraintEnforcement
     | {serverVersion >= 80000}? RENAME_SYMBOL COLUMN_SYMBOL columnInternalRef TO_SYMBOL identifier
     | RENAME_SYMBOL (TO_SYMBOL | AS_SYMBOL)? tableName
     | {serverVersion >= 50700}? RENAME_SYMBOL keyOrIndex indexRef TO_SYMBOL indexName
@@ -328,12 +330,6 @@ removePartitioning:
 allOrPartitionNameList:
     ALL_SYMBOL
     | identifierList
-;
-
-reorgPartitionRule:
-    REORGANIZE_SYMBOL PARTITION_SYMBOL noWriteToBinLog? (
-        identifierList INTO_SYMBOL partitionDefinitions
-    )?
 ;
 
 alterTablespace:
@@ -647,8 +643,7 @@ tsOptionEngine:
     STORAGE_SYMBOL? ENGINE_SYMBOL EQUAL_OPERATOR? engineRef
 ;
 
-tsOptionWait:
-    (WAIT_SYMBOL | NO_WAIT_SYMBOL)
+tsOptionWait: (WAIT_SYMBOL | NO_WAIT_SYMBOL)
 ;
 
 tsOptionComment:
@@ -841,11 +836,11 @@ callStatement:
 deleteStatement:
     ({serverVersion >= 80000}? withClause)? DELETE_SYMBOL deleteStatementOption* (
         FROM_SYMBOL (
-            tableAliasRefList USING_SYMBOL tableReferenceList whereClause?           // Multi table variant 1.
+            tableAliasRefList USING_SYMBOL tableReferenceList whereClause?       // Multi table variant 1.
             | tableRef ({serverVersion >= 80017}? tableAlias)? partitionDelete?
-                whereClause? orderClause? simpleLimitClause? // Single table delete.
+                whereClause? orderClause? simpleLimitClause?                     // Single table delete.
         )
-        | tableAliasRefList FROM_SYMBOL tableReferenceList whereClause? // Multi table variant 2.
+        | tableAliasRefList FROM_SYMBOL tableReferenceList whereClause?          // Multi table variant 2.
     )
 ;
 
@@ -989,7 +984,7 @@ replaceStatement:
 //----------------------------------------------------------------------------------------------------------------------
 
 selectStatement:
-    queryExpression
+    queryExpression lockingClauseList?
     | queryExpressionParens
     | selectStatementWithInto
 ;
@@ -1030,31 +1025,38 @@ selectStatement:
 */
 selectStatementWithInto:
     OPEN_PAR_SYMBOL selectStatementWithInto CLOSE_PAR_SYMBOL
-    | queryExpression intoClause
+    | queryExpression intoClause lockingClauseList?
+    | lockingClauseList intoClause
 ;
 
 queryExpression:
     ({serverVersion >= 80000}? withClause)? (
         queryExpressionBody orderClause? limitClause?
-        | queryExpressionParens (orderClause limitClause? | limitClause)
-    ) ({serverVersion < 80000}? procedureAnalyseClause)? lockingClause?
-    | {serverVersion >= 80000}? withClause queryExpressionParens lockingClause?
+        | queryExpressionParens orderClause? limitClause?
+    ) ({serverVersion < 80000}? procedureAnalyseClause)?
 ;
 
 queryExpressionBody:
-    querySpecification
-    | queryExpressionBody UNION_SYMBOL unionOption? (
-        querySpecification
-        | queryExpressionParens
-    )
-    | queryExpressionParens UNION_SYMBOL unionOption? (
-        querySpecification
-        | queryExpressionParens
-    )
+    (
+        queryPrimary
+        | queryExpressionParens UNION_SYMBOL unionOption? (
+            queryPrimary
+            | queryExpressionParens
+        )
+    ) (UNION_SYMBOL unionOption? ( queryPrimary | queryExpressionParens))*
 ;
 
 queryExpressionParens:
-    OPEN_PAR_SYMBOL (queryExpressionParens | queryExpression) CLOSE_PAR_SYMBOL
+    OPEN_PAR_SYMBOL (
+        queryExpressionParens
+        | queryExpression lockingClauseList?
+    ) CLOSE_PAR_SYMBOL
+;
+
+queryPrimary:
+    querySpecification
+    | {serverVersion >= 80019}? tableValueConstructor
+    | {serverVersion >= 80019}? explicitTable
 ;
 
 querySpecification:
@@ -1211,11 +1213,27 @@ tableReferenceList:
     tableReference (COMMA_SYMBOL tableReference)*
 ;
 
+tableValueConstructor:
+    VALUES_SYMBOL rowValueExplicit (COMMA_SYMBOL rowValueExplicit)*
+;
+
+explicitTable:
+    TABLE_SYMBOL tableRef
+;
+
+rowValueExplicit:
+    ROW_SYMBOL OPEN_PAR_SYMBOL values? CLOSE_PAR_SYMBOL
+;
+
 selectOption:
     querySpecOption
     | SQL_NO_CACHE_SYMBOL // Deprecated and ignored in 8.0.
     | {serverVersion < 80000}? SQL_CACHE_SYMBOL
     | {serverVersion >= 50704 && serverVersion < 50708}? MAX_STATEMENT_TIME_SYMBOL EQUAL_OPERATOR real_ulong_number
+;
+
+lockingClauseList:
+    lockingClause+
 ;
 
 lockingClause:
@@ -1557,12 +1575,20 @@ masterOption:
     | MASTER_ZSTD_COMPRESSION_LEVEL_SYMBOL EQUAL_OPERATOR ulong_number
     | MASTER_AUTO_POSITION_SYMBOL EQUAL_OPERATOR ulong_number
     | PRIVILEGE_CHECKS_USER_SYMBOL EQUAL_OPERATOR privilegeCheckDef
+    | REQUIRE_ROW_FORMAT_SYMBOL EQUAL_OPERATOR ulong_number
+    | REQUIRE_TABLE_PRIMARY_KEY_CHECK_SYMBOL EQUAL_OPERATOR tablePrimaryKeyCheckDef
     | masterFileDef
 ;
 
 privilegeCheckDef:
     userIdentifierOrText
     | NULL_SYMBOL
+;
+
+tablePrimaryKeyCheckDef:
+    STREAM_SYMBOL
+    | ON_SYMBOL
+    | OFF_SYMBOL
 ;
 
 masterTlsCiphersuitesDef:
@@ -1651,7 +1677,9 @@ slaveThreadOption:
     | SQL_THREAD_SYMBOL
 ;
 
-groupReplication: (START_SYMBOL | STOP_SYMBOL) GROUP_REPLICATION_SYMBOL;
+groupReplication:
+    (START_SYMBOL | STOP_SYMBOL) GROUP_REPLICATION_SYMBOL
+;
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1718,8 +1746,10 @@ alterUserTail:
         | NONE_SYMBOL
         | roleList
     )
-    | {serverVersion >= 80018}? user IDENTIFIED_SYMBOL (WITH_SYMBOL textOrIdentifier)? BY_SYMBOL RANDOM_SYMBOL PASSWORD_SYMBOL
-        retainCurrentPassword?
+    | {serverVersion >= 80018}? user IDENTIFIED_SYMBOL (WITH_SYMBOL textOrIdentifier)? BY_SYMBOL RANDOM_SYMBOL
+        PASSWORD_SYMBOL retainCurrentPassword?
+    | FAILED_LOGIN_ATTEMPTS_SYMBOL real_ulong_number
+    | PASSWORD_LOCK_TIME_SYMBOL (real_ulong_number | UNBOUNDED_SYMBOL)
 ;
 
 userFunction:
@@ -1982,15 +2012,13 @@ startOptionValueList:
     optionValueNoOptionType optionValueListContinued
     | TRANSACTION_SYMBOL transactionCharacteristics
     | optionType startOptionValueListFollowingOptionType
-
     | PASSWORD_SYMBOL (FOR_SYMBOL user)? equal (
         textString replacePassword? retainCurrentPassword?
         | textString replacePassword? retainCurrentPassword?
         | {serverVersion < 50706}? OLD_PASSWORD_SYMBOL OPEN_PAR_SYMBOL textString CLOSE_PAR_SYMBOL
         | {serverVersion < 80014}? PASSWORD_SYMBOL OPEN_PAR_SYMBOL textString CLOSE_PAR_SYMBOL
     )
-    | {serverVersion >= 80018}? PASSWORD_SYMBOL (FOR_SYMBOL user)? TO_SYMBOL RANDOM_SYMBOL replacePassword?
-        retainCurrentPassword?
+    | {serverVersion >= 80018}? PASSWORD_SYMBOL (FOR_SYMBOL user)? TO_SYMBOL RANDOM_SYMBOL replacePassword? retainCurrentPassword?
 ;
 
 transactionCharacteristics:
@@ -2299,24 +2327,27 @@ dropResourceGroup:
 //----------------------------------------------------------------------------------------------------------------------
 
 utilityStatement:
-    describeCommand
-    | explainCommand
+    describeStatement
+    | explainStatement
     | helpCommand
     | useCommand
     | {serverVersion >= 80011}? restartServer
 ;
 
-describeCommand:
-    (EXPLAIN_SYMBOL | DESCRIBE_SYMBOL | DESC_SYMBOL) tableRef (textString | columnRef)?
+describeStatement:
+    (EXPLAIN_SYMBOL | DESCRIBE_SYMBOL | DESC_SYMBOL) tableRef (
+        textString
+        | columnRef
+    )?
 ;
 
-explainCommand:
+explainStatement:
     (EXPLAIN_SYMBOL | DESCRIBE_SYMBOL | DESC_SYMBOL) (
-        // Format must be "traditional" or "json".
         {serverVersion < 80000}? EXTENDED_SYMBOL
         | {serverVersion < 80000}? PARTITIONS_SYMBOL
-        | {serverVersion >= 50605}? FORMAT_SYMBOL EQUAL_OPERATOR textOrIdentifier // "JSON", "TRADITIONAL", "TREE"
+        | {serverVersion >= 50605}? FORMAT_SYMBOL EQUAL_OPERATOR textOrIdentifier
         | {serverVersion >= 80018}? ANALYZE_SYMBOL
+        | {serverVersion >= 80019}? ANALYZE_SYMBOL FORMAT_SYMBOL EQUAL_OPERATOR textOrIdentifier
     )? explainableStatement
 ;
 
@@ -2404,7 +2435,7 @@ bitExpr:
 ;
 
 simpleExpr:
-    variable                                                                                             # simpleExprVariable
+    variable (equal expr)?                                                                               # simpleExprVariable
     | columnRef jsonOperator?                                                                            # simpleExprColumnRef
     | runtimeFunctionCall                                                                                # simpleExprRuntimeFunction
     | functionCall                                                                                       # simpleExprFunction
@@ -2677,7 +2708,7 @@ udfExpr:
 ;
 
 variable:
-    userVariable (ASSIGN_OPERATOR expr)?
+    userVariable
     | systemVariable
 ;
 
@@ -3571,7 +3602,7 @@ likeClause:
     LIKE_SYMBOL textStringLiteral
 ;
 
-likeOrWhere:
+likeOrWhere: // opt_wild_or_where in sql_yacc.yy
     likeClause
     | whereClause
 ;
@@ -4121,373 +4152,392 @@ identifierKeywordsAmbiguous3Roles:
 // These are the non-reserved keywords which may be used for unquoted
 // identifiers everywhere without introducing grammar conflicts:
 identifierKeywordsUnambiguous:
-    ACTION_SYMBOL
-    | ACCOUNT_SYMBOL
-    | ACTIVE_SYMBOL
-    | ADDDATE_SYMBOL
-    | ADMIN_SYMBOL
-    | AFTER_SYMBOL
-    | AGAINST_SYMBOL
-    | AGGREGATE_SYMBOL
-    | ALGORITHM_SYMBOL
-    | ALWAYS_SYMBOL
-    | ANY_SYMBOL
-    | AT_SYMBOL
-    | AUTOEXTEND_SIZE_SYMBOL
-    | AUTO_INCREMENT_SYMBOL
-    | AVG_ROW_LENGTH_SYMBOL
-    | AVG_SYMBOL
-    | BACKUP_SYMBOL
-    | BINLOG_SYMBOL
-    | BIT_SYMBOL
-    | BLOCK_SYMBOL
-    | BOOLEAN_SYMBOL
-    | BOOL_SYMBOL
-    | BTREE_SYMBOL
-    | BUCKETS_SYMBOL
-    | CASCADED_SYMBOL
-    | CATALOG_NAME_SYMBOL
-    | CHAIN_SYMBOL
-    | CHANGED_SYMBOL
-    | CHANNEL_SYMBOL
-    | CIPHER_SYMBOL
-    | CLASS_ORIGIN_SYMBOL
-    | CLIENT_SYMBOL
-    | CLOSE_SYMBOL
-    | COALESCE_SYMBOL
-    | CODE_SYMBOL
-    | COLLATION_SYMBOL
-    | COLUMNS_SYMBOL
-    | COLUMN_FORMAT_SYMBOL
-    | COLUMN_NAME_SYMBOL
-    | COMMITTED_SYMBOL
-    | COMPACT_SYMBOL
-    | COMPLETION_SYMBOL
-    | COMPONENT_SYMBOL
-    | COMPRESSED_SYMBOL
-    | COMPRESSION_SYMBOL
-    | CONCURRENT_SYMBOL
-    | CONNECTION_SYMBOL
-    | CONSISTENT_SYMBOL
-    | CONSTRAINT_CATALOG_SYMBOL
-    | CONSTRAINT_NAME_SYMBOL
-    | CONSTRAINT_SCHEMA_SYMBOL
-    | CONTEXT_SYMBOL
-    | CPU_SYMBOL
-    | CURRENT_SYMBOL // not reserved in MySQL per WL#2111 specification
-    | CURSOR_NAME_SYMBOL
-    | DATAFILE_SYMBOL
-    | DATA_SYMBOL
-    | DATETIME_SYMBOL
-    | DATE_SYMBOL
-    | DAY_SYMBOL
-    | DEFAULT_AUTH_SYMBOL
-    | DEFINER_SYMBOL
-    | DEFINITION_SYMBOL
-    | DELAY_KEY_WRITE_SYMBOL
-    | DESCRIPTION_SYMBOL
-    | DIAGNOSTICS_SYMBOL
-    | DIRECTORY_SYMBOL
-    | DISABLE_SYMBOL
-    | DISCARD_SYMBOL
-    | DISK_SYMBOL
-    | DUMPFILE_SYMBOL
-    | DUPLICATE_SYMBOL
-    | DYNAMIC_SYMBOL
-    | ENABLE_SYMBOL
-    | ENCRYPTION_SYMBOL
-    | ENDS_SYMBOL
-    | ENFORCED_SYMBOL
-    | ENGINES_SYMBOL
-    | ENGINE_SYMBOL
-    | ENUM_SYMBOL
-    | ERRORS_SYMBOL
-    | ERROR_SYMBOL
-    | ESCAPE_SYMBOL
-    | EVENTS_SYMBOL
-    | EVERY_SYMBOL
-    | EXCHANGE_SYMBOL
-    | EXCLUDE_SYMBOL
-    | EXPANSION_SYMBOL
-    | EXPIRE_SYMBOL
-    | EXPORT_SYMBOL
-    | EXTENDED_SYMBOL
-    | EXTENT_SIZE_SYMBOL
-    | FAST_SYMBOL
-    | FAULTS_SYMBOL
-    | FILE_BLOCK_SIZE_SYMBOL
-    | FILTER_SYMBOL
-    | FIRST_SYMBOL
-    | FIXED_SYMBOL
-    | FOLLOWING_SYMBOL
-    | FORMAT_SYMBOL
-    | FOUND_SYMBOL
-    | FULL_SYMBOL
-    | GENERAL_SYMBOL
-    | GEOMETRYCOLLECTION_SYMBOL
-    | GEOMETRY_SYMBOL
-    | GET_FORMAT_SYMBOL
-    | GET_MASTER_PUBLIC_KEY_SYMBOL
-    | GRANTS_SYMBOL
-    | GROUP_REPLICATION_SYMBOL
-    | HASH_SYMBOL
-    | HISTOGRAM_SYMBOL
-    | HISTORY_SYMBOL
-    | HOSTS_SYMBOL
-    | HOST_SYMBOL
-    | HOUR_SYMBOL
-    | IDENTIFIED_SYMBOL
-    | IGNORE_SERVER_IDS_SYMBOL
-    | INACTIVE_SYMBOL
-    | INDEXES_SYMBOL
-    | INITIAL_SIZE_SYMBOL
-    | INSERT_METHOD_SYMBOL
-    | INSTANCE_SYMBOL
-    | INVISIBLE_SYMBOL
-    | INVOKER_SYMBOL
-    | IO_SYMBOL
-    | IPC_SYMBOL
-    | ISOLATION_SYMBOL
-    | ISSUER_SYMBOL
-    | JSON_SYMBOL
-    | KEY_BLOCK_SIZE_SYMBOL
-    | LAST_SYMBOL
-    | LEAVES_SYMBOL
-    | LESS_SYMBOL
-    | LEVEL_SYMBOL
-    | LINESTRING_SYMBOL
-    | LIST_SYMBOL
-    | LOCKED_SYMBOL
-    | LOCKS_SYMBOL
-    | LOGFILE_SYMBOL
-    | LOGS_SYMBOL
-    | MASTER_AUTO_POSITION_SYMBOL
-    | MASTER_COMPRESSION_ALGORITHM_SYMBOL
-    | MASTER_CONNECT_RETRY_SYMBOL
-    | MASTER_DELAY_SYMBOL
-    | MASTER_HEARTBEAT_PERIOD_SYMBOL
-    | MASTER_HOST_SYMBOL
-    | NETWORK_NAMESPACE_SYMBOL
-    | MASTER_LOG_FILE_SYMBOL
-    | MASTER_LOG_POS_SYMBOL
-    | MASTER_PASSWORD_SYMBOL
-    | MASTER_PORT_SYMBOL
-    | MASTER_PUBLIC_KEY_PATH_SYMBOL
-    | MASTER_RETRY_COUNT_SYMBOL
-    | MASTER_SERVER_ID_SYMBOL
-    | MASTER_SSL_CAPATH_SYMBOL
-    | MASTER_SSL_CA_SYMBOL
-    | MASTER_SSL_CERT_SYMBOL
-    | MASTER_SSL_CIPHER_SYMBOL
-    | MASTER_SSL_CRLPATH_SYMBOL
-    | MASTER_SSL_CRL_SYMBOL
-    | MASTER_SSL_KEY_SYMBOL
-    | MASTER_SSL_SYMBOL
-    | MASTER_SYMBOL
-    | MASTER_TLS_CIPHERSUITES_SYMBOL
-    | MASTER_TLS_VERSION_SYMBOL
-    | MASTER_USER_SYMBOL
-    | MASTER_ZSTD_COMPRESSION_LEVEL_SYMBOL
-    | MAX_CONNECTIONS_PER_HOUR_SYMBOL
-    | MAX_QUERIES_PER_HOUR_SYMBOL
-    | MAX_ROWS_SYMBOL
-    | MAX_SIZE_SYMBOL
-    | MAX_UPDATES_PER_HOUR_SYMBOL
-    | MAX_USER_CONNECTIONS_SYMBOL
-    | MEDIUM_SYMBOL
-    | MEMORY_SYMBOL
-    | MERGE_SYMBOL
-    | MESSAGE_TEXT_SYMBOL
-    | MICROSECOND_SYMBOL
-    | MIGRATE_SYMBOL
-    | MINUTE_SYMBOL
-    | MIN_ROWS_SYMBOL
-    | MODE_SYMBOL
-    | MODIFY_SYMBOL
-    | MONTH_SYMBOL
-    | MULTILINESTRING_SYMBOL
-    | MULTIPOINT_SYMBOL
-    | MULTIPOLYGON_SYMBOL
-    | MUTEX_SYMBOL
-    | MYSQL_ERRNO_SYMBOL
-    | NAMES_SYMBOL
-    | NAME_SYMBOL
-    | NATIONAL_SYMBOL
-    | NCHAR_SYMBOL
-    | NDBCLUSTER_SYMBOL
-    | NESTED_SYMBOL
-    | NEVER_SYMBOL
-    | NEW_SYMBOL
-    | NEXT_SYMBOL
-    | NODEGROUP_SYMBOL
-    | NOWAIT_SYMBOL
-    | NO_WAIT_SYMBOL
-    | NULLS_SYMBOL
-    | NUMBER_SYMBOL
-    | NVARCHAR_SYMBOL
-    | OFFSET_SYMBOL
-    | OJ_SYMBOL
-    | OLD_SYMBOL
-    | ONE_SYMBOL
-    | ONLY_SYMBOL
-    | OPEN_SYMBOL
-    | OPTIONAL_SYMBOL
-    | OPTIONS_SYMBOL
-    | ORDINALITY_SYMBOL
-    | ORGANIZATION_SYMBOL
-    | OTHERS_SYMBOL
-    | OWNER_SYMBOL
-    | PACK_KEYS_SYMBOL
-    | PAGE_SYMBOL
-    | PARSER_SYMBOL
-    | PARTIAL_SYMBOL
-    | PARTITIONING_SYMBOL
-    | PARTITIONS_SYMBOL
-    | PASSWORD_SYMBOL
-    | PATH_SYMBOL
-    | PHASE_SYMBOL
-    | PLUGINS_SYMBOL
-    | PLUGIN_DIR_SYMBOL
-    | PLUGIN_SYMBOL
-    | POINT_SYMBOL
-    | POLYGON_SYMBOL
-    | PORT_SYMBOL
-    | PRECEDING_SYMBOL
-    | PRESERVE_SYMBOL
-    | PREV_SYMBOL
-    | PRIVILEGES_SYMBOL
-    | PRIVILEGE_CHECKS_USER_SYMBOL
-    | PROCESSLIST_SYMBOL
-    | PROFILES_SYMBOL
-    | PROFILE_SYMBOL
-    | QUARTER_SYMBOL
-    | QUERY_SYMBOL
-    | QUICK_SYMBOL
-    | READ_ONLY_SYMBOL
-    | REBUILD_SYMBOL
-    | RECOVER_SYMBOL
-    | REDO_BUFFER_SIZE_SYMBOL
-    | REDUNDANT_SYMBOL
-    | REFERENCE_SYMBOL
-    | RELAY_SYMBOL
-    | RELAYLOG_SYMBOL
-    | RELAY_LOG_FILE_SYMBOL
-    | RELAY_LOG_POS_SYMBOL
-    | RELAY_THREAD_SYMBOL
-    | REMOVE_SYMBOL
-    | REORGANIZE_SYMBOL
-    | REPEATABLE_SYMBOL
-    | REPLICATE_DO_DB_SYMBOL
-    | REPLICATE_DO_TABLE_SYMBOL
-    | REPLICATE_IGNORE_DB_SYMBOL
-    | REPLICATE_IGNORE_TABLE_SYMBOL
-    | REPLICATE_REWRITE_DB_SYMBOL
-    | REPLICATE_WILD_DO_TABLE_SYMBOL
-    | REPLICATE_WILD_IGNORE_TABLE_SYMBOL
-    | USER_RESOURCES_SYMBOL
-    | RESPECT_SYMBOL
-    | RESTORE_SYMBOL
-    | RESUME_SYMBOL
-    | RETAIN_SYMBOL
-    | RETURNED_SQLSTATE_SYMBOL
-    | RETURNS_SYMBOL
-    | REUSE_SYMBOL
-    | REVERSE_SYMBOL
-    | ROLE_SYMBOL
-    | ROLLUP_SYMBOL
-    | ROTATE_SYMBOL
-    | ROUTINE_SYMBOL
-    | ROW_COUNT_SYMBOL
-    | ROW_FORMAT_SYMBOL
-    | RTREE_SYMBOL
-    | SCHEDULE_SYMBOL
-    | SCHEMA_NAME_SYMBOL
-    | SECONDARY_ENGINE_SYMBOL
-    | SECONDARY_LOAD_SYMBOL
-    | SECONDARY_SYMBOL
-    | SECONDARY_UNLOAD_SYMBOL
-    | SECOND_SYMBOL
-    | SECURITY_SYMBOL
-    | SERIALIZABLE_SYMBOL
-    | SERIAL_SYMBOL
-    | SERVER_SYMBOL
-    | SHARE_SYMBOL
-    | SIMPLE_SYMBOL
-    | SKIP_SYMBOL
-    | SLOW_SYMBOL
-    | SNAPSHOT_SYMBOL
-    | SOCKET_SYMBOL
-    | SONAME_SYMBOL
-    | SOUNDS_SYMBOL
-    | SOURCE_SYMBOL
-    | SQL_AFTER_GTIDS_SYMBOL
-    | SQL_AFTER_MTS_GAPS_SYMBOL
-    | SQL_BEFORE_GTIDS_SYMBOL
-    | SQL_BUFFER_RESULT_SYMBOL
-    | SQL_NO_CACHE_SYMBOL
-    | SQL_THREAD_SYMBOL
-    | SRID_SYMBOL
-    | STACKED_SYMBOL
-    | STARTS_SYMBOL
-    | STATS_AUTO_RECALC_SYMBOL
-    | STATS_PERSISTENT_SYMBOL
-    | STATS_SAMPLE_PAGES_SYMBOL
-    | STATUS_SYMBOL
-    | STORAGE_SYMBOL
-    | STRING_SYMBOL
-    | SUBCLASS_ORIGIN_SYMBOL
-    | SUBDATE_SYMBOL
-    | SUBJECT_SYMBOL
-    | SUBPARTITIONS_SYMBOL
-    | SUBPARTITION_SYMBOL
-    | SUSPEND_SYMBOL
-    | SWAPS_SYMBOL
-    | SWITCHES_SYMBOL
-    | TABLES_SYMBOL
-    | TABLESPACE_SYMBOL
-    | TABLE_CHECKSUM_SYMBOL
-    | TABLE_NAME_SYMBOL
-    | TEMPORARY_SYMBOL
-    | TEMPTABLE_SYMBOL
-    | TEXT_SYMBOL
-    | THAN_SYMBOL
-    | THREAD_PRIORITY_SYMBOL
-    | TIES_SYMBOL
-    | TIMESTAMP_ADD_SYMBOL
-    | TIMESTAMP_DIFF_SYMBOL
-    | TIMESTAMP_SYMBOL
-    | TIME_SYMBOL
-    | TRANSACTION_SYMBOL
-    | TRIGGERS_SYMBOL
-    | TYPES_SYMBOL
-    | TYPE_SYMBOL
-    | UNBOUNDED_SYMBOL
-    | UNCOMMITTED_SYMBOL
-    | UNDEFINED_SYMBOL
-    | UNDOFILE_SYMBOL
-    | UNDO_BUFFER_SIZE_SYMBOL
-    | UNKNOWN_SYMBOL
-    | UNTIL_SYMBOL
-    | UPGRADE_SYMBOL
-    | USER_SYMBOL
-    | USE_FRM_SYMBOL
-    | VALIDATION_SYMBOL
-    | VALUE_SYMBOL
-    | VARIABLES_SYMBOL
-    | VCPU_SYMBOL
-    | VIEW_SYMBOL
-    | VISIBLE_SYMBOL
-    | WAIT_SYMBOL
-    | WARNINGS_SYMBOL
-    | WEEK_SYMBOL
-    | WEIGHT_STRING_SYMBOL
-    | WITHOUT_SYMBOL
-    | WORK_SYMBOL
-    | WRAPPER_SYMBOL
-    | X509_SYMBOL
-    | XID_SYMBOL
-    | XML_SYMBOL
-    | YEAR_SYMBOL
+    (
+        ACTION_SYMBOL
+        | ACCOUNT_SYMBOL
+        | ACTIVE_SYMBOL
+        | ADDDATE_SYMBOL
+        | ADMIN_SYMBOL
+        | AFTER_SYMBOL
+        | AGAINST_SYMBOL
+        | AGGREGATE_SYMBOL
+        | ALGORITHM_SYMBOL
+        | ALWAYS_SYMBOL
+        | ANY_SYMBOL
+        | AT_SYMBOL
+        | AUTOEXTEND_SIZE_SYMBOL
+        | AUTO_INCREMENT_SYMBOL
+        | AVG_ROW_LENGTH_SYMBOL
+        | AVG_SYMBOL
+        | BACKUP_SYMBOL
+        | BINLOG_SYMBOL
+        | BIT_SYMBOL
+        | BLOCK_SYMBOL
+        | BOOLEAN_SYMBOL
+        | BOOL_SYMBOL
+        | BTREE_SYMBOL
+        | BUCKETS_SYMBOL
+        | CASCADED_SYMBOL
+        | CATALOG_NAME_SYMBOL
+        | CHAIN_SYMBOL
+        | CHANGED_SYMBOL
+        | CHANNEL_SYMBOL
+        | CIPHER_SYMBOL
+        | CLASS_ORIGIN_SYMBOL
+        | CLIENT_SYMBOL
+        | CLOSE_SYMBOL
+        | COALESCE_SYMBOL
+        | CODE_SYMBOL
+        | COLLATION_SYMBOL
+        | COLUMNS_SYMBOL
+        | COLUMN_FORMAT_SYMBOL
+        | COLUMN_NAME_SYMBOL
+        | COMMITTED_SYMBOL
+        | COMPACT_SYMBOL
+        | COMPLETION_SYMBOL
+        | COMPONENT_SYMBOL
+        | COMPRESSED_SYMBOL
+        | COMPRESSION_SYMBOL
+        | CONCURRENT_SYMBOL
+        | CONNECTION_SYMBOL
+        | CONSISTENT_SYMBOL
+        | CONSTRAINT_CATALOG_SYMBOL
+        | CONSTRAINT_NAME_SYMBOL
+        | CONSTRAINT_SCHEMA_SYMBOL
+        | CONTEXT_SYMBOL
+        | CPU_SYMBOL
+        | CURRENT_SYMBOL // not reserved in MySQL per WL#2111 specification
+        | CURSOR_NAME_SYMBOL
+        | DATAFILE_SYMBOL
+        | DATA_SYMBOL
+        | DATETIME_SYMBOL
+        | DATE_SYMBOL
+        | DAY_SYMBOL
+        | DEFAULT_AUTH_SYMBOL
+        | DEFINER_SYMBOL
+        | DEFINITION_SYMBOL
+        | DELAY_KEY_WRITE_SYMBOL
+        | DESCRIPTION_SYMBOL
+        | DIAGNOSTICS_SYMBOL
+        | DIRECTORY_SYMBOL
+        | DISABLE_SYMBOL
+        | DISCARD_SYMBOL
+        | DISK_SYMBOL
+        | DUMPFILE_SYMBOL
+        | DUPLICATE_SYMBOL
+        | DYNAMIC_SYMBOL
+        | ENABLE_SYMBOL
+        | ENCRYPTION_SYMBOL
+        | ENDS_SYMBOL
+        | ENFORCED_SYMBOL
+        | ENGINES_SYMBOL
+        | ENGINE_SYMBOL
+        | ENUM_SYMBOL
+        | ERRORS_SYMBOL
+        | ERROR_SYMBOL
+        | ESCAPE_SYMBOL
+        | EVENTS_SYMBOL
+        | EVERY_SYMBOL
+        | EXCHANGE_SYMBOL
+        | EXCLUDE_SYMBOL
+        | EXPANSION_SYMBOL
+        | EXPIRE_SYMBOL
+        | EXPORT_SYMBOL
+        | EXTENDED_SYMBOL
+        | EXTENT_SIZE_SYMBOL
+        | FAST_SYMBOL
+        | FAULTS_SYMBOL
+        | FILE_BLOCK_SIZE_SYMBOL
+        | FILTER_SYMBOL
+        | FIRST_SYMBOL
+        | FIXED_SYMBOL
+        | FOLLOWING_SYMBOL
+        | FORMAT_SYMBOL
+        | FOUND_SYMBOL
+        | FULL_SYMBOL
+        | GENERAL_SYMBOL
+        | GEOMETRYCOLLECTION_SYMBOL
+        | GEOMETRY_SYMBOL
+        | GET_FORMAT_SYMBOL
+        | GET_MASTER_PUBLIC_KEY_SYMBOL
+        | GRANTS_SYMBOL
+        | GROUP_REPLICATION_SYMBOL
+        | HASH_SYMBOL
+        | HISTOGRAM_SYMBOL
+        | HISTORY_SYMBOL
+        | HOSTS_SYMBOL
+        | HOST_SYMBOL
+        | HOUR_SYMBOL
+        | IDENTIFIED_SYMBOL
+        | IGNORE_SERVER_IDS_SYMBOL
+        | INACTIVE_SYMBOL
+        | INDEXES_SYMBOL
+        | INITIAL_SIZE_SYMBOL
+        | INSERT_METHOD_SYMBOL
+        | INSTANCE_SYMBOL
+        | INVISIBLE_SYMBOL
+        | INVOKER_SYMBOL
+        | IO_SYMBOL
+        | IPC_SYMBOL
+        | ISOLATION_SYMBOL
+        | ISSUER_SYMBOL
+        | JSON_SYMBOL
+        | KEY_BLOCK_SIZE_SYMBOL
+        | LAST_SYMBOL
+        | LEAVES_SYMBOL
+        | LESS_SYMBOL
+        | LEVEL_SYMBOL
+        | LINESTRING_SYMBOL
+        | LIST_SYMBOL
+        | LOCKED_SYMBOL
+        | LOCKS_SYMBOL
+        | LOGFILE_SYMBOL
+        | LOGS_SYMBOL
+        | MASTER_AUTO_POSITION_SYMBOL
+        | MASTER_COMPRESSION_ALGORITHM_SYMBOL
+        | MASTER_CONNECT_RETRY_SYMBOL
+        | MASTER_DELAY_SYMBOL
+        | MASTER_HEARTBEAT_PERIOD_SYMBOL
+        | MASTER_HOST_SYMBOL
+        | NETWORK_NAMESPACE_SYMBOL
+        | MASTER_LOG_FILE_SYMBOL
+        | MASTER_LOG_POS_SYMBOL
+        | MASTER_PASSWORD_SYMBOL
+        | MASTER_PORT_SYMBOL
+        | MASTER_PUBLIC_KEY_PATH_SYMBOL
+        | MASTER_RETRY_COUNT_SYMBOL
+        | MASTER_SERVER_ID_SYMBOL
+        | MASTER_SSL_CAPATH_SYMBOL
+        | MASTER_SSL_CA_SYMBOL
+        | MASTER_SSL_CERT_SYMBOL
+        | MASTER_SSL_CIPHER_SYMBOL
+        | MASTER_SSL_CRLPATH_SYMBOL
+        | MASTER_SSL_CRL_SYMBOL
+        | MASTER_SSL_KEY_SYMBOL
+        | MASTER_SSL_SYMBOL
+        | MASTER_SYMBOL
+        | MASTER_TLS_CIPHERSUITES_SYMBOL
+        | MASTER_TLS_VERSION_SYMBOL
+        | MASTER_USER_SYMBOL
+        | MASTER_ZSTD_COMPRESSION_LEVEL_SYMBOL
+        | MAX_CONNECTIONS_PER_HOUR_SYMBOL
+        | MAX_QUERIES_PER_HOUR_SYMBOL
+        | MAX_ROWS_SYMBOL
+        | MAX_SIZE_SYMBOL
+        | MAX_UPDATES_PER_HOUR_SYMBOL
+        | MAX_USER_CONNECTIONS_SYMBOL
+        | MEDIUM_SYMBOL
+        | MEMORY_SYMBOL
+        | MERGE_SYMBOL
+        | MESSAGE_TEXT_SYMBOL
+        | MICROSECOND_SYMBOL
+        | MIGRATE_SYMBOL
+        | MINUTE_SYMBOL
+        | MIN_ROWS_SYMBOL
+        | MODE_SYMBOL
+        | MODIFY_SYMBOL
+        | MONTH_SYMBOL
+        | MULTILINESTRING_SYMBOL
+        | MULTIPOINT_SYMBOL
+        | MULTIPOLYGON_SYMBOL
+        | MUTEX_SYMBOL
+        | MYSQL_ERRNO_SYMBOL
+        | NAMES_SYMBOL
+        | NAME_SYMBOL
+        | NATIONAL_SYMBOL
+        | NCHAR_SYMBOL
+        | NDBCLUSTER_SYMBOL
+        | NESTED_SYMBOL
+        | NEVER_SYMBOL
+        | NEW_SYMBOL
+        | NEXT_SYMBOL
+        | NODEGROUP_SYMBOL
+        | NOWAIT_SYMBOL
+        | NO_WAIT_SYMBOL
+        | NULLS_SYMBOL
+        | NUMBER_SYMBOL
+        | NVARCHAR_SYMBOL
+        | OFFSET_SYMBOL
+        | OJ_SYMBOL
+        | OLD_SYMBOL
+        | ONE_SYMBOL
+        | ONLY_SYMBOL
+        | OPEN_SYMBOL
+        | OPTIONAL_SYMBOL
+        | OPTIONS_SYMBOL
+        | ORDINALITY_SYMBOL
+        | ORGANIZATION_SYMBOL
+        | OTHERS_SYMBOL
+        | OWNER_SYMBOL
+        | PACK_KEYS_SYMBOL
+        | PAGE_SYMBOL
+        | PARSER_SYMBOL
+        | PARTIAL_SYMBOL
+        | PARTITIONING_SYMBOL
+        | PARTITIONS_SYMBOL
+        | PASSWORD_SYMBOL
+        | PATH_SYMBOL
+        | PHASE_SYMBOL
+        | PLUGINS_SYMBOL
+        | PLUGIN_DIR_SYMBOL
+        | PLUGIN_SYMBOL
+        | POINT_SYMBOL
+        | POLYGON_SYMBOL
+        | PORT_SYMBOL
+        | PRECEDING_SYMBOL
+        | PRESERVE_SYMBOL
+        | PREV_SYMBOL
+        | PRIVILEGES_SYMBOL
+        | PRIVILEGE_CHECKS_USER_SYMBOL
+        | PROCESSLIST_SYMBOL
+        | PROFILES_SYMBOL
+        | PROFILE_SYMBOL
+        | QUARTER_SYMBOL
+        | QUERY_SYMBOL
+        | QUICK_SYMBOL
+        | READ_ONLY_SYMBOL
+        | REBUILD_SYMBOL
+        | RECOVER_SYMBOL
+        | REDO_BUFFER_SIZE_SYMBOL
+        | REDUNDANT_SYMBOL
+        | REFERENCE_SYMBOL
+        | RELAY_SYMBOL
+        | RELAYLOG_SYMBOL
+        | RELAY_LOG_FILE_SYMBOL
+        | RELAY_LOG_POS_SYMBOL
+        | RELAY_THREAD_SYMBOL
+        | REMOVE_SYMBOL
+        | REORGANIZE_SYMBOL
+        | REPEATABLE_SYMBOL
+        | REPLICATE_DO_DB_SYMBOL
+        | REPLICATE_DO_TABLE_SYMBOL
+        | REPLICATE_IGNORE_DB_SYMBOL
+        | REPLICATE_IGNORE_TABLE_SYMBOL
+        | REPLICATE_REWRITE_DB_SYMBOL
+        | REPLICATE_WILD_DO_TABLE_SYMBOL
+        | REPLICATE_WILD_IGNORE_TABLE_SYMBOL
+        | USER_RESOURCES_SYMBOL
+        | RESPECT_SYMBOL
+        | RESTORE_SYMBOL
+        | RESUME_SYMBOL
+        | RETAIN_SYMBOL
+        | RETURNED_SQLSTATE_SYMBOL
+        | RETURNS_SYMBOL
+        | REUSE_SYMBOL
+        | REVERSE_SYMBOL
+        | ROLE_SYMBOL
+        | ROLLUP_SYMBOL
+        | ROTATE_SYMBOL
+        | ROUTINE_SYMBOL
+        | ROW_COUNT_SYMBOL
+        | ROW_FORMAT_SYMBOL
+        | RTREE_SYMBOL
+        | SCHEDULE_SYMBOL
+        | SCHEMA_NAME_SYMBOL
+        | SECONDARY_ENGINE_SYMBOL
+        | SECONDARY_LOAD_SYMBOL
+        | SECONDARY_SYMBOL
+        | SECONDARY_UNLOAD_SYMBOL
+        | SECOND_SYMBOL
+        | SECURITY_SYMBOL
+        | SERIALIZABLE_SYMBOL
+        | SERIAL_SYMBOL
+        | SERVER_SYMBOL
+        | SHARE_SYMBOL
+        | SIMPLE_SYMBOL
+        | SKIP_SYMBOL
+        | SLOW_SYMBOL
+        | SNAPSHOT_SYMBOL
+        | SOCKET_SYMBOL
+        | SONAME_SYMBOL
+        | SOUNDS_SYMBOL
+        | SOURCE_SYMBOL
+        | SQL_AFTER_GTIDS_SYMBOL
+        | SQL_AFTER_MTS_GAPS_SYMBOL
+        | SQL_BEFORE_GTIDS_SYMBOL
+        | SQL_BUFFER_RESULT_SYMBOL
+        | SQL_NO_CACHE_SYMBOL
+        | SQL_THREAD_SYMBOL
+        | SRID_SYMBOL
+        | STACKED_SYMBOL
+        | STARTS_SYMBOL
+        | STATS_AUTO_RECALC_SYMBOL
+        | STATS_PERSISTENT_SYMBOL
+        | STATS_SAMPLE_PAGES_SYMBOL
+        | STATUS_SYMBOL
+        | STORAGE_SYMBOL
+        | STRING_SYMBOL
+        | SUBCLASS_ORIGIN_SYMBOL
+        | SUBDATE_SYMBOL
+        | SUBJECT_SYMBOL
+        | SUBPARTITIONS_SYMBOL
+        | SUBPARTITION_SYMBOL
+        | SUSPEND_SYMBOL
+        | SWAPS_SYMBOL
+        | SWITCHES_SYMBOL
+        | TABLES_SYMBOL
+        | TABLESPACE_SYMBOL
+        | TABLE_CHECKSUM_SYMBOL
+        | TABLE_NAME_SYMBOL
+        | TEMPORARY_SYMBOL
+        | TEMPTABLE_SYMBOL
+        | TEXT_SYMBOL
+        | THAN_SYMBOL
+        | THREAD_PRIORITY_SYMBOL
+        | TIES_SYMBOL
+        | TIMESTAMP_ADD_SYMBOL
+        | TIMESTAMP_DIFF_SYMBOL
+        | TIMESTAMP_SYMBOL
+        | TIME_SYMBOL
+        | TRANSACTION_SYMBOL
+        | TRIGGERS_SYMBOL
+        | TYPES_SYMBOL
+        | TYPE_SYMBOL
+        | UNBOUNDED_SYMBOL
+        | UNCOMMITTED_SYMBOL
+        | UNDEFINED_SYMBOL
+        | UNDOFILE_SYMBOL
+        | UNDO_BUFFER_SIZE_SYMBOL
+        | UNKNOWN_SYMBOL
+        | UNTIL_SYMBOL
+        | UPGRADE_SYMBOL
+        | USER_SYMBOL
+        | USE_FRM_SYMBOL
+        | VALIDATION_SYMBOL
+        | VALUE_SYMBOL
+        | VARIABLES_SYMBOL
+        | VCPU_SYMBOL
+        | VIEW_SYMBOL
+        | VISIBLE_SYMBOL
+        | WAIT_SYMBOL
+        | WARNINGS_SYMBOL
+        | WEEK_SYMBOL
+        | WEIGHT_STRING_SYMBOL
+        | WITHOUT_SYMBOL
+        | WORK_SYMBOL
+        | WRAPPER_SYMBOL
+        | X509_SYMBOL
+        | XID_SYMBOL
+        | XML_SYMBOL
+        | YEAR_SYMBOL
+    )
+    | {serverVersion >= 80019}? (
+        ARRAY_SYMBOL
+        | FAILED_LOGIN_ATTEMPTS_SYMBOL
+        | MASTER_COMPRESSION_ALGORITHM_SYMBOL
+        | MASTER_TLS_CIPHERSUITES_SYMBOL
+        | MASTER_ZSTD_COMPRESSION_LEVEL_SYMBOL
+        | MEMBER_SYMBOL
+        | OFF_SYMBOL
+        | PASSWORD_LOCK_TIME_SYMBOL
+        | PRIVILEGE_CHECKS_USER_SYMBOL
+        | RANDOM_SYMBOL
+        | REQUIRE_ROW_FORMAT_SYMBOL
+        | REQUIRE_TABLE_PRIMARY_KEY_CHECK_SYMBOL
+        | STREAM_SYMBOL
+        | TIMESTAMP_SYMBOL
+        | TIME_SYMBOL
+    )
 ;
 
 // Non-reserved keywords that we allow for unquoted role names:
