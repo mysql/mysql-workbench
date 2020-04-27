@@ -84,11 +84,11 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Ubuntu 18.10 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("..... Ubuntu 18.10 ..... x86_64 .....")).toBeFalse();
 
-    $expect(isOsSupportedProxy("Ubuntu 18.04")).toBeTrue();
-    $expect(isOsSupportedProxy("..... Ubuntu 18.04 ..... x86_64 .....")).toBeTrue();
+    $expect(isOsSupportedProxy("Ubuntu 18.04")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Ubuntu 18.04 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("Ubuntu 19.04")).toBeFalse();
-    $expect(isOsSupportedProxy("Ubuntu 19.10")).toBeTrue();
-    $expect(isOsSupportedProxy("Ubuntu 20.04")).toBeFalse();
+    $expect(isOsSupportedProxy("Ubuntu 19.10")).toBeFalse();
+    $expect(isOsSupportedProxy("Ubuntu 20.04")).toBeTrue();
 
     // red-hat based
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release")).toBeFalse();
