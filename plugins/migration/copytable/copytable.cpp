@@ -626,6 +626,7 @@ SQLSMALLINT ODBCCopyDataSource::odbc_type_to_c_type(SQLSMALLINT type, bool is_un
     // case SQL_TYPE_UTCTIME:
     case SQL_SS_TIMESTAMPOFFSET:
       logWarning("Not supported type [%s]\n", odbc_type_to_name(type));
+      return _force_utf8_input ? SQL_C_CHAR : SQL_C_WCHAR;
     case SQL_SS_TIME2:
       return _force_utf8_input ? SQL_C_CHAR : SQL_C_WCHAR;
     case SQL_INTERVAL_MONTH:
