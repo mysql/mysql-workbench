@@ -28,6 +28,7 @@ import mforms
 import wb_admin_variable_list
 
 from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection
+from workbench.log import log_error
 
 class VariablesViewer(mforms.Box):
     def __init__(self, ctrl_be, variables, command, viewer_type):
@@ -459,6 +460,7 @@ class VariablesViewer(mforms.Box):
                     return True
                 except Exception, e:
                     log_error("Error occured while unsetting persisting variables: %s" % e)
+                    mforms.Utilities.show_error('Access denied', 'You need (at least one of) the SUPER or SYSTEM_VARIABLES_ADMIN privilege(s) for this operation.', 'Ok', '', '')
             return False
 
     def set_persist_value(self, name, value):
@@ -479,6 +481,7 @@ class VariablesViewer(mforms.Box):
                 return True
         except Exception, e:
             log_error("Error occured while persisting variables: %s" % e)
+            mforms.Utilities.show_error('Access denied', 'You need (at least one of) the SUPER or SYSTEM_VARIABLES_ADMIN privilege(s) for this operation.', 'Ok', '', '')
             return False
 
     def store_persist_value(self, value_name, value, only=False):
