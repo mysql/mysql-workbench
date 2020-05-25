@@ -86,7 +86,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
@@ -109,7 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\ext\scintilla\src;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -129,7 +129,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WB_MODEL_WBM_EXPORTS;SCI_LEXER;TIXML_USE_STL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)\library;$(SolutionDir)\library\parsers;$(SolutionDir)\backend\wbpublic;$(SolutionDir)\generated;$(SolutionDir)\ext\scintilla;$(SolutionDir)\ext\scintilla\include;$(SolutionDir)\ext\scintilla\src;$(SolutionDir)\library\base;$(SolutionDir)\library\grt\src;$(SolutionDir)\library\forms;$(SolutionDir)\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
