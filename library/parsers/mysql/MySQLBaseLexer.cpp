@@ -203,6 +203,8 @@ MySQLQueryType MySQLBaseLexer::determineQueryType() {
           if (!skipDefiner(token))
             return QtAmbiguous;
 
+          token = nextDefaultChannelToken();
+
           switch (token->getType()) {
             case MySQLLexer::EVENT_SYMBOL:
               return QtAlterEvent;
