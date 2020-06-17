@@ -57,6 +57,17 @@ DEFAULT_LOG_DOMAIN("copytable");
 #define MYSQL_CHECK_VERSION(major, minor, micro) false
 #endif
 
+// defined in SQL_SS_TIMESTAMPOFFSET and SQL_SS_TIME2 (SQLNCLI.h)
+// required Installing SQL Server Native Client 
+// https://docs.microsoft.com/en-us/sql/relational-databases/native-client/applications/installing-sql-server-native-client?view=sql-server-ver15
+#ifndef SQL_SS_TIMESTAMPOFFSET 
+#define SQL_SS_TIMESTAMPOFFSET -155
+#endif
+#ifndef SQL_SS_TIME2
+#define SQL_SS_TIME2 -154
+#endif
+
+
 static const char *mysql_field_type_to_name(enum enum_field_types type) {
   switch (type) {
     case MYSQL_TYPE_DECIMAL:
@@ -196,6 +207,10 @@ static const char *odbc_type_to_name(SQLSMALLINT type) {
       return "SQL_INTERVAL_HOUR_TO_SECOND";
     case SQL_INTERVAL_MINUTE_TO_SECOND:
       return "SQL_INTERVAL_MINUTE_TO_SECOND";
+    case SQL_SS_TIMESTAMPOFFSET:
+      return "SQL_SS_TIMESTAMPOFFSET";
+    case SQL_SS_TIME2:
+      return "SQL_SS_TIME2";
     default:
       return "UNKNOWN";
   }
@@ -609,6 +624,11 @@ SQLSMALLINT ODBCCopyDataSource::odbc_type_to_c_type(SQLSMALLINT type, bool is_un
       return SQL_C_CHAR;
     // case SQL_TYPE_UTCDATETIME:
     // case SQL_TYPE_UTCTIME:
+    case SQL_SS_TIMESTAMPOFFSET:
+      logWarning("Not supported type [%s]\n", odbc_type_to_name(type));
+      return _force_utf8_input ? SQL_C_CHAR : SQL_C_WCHAR;
+    case SQL_SS_TIME2:
+      return _force_utf8_input ? SQL_C_CHAR : SQL_C_WCHAR;
     case SQL_INTERVAL_MONTH:
     case SQL_INTERVAL_YEAR:
     case SQL_INTERVAL_YEAR_TO_MONTH:
@@ -719,7 +739,7 @@ SQLRETURN ODBCCopyDataSource::get_date_time_data(RowBuffer &rowbuffer, int colum
   char *out_buffer;
   SQLLEN len_or_indicator;
   size_t out_buffer_len;
-  char out_date[32];
+  char out_date[256] = { 0 };
 
   rowbuffer.prepare_add_time(out_buffer, out_buffer_len);
   ret = SQLGetData(_stmt, column, SQL_C_CHAR, &out_date, sizeof(out_date), &len_or_indicator);

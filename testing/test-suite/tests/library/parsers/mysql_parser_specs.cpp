@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,6 +23,7 @@
 
 #include "casmine.h"
 
+#include "wb_version.h"
 #include "wb_test_helpers.h"
 
 #include "mysql/MySQLLexer.h"
@@ -616,6 +617,9 @@ $TestData {
 
   MySQLParserServices *services;
 
+  // Use the app's version also as the latest/current server version for tests.
+  long currentVersion = APP_MAJOR_NUMBER * 10000 + APP_MINOR_NUMBER * 100 + APP_BUILD_NUMBER;
+
   //--------------------------------------------------------------------------------------------------------------------
 
   /**
@@ -785,10 +789,10 @@ $describe("MySQL parser test suite (ANTLR)") {
           if (result.first > 0U) {
             $fail("This query failed to parse (5.7.20):\n" + statement + "\n with error: " + result.second);
           }
-        } else if (versionMatches(statement, 80018)) {
-          auto result = data->parse(statement, 80018, "ANSI_QUOTES");
+        } else if (versionMatches(statement, 80021)) {
+          auto result = data->parse(statement, 80021, "ANSI_QUOTES");
           if (result.first > 0U) {
-            $fail("This query failed to parse (8.0.18):\n" + statement + "\n with error: " + result.second);
+            $fail("This query failed to parse (8.0.21):\n" + statement + "\n with error: " + result.second);
           }
         } else
           $fail("Invalid version number found in query: " + statement);
