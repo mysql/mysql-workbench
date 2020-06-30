@@ -661,9 +661,9 @@
 		27E59B86106B914400C2DA47 /* admin_info_running.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B84106B914400C2DA47 /* admin_info_running.png */; };
 		27E59B87106B914400C2DA47 /* admin_info_stopped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B85106B914400C2DA47 /* admin_info_stopped.png */; };
 		27E63EB41FB9E33C001C5BE8 /* accessibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 27E63EB31FB9E33B001C5BE8 /* accessibility.h */; };
-		27E7D797237BF7560006BD1B /* libssh.4.7.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */; };
-		27E7D799237BF7910006BD1B /* libssh.4.7.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */; };
-		27E7D79A237BF7940006BD1B /* libssh.4.7.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */; };
+		27E7D797237BF7560006BD1B /* libssh.4.7.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */; };
+		27E7D799237BF7910006BD1B /* libssh.4.7.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */; };
+		27E7D79A237BF7940006BD1B /* libssh.4.7.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */; };
 		27EADE1D18E5707100D3C85D /* cppdbc_public_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */; };
 		27EADE1E18E5707100D3C85D /* cppdbc.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1718E5707100D3C85D /* cppdbc.h */; };
 		27EADE1F18E5707100D3C85D /* driver_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27EADE1818E5707100D3C85D /* driver_manager.cpp */; };
@@ -4573,7 +4573,7 @@
 		27E59B84106B914400C2DA47 /* admin_info_running.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_running.png; path = images/admin/admin_info_running.png; sourceTree = "<group>"; };
 		27E59B85106B914400C2DA47 /* admin_info_stopped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_stopped.png; path = images/admin/admin_info_stopped.png; sourceTree = "<group>"; };
 		27E63EB31FB9E33B001C5BE8 /* accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = accessibility.h; path = library/base/base/accessibility.h; sourceTree = "<group>"; };
-		27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.5.dylib; path = "../../3rd-party-ce/lib/libssh.4.7.5.dylib"; sourceTree = "<group>"; };
+		27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.6.dylib; path = "../../3rd-party-ce/lib/libssh.4.7.6.dylib"; sourceTree = "<group>"; };
 		27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc_public_interface.h; path = library/cdbc/src/cppdbc_public_interface.h; sourceTree = SOURCE_ROOT; };
 		27EADE1718E5707100D3C85D /* cppdbc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc.h; path = library/cdbc/src/cppdbc.h; sourceTree = SOURCE_ROOT; };
 		27EADE1818E5707100D3C85D /* driver_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = driver_manager.cpp; path = library/cdbc/src/driver_manager.cpp; sourceTree = SOURCE_ROOT; };
@@ -6813,7 +6813,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27E7D799237BF7910006BD1B /* libssh.4.7.5.dylib in Frameworks */,
+				27E7D799237BF7910006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				278DFF0920A2F52E00D7E439 /* libwbbase.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7135,7 +7135,7 @@
 				2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */,
 				271F744B239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
 				27D6EE472099E3B10050B26B /* libantlr4-runtime.dylib in Frameworks */,
-				27E7D79A237BF7940006BD1B /* libssh.4.7.5.dylib in Frameworks */,
+				27E7D79A237BF7940006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */,
@@ -7304,7 +7304,7 @@
 				27E0E21A155173380073FD6F /* libparsers.dylib in Frameworks */,
 				271F7449239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
-				27E7D797237BF7560006BD1B /* libssh.4.7.5.dylib in Frameworks */,
+				27E7D797237BF7560006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				27810E55209B007F00E6E4CE /* libglib-2.0.0.dylib in Frameworks */,
 				2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */,
 				271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */,
@@ -9654,7 +9654,7 @@
 				27189E56209B28D8002EC0D4 /* libpng16.16.dylib */,
 				27189E76209B369B002EC0D4 /* libproj.0.dylib */,
 				27189E67209B2E50002EC0D4 /* libsqlite3.so */,
-				27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */,
+				27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */,
 				27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */,
 				27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
