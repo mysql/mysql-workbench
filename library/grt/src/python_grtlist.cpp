@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -353,85 +353,87 @@ static PySequenceMethods PyGRTListObject_as_sequence = {
 
 static PyTypeObject PyGRTListObjectType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
-  tp_name: "grt.List", 
-  tp_basicsize: sizeof(PyGRTListObject), 
-  tp_itemsize: 0, /* For allocation */
+  "grt.List",   //  tp_name
+  sizeof(PyGRTListObject),  //  tp_basicsize
+  0, /* tp_itemsize For allocation */
   
   /* Methods to implement standard operations */
 
-  tp_dealloc: (destructor)list_dealloc, 
-  tp_print: 0,
-  tp_getattr: 0,
-  tp_setattr: 0,
-  tp_as_async: 0,
-  tp_repr: 0,
+  (destructor)list_dealloc,   //  tp_dealloc
+  0,  //  tp_vectorcall_offset
+  0,  //  tp_getattr
+  0,  //  tp_setattr
+  0,  //  tp_as_async
+  0,  //  tp_repr
 
   /* Method suites for standard classes */
 
-  tp_as_number: 0,
-  tp_as_sequence: &PyGRTListObject_as_sequence,
-  tp_as_mapping: 0,
+  0,  //  tp_as_number
+  &PyGRTListObject_as_sequence, //  tp_as_sequence
+  0,  //  tp_as_mapping
 
   /* More standard operations (here for binary compatibility) */
 
-  tp_hash: 0,
-  tp_call: 0,
-  tp_str: (reprfunc)list_printable, 
+  0,  //  tp_hash
+  0,  //  tp_call
+  (reprfunc)list_printable, //  tp_str
 
-  tp_getattro: PyObject_GenericGetAttr,
-  tp_setattro: 0,
+  PyObject_GenericGetAttr,  //  tp_getattro
+  0,  //  tp_setattro
 
   /* Functions to access object as input/output buffer */
-  tp_as_buffer: 0,
+  0,  //  tp_as_buffer
 
   /* Flags to define presence of optional/expanded features */
-  tp_flags: Py_TPFLAGS_DEFAULT,
+  Py_TPFLAGS_DEFAULT, //  tp_flags
 
-  tp_doc: PyGRTListDoc, /* Documentation string */
+  PyGRTListDoc, /* tp_doc Documentation string */
 
   /* Assigned meaning in release 2.0 */
   /* call function for all accessible objects */
-  tp_traverse: 0,
+  0,  //  tp_traverse
 
   /* delete references to contained objects */
-  tp_clear: 0,
+  0,  //  tp_clear
 
   /* Assigned meaning in release 2.1 */
   /* rich comparisons */
-  tp_richcompare: 0,
+  0,  //  tp_richcompare
 
   /* weak reference enabler */
-  tp_weaklistoffset: 0,
+  0,  //  tp_weaklistoffset
 
   /* Iterators */
-  tp_iter: 0,
-  tp_iternext: 0,
+  0,  //  tp_iter
+  0,  //  tp_iternext
 
   /* Attribute descriptor and subclassing stuff */
-  tp_methods: PyGRTListMethods,
-  tp_members: 0,
-  tp_getset: PyGRTListGetSetters,
-  tp_base: 0,
-  tp_dict: 0,
-  tp_descr_get: 0,
-  tp_descr_set: 0,
-  tp_dictoffset: 0,
-  tp_init: (initproc)list_init,
-  tp_alloc: PyType_GenericAlloc,
-  tp_new: PyType_GenericNew,
-  tp_free: 0, /* Low-level free-memory routine */
-  tp_is_gc: 0, /* For PyObject_IS_GC */
-  tp_bases: 0,
-  tp_mro: 0, /* method resolution order */
-  tp_cache: 0,
-  tp_subclasses: 0,
-  tp_weaklist: 0,
-  tp_del: 0,
+  PyGRTListMethods, //  tp_methods
+  0,  //  tp_members
+  PyGRTListGetSetters,  //  tp_getset
+  0,  //  tp_base
+  0,  //  tp_dict
+  0,  //  tp_descr_get
+  0,  //  tp_descr_set
+  0,  //  tp_dictoffset
+  (initproc)list_init,  //  tp_init
+  PyType_GenericAlloc,  //  tp_alloc
+  PyType_GenericNew,    //  tp_new
+  0, /* tp_free Low-level free-memory routine */
+  0, /* tp_is_gc For PyObject_IS_GC */
+  0,  //  tp_bases
+  0, /* tp_mro method resolution order */
+  0,  //  tp_cache
+  0,  //  tp_subclasses
+  0,  //  tp_weaklist
+  0,  //  tp_del
 
   /* Type attribute cache version tag. Added in version 2.6 */
-  tp_version_tag: 0,
+  0,  //  tp_version_tag
 
-  tp_finalize: 0
+  0, //  tp_finalize
+  nullptr,  //  tp_vectorcall
+  nullptr   //  tp_print
 };
 
 void grt::PythonContext::init_grt_list_type() {

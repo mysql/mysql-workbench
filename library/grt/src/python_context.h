@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -179,6 +179,7 @@ namespace grt {
     void printResult(std::map<std::string, std::string> &output);
 
     static PyObject *grt_module_create();
+//     static PyObject *grt_modules_module_create();
 
   protected:
     std::string _cwd;
