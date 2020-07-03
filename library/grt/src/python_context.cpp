@@ -1166,21 +1166,8 @@ static PyModuleDef grtClassesModuleDef = {
 };
 
 
-// PyObject *PythonContext::grt_modules_module_create(){
-//   PyObject *module = PyModule_Create(&grtModulesModuleDef);
-//   if (module == NULL)
-//     throw std::runtime_error("Error initializing GRT modules module in Python support");
-//   
-//   PyModule_AddObject(module, "__path__", Py_BuildValue("('grt')"));
-//   
-//   return module;
-// }
 
 void PythonContext::register_grt_module(PyObject *module) {
-//   PyObject *module = PyModule_Create(&grtModuleDef);
-//   if (module == NULL)
-//     throw std::runtime_error("Error initializing GRT module in Python support");
-
   _grt_module = module;
 
   // add the context ptr
@@ -1226,29 +1213,22 @@ void PythonContext::register_grt_module(PyObject *module) {
   _grt_modules_module = PyModule_Create(&grtModulesModuleDef);
   if (!_grt_modules_module)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
-//   PyObject *the_tuple = PyTuple_New(1);
-//   PyTuple_SET_ITEM(the_tuple, 0, the_object);
-//   PyObject *aaa = Py_BuildValue("'modules'");
-//   result = PyModule_AddObject(_grt_module, "__path__", the_tuple);
-//   PyObject *obj = PyImport_ImportModule("grt.modules");
-//   obj = obj;
-//   PyObject *mod = PyImport_AddModule("grt.modules");
-//   mod = mod;
+  
+  if(PyModule_AddObject(_grt_modules_module, "__path__", Py_BuildValue("[s]", "grt/modules")) < 0) {
+    PyErr_Print();
+    throw std::runtime_error("Error initializing grt.modules module in Python support");
+  }
+
+  if(PyModule_AddObject(_grt_modules_module, "__package__", Py_BuildValue("s", "grt.modules")) < 0) {
+    PyErr_Print();
+    throw std::runtime_error("Error initializing grt.modules module in Python support");
+  }
+
   // AutoPyObject need to keep a reference but PyModule_AddObject steals it
   // so it is needed to increase it to avoid problems on destruction
   Py_INCREF(_grt_modules_module);
   if(PyModule_AddObject(_grt_module, "modules", _grt_modules_module) < 0)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
-
-//   result = PyImport_AppendInittab("grt.modules", grt_modules_module_create); 
-
-//   PyObject *main = PyImport_AddModule("__main__");  //  Get module if exists
-//   PyObject *modules = PyImport_ImportModule("modules");  //  Import grt (will call grt_module_create)
-//   PyObject *aaa = PyModule_GetDict(_grt_module);
-//   result = PyDict_SetItemString(aaa, "grt.modules", _grt_modules_module);
-//   Py_INCREF(_grt_modules_module);
-//   if(PyModule_AddObject(_grt_module, "modules", modules) < 0)
-//     throw std::runtime_error("Error initializing grt.modules module in Python support");
 
   _grt_classes_module = PyModule_Create(&grtClassesModuleDef);
   
