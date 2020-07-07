@@ -91,10 +91,6 @@ static Py_ssize_t dict_length(PyGRTDictObject *self) {
 }
 
 static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
-  AutoPyObject tmp;
-  if (PyUnicode_Check(attr_name))
-    attr_name = tmp = PyUnicode_AsUTF8String(attr_name);
-
   if (PyUnicode_Check(attr_name)) {
     const char *attrname = PyUnicode_AsUTF8(attr_name);
 
@@ -131,10 +127,6 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
 }
 
 static PyObject *dict_subscript(PyGRTDictObject *self, PyObject *key) {
-  AutoPyObject tmp;
-  if (PyUnicode_Check(key))
-    key = tmp = PyUnicode_AsUTF8String(key);
-
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
     return NULL;
@@ -157,10 +149,6 @@ static PyObject *dict_subscript(PyGRTDictObject *self, PyObject *key) {
 }
 
 static int dict_ass_subscript(PyGRTDictObject *self, PyObject *key, PyObject *value) {
-  AutoPyObject tmp;
-  if (PyUnicode_Check(key))
-    key = tmp = PyUnicode_AsUTF8String(key);
-
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
     return -1;
