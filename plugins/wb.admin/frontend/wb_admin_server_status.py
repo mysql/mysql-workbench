@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -470,9 +470,9 @@ class WbAdminServerStatus(mforms.Box):
 
         hbox = mforms.newBox(True)
 
-        info_table = self.make_info_table(info[:len(info)/2], params)
+        info_table = self.make_info_table(info[:len(info)//2], params)
         hbox.add(info_table, True, True)
-        info_table = self.make_info_table(info[len(info)/2:], params)
+        info_table = self.make_info_table(info[len(info)//2:], params)
         hbox.add(info_table, True, True)
 
         self.content.add(hbox, False, True)
