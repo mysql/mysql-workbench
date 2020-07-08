@@ -455,6 +455,29 @@ static PyMappingMethods PyGRTDictObject_as_mapping = {
 //   nullptr,  //  tp_vectorcall
 //   nullptr   //  tp_print
 // };
+
+// PyObject* dictiter_iter(PyObject *self)
+// {
+//   Py_INCREF(self);
+//   return self;
+// }
+// 
+// PyObject* dictiter_iterNext(PyObject *self)
+// {
+//   spam_MyIter *p = (spam_MyIter *)self;
+//   if (p->i < p->m) {
+//     PyObject *tmp = Py_BuildValue("l", p->i);
+//     (p->i)++;
+//     return tmp;
+//   } else {
+//     /* Raising of standard StopIteration exception with empty value. */
+//     PyErr_SetNone(PyExc_StopIteration);
+//     return NULL;
+//   }
+// }
+
+static PyObject *dict_iter(PyGRTDictObject *self);
+
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #include <iostream>
 static PyTypeObject PyGRTDictObjectType = {
@@ -469,6 +492,7 @@ static PyTypeObject PyGRTDictObjectType = {
   .tp_getattro = (getattrofunc)dict_getattro,
   .tp_flags = Py_TPFLAGS_DEFAULT,  
   .tp_doc = PyGRTDictDoc,
+  .tp_iter = (getiterfunc)dict_iter,
   .tp_methods = PyGRTDictMethods,
   .tp_getset = PyGRTDictGetSetters,
   .tp_init = (initproc)dict_init,
@@ -476,6 +500,96 @@ static PyTypeObject PyGRTDictObjectType = {
   .tp_new = PyType_GenericNew
 };
 
+typedef struct {
+  PyObject_HEAD
+  bool isNew;
+  grt::DictRef::const_iterator iterator;
+  grt::DictRef::const_iterator last; 
+  grt::DictRef::const_iterator end; 
+} PyGRTDictIteratorObject;
+
+static PyObject *dictiter_iter(PyGRTDictIteratorObject *self);
+static PyObject *dictiter_iternext(PyGRTDictIteratorObject *self);
+
+
+static PyTypeObject PyGRTDictIteratorObjectType = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
+  .tp_name = "grt.DictIterator",
+  .tp_basicsize = sizeof(PyGRTDictIteratorObject),
+  .tp_itemsize = 0,
+  .tp_flags = Py_TPFLAGS_DEFAULT,  
+  .tp_doc = "GRT Dictionary iterator object",
+  .tp_iter = (getiterfunc)dictiter_iter,
+  .tp_iternext = (iternextfunc)dictiter_iternext,
+};
+
+#if 0
+static PyTypeObject PyGRTDictIteratorObjectTypexxx = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "spam._MyIter",            /*tp_name*/
+    sizeof(spam_MyIter),       /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    0,                         /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
+      /* tp_flags: Py_TPFLAGS_HAVE_ITER tells python to
+         use tp_iter and tp_iternext fields. */
+    "Internal myiter iterator object.",           /* tp_doc */
+    0,  /* tp_traverse */
+    0,  /* tp_clear */
+    0,  /* tp_richcompare */
+    0,  /* tp_weaklistoffset */
+    spam_MyIter_iter,  /* tp_iter: __iter__() method */
+    spam_MyIter_iternext  /* tp_iternext: next() method */
+};
+#endif
+static PyObject *dict_iter(PyGRTDictObject *self) {
+  PyGRTDictIteratorObject *object = (PyGRTDictIteratorObject *)PyType_GenericNew(&PyGRTDictIteratorObjectType, nullptr, nullptr);
+  
+  object->isNew = true;
+  object->iterator = self->dict->begin();
+  object->last = --self->dict->end();
+  object->end = self->dict->end();
+  
+  return (PyObject *)object;
+}
+
+static PyObject *dictiter_iter(PyGRTDictIteratorObject *self) {
+  Py_INCREF(self);
+  self->isNew = true;
+  return (PyObject *) self;
+}
+
+static PyObject *dictiter_iternext(PyGRTDictIteratorObject *self) {
+  if (self->iterator == self->last || self->iterator == self->end) {
+    PyErr_SetNone(PyExc_StopIteration);
+    return nullptr;
+  }
+  
+  if(!self->isNew) {
+    ++self->iterator;
+  }
+  
+  self->isNew = false;  
+  
+  PythonContext *ctx = PythonContext::get_and_check();
+  return ctx->from_grt(self->iterator->second);
+  
+}
 
 void grt::PythonContext::init_grt_dict_type() {
   if (PyType_Ready(&PyGRTDictObjectType) < 0) {
@@ -483,8 +597,15 @@ void grt::PythonContext::init_grt_dict_type() {
     throw std::runtime_error("Could not initialize GRT Dict type in python");
   }
 
+  if (PyType_Ready(&PyGRTDictIteratorObjectType) < 0) {
+    PyErr_Print();
+    throw std::runtime_error("Could not initialize GRT Dict type in python");
+  }
+
   Py_INCREF(&PyGRTDictObjectType);
+  Py_INCREF(&PyGRTDictIteratorObjectType);
   PyModule_AddObject(get_grt_module(), "Dict", (PyObject *)&PyGRTDictObjectType);
+//   PyModule_AddObject(get_grt_module(), "Dict_Iter", (PyObject *)&PyGRTDictIteratorObjectType);
 
   _grt_dict_class = PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Dict");
 }
