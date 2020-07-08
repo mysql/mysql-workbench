@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -176,7 +176,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
                 raise
             if not r:
                 break
-            data.append(fd.read(1))
+            data.append(fd.read(1).decode("utf-8"))
             if return_on_newline and data[-1] == "\n":
                 break
         return "".join(data)
