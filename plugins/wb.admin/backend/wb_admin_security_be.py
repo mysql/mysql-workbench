@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -26,6 +26,7 @@ from wb_common import PermissionDeniedError, to_unicode
 import mforms
 from workbench.log import log_error
 
+import functools
 
 class WBSecurityValidationError(Exception):
     pass
@@ -364,7 +365,7 @@ class AdminSecurity(object):
         self._zombie_privs = zombies
         accounts += list(zombies.keys())
 
-        accounts.sort(acl_compare)
+        accounts.sort(key=functools.cmp_to_key(acl_compare))
 
         self._accounts = accounts
         self._account_info_cache = {}
