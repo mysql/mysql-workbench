@@ -1,4 +1,4 @@
-# Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -356,7 +356,7 @@ class MySQLConnection:
     def executeQuery(self, query):
         if self.connection:
             #assert self.thread == thread.get_ident()
-            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is str else query)
+            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is not str else query)
             if result < 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)
