@@ -463,7 +463,9 @@ static PyTypeObject PyGRTDictObjectType = {
   .tp_basicsize = sizeof(PyGRTDictObject),
   .tp_itemsize = 0,
   .tp_dealloc = (destructor)dict_dealloc, //  destructor tp_dealloc;
+#if PY_MINOR_VERSION > 7
   .tp_vectorcall_offset = 0,
+#endif
   .tp_as_mapping = &PyGRTDictObject_as_mapping,
   .tp_str = (reprfunc)dict_printable,
   .tp_getattro = (getattrofunc)dict_getattro,

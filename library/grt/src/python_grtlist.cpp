@@ -430,10 +430,11 @@ static PyTypeObject PyGRTListObjectType = {
 
   /* Type attribute cache version tag. Added in version 2.6 */
   0,  //  tp_version_tag
-
+#if PY_MINOR_VERSION > 7
   0, //  tp_finalize
   nullptr,  //  tp_vectorcall
   nullptr   //  tp_print
+#endif
 };
 
 void grt::PythonContext::init_grt_list_type() {
