@@ -176,9 +176,9 @@ static PyTypeObject PyGRTMethodObjectType = {
   /* Type attribute cache version tag. Added in version 2.6 */
   0,  //  tp_version_tag
 
-  0, //  tp_finalize
-  nullptr,  //  tp_vectorcall
-  nullptr   //  tp_print
+  0//, //  tp_finalize
+//  nullptr,  //  tp_vectorcall
+//  nullptr   //  tp_print
 };
 
 //----------------------------------------------------------------------------------------------
@@ -514,8 +514,10 @@ static PyTypeObject PyGRTObjectObjectType = {
   0,    //  tp_version_tag
 
   0, //  tp_finalize
+#if PY_MINOR_VERSION > 7
   nullptr,  //  tp_vectorcall
   nullptr   //  tp_print
+#endif
 };
 
 void grt::PythonContext::init_grt_object_type() {
