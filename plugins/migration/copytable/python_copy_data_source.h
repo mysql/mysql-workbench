@@ -24,6 +24,7 @@
 #ifndef _PYTHONCOPYDATASOURCE_H_
 #define _PYTHONCOPYDATASOURCE_H_
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "copytable.h"
 
