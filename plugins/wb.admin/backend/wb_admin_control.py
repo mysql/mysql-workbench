@@ -861,8 +861,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
 
         # Save the server profile if at least one of its values has changed:
         if request_save_profile:
-            from grt.modules import Workbench
-            Workbench.saveInstances()
+            grt.modules.Workbench.saveInstances()
 
 
     #---------------------------------------------------------------------------
