@@ -434,8 +434,7 @@ class ContentPreviewPage(WizardPage):
                     row.set_bool(0, True)
                     row.set_string(1, m.group(1))
 
-        from grt.modules import Utilities
-        res = Utilities.fetchAuthorityCodeFromFile("%s.prj" % os.path.splitext(self.get_path())[0])
+        res = grt.modules.Utilities.fetchAuthorityCodeFromFile("%s.prj" % os.path.splitext(self.get_path())[0])
         if res:
             self.epsg_lbl.set_text(res)
         else:

@@ -75,9 +75,7 @@ $con = new mysqli($host, $user, $password, $dbname, $port, $socket)
 
 
 def _parse_column_name_list_from_query(query):
-    from grt.modules import MysqlSqlFacade
-
-    ast_list = MysqlSqlFacade.parseAstFromSqlScript(query)
+    ast_list = grt.modules.MysqlSqlFacade.parseAstFromSqlScript(query)
     for ast in ast_list:
         if type(ast) is str:
             continue

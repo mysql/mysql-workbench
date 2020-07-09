@@ -118,7 +118,6 @@ WHERE type='table' AND NOT name LIKE 'sqlite_%'"""
 
     @classmethod
     def reverseEngineer(cls, connection, catalog_name, schemata_list, context):
-        from grt.modules import MysqlSqlFacade
         grt.send_progress(0, "Reverse engineering catalog information")
         cls.check_interruption()
         catalog = cls.reverseEngineerCatalog(connection, catalog_name)
@@ -145,7 +144,7 @@ WHERE type='table' AND NOT name LIKE 'sqlite_%'"""
 
                 grt.log_debug('SQLiteReverseEngineering', 'Processing this sql:\n%s;' % sql)
 
-                MysqlSqlFacade.parseSqlScriptString(catalog, sql)
+                grt.modules.MysqlSqlFacade.parseSqlScriptString(catalog, sql)
 
                 cls.check_interruption()
                 grt.send_progress(0.1 + idx / total, 'Object %s reverse engineered!' % name)

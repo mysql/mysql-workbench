@@ -226,8 +226,7 @@ def verticalOutput(editor):
 
 
 def doReformatSQLStatement(text, return_none_if_unsupported):
-    from grt.modules import MysqlSqlFacade
-    ast_list = MysqlSqlFacade.parseAstFromSqlScript(text)
+    ast_list = grt.modules.MysqlSqlFacade.parseAstFromSqlScript(text)
     if len(ast_list) != 1:
         raise Exception("Error parsing statement")
     if type(ast_list[0]) is str:
@@ -275,8 +274,6 @@ def reformatSQLStatement(text):
 def enbeautificate(editor):
     """Reformat the selected SQL statements or the one under the cursor."""
 
-    from grt.modules import MysqlSqlFacade
-
     text = editor.selectedText
     selectionOnly = True
     if not text:
@@ -288,7 +285,7 @@ def enbeautificate(editor):
     
     prev_end = 0
     new_text = []
-    ranges = MysqlSqlFacade.getSqlStatementRanges(text)
+    ranges = grt.modules.MysqlSqlFacade.getSqlStatementRanges(text)
     for begin, end in ranges:
         end = begin + end
         if begin > prev_end:
@@ -365,7 +362,6 @@ def enbeautificate(editor):
 
 
 def apply_to_keywords(editor, callable):
-    from grt.modules import MysqlSqlFacade
     non_keywords = ["ident", "ident_or_text", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
                     "part_name"]
 
@@ -376,7 +372,7 @@ def apply_to_keywords(editor, callable):
         text = editor.script
     
     new_text = ""
-    ast_list = MysqlSqlFacade.parseAstFromSqlScript(text)
+    ast_list = grt.modules.MysqlSqlFacade.parseAstFromSqlScript(text)
     bb = 0
     for ast in ast_list:
         if type(ast) is str:
