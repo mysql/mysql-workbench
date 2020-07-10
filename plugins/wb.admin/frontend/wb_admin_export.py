@@ -1613,7 +1613,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         path = get_path_to_mysqldump()
         if path:
             output = []
-            local_run_cmd('"%s" --help' % path, output_handler= lambda line,l=output: l.append(line if type(line) is str else line.decode("utf-8")))
+            local_run_cmd('"%s" --help' % path, output_handler= lambda line,l=output: l.append(line if isinstance(line, str) else line.decode("utf-8")))
             ok = False
             for line in ("\n".join(output)).split("\n"):
                 line = line.strip()
