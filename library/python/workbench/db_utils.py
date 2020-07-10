@@ -214,7 +214,7 @@ class MySQLResult:
 
     def unicodeByName(self, name):
         s = modules.DbMySQLQuery.resultFieldStringValueByName(self.result, name)
-        if type(s) is str:
+        if not isinstance(s, str):
             return s.decode("utf-8")
         return s
 
@@ -229,7 +229,7 @@ class MySQLResult:
 
     def unicodeByIndex(self, i):
         s = modules.DbMySQLQuery.resultFieldStringValue(self.result, i)
-        if type(s) is str:
+        if not isinstance(s, str):
             return s.decode("utf-8")
         return s
 
@@ -356,7 +356,7 @@ class MySQLConnection:
     def executeQuery(self, query):
         if self.connection:
             #assert self.thread == thread.get_ident()
-            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is not str else query)
+            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if not isinstance(query, str) else query)
             if result < 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)
@@ -371,7 +371,7 @@ class MySQLConnection:
 
     def executeQueryMultiResult(self, query):
         if self.connection:
-            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if type(query) is str else query)
+            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if not isinstance(query, str) else query)
             if len(result) == 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)
