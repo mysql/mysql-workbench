@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -233,8 +233,6 @@ class DBTimeLineGraph(Figure):
                 # recalculate scale
                 if len(points) > 1:
                     max_value = max(max_value, reduce(max, points)[0])
-                else:
-                    max_value = max(max_value, points[0][0])
 
             if max_value is not None:
                 lexvalue = "%i" % int(max_value)
