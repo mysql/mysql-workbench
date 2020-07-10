@@ -561,7 +561,7 @@ class AdminUserDbPrivs(object):
 
             self.entries.append(AdminUserDbPrivEntry(schema, privs))
 
-        self.entries.sort(lambda a, b: acl_compare(a.db, b.db))
+        self.entries.sort(key=functools.cmp_to_key(lambda a, b: acl_compare(a.db, b.db)))
         self._deleted_entries = []
 
 

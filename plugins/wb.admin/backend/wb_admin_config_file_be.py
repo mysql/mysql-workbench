@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -40,11 +40,16 @@ from workbench.log import log_info, log_debug, log_debug2, log_debug3
 from wb_server_control import ServerProfile
 
 from workbench.utils import server_version_str2tuple
+import functools
 
 pysource = {}
 pysource['engine-list'] = "grt.root.wb.options.options[\"@db.mysql.Table:tableEngine/Items\"]"
 multi_separator = r'\n'
 default_section = 'mysqld'
+
+
+def cmp(a, b):
+    return (a > b) - (a < b) 
 
 #-------------------------------------------------------------------------------
 def ver_cmp(v1, v2):
@@ -496,7 +501,7 @@ class WbAdminConfigFileBE(object):
                         no_value += 1
 
                 # Keep options sorted in the UI
-                controls.sort(cmp = lambda r1, r2: cmp(r1['name'], r2['name']))
+                controls.sort(key=functools.cmp_to_key(lambda r1, r2: cmp(r1['name'], r2['name'])))
                 grp['controls'] = tuple(controls)
                 groups.append(grp)
 
