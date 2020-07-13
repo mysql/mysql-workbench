@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -95,7 +95,7 @@ class BigSwitch(mforms.PyDrawBox):
             xx = (self.get_width() - image.width - self.text_image.width) / 2
             if state == self.state:
                 image = on
-            else:
+            elif self.mouse_pos[0] and self.mouse_pos[1]:
                 if self.mouse_pos[0] > xx and self.mouse_pos[0] < xx + image.width and self.mouse_pos[1] >= yy and self.mouse_pos[1] <= yy + image.height and state != "custom":
                     image = hoover
                     self.hovering_state = state
