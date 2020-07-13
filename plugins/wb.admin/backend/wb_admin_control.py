@@ -620,7 +620,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 ret = self.sql.exec_query(q)
             except QueryError as e:
-                log = "Error executing query %s: %s\n" % (q, strip_password(to_unicode(e.message)))
+                log = "Error executing query %s: %s\n" % (q, strip_password(to_unicode(str(e))))
                 log_warning(log)
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query: Loss of connection to mysql server was detected.\n")
@@ -638,7 +638,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 ret = self.sql.exec_query_multi_result(q)
             except QueryError as e:
-                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(e.message)))
+                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query_multi_result: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
