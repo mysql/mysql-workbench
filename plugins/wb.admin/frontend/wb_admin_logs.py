@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -177,7 +177,7 @@ import mforms
 from wb_log_reader import GeneralQueryLogReader, SlowQueryLogReader, GeneralLogFileReader, SlowLogFileReader, ErrorLogFileReader
 import wb_admin_config_file_be
 
-from wb_common import LogFileAccessError, ServerIOError, OperationCancelledError, InvalidPasswordError, log_error_decorator
+from wb_common import LogFileAccessError, ServerIOError, OperationCancelledError, InvalidPasswordError, log_error_decorator, to_unicode
 from workbench.utils import WorkerThreadHelper
 
 from workbench.log import log_error, log_debug
@@ -503,7 +503,7 @@ class LogViewGeneric(LogView):
         if records:
             filtered_records = []
             for record in records:
-                text = record[3]
+                text = to_unicode(record[3])
                 if self.filter_text == "All" or text.lower().find(self.filter_text.lower()) >= 0:
                     filtered_records.append(record)
         super(LogViewGeneric, self).refresh(filtered_records)
