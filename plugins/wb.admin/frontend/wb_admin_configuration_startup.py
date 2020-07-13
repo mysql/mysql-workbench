@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -22,7 +22,7 @@
 from mforms import newButton, newLabel, newBox, newCheckBox, newTextBox, Utilities
 import mforms
 
-from wb_common import dprint_ex, OperationCancelledError, to_encodedString
+from wb_common import dprint_ex, OperationCancelledError, to_encodedString, to_unicode
 import datetime
 from wb_admin_utils import no_remote_admin_warning_label
 
@@ -294,7 +294,13 @@ class WbAdminConfigurationStartup(WbAdminTabBase):
                 if records:
                     self.startup_msgs_log.append_text_with_encoding('\nFROM %s:\n' % self.server_profile.error_log_file_path,
                                                                     self._ctrl_be.server_helper.cmd_output_encoding, True)
-                    self.startup_msgs_log.append_text_with_encoding('    '+'\n    '.join( ["  ".join(line) for line in records]) + '\n',
+                    
+                    log_lines = []
+                    for line in records:
+                        record_string = "  ".join(to_unicode(log_piece) for log_piece in line)
+                        log_lines.append(record_string)
+                    log_output = "\n    ".join(log_lines)
+                    self.startup_msgs_log.append_text_with_encoding('    ' + log_output + '\n',
                                                                     self._ctrl_be.server_helper.cmd_output_encoding, True)
 
 

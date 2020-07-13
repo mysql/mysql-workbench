@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -362,6 +362,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             # this will notify the rest of the App that the server state has changed, giving them a chance
             # to reconnect or formally disconnect
             nc.send("GRNServerStateChanged", self.editor, info)
+            print("force_check_server_state - STEP 7")
             
             if new_state == "stopped" or new_state == "offline":
                 self.server_variables = {}
