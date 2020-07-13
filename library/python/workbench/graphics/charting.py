@@ -232,7 +232,7 @@ class DBTimeLineGraph(Figure):
             for points in self._points:
                 # recalculate scale
                 if len(points) > 1:
-                    max_value = max(max_value, reduce(max, points)[0])
+                    max_value = max(points, key=lambda item: item[0])[0]
 
             if max_value is not None:
                 lexvalue = "%i" % int(max_value)
