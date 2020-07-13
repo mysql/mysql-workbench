@@ -34,6 +34,7 @@ import grt
 
 import wb_admin_export_options
 import wb_common
+from wb_common import to_unicode
 
 try:
     import _subprocess
@@ -246,7 +247,7 @@ class DumpThread(threading.Thread):
             self.process_handle = p1
 
             while p1 and p1.poll() == None and not self.abort_requested:
-                err = p1.stderr.read()
+                err = to_unicode(p1.stderr.read())
                 if err != "":
                     log_error("Error from task: %s\n" % err)
                     self.print_log_message(err)
@@ -268,7 +269,7 @@ class DumpThread(threading.Thread):
         if platform.system() != 'Windows' and tmpdir:
             os.rmdir(tmpdir)
 
-        err = p1.stderr.read()
+        err = to_unicode(p1.stderr.read())
         if err != "":
             result += err
 
@@ -318,7 +319,7 @@ class DumpThread(threading.Thread):
 
 #            for title, table_count, make_pipe, arguments, objects in self.operations:
             for task in self.operations:
-                self.print_log_message(time.strftime('%X ') + task.title.encode('utf-8'))
+                self.print_log_message(time.strftime('%X ') + to_unicode(task.title))
 
                 tables_processed += task.table_count or 1
                 pipe = task.make_pipe()
