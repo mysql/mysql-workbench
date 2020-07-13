@@ -114,105 +114,105 @@ static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
 
   return NULL;
 }
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+// #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+// 
+// static PyTypeObject PyGRTFunctionObjectType = {
+//   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
+//   .tp_name = "grt.Function",
+//   .tp_basicsize = sizeof(PyGRTFunctionObject),
+//   .tp_dealloc = (destructor)function_dealloc,
+//   .tp_call = (ternaryfunc)function_call,
+//   .tp_getattro = PyObject_GenericGetAttr,
+//   .tp_setattro = PyObject_GenericSetAttr,
+//   .tp_flags = Py_TPFLAGS_DEFAULT,
+//   .tp_alloc = PyType_GenericAlloc,
+//   .tp_new = PyType_GenericNew,
+// };
 
 static PyTypeObject PyGRTFunctionObjectType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
-  .tp_name = "grt.Function",
-  .tp_basicsize = sizeof(PyGRTFunctionObject),
-  .tp_dealloc = (destructor)function_dealloc,
-  .tp_call = (ternaryfunc)function_call,
-  .tp_getattro = PyObject_GenericGetAttr,
-  .tp_setattro = PyObject_GenericSetAttr,
-  .tp_flags = Py_TPFLAGS_DEFAULT,
-  .tp_alloc = PyType_GenericAlloc,
-  .tp_new = PyType_GenericNew,
-};
+  "grt.Function",   //  tp_name
+  sizeof(PyGRTFunctionObject),  //  tp_basicsize
+  0, /* tp_itemsize For allocation */ 
+  
+  /* Methods to implement standard operations */
 
-// static PyTypeObject PyGRTFunctionObjectType = {
-//   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
-//   "grt.Function",   //  tp_name
-//   sizeof(PyGRTFunctionObject),  //  tp_basicsize
-//   0, /* tp_itemsize For allocation */ 
-//   
-//   /* Methods to implement standard operations */
-// 
-//   (destructor)function_dealloc,   //  tp_dealloc
-//   0,  //  tp_vectorcall_offset
-//   0,  //  tp_getattr
-//   0,  //  tp_setattr
-//   0,  //  tp_as_async
-//   0,  //  tp_repr
-// 
-//   /* Method suites for standard classes */
-// 
-//   0,  //  tp_as_number
-//   0,  //  tp_as_sequence
-//   0,  //  tp_as_mapping
-// 
-//   /* More standard operations (here for binary compatibility) */
-// 
-//   0,  //  tp_hash
-//   (ternaryfunc)function_call, //  tp_call
-//   0,  //  tp_str
-// 
-//   PyObject_GenericGetAttr,  //  tp_getattro
-//   PyObject_GenericSetAttr,  //  tp_setattro
-// 
-//   /* Functions to access object as input/output buffer */
-//   0,  //  tp_as_buffer
-// 
-//   /* Flags to define presence of optional/expanded features */
-//   Py_TPFLAGS_DEFAULT, //  tp_flags
-// 
-//   0, /* tp_doc Documentation string */ 
-// 
-//   /* Assigned meaning in release 2.0 */
-//   /* call function for all accessible objects */
-//   0,  //  tp_traverse
-// 
-//   /* delete references to contained objects */
-//   0,  //  tp_clear
-// 
-//   /* Assigned meaning in release 2.1 */
-//   /* rich comparisons */
-//   0,  //  tp_richcompare
-// 
-//   /* weak reference enabler */
-//   0,  //  tp_weaklistoffset
-// 
-//   /* Iterators */
-//   0,  //  tp_iter
-//   0,  //  tp_iternext
-// 
-//   /* Attribute descriptor and subclassing stuff */
-//   0,  //  tp_methods
-//   0,  //  tp_members
-//   0,  //  tp_getset
-//   0,  //  tp_base
-//   0,  //  tp_dict
-//   0,  //  tp_descr_get
-//   0,  //  tp_descr_set
-//   0,  //  tp_dictoffset
-//   0,  //  tp_init
-//   PyType_GenericAlloc,  //  tp_alloc
-//   PyType_GenericNew,  //  tp_new
-//   0, /* tp_free Low-level free-memory routine */
-//   0, /* tp_is_gc For PyObject_IS_GC */
-//   0,  //  tp_bases
-//   0, /* tp_mro method resolution order */
-//   0,  //  tp_cache
-//   0,  //  tp_subclasses
-//   0,  //  tp_weaklist
-//   0,  //  tp_del
-// 
-//   /* Type attribute cache version tag. Added in version 2.6 */
-//   0,  //  tp_version_tag
-// 
-//   0, //  tp_finalize
-//   nullptr,  //  tp_vectorcall
-//   nullptr   //  tp_print
-// };
+  (destructor)function_dealloc,   //  tp_dealloc
+  0,  //  tp_vectorcall_offset
+  0,  //  tp_getattr
+  0,  //  tp_setattr
+  0,  //  tp_as_async
+  0,  //  tp_repr
+
+  /* Method suites for standard classes */
+
+  0,  //  tp_as_number
+  0,  //  tp_as_sequence
+  0,  //  tp_as_mapping
+
+  /* More standard operations (here for binary compatibility) */
+
+  0,  //  tp_hash
+  (ternaryfunc)function_call, //  tp_call
+  0,  //  tp_str
+
+  PyObject_GenericGetAttr,  //  tp_getattro
+  PyObject_GenericSetAttr,  //  tp_setattro
+
+  /* Functions to access object as input/output buffer */
+  0,  //  tp_as_buffer
+
+  /* Flags to define presence of optional/expanded features */
+  Py_TPFLAGS_DEFAULT, //  tp_flags
+
+  0, /* tp_doc Documentation string */ 
+
+  /* Assigned meaning in release 2.0 */
+  /* call function for all accessible objects */
+  0,  //  tp_traverse
+
+  /* delete references to contained objects */
+  0,  //  tp_clear
+
+  /* Assigned meaning in release 2.1 */
+  /* rich comparisons */
+  0,  //  tp_richcompare
+
+  /* weak reference enabler */
+  0,  //  tp_weaklistoffset
+
+  /* Iterators */
+  0,  //  tp_iter
+  0,  //  tp_iternext
+
+  /* Attribute descriptor and subclassing stuff */
+  0,  //  tp_methods
+  0,  //  tp_members
+  0,  //  tp_getset
+  0,  //  tp_base
+  0,  //  tp_dict
+  0,  //  tp_descr_get
+  0,  //  tp_descr_set
+  0,  //  tp_dictoffset
+  0,  //  tp_init
+  PyType_GenericAlloc,  //  tp_alloc
+  PyType_GenericNew,  //  tp_new
+  0, /* tp_free Low-level free-memory routine */
+  0, /* tp_is_gc For PyObject_IS_GC */
+  0,  //  tp_bases
+  0, /* tp_mro method resolution order */
+  0,  //  tp_cache
+  0,  //  tp_subclasses
+  0,  //  tp_weaklist
+  0,  //  tp_del
+
+  /* Type attribute cache version tag. Added in version 2.6 */
+  0,  //  tp_version_tag
+
+  0, //  tp_finalize
+  0,  //  tp_vectorcall
+  0   //  tp_print
+};
 
 //----------------------------------------------------------------------------------------------
 
@@ -312,107 +312,107 @@ static PyGetSetDef PyGRTModuleGetSetters[] = {
   {(char *)"__doc__", (getter)module_get_doc, NULL, (char *)"Documentation of the GRT module.", 0}, {0, 0, 0, 0, 0},
 };
 
-static PyTypeObject PyGRTModuleObjectType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyModule_VAR_HEAD
-  .tp_name = "grt.Module",
-  .tp_basicsize = sizeof(PyGRTModuleObject),
-  .tp_dealloc = (destructor)module_dealloc,
-  .tp_str = (reprfunc)module_str,
-  .tp_getattro = (getattrofunc)module_getattro,
-  .tp_setattro = PyObject_GenericSetAttr,
-  .tp_flags = Py_TPFLAGS_DEFAULT,
-  .tp_doc = PyGRTModuleDoc,
-  .tp_getset = PyGRTModuleGetSetters,
-  .tp_init = (initproc)module_init,
-  .tp_alloc = PyType_GenericAlloc,
-  .tp_new = PyType_GenericNew,
-};
-
 // static PyTypeObject PyGRTModuleObjectType = {
 //   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyModule_VAR_HEAD
-//   "grt.Module",     //  tp_name
-//   sizeof(PyGRTModuleObject),  //  tp_basicsize
-//   0, /* tp_itemsize For allocation */
-//   
-//   /* Methods to implement standard operations */
-// 
-//   (destructor)module_dealloc,   //  tp_dealloc
-//   0,                            //  tp_print
-//   0,                            //  tp_getattr
-//   0,                            //  tp_setattr
-//   0,                            //  tp_as_async
-//   0,                            //  tp_repr
-// 
-//   /* Method suites for standard classes */
-// 
-//   0,              //  tp_as_number
-//   0,              //  tp_as_sequence
-//   0,              //  tp_as_mapping
-// 
-//   /* More standard operations (here for binary compatibility) */
-// 
-//   0,  //  tp_hash
-//   0,  //  tp_call
-//   (reprfunc)module_str,   //  tp_str
-// 
-//   (getattrofunc)module_getattro,  //  tp_getattro
-//   PyObject_GenericSetAttr,  //  tp_setattro
-// 
-//   /* Functions to access object as input/output buffer */
-//   0,  //  tp_as_buffer
-// 
-//   /* Flags to define presence of optional/expanded features */
-//   Py_TPFLAGS_DEFAULT,   //  tp_flags
-// 
-//   PyGRTModuleDoc, /* tp_doc Documentation string */
-// 
-//   /* Assigned meaning in release 2.0 */
-//   /* call function for all accessible objects */
-//   0,  //  tp_traverse
-// 
-//   /* delete references to contained objects */
-//   0,  //  tp_clear
-// 
-//   /* Assigned meaning in release 2.1 */
-//   /* rich comparisons */
-//   0,    //  tp_richcompare
-// 
-//   /* weak reference enabler */
-//   0,    //  tp_weaklistoffset
-// 
-//   /* Iterators */
-//   0,    //  tp_iter
-//   0,    //  tp_iternext
-// 
-//   /* Attribute descriptor and subclassing stuff */
-//   0,    //  tp_methods
-//   0,    //  tp_members
-//   PyGRTModuleGetSetters,  //  tp_getset
-//   0,    //  tp_base
-//   0,    //  tp_dict
-//   0,    //  tp_descr_get
-//   0,    //  tp_descr_set
-//   0,    //  tp_dictoffset
-//   (initproc)module_init,  //  tp_init
-//   PyType_GenericAlloc,    //  tp_alloc
-//   PyType_GenericNew,      //  tp_new
-//   0, /* tp_free Low-level free-memory routine */
-//   0, /* tp_is_gc For PyObject_IS_GC */
-//   0,    //  tp_bases
-//   0, /* tp_mro method resolution order */
-//   0,  //  tp_cache
-//   0,  //  tp_subclasses
-//   0,  //  tp_weaklist
-//   0,  //  tp_del
-// 
-//   /* Type attribute cache version tag. Added in version 2.6 */
-//   0,  //  tp_version_tag
-// 
-//   0, //  tp_finalize
-//   nullptr,  //  tp_vectorcall
-//   nullptr   //  tp_print
-//   
+//   .tp_name = "grt.Module",
+//   .tp_basicsize = sizeof(PyGRTModuleObject),
+//   .tp_dealloc = (destructor)module_dealloc,
+//   .tp_str = (reprfunc)module_str,
+//   .tp_getattro = (getattrofunc)module_getattro,
+//   .tp_setattro = PyObject_GenericSetAttr,
+//   .tp_flags = Py_TPFLAGS_DEFAULT,
+//   .tp_doc = PyGRTModuleDoc,
+//   .tp_getset = PyGRTModuleGetSetters,
+//   .tp_init = (initproc)module_init,
+//   .tp_alloc = PyType_GenericAlloc,
+//   .tp_new = PyType_GenericNew,
 // };
+
+static PyTypeObject PyGRTModuleObjectType = {
+  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyModule_VAR_HEAD
+  "grt.Module",     //  tp_name
+  sizeof(PyGRTModuleObject),  //  tp_basicsize
+  0, /* tp_itemsize For allocation */
+  
+  /* Methods to implement standard operations */
+
+  (destructor)module_dealloc,   //  tp_dealloc
+  0,                            //  tp_print
+  0,                            //  tp_getattr
+  0,                            //  tp_setattr
+  0,                            //  tp_as_async
+  0,                            //  tp_repr
+
+  /* Method suites for standard classes */
+
+  0,              //  tp_as_number
+  0,              //  tp_as_sequence
+  0,              //  tp_as_mapping
+
+  /* More standard operations (here for binary compatibility) */
+
+  0,  //  tp_hash
+  0,  //  tp_call
+  (reprfunc)module_str,   //  tp_str
+
+  (getattrofunc)module_getattro,  //  tp_getattro
+  PyObject_GenericSetAttr,  //  tp_setattro
+
+  /* Functions to access object as input/output buffer */
+  0,  //  tp_as_buffer
+
+  /* Flags to define presence of optional/expanded features */
+  Py_TPFLAGS_DEFAULT,   //  tp_flags
+
+  PyGRTModuleDoc, /* tp_doc Documentation string */
+
+  /* Assigned meaning in release 2.0 */
+  /* call function for all accessible objects */
+  0,  //  tp_traverse
+
+  /* delete references to contained objects */
+  0,  //  tp_clear
+
+  /* Assigned meaning in release 2.1 */
+  /* rich comparisons */
+  0,    //  tp_richcompare
+
+  /* weak reference enabler */
+  0,    //  tp_weaklistoffset
+
+  /* Iterators */
+  0,    //  tp_iter
+  0,    //  tp_iternext
+
+  /* Attribute descriptor and subclassing stuff */
+  0,    //  tp_methods
+  0,    //  tp_members
+  PyGRTModuleGetSetters,  //  tp_getset
+  0,    //  tp_base
+  0,    //  tp_dict
+  0,    //  tp_descr_get
+  0,    //  tp_descr_set
+  0,    //  tp_dictoffset
+  (initproc)module_init,  //  tp_init
+  PyType_GenericAlloc,    //  tp_alloc
+  PyType_GenericNew,      //  tp_new
+  0, /* tp_free Low-level free-memory routine */
+  0, /* tp_is_gc For PyObject_IS_GC */
+  0,    //  tp_bases
+  0, /* tp_mro method resolution order */
+  0,  //  tp_cache
+  0,  //  tp_subclasses
+  0,  //  tp_weaklist
+  0,  //  tp_del
+
+  /* Type attribute cache version tag. Added in version 2.6 */
+  0,  //  tp_version_tag
+
+  0, //  tp_finalize
+  0,  //  tp_vectorcall
+  0   //  tp_print
+  
+};
 
 void grt::PythonContext::init_grt_module_type() {
   {

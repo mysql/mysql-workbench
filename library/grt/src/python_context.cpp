@@ -1107,63 +1107,63 @@ static PyMethodDef GrtModuleMethods[] = {
   {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
-// static struct PyModuleDef grtModuleDef = {
-//   PyModuleDef_HEAD_INIT,
-//   "grt",    // name
-//   nullptr,  // documentation
-//   -1,       // size -1 meand it can not be re-initialized
-//   GrtModuleMethods,
-//   nullptr,  // reload method
-//   nullptr,  // traverse method
-//   nullptr,  // clear method
-//   nullptr   //  free method
-// };
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-
-static PyModuleDef grtModuleDef = {
-    PyModuleDef_HEAD_INIT,
-    .m_name = "grt",
-    .m_doc = "GRT module documentation",
-    .m_size = -1,
-    .m_methods = GrtModuleMethods
+static struct PyModuleDef grtModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "grt",    // name
+  nullptr,  // documentation
+  -1,       // size -1 meand it can not be re-initialized
+  GrtModuleMethods,
+  nullptr,  // reload method
+  nullptr,  // traverse method
+  nullptr,  // clear method
+  nullptr   //  free method
 };
-
-// static struct PyModuleDef grtModulesModuleDef = {
-//   PyModuleDef_HEAD_INIT,
-//   "grt.modules",  // name
-//   nullptr,  // documentation
-//   -1,       // size -1 meand it can not be re-initialized
-//   nullptr,  // methods
-//   nullptr,  // reload method
-//   nullptr,  // traverse method
-//   nullptr,  // clear method
-//   nullptr   // free method
-// };
-static PyModuleDef grtModulesModuleDef = {
-    PyModuleDef_HEAD_INIT,
-    .m_name = "grt.modules",
-    .m_doc = "GRT.modules module documentation",
-    .m_size = -1,
-};
-
-// static struct PyModuleDef grtClassesModuleDef = {
-//   PyModuleDef_HEAD_INIT,
-//   "grt.classes",  // name
-//   nullptr,  // documentation
-//   -1,       // size -1 meand it can not be re-initialized
-//   nullptr,  // methods
-//   nullptr,  // reload method
-//   nullptr,  // traverse method
-//   nullptr,  // clear method
-//   nullptr   // free method
+// #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+// 
+// static PyModuleDef grtModuleDef = {
+//     PyModuleDef_HEAD_INIT,
+//     .m_name = "grt",
+//     .m_doc = "GRT module documentation",
+//     .m_size = -1,
+//     .m_methods = GrtModuleMethods
 // };
 
-static PyModuleDef grtClassesModuleDef = {
-    PyModuleDef_HEAD_INIT,
-    .m_name = "grt.classes",
-    .m_doc = "GRT.classes module documentation",
-    .m_size = -1,
+static struct PyModuleDef grtModulesModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "grt.modules",  // name
+  "GRT.modules module documentation",  // documentation
+  -1,       // size -1 meand it can not be re-initialized
+  nullptr,  // methods
+  nullptr,  // reload method
+  nullptr,  // traverse method
+  nullptr,  // clear method
+  nullptr   // free method
 };
+// static PyModuleDef grtModulesModuleDef = {
+//     PyModuleDef_HEAD_INIT,
+//     .m_name = "grt.modules",
+//     .m_doc = "GRT.modules module documentation",
+//     .m_size = -1,
+// };
+
+static struct PyModuleDef grtClassesModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "grt.classes",  // name
+  "GRT.classes module documentation",  // documentation
+  -1,       // size -1 meand it can not be re-initialized
+  nullptr,  // methods
+  nullptr,  // reload method
+  nullptr,  // traverse method
+  nullptr,  // clear method
+  nullptr   // free method
+};
+
+// static PyModuleDef grtClassesModuleDef = {
+//     PyModuleDef_HEAD_INIT,
+//     .m_name = "grt.classes",
+//     .m_doc = "GRT.classes module documentation",
+//     .m_size = -1,
+// };
 
 
 
