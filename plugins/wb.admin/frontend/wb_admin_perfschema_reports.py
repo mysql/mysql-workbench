@@ -223,7 +223,7 @@ class PSHelperViewTab(mforms.Box):
         chooser.add_selector_option("format", "Format:", "CSV|csv")
         if chooser.run_modal():
             save_path = "%s.csv" % chooser.get_path() if not chooser.get_path().endswith(".csv") else chooser.get_path()
-            with open(save_path, 'wb') as csvfile:
+            with open(save_path, 'w') as csvfile:
                 try:
                     import csv
                     output = csv.writer(csvfile, quoting = csv.QUOTE_MINIMAL)
