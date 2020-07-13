@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -30,6 +30,8 @@ from workbench.log import log_error, log_debug
 from wb_admin_perfschema import WbAdminPSBaseTab
 
 from threading import Thread
+
+from wb_common import to_unicode
 
 
 unit_formatters = {
@@ -100,14 +102,14 @@ class PSHelperViewTab(mforms.Box):
             self.remove(self._wait_table)
             self._wait_table = None
 
-        self._title = mforms.newLabel(self.caption.encode("utf8"))
+        self._title = mforms.newLabel(to_unicode(self.caption))
         self._title.set_style(mforms.BigBoldStyle)
         self.add(self._title, False, True)
 
         self._column_file = None
         
         if self.description:
-            self._description = mforms.newLabel(self.description.encode("utf8"))
+            self._description = mforms.newLabel(to_unicode(self.description))
             self.add(self._description, False, True)
             
         self._tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
@@ -132,7 +134,7 @@ class PSHelperViewTab(mforms.Box):
             width = min(max(length, 40), 300)
             width = grt.root.wb.state.get("wb.admin.psreport:width:%s:%i" % (self.view, i), width)
 
-            label = self.column_label(column)
+            label = to_unicode(self.column_label(column))
             self._column_units.append(unit)
             self._column_names.append(cname)
             self._column_titles.append(label)
