@@ -19,9 +19,12 @@
 
 // mysql-backup.cpp : Defines the entry point for the console application.
 
+#include "base/string_utilities.h"
+#include "base/file_functions.h"
+
 //--------------------------------------------------------------------------------------------------
 
-static void setup_python(int argc, char **argv) {
+static void setup_python(int argc, wchar_t **argv) {
   char *pathlist = NULL;
   TCHAR szPath[MAX_PATH];
   std::string module_path;
@@ -98,11 +101,11 @@ static void finalize_python() {
 
 //--------------------------------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+int wmain(int argc, wchar_t **argv) {
   // Set the python interpreter.
   setup_python(argc, argv);
 
-  std::string filepath(argv[0]);
+  auto filepath = base::wstring_to_string(argv[0]);
 
   // Get the path to the helper script.
   std::string helper_path;
