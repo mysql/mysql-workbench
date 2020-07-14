@@ -177,6 +177,7 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   run_post_init_script();
 
   {
+    WillEnterPython lock;
     PyObject *path = from_grt(grt::StringRef(base::Logger::log_filename()));
     PyDict_SetItemString(PyModule_GetDict(PyImport_AddModule("grt")), "logpath", path);
     Py_XDECREF(path);
@@ -195,11 +196,10 @@ PythonContext::~PythonContext() {
 }
 
 void PythonContext::add_module_path(const std::string &modpath, bool prepend) {
+  WillEnterPython lock;
   // add the path to the search path so that it can be imported
   PyObject *path_list;
   PyObject *path = PyUnicode_FromString(modpath.c_str());
-
-  WillEnterPython lock;
 
   path_list = PySys_GetObject(
     (char *)"path"); // cast to (char *) required for gcc 4.3 to avoid warning about deprecated conversion

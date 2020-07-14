@@ -146,13 +146,31 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\email %TARGET_DIR%\python\lib\email 1> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\encodings %TARGET_DIR%\python\lib\encodings 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\logging %TARGET_DIR%\python\lib\logging 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\json %TARGET_DIR%\python\lib\json 1> nul 2> nul
-rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\unittest %TARGET_DIR%\python\lib\unittest 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_COMMON_DIR%\ctypes %TARGET_DIR%\python\lib\ctypes 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\collections %TARGET_DIR%\python\lib\collections 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\sqlite3 %TARGET_DIR%\python\lib\sqlite3 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xml %TARGET_DIR%\python\lib\xml 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\importlib %TARGET_DIR%\python\lib\importlib 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\asyncio %TARGET_DIR%\python\lib\asyncio 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\concurrent %TARGET_DIR%\python\lib\concurrent 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\ctypes %TARGET_DIR%\python\lib\ctypes 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\curses %TARGET_DIR%\python\lib\curses 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\dbm %TARGET_DIR%\python\lib\dbm 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\distutils %TARGET_DIR%\python\lib\distutils 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\ensurepip %TARGET_DIR%\python\lib\ensurepip 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\html %TARGET_DIR%\python\lib\html 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\http %TARGET_DIR%\python\lib\http 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\idlelib %TARGET_DIR%\python\lib\idlelib 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\lib2to3 %TARGET_DIR%\python\lib\lib2to3 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\msilib %TARGET_DIR%\python\lib\msilib 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\multiprocessing %TARGET_DIR%\python\lib\multiprocessing 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\pydoc_data %TARGET_DIR%\python\lib\pydoc_data 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\tkinter %TARGET_DIR%\python\lib\tkinter 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\turtledemo %TARGET_DIR%\python\lib\turtledemo 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\urllib %TARGET_DIR%\python\lib\urllib 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
 
-rem xcopy /i /y /d %PYTHON_DLLS_DIR%\*.pyd %TARGET_DIR%\python\DLLs 1> nul 2> nul
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 robocopy %PYTHON_DIR%\ %TARGET_DIR%\python\DLLs *sqlite3*%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
