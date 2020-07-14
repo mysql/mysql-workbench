@@ -1,5 +1,4 @@
-# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
-#
+# Copyright (c) 2016, 2020, Oracle and/or its affiliates.
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
 # as published by the Free Software Foundation.
@@ -325,7 +324,7 @@ class ConfigurationPage(WizardPage):
         try:
             rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
         except Exception as e:
-            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], to_unicode(e.message)))
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], to_unicode(str(e))))
             rset = None
             
         if rset:

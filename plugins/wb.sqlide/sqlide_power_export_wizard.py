@@ -593,7 +593,7 @@ class DataInputPage(WizardPage):
         try:
             rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (table['schema'], table['table']), 1)
         except grt.DBError as e:
-            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], to_unicode(e.message)))
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (table['schema'], table['table'], to_unicode(str(e))))
             rset = None
             
         if rset:

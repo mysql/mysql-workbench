@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -124,10 +124,10 @@ def restoreConnections():
                 connections_file.close()
             except KeyError as error:
                 mforms.Utilities.show_error('Restore Connections Error', 'The selected file is not a valid backup file '
-                                            'or the file is corrupted: %s.' % error.message,
+                                            'or the file is corrupted: %s.' % str(error),
                                             'OK', '', '')
                 grt.log_error('restoreConnections', 'The selected file is not a valid backup file '
-                              'or the file is corrupted: %s.' % error.message)
+                              'or the file is corrupted: %s.' % str(error))
                 return
 
             connections = grt.unserialize(connections_file.name)

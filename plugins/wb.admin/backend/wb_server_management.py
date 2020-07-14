@@ -1622,7 +1622,7 @@ class FileOpsRemoteUnix(FileOpsLinuxBase):
                 except IOError as exc:
                     # This is the only hting reported on a failure due to an attempt to
                     # create a file that already exists
-                    if exc.message == "Failure":
+                    if "Failure" in str(exc):
                         log_warning('WARNING: Unable to create temp file: "%s", trying a different name.\n' % tmpfilename)
 
                         if attempts < 10:

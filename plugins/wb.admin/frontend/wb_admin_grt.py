@@ -262,7 +262,7 @@ class AdministratorContext:
 
             self.admin_tab = wb_admin_main.AdministratorTab(self.ctrl_be, self.server_profile, self, self.editor)
         except MySQLError as exc:
-            if exc.message:
+            if str(exc):
                 Utilities.show_error("Error Connecting to MySQL Server (%s)" % exc.location, str(exc), "OK", "", "")
             app.set_status_text("Could not Open WB Admin")
             return None
@@ -703,7 +703,7 @@ def testInstanceSettingByName(what, connection, server_instance):
 
             grt.send_info("connected.")
         except Exception as exc:
-            log_error("Exception: %s\n" % exc.message)
+            log_error("Exception: %s\n" % str(exc))
             import traceback
             log_debug2("Backtrace was: ", traceback.format_stack())
             return "ERROR "+str(exc)
@@ -714,7 +714,7 @@ def testInstanceSettingByName(what, connection, server_instance):
             test_ssh_connection.acquire_admin_access()
         except Exception as exc:
             
-            log_error("Exception: %s\n" % exc.message)
+            log_error("Exception: %s\n" % str(exc))
             import traceback
             log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
