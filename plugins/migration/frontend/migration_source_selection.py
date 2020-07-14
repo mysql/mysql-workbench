@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -233,7 +233,7 @@ class SourceWizardPage(WizardPage):
                     source.password = "" # connection succeeded with no password, so it must be blank
                 break
             except (DBLoginError, SystemError) as e:
-                if attempt == 0 and "[Driver Manager]" in e.message and "image not found" in e.message:
+                if attempt == 0 and "[Driver Manager]" in str(e) and "image not found" in str(e):
                     set_status_text("Specified ODBC driver not found")
                     show_missing_driver_error(e)
                     return
@@ -264,7 +264,7 @@ class SourceWizardPage(WizardPage):
                     break
                     
             except migration.NotSupportedError as e:
-                mforms.Utilities.show_message('Unsupported Connection Method', e.message, 'OK', '', '')
+                mforms.Utilities.show_message('Unsupported Connection Method', str(e), 'OK', '', '')
                 return
             except Exception as e:
                 log_error("Exception testing connection: %s\n" % e)
@@ -445,7 +445,7 @@ class FetchProgressView(WizardProgressPage):
                 break
             except (DBLoginError, SystemError) as e:
                 if attempt == 0:
-                    if "[Driver Manager]" in e.message and "image not found" in e.message:
+                    if "[Driver Manager]" in str(e) and "image not found" in str(e):
                         show_missing_driver_error(e)
                         return
                 if attempt > 0:
