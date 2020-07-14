@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -280,7 +280,7 @@ class MySQLScriptImporter(object):
             self.report_progress("Preparing...", None, None)
             if not is_windows:
                 try:
-                    p1 = subprocess.Popen(params, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                    p1 = subprocess.Popen(params, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf8')
                 except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (" ".join(params), exc))
                     raise RuntimeError("Error executing %s:\n%s" % (" ".join(params), str(exc)))
@@ -305,7 +305,7 @@ class MySQLScriptImporter(object):
                     fse = sys.getfilesystemencoding()
                     cmd = cmdstr.encode(fse) if isinstance(cmdstr, str) else cmdstr
                     log_debug("Executing command: %s\n" % cmdstr)
-                    p1 = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"')
+                    p1 = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"', encoding='utf8')
                 except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (cmdstr, exc))
                     import traceback
