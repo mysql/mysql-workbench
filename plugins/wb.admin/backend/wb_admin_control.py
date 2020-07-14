@@ -656,7 +656,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 cnt = self.sql.updateCount()
                 return ret, cnt
             except QueryError as e:
-                log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(e.message)))
+                log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_sql: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
