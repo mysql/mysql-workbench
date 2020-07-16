@@ -219,7 +219,7 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
 %if %{defined bundles_path}
   mkdir -p %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
   # Bundle pre-built libs
-  cp -a %{bundles_path}/Python/pyodbc/pyodbc.so         %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/Python/pyodbc/pyodbc*.so         %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{bundles_path}/Python/pysqlite2/*              %{buildroot}%{_libdir}/mysql-workbench/modules/pysqlite2
   cp -a %{bundles_path}/lib/libsqlite*.so*              %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{bundles_path}/lib/libgdal.so*                 %{buildroot}%{_libdir}/mysql-workbench/
