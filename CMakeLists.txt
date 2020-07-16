@@ -61,7 +61,7 @@ if (USE_BUNDLED_MYSQLDUMP)
 endif ()
 
 set(Python_ADDITIONAL_VERSIONS 3.8)
-find_package(PythonLibs 3.8 REQUIRED)
+find_package(PythonLibs 3.7 REQUIRED)
 
 # We need to be able to detect python module versions and packages hence this function
 find_program(PYTHON_EXEC "python3")
