@@ -46,7 +46,7 @@ reset_sudo_prefix()
 
 from mforms import App
 from workbench.utils import QueueFileMP
-from wb_common import InvalidPasswordError, PermissionDeniedError, Users, sanitize_sudo_output, splitpath
+from wb_common import InvalidPasswordError, PermissionDeniedError, Users, sanitize_sudo_output, splitpath, to_unicode
 from wb_common import CmdOptions, CmdOutput
 from workbench.log import log_info, log_warning, log_error, log_debug, log_debug2, log_debug3
 
@@ -195,7 +195,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             if not r:
                 break
         
-            new_byte = fd.read(1)
+            new_byte = to_unicode(fd.read(1))
             
             if new_byte:
                 data += new_byte
@@ -233,7 +233,8 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
             # feed the password
             if debug_run_cmd:
                 log_debug2("local_run_cmd_linux: sending password to child...\n")
-            child.stdin.write((user_password or " ")+"\n"+'\x1a')
+            data_to_write = (user_password or " ") + "\n" + '\x1a'
+            child.stdin.write(bytes(data_to_write, 'utf-8'))
             expect_sudo_failure = True # we could get a Sorry or the password prompt again
         else:
             # If the prompt didn't come in, it could mean that password is not required
@@ -1125,7 +1126,7 @@ class FileOpsLinuxBase(object):
 
         try:
             log_debug('%s: Writing file contents to tmp file "%s"\n' %  (self.__class__.__name__, tmp_name) )
-            tmp.write(content)
+            tmp.write(bytes(content, 'utf-8'))
             tmp.flush()
         except Exception as exc:
             log_error('%s: Exception caught: %s\n' % (self.__class__.__name__, str(exc)) )
