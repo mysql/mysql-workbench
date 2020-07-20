@@ -19,7 +19,7 @@
 import os
 import sys
 import io
-from six.moves import configparser
+import configparser
 from time import strptime, strftime
 import re
 import subprocess
@@ -903,11 +903,11 @@ class MEBHelperVersion(MEBCommand):
 
           file = open (__file__, 'r')
           data = file.read()
-          md5 = hashlib.md5(data)
+          md5 = hashlib.md5(bytes(data, 'utf-8'))
 
           self.write_output(md5.hexdigest())
         except Exception as e:
-            logging.error('MEBHelperVersion error ' % str(e))
+            logging.error('MEBHelperVersion error: %s' % str(e))
             return 1
         return 0
 
