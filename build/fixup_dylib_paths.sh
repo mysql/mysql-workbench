@@ -32,9 +32,7 @@ for file in $*; do
       install_name_tool -change $lib $new_id $file
     done
 
-    if test $(basename $file) = "MySQLWorkbench"; then
-      install_name_tool -change "@rpath/Python3.framework/Versions/3.7/Python3" "@executable_path/../Frameworks/Python3" $file
-    fi
+    install_name_tool -change "@rpath/Python3.framework/Versions/3.7/Python3" "@executable_path/../Frameworks/Python3" $file
   fi
 
 done
