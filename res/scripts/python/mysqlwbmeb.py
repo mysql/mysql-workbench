@@ -106,7 +106,7 @@ class ConfigReader(object):
         data = profile_file.read()
 
         self.doc = configparser.ConfigParser()
-        self.doc.readfp(io.StringIO(to_unicode(data)))
+        self.doc.read_file(io.StringIO(to_unicode(data)))
 
     def read_value(self, section, item, mandatory = False, default = None):
         value = default
