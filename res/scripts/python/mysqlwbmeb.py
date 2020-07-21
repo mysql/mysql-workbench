@@ -28,6 +28,9 @@ import json
 
 is_library = True
 
+def to_unicode(text):
+    # Convert to unicode if it's not unicode yet
+    return text if isinstance(text, str) else text.decode('utf8')
 
 
 def call_system(command, spawn, output_handler = None):
@@ -103,7 +106,7 @@ class ConfigReader(object):
         data = profile_file.read()
 
         self.doc = configparser.ConfigParser()
-        self.doc.readfp(io.StringIO(data.decode('UTF-8')))
+        self.doc.readfp(io.StringIO(to_unicode(data)))
 
     def read_value(self, section, item, mandatory = False, default = None):
         value = default
