@@ -176,7 +176,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
                 raise
             if not r:
                 break
-            data.append(fd.read(1).decode("utf-8"))
+            data.append(to_unicode(fd.read(1)))
             if return_on_newline and data[-1] == "\n":
                 break
         return "".join(data)
@@ -193,7 +193,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
                     continue
                 raise
             if not r:
-                break
+                raise Exception("Could not read from file descriptor")
         
             new_byte = to_unicode(fd.read(1))
             
@@ -308,8 +308,8 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
         current_text, _ = child.communicate()
         if current_text and output_handler:
             output_handler(current_text)
-    except:
-        pass
+    except Exception as e:
+        log_error("local_run_cmd_linux: error reading from child process: %s\n" % str(e))
     result = child.returncode
     if debug_run_cmd:
         log_debug2("local_run_cmd_linux: child returned %s\n" % result)

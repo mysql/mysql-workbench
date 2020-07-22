@@ -57,7 +57,7 @@ def call_system(command, spawn, output_handler = None):
             result = 1
 
     else:
-        child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
+        child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp, encoding='utf-8')
         
     if not spawn:
         if output_handler:
@@ -84,16 +84,13 @@ def check_version_at_least(command, major, minor, revno):
     found_minor = 0
     found_revno = 0
     
-    for token in tokens:
-      if token == 'version':
-        version = 'found'
-      else:
-        if version == 'found':
-          version = token
-          version_tokens = version.split('.')
-          found_major = int(version_tokens[0])
-          found_minor = int(version_tokens[1])
-          found_revno = int(version_tokens[2])
+    index = (i for i, item in enumerate(tokens) if item == "version" or item == "Ver")
+    index = next(index) + 1                       # index next to "Ver" or "version"
+    version = tokens[index].split('-')[0]     # remove <version>-comercial if necessary
+    version_tokens = version.split('.')
+    found_major = int(version_tokens[0])
+    found_minor = int(version_tokens[1])
+    found_revno = int(version_tokens[2])
     
     return  (found_major, found_minor, found_revno) >= (major, minor, revno)
 
@@ -864,7 +861,7 @@ class MEBGetProfiles(MEBCommand):
                         if include or exclude:
                           profile_issues |= 4
 
-                    # The VALID item will cintain a numeric valid describing the issues encountered on the profile
+                    # The VALID item will contain a numeric value describing the issues encountered on the profile
                     # Validation. Each issue should be assigned a value of 2^x so the different issues can be joined
                     # using bitwise operations
                     # 1 : Indicates the backup folder is not valid to store the backups.
