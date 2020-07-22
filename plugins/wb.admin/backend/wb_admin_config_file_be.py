@@ -794,7 +794,7 @@ class WbAdminConfigFileBE(object):
                                     cur_file_original_opts['skip-'+option_name] = option
 
             self.original_opts = cur_file_original_opts
-            self.sections = sorted(self.sections, lambda x,y: cmp(x[0], y[0]))
+            self.sections = sorted(self.sections, key=functools.cmp_to_key(lambda x,y: cmp(x[0], y[0])))
 
         section = self.server_profile.config_file_section
 
