@@ -14536,7 +14536,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pyresdirce=\"3rd-party-ce/Python\"\npyresdirse=\"3rd-party-se/Python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    cp -R ${pyresdirse}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirse}/pyodbc/pyodbc.so \"$pythondir\"\n\nelse\n    cp -R ${pyresdirce}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirce}/pyodbc/pyodbc.so \"$pythondir\"\n\nfi\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"\n";
+			shellScript = "pyresdirce=\"3rd-party-ce/Python\"\npyresdirse=\"3rd-party-se/Python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    cp -R ${pyresdirse}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirse}/pyodbc/pyodbc*.so \"$pythondir\"\n\nelse\n    cp -R ${pyresdirce}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirce}/pyodbc/pyodbc*.so \"$pythondir\"\n\nfi\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2BEA13BE16E68F1500FC44F0 /* Copy plugins (dylibs) if exist */ = {

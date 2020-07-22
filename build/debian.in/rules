@@ -129,7 +129,7 @@ install: build
 	# Bundle libaries
 	cp -a $(BUNDLES_PATH)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(BUNDLES_PATH)/Python/pyodbc/pyodbc.so  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/Python/pyodbc/pyodbc*.so  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libvsqlitepp.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libantlr4-runtime.*  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libmysqlcppconn.*    $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
