@@ -34,8 +34,8 @@ using namespace base;
 static int dict_init(PyGRTDictObject *self, PyObject *args, PyObject *kwds) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (ctx) {
-    const char *type = NULL, *class_name = NULL;
-    PyObject *valueptr = NULL;
+    const char *type = nullptr, *class_name = nullptr;
+    PyObject *valueptr = nullptr;
     static const char *kwdict[] = {"type", "classname", "__valueptr__", 0};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|zzO", (char **)kwdict, &type, &class_name, &valueptr))
@@ -109,13 +109,13 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
       }
       return members;
     } else if (strcmp(attrname, "__methods__") == 0) {
-      PyObject *methods = Py_BuildValue("[sssss]", "keys", "items", "values", "has_key", "update", "setdefault");
+      PyObject *methods = Py_BuildValue("[sssss]", "keys", "items", "values", "has_key", "update", "get", "setdefault");
       return methods;
     } else {
       if (self->dict->has_key(attrname)) {
         PythonContext *ctx = PythonContext::get_and_check();
         if (!ctx)
-          return NULL;
+          return nullptr;
 
         return ctx->from_grt(self->dict->get(attrname));
       } else
@@ -123,29 +123,29 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
     }
   }
   PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *dict_subscript(PyGRTDictObject *self, PyObject *key) {
   if (!PyUnicode_Check(key)) {
     PyErr_SetString(PyExc_KeyError, "grt.Dict key must be a string");
-    return NULL;
+    return nullptr;
   }
   const char *k = PyUnicode_AsUTF8(key);
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   try {
     return ctx->from_grt(self->dict->get(k));
   } catch (grt::bad_item &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 static int dict_ass_subscript(PyGRTDictObject *self, PyObject *key, PyObject *value) {
@@ -160,7 +160,7 @@ static int dict_ass_subscript(PyGRTDictObject *self, PyObject *key, PyObject *va
     return -1;
 
   try {
-    if (value == NULL)
+    if (value == nullptr)
       self->dict->remove(k);
     else if (value == Py_None)
       self->dict->set(k, grt::ValueRef());
@@ -184,7 +184,7 @@ static int dict_ass_subscript(PyGRTDictObject *self, PyObject *key, PyObject *va
 static PyObject *dict_keys(PyGRTDictObject *self, PyObject *args) {
   if (args) {
     PyErr_SetString(PyExc_ValueError, "method takes no arguments");
-    return NULL;
+    return nullptr;
   }
   PyObject *list = PyList_New(self->dict->count());
 
@@ -198,11 +198,11 @@ static PyObject *dict_keys(PyGRTDictObject *self, PyObject *args) {
 static PyObject *dict_items(PyGRTDictObject *self, PyObject *args) {
   if (args) {
     PyErr_SetString(PyExc_ValueError, "method takes no arguments");
-    return NULL;
+    return nullptr;
   }
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
   PyObject *list = PyList_New(self->dict->count());
 
   Py_ssize_t i = 0;
@@ -218,11 +218,11 @@ static PyObject *dict_items(PyGRTDictObject *self, PyObject *args) {
 static PyObject *dict_values(PyGRTDictObject *self, PyObject *args) {
   if (args) {
     PyErr_SetString(PyExc_ValueError, "method takes no arguments");
-    return NULL;
+    return nullptr;
   }
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
   PyObject *list = PyList_New(self->dict->count());
 
   Py_ssize_t i = 0;
@@ -235,7 +235,7 @@ static PyObject *dict_values(PyGRTDictObject *self, PyObject *args) {
 static PyObject *dict_has_key(PyGRTDictObject *self, PyObject *arg) {
   if (!arg) {
     PyErr_SetString(PyExc_ValueError, "missing required argument");
-    return NULL;
+    return nullptr;
   }
 
   const char *key_to_find = PyUnicode_AsUTF8(arg);
@@ -250,11 +250,11 @@ static PyObject *dict_has_key(PyGRTDictObject *self, PyObject *arg) {
 static PyObject *dict_update(PyGRTDictObject *self, PyObject *arg) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   if (!arg) {
     PyErr_SetString(PyExc_ValueError, "dict argument required for update()");
-    return NULL;
+    return nullptr;
   }
 
   TypeSpec type;
@@ -265,14 +265,14 @@ static PyObject *dict_update(PyGRTDictObject *self, PyObject *arg) {
     value = grt::DictRef::cast_from(ctx->from_pyobject(arg, type));
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc, "invalid argument");
-    return NULL;
+    return nullptr;
   }
 
   if (value.is_valid()) {
     merge_contents(*self->dict, value, true);
   } else {
     PyErr_SetString(PyExc_ValueError, "invalid argument for update()");
-    return NULL;
+    return nullptr;
   }
 
   Py_RETURN_NONE;
@@ -281,12 +281,12 @@ static PyObject *dict_update(PyGRTDictObject *self, PyObject *arg) {
 static PyObject *dict_get(PyGRTDictObject *self, PyObject *arg) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
-  PyObject *def = NULL;
+    return nullptr;
+  PyObject *def = nullptr;
   char *key;
 
   if (!PyArg_ParseTuple(arg, "s|O", &key, &def))
-    return NULL;
+    return nullptr;
 
   if (key) {
     if (self->dict->has_key(key))
@@ -307,12 +307,12 @@ static PyObject *dict_get(PyGRTDictObject *self, PyObject *arg) {
 static PyObject *dict_setdefault(PyGRTDictObject *self, PyObject *arg) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
   PyObject *def = Py_None;
   char *key;
 
   if (!PyArg_ParseTuple(arg, "s|O", &key, &def))
-    return NULL;
+    return nullptr;
 
   if (key) {
     if (self->dict->has_key(key))
@@ -331,6 +331,22 @@ static PyObject *dict_setdefault(PyGRTDictObject *self, PyObject *arg) {
     }
   }
   Py_RETURN_NONE;
+}
+
+static PyObject *dict_dir(PyGRTDictObject *self, PyObject *) {
+  static constexpr const char *const methods[] = {"keys", "items", "values", "has_key", "update", "get", "setdefault"};
+  PyObject *members = PyList_New(self->dict->count() + sizeof(methods));
+
+  int i = 0;
+  for (const auto &m : *self->dict) {
+    PyList_SET_ITEM(members, i++, PyUnicode_FromString(m.first.c_str()));
+  }
+
+  for (const auto &m : methods) {
+    PyList_SET_ITEM(members, i++, PyUnicode_FromString(m));
+  }
+
+  return members;
 }
 
 static PyObject *dict_printable(PyGRTDictObject *self) {
@@ -352,18 +368,19 @@ PyDoc_STRVAR(PyGRTDictDoc,
 
 static PyMethodDef PyGRTDictMethods[] = {
   //{"__getitem__", (PyCFunction)dict_subscript, METH_O|METH_COEXIST, getitem_doc},
-  {"keys", (PyCFunction)dict_keys, METH_NOARGS, NULL},
-  {"items", (PyCFunction)dict_items, METH_NOARGS, NULL},
-  {"values", (PyCFunction)dict_values, METH_NOARGS, NULL},
-  {"has_key", (PyCFunction)dict_has_key, METH_NOARGS, NULL},
-  {"update", (PyCFunction)dict_update, METH_VARARGS, NULL},
-  {"get", (PyCFunction)dict_get, METH_VARARGS, NULL},
-  {"setdefault", (PyCFunction)dict_setdefault, METH_VARARGS, NULL},
-  {NULL, NULL, 0, NULL}};
+  {"keys", (PyCFunction)dict_keys, METH_NOARGS, nullptr},
+  {"items", (PyCFunction)dict_items, METH_NOARGS, nullptr},
+  {"values", (PyCFunction)dict_values, METH_NOARGS, nullptr},
+  {"has_key", (PyCFunction)dict_has_key, METH_NOARGS, nullptr},
+  {"update", (PyCFunction)dict_update, METH_VARARGS, nullptr},
+  {"get", (PyCFunction)dict_get, METH_VARARGS, nullptr},
+  {"setdefault", (PyCFunction)dict_setdefault, METH_VARARGS, nullptr},
+  {"__dir__", (PyCFunction)dict_dir, METH_NOARGS, nullptr},
+  {nullptr, nullptr, 0, nullptr}};
 
-static PyGetSetDef PyGRTDictGetSetters[] = {{(char *)"contenttype", (getter)dict_get_contenttype, NULL,
-                                             (char *)"(content type, content object class|None)", NULL},
-                                            {NULL, 0, NULL, NULL, NULL}};
+static PyGetSetDef PyGRTDictGetSetters[] = {{(char *)"contenttype", (getter)dict_get_contenttype, nullptr,
+                                             (char *)"(content type, content object class|None)", nullptr},
+                                            {nullptr, 0, nullptr, nullptr, nullptr}};
 
 static PyMappingMethods PyGRTDictObject_as_mapping = {
   (lenfunc)dict_length,             // inquiry mp_length;
@@ -461,32 +478,6 @@ static PyTypeObject PyGRTDictObjectType = {
 #endif
 };
 
-
-
-// #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#include <iostream>
-// static PyTypeObject PyGRTDictObjectType = {
-//   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
-//   .tp_name = "grt.Dict",
-//   .tp_basicsize = sizeof(PyGRTDictObject),
-//   .tp_itemsize = 0,
-//   .tp_dealloc = (destructor)dict_dealloc, //  destructor tp_dealloc;
-// #if PY_MINOR_VERSION > 7
-//   .tp_vectorcall_offset = 0,
-// #endif
-//   .tp_as_mapping = &PyGRTDictObject_as_mapping,
-//   .tp_str = (reprfunc)dict_printable,
-//   .tp_getattro = (getattrofunc)dict_getattro,
-//   .tp_flags = Py_TPFLAGS_DEFAULT,  
-//   .tp_doc = PyGRTDictDoc,
-//   .tp_iter = (getiterfunc)dict_iter,
-//   .tp_methods = PyGRTDictMethods,
-//   .tp_getset = PyGRTDictGetSetters,
-//   .tp_init = (initproc)dict_init,
-//   .tp_alloc = PyType_GenericAlloc,
-//   .tp_new = PyType_GenericNew
-// };
-
 typedef struct {
   PyObject_HEAD
   bool isNew;
@@ -498,17 +489,6 @@ typedef struct {
 static PyObject *dictiter_iter(PyGRTDictIteratorObject *self);
 static PyObject *dictiter_iternext(PyGRTDictIteratorObject *self);
 
-
-// static PyTypeObject PyGRTDictIteratorObjectType = {
-//   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
-//   .tp_name = "grt.DictIterator",
-//   .tp_basicsize = sizeof(PyGRTDictIteratorObject),
-//   .tp_itemsize = 0,
-//   .tp_flags = Py_TPFLAGS_DEFAULT,  
-//   .tp_doc = "GRT Dictionary iterator object",
-//   .tp_iter = (getiterfunc)dictiter_iter,
-//   .tp_iternext = (iternextfunc)dictiter_iternext,
-// };
 
 static PyTypeObject PyGRTDictIteratorObjectType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
@@ -645,8 +625,7 @@ void grt::PythonContext::init_grt_dict_type() {
 
   Py_INCREF(&PyGRTDictObjectType);
   Py_INCREF(&PyGRTDictIteratorObjectType);
-  PyModule_AddObject(get_grt_module(), "Dict", (PyObject *)&PyGRTDictObjectType);
-//   PyModule_AddObject(get_grt_module(), "Dict_Iter", (PyObject *)&PyGRTDictIteratorObjectType);
+  PyModule_AddObject(get_grt_module(), "Dict", reinterpret_cast<PyObject *>(&PyGRTDictObjectType));
 
   _grt_dict_class = PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Dict");
 }
