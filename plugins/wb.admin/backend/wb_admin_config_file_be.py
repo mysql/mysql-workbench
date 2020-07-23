@@ -1066,7 +1066,8 @@ class WbAdminConfigFileBE(object):
                 r = cmp(sections_map[y.section][0], sections_map[x.section][0])
             return r
 
-        change = sorted(iter(self.changeset.values()), sort_fn)
+        change = list(self.changeset.values())
+        change.sort(key=functools.cmp_to_key(sort_fn))
         second_pass_changes = []
 
         # Now we have sorted items (CHANGE, DEL, ADD). This is the order we will apply changes
@@ -1150,7 +1151,7 @@ class WbAdminConfigFileBE(object):
 
         tempdir = tempfile.gettempdir()
         self.temp_file_name = os.path.join(tempdir, "mysql_workbench_config.temp")
-        outf = open(self.temp_file_name, "w+b")
+        outf = open(self.temp_file_name, "w")
         eol = "\n"
         if self.server_profile.target_is_windows:
             eol = "\r\n"

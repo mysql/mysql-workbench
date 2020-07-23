@@ -1997,8 +1997,6 @@ class ServerManagementHelper(object):
 
     #-----------------------------------------------------------------------------
     def set_file_content_and_backup(self, path, contents, backup_extension, as_user = Users.CURRENT, user_password = None, mode = None):
-        if type(contents) is str:
-            contents = contents.encode("utf8")
         return self.file.save_file_content_and_backup(path, contents, backup_extension, as_user=as_user, user_password=user_password, mode = mode)
 
     #-----------------------------------------------------------------------------
