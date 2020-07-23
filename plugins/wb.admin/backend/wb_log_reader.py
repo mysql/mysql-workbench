@@ -1,4 +1,4 @@
-# Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2011, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -477,12 +477,9 @@ class BaseLogFileReader(object):
             the log viewer shortening to 256 characters and taking care of encoding issues
             '''
         l = len(data)
-        try:
-            abbr = data[:256].encode('utf-8')
-        except ValueError:
-            abbr = data[:256].decode('latin1').encode('utf-8')
+        abbr = data[:256]
         size = '%d bytes' % l if l < 1024 else '%.1f KB' % (l / 1024.0)
-        return abbr if l <= 256 else abbr + ' [truncated, %s total]' % size
+        return data if l <= 256 else data + ' [truncated, %s total]' % size
 
 
     def current(self):
