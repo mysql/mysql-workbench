@@ -259,8 +259,8 @@ class WbAdminMonitor(mforms.Box):
         self.last_traffic = tx
         return ret/UPDATE_INTERVAL
 
-    def calc_key_efficiency(self, xxx_todo_changeme):
-        (key_reads, key_read_requests) = xxx_todo_changeme
+    def calc_key_efficiency(self, key_read):
+        (key_reads, key_read_requests) = key_read
         key_read_requests = float(key_read_requests)
         if key_read_requests == 0.0:
             return 0
@@ -290,15 +290,15 @@ class WbAdminMonitor(mforms.Box):
 #            return 0
 #        return 100 * (total_blocks - free_blocks) / total_blocks
 
-    def calc_ib_usage(self, xxx_todo_changeme1):
-        (free_pages, total_pages) = xxx_todo_changeme1
+    def calc_ib_usage(self, pages):
+        (free_pages, total_pages) = pages
         free_pages, total_pages = float(free_pages), float(total_pages)
         if -0.00001 <= total_pages <= 0.00001:
             return 0
         return 100 * ((total_pages - free_pages) / total_pages)
 
-    def calc_innodb_reads_per_second(self, xxx_todo_changeme2):
-        (count,) = xxx_todo_changeme2
+    def calc_innodb_reads_per_second(self, counts):
+        (count,) = counts
         if self.last_ircount == 0:
             self.last_ircount = count
             return 0
@@ -306,8 +306,8 @@ class WbAdminMonitor(mforms.Box):
         self.last_ircount = count
         return ret/UPDATE_INTERVAL
 
-    def calc_innodb_writes_per_second(self, xxx_todo_changeme3):
-        (count,) = xxx_todo_changeme3
+    def calc_innodb_writes_per_second(self, counts):
+        (count,) = counts
         if self.last_iwcount == 0:
             self.last_iwcount = count
             return 0
