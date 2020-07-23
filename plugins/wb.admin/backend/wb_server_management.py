@@ -307,7 +307,7 @@ def local_run_cmd_linux(command, as_user = Users.CURRENT, user_password=None, su
     try:
         current_text, _ = child.communicate()
         if current_text and output_handler:
-            output_handler(current_text)
+            output_handler(to_unicode(current_text))
     except Exception as e:
         log_error("local_run_cmd_linux: error reading from child process: %s\n" % str(e))
     result = child.returncode
