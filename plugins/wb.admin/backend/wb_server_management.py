@@ -453,8 +453,8 @@ class ProcessOpsBase(object):
 
 class ProcessOpsNope(ProcessOpsBase):
     @classmethod
-    def match(cls, xxx_todo_changeme):
-        (host, target, connect) = xxx_todo_changeme
+    def match(cls, conn_params):
+        (host, target, connect) = conn_params
         return connect == 'none'
 
     def expand_path_variables(self, path):
@@ -474,8 +474,8 @@ _process_ops_classes.append(ProcessOpsNope)
 
 class ProcessOpsLinuxLocal(ProcessOpsBase):
     @classmethod
-    def match(cls, xxx_todo_changeme1):
-        (host, target, connect) = xxx_todo_changeme1
+    def match(cls, conn_params):
+        (host, target, connect) = conn_params
         return connect == 'local' and (host in (wbaOS.linux, wbaOS.darwin) and target in (wbaOS.linux, wbaOS.darwin))
 
     def __init__(self, **kwargs):
@@ -518,9 +518,9 @@ _process_ops_classes.append(ProcessOpsLinuxLocal)
 
 class ProcessOpsLinuxRemote(ProcessOpsBase):
     @classmethod
-    def match(cls, xxx_todo_changeme2):
+    def match(cls, conn_params):
         # host doesn't matter
-        (host, target, connect) = xxx_todo_changeme2
+        (host, target, connect) = conn_params
         return connect == 'ssh' and target in (wbaOS.linux, wbaOS.darwin)
 
     def __init__(self, **kwargs): # Here should be at least commented list of args
@@ -607,8 +607,8 @@ WIN_PROGRAM_DATA_VAR = "%ProgramData%"
 
 class ProcessOpsWindowsLocal(ProcessOpsBase):
     @classmethod
-    def match(cls, xxx_todo_changeme3):
-        (host, target, connect) = xxx_todo_changeme3
+    def match(cls, conn_params):
+        (host, target, connect) = conn_params
         return (host == wbaOS.windows and target == wbaOS.windows and connect in ('wmi', 'local'))
 
     def __init__(self, **kwargs):
@@ -716,9 +716,9 @@ _process_ops_classes.append(ProcessOpsWindowsLocal)
 
 class ProcessOpsWindowsRemoteSSH(ProcessOpsWindowsLocal):
     @classmethod
-    def match(cls, xxx_todo_changeme4):
+    def match(cls, conn_params):
         # host doesn't matter
-        (host, target, connect) = xxx_todo_changeme4
+        (host, target, connect) = conn_params
         return (target == wbaOS.windows and connect == 'ssh')
 
     def __init__(self, **kwargs):

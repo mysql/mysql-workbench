@@ -80,8 +80,8 @@ def test_connectivity(connection, error_title):
         s.settimeout(10) # 10s timeout
         try:
             s.connect((hostname, port))
-        except socket.gaierror as xxx_todo_changeme:
-            (errno, e) = xxx_todo_changeme.args
+        except socket.gaierror as err:
+            (errno, e) = err.args
             if errno == 8: # cannot resolve
                 mforms.Utilities.show_message(error_title,
                         "Unable to connect to the provided host and port combination.\n\n"+
@@ -118,8 +118,8 @@ def test_connectivity(connection, error_title):
                         "- your network connection is properly functioning",
                         "OK", "", "")
             return False
-        except socket.error as xxx_todo_changeme1:
-            (errno, e) = xxx_todo_changeme1.args
+        except socket.error as err:
+            (errno, e) = err.args
             if errno == 61: # connection refused
                 if ping_host(hostname):
                     mforms.Utilities.show_message(error_title,
