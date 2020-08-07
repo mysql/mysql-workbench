@@ -141,7 +141,7 @@ void PythonContextHelper::InitPython() {
 
 PythonContextHelper::~PythonContextHelper() {
   PyEval_RestoreThread(_main_thread_state);
-  _main_thread_state = NULL;
+  _main_thread_state = nullptr;
   Py_Finalize();
 }
 
@@ -287,7 +287,7 @@ PythonContext *PythonContext::get_and_check() {
   } catch (std::exception &exc) {
     PyErr_SetString(PyExc_SystemError, strfmt("Could not get GRT context: %s", exc.what()).c_str());
   }
-  return NULL;
+  return nullptr;
 }
 
 void PythonContext::set_grt_observer_callable(PyObject *obj) {
@@ -309,7 +309,7 @@ void PythonContext::handle_grt_notification(const std::string &name, ObjectRef s
     if (res) {
       Py_DECREF(res);
     }
-    Py_DECREF(psender);
+    Py_XDECREF(psender);
     Py_XDECREF(pinfo);
     Py_DECREF(args);
   }
@@ -332,9 +332,7 @@ void PythonContext::handle_notification(const std::string &name, void *sender, b
     if (!(res = PyObject_CallObject(_grt_notification_observer, args))) {
       log_python_error("Error forwarding notification to Python");
     }
-    if (res) {
-      Py_DECREF(res);
-    }
+    Py_XDECREF(res);
     Py_DECREF(args);
 
     // apply back changes made to the info dict from python code
@@ -362,7 +360,7 @@ static PyObject *grt_print(PyObject *self, PyObject *args) {
   std::string text;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *o;
   if (!PyArg_ParseTuple(args, "O", &o)) {
@@ -370,9 +368,9 @@ static PyObject *grt_print(PyObject *self, PyObject *args) {
       PyErr_Clear();
       text = "None";
     } else
-      return NULL;
+      return nullptr;
   } else if (!ctx->pystring_to_string(o, text, true))
-    return NULL;
+    return nullptr;
 
 #ifdef _MSC_VER
   OutputDebugStringA(text.c_str());
@@ -382,7 +380,7 @@ static PyObject *grt_print(PyObject *self, PyObject *args) {
   grt::GRT::get()->send_output(text);
   logDebug3("%s\n", text.c_str());
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -391,19 +389,19 @@ static PyObject *pylog(base::Logger::LogLevel level, PyObject *args) {
   std::string text;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   char *domain;
   PyObject *o;
   if (!PyArg_ParseTuple(args, "sO", &domain, &o))
-    return NULL;
+    return nullptr;
 
   if (!ctx->pystring_to_string(o, text, true))
-    return NULL;
+    return nullptr;
 
   base::Logger::log(level, domain, "%s", text.c_str());
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -436,7 +434,7 @@ static PyObject *grt_send_output(PyObject *self, PyObject *args) {
   std::string text;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *o;
   if (!PyArg_ParseTuple(args, "O", &o)) {
@@ -445,14 +443,14 @@ static PyObject *grt_send_output(PyObject *self, PyObject *args) {
       text = "None";
     }
     else
-      return NULL;
+      return nullptr;
   }
   else if (!ctx->pystring_to_string(o, text, true))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->send_output(text);
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -461,25 +459,25 @@ static PyObject *grt_send_warning(PyObject *self, PyObject *args) {
   std::string text;
   std::string detail;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
-  PyObject *o, *d = NULL;
+  PyObject *o, *d = nullptr;
   if (!PyArg_ParseTuple(args, "O|O", &o, &d)) {
     if (PyTuple_Size(args) == 1 && PyTuple_GetItem(args, 0) == Py_None) {
       PyErr_Clear();
       text = "None";
     } else
-      return NULL;
+      return nullptr;
   } else {
     if (!ctx->pystring_to_string(o, text, true))
-      return NULL;
+      return nullptr;
     if (d && !ctx->pystring_to_string(d, detail, true))
-      return NULL;
+      return nullptr;
   }
 
   grt::GRT::get()->send_warning(text, detail);
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -488,26 +486,26 @@ static PyObject *grt_send_info(PyObject *self, PyObject *args) {
   std::string text;
   std::string detail;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
-  PyObject *o, *d = NULL;
+  PyObject *o, *d = nullptr;
   if (!PyArg_ParseTuple(args, "O|O", &o, &d)) {
     if (PyTuple_Size(args) == 1 && PyTuple_GetItem(args, 0) == Py_None) {
       PyErr_Clear();
       text = "None";
     } else
-      return NULL;
+      return nullptr;
   } else {
     if (!ctx->pystring_to_string(o, text, true))
-      return NULL;
+      return nullptr;
     if (d && !ctx->pystring_to_string(d, detail, true))
-      return NULL;
+      return nullptr;
   }
 
   grt::GRT::get()->send_info(text, detail);
   //  logDebug2("grt.python", "%s: (%s)", text.c_str(), detail.c_str());
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -516,56 +514,56 @@ static PyObject *grt_send_error(PyObject *self, PyObject *args) {
   std::string text;
   std::string detail;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
-  PyObject *o, *d = NULL;
+  PyObject *o, *d = nullptr;
   if (!PyArg_ParseTuple(args, "O|O", &o, &d)) {
     if (PyTuple_Size(args) == 1 && PyTuple_GetItem(args, 0) == Py_None) {
       PyErr_Clear();
       text = "None";
     } else
-      return NULL;
+      return nullptr;
   } else {
     if (!ctx->pystring_to_string(o, text, true))
-      return NULL;
+      return nullptr;
     if (d && !ctx->pystring_to_string(d, detail, true))
-      return NULL;
+      return nullptr;
   }
 
   grt::GRT::get()->send_error(text, detail);
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
 static PyObject *grt_send_progress(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   float pct;
-  PyObject *texto, *detailo = NULL;
+  PyObject *texto, *detailo = nullptr;
   if (!PyArg_ParseTuple(args, "fO|O", &pct, &texto, &detailo))
-    return NULL;
+    return nullptr;
 
   std::string text, detail;
   if (!ctx->pystring_to_string(texto, text, true))
-    return NULL;
+    return nullptr;
   if (detailo && !ctx->pystring_to_string(detailo, detail, true))
-    return NULL;
-  grt::GRT::get()->send_progress(pct, text, detail, NULL);
-  Py_INCREF(Py_None);
+    return nullptr;
+  grt::GRT::get()->send_progress(pct, text, detail, nullptr);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
 static PyObject *grt_begin_progress_step(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   float pct1, pct2;
   if (!PyArg_ParseTuple(args, "ff", &pct1, &pct2))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->begin_progress_step(pct1, pct2);
 
@@ -575,10 +573,10 @@ static PyObject *grt_begin_progress_step(PyObject *self, PyObject *args) {
 static PyObject *grt_end_progress_step(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   if (!PyArg_ParseTuple(args, ""))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->end_progress_step();
 
@@ -588,10 +586,10 @@ static PyObject *grt_end_progress_step(PyObject *self, PyObject *args) {
 static PyObject *grt_reset_progress_steps(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   if (!PyArg_ParseTuple(args, ""))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->reset_progress_steps();
 
@@ -605,20 +603,20 @@ static PyObject *grt_get_by_path(PyObject *self, PyObject *args) {
   grt::ValueRef value;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   if (!PyArg_ParseTuple(args, "s|O", &path, &object))
-    return NULL;
+    return nullptr;
 
   if (object) {
     try {
       value = ctx->from_pyobject(object);
     } catch (grt::type_error &exc) {
       PyErr_SetString(PyExc_TypeError, exc.what());
-      return NULL;
+      return nullptr;
     } catch (std::exception &exc) {
       PythonContext::set_python_error(exc);
-      return NULL;
+      return nullptr;
     }
   } else
     value = grt::GRT::get()->root();
@@ -630,7 +628,7 @@ static PyObject *grt_get_by_path(PyObject *self, PyObject *args) {
     value = get_value_by_path(value, path);
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
 
   return ctx->from_grt(value);
@@ -655,9 +653,7 @@ void PythonContext::printResult(std::map<std::string, std::string> &output) {
     if (!(res = PyObject_CallObject(_grtEventLogNotification, args))) {
       log_python_error("Error forwarding GRT notification to Python");
     }
-    if (res) {
-      Py_DECREF(res);
-    }
+    Py_XDECREF(res);
     Py_DECREF(args);
     Py_DECREF(dict);
   }
@@ -678,12 +674,12 @@ static PyObject *getEventLogEntry(PyObject *self, PyObject *args) {
   PythonContext *ctx;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
-  char *query = NULL;
+  char *query = nullptr;
   long seek = 0;
   if (!PyArg_ParseTuple(args, "ls", &seek, &query))
-    return NULL;
+    return nullptr;
 
 #ifdef _MSC_VER
   EventLogReader reader(query, printResultCallback);
@@ -691,28 +687,28 @@ static PyObject *getEventLogEntry(PyObject *self, PyObject *args) {
   reader.ReadEvents();
 #endif
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
 static PyObject *setEventlogCallback(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *object;
 
   if (!PyArg_ParseTuple(args, "O", &object))
-    return NULL;
+    return nullptr;
 
   if (!PyCallable_Check(object)) {
     PyErr_SetString(PyExc_ValueError, "notification observer argument must be a callable");
-    return NULL;
+    return nullptr;
   }
 
   ctx->setEventlogCallback(object);
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -720,17 +716,17 @@ static PyObject *grt_readline(PyObject *self, PyObject *args) {
   PythonContext *ctx;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   if (!PyArg_ParseTuple(args, ""))
-    return NULL;
+    return nullptr;
 
   if (ctx->stdin_readline_slot) {
     std::string line = ctx->stdin_readline_slot();
     return Py_BuildValue("s", line.c_str());
   }
   PyErr_SetString(PyExc_NotImplementedError, "input()/stdin reading not available");
-  return NULL;
+  return nullptr;
 }
 
 void decrement_int(int *i) {
@@ -740,7 +736,7 @@ void decrement_int(int *i) {
 static bool call_handle_message(const grt::Message &msg, void *sender, AutoPyObject callable) {
   WillEnterPython lock;
   PyObject *ret;
-  const char *type = NULL;
+  const char *type = nullptr;
   static int handling_message = 0;
 
   if (handling_message > 10) {
@@ -777,7 +773,7 @@ static bool call_handle_message(const grt::Message &msg, void *sender, AutoPyObj
   }
 
   PyObject *args = Py_BuildValue("(sss)", type, text.c_str(), msg.detail.c_str());
-  if (!(ret = PyObject_Call(callable, args, NULL))) {
+  if (!(ret = PyObject_Call(callable, args, nullptr))) {
     Py_DECREF(args);
     PythonContext::log_python_error("Error calling Python output handler:");
     PyErr_Clear();
@@ -796,14 +792,14 @@ static bool call_handle_message(const grt::Message &msg, void *sender, AutoPyObj
 static PyObject *grt_push_message_handler(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *o;
   if (!PyArg_ParseTuple(args, "O", &o))
-    return NULL;
+    return nullptr;
 
   if (!PyCallable_Check(o))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->pushMessageHandler(
     new grt::SlotHolder(std::bind(&call_handle_message, std::placeholders::_1, std::placeholders::_2, AutoPyObject(o))));
@@ -814,21 +810,19 @@ static PyObject *grt_push_message_handler(PyObject *self, PyObject *args) {
 static PyObject *grt_pop_message_handler(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->popMessageHandler();
 
   return Py_BuildValue("i", grt::GRT::get()->messageHandlerCount());
 }
 
-//
-
 static bool call_status_query(AutoPyObject callable) {
   WillEnterPython lock;
 
   PyObject *ret;
   PyObject *args = Py_BuildValue("()");
-  if (!(ret = PyObject_Call(callable, args, NULL))) {
+  if (!(ret = PyObject_Call(callable, args, nullptr))) {
     Py_DECREF(args);
     PythonContext::log_python_error("Error calling Python status handler:");
     PyErr_Clear();
@@ -847,14 +841,14 @@ static bool call_status_query(AutoPyObject callable) {
 static PyObject *grt_push_status_query_handler(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *o;
   if (!PyArg_ParseTuple(args, "O", &o))
-    return NULL;
+    return nullptr;
 
   if (!PyCallable_Check(o))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->push_status_query_handler(std::bind(&call_status_query, AutoPyObject(o)));
 
@@ -864,7 +858,7 @@ static PyObject *grt_push_status_query_handler(PyObject *self, PyObject *args) {
 static PyObject *grt_pop_status_query_handler(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   grt::GRT::get()->pop_status_query_handler();
 
@@ -874,10 +868,10 @@ static PyObject *grt_pop_status_query_handler(PyObject *self, PyObject *args) {
 static PyObject *grt_query_status(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   if (args && !PyArg_ParseTuple(args, ""))
-    return NULL;
+    return nullptr;
 
   if (grt::GRT::get()->query_status())
     Py_RETURN_TRUE;
@@ -890,47 +884,47 @@ static PyObject *grt_query_status(PyObject *self, PyObject *args) {
 static PyObject *grt_serialize(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *object;
-  char *path = NULL;
+  char *path = nullptr;
 
   if (!PyArg_ParseTuple(args, "Os", &object, &path))
-    return NULL;
+    return nullptr;
 
   grt::ValueRef value(ctx->from_pyobject(object));
   if (!value.is_valid()) {
     PyErr_SetString(PyExc_TypeError, "First argument must be a GRT object");
-    return NULL;
+    return nullptr;
   }
 
   if (!path) {
     PyErr_SetString(PyExc_ValueError, "File path expected for argument #2");
-    return NULL;
+    return nullptr;
   }
 
   try {
     grt::GRT::get()->serialize(value, path);
   } catch (const std::exception &exc) {
     PythonContext::set_python_error(exc, "serializing object");
-    return NULL;
+    return nullptr;
   }
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
 static PyObject *grt_unserialize(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
-  char *path = NULL;
+  char *path = nullptr;
   if (!PyArg_ParseTuple(args, "s", &path))
-    return NULL;
+    return nullptr;
   if (!path) {
     PyErr_SetString(PyExc_ValueError, "File path expected");
-    return NULL;
+    return nullptr;
   }
 
   try {
@@ -938,70 +932,70 @@ static PyObject *grt_unserialize(PyObject *self, PyObject *args) {
     return ctx->from_grt(value);
   } catch (const std::exception &exc) {
     PythonContext::set_python_error(exc, base::strfmt("unserializing file %s", path));
-    return NULL;
+    return nullptr;
   }
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
 static PyObject *grt_set_notification_observer(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   PyObject *object;
 
   if (!PyArg_ParseTuple(args, "O", &object))
-    return NULL;
+    return nullptr;
 
   if (!PyCallable_Check(object)) {
     PyErr_SetString(PyExc_ValueError, "notification observer argument must be a callable");
-    return NULL;
+    return nullptr;
   }
 
   ctx->set_grt_observer_callable(object);
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
 static PyObject *grt_send_notification(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   char *name;
   PyObject *object;
   PyObject *info;
 
   if (!PyArg_ParseTuple(args, "sOO", &name, &object, &info))
-    return NULL;
+    return nullptr;
 
   ValueRef infodict = ctx->from_pyobject(info);
   if (infodict.is_valid() && !DictRef::can_wrap(infodict)) {
     PyErr_SetString(PyExc_ValueError, "notification info must be a dict or None");
-    return NULL;
+    return nullptr;
   }
   ValueRef sender = ctx->from_pyobject(object);
   if (sender.is_valid() && !ObjectRef::can_wrap(sender)) {
     PyErr_SetString(PyExc_ValueError, "notification sender info must be a GRT object");
-    return NULL;
+    return nullptr;
   }
 
   try {
     GRTNotificationCenter::get()->send_grt(name, ObjectRef::cast_from(sender), DictRef::cast_from(infodict));
   } catch (std::exception &exc) {
     ctx->set_python_error(exc, "Error sending notification");
-    return NULL;
+    return nullptr;
   }
 
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
-static PyObject *(*wrap_pyobject_func)(PyObject *, PyObject *) = NULL;
-static PyObject *(*unwrap_pyobject_func)(PyObject *, PyObject *) = NULL;
+static PyObject *(*wrap_pyobject_func)(PyObject *, PyObject *) = nullptr;
+static PyObject *(*unwrap_pyobject_func)(PyObject *, PyObject *) = nullptr;
 
 static PyObject *grt_wrap_pyobject(PyObject *self, PyObject *args) {
   // since the GRT objects are defined in an outer level, we forward this
@@ -1010,7 +1004,7 @@ static PyObject *grt_wrap_pyobject(PyObject *self, PyObject *args) {
     return wrap_pyobject_func(self, args);
 
   PyErr_SetString(PyExc_SystemError, "GRT python support not initialized correctly");
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *grt_unwrap_pyobject(PyObject *self, PyObject *args) {
@@ -1018,7 +1012,7 @@ static PyObject *grt_unwrap_pyobject(PyObject *self, PyObject *args) {
     return unwrap_pyobject_func(self, args);
 
   PyErr_SetString(PyExc_SystemError, "GRT python support not initialized correctly");
-  return NULL;
+  return nullptr;
 }
 
 void PythonContext::set_wrap_pyobject_func(PyObject *(*func)(PyObject *, PyObject *)) {
@@ -1104,7 +1098,7 @@ static PyMethodDef GrtModuleMethods[] = {
   {"setEventlogCallback", setEventlogCallback, METH_VARARGS,
    "Pushes a callback that print log entry form a EventViewer."},
 
-  {NULL, NULL, 0, NULL} /* Sentinel */
+  {nullptr, nullptr, 0, nullptr} /* Sentinel */
 };
 
 static struct PyModuleDef grtModuleDef = {
@@ -1118,15 +1112,6 @@ static struct PyModuleDef grtModuleDef = {
   nullptr,  // clear method
   nullptr   //  free method
 };
-// #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-// 
-// static PyModuleDef grtModuleDef = {
-//     PyModuleDef_HEAD_INIT,
-//     .m_name = "grt",
-//     .m_doc = "GRT module documentation",
-//     .m_size = -1,
-//     .m_methods = GrtModuleMethods
-// };
 
 static struct PyModuleDef grtModulesModuleDef = {
   PyModuleDef_HEAD_INIT,
@@ -1139,12 +1124,6 @@ static struct PyModuleDef grtModulesModuleDef = {
   nullptr,  // clear method
   nullptr   // free method
 };
-// static PyModuleDef grtModulesModuleDef = {
-//     PyModuleDef_HEAD_INIT,
-//     .m_name = "grt.modules",
-//     .m_doc = "GRT.modules module documentation",
-//     .m_size = -1,
-// };
 
 static struct PyModuleDef grtClassesModuleDef = {
   PyModuleDef_HEAD_INIT,
@@ -1158,15 +1137,6 @@ static struct PyModuleDef grtClassesModuleDef = {
   nullptr   // free method
 };
 
-// static PyModuleDef grtClassesModuleDef = {
-//     PyModuleDef_HEAD_INIT,
-//     .m_name = "grt.classes",
-//     .m_doc = "GRT.classes module documentation",
-//     .m_size = -1,
-// };
-
-
-
 void PythonContext::register_grt_module(PyObject *module) {
   _grt_module = module;
 
@@ -1174,7 +1144,7 @@ void PythonContext::register_grt_module(PyObject *module) {
   PyObject *context_object = PyCapsule_New(this, "contextObject", nullptr);
   int result = PyCapsule_SetContext(context_object, &GRTTypeSignature);
   std::cout << "result: " << result << std::endl;
-  if (context_object != NULL)
+  if (context_object != nullptr)
     result = PyModule_AddObject(module, "__GRT__", context_object);
 
   result = PyModule_AddStringConstant(module, "INT", (char *)type_to_str(IntegerType).c_str());
@@ -1190,23 +1160,23 @@ void PythonContext::register_grt_module(PyObject *module) {
   init_grt_object_type();
 
   {
-    _grt_user_interrupt_error = PyErr_NewException((char *)"grt.UserInterrupt", NULL, NULL);
+    _grt_user_interrupt_error = PyErr_NewException((char *)"grt.UserInterrupt", nullptr, nullptr);
     result = PyModule_AddObject(_grt_module, "UserInterrupt", _grt_user_interrupt_error);
   }
   {
-    _grt_db_error = PyErr_NewException((char *)"grt.DBError", NULL, NULL);
+    _grt_db_error = PyErr_NewException((char *)"grt.DBError", nullptr, nullptr);
     result = PyModule_AddObject(_grt_module, "DBError", _grt_db_error);
   }
   {
-    _grt_db_access_denied_error = PyErr_NewException((char *)"grt.DBAccessDenied", NULL, NULL);
+    _grt_db_access_denied_error = PyErr_NewException((char *)"grt.DBAccessDenied", nullptr, nullptr);
     result = PyModule_AddObject(_grt_module, "DBAccessDenied", _grt_db_access_denied_error);
   }
   {
-    _grt_db_login_error = PyErr_NewException((char *)"grt.DBLoginError", NULL, NULL);
+    _grt_db_login_error = PyErr_NewException((char *)"grt.DBLoginError", nullptr, nullptr);
     result = PyModule_AddObject(_grt_module, "DBLoginError", _grt_db_login_error);
   }
   {
-    _grt_db_not_connected = PyErr_NewException((char *)"grt.DBNotConnected", NULL, NULL);
+    _grt_db_not_connected = PyErr_NewException((char *)"grt.DBNotConnected", nullptr, nullptr);
     result = PyModule_AddObject(_grt_module, "DBNotConnected", _grt_db_not_connected);
   }
 
@@ -1226,7 +1196,7 @@ void PythonContext::register_grt_module(PyObject *module) {
 
   // AutoPyObject need to keep a reference but PyModule_AddObject steals it
   // so it is needed to increase it to avoid problems on destruction
-  Py_INCREF(_grt_modules_module);
+  Py_XINCREF(_grt_modules_module);
   if(PyModule_AddObject(_grt_module, "modules", _grt_modules_module) < 0)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
 
@@ -1237,7 +1207,7 @@ void PythonContext::register_grt_module(PyObject *module) {
   
 //   PyDict_SetItemString(PyModule_GetDict(module), "classes", (PyObject *)_grt_classes_module);
 
-  Py_INCREF(_grt_classes_module);
+  Py_XINCREF(_grt_classes_module);
   if (PyModule_AddObject(_grt_module, "classes", _grt_classes_module) < 0)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
 
@@ -1247,7 +1217,7 @@ void PythonContext::register_grt_module(PyObject *module) {
 
 PyObject *PythonContext::grt_module_create(){
   PyObject *module = PyModule_Create(&grtModuleDef);
-  if (module == NULL)
+  if (module == nullptr)
     throw std::runtime_error("Error initializing GRT module in Python support");
   
   PyModule_AddObject(module, "__path__", Py_BuildValue("[]"));
@@ -1277,7 +1247,7 @@ PyObject *PythonContext::eval_string(const std::string &expression) {
   PyObject *mainmod = PyImport_AddModule("__main__");
   if (!mainmod) {
     PyErr_Clear();
-    return NULL;
+    return nullptr;
   }
   PyObject *globals = PyModule_GetDict(mainmod);
   if (globals) {
@@ -1287,7 +1257,7 @@ PyObject *PythonContext::eval_string(const std::string &expression) {
     return result;
   }
   PyErr_Clear();
-  return NULL;
+  return nullptr;
 }
 
 PyObject *PythonContext::get_global(const std::string &value) {
@@ -1296,7 +1266,7 @@ PyObject *PythonContext::get_global(const std::string &value) {
   if (!mainmod)
   {
     PyErr_Clear();
-    return NULL;
+    return nullptr;
   }
   PyObject *globals= PyModule_GetDict(mainmod);
   if (globals)
@@ -1373,13 +1343,12 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
         // maybe this should start returning unicode data, but before that all python code
         // should be tested if it can handle the unicode type. For now we just return utf8 strings.
         std::string data = *StringRef::cast_from(value);
-        // return PyUnicode_DecodeUTF8(data.data(), data.size(), NULL);
         return PyUnicode_FromStringAndSize(data.data(), data.size());
       }
       case ListType: {
         PyObject *content = PythonContext::internal_cobject_from_value(value);
         PyObject *args = Py_BuildValue("(ssO)", "", "", content);
-        PyObject *r = PyObject_Call(_grt_list_class, args, NULL);
+        PyObject *r = PyObject_Call(_grt_list_class, args, nullptr);
         Py_XDECREF(args);
         Py_XDECREF(content);
         return r;
@@ -1387,7 +1356,7 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
       case DictType: {
         PyObject *content = PythonContext::internal_cobject_from_value(value);
         PyObject *args = Py_BuildValue("(ssO)", "", "", content);
-        PyObject *r = PyObject_Call(_grt_dict_class, args, NULL);
+        PyObject *r = PyObject_Call(_grt_dict_class, args, nullptr);
         Py_XDECREF(args);
         Py_XDECREF(content);
         return r;
@@ -1397,17 +1366,17 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
         PyObject *content = PythonContext::internal_cobject_from_value(value);
         PyObject *theclass = _grt_class_wrappers[class_name];
         PyObject *args = Py_BuildValue("(sO)", "", content);
-        PyObject *r = PyObject_Call(theclass ? theclass : (PyObject *)_grt_object_class, args, NULL);
+        PyObject *r = PyObject_Call(theclass ? theclass : (PyObject *)_grt_object_class, args, nullptr);
         Py_XDECREF(args);
         Py_XDECREF(content);
 
         return r;
       }
       default:
-        return NULL;
+        return nullptr;
     }
   }
-  Py_INCREF(Py_None);
+  Py_XINCREF(Py_None);
   return Py_None;
 }
 
@@ -1680,11 +1649,9 @@ int PythonContext::run_buffer(const std::string &buffer, std::string *line_buffe
     message = PyTuple_GetItem(value, 0);
     if (strstr(PyUnicode_AsUTF8(message), "expected an indented block") ||
         strstr(PyUnicode_AsUTF8(message), "unexpected EOF") || strncmp(PyUnicode_AsUTF8(message), "EOF", 3) == 0) {
-      Py_DECREF(excep);
-      Py_DECREF(value);
-      if (trace) {
-        Py_DECREF(trace);
-      }
+      Py_XDECREF(excep);
+      Py_XDECREF(value);
+      Py_XDECREF(trace);
       PyErr_Clear();
       return 0; // continued line
     }
@@ -1775,7 +1742,7 @@ int PythonContext::refresh() {
 
   PyObject *classes_dict = PyModule_GetDict(_grt_classes_module);
 
-  Py_INCREF(classes_dict);
+  Py_XINCREF(classes_dict);
 
   // Generate Python class hierarchy to wrap GRT classes
   const std::list<grt::MetaClass *> &classes(grt::GRT::get()->get_metaclasses());
@@ -1793,7 +1760,7 @@ int PythonContext::refresh() {
   for (std::vector<grt::Module *>::const_iterator iter = modules.begin(); iter != modules.end(); ++iter) {
     std::string name = (*iter)->name();
     PyObject *arg = Py_BuildValue("(s)", name.c_str());
-    PyObject *r = PyObject_Call(_grt_module_class, arg, NULL);
+    PyObject *r = PyObject_Call(_grt_module_class, arg, nullptr);
     Py_DECREF(arg);
 
     if (!r)

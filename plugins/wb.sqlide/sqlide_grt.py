@@ -78,7 +78,7 @@ def importRecordsetDataFromFile(resultset):
     file_chooser.set_directory(os.path.expanduser('~'))
     file_chooser.set_extensions('CSV Files (*.csv)|*.csv', 'import')
     if file_chooser.run_modal():
-        with open(file_chooser.get_path(), 'rb') as import_file:
+        with open(file_chooser.get_path(), 'r') as import_file:
             ext = os.path.splitext(import_file.name)[1].lower()
             import_module = None
             if ext == '.csv':

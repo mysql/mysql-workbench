@@ -386,7 +386,7 @@ class csv_module(base_module):
                     
                 self._max_rows = rset.rowCount
                 self.update_progress(0.0, "Begin Export")
-                with open(self._filepath, 'wb') as csvfile:
+                with open(self._filepath, 'w') as csvfile:
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC if self.options['encolsestring']['value'] else csv.QUOTE_NONE)
@@ -444,7 +444,7 @@ class csv_module(base_module):
             
         result = True
         
-        with open(self._filepath, 'rb') as csvfile:
+        with open(self._filepath, 'r') as csvfile:
             self.update_progress(0.0, "Prepare Import")
             dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
@@ -523,7 +523,7 @@ class csv_module(base_module):
 
     def analyze_file(self):
         self.reset_column_fix()
-        with open(self._filepath, 'rb') as csvfile:
+        with open(self._filepath, 'r') as csvfile:
             if self.dialect is None:
                 csvsample = []
                 for i in range(0,2): #read two lines as a sample

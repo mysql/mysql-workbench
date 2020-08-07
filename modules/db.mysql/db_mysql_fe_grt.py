@@ -55,7 +55,9 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
     
     for schema in catalog.schemata:
         delimiter = grt.root.wb.options.options['SqlDelimiter']
-        apply_script(schema, create_scripts.get(schema.__id__, None), drop_scripts.get(schema.__id__, None))
+        create_schema = create_scripts[schema.__id__] if schema.__id__ in create_scripts else None
+        drop_schema = drop_scripts[schema.__id__] if schema.__id__ in drop_scripts.has_key else None
+        apply_script(schema, create_schema, drop_schema)
         for table in schema.tables:
             apply_script(table, create_scripts.get(table.__id__, None))
             for trigger in table.triggers:
@@ -81,7 +83,6 @@ def generateSQLCreateStatements(catalog, targetVersion, objectCreationParams):
     #options["GenerateUse"] = 1
     #        options['GenerateCreateIndex'] = 1
     options['GenerateWarnings'] = 1
-    
     options['UseOIDAsResultDictKey'] = 1
     if targetVersion:
         options['DBSettings'] = grt.modules.DbMySQL.getTraitsForServerVersion(targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber)
@@ -91,10 +92,8 @@ def generateSQLCreateStatements(catalog, targetVersion, objectCreationParams):
     else:
         drop_scripts = grt.modules.DbMySQL.generateSQLForDifferences(catalog, grt.classes.db_mysql_Catalog(), options)
     apply_scripts_to_catalog(catalog, create_scripts, drop_scripts)
-    
     preamble = getSchemaCreatePreamble(catalog, objectCreationParams)
     catalog.customData["migration:preamble"] = preamble
-
     postamble = getSchemaCreatePostamble(catalog, objectCreationParams)
     catalog.customData["migration:postamble"] = postamble
 

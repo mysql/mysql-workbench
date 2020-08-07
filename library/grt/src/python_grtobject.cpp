@@ -529,7 +529,7 @@ void grt::PythonContext::init_grt_object_type() {
       throw std::runtime_error("Could not initialize GRT Object type in python");
     }
 
-    Py_INCREF(&PyGRTObjectObjectType);
+    Py_XINCREF(&PyGRTObjectObjectType);
     PyModule_AddObject(get_grt_module(), "Object", (PyObject *)&PyGRTObjectObjectType);
 
     _grt_object_class = PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Object");
@@ -540,7 +540,7 @@ void grt::PythonContext::init_grt_object_type() {
       throw std::runtime_error("Could not initialize GRT Method type in python");
     }
 
-    Py_INCREF(&PyGRTMethodObjectType);
+    Py_XINCREF(&PyGRTMethodObjectType);
     PyModule_AddObject(get_grt_module(), "Method", (PyObject *)&PyGRTMethodObjectType);
 
     _grt_method_class = PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Method");

@@ -40,14 +40,14 @@ static void function_dealloc(PyGRTFunctionObject *self) {
 static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObject *kw) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   if ((int)self->function->arg_types.size() != PyTuple_Size(args)) {
     PyErr_SetString(PyExc_TypeError,
                     strfmt("%s.%s() takes %i arguments (%i given)", self->module->name().c_str(),
                            self->function->name.c_str(), (int)self->function->arg_types.size(), (int)PyTuple_Size(args))
                       .c_str());
-    return NULL;
+    return nullptr;
   }
 
   Py_ssize_t a = 0;
@@ -64,7 +64,7 @@ static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
                         strfmt("%s.%s(): argument %i must be a %s but is None", self->module->name().c_str(),
                                self->function->name.c_str(), (int)(a + 1), grt::fmt_type_spec(arg->type).c_str())
                           .c_str());
-        return NULL;
+        return nullptr;
       }
       grtargs.ginsert(v);
     } catch (grt::type_error &) {
@@ -72,11 +72,11 @@ static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
                       strfmt("%s.%s(): argument %i must be a %s", self->module->name().c_str(),
                              self->function->name.c_str(), (int)(a + 1), grt::fmt_type_spec(arg->type).c_str())
                         .c_str());
-      return NULL;
+      return nullptr;
     } catch (std::exception &exc) {
       PythonContext::set_python_error(exc,
                                       strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));
-      return NULL;
+      return nullptr;
     }
     ++a;
   }
@@ -105,29 +105,15 @@ static PyObject *function_call(PyGRTFunctionObject *self, PyObject *args, PyObje
       PythonContext::set_python_error(exc, exc.inner);
   } catch (sql::SQLException &exc) {
     PythonContext::set_python_error(exc, strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));
-    return NULL;
+    return nullptr;
   } catch (grt::python_error &) {
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc, strfmt("%s.%s()", self->module->name().c_str(), self->function->name.c_str()));
   }
 
-  return NULL;
+  return nullptr;
 }
-// #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-// 
-// static PyTypeObject PyGRTFunctionObjectType = {
-//   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
-//   .tp_name = "grt.Function",
-//   .tp_basicsize = sizeof(PyGRTFunctionObject),
-//   .tp_dealloc = (destructor)function_dealloc,
-//   .tp_call = (ternaryfunc)function_call,
-//   .tp_getattro = PyObject_GenericGetAttr,
-//   .tp_setattro = PyObject_GenericSetAttr,
-//   .tp_flags = Py_TPFLAGS_DEFAULT,
-//   .tp_alloc = PyType_GenericAlloc,
-//   .tp_new = PyType_GenericNew,
-// };
 
 static PyTypeObject PyGRTFunctionObjectType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
@@ -221,7 +207,7 @@ static PyTypeObject PyGRTFunctionObjectType = {
 static int module_init(PyGRTModuleObject *self, PyObject *args, PyObject *kwds) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (ctx) {
-    const char *name = NULL;
+    const char *name = nullptr;
 
     if (!PyArg_ParseTuple(args, "z", &name))
       return -1;
@@ -282,9 +268,9 @@ static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {
     } else {
       if (self->module->has_function(attrname)) {
         // create a method call module and return it
-        PyGRTFunctionObject *method = (PyGRTFunctionObject *)PyType_GenericNew(&PyGRTFunctionObjectType, NULL, NULL);
+        PyGRTFunctionObject *method = (PyGRTFunctionObject *)PyType_GenericNew(&PyGRTFunctionObjectType, nullptr, nullptr);
         if (!method)
-          return NULL;
+          return nullptr;
 
         method->module = self->module;
         method->function = self->module->get_function(attrname);
@@ -294,7 +280,7 @@ static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {
         PyErr_SetString(PyExc_AttributeError, strfmt("unknown attribute '%s'", attrname).c_str());
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *module_str(PyGRTModuleObject *self) {
@@ -311,24 +297,8 @@ PyDoc_STRVAR(PyGRTModuleDoc,
              Creates a wrapper for a GRT module.");
 
 static PyGetSetDef PyGRTModuleGetSetters[] = {
-  {(char *)"__doc__", (getter)module_get_doc, NULL, (char *)"Documentation of the GRT module.", 0}, {0, 0, 0, 0, 0},
+  {(char *)"__doc__", (getter)module_get_doc, nullptr, (char *)"Documentation of the GRT module.", 0}, {0, 0, 0, 0, 0},
 };
-
-// static PyTypeObject PyGRTModuleObjectType = {
-//   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyModule_VAR_HEAD
-//   .tp_name = "grt.Module",
-//   .tp_basicsize = sizeof(PyGRTModuleObject),
-//   .tp_dealloc = (destructor)module_dealloc,
-//   .tp_str = (reprfunc)module_str,
-//   .tp_getattro = (getattrofunc)module_getattro,
-//   .tp_setattro = PyObject_GenericSetAttr,
-//   .tp_flags = Py_TPFLAGS_DEFAULT,
-//   .tp_doc = PyGRTModuleDoc,
-//   .tp_getset = PyGRTModuleGetSetters,
-//   .tp_init = (initproc)module_init,
-//   .tp_alloc = PyType_GenericAlloc,
-//   .tp_new = PyType_GenericNew,
-// };
 
 static PyTypeObject PyGRTModuleObjectType = {
   PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyModule_VAR_HEAD

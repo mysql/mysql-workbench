@@ -299,7 +299,7 @@ static PyObject *dict_get(PyGRTDictObject *self, PyObject *arg) {
       return ctx->from_grt(self->dict->get(key));
     else {
       if (def) {
-        Py_INCREF(def);
+        Py_XINCREF(def);
         return def;
       } else {
         PyErr_SetString(PyExc_KeyError, base::strfmt("invalid key '%s'", key).c_str());
@@ -325,7 +325,7 @@ static PyObject *dict_setdefault(PyGRTDictObject *self, PyObject *arg) {
       return ctx->from_grt(self->dict->get(key));
     else {
       if (def != Py_None)
-        Py_INCREF(def);
+        Py_XINCREF(def);
       try {
         self->dict->set(key, ctx->from_pyobject(def));
       } catch (grt::bad_item &exc) {
@@ -596,7 +596,7 @@ static PyObject *dict_iter(PyGRTDictObject *self) {
 }
 
 static PyObject *dictiter_iter(PyGRTDictIteratorObject *self) {
-  Py_INCREF(self);
+  Py_XINCREF(self);
   self->isNew = true;
   return (PyObject *) self;
 }
@@ -629,8 +629,8 @@ void grt::PythonContext::init_grt_dict_type() {
     throw std::runtime_error("Could not initialize GRT Dict type in python");
   }
 
-  Py_INCREF(&PyGRTDictObjectType);
-  Py_INCREF(&PyGRTDictIteratorObjectType);
+  Py_XINCREF(&PyGRTDictObjectType);
+  Py_XINCREF(&PyGRTDictIteratorObjectType);
   PyModule_AddObject(get_grt_module(), "Dict", reinterpret_cast<PyObject *>(&PyGRTDictObjectType));
 
   _grt_dict_class = PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "Dict");

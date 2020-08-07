@@ -33,6 +33,7 @@ from workbench.exceptions import NotConnectedError
 from workbench import db_utils
 from migration_source_selection import request_password
 from grt import modules
+from wb_common import to_encodedString
 
 
 class HelperExited(Exception):
@@ -106,8 +107,7 @@ class TableCopyWorker(Thread):
 
     def feed_input(self, text):
         if self.process.poll() is None:
-            if type(text) is str:
-                text = text.encode("utf-8")
+            text = to_encodedString(text)
             self.process.stdin.write(text)
             self.process.stdin.flush()
         else:
@@ -262,9 +262,9 @@ class DataMigrator(object):
             out = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if self._resume:
-            passwords= (self._src_password+"\t"+self._tgt_password+"\n").encode("utf8") 
+            passwords= to_encodedString(self._src_password+"\t"+self._tgt_password+"\n")
         else:               
-            passwords= (self._src_password+"\n").encode("utf8")
+            passwords= to_encodedString(self._src_password+"\n")
         while out.poll() is None:
             o, e = out.communicate(passwords)
             passwords = None
