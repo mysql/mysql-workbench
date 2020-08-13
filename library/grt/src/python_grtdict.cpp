@@ -252,10 +252,10 @@ static PyObject *dict_update(PyGRTDictObject *self, PyObject *args) {
   if (!ctx)
     return nullptr;
 
-    if (!PyTuple_Check(args)){
-      PyErr_SetString(PyExc_ValueError, "tuple argument required for update()");
-      return nullptr;
-    }
+  if (!PyTuple_Check(args)){
+    PyErr_SetString(PyExc_ValueError, "tuple argument required for update()");
+    return nullptr;
+  }
 
   PyObject* arg = PyTuple_GetItem(args, 0);
   if (!arg) {
