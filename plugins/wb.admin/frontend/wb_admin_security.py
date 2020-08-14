@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -1958,11 +1958,11 @@ class SecurityAccount(mforms.Box):
         #if self._selected_user:
         username = to_unicode(self.username.get_string_value())
         host = to_unicode(self.hostlimithost.get_string_value())
-        
+
         if not self.valid_name:
             Utilities.show_error('Invalid host specification',
-                'The host specification "%s" is not valid. Please correct it and try again.' % host,
-                                'OK', '', '' )
+                                 'The host specification "%s" is not valid. Please correct it and try again.' % host,
+                                 'OK', '', '')
             self.current_action = ""
             return
 
@@ -1971,19 +1971,19 @@ class SecurityAccount(mforms.Box):
         password_unneeded = False
         self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
         plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
-        
+
         if self.has_extra_plugins and not plugin_info.get("enable_password", True):
             password_unneeded = True
-        
+
         if is_new_user and not self.password.get_string_value() and not password_unneeded:
             if Utilities.show_warning("Save Account Changes",
                     "It is a security hazard to create an account with no password.\nPlease confirm creation of '%s'@'%s' with no password."%(username, host),
                     "Create", "Cancel", "") != mforms.ResultOk:
                 self.current_action = ""
                 return
-        
+
         lcase_host = host.lower()
-        
+
         if lcase_host != host:
             if Utilities.show_message_and_remember("Save Account Changes",
                                         "MySQL only allows lowercase characters for hostnames, the account host will be updated accordingly.",
@@ -2006,8 +2006,8 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_questions < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Max. Queries',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
 
@@ -2016,8 +2016,8 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_updates < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Max. Updates',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
 
@@ -2026,8 +2026,8 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_connections < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Max. Connections',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
         try:
@@ -2035,12 +2035,10 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_user_connections < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Concurrent Connections',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
-        
-        
 
         if is_new_user and self.has_extra_plugins:
             self._selected_user.auth_plugin = self.selected_plugin_type()
@@ -2053,34 +2051,34 @@ class SecurityAccount(mforms.Box):
             self._selected_user.save()
         except WBSecurityValidationError as exc:
             Utilities.show_error("Save Account Changes",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
         except PermissionDeniedError as exc:
             Utilities.show_error("Permission Errors",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
         except Exception as exc:
             import traceback
             log_error("Exception while saving account: %s\n" % traceback.format_exc())
             Utilities.show_error("Error Saving Account",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
-        
+
         try:
             self.firewall_rules.save()
         except Exception as exc:
             import traceback
             log_error("Exception while saving account: %s\n" % traceback.format_exc())
             Utilities.show_error("Error Saving Account",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
 
         self.reload_user(is_new_user)
-        
+
         self.owner.secman.async_refresh(self.refresh)
 
         self.add_button.set_enabled(True)
@@ -2093,7 +2091,7 @@ class SecurityAccount(mforms.Box):
 
     def setup_bottom_message_box(self, user):
         if not user:
-            return               
+            return
 
         caption = ''
         if user.old_authentication:
