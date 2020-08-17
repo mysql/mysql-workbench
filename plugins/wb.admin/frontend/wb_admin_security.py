@@ -230,7 +230,7 @@ class AddSchemaPrivilegeForm(mforms.Form):
         box.set_spacing(8)
         self.set_content(box)
 
-        label = newLabel(("Select the Schema for which the user '%s' will have the privileges you want to define." % user).encode('utf-8'))
+        label = newLabel("Select the Schema for which the user '%s' will have the privileges you want to define." % user)
         box.add(label, False, True)
 
         panel = newPanel(mforms.TitledBoxPanel)
