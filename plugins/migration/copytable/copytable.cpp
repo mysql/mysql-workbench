@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -2290,6 +2290,15 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index) {
                                                      *(*_row_buffer)[col_index].length);
         _bulk_insert_record.append("')");
         break;
+#if MYSQL_VERSION_ID > 80021
+      case MYSQL_TYPE_INVALID:
+        // TODO: added to fix the build. Need to check how to handle this.
+        break;
+      case MYSQL_TYPE_BOOL:
+        // TODO: added to fix the build. Need to check how to handle this. In the current version this is just a placeholder.
+        break;
+#endif
+      
     }
   }
 
