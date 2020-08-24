@@ -38,7 +38,7 @@
 		16F7A2460F1CFFDC0084C11D /* WBObjectPropertiesController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */; };
 		2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */; };
 		270124222099F97F00FE448E /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
-		270124242099F9D200FE448E /* libmysqlclient.21.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.21.dylib */; };
+		270124242099F9D200FE448E /* libmysqlclient.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.dylib */; };
 		2701535014EBE9FF00AD28BC /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		27041AC221ABFDD300CDB7B2 /* dashboard_header_innodb_dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */; };
 		27041AC321ABFDD300CDB7B2 /* dashboard_header_mysql_dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */; };
@@ -67,7 +67,7 @@
 		27189E5A209B2CDE002EC0D4 /* libgdal.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE402099E2070050B26B /* libgdal.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E5B209B2CE5002EC0D4 /* libglib-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E5C209B2CEA002EC0D4 /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		27189E5E209B2CF3002EC0D4 /* libmysqlclient.21.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.21.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27189E5E209B2CF3002EC0D4 /* libmysqlclient.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -661,9 +661,9 @@
 		27E59B86106B914400C2DA47 /* admin_info_running.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B84106B914400C2DA47 /* admin_info_running.png */; };
 		27E59B87106B914400C2DA47 /* admin_info_stopped.png in Resources */ = {isa = PBXBuildFile; fileRef = 27E59B85106B914400C2DA47 /* admin_info_stopped.png */; };
 		27E63EB41FB9E33C001C5BE8 /* accessibility.h in Headers */ = {isa = PBXBuildFile; fileRef = 27E63EB31FB9E33B001C5BE8 /* accessibility.h */; };
-		27E7D797237BF7560006BD1B /* libssh.4.7.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */; };
-		27E7D799237BF7910006BD1B /* libssh.4.7.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */; };
-		27E7D79A237BF7940006BD1B /* libssh.4.7.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */; };
+		27E7D797237BF7560006BD1B /* libssh.4.7.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */; };
+		27E7D799237BF7910006BD1B /* libssh.4.7.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */; };
+		27E7D79A237BF7940006BD1B /* libssh.4.7.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */; };
 		27EADE1D18E5707100D3C85D /* cppdbc_public_interface.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */; };
 		27EADE1E18E5707100D3C85D /* cppdbc.h in Headers */ = {isa = PBXBuildFile; fileRef = 27EADE1718E5707100D3C85D /* cppdbc.h */; };
 		27EADE1F18E5707100D3C85D /* driver_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27EADE1818E5707100D3C85D /* driver_manager.cpp */; };
@@ -3994,7 +3994,7 @@
 				27189E5C209B2CEA002EC0D4 /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */,
 				27189E6B209B2E9E002EC0D4 /* libiconv.2.dylib in Copy Files (dylibs) */,
 				27189E6C209B2EA2002EC0D4 /* libintl.8.dylib in Copy Files (dylibs) */,
-				27189E5E209B2CF3002EC0D4 /* libmysqlclient.21.dylib in Copy Files (dylibs) */,
+				27189E5E209B2CF3002EC0D4 /* libmysqlclient.22.dylib in Copy Files (dylibs) */,
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
@@ -4152,7 +4152,7 @@
 		16F7A3B80F1F0D2E0084C11D /* WBColorCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBColorCell.h; path = frontend/mac/components/WBColorCell/WBColorCell.h; sourceTree = "<group>"; };
 		16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WBColorCell.m; path = frontend/mac/components/WBColorCell/WBColorCell.m; sourceTree = "<group>"; };
 		2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "3rd-party-ce/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
-		270124232099F9D100FE448E /* libmysqlclient.21.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.21.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.21.dylib"; sourceTree = "<group>"; };
+		270124232099F9D100FE448E /* libmysqlclient.22.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.dylib"; sourceTree = "<group>"; };
 		27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_innodb_dark@2x.png"; path = "images/admin/dashboard_header_innodb_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_mysql_dark@2x.png"; path = "images/admin/dashboard_header_mysql_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABE21ABFDD100CDB7B2 /* dashboard_header_innodb_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dashboard_header_innodb_dark.png; path = images/admin/dashboard_header_innodb_dark.png; sourceTree = "<group>"; };
@@ -4573,7 +4573,7 @@
 		27E59B84106B914400C2DA47 /* admin_info_running.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_running.png; path = images/admin/admin_info_running.png; sourceTree = "<group>"; };
 		27E59B85106B914400C2DA47 /* admin_info_stopped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_stopped.png; path = images/admin/admin_info_stopped.png; sourceTree = "<group>"; };
 		27E63EB31FB9E33B001C5BE8 /* accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = accessibility.h; path = library/base/base/accessibility.h; sourceTree = "<group>"; };
-		27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.5.dylib; path = "../../3rd-party-ce/lib/libssh.4.7.5.dylib"; sourceTree = "<group>"; };
+		27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.6.dylib; path = "../../3rd-party-ce/lib/libssh.4.7.6.dylib"; sourceTree = "<group>"; };
 		27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc_public_interface.h; path = library/cdbc/src/cppdbc_public_interface.h; sourceTree = SOURCE_ROOT; };
 		27EADE1718E5707100D3C85D /* cppdbc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc.h; path = library/cdbc/src/cppdbc.h; sourceTree = SOURCE_ROOT; };
 		27EADE1818E5707100D3C85D /* driver_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = driver_manager.cpp; path = library/cdbc/src/driver_manager.cpp; sourceTree = SOURCE_ROOT; };
@@ -6813,7 +6813,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				27E7D799237BF7910006BD1B /* libssh.4.7.5.dylib in Frameworks */,
+				27E7D799237BF7910006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				278DFF0920A2F52E00D7E439 /* libwbbase.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6876,7 +6876,7 @@
 				278DFF2320A2F6DA00D7E439 /* libwbssh.dylib in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
 				270124222099F97F00FE448E /* libglib-2.0.0.dylib in Frameworks */,
-				270124242099F9D200FE448E /* libmysqlclient.21.dylib in Frameworks */,
+				270124242099F9D200FE448E /* libmysqlclient.dylib in Frameworks */,
 				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7135,7 +7135,7 @@
 				2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */,
 				271F744B239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
 				27D6EE472099E3B10050B26B /* libantlr4-runtime.dylib in Frameworks */,
-				27E7D79A237BF7940006BD1B /* libssh.4.7.5.dylib in Frameworks */,
+				27E7D79A237BF7940006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */,
@@ -7304,7 +7304,7 @@
 				27E0E21A155173380073FD6F /* libparsers.dylib in Frameworks */,
 				271F7449239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
-				27E7D797237BF7560006BD1B /* libssh.4.7.5.dylib in Frameworks */,
+				27E7D797237BF7560006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				27810E55209B007F00E6E4CE /* libglib-2.0.0.dylib in Frameworks */,
 				2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */,
 				271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */,
@@ -9646,7 +9646,7 @@
 				27189E6A209B2E84002EC0D4 /* libiconv.2.dylib */,
 				27189E69209B2E84002EC0D4 /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
-				270124232099F9D100FE448E /* libmysqlclient.21.dylib */,
+				270124232099F9D100FE448E /* libmysqlclient.dylib */,
 				271F7448239117CD005B0EEB /* libmysqlcppconn.dylib */,
 				27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */,
 				2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */,
@@ -9654,7 +9654,7 @@
 				27189E56209B28D8002EC0D4 /* libpng16.16.dylib */,
 				27189E76209B369B002EC0D4 /* libproj.0.dylib */,
 				27189E67209B2E50002EC0D4 /* libsqlite3.so */,
-				27E7D796237BF7560006BD1B /* libssh.4.7.5.dylib */,
+				27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */,
 				27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */,
 				27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */,
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
@@ -13291,7 +13291,6 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
@@ -14537,7 +14536,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pyresdirce=\"3rd-party-ce/Python\"\npyresdirse=\"3rd-party-se/Python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    cp -R ${pyresdirse}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirse}/pyodbc/pyodbc.so \"$pythondir\"\n\nelse\n    cp -R ${pyresdirce}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirce}/pyodbc/pyodbc.so \"$pythondir\"\n\nfi\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"\n";
+			shellScript = "pyresdirce=\"3rd-party-ce/Python\"\npyresdirse=\"3rd-party-se/Python\"\n\npythondir=$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/libraries/\n\nmkdir -p \"$pythondir\"\n\n# If we're building for the commercial edition, we need the SQLCipher enabled sqlite and the corresponding pysqlite\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    cp -R ${pyresdirse}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirse}/pyodbc/pyodbc*.so \"$pythondir\"\n\nelse\n    cp -R ${pyresdirce}/pysqlite2 \"$pythondir\"\n    cp ${pyresdirce}/pyodbc/pyodbc*.so \"$pythondir\"\n\nfi\n\necho \"Copying Python modules\"\ncp -R $SRCROOT/library/python/workbench \"$pythondir\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2BEA13BE16E68F1500FC44F0 /* Copy plugins (dylibs) if exist */ = {
@@ -18871,6 +18870,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-Wl,-stack_size,0x10000000",
@@ -18920,6 +18920,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-Wl,-stack_size,0x10000000",

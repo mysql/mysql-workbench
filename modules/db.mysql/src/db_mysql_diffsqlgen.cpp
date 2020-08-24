@@ -1105,9 +1105,13 @@ void DiffSQLGeneratorBE::generate_routine_alter_stmt(db_mysql_RoutineRef old_rou
     if (_filtered_routines.find(routine_name_for_filter) == _filtered_routines.end())
       return;
 
-  generate_drop_stmt(old_routine);
-
-  generate_create_stmt(new_routine);
+  if (new_routine == old_routine) {
+    generate_drop_stmt(new_routine);
+    generate_create_stmt(new_routine, true);
+  } else {
+    generate_drop_stmt(old_routine);
+    generate_create_stmt(new_routine);
+  }
 }
 
 void DiffSQLGeneratorBE::generate_alter_stmt(db_mysql_SchemaRef schema, const grt::DiffChange *diffchange) {
@@ -1285,11 +1289,9 @@ void DiffSQLGeneratorBE::generate_alter_stmt(db_mysql_SchemaRef schema, const gr
               static_cast<const grt::ListItemRemovedChange *>(routine_change)->get_value()));
           } break;
           case grt::ListItemModified: {
-            db_mysql_RoutineRef old_routine = db_mysql_RoutineRef::cast_from(
-              grt::ValueRef(static_cast<const grt::ListItemModifiedChange *>(routine_change)->get_old_value()));
             db_mysql_RoutineRef new_routine = db_mysql_RoutineRef::cast_from(
               grt::ValueRef(static_cast<const grt::ListItemModifiedChange *>(routine_change)->get_new_value()));
-            generate_routine_alter_stmt(old_routine, new_routine, routine_change);
+            generate_routine_alter_stmt(new_routine, new_routine, routine_change);
           } break;
           case grt::ListItemOrderChanged:
             // list item position change is not relevant but may hold diff inside

@@ -407,7 +407,7 @@ void CodeEditor::updateColors() {
   color = Color::getSystemColor(base::SelectedTextBackgroundColor);
   _code_editor_impl->send_editor(this, SCI_SETSELBACK, 1, color.toBGR());
 #ifndef __APPLE__
-  _code_editor_impl->send_editor(this, SCI_SETSELALPHA, 128, 0);
+  _code_editor_impl->send_editor(this, SCI_SETSELALPHA, 64, 0);
 #endif
 
   if (darkMode) {

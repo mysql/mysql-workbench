@@ -1430,9 +1430,9 @@
                 <Directory Id="python_site_packages" Name="site-packages">
                   <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68021d" Name="pyodbc_d.pyd"/>
+						<File Id="file68021d" Name="pyodbc.cp37-win_amd64_d.pyd"/>
                     <?else ?>
-						<File Id="file68021" Name="pyodbc.pyd"/>
+						<File Id="file68021" Name="pyodbc.cp37-win_amd64.pyd"/>
                     <?endif ?>
                   </Component>
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
