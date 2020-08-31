@@ -237,7 +237,7 @@ static PyObject *module_getattro(PyGRTModuleObject *self, PyObject *attr_name) {
     PyErr_Clear();
 
     if (strcmp(attrname, "__members__") == 0) {
-      return Py_BuildValue("[ss]", "__doc__", "__bundlepath__", "__author__", "__name__", "__path__", "__iconpath__",
+      return Py_BuildValue("[ssssssss]", "__doc__", "__bundlepath__", "__author__", "__name__", "__path__", "__iconpath__",
                            "__description__", "__version__");
     } else if (strcmp(attrname, "__methods__") == 0) {
       const std::vector<grt::Module::Function> &functions(self->module->get_functions());

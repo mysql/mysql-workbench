@@ -109,7 +109,7 @@ static PyObject *dict_getattro(PyGRTDictObject *self, PyObject *attr_name) {
       }
       return members;
     } else if (strcmp(attrname, "__methods__") == 0) {
-      PyObject *methods = Py_BuildValue("[sssss]", "keys", "items", "values", "has_key", "update", "get", "setdefault");
+      PyObject *methods = Py_BuildValue("[sssssss]", "keys", "items", "values", "has_key", "update", "get", "setdefault");
       return methods;
     } else {
       if (self->dict->has_key(attrname)) {

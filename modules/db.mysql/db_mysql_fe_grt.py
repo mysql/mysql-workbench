@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,9 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-# import the wb module
 from wb import DefineModule
-# import the grt module
 import grt
 from workbench import db_utils
 from workbench.exceptions import NotConnectedError
@@ -45,7 +43,7 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
                 obj.customData["migration:new_temp_sql"] = comment_out(obj, sql)
                 obj.customData["migration:temp_sql_changed"] = sql != comment_out(obj, sql)
         else:
-            if "migration:new_temp_sql" in obj.customData:
+            if obj.customData.get("migration:new_temp_sql", False):
                 del obj.customData["migration:new_temp_sql"]
                 del obj.customData["migration:temp_sql_changed"]
             if sql is not None:
@@ -56,7 +54,7 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
     for schema in catalog.schemata:
         delimiter = grt.root.wb.options.options['SqlDelimiter']
         create_schema = create_scripts[schema.__id__] if schema.__id__ in create_scripts else None
-        drop_schema = drop_scripts[schema.__id__] if schema.__id__ in drop_scripts.has_key else None
+        drop_schema = drop_scripts[schema.__id__] if schema.__id__ in drop_scripts else None
         apply_script(schema, create_schema, drop_schema)
         for table in schema.tables:
             apply_script(table, create_scripts.get(table.__id__, None))
