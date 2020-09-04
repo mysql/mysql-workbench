@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -295,23 +295,14 @@ static bool util_find_password(const std::string &service, const std::string &ac
   UInt32 password_length = 0;
   void *password_data = nullptr;
   
-  auto result = SecKeychainFindGenericPassword(nullptr,
-                                     (uint32_t)service.size(),
-                                     service.c_str(),
-                                     (uint32_t)account.size(),
-                                     account.c_str(),
-                                     &password_length,
-                                     &password_data,
-                                               nullptr);
-
-  if (result != 0) {
-    CFStringRef s = SecCopyErrorMessageString(result, nullptr);
-    NSString *message = (NSString *)CFBridgingRelease(s);
-    message = [NSString stringWithFormat: @"%@ (%d)", message, result];
-    NSAlert *alert = [NSAlert new];
-    alert.messageText = message;
-    [alert runModal];
-
+  if (SecKeychainFindGenericPassword(nullptr,
+                                    (uint32_t)service.size(),
+                                    service.c_str(),
+                                    (uint32_t)account.size(),
+                                    account.c_str(),
+                                    &password_length,
+                                    &password_data,
+                                    nullptr) != 0) {
     return false;
   }
 

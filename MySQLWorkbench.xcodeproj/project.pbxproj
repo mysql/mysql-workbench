@@ -3994,7 +3994,7 @@
 				27189E5C209B2CEA002EC0D4 /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */,
 				27189E6B209B2E9E002EC0D4 /* libiconv.2.dylib in Copy Files (dylibs) */,
 				27189E6C209B2EA2002EC0D4 /* libintl.8.dylib in Copy Files (dylibs) */,
-				27189E5E209B2CF3002EC0D4 /* libmysqlclient.22.dylib in Copy Files (dylibs) */,
+				27189E5E209B2CF3002EC0D4 /* libmysqlclient.dylib in Copy Files (dylibs) */,
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
@@ -4152,7 +4152,7 @@
 		16F7A3B80F1F0D2E0084C11D /* WBColorCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBColorCell.h; path = frontend/mac/components/WBColorCell/WBColorCell.h; sourceTree = "<group>"; };
 		16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WBColorCell.m; path = frontend/mac/components/WBColorCell/WBColorCell.m; sourceTree = "<group>"; };
 		2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "3rd-party-ce/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
-		270124232099F9D100FE448E /* libmysqlclient.22.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.dylib"; sourceTree = "<group>"; };
+		270124232099F9D100FE448E /* libmysqlclient.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.dylib"; sourceTree = "<group>"; };
 		27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_innodb_dark@2x.png"; path = "images/admin/dashboard_header_innodb_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_mysql_dark@2x.png"; path = "images/admin/dashboard_header_mysql_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABE21ABFDD100CDB7B2 /* dashboard_header_innodb_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dashboard_header_innodb_dark.png; path = images/admin/dashboard_header_innodb_dark.png; sourceTree = "<group>"; };
