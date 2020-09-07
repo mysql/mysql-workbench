@@ -536,6 +536,10 @@ static PyObject *grt_send_error(PyObject *self, PyObject *args) {
   return Py_None;
 }
 
+static PyObject *grt_flush(PyObject *self, PyObject *args) {
+  return Py_None;
+}
+
 static PyObject *grt_send_progress(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
@@ -1035,6 +1039,7 @@ static PyMethodDef GrtModuleMethods[] = {
   {"send_output", grt_send_output, METH_VARARGS, "Write a string in the GRT shell." },
   {"write", grt_print, METH_VARARGS, "Write a string in the GRT shell (alias to send_output)."},
   {"send_error", grt_send_error, METH_VARARGS, "Write an error message to the GRT shell."},
+  {"flush", grt_flush, METH_VARARGS, "Flush output."},
   {"send_warning", grt_send_warning, METH_VARARGS, "Write a warning message to the GRT shell."},
   {"send_info", grt_send_info, METH_VARARGS, "Write a info message to the GRT shell."},
   {"send_progress", grt_send_progress, METH_VARARGS, "Write a progress message."},

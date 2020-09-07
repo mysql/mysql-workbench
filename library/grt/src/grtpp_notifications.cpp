@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -62,17 +62,14 @@ void GRTNotificationCenter::add_grt_observer(GRTObserver *observer, const std::s
 bool GRTNotificationCenter::remove_grt_observer(GRTObserver *observer, const std::string &name, ObjectRef object) {
   bool foundInherited = NotificationCenter::remove_observer(observer);
 
-  bool found = false;
-  for (std::list<GRTObserverEntry>::iterator next, iter = _grt_observers.begin(); iter != _grt_observers.end();) {
-    next = iter;
-    ++next;
-    if (iter->observer == observer && (name.empty() || name == iter->observed_notification) &&
-        (!object.is_valid() || object.id() == iter->observed_object_id)) {
-      found = true;
-      _grt_observers.erase(iter);
-    }
-    iter = next;
-  }
+  auto iter = std::remove_if(_grt_observers.begin(), _grt_observers.end(), [&](auto &value) {
+    return (value.observer == observer && (name.empty() || name == value.observed_notification) &&
+        (!object.is_valid() || object.id() == value.observed_object_id));
+  });
+  
+  bool found = iter != _grt_observers.end();
+  
+  _grt_observers.erase(iter, _grt_observers.end());
 
   return found || foundInherited;
 }
