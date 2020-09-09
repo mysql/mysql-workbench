@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -242,9 +242,9 @@ class ObjectManager(mforms.Box):
 
         if show_table_inspector is not None:
             if self.klass == 'db.Table': 
-                show_table_inspector(self.editor, [(self.schema, node.get_string(self.name_column).encode("utf8"))])
+                show_table_inspector(self.editor, [(self.schema, node.get_string(self.name_column))])
             elif self.klass == 'db.Index' and hasattr(self, 'parent_name_column'):
-                show_table_inspector(self.editor, [(self.schema, node.get_string(self.parent_name_column).encode("utf8"))], "indexes")
+                show_table_inspector(self.editor, [(self.schema, node.get_string(self.parent_name_column))], "indexes")
 
     def menu_will_show(self, item):
         # item is the parent node which will be None when the
