@@ -647,7 +647,7 @@ class json_module(base_module):
                 self.read_user_query_columns(rset)
                 
             with open(self._filepath, 'wb') as jsonfile:
-                jsonfile.write('[')
+                jsonfile.write('['.encode('utf-8'))
                 ok = rset.goToFirstRow()
                 self._max_rows = rset.rowCount
                 
@@ -685,7 +685,7 @@ class json_module(base_module):
                     line = "{%s}%s" % (', '.join(row), ",\n " if ok else "")
                     jsonfile.write(line.encode('utf-8'))
                     jsonfile.flush()
-                jsonfile.write(']')
+                jsonfile.write(']'.encode('utf-8'))
 
         return True
 
