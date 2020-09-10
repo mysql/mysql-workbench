@@ -216,7 +216,7 @@ class DumpThread(threading.Thread):
 
                 for s, t in tables_to_ignore:
                     line = "ignore-table=%s.%s\n" % (s,t)
-                    pwdfile.write(line.encode('utf-8'))
+                    pwdfile.write(line)
 
             pwdfile.close()
             if platform.system() == 'Windows':
