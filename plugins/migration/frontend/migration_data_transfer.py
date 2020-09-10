@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -209,13 +209,13 @@ All tables are copied by default.""")
         if self.CopyScript_radiobutton.get_active():
             self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"] = self.CopyScript_entry.get_string_value()
         else:
-            if "GenerateCopyScript" in self.main.plan.state.dataBulkTransferParams:
+            if self.main.plan.state.dataBulkTransferParams.get("GenerateCopyScript", False):
                 del self.main.plan.state.dataBulkTransferParams["GenerateCopyScript"]
 
         if self.BulkCopyScript_radiobutton.get_active():
             self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"] = self.BulkCopyScript_entry.get_string_value()
         else:
-            if "GenerateBulkCopyScript" in self.main.plan.state.dataBulkTransferParams:
+            if self.main.plan.state.dataBulkTransferParams.get("GenerateBulkCopyScript", False):
                 del self.main.plan.state.dataBulkTransferParams["GenerateBulkCopyScript"]
 
         self.main.plan.state.dataBulkTransferParams["LiveDataCopy"] = 1 if self._copy_db.get_active() else 0

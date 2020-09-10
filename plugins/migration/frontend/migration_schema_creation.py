@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -447,7 +447,10 @@ the schema creation or return to the Manual Editing page to correct them there a
             text = []
             worst = None
             for entry in log.entries:
-                worst = max(worst, entry.entryType)
+                if worst is None:
+                    worst = entry.entryType
+                else:
+                    worst = max(worst, entry.entryType)
                 if entry.entryType == 1:
                     text.append("WARNING: %s" % entry.name)
                 elif entry.entryType == 2:
