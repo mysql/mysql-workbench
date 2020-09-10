@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -207,7 +207,7 @@ def getSchemaNames(connection, catalog_name):
     """Returns a list of schemata for the given connection object."""
 
     query = 'USE %s' % quoteIdentifier(catalog_name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post70 = """SELECT TABLE_SCHEMA AS SCHEMANAME, max(TABLE_CATALOG) AS CATALOGNAME
     FROM INFORMATION_SCHEMA.TABLES
     WHERE TABLE_CATALOG = '%s'
@@ -225,13 +225,13 @@ GROUP BY TABLE_SCHEMA;""" % catalog_name
 
     query = query_pre70 if serverVersion.majorNumber <= 7 else query_post70
     #return [ row[1]+'.'+row[0] for row in execute_query(connection, query) ]
-    return [ row[0] for row in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+    return [ row[0] for row in execute_query(connection, query) ]
 
 
 @ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection, grt.STRING, grt.STRING)
 def getTableNames(connection, catalog_name, schema_name):
     query = 'USE %s' % quoteIdentifier(catalog_name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT name
 FROM sys.tables
 WHERE schema_id = SCHEMA_ID('%s')""" % (schema_name)
@@ -243,13 +243,13 @@ WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA='%s'""" % schema_name
 
     query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
 
-    return [ table_name[0] for table_name in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+    return [ table_name[0] for table_name in execute_query(connection, query) ]
 
 
 @ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection, grt.STRING, grt.STRING)
 def getViewNames(connection, catalog_name, schema_name):
     query = 'USE %s' % quoteIdentifier(catalog_name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT name
 FROM sys.views
 WHERE SCHEMA_NAME(schema_id) = '%s';""" % schema_name
@@ -262,7 +262,7 @@ WHERE TABLE_CATALOG='%s' AND TABLE_SCHEMA='%s'""" % (catalog_name, schema_name)
         return []
     query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
 
-    return [ views_info[0] for views_info in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+    return [ views_info[0] for views_info in execute_query(connection, query) ]
 
 
 @ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection, grt.STRING, grt.STRING)
@@ -270,7 +270,7 @@ def getTriggerNames(connection, catalog_name, schema_name):
     # Query from http://msdn.microsoft.com/en-us/library/ms188746.aspx  (post 90)
     #            http://www.sharpdeveloper.net/content/archive/2007/06/26/search-trigger-text-sql-server-2005.aspx  (pre 90)
     query = 'USE %s' % quoteIdentifier(catalog_name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT name
 FROM sys.triggers
 WHERE OBJECT_SCHEMA_NAME(object_id) = '%s'"""
@@ -285,14 +285,14 @@ GROUP BY OBJECT_NAME(id)"""
         return []
     query = query_pre_90 if serverVersion.majorNumber <= 9 else query_post_90
     query = query % schema_name
-    return [ trigger_info[0] for trigger_info in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+    return [ trigger_info[0] for trigger_info in execute_query(connection, query) ]
 
 
 @ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection, grt.STRING, grt.STRING)
 def getProcedureNames(connection, catalog_name, schema_name):
     # Query from http://msdn.microsoft.com/en-us/library/ms345522.aspx#_FAQ9
     query = 'USE %s' % quoteIdentifier(catalog_name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT name
 FROM sys.procedures
 WHERE schema_id = SCHEMA_ID('%s')"""
@@ -305,14 +305,14 @@ WHERE ROUTINE_SCHEMA='%s' AND ROUTINE_TYPE='PROCEDURE'"""
         return []
     query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
     query = query % schema_name
-    return [ proc_info[0] for proc_info in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+    return [ proc_info[0] for proc_info in execute_query(connection, query) ]
 
 
 @ModuleInfo.export(grt.LIST, grt.classes.db_mgmt_Connection, grt.STRING, grt.STRING)
 def getFunctionNames(connection, catalog_name, schema_name):
     # Query from http://msdn.microsoft.com/en-us/library/ms345522.aspx#_FAQ12
     query = 'USE %s' % quoteIdentifier(catalog_name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT name
 FROM sys.objects
 WHERE type_desc LIKE '%FUNCTION%' AND schema_id = SCHEMA_ID(?)"""
@@ -325,7 +325,7 @@ WHERE ROUTINE_SCHEMA=? AND ROUTINE_TYPE='FUNCTION'"""
         return []
     query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
 
-    return [ func_info[0] for func_info in execute_query(connection, query.decode(encoding='UTF-8',errors='strict'), schema_name.decode(encoding='UTF-8',errors='strict')) ]
+    return [ func_info[0] for func_info in execute_query(connection, query, schema_name) ]
 
 
 #########  Reverse Engineering functions #########
@@ -340,7 +340,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, options):
     catalog.simpleDatatypes.remove_all()
     catalog.simpleDatatypes.extend(connection.driver.owner.simpleDatatypes)
 
-    collation_row = execute_query(connection, "SELECT DATABASEPROPERTYEX(?, 'Collation')", catalog_name.decode(encoding='UTF-8',errors='strict')).fetchone()
+    collation_row = execute_query(connection, "SELECT DATABASEPROPERTYEX(?, 'Collation')", catalog_name).fetchone()
     if collation_row:
         catalog.defaultCollationName = collation_row[0] or ''  # Avoid None in defaultCollationName
     
@@ -480,7 +480,7 @@ def reverseEngineer(connection, catalog_name, schemata_list, options):
 def reverseEngineerUserDatatypes(connection, catalog):
     # TODO: Migrate user datatypes...
     query = 'USE %s' % quoteIdentifier(catalog.name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query = """SELECT name, TYPE_NAME(system_type_id), max_length, precision, scale, is_nullable
 FROM sys.types
 WHERE is_user_defined = 1"""
@@ -553,7 +553,7 @@ def reverseEngineerTables(connection, schema):
     if is_first_pass:
         catalog = schema.owner
         query = 'USE %s' % quoteIdentifier(catalog.name)
-        execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+        execute_query(connection, query)
         query_post_90 = """SELECT t.name, p.value
 FROM sys.tables t LEFT JOIN sys.extended_properties p ON p.major_id = t.object_id AND p.minor_id = 0 AND p.name = 'MS_Description' AND p.class_desc = 'OBJECT_OR_COLUMN'
 WHERE schema_id = SCHEMA_ID('%s')"""
@@ -567,7 +567,7 @@ WHERE schema_id = SCHEMA_ID('%s')"""
         query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
         query = query % schema.name
         schema.tables.remove_all()
-        table_names = [(row[0], row[1]) for row in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+        table_names = [(row[0], row[1]) for row in execute_query(connection, query) ]
         total = len(table_names) + 1e-10
         i = 0.0
         for table_name, table_comment in table_names:
@@ -602,7 +602,7 @@ def reverseEngineerTableColumns(connection, table):
     schema = table.owner
     catalog = schema.owner
     query = 'USE %s' % quoteIdentifier(catalog.name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post90 = """SELECT sys.columns.name AS COLUMN_NAME,
     sys.columns.is_nullable AS IS_NULLABLE, sys.types.name AS DATA_TYPE, sys.columns.max_length AS CHARACTER_MAXIMUM_LENGTH,
     sys.columns.precision AS NUMERIC_PRECISION, sys.columns.scale AS NUMERIC_SCALE,
@@ -632,7 +632,7 @@ ORDER BY ORDINAL_POSITION"""
     serverVersion = connected_server_version(connection)
 
     query = query_pre90 if serverVersion.majorNumber < 9 else query_post90
-    rows = execute_query(connection, query, (schema.name.decode(encoding='UTF-8',errors='strict'), table.name.decode(encoding='UTF-8',errors='strict')) )
+    rows = execute_query(connection, query, (schema.name, table.name) )
 
     mssql_rdbms_instance = get_mssql_rdbms_instance()
     mssql_simple_datatypes_list = [ datatype.name for datatype in mssql_rdbms_instance.simpleDatatypes ]
@@ -710,14 +710,14 @@ def reverseEngineerTablePK(connection, table):
     catalog = schema.owner
 
     query = 'USE %s' % quoteIdentifier(catalog.name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query = "exec sp_pkeys '%s', '%s'" % (fixQuoteIdentifier(table.name), fixQuoteIdentifier(schema.name))
 
     if len(table.columns) == 0:
         grt.send_error('Migration: reverseEngineerTablePK', 'Reverse engineer of table %s.%s was attempted but the table has no columns attribute' % (schema.name, table.name) )
         return 1    # Table must have columns reverse engineered before we can rev eng its primary key(s)
 
-    pk_col_names = [ row[3] for row in execute_query(connection, query.decode(encoding='UTF-8',errors='strict')) ]
+    pk_col_names = [ row[3] for row in execute_query(connection, query) ]
 
     for pk_column in pk_col_names:
         column = find_grt_object(pk_column, table.columns)
@@ -740,7 +740,7 @@ def reverseEngineerTableIndices(connection, table):
     version = connected_server_version(connection)
 
     query = 'USE %s' % quoteIdentifier(catalog.name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     if version.majorNumber <= 9:
         get_indices_query_pre90 = """SELECT u.name as TABLE_SCHEMA, 
                  o.name as TABLE_NAME, i.name AS INDEX_NAME, c.name AS COLUMN_NAME, 
@@ -757,7 +757,7 @@ def reverseEngineerTableIndices(connection, table):
                  (i.status & 64)=0 AND (i.status & 8388608)=0 AND 
                  (i.status & 2048)=0 AND  u.name='%s' AND o.name='%s'
                ORDER BY i.name, k.keyno""" % (fixQuoteIdentifier(schema.name), fixQuoteIdentifier(table.name))
-        index_rows = execute_query(connection, get_indices_query_pre90.decode(encoding='UTF-8',errors='strict')).fetchall()
+        index_rows = execute_query(connection, get_indices_query_pre90).fetchall()
         index = None
         for table_schema, table_name, index_name, column_name, ignore_dup_keys, is_unique, \
             ignore_dup_rows, is_clustered, is_primary_key, is_unique in index_rows:
@@ -794,7 +794,7 @@ def reverseEngineerTableIndices(connection, table):
     FROM sys.index_columns ic JOIN sys.columns c on (ic.column_id=c.column_id and ic.object_id=c.object_id)
     WHERE ic.object_id=%i and ic.index_id=%i"""
 
-        index_rows = execute_query(connection, get_indices_query.decode(encoding='UTF-8',errors='strict')).fetchall()
+        index_rows = execute_query(connection, get_indices_query).fetchall()
         for table_id, index_name, index_id, type_desc, is_unique, is_primary_key, is_disabled, has_filter, filter_definition in index_rows:
             if index_name is None:
                 # this is not a real index, but a HEAP thingmajig...
@@ -831,12 +831,13 @@ def reverseEngineerTableFKs(connection, table):
     catalog = schema.owner
 
     query = 'USE %s' % quoteIdentifier(catalog.name)
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
 
     version = connected_server_version(connection)
     if version.majorNumber <= 9:
         get_fks_query_pre9 = """SELECT fk.name AS CONSTRAINT_NAME, 
- c.name AS COLUMN_NAME, ref_u.name AS REF_SCHEMA_NAME, 
+
+ c.name AS COLUMN_NAME, ref_u.name AS REF_SCHEMA_NAME,
  ref_tbl.name AS REF_TABLE_NAME, ref_c.name AS REF_COLUMN_NAME, 
  CASE WHEN (ObjectProperty(sfk.constid, 'CnstIsUpdateCascade')=1) THEN 
   'CASCADE' ELSE 'NO ACTION' END as UPDATE_RULE, 
@@ -851,7 +852,7 @@ WHERE u.name=? AND t.name=? AND
  ref_tbl.id=sfk.rkeyid AND ref_tbl.uid=ref_u.uid AND 
  ref_c.id=ref_tbl.id AND ref_c.colid=sfk.rkey 
 ORDER BY sfk.constid, sfk.keyno"""
-        fk_rows = execute_query(connection, get_fks_query_pre9, (fixQuoteIdentifier(schema.name.decode(encoding='UTF-8',errors='strict')), fixQuoteIdentifier(table.name.decode(encoding='UTF-8',errors='strict')))).fetchall()
+        fk_rows = execute_query(connection, get_fks_query_pre9, (fixQuoteIdentifier(schema.name), fixQuoteIdentifier(table.name))).fetchall()
         foreign_key = None
         for fk_name, column_name, referenced_schema_name, referenced_table_name, referenced_column_name, update_rule, delete_rule in fk_rows:
             if foreign_key is None or foreign_key.name != fk_name:
@@ -907,7 +908,7 @@ ORDER BY sfk.constid, sfk.keyno"""
             grt.send_error('Migration: reverseEngineerTableFKs', 'Reverse engineer of table %s.%s was attempted but the table has no columns attribute' % (schema.name, table.name) )
             return 1    # Table must have columns reverse engineered before we can rev eng its foreign keys
 
-        fk_rows = execute_query(connection, get_fks_query.decode(encoding='UTF-8',errors='strict')).fetchall()
+        fk_rows = execute_query(connection, get_fks_query).fetchall()
         table.foreignKeys.remove_all()
         for fk_id, fk_name, delete_referential_action, update_referential_action, is_disabled in fk_rows:
             if not is_disabled:    # Do not create the foreign key if it is disabled
@@ -957,7 +958,7 @@ ORDER BY sfk.constid, sfk.keyno"""
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection, grt.classes.db_mssql_Schema)
 def reverseEngineerViews(connection, schema):
     query = 'USE %s' % quoteIdentifier(schema.owner.name)# catalog
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT COUNT(*) OVER () AS count, OBJECT_NAME(object_id) as name, definition
 FROM sys.sql_modules
 WHERE OBJECT_SCHEMA_NAME(object_id) = '%(schema)s'"""
@@ -971,7 +972,7 @@ WHERE TABLE_SCHEMA='%(schema)s'"""
 
     query = query_pre_90 if serverVersion.majorNumber <= 9 else query_post_90
     query = query % {'schema':schema.name}
-    cursor = execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    cursor = execute_query(connection, query)
     if cursor:
         schema.views.remove_all()
         step = 0.0
@@ -1007,7 +1008,7 @@ def reverseEngineerView(connection, schema, view_name):
     # The queries are taken from http://msdn.microsoft.com/en-us/library/ms345522.aspx#_FAQ35
 
     query = 'USE %s' % quoteIdentifier(schema.owner.name)# catalog
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT definition
 FROM sys.sql_modules
 WHERE object_id = OBJECT_ID('%s.%s')
@@ -1020,7 +1021,7 @@ WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'"""
 
     query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
     query = query % (schema.name, view_name)
-    resultset = execute_query(connection, query.decode(encoding='UTF-8',errors='strict') )
+    resultset = execute_query(connection, query )
     if resultset:
         view = grt.classes.db_mssql_View()
         view.name = view_name or ""
@@ -1034,7 +1035,7 @@ WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'"""
 def reverseEngineerProcedures(connection, schema):
     # http://msdn.microsoft.com/en-us/library/ms345443.aspx#TsqlProcedure
     query = 'USE %s' % quoteIdentifier(schema.owner.name)# catalog
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT COUNT(*) OVER () AS count, OBJECT_NAME(M.object_id) as name, definition
 FROM sys.sql_modules M JOIN sys.procedures P ON M.object_id=P.object_id
 WHERE OBJECT_SCHEMA_NAME(M.object_id) = '%(schema)s'"""
@@ -1048,7 +1049,7 @@ WHERE ROUTINE_SCHEMA='%(schema)s' AND ROUTINE_TYPE='PROCEDURE'"""
 
     query = query_pre_90 if serverVersion.majorNumber <= 9 else query_post_90
     query = query % {'schema':schema.name}
-    cursor = execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    cursor = execute_query(connection, query)
     step = 0.0
     if cursor:
         for idx, (proc_count, proc_name, proc_definition) in enumerate(cursor):
@@ -1068,7 +1069,7 @@ WHERE ROUTINE_SCHEMA='%(schema)s' AND ROUTINE_TYPE='PROCEDURE'"""
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection, grt.classes.db_mssql_Schema)
 def reverseEngineerFunctions(connection, schema):
     query = 'USE %s' % quoteIdentifier(schema.owner.name)# catalog
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT COUNT(*) OVER () AS count, OBJECT_NAME(M.object_id) as name, definition
 FROM sys.sql_modules M JOIN sys.objects O ON M.object_id=O.object_id
 WHERE type_desc LIKE '%%FUNCTION%%' AND schema_id = SCHEMA_ID('%(schema)s')"""
@@ -1082,7 +1083,7 @@ WHERE ROUTINE_SCHEMA='%(schema)s' AND ROUTINE_TYPE='FUNCTION'"""
 
     query = query_pre_90 if serverVersion.majorNumber < 9 else query_post_90
     query = query % {'schema':schema.name}
-    cursor = execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    cursor = execute_query(connection, query)
     step = 0.0
     if cursor:
         for idx, (func_count, func_name, func_definition) in enumerate(cursor):
@@ -1102,7 +1103,7 @@ WHERE ROUTINE_SCHEMA='%(schema)s' AND ROUTINE_TYPE='FUNCTION'"""
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection, grt.classes.db_mssql_Schema)
 def reverseEngineerTriggers(connection, schema):
     query = 'USE %s' % quoteIdentifier(schema.owner.name)# catalog
-    execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    execute_query(connection, query)
     query_post_90 = """SELECT st.object_id,
     st.name AS trigger_name,
     OBJECT_NAME(st.parent_id) AS table_name,
@@ -1131,7 +1132,7 @@ WHERE so.type = 'TR' AND su.name='%s'"""
 
     query = query_pre_90 if serverVersion.majorNumber <= 9 else query_post_90
     query = query % schema.name
-    cursor = execute_query(connection, query.decode(encoding='UTF-8',errors='strict'))
+    cursor = execute_query(connection, query)
     if cursor:
         for table in schema.tables:
             table.triggers.remove_all()
