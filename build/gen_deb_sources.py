@@ -6,7 +6,7 @@
 
 output_distros = [
     ("focal", "ubuntu20.04", "2004", ""),
-    ("eoan", "ubuntu19.10", "1910", ""),
+    ("groovy", "ubuntu20.10", "2010", ""),
     ("disco", "ubuntu19.04", "1904", ""),
     ("bionic", "ubuntu18.04", "1804", ""),
     ("stretch" ,"debian9"     ,"9"     ,""),
