@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -262,16 +262,16 @@ class DataMigrator(object):
             out = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if self._resume:
-            passwords= to_encodedString(self._src_password+"\t"+self._tgt_password+"\n")
+            passwords= (self._src_password+"\t"+self._tgt_password+"\n").encode("utf-8")
         else:               
-            passwords= to_encodedString(self._src_password+"\n")
+            passwords= (self._src_password+"\n").encode("utf-8")
         while out.poll() is None:
             o, e = out.communicate(passwords)
             passwords = None
             if o:
-                stdout += o
+                stdout += o.decode("utf-8")
             if e:
-                for l in e.split("\n"):
+                for l in e.decode("utf-8").split("\n"):
                     self._owner.send_info(l)
             total = 0
         if out.returncode == 0:

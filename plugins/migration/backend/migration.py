@@ -425,10 +425,10 @@ class MigrationPlan(object):
             self.wbcopytables_path = self.wbcopytables_path_bin
 
         if type(self.wbcopytables_path_bin) == str:
-            self.wbcopytables_path_bin = self.wbcopytables_path_bin.encode("UTF-8")
+            self.wbcopytables_path_bin = self.wbcopytables_path_bin
 
         if type(self.wbcopytables_path) == str:
-            self.wbcopytables_path = self.wbcopytables_path.encode("UTF-8")
+            self.wbcopytables_path = self.wbcopytables_path
 
     def close(self):
         if self.migrationSource:

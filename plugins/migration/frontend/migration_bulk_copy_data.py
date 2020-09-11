@@ -1,4 +1,4 @@
-# Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2015, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -293,7 +293,7 @@ class DataCopyScriptWindows(DataCopyScript):
         import_file_name = 'import_%s.%s' % (source_schema, import_script.get_script_ext())
         import_sql_file_name = 'import_%s.sql' % source_schema
 
-        with open(script_path, 'wb+') as f:
+        with open(script_path, 'w+') as f:
             f.write('@ECHO OFF\r\n')
             f.write('SET MYPATH=%~dp0\r\n')
             f.write('IF EXIST %%MYPATH%%%s del /F %%MYPATH%%%s\r\n' % (self.error_log_name, self.error_log_name))
