@@ -53,8 +53,8 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
     
     for schema in catalog.schemata:
         delimiter = grt.root.wb.options.options['SqlDelimiter']
-        create_schema = create_scripts[schema.__id__] if schema.__id__ in create_scripts else None
-        drop_schema = drop_scripts[schema.__id__] if schema.__id__ in drop_scripts else None
+        create_schema = create_scripts[schema.__id__] if create_scripts.get(schema.__id__, False) else None
+        drop_schema = drop_scripts[schema.__id__] if drop_scripts.get(schema.__id__, False)  else None
         apply_script(schema, create_schema, drop_schema)
         for table in schema.tables:
             apply_script(table, create_scripts.get(table.__id__, None))
