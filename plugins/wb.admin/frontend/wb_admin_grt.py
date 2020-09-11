@@ -632,8 +632,7 @@ class PasswordExpiredDialog(mforms.Form):
                 return self.run()
             
             con = self._conn.shallow_copy()
-            old_multi_statements = con.parameterValues.get("CLIENT_MULTI_STATEMENTS")
-            old_script = con.parameterValues.get("preInit")
+
             con.parameterValues["CLIENT_MULTI_STATEMENTS"] = 1
             if self.legacy.get_active():
                 con.parameterValues["preInit"] = "SET PASSWORD = PASSWORD('%s')" % escape_sql_string(self.password.get_string_value())
@@ -647,10 +646,13 @@ class PasswordExpiredDialog(mforms.Form):
             try:
                 log_info("About to connecto to MySQL Server to change expired password")
                 c.connect()
+                mforms.Utilities_store_password(c.connect_info.hostIdentifier, c.connect_info.parameterValues.userName, self.password.get_string_value())
             except MySQLError as e:
                 if mforms.Utilities.show_error("Reset Password", str(e), "Retry", "Cancel", "") == mforms.ResultOk:
                     retry = True
                 result = 0
+            except Exception as e:
+                print("Error handling expired password: %s" % str(e))
 
             if retry:
                 return self.run()
