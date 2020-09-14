@@ -75,8 +75,7 @@ def backupConnections():
     file_chooser.set_extensions('ZIP Files (*.zip)|*.zip', 'import')
     if file_chooser.run_modal() == mforms.ResultOk:
         backup_path = file_chooser.get_path()
-        if isinstance(backup_path, str):
-            backup_path = backup_path.encode('utf-8')
+
         try:
             backup_file = zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED)
         except Exception:
