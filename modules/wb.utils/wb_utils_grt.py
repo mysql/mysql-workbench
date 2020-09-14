@@ -369,7 +369,7 @@ def newConnectionFromClipboard():
 
     parse_errors = False
     found_instances = 0
-    for line in text.encode("utf8").split("\n"):
+    for line in text.split("\n"):
         conn = connectionFromString(line)
         if not conn and not parse_errors:
             mforms.Utilities.show_error("Add Connection(s) from Clipboard", "Could not parse connection parameters from string '%s'" % line, "OK", "", "")
