@@ -36,6 +36,7 @@ import mforms
 import grt
 
 from workbench.log import log_info, log_error, log_debug
+from wb_common import to_unicode
 
 from .db_utils import ConnectionTunnel
 
@@ -123,7 +124,7 @@ class MySQLScriptImporter(object):
                 params.append("--ssl-cipher=%s" % conn["sslCipher"])
                 
         if conn.get("OPT_ENABLE_CLEARTEXT_PLUGIN", ""):
-            params.append("--enable-cleartext-plugin")                
+            params.append("--enable-cleartext-plugin")
             
         params += ["--user=" + conn["userName"]]
         self._connection_params = params
@@ -255,7 +256,7 @@ class MySQLScriptImporter(object):
             pwdfilename = pwdfile.name
             tmpdir = None
         else:
-            params = [self._tool_path.decode("utf-8")]
+            params = [to_unicode(self._tool_path)]
             # use a pipe to feed the password to the client
             tmpdir = tempfile.mkdtemp()
             pwdfilename = os.path.join(tmpdir, 'extraparams.cnf')
