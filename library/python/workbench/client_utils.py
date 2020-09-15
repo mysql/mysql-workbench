@@ -255,7 +255,7 @@ class MySQLScriptImporter(object):
             pwdfilename = pwdfile.name
             tmpdir = None
         else:
-            params = [self._tool_path]
+            params = [self._tool_path.decode("utf-8")]
             # use a pipe to feed the password to the client
             tmpdir = tempfile.mkdtemp()
             pwdfilename = os.path.join(tmpdir, 'extraparams.cnf')
