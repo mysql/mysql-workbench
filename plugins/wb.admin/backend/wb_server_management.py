@@ -541,17 +541,14 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
                 else:
                     dummy_text = self.ssh.executeCommand(command)
 
-                # on command failure, it returns a grt.Dict {status: x, stderr: 'some string'}
-                if type(dummy_text) is grt.Dict:
-                    log_error("Unable to execute: %s, error was: %s\n" % (command, dummy_text['stderr']))
-                    return 1
-                
-                ret = dummy_text['status']
-                dummy_text = handle_ssh_command_output(dummy_text, True)
             except Exception as ex:
                 # executeCommand can throw Exception when command doesn't exists or there's an error
                 log_error("Unable to execute: %s, error was: %s\n" % (command, str(ex)))
                 return 1
+
+            # on command failure, it returns a grt.Dict {status: x, stderr: 'some string'}
+            ret = dummy_text['status']
+            dummy_text = handle_ssh_command_output(dummy_text, True)
 
             if output_handler:
                 output_handler(dummy_text)
