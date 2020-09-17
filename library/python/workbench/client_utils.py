@@ -287,13 +287,12 @@ class MySQLScriptImporter(object):
                     raise RuntimeError("Error executing %s:\n%s" % (" ".join(params), str(exc)))
 
             # in !Windows feed password to client after it's started (otherwise the fifo would block on open for writing)
-            pwdfile = open(pwdfilename, 'w')
-            pwdfile.write('[client]\npassword=')
-            if self._password is None:
-                self._password = ''
-            pwdfile.write(self._password.replace("\\", "\\\\"))
-            pwdfile.write('\n')
-            pwdfile.close()
+            with open(pwdfilename, 'w') as pwdfile:
+                pwdfile.write('[client]\npassword=')
+                if self._password is None:
+                    self._password = ''
+                pwdfile.write(self._password.replace("\\", "\\\\"))
+                pwdfile.write('\n')
 
             if is_windows:
                 try:
@@ -320,41 +319,40 @@ class MySQLScriptImporter(object):
             self.report_progress("Importing %s..." % os.path.basename(path), 0, total_size)
             stdout_q, thr = start_reading_from(p1.stdout)
            
-            input_file = open(path, "r")
-            while p1 and p1.poll() == None:
-                try:
-                    if stdout_q:
-                        text = stdout_q.get_nowait()
-                        if text:
-                            log_info("Task stdout: %s\n" % text)
-                            if 'Access denied for user' in text:
-                                raise grt.DBLoginError(text)
-                            elif "Can't open named pipe to host" in text and sys.platform.lower() == "win32":
-                                text = "%s\n%s" % (text, "Please check if the server started with the --enabled-named-pipe parameter. The parameter can also be set in the config file.")
-                            self.report_output(text.strip())
-                        elif text is None:
-                              stdout_q = None
-                except Empty:
-                    pass
+            with open(path, "r") as input_file:
+                while p1 and p1.poll() == None:
+                    try:
+                        if stdout_q:
+                            text = stdout_q.get_nowait()
+                            if text:
+                                log_info("Task stdout: %s\n" % text)
+                                if 'Access denied for user' in text:
+                                    raise grt.DBLoginError(text)
+                                elif "Can't open named pipe to host" in text and sys.platform.lower() == "win32":
+                                    text = "%s\n%s" % (text, "Please check if the server started with the --enabled-named-pipe parameter. The parameter can also be set in the config file.")
+                                self.report_output(text.strip())
+                            elif text is None:
+                                  stdout_q = None
+                    except Empty:
+                        pass
 
-                line = input_file.readline()
-                if not line:
-                    break
-                processed += len(line)
-                try:
-                    p1.stdin.write(line)
-                except IOError as e:
-                    log_error("Exception writing to stdin from cmdline client: %s\n" % e)
-                    if e.errno == 32: # broken pipe
-                        log_error("Broken pipe from child process\n")
+                    line = input_file.readline()
+                    if not line:
                         break
-                    elif e.errno == 22: # invalid argument (happens in Windows, when child process just dies)
-                      log_error("Broken pipe from child process\n")
-                      break
-                    raise e
-                self.report_progress(None, processed, total_size)
+                    processed += len(line)
+                    try:
+                        p1.stdin.write(line)
+                    except IOError as e:
+                        log_error("Exception writing to stdin from cmdline client: %s\n" % e)
+                        if e.errno == 32: # broken pipe
+                            log_error("Broken pipe from child process\n")
+                            break
+                        elif e.errno == 22: # invalid argument (happens in Windows, when child process just dies)
+                          log_error("Broken pipe from child process\n")
+                          break
+                        raise e
+                    self.report_progress(None, processed, total_size)
                 
-            input_file.close()
 
             # close the writer end of the client's pipe, so it can exit
             p1.stdin.close()
