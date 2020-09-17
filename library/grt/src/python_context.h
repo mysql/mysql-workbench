@@ -119,7 +119,7 @@ namespace grt {
     static void set_unwrap_pyobject_func(PyObject *(*func)(PyObject *, PyObject *));
 
     void add_module_path(const std::string &path, bool prepend = false);
-    bool import_module(const std::string &name);
+    PyObject *import_module(const std::string &name);
 
     PyObject *from_grt(const ValueRef &value);
     grt::ValueRef from_pyobject(PyObject *object);

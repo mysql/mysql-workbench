@@ -153,13 +153,12 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   _grt_object_class = 0;
   _grt_method_class = 0;
 
-  int result = PyImport_AppendInittab("grt", grt_module_create);   // Add a single module to the existing table of built-in modules
-  std::cout << "result: " << result << std::endl;
+  PyImport_AppendInittab("grt", grt_module_create);   // Add a single module to the existing table of built-in modules
   InitPython();
 
   PyObject *main = PyImport_AddModule("__main__");  //  Get module if exists
   PyObject *module = PyImport_ImportModule("grt");  //  Import grt (will call grt_module_create)
-  result = PyDict_SetItemString(PyModule_GetDict(main), "grt", module);
+  PyDict_SetItemString(PyModule_GetDict(main), "grt", module);
 
   register_grt_module( module );
   
@@ -1234,16 +1233,17 @@ PyObject *PythonContext::get_grt_module() {
   return _grt_module;
 }
 
-bool PythonContext::import_module(const std::string &name) {
+PyObject *PythonContext::import_module(const std::string &name) {
   PyObject *main = PyImport_AddModule("__main__");
   PyObject *module = PyImport_ImportModule((char *)name.c_str());
   if (!main || !module) {
+    PyErr_Print();
     PythonContext::log_python_error(base::strfmt("Error importing %s", name.c_str()).c_str());
-    return false;
+    return nullptr;
   }
   PyDict_SetItemString(PyModule_GetDict(main), name.c_str(), module);
 
-  return true;
+  return module;
 }
 
 PyObject *PythonContext::eval_string(const std::string &expression) {
@@ -1257,8 +1257,10 @@ PyObject *PythonContext::eval_string(const std::string &expression) {
   PyObject *globals = PyModule_GetDict(mainmod);
   if (globals) {
     PyObject *result = PyRun_String(expression.c_str(), Py_eval_input, globals, globals);
-    if (!result)
+    if (!result) {
+      PyErr_Print();
       PythonContext::log_python_error(base::strfmt("Error running expr: %s", expression.c_str()).c_str());
+    }
     return result;
   }
   PyErr_Clear();
@@ -1692,8 +1694,10 @@ int PythonContext::run_buffer(const std::string &buffer, std::string *line_buffe
     result = PyRun_String(buffer.c_str(), Py_file_input, globals, globals);
 
   if (!result) {
-    if (PyErr_Occurred())
+    if (PyErr_Occurred()) {
       PythonContext::log_python_error("Error running buffer");
+      PyErr_Print();
+    }
 
     return -1;
   } else {

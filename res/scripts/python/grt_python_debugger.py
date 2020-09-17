@@ -1,7 +1,27 @@
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2.0,
+# as published by the Free Software Foundation.
+#
+# This program is also distributed with certain software (including
+# but not limited to OpenSSL) that is licensed under separate terms, as
+# designated in a particular file or component or in included license
+# documentation.  The authors of MySQL hereby grant you an additional
+# permission to link the program and your derivative works with the
+# separately licensed software that they have included with MySQL.
+# This program is distributed in the hope that it will be useful,  but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+# the GNU General Public License, version 2.0, for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
 import os
 import sys
 import bdb
-import wbpdb
 import traceback
 import tempfile
 import time
@@ -290,12 +310,12 @@ class PyDebugger(bdb.Bdb):
 
     def wdb_toggle_breakpoint(self, file, line):
         pb = self.find_pbreakpoint(file, line)
-        if pb: # remove bp
+        if pb:  # remove bp
             self.persistent_breakpoints.remove(pb)
             pb.deactivate()
-            self.wdb_refresh_breakpoints();
+            self.wdb_refresh_breakpoints()
             return False
-        else: # add bp
+        else:  # add bp
             pb = PersistentBreakpoint(self, file, line)
             self.persistent_breakpoints.append(pb)
             pb.activate()
