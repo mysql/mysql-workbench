@@ -81,6 +81,11 @@ class PersistentBreakpoint:
     def deactivate(self):
         self.owner.clear_break(self.owner.canonic(self.file), self.line)
 
+    def __repr__(self):
+        return "[%s] %s:%s" % ("ON" if self.active else "OFF", self.file, self.line)
+
+    def __str__(self):
+        return "[%s] %s:%s" % ("ON" if self.active else "OFF", self.file, self.line)
 
 
 class PyDebugger(bdb.Bdb):
@@ -132,15 +137,17 @@ class PyDebugger(bdb.Bdb):
                 else:
                     location = location+"()"
 
-            self.ui_add_stack(location, self.canonic(frame.f_code.co_filename), line)
+            self.ui_add_stack(location, self.parse_filename(frame), line)
 
 
     def uncaught_exception(self, tb):
         self.handle_program_stop(tb.tb_frame, STOP_REASON_EXCEPTION)
 
+    def parse_filename(self, frame):
+        return self.main_file if frame.f_code.co_filename == '<string>' else self.canonic(frame.f_code.co_filename)
 
     def handle_program_stop(self, frame, reason):
-        filename = frame.f_code.co_filename
+        filename = self.parse_filename(frame)
         line = frame.f_lineno
 
         self.current_stack, self.top_stack_index = self.get_stack(frame, None)
@@ -413,6 +420,9 @@ class PyDebugger(bdb.Bdb):
         elif self.is_stepping:
             reason = STOP_REASON_STEP
         elif self.break_here(frame):
+            self.ui_print("Breakpoint hit\n")
+            reason = STOP_REASON_BREAKPOINT
+        elif self.parse_filename(frame) in self.breaks and frame.f_lineno in self.breaks[self.parse_filename(frame)]:
             self.ui_print("Breakpoint hit\n")
             reason = STOP_REASON_BREAKPOINT
         else:
