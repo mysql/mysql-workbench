@@ -91,12 +91,12 @@ class ResultsPage(WizardPage):
         if self.main.import_progress_page.import_time:
             itime = float("%d.%d" % (self.main.import_progress_page.import_time.seconds, self.main.import_progress_page.import_time.microseconds))
             text = "File %s was imported in %.3f s" % (self.get_path(), itime)
-            self.content.add(mforms.newLabel(text.encode('utf-8')), False, True)
+            self.content.add(mforms.newLabel(text), False, True)
         
         text = "Table %s.%s %s" % (self.main.destination_table['schema'], 
                                                                  self.main.destination_table['table'], 
                                                                  "has been used" if self.main.destination_page.existing_table_radio.get_active() else "was created")
-        self.content.add(mforms.newLabel(text.encode('utf-8')), False, True)
+        self.content.add(mforms.newLabel(text), False, True)
         self.content.add(mforms.newLabel(str("%d records imported" % self.main.import_progress_page.module.item_count)), False, True)
 
 class ImportProgressPage(WizardProgressPage):
@@ -203,7 +203,7 @@ class ConfigurationPage(WizardPage):
             self.optpanel = mforms.newPanel(mforms.TitledBoxPanel)
             self.optpanel.set_title("Options:")
             def set_text_entry(field, output):
-                txt = field.get_string_value().encode('utf-8').strip()
+                txt = field.get_string_value().strip()
                 if len(txt) == 0:
                     operator.setitem(output, 'value', None)
                     mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
@@ -494,7 +494,7 @@ class ConfigurationPage(WizardPage):
             chk_box = create_chkbox(row)
             self.checkbox_list.append(chk_box)
             self.preview_table.add(chk_box, 0, 1, i+1, i+2, mforms.HFillFlag)
-            self.preview_table.add(mforms.newLabel(str(col['name'].encode('utf8'))), 1, 2, i+1, i+2, mforms.HFillFlag)
+            self.preview_table.add(mforms.newLabel(str(col['name'])), 1, 2, i+1, i+2, mforms.HFillFlag)
             if not self.main.destination_page.new_table_radio.get_active():
                 self.preview_table.add(create_select_dest_col(row, self.dest_cols), 2, 3, i+1, i+2, mforms.HFillFlag)
             else:
@@ -503,7 +503,7 @@ class ConfigurationPage(WizardPage):
             
         self.treeview_preview = newTreeView(mforms.TreeFlatList)
         for i, col in enumerate(self.active_module._columns):
-            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name'].encode('utf8')), 75, True)
+            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
         self.treeview_preview.end_columns()
         
         
@@ -527,11 +527,8 @@ class ConfigurationPage(WizardPage):
             for row in col_values:
                 node = self.treeview_preview.add_node()
                 for i, col in enumerate(row):
-                    if hasattr(col, 'encode'):
-                        node.set_string(i, str(col.encode('utf8')))
-                    else:
-                        node.set_string(i, str(col))
-
+                    node.set_string(i, str(col))
+                        
         self.treeview_preview.set_allow_sorting(True)
         self.treeview_preview.set_size(200, 100)
         self.table_preview_box.add(self.treeview_preview, False, True)
@@ -716,7 +713,7 @@ class SelectDestinationPage(WizardPage):
             self.main.destination_table['table'] = to_unicode(self.new_table_name.get_string_value()).strip()
             if len(self.main.destination_table['table']) == 0:
                 mforms.Utilities.show_error("Table Import", "You need to specify new table name", "Ok", "", "")
-                return False 
+                return False
             
             if compare_in_lowercase:
                 self.main.destination_table['table'] = self.main.destination_table['table'].lower()
@@ -732,7 +729,7 @@ class SelectDestinationPage(WizardPage):
                     self.existing_table_radio.set_active(True)
                     self.destination_table_sel.set_selected(list(self.table_list.keys()).index(table_name))
                 else:
-                    return False 
+                    return False
         return True
 
 class SelectFileWizardPage(WizardPage):

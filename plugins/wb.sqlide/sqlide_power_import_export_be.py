@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -117,7 +117,7 @@ class base_module:
 
     def fix_column_duplication(self, name):
         # Just to be on the safe side if the column name is not a plain string so python is happy
-        bname = base64.b64encode(name)
+        bname = name
         if bname in self._columnNames:
             name = "%s_[%d]" % (name, self._columnNames[bname])
             self._columnNames[bname] += 1
@@ -306,32 +306,6 @@ class base_module:
             self.is_running = False
             raise
 
-class Utf8Reader:
-    def __init__(self, f, enc):
-        import codecs
-        self.reader = codecs.getreader(enc)(f)
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self.reader.next().encode("utf-8")
-
-class UniReader:
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **args):
-        f = Utf8Reader(f, encoding)
-        self.csvreader = csv.reader(f, dialect=dialect, **args)
-
-    def __next__(self):
-        row = next(self.csvreader)
-        return [str(s, "utf-8") for s in row]
-        
-    @property
-    def line_num(self):
-        return self.csvreader.line_num
-
-    def __iter__(self):
-        return self
 
 class csv_module(base_module):
     def __init__(self, editor, is_import):
@@ -390,7 +364,7 @@ class csv_module(base_module):
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC if self.options['encolsestring']['value'] else csv.QUOTE_NONE)
-                    output.writerow([value['name'].encode('utf-8') for value in self._columns])
+                    output.writerow([value['name'] for value in self._columns])
                     ok = rset.goToFirstRow()
                     
                     # Because there's no realiable way to use offset only, we'll do this here.
@@ -446,7 +420,7 @@ class csv_module(base_module):
         
         with open(self._filepath, 'r') as csvfile:
             self.update_progress(0.0, "Prepare Import")
-            dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
+            dest_col_order = [i['dest_col'] for i in self._mapping if i['active']]
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
             col_type = dict([(i['dest_col'], i['type']) for i in self._mapping if i['active']])
@@ -456,17 +430,17 @@ class csv_module(base_module):
             self._editor.executeManagementCommand(query, 1)
             try:
                 is_header = self.has_header
-                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
+                reader = csv.reader(csvfile, self.dialect)
                 self._max_rows = os.path.getsize(self._filepath)
                 self.update_progress(0.0, "Begin Import")
+                self._current_row = 0
                 for row in reader:
                     if self._thread_event and self._thread_event.is_set():
                         self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
                         log_debug2("Worker thread was stopped by user")
                         self.update_progress(round(self._current_row / self._max_rows, 2), "Import stopped by user request")
                         return False
-
-                    self._current_row = float(csvfile.tell())
+                    self._current_row += 1
                     
                     if is_header:
                         is_header = False
@@ -499,9 +473,10 @@ class csv_module(base_module):
                                 val = val.replace("\\", "\\\\").replace("'", "\\'")
 
                             if self.options['nullwordaskeyword']['value'] == "y" and val.upper() == "NULL":
-                                self._editor.executeManagementCommand("""SET @a%d = NULL """ % (i), 0)
+                                stmt = """SET @a%d = NULL """ % (i)
                             else:
-                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+                                stmt = """SET @a%d = '%s' """ % (i, val)
+                            self._editor.executeManagementCommand(stmt, 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
@@ -550,7 +525,7 @@ class csv_module(base_module):
                 csvfile.seek(0)
                 
             try:
-                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
+                reader = csv.reader(csvfile, self.dialect)
                 self._columns = []
                 row_line = None
                 try:
