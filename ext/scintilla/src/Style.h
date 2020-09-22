@@ -35,7 +35,7 @@ public:
 	FontAlias() noexcept;
 	// FontAlias objects can not be assigned except for initialization
 	FontAlias(const FontAlias &) noexcept;
-	FontAlias(FontAlias &&)  = delete;
+    FontAlias(FontAlias &&)  noexcept;
 	FontAlias &operator=(const FontAlias &) = delete;
 	FontAlias &operator=(FontAlias &&) = delete;
 	~FontAlias() override;
@@ -72,7 +72,7 @@ public:
 
 	Style();
 	Style(const Style &source);
-	Style(Style &&) = delete;
+    Style(Style &&) noexcept = default;
 	~Style();
 	Style &operator=(const Style &source);
 	Style &operator=(Style &&) = delete;
