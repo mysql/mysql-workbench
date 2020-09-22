@@ -187,8 +187,7 @@ public:
 	PositionCacheEntry() noexcept;
 	// Copy constructor not currently used, but needed for being element in std::vector.
 	PositionCacheEntry(const PositionCacheEntry &);
-	// Deleted so PositionCacheEntry objects can not be assigned.
-	PositionCacheEntry(PositionCacheEntry &&) = delete;
+    PositionCacheEntry(PositionCacheEntry &&) noexcept = default;
 	void operator=(const PositionCacheEntry &) = delete;
 	void operator=(PositionCacheEntry &&) = delete;
 	~PositionCacheEntry();
