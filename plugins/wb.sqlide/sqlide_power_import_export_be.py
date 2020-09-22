@@ -679,7 +679,7 @@ class json_module(base_module):
         result = True
         with open(self._filepath, 'rb') as jsonfile:
             data = json.load(jsonfile)
-            dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
+            dest_col_order = [i['dest_col'] for i in self._mapping if i['active']]
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
             col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
