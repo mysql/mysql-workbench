@@ -20,6 +20,11 @@ using namespace Scintilla;
 FontAlias::FontAlias() noexcept {
 }
 
+FontAlias::FontAlias(FontAlias &&other) noexcept : Font() {
+    SetID(other.fid);
+    other.ClearFont();
+}
+
 FontAlias::FontAlias(const FontAlias &other) noexcept : Font() {
 	SetID(other.fid);
 }
