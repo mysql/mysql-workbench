@@ -234,7 +234,11 @@ static PyObject *object_printable(PyGRTObjectObject *self) {
   return PyUnicode_FromString(self->object->toString().c_str());
 }
 
-static PyObject *object_rich_compare(PyGRTObjectObject *self, PyGRTObjectObject *other, int op) {  
+static PyObject *object_rich_compare(PyGRTObjectObject *self, PyGRTObjectObject *other, int op) {
+  if(&other->ob_base == Py_None) {
+    Py_RETURN_FALSE;
+  }
+  
   switch(op) {
     case Py_EQ: if ((self) == (other) || self->object->id() == other->object->id()) Py_RETURN_TRUE; Py_RETURN_FALSE;
     case Py_NE: if ((self) != (other) && self->object->id() != other->object->id()) Py_RETURN_TRUE; Py_RETURN_FALSE;
