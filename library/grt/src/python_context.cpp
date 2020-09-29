@@ -1300,12 +1300,6 @@ bool PythonContext::set_global(const std::string &name, PyObject *value) {
   return true;
 }
 
-static void release_value(PyObject *obj) {
-  internal::Value *v = reinterpret_cast<internal::Value *>(PyCapsule_GetPointer(obj, "contextObject"));
-
-  v->release();
-}
-
 /** Wraps a grt value in a PyCObject.
 
  PyCObjects are used internally to initialize a grt.List/Dict or Object from an existing grt value.
@@ -1313,7 +1307,7 @@ static void release_value(PyObject *obj) {
 PyObject *PythonContext::internal_cobject_from_value(const ValueRef &value) {
   internal::Value *v = value.valueptr();
   v->retain();
-  PyObject *ret = PyCapsule_New(v, "contextObject", release_value);
+  PyObject *ret = PyCapsule_New(v, "contextObject", nullptr);
   PyCapsule_SetContext(ret, &GRTValueSignature);
   return ret;
 }
