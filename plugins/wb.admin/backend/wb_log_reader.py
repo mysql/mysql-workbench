@@ -396,20 +396,22 @@ class BaseLogFileReader(object):
         self.chunk_end = self.file_size
 
         self.record_count = 0
-
+        
+        data = self.log_file.get_range(0, self.chunk_size)
+        self.first_record_position = self._get_offset_to_first_record(data)
 
 
     def has_previous(self):
         '''
             If there is a previous chunk that can be read.
             '''
-        return self.chunk_start > 0
+        return self.chunk_start > self.first_record_position
 
     def has_next(self):
         '''
             If there is a next chunk that can be read.
             '''
-        return self.chunk_end != self.file_size
+        return self.chunk_end < self.file_size
 
     def range_text(self):
         return '%s records starting at byte offset %s' % (self.record_count, self.chunk_start)
@@ -489,13 +491,13 @@ class BaseLogFileReader(object):
             the corresponding log entry.
             '''
         data = self.log_file.get_range(self.chunk_start, self.chunk_end)
-        if self.chunk_start > self.chunk_size / 10:
-            # adjust the start of the current chunk to the start of the 1st record (if we're not too close to the top)
-            offset = self._get_offset_to_first_record(data)
-            self.chunk_start += offset
-        else:
-            offset = 0
-        return self._parse_chunk(data[offset:])
+
+        # adjust the start of the current chunk to the start of the 1st record (if we're not too close to the top)
+        offset = self._get_offset_to_first_record(data)
+
+        data = data[offset:]
+        self.chunk_start += offset
+        return self._parse_chunk(data)
 
     def previous(self):
         '''
@@ -505,8 +507,9 @@ class BaseLogFileReader(object):
             '''
         if self.chunk_start == 0:
             return []
-        self.chunk_end = self.chunk_start
-        self.chunk_start = max(0, self.chunk_start - self.chunk_size)
+       
+        self.chunk_end = max(self.chunk_start, self.first_record_position + self.chunk_size)
+        self.chunk_start = max(self.first_record_position, self.chunk_start - self.chunk_size)
         return self.current()
     
     def __next__(self):
@@ -525,17 +528,23 @@ class BaseLogFileReader(object):
         '''
             Returns a list with the records in the first chunk
             '''
-        self.chunk_start = 0
-        self.chunk_end = self.chunk_size
+        self.chunk_start = self.first_record_position
+        self.chunk_end = self.first_record_position + self.chunk_size
         return self.current()
     
     def last(self):
         '''
             Returns a list with the records in the first chunk
             '''
-        self.chunk_start = max(0, self.file_size - self.chunk_size)
+        self.chunk_start = max(self.first_record_position, self.file_size - self.chunk_size)
         self.chunk_end = self.file_size
         return self.current()
+
+    def file_changed(self):
+        if self.log_file.path == "stderr":
+            return True
+
+        return self.file_size != self.log_file.size
 
     def refresh(self):
         '''
@@ -545,12 +554,12 @@ class BaseLogFileReader(object):
             '''
         if self.log_file.path == "stderr":
             return
-        else:
-            new_size = self.log_file.size
-            if new_size != self.file_size:
-                self.file_size = new_size
-                self.chunk_start = max(0, self.file_size - self.chunk_size)
-                self.chunk_end = self.file_size
+      
+        new_size = self.log_file.size
+        if new_size != self.file_size:
+            self.file_size = new_size
+            self.chunk_start = max(self.first_record_position, self.file_size - self.chunk_size)
+            self.chunk_end = self.file_size
 
 
 #==============================================================================

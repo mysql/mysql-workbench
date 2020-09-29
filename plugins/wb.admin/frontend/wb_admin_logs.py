@@ -376,12 +376,25 @@ class LogView(mforms.Box):
         if isinstance(data, Exception):
             mforms.Utilities.show_error("Error Reading Log File",
                                         "%s" % data, "OK", "", "")
-            self.worker = None            
+            self.worker = None          
             return
-        self.refresh(data)
+        self.update(data)
         self.worker = None
 
-    def refresh(self, records=None):
+    def refresh(self):
+        self.log_reader.refresh()
+        if not self.worker:
+            self.bof_button.set_enabled(False)
+            self.back_button.set_enabled(False)
+            self.eof_button.set_enabled(False)
+            self.next_button.set_enabled(False)
+            self.refresh_button.set_enabled(False)
+            # this will create a thread which will read the log data and once it finishes,
+            # self.refresh will be called with the data
+            self.worker = WorkerThreadHelper(self.read_data_worker, self.handle_worker_data)
+            self.worker.start(1)
+
+    def update(self, records=None):
         if self.log_reader:
             if self.log_reader.log_file and self.log_reader.log_file.path == "stderr":
                 grt.getEventLogEntry(self.actual_position, self.query)
@@ -392,20 +405,6 @@ class LogView(mforms.Box):
                 self.range_label.set_text('Records read: %d' % self.actual_position)
                 return
             try:
-                self.log_reader.refresh()
-
-                if records is None:
-                    if not self.worker:
-                        self.bof_button.set_enabled(False)
-                        self.back_button.set_enabled(False)
-                        self.eof_button.set_enabled(False)
-                        self.next_button.set_enabled(False)
-                        self.refresh_button.set_enabled(False)
-                        # this will create a thread which will read the log data and once it finishes,
-                        # self.refresh will be called with the data
-                        self.worker = WorkerThreadHelper(self.read_data_worker, self.handle_worker_data)
-                        self.worker.start(1)
-                    return
                 self.tree.clear()
                 for rec in records:
                     row = self.tree.add_node()
@@ -415,8 +414,8 @@ class LogView(mforms.Box):
                 self.size_label.set_text(self.log_reader.size_text())
                 self.bof_button.set_enabled(self.log_reader.has_previous())
                 self.back_button.set_enabled(self.log_reader.has_previous())
-                self.eof_button.set_enabled(self.log_reader.has_next())
                 self.next_button.set_enabled(self.log_reader.has_next())
+                self.eof_button.set_enabled(self.log_reader.has_next())
                 self.refresh_button.set_enabled(True)
             except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
                 self._show_error(error)
@@ -442,27 +441,27 @@ class LogView(mforms.Box):
 
     def go_bof(self):
         try:
-            self.refresh(self.log_reader.first())
+            self.update(self.log_reader.first())
         except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
     def go_eof(self):
         try:
-            self.refresh(self.log_reader.last())
+            self.update(self.log_reader.last())
         except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
     def go_back(self):
         try:
             records = self.log_reader.previous() if self.log_reader.has_previous() else None
-            self.refresh(records)
+            self.update(records)
         except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
     def go_next(self):
         try:
             records = next(self.log_reader) if self.log_reader.has_next() else None
-            self.refresh(records)
+            self.update(records)
         except (ServerIOError, RuntimeError, LogFileAccessError, OperationCancelledError, InvalidPasswordError, IOError, ValueError) as error:
             self._show_error(error)
 
@@ -496,9 +495,9 @@ class LogViewGeneric(LogView):
             if filter.get_active():
                 self.filter_text = text
 
-        self.refresh(None)
+        self.refresh()
 
-    def refresh(self, records=None):
+    def update(self, records=None):
         filtered_records = None
         if records:
             filtered_records = []
@@ -506,7 +505,7 @@ class LogViewGeneric(LogView):
                 text = to_unicode(record[3])
                 if self.filter_text == "All" or text.lower().find(self.filter_text.lower()) >= 0:
                     filtered_records.append(record)
-        super(LogViewGeneric, self).refresh(filtered_records)
+        super(LogViewGeneric, self).update(filtered_records)
 
 
 class WbAdminValidationLogOutputType(WbAdminValidationBase):
