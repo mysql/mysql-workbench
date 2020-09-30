@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -89,6 +89,7 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Ubuntu 19.04")).toBeFalse();
     $expect(isOsSupportedProxy("Ubuntu 19.10")).toBeFalse();
     $expect(isOsSupportedProxy("Ubuntu 20.04")).toBeTrue();
+    $expect(isOsSupportedProxy("Ubuntu 20.10")).toBeTrue();
 
     // red-hat based
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release")).toBeFalse();
