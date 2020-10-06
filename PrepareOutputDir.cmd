@@ -171,8 +171,10 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
 
-robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
-robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
+robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd _sqlite3*.pyd
+robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\site-packages\ _sqlite3%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
+robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages\ pyodbc%DEBUG_PREFIX%*.pyd %EXCLUDE_CMD%
+
 robocopy %PYTHON_DIR%\ %TARGET_DIR%\python\DLLs *sqlite3*%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 
 rem site packages that are release type independent
