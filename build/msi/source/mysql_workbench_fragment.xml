@@ -1689,7 +1689,6 @@
                       <File Id="file8032" Name="JSON.tpl"/>
                       <File Id="file8033" Name="JSON.tpli"/>
 
-                      <File Id="help55" Name="help-5.5.json"/>
                       <File Id="help56" Name="help-5.6.json"/>
                       <File Id="help57" Name="help-5.7.json"/>
                       <File Id="help80" Name="help-8.0.json"/>

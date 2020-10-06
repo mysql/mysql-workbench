@@ -51,7 +51,6 @@
 		270A96B6227C3109008E0326 /* wbmodulevalidationmysql_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 270A96B5227C3108008E0326 /* wbmodulevalidationmysql_specs.cpp */; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270CE08A1725409000BEDDDD /* wb_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 270CE0891725409000BEDDDD /* wb_close.png */; };
-		270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB561E647FFA00BC573D /* help-5.5.json */; };
 		270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB571E647FFA00BC573D /* help-5.6.json */; };
 		270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB581E647FFA00BC573D /* help-5.7.json */; };
 		270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB591E647FFA00BC573D /* help-8.0.json */; };
@@ -4065,7 +4064,6 @@
 				2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */,
 				2B17615914565C62003EFCF7 /* XML_mysql.post.tpl in Copy Files (sqlide) */,
 				2B17615A14565C62003EFCF7 /* XML_mysql.pre.tpl in Copy Files (sqlide) */,
-				270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */,
 				270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */,
 				270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */,
 				270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */,
@@ -4180,7 +4178,6 @@
 		271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-code-completion.h"; path = "library/parsers/code-completion/mysql-code-completion.h"; sourceTree = "<group>"; };
 		271F7448239117CD005B0EEB /* libmysqlcppconn.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.dylib; path = "3rd-party-ce//lib/libmysqlcppconn.dylib"; sourceTree = "<group>"; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
-		2722CB561E647FFA00BC573D /* help-5.5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.5.json"; path = "res/sqlidedata/context-help/help-5.5.json"; sourceTree = "<group>"; };
 		2722CB571E647FFA00BC573D /* help-5.6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.6.json"; path = "res/sqlidedata/context-help/help-5.6.json"; sourceTree = "<group>"; };
 		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
 		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
@@ -7664,7 +7661,6 @@
 		2722CB551E647FEC00BC573D /* context help */ = {
 			isa = PBXGroup;
 			children = (
-				2722CB561E647FFA00BC573D /* help-5.5.json */,
 				2722CB571E647FFA00BC573D /* help-5.6.json */,
 				2722CB581E647FFA00BC573D /* help-5.7.json */,
 				2722CB591E647FFA00BC573D /* help-8.0.json */,
