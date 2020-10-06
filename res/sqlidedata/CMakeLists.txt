@@ -32,7 +32,6 @@ set(DATA_FILES
     templates/JSON.tpl
     templates/JSON.tpli
 	
-	context-help/help-5.5.json
 	context-help/help-5.6.json
 	context-help/help-5.7.json
 	context-help/help-8.0.json
