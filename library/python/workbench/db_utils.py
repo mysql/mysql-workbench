@@ -284,8 +284,8 @@ class MySQLConnection:
         self.server_down = False
         if not self.connection:
             params = self.connect_info.parameterValues
-            old_timeout_value = None
-            if 'OPT_READ_TIMEOUT' in params:
+            old_timeout_value = -1
+            if 'OPT_READ_TIMEOUT' in params.keys():
                 old_timeout_value = params['OPT_READ_TIMEOUT']
             params['OPT_READ_TIMEOUT'] = 5*60
 
@@ -295,7 +295,7 @@ class MySQLConnection:
             else:
                 self.connection = modules.DbMySQLQuery.openConnection(self.connect_info)
 
-            if old_timeout_value:
+            if old_timeout_value >= 0:
                 params['OPT_READ_TIMEOUT'] = old_timeout_value
             else:
                 del params['OPT_READ_TIMEOUT']
