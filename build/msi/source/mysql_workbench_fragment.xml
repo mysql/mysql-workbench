@@ -83,7 +83,7 @@
                 <File Id="file1099d" Name="python37_d.dll"/>
                 <File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
-                <File Id="file1099" Name="python37_d.dll"/>
+                <File Id="file1099" Name="python37.dll"/>
                 <File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
@@ -932,6 +932,7 @@
 
               <!---   BEGIN PYTHON STUFF -->
               <Directory Id="python" Name="python">
+              
                 <Directory Id="python_dlls" Name="DLLs">
                   <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
@@ -1559,7 +1560,7 @@
                       <File Id="lib_idlelib_idle.pyw" Name="idle.pyw" />
                     </Component>
                     <Directory Id="python_lib_idlelib_icons" Name="Icons">
-                      <Component DiskId="1" Guid="50757944-6859-4B2B-9637-30A32AE0EE36" Id="python_lib_idlelib_Icons" Location="either">
+                      <Component DiskId="1" Guid="50757944-6859-4B2B-9637-30A32AE0EE36" Id="python_lib_idlelib_icons" Location="either">
                         <File Id="lib_idlelib_Icons_folder.gif" Name="folder.gif" />
                         <File Id="lib_idlelib_Icons_idle_16.gif" Name="idle_16.gif" />
                         <File Id="lib_idlelib_Icons_idle_32.gif" Name="idle_32.gif" />
@@ -1728,7 +1729,7 @@
                     </Directory>
                   </Directory>
                   <Directory Id="python_lib_pydoc_data" Name="pydoc_data">
-                    <Component DiskId="1" Guid="44FE7B8E-EF5A-452E-AE2F-C6DB97DDCEB0" Id="python_lib_pydoc_data" Location="either">
+                    <Component DiskId="1" Guid="D1C3CD3E-F415-4161-8222-06BA247D4E8A" Id="python_lib_pydoc_data" Location="either">
                       <File Id="lib_pyodbc_data___init__.py" Name="__init__.py" />
                       <File Id="lib_pyodbc_data__pydoc.css" Name="_pydoc.css" />
                       <File Id="lib_pyodbc_data_topics.py" Name="topics.py" />
@@ -1775,8 +1776,8 @@
                       <File Id="lib_venv___main__.py" Name="__main__.py" />
                     </Component>
                     <Directory Id="python_lib_venv_scripts" Name="scripts">
-                      <Component DiskId="1" Guid="6213A054-2AA4-4485-8102-1D461ED36BFA" Id="python_lib_venv_scripts" Location="either">
-                      </Component>
+                      <!-- <Component DiskId="1" Guid="6213A054-2AA4-4485-8102-1D461ED36BFA" Id="python_lib_venv_scripts" Location="either">
+                      </Component> -->
                       <Directory Id="python_lib_venv_scripts_common" Name="common">
                         <Component DiskId="1" Guid="E95983FB-0B49-4890-8A9A-36CB19198E60" Id="python_lib_venv_scripts_common" Location="either">
                           <File Id="lib_venv_scripts_common_activate" Name="activate" />
@@ -1857,26 +1858,16 @@
                     </Component>
                   </Directory>
                 </Directory>
-              </Directory>
-              <Directory Id="python_site_packages" Name="site-packages">
-                <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
-                  <?if $(var.SETUP_TYPE) = "debug" ?>
-                  <File Id="file68021d" Name="pyodbc_d.cp37-win_amd64.pyd"/>
-                  <?else ?>
-                  <File Id="file68021" Name="pyodbc.cp37-win_amd64.pyd"/>
-                  <?endif ?>
-                </Component>
-                <?if $(var.SETUP_TYPE) = "commercial" ?>
-                <Directory Id="python_site_packages_pysqlite2" Name="pysqlite2">
-                  <Component DiskId="1" Guid="1144fb0c-9b34-4d3d-bf0d-7c7811c09677" Id="python_site_packages_pysqlite2" Location="either">
-                    <?if $(var.LICENSE_TYPE) = "debug"?>
-                    <File Id="file68803" Name="_sqlite_d.pyd"/>
+
+                <Directory Id="python_site_packages" Name="site-packages">
+                  <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="file68021d" Name="pyodbc_d.cp37-win_amd64.pyd"/>
                     <?else ?>
-                    <File Id="file68804" Name="_sqlite.pyd"/>
+                    <File Id="file68021" Name="pyodbc.cp37-win_amd64.pyd"/>
                     <?endif ?>
                   </Component>
                 </Directory>
-                <?endif ?>
               </Directory>
               <!---   END PYTHON STUFF -->
 
