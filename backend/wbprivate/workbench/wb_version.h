@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -24,7 +24,7 @@
 
 #define APP_MAJOR_NUMBER 8
 #define APP_MINOR_NUMBER 0
-#define APP_RELEASE_NUMBER 22
+#define APP_RELEASE_NUMBER 23
 
 #define APP_BUILD_NUMBER 0
 #define APP_RELEASE_TYPE ""
