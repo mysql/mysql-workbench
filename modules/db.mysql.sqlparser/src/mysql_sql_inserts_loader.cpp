@@ -41,7 +41,7 @@ void Mysql_sql_inserts_loader::load(const std::string &sql, const std::string &s
   NULL_STATE_KEEPER
 
   _schema_name = schema_name;
-  _process_sql_statement = boost::bind(&Mysql_sql_inserts_loader::process_sql_statement, this, std::placeholders::_1);
+  _process_sql_statement = boost::bind(&Mysql_sql_inserts_loader::process_sql_statement, this, boost::placeholders::_1);
 
   Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
   sql_parser_fe.ignore_dml = false;

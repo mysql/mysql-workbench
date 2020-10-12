@@ -964,6 +964,7 @@
                     <?else ?>
                     <File Id="file68009" Name="_sqlite3.pyd"/>
                     <?endif ?>
+                    
                     <?if $(var.SETUP_TYPE) = "debug" ?>
                     <File Id="file68009ddll" Name="sqlite3_d.dll"/>
                     <?else ?>
@@ -981,10 +982,57 @@
                     <?else ?>
                     <File Id="file68014" Name="select.pyd"/>
                     <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="xxlimited_d.pyd" Name="xxlimited_d.pyd"/>
+                    <?else ?>
+                    <File Id="xxlimited.pyd" Name="xxlimited.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="unicodedata_d.pyd" Name="unicodedata_d.pyd"/>
+                    <?else ?>
+                    <File Id="unicodedata.pyd" Name="unicodedata.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="winsound_d.pyd" Name="winsound_d.pyd"/>
+                    <?else ?>
+                    <File Id="winsound.pyd" Name="winsound.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_queue_d.pyd" Name="_queue_d.pyd"/>
+                    <?else ?>
+                    <File Id="_queue.pyd" Name="_queue.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_overlapped_d.pyd" Name="_overlapped_d.pyd"/>
+                    <?else ?>
+                    <File Id="_overlapped.pyd" Name="_overlapped.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_msi1234_d.pyd" Name="_msi_d.pyd"/>
+                    <?else ?>
+                    <File Id="_msi1234.pyd" Name="_msi.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_decimal_d.pyd" Name="_decimal_d.pyd"/>
+                    <?else ?>
+                    <File Id="_decimal.pyd" Name="_decimal.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_asyncio_d.pyd" Name="_asyncio_d.pyd"/>
+                    <?else ?>
+                    <File Id="_asyncio.pyd" Name="_asyncio.pyd"/>
+                    <?endif ?>
+                    
                   </Component>
                 </Directory>
-
-
 
                 <Directory Id="python_lib" Name="lib">
                   <Component DiskId="1" Guid="e9a135a2-605a-11e0-a9ed-34159e1d64e6" Id="python_lib" Location="either">

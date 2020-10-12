@@ -35,6 +35,7 @@
 using namespace grt;
 using namespace bec;
 using namespace base;
+using namespace boost::placeholders;
 
 Mysql_sql_schema_rename::Null_state_keeper::~Null_state_keeper() {
   _sql_parser->_old_schema_name = std::string();

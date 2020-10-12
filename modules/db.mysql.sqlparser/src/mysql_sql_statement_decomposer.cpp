@@ -33,6 +33,7 @@
 
 using namespace grt;
 using namespace base;
+using namespace boost::placeholders;
 
 Mysql_sql_statement_decomposer::Null_state_keeper::~Null_state_keeper() {
   boost::function<Parse_result()> f = boost::lambda::constant(pr_irrelevant);

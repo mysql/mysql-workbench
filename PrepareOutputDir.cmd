@@ -171,7 +171,7 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
 
-robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd _sqlite3*.pyd
+robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages\ pyodbc%DEBUG_PREFIX%*.pyd %EXCLUDE_CMD%
 
 robocopy %PYTHON_DIR%\ %TARGET_DIR%\python\DLLs *sqlite3*%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
@@ -181,8 +181,8 @@ rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\paramiko %TARGET_DIR%\py
 rem xcopy /i /s /y /d %PYTHON_COMMON_DIR%\site-packages\ecdsa %TARGET_DIR%\python\site-packages\ecdsa 1> nul 2> nul
 
 rem site packages for debug/release types
-robocopy %PYTHON_DIR%\pysqlite2 %TARGET_DIR%\python\site-packages\pysqlite2 *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
-xcopy /i /s /y /d %PYTHON_DIR%\pysqlite2\*.py %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
+rem robocopy %PYTHON_DIR%\pysqlite2 %TARGET_DIR%\python\site-packages\pysqlite2 *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
+rem xcopy /i /s /y /d %PYTHON_DIR%\pysqlite2\*.py %TARGET_DIR%\python\site-packages\pysqlite2 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_LIB_DIR%\site-packages\*.pyd %TARGET_DIR%\python\site-packages\ 1> nul 2> nul
 
 rem =======================================

@@ -184,7 +184,7 @@ namespace MySQL.GUI.Workbench
       // Strip all python related dirs from PATH to avoid conflicts with other Python installations.
       foreach (String path in paths)
       {
-        if (!path.ToLower().Contains("python"))
+        if (!path.ToLower().Contains("python")) 
           cleanedPath = cleanedPath + ";" + path;
       }
       Environment.SetEnvironmentVariable("PATH", systemFolder + cleanedPath);

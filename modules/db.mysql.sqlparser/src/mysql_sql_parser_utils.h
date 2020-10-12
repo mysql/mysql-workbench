@@ -31,6 +31,7 @@
 #include "base/string_utilities.h"
 
 using namespace grt;
+using namespace boost::placeholders;
 
 template <typename T>
 class Val_keeper {
