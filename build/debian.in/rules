@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -125,7 +125,6 @@ install: build
 
 	# Add here commands to install the package into debian/mysql-workbench.
 	DESTDIR=debian/$(WBDIRNAME) $(MAKE) install
-	mkdir -p $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
 	# Bundle libaries
 	cp -a $(BUNDLES_PATH)/bin/iodbcadm-gtk         $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libiodbc*.so.*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
@@ -136,7 +135,6 @@ install: build
 	cp -a $(BUNDLES_PATH)/lib/libgdal*             $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libsqlite3.so*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/lib/libssh.so*           $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
-	cp -a $(BUNDLES_PATH)/Python/pysqlite2/*       $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)/modules/pysqlite2
 
 	# Bundle client programs and lib
 	cp -a $(BUNDLES_PATH)/lib/mysql/libmysqlclient.so.*  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
