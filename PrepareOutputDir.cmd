@@ -160,7 +160,6 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\ensurepip %TARGET_DIR%\python\lib\ensurepi
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\html %TARGET_DIR%\python\lib\html 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\http %TARGET_DIR%\python\lib\http 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\idlelib %TARGET_DIR%\python\lib\idlelib 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_COMMON_DIR%\lib2to3 %TARGET_DIR%\python\lib\lib2to3 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\msilib %TARGET_DIR%\python\lib\msilib 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\multiprocessing %TARGET_DIR%\python\lib\multiprocessing 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\pydoc_data %TARGET_DIR%\python\lib\pydoc_data 1> nul 2> nul
@@ -170,6 +169,7 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\urllib %TARGET_DIR%\python\lib\urllib 1> n
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
+robocopy %PYTHON_COMMON_DIR%\lib2to3 %TARGET_DIR%\python\lib\lib2to3 /E /xd %PYTHON_COMMON_DIR%\lib2to3\tests\
 
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages\ pyodbc%DEBUG_PREFIX%*.pyd %EXCLUDE_CMD%
