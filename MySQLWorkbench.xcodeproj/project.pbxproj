@@ -38,7 +38,7 @@
 		16F7A2460F1CFFDC0084C11D /* WBObjectPropertiesController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */; };
 		2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */; };
 		270124222099F97F00FE448E /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
-		270124242099F9D200FE448E /* libmysqlclient.21.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.21.dylib */; };
+		270124242099F9D200FE448E /* libmysqlclient.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.dylib */; };
 		2701535014EBE9FF00AD28BC /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		27041AC221ABFDD300CDB7B2 /* dashboard_header_innodb_dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */; };
 		27041AC321ABFDD300CDB7B2 /* dashboard_header_mysql_dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */; };
@@ -51,7 +51,6 @@
 		270A96B6227C3109008E0326 /* wbmodulevalidationmysql_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 270A96B5227C3108008E0326 /* wbmodulevalidationmysql_specs.cpp */; };
 		270C50121732AD0900CD33BB /* wbcopytables in Copy Files (executables) */ = {isa = PBXBuildFile; fileRef = 2B2E91C9158915DE0078D08A /* wbcopytables */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		270CE08A1725409000BEDDDD /* wb_close.png in Resources */ = {isa = PBXBuildFile; fileRef = 270CE0891725409000BEDDDD /* wb_close.png */; };
-		270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB561E647FFA00BC573D /* help-5.5.json */; };
 		270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB571E647FFA00BC573D /* help-5.6.json */; };
 		270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB581E647FFA00BC573D /* help-5.7.json */; };
 		270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2722CB591E647FFA00BC573D /* help-8.0.json */; };
@@ -67,7 +66,7 @@
 		27189E5A209B2CDE002EC0D4 /* libgdal.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE402099E2070050B26B /* libgdal.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E5B209B2CE5002EC0D4 /* libglib-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E5C209B2CEA002EC0D4 /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		27189E5E209B2CF3002EC0D4 /* libmysqlclient.21.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.21.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27189E5E209B2CF3002EC0D4 /* libmysqlclient.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -3996,7 +3995,7 @@
 				27189E5C209B2CEA002EC0D4 /* libgmodule-2.0.0.dylib in Copy Files (dylibs) */,
 				27189E6B209B2E9E002EC0D4 /* libiconv.2.dylib in Copy Files (dylibs) */,
 				27189E6C209B2EA2002EC0D4 /* libintl.8.dylib in Copy Files (dylibs) */,
-				27189E5E209B2CF3002EC0D4 /* libmysqlclient.21.dylib in Copy Files (dylibs) */,
+				27189E5E209B2CF3002EC0D4 /* libmysqlclient.dylib in Copy Files (dylibs) */,
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
@@ -4067,7 +4066,6 @@
 				2BCE4A0415F646A200FA0CDC /* Python3 in Copy Files (sqlide) */,
 				2B17615914565C62003EFCF7 /* XML_mysql.post.tpl in Copy Files (sqlide) */,
 				2B17615A14565C62003EFCF7 /* XML_mysql.pre.tpl in Copy Files (sqlide) */,
-				270FF07D1E77E98A007ABFFE /* help-5.5.json in Copy Files (sqlide) */,
 				270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */,
 				270FF07F1E77E98A007ABFFE /* help-5.7.json in Copy Files (sqlide) */,
 				270FF0801E77E98A007ABFFE /* help-8.0.json in Copy Files (sqlide) */,
@@ -4154,7 +4152,7 @@
 		16F7A3B80F1F0D2E0084C11D /* WBColorCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBColorCell.h; path = frontend/mac/components/WBColorCell/WBColorCell.h; sourceTree = "<group>"; };
 		16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WBColorCell.m; path = frontend/mac/components/WBColorCell/WBColorCell.m; sourceTree = "<group>"; };
 		2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "3rd-party-ce/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
-		270124232099F9D100FE448E /* libmysqlclient.21.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.21.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.21.dylib"; sourceTree = "<group>"; };
+		270124232099F9D100FE448E /* libmysqlclient.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.dylib"; sourceTree = "<group>"; };
 		27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_innodb_dark@2x.png"; path = "images/admin/dashboard_header_innodb_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_mysql_dark@2x.png"; path = "images/admin/dashboard_header_mysql_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABE21ABFDD100CDB7B2 /* dashboard_header_innodb_dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dashboard_header_innodb_dark.png; path = images/admin/dashboard_header_innodb_dark.png; sourceTree = "<group>"; };
@@ -4182,7 +4180,6 @@
 		271C7F9B1DE2FEF9006D6C88 /* mysql-code-completion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "mysql-code-completion.h"; path = "library/parsers/code-completion/mysql-code-completion.h"; sourceTree = "<group>"; };
 		271F7448239117CD005B0EEB /* libmysqlcppconn.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlcppconn.dylib; path = "3rd-party-ce//lib/libmysqlcppconn.dylib"; sourceTree = "<group>"; };
 		2720518D111847920013E88B /* message_wb_lock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = message_wb_lock.png; sourceTree = "<group>"; };
-		2722CB561E647FFA00BC573D /* help-5.5.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.5.json"; path = "res/sqlidedata/context-help/help-5.5.json"; sourceTree = "<group>"; };
 		2722CB571E647FFA00BC573D /* help-5.6.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.6.json"; path = "res/sqlidedata/context-help/help-5.6.json"; sourceTree = "<group>"; };
 		2722CB581E647FFA00BC573D /* help-5.7.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-5.7.json"; path = "res/sqlidedata/context-help/help-5.7.json"; sourceTree = "<group>"; };
 		2722CB591E647FFA00BC573D /* help-8.0.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "help-8.0.json"; path = "res/sqlidedata/context-help/help-8.0.json"; sourceTree = "<group>"; };
@@ -7666,7 +7663,6 @@
 		2722CB551E647FEC00BC573D /* context help */ = {
 			isa = PBXGroup;
 			children = (
-				2722CB561E647FFA00BC573D /* help-5.5.json */,
 				2722CB571E647FFA00BC573D /* help-5.6.json */,
 				2722CB581E647FFA00BC573D /* help-5.7.json */,
 				2722CB591E647FFA00BC573D /* help-8.0.json */,
@@ -9648,7 +9644,7 @@
 				27189E6A209B2E84002EC0D4 /* libiconv.2.dylib */,
 				27189E69209B2E84002EC0D4 /* libintl.8.dylib */,
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
-				270124232099F9D100FE448E /* libmysqlclient.21.dylib */,
+				270124232099F9D100FE448E /* libmysqlclient.dylib */,
 				271F7448239117CD005B0EEB /* libmysqlcppconn.dylib */,
 				27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */,
 				2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */,

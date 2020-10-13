@@ -2325,6 +2325,9 @@ class WbAdminExport(WbAdminTabBase):
         self.advanced_options_btn.add_clicked_callback(self.show_options)
 
         self.set_header(self.create_standard_header("title_export.png", self.instance_info.name, "Data Export", self.advanced_options_btn))
+        
+        self.export_tab = None
+        self.progress_tab = None
 
     def switch_to_progress(self):
         self.tabview.set_active_tab(1)
@@ -2375,8 +2378,10 @@ class WbAdminExport(WbAdminTabBase):
     def shutdown(self): # called when admin tab is closed
         self.remember_options()
         if self.ui_created():
-            self.export_tab.close()
-            self.progress_tab.close()
+            if self.export_tab:
+                self.export_tab.close()
+            if self.progress_tab:
+                self.progress_tab.close()
 
     def get_lock_tables(self):
         return self.options_tab.get_lock_tables()
@@ -2389,7 +2394,7 @@ class WbAdminExport(WbAdminTabBase):
         return options
 
     def remember_options(self):
-        if self.ui_created():
+        if self.ui_created() and self.export_tab:
             dic = grt.root.wb.options.options
             dic["wb.admin.export:exportType"] = self.export_tab.folderradio.get_active() and "folder" or "file"
             dic["wb.admin.export:selectedFolder"] = self.export_tab.folder_te.get_string_value()
@@ -2443,6 +2448,10 @@ class WbAdminImport(WbAdminTabBase):
         self.set_name("Administration - Data Export/Import")
         self.add_validation(WbAdminValidationConnection(ctrl_be))
         self.set_standard_header("title_import.png", self.instance_info.name, "Data Import")
+        
+        self.progress_tab = None
+        self.import_tab = None
+        self.tabview = None
 
     @classmethod
     def wba_register(cls, admin_context):
@@ -2454,8 +2463,10 @@ class WbAdminImport(WbAdminTabBase):
 
     def shutdown(self):
         if self.ui_created():
-            self.import_tab.close()
-            self.progress_tab.close()
+            if self.import_tab:
+                self.import_tab.close()
+            if self.progress_tab:
+                self.progress_tab.close()
 
 
     def switch_to_progress(self):

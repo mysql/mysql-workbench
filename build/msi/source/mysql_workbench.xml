@@ -63,8 +63,8 @@
     <Condition Message="The processor is not adequate for running [ProductName].">Intel &gt;= 5</Condition>
     <Condition Message="The amount of RAM is not adequate for running [ProductName].">PhysicalMemory &gt;= 64</Condition>
     <Condition Message="You need Administrator privileges to be able to install [ProductName].">Privileged</Condition>
-    <Condition Message="MySQL Workbench requires the Visual C++ 2019 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions.">CPP_2019_REDISTRIBUTABLE_1 >= "#20" OR CPP_2019_REDISTRIBUTABLE_2 >= "#20"</Condition>
-    <Condition Message="MySQL Workbench requires the .Net Framework 4.5 to be installed. Click the Download-Button on the next page to open a web page containing further instructions.">      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED]]></Condition>
+    <Condition Message="MySQL Workbench requires the Visual C++ 2019 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_2019_REDISTRIBUTABLE_1 >= "#20" OR CPP_2019_REDISTRIBUTABLE_2 >= "#20"]]></Condition>
+    <Condition Message="MySQL Workbench requires the .Net Framework 4.5 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED]]></Condition>
 
     <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
 

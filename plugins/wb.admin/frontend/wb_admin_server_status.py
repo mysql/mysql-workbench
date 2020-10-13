@@ -321,7 +321,7 @@ class WbAdminServerStatus(mforms.Box):
             res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")
         except QueryError as e:
             if e.error == 1227:
-                repl_error = "Insufficient privileges to view slave status"
+                repl_error = "Insufficient privileges to view replica status"
             else:
                 repl_error = "Error querying status: %s" % str(e)
         repl = {}
@@ -337,17 +337,17 @@ class WbAdminServerStatus(mforms.Box):
         self.suspend_layout()
         self.controls["Disk Space in Data Dir"][0].set_text(disk_space)
 
-        table = self.controls["Replication Slave"][0]
+        table = self.controls["Replica"][0]
 
         if repl:
             table.remove(self.controls[""][0])
             self.setup_info_table(table,
-                                  [("Slave IO State", repl.get("Slave_IO_State")),
-                                   ("Master Host", repl.get("Master_Host")),
+                                  [("Replica IO State", repl.get("Slave_IO_State")),
+                                   ("Source Host", repl.get("Master_Host")),
                                    ("GTID Mode", info.get("gtid_mode"))],
                                   plugins)
         else:
-            self.controls[""][0].set_text(repl_error or "this server is not a slave in a replication setup")
+            self.controls[""][0].set_text(repl_error or "this server is not a replica in a replication setup")
         table.relayout()
 
         for key, (control, value_source) in list(self.controls.items()):
@@ -427,7 +427,7 @@ class WbAdminServerStatus(mforms.Box):
                                ("Slow Query Log", lambda info, plugins, status: (info.get("slow_query_log")!="OFF" and log_output != "NONE", info.get("slow_query_log_file") if "FILE" in log_output else "[Stored in database]"))],
                               params)
 
-        self.add_info_section("Replication Slave",
+        self.add_info_section("Replica",
                               [("", "checking...")],
                               params)
 

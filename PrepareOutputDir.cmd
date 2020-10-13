@@ -128,7 +128,7 @@ if %2 == Debug ( set DEBUG_PREFIX=_d)
 if not %2 == Debug ( set EXCLUDE_CMD=/xf *_d.* )
 robocopy %PYTHON_DIR% %TARGET_DIR% python37%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
-robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
+robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc*%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
 
 rem =========== Python ============================
 
