@@ -32,7 +32,7 @@ for file in $*; do
       install_name_tool -change $lib $new_id $file
     done
 
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.8/Python3" "@executable_path/../Frameworks/Python3" $file
+    install_name_tool -change "@rpath/Python3.framework/Versions/3.7/Python3" "@executable_path/../Frameworks/Python3" $file
   fi
 
 done
