@@ -25,10 +25,6 @@ import os
 
 import tempfile
 import subprocess
-try:
-    import _subprocess
-except ImportError:
-    pass
 
 from queue import Queue, Empty
 from threading import Thread
@@ -56,12 +52,12 @@ def get_path_to_mysql():
     
     if sys.platform.lower() == "darwin":
         # if path is not specified, use bundled one
-        return mforms.App.get().get_executable_path("mysql").encode("utf8")
+        return mforms.App.get().get_executable_path("mysql")
     elif sys.platform.lower() == "win32":
-        return mforms.App.get().get_executable_path("mysql.exe").encode("utf8")
+        return mforms.App.get().get_executable_path("mysql.exe")
     else:
         # if path is not specified, use bundled one
-        path = mforms.App.get().get_executable_path("mysql").encode("utf8")
+        path = mforms.App.get().get_executable_path("mysql")
         if path:
             return path
         # just pick default
@@ -177,8 +173,8 @@ class MySQLScriptImporter(object):
         info = None
         if is_windows:
             info = subprocess.STARTUPINFO()
-            info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-            info.wShowWindow = _subprocess.SW_HIDE
+            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            info.wShowWindow = subprocess.SW_HIDE
             # Command line can contain object names in case of export and filename in case of import
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
@@ -297,17 +293,15 @@ class MySQLScriptImporter(object):
             if is_windows:
                 try:
                     info = subprocess.STARTUPINFO()
-                    info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-                    info.wShowWindow = _subprocess.SW_HIDE
+                    info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    info.wShowWindow = subprocess.SW_HIDE
                     # Command line can contain object names in case of export and filename in case of import
                     # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
                     # which probably isn't utf-8 in windows.
-                    fse = sys.getfilesystemencoding()
-                    cmd = cmdstr.encode(fse) if isinstance(cmdstr, str) else cmdstr
                     log_debug("Executing command: %s\n" % cmdstr)
-                    p1 = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"', encoding='utf8')
+                    p1 = subprocess.Popen(cmdstr, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"', encoding='utf8')
                 except OSError as exc:
-                    log_error("Error executing command %s\n%s\n" % (cmdstr, exc))
+                    log_error("Error executing command %s\n%s\n" % (cmdstr, str(exc)))
                     import traceback
                     traceback.print_exc()
                     raise RuntimeError("Error executing %s:\n%s" % (cmdstr, str(exc)))
@@ -315,7 +309,6 @@ class MySQLScriptImporter(object):
             # do the import
             total_size = os.stat(path).st_size
             processed = 0
-            
             self.report_progress("Importing %s..." % os.path.basename(path), 0, total_size)
             stdout_q, thr = start_reading_from(p1.stdout)
            

@@ -36,11 +36,6 @@ import wb_admin_export_options
 import wb_common
 from wb_common import to_unicode
 
-try:
-    import _subprocess
-except ImportError:
-    pass
-
 from wb_server_management import local_run_cmd
 
 from workbench.db_utils import QueryError, ConnectionTunnel, escape_sql_identifier
@@ -222,8 +217,8 @@ class DumpThread(threading.Thread):
             if platform.system() == 'Windows':
                 try:
                     info = subprocess.STARTUPINFO()
-                    info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-                    info.wShowWindow = _subprocess.SW_HIDE
+                    info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    info.wShowWindow = subprocess.SW_HIDE
                     # Command line can contain object names in case of export and filename in case of import
                     # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
                     # which probably isn't utf-8 in windows.

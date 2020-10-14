@@ -38,11 +38,6 @@ from mforms import newButton, newCheckBox, newTreeView
 from mforms import FileChooser
 from datetime import datetime
 
-try:
-    import _subprocess
-except ImportError:
-    pass
-
 from workbench.log import log_error, log_debug, log_info
 
 def showImporter(editor, schema):
@@ -85,8 +80,8 @@ def cmd_executor(cmd):
     else:
         try:
             info = subprocess.STARTUPINFO()
-            info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-            info.wShowWindow = _subprocess.SW_HIDE
+            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            info.wShowWindow = subprocess.SW_HIDE
             # Command line can contain object names in case of export and filename in case of import
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
