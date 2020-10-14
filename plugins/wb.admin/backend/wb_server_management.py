@@ -1426,7 +1426,7 @@ class FileOpsLocalWindows(object): # Used for remote as well, if not using sftp
 
         # First saves the content to a temporary file
         try:
-            tmp = tempfile.NamedTemporaryFile("w+b", delete = False)
+            tmp = tempfile.NamedTemporaryFile("w+", delete = False)
             tmp_name = tmp.name
             log_debug('%s: Writing file contents to tmp file "%s" as %s\n' % (self.__class__.__name__, tmp_name, as_user) )
             tmp.write(content)

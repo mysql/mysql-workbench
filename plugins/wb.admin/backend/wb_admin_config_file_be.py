@@ -653,10 +653,6 @@ class WbAdminConfigFileBE(object):
         if not user_modified_file_content:
             user_modified_file_content = ""
 
-        # convert line endings for windows
-        if self.server_profile.target_is_windows:
-            user_modified_file_content = "\r\n".join(user_modified_file_content.split("\n"))
-
         helper = self.ctrl_be.server_helper
 
         # split the path for / and \\
@@ -1153,8 +1149,6 @@ class WbAdminConfigFileBE(object):
         self.temp_file_name = os.path.join(tempdir, "mysql_workbench_config.temp")
         outf = open(self.temp_file_name, "w")
         eol = "\n"
-        if self.server_profile.target_is_windows:
-            eol = "\r\n"
 
         for line in file_lines:
             l = line.rstrip("\r\n") + eol
