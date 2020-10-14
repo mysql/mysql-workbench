@@ -656,7 +656,7 @@ void CodeEditor::replace_selected_text(const std::string& text) {
 //----------------------------------------------------------------------------------------------------------------------
 
 const std::string CodeEditor::get_text(bool selection_only) {
-  char* text;
+  char* text = nullptr;
   sptr_t length;
   if (selection_only) {
     length = _code_editor_impl->send_editor(this, SCI_GETSELTEXT, 0, 0);

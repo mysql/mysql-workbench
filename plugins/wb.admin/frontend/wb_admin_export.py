@@ -84,12 +84,12 @@ def get_path_to_mysqldump():
 
     if sys.platform == "darwin":
         # if path is not specified, use bundled one
-        return mforms.App.get().get_executable_path("mysqldump").encode("utf8")
+        return mforms.App.get().get_executable_path("mysqldump")
     elif sys.platform == "win32":
-        return mforms.App.get().get_executable_path("mysqldump.exe").encode("utf8")
+        return mforms.App.get().get_executable_path("mysqldump.exe")
     else:
         # if path is not specified, use bundled one
-        path = mforms.App.get().get_executable_path("mysqldump").encode("utf8")
+        path = mforms.App.get().get_executable_path("mysqldump")
         if path:
             return path
         # just pick default
