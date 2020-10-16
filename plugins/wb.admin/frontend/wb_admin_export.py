@@ -222,13 +222,8 @@ class DumpThread(threading.Thread):
                     # Command line can contain object names in case of export and filename in case of import
                     # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
                     # which probably isn't utf-8 in windows.
-                    if self.is_import:
-                        fse = sys.getfilesystemencoding()
-                        cmd = logstr.encode(fse) if isinstance(arg,str) else logstr
-                    else:
-                        cmd = logstr.encode("utf8") if isinstance(arg,str) else logstr
                     log_debug("Executing command: %s\n" % logstr)
-                    p1 = subprocess.Popen(cmd,stdout=respipe or subprocess.PIPE,stdin=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=info,shell=logstr[0] != '"')
+                    p1 = subprocess.Popen(logstr, stdout=respipe, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell=logstr[0] != '"', encoding='utf8')
                 except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (logstr, exc))
                     import traceback
