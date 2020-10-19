@@ -412,6 +412,8 @@ class TableListModel(object):
       
         for schema in self.selected_schemas | schemas_with_selection:
         #No tables selected for schema so skip it
+            if schema not in self.tables_by_schema.keys():
+                continue
             tables, selection = self.tables_by_schema[schema]
             if not selection and not include_empty_schemas:
                 continue
@@ -425,6 +427,8 @@ class TableListModel(object):
         names.sort()
         for schema in names:
         #No tables selected for schema so skip it
+            if schema not in self.tables_by_schema.keys():
+                continue
             tables, selection = self.tables_by_schema[schema]
             if not selection or len(selection) == len(tables):
                 continue
