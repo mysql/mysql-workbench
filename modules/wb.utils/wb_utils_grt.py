@@ -469,9 +469,11 @@ def startCommandLineClientForConnection(conn):
                 + "' &"   # <--- launch GUI terminal and exit (returns to Workbench immediately rather than blocking) 
         ], shell=False, env=my_env)
 
-if sys.platform == "linux2":
-    @ModuleInfo.export(grt.INT)
-    def startODBCAdmin():
+
+@ModuleInfo.plugin("wb.tools.cmdlineClient", caption="Start Command Line Client", input=[wbinputs.selectedConnection()], pluginMenu="Home/Connections", accessibilityName="Command Line Client")
+@ModuleInfo.export(grt.INT)
+def startODBCAdmin():
+    if sys.platform == "linux2":
         path = get_exe_path('iodbcadm-gtk')
         if not path:
             path = get_exe_path('ODBCManageDataSourcesQ4')
@@ -481,16 +483,12 @@ if sys.platform == "linux2":
             return 1
         else:
             return 0
-elif sys.platform == "darwin":
-    @ModuleInfo.export(grt.INT)
-    def startODBCAdmin():
+    elif sys.platform == "darwin":
         ret = subprocess.call("open -a 'ODBC Administrator'", shell=True)
         if ret == 1:
             ret = subprocess.call("open -a 'ODBC Manager'", shell=True)
         return 0 if ret == 1 else 1
-elif sys.platform == "win32":
-    @ModuleInfo.export(grt.INT)
-    def startODBCAdmin():
+    elif sys.platform == "win32":
         # WTF alert:
         # In 64bit windows, there are 2 versions of odbcad32.exe. One is 64bits and the other 32.
         # The 64bit version is in \Windows\System32
