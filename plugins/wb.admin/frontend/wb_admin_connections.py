@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -261,7 +261,7 @@ class ConnectionDetailsPanel(mforms.Table):
 
 class WbAdminValidationPermissions(WbAdminValidationBase):
     def __init__(self, ctrl_be):
-        WbAdminValidationBase.__init__(self)
+        super().__init__()
         self._ctrl_be = ctrl_be
         
     def validate(self):

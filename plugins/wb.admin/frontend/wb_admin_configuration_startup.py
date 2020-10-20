@@ -33,7 +33,7 @@ from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection, 
 
 class WbAdminValidationRemoteAccess(WbAdminValidationBase):
     def __init__(self, instance_info):
-        WbAdminValidationBase.__init__(self, "")
+        super().__init__()
         
         self._instance_info = instance_info
 

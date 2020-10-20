@@ -2123,21 +2123,21 @@ or a new password must be supplied.'''
             mforms.App.get().set_status_text("Updated account '%s'" % the_name)
 
 
-
-
 #############################
+
 
 class WbAdminValidationPermissions(WbAdminValidationBase):
     def __init__(self, owner):
-        WbAdminValidationBase.__init__(self, WbAdminValidationPermissions)
+        super().__init__("The account you are currently using does not have sufficient privileges to view the client connections.")
         self.owner = owner
-        
+
     def validate(self):
-            try:
-                self.owner.secman.async_refresh(self.owner.async_callback)
-            except PermissionDeniedError:
-                return False
-            return True
+        try:
+            self.owner.secman.async_refresh(self.owner.async_callback)
+        except PermissionDeniedError:
+            return False
+        return True
+
 
 class WbAdminSecurity(WbAdminTabBase):
     _schema_priv_entries = []

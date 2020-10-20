@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -163,7 +163,7 @@ class Page(object):
 
 class WbAdminValidationRequiredRemoteAdmin(WbAdminValidationBase):
     def __init__(self, instance_info):
-        WbAdminValidationBase.__init__(self, "MySQL Workbench requires an SSH connection to support managing Option File remotely.")
+        super().__init__("MySQL Workbench requires an SSH connection to support managing Option File remotely.")
         self._instance_info = instance_info
         
     def validate(self):

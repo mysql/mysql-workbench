@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -284,7 +284,7 @@ class HelperInstallPanel(mforms.Table):
 
 class WbAdminValidationPSUsable(WbAdminValidationBase):
     def __init__(self, main_view):
-        WbAdminValidationBase.__init__(self, "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
+        super().__init__("Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
         self._main_view = main_view
         
     def validate(self):
@@ -299,7 +299,7 @@ class WbAdminValidationPSUsable(WbAdminValidationBase):
 
 class WbAdminValidationNeedsInstallation(WbAdminValidationBase):
     def __init__(self, main_view, ctrl_be, owner):
-        WbAdminValidationBase.__init__(self, "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
+        super().__init__("Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
         self._main_view = main_view
         self._ctrl_be = ctrl_be
         self._error_title = ""

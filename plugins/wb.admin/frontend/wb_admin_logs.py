@@ -510,7 +510,7 @@ class LogViewGeneric(LogView):
 
 class WbAdminValidationLogOutputType(WbAdminValidationBase):
     def __init__(self, instance_info):
-        WbAdminValidationBase.__init__(self)
+        super().__init__()
         self._instance_info = instance_info
         
         self.set_error_message("""A problem was detected in your current log destination.
