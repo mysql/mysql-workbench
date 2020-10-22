@@ -139,6 +139,9 @@ Conflicts: mysql-workbench-commercial
 
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
 # FIXME if using system installs of one of these, this list is not correct
+%if 0%{?rhel} == 7
+%global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient|python*)\\.so.*$
+%else
 %global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient)\\.so.*$
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
