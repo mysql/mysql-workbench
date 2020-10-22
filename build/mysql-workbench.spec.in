@@ -28,8 +28,8 @@
 # Disable global build id because of cpp connector bundle
 %global _build_id_links none
 
-# whether at least Python 2.6 is available
-%define have_python26   1
+# whether at least Python 3.7 is available
+%define have_python37   1
 
 %if 0%{?fedora}
 %else
@@ -76,9 +76,11 @@ BuildRequires: cmake >= 3.6
 %endif
 BuildRequires: libzip-devel libxml2-devel
 %if 0%{?fedora} || 0%{?rhel} > 7
-BuildRequires: python2-devel >= 2.6
+BuildRequires: python3-devel >= 3.7
 %else
-BuildRequires: python-devel >= 2.6
+%if 0%{?rhel} != 7
+BuildRequires: python-devel >= 3.7
+%endif
 %endif
 BuildRequires: gtk3-devel
 BuildRequires: gtkmm30-devel
