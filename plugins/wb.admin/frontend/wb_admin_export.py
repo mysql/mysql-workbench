@@ -1191,12 +1191,12 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
         if sys.platform.lower() == "darwin":
             # if path is not specified, use bundled one
-            return mforms.App.get().get_executable_path("mysql").encode("utf8")
+            return mforms.App.get().get_executable_path("mysql")
         elif sys.platform.lower() == "win32":
-            return mforms.App.get().get_executable_path("mysql.exe").encode("utf8")
+            return mforms.App.get().get_executable_path("mysql.exe")
         else:
             # if path is not specified, use bundled one
-            path = mforms.App.get().get_executable_path("mysql").encode("utf8")
+            path = mforms.App.get().get_executable_path("mysql")
             if path:
                 return path
             # just pick default
@@ -1343,7 +1343,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
 
     def tasks_completed(self):
-        logmsg = time.strftime('%X ') + "Import of %s has finished" % self.path.encode("utf8")
+        logmsg = time.strftime('%X ') + "Import of %s has finished" % self.path
         if self.dump_thread.error_count > 0:
             self.progress_tab.set_status("Import Completed With %i Errors" % self.dump_thread.error_count)
             logmsg += " with %i errors" % self.dump_thread.error_count
