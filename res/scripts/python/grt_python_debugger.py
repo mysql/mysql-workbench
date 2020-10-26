@@ -194,8 +194,7 @@ class PyDebugger(bdb.Bdb):
         self.main_file = self.canonic(filename)
         
         try:
-            self.run('exec(open("%s").read())' % self.main_file)
-            
+            self.run('exec(open("%s").read())' % self.main_file.replace("\\","\\\\"))
         except:
             self.ui_print("Uncaught exception while executing %s:\n" % filename)
             e, v, t = sys.exc_info()
