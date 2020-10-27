@@ -8,7 +8,7 @@
 for file in $*; do
 
   if [ -f $file ]; then
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.7/Python3" "/Library/Frameworks/Python.framework/Versions/3.7/Python" $file
+    install_name_tool -change "@rpath/Python3.framework/Versions/3.7/Python3" "@executable_path/../Frameworks/Python3" $file
   fi
 
 done
