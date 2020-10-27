@@ -75,14 +75,14 @@ def test_connectivity(connection, error_title):
 
     if hostname and port:
         import socket
+        import errno
         # try connecting to the port
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10) # 10s timeout
         try:
             s.connect((hostname, port))
         except socket.gaierror as err:
-            (errno, e) = err.args
-            if errno == 8: # cannot resolve
+            if err.errno == 8: # cannot resolve
                 mforms.Utilities.show_message(error_title,
                         "Unable to connect to the provided host and port combination.\n\n"+
                         "Could not resolve %s\n" % hostname+
@@ -90,7 +90,7 @@ def test_connectivity(connection, error_title):
                 return False
             else:
                 mforms.Utilities.show_message(error_title,
-                        "Unable to connect to the provided host and port combination.\n\n%s\n\n" % e+
+                        "Unable to connect to the provided host and port combination.\n\n%s\n\n" % err.strerror+
                         "Make sure that:\n"+
                         "- the provided hostname or IP address is correct\n"+
                         "- the database server is running and listening in the provided port number\n"+
@@ -119,8 +119,7 @@ def test_connectivity(connection, error_title):
                         "OK", "", "")
             return False
         except socket.error as err:
-            (errno, e) = err.args
-            if errno == 61: # connection refused
+            if err.errno == errno.ECONNREFUSED: # connection refused
                 if ping_host(hostname):
                     mforms.Utilities.show_message(error_title,
                             "Connection refused at %s:%s, although the host could be pinged.\n\n" % (hostname, port)+
@@ -132,7 +131,7 @@ def test_connectivity(connection, error_title):
                 else:
                     # if ping fails, we don't know what it could be, because some servers just disable ICMP ping
                     mforms.Utilities.show_message(error_title,
-                            "Error connecting to %s:%s.\n\n%s\n\n" % (hostname, port, e)+
+                            "Error connecting to %s:%s.\n\n%s\n\n" % (hostname, port, err.strerror)+
                             "Make sure that:\n"+
                             "- the provided hostname or IP address is correct\n"+
                             "- the database server is running and listening in the provided port number\n"+
@@ -142,7 +141,7 @@ def test_connectivity(connection, error_title):
             else:
                 if ping_host(hostname):
                     mforms.Utilities.show_message(error_title,
-                            "Timed out connecting to the provided host and port combination, although the host could be pinged.\n\n%s\n\n" % e+
+                            "Timed out connecting to the provided host and port combination, although the host could be pinged.\n\n%s\n\n" % err.strerror+
                             "Make sure that:\n"+
                             "- the database server is running and listening in the provided port number\n"+
                             "- the machine hosting the database server allows external connections to the database port\n"+
@@ -151,7 +150,7 @@ def test_connectivity(connection, error_title):
                 else:
                     # if ping fails, we don't know what it could be, because some servers just disable ICMP ping
                     mforms.Utilities.show_message(error_title,
-                            "Timed out connecting to the provided host and port combination.\n\n%s\n\n" % e+
+                            "Timed out connecting to the provided host and port combination.\n\n%s\n\n" % err.strerror+
                             "Make sure that:\n"+
                             "- the provided hostname or IP address is correct\n"+
                             "- the database server is running and listening in the provided port number\n"+
