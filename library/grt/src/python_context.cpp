@@ -1217,6 +1217,11 @@ void PythonContext::register_grt_module(PyObject *module) {
 
   if(PyModule_AddObject(_grt_classes_module, "grt", _grt_module) < 0)
     throw std::runtime_error("Error initializing grt module in Python support");
+
+  Py_XINCREF(_grt_classes_module);
+  if(PyModule_AddObject(_grt_module, "classes", _grt_classes_module) < 0)
+    throw std::runtime_error("Error initializing grt.classes module in Python support");
+  
 }
 
 PyObject *PythonContext::grt_module_create(){
