@@ -72,8 +72,12 @@ BuildRequires: cmake3 >= 3.6
 BuildRequires: cmake >= 3.6
 %endif
 BuildRequires: libzip-devel libxml2-devel
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?fedora}
 BuildRequires: python3-devel >= 3.7
+%else
+%if 0%{?rhel} == 8
+BuildRequires: python38-devel
+%endif
 %endif
 BuildRequires: gtk3-devel
 BuildRequires: gtkmm30-devel
