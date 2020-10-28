@@ -28,9 +28,6 @@
 # Disable global build id because of cpp connector bundle
 %global _build_id_links none
 
-# whether at least Python 3.7 is available
-%define have_python37   1
-
 %if 0%{?fedora}
 %else
 %include %{_rpmconfigdir}/macros.python
@@ -75,11 +72,11 @@ BuildRequires: cmake3 >= 3.6
 BuildRequires: cmake >= 3.6
 %endif
 BuildRequires: libzip-devel libxml2-devel
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?fedora}
 BuildRequires: python3-devel >= 3.7
 %else
-%if 0%{?rhel} != 7
-BuildRequires: python-devel >= 3.7
+%if 0%{?rhel} == 8
+BuildRequires: python38-devel
 %endif
 %endif
 BuildRequires: gtk3-devel
@@ -102,6 +99,26 @@ BuildRequires: sqlite-devel
 BuildRequires: vsqlite++-devel
 BuildRequires: unixODBC-devel
 BuildRequires: gdal-devel
+%endif
+
+%if 0%{?rhel} == 7
+# Disable execution of automatic bytecompilation of python libs
+%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+%if %{defined python_path}
+%define python_lib_path %{python_path}/lib/libpython3.7m.so
+%define python_inc_dir %{python_path}/include/python3.7m
+%else
+# if el7, and python_path is not specified
+# then make sure python37-devel is installed
+BuildRequires: python37-devel
+%define python_lib_path /usr/lib/libpython3.7m.so
+%define python_inc_dir /usr/include/python3.7m
+%endif
+%endif
+
+%if 0%{?rhel} == 8
+%define python_lib_path /usr/lib64/libpython3.8.so
+%define python_inc_dir /usr/include/python3.8
 %endif
 
 %if 0%{?fedora} >= 18
@@ -140,9 +157,10 @@ Conflicts: mysql-workbench-commercial
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
 # FIXME if using system installs of one of these, this list is not correct
 %if 0%{?rhel} == 7
-%global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient|python3.7m|python)\\.so.*$
+%global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|python3.7m|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient)\\.so.*$
 %else
 %global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient)\\.so.*$
+%endif
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
 
@@ -194,21 +212,17 @@ fi
        -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.7.1-complete.jar \
        -DLibSSH_INCLUDE_DIR=%{bundles_path}/include \
        -DLibSSH_LIBRARIES="-L%{bundles_path}/lib -lssh" \
+%if %{defined python_lib_path}
+       -DPYTHON_LIBRARY=%{python_lib_path} \
+       -DPYTHON_INCLUDE_DIR=%{python_inc_dir} \
+%endif
        -DBOOST_ROOT=%{bundles_path}/include 
 
-%if 0%{?fedora}
-%cmake_build
-%else
 make %{?_smp_mflags}
-%endif
 
 
 %install
-%if 0%{?fedora}
-%cmake_install
-%else
 make install DESTDIR=%{buildroot}
-%endif
 rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 
 # Bundle client programs and lib
@@ -246,6 +260,12 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
   cp -a %{bundles_path}/lib/mysql/libmysqlclient.so.*   %{buildroot}%{_libdir}/mysql-workbench/
 %endif
 
+# If python path is specified that means we are using pb2 built
+# python and hence the python (.so) file needs to be bundled with
+# WB package.
+%if %{defined python_path}
+  cp -a %{python_path}/lib/libpython3.7m.so*            %{buildroot}%{_libdir}/mysql-workbench/
+%endif
 
 %post
 touch --no-create %{_datadir}/icons/hicolor || :
@@ -315,4 +335,3 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 %endif
 
 %changelog
-
