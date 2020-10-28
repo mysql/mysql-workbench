@@ -102,6 +102,8 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
                          module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str(),
                          wb_pythonpath.c_str()));
 // putenv("PYTHONHOME=C:\\nowhere");
+#elif defined(__APPPLE__)  
+  putenv(g_strdup_printf("PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7");
 #endif
 }
 
