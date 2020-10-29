@@ -101,9 +101,9 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;%s",
                          module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str(),
                          wb_pythonpath.c_str()));
-// putenv("PYTHONHOME=C:\\nowhere");
-#elif defined(__APPPLE__)  
-  putenv(g_strdup_printf("PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7");
+// putenv("PYTHONHOME=C:\\nowhere"); s
+#elif __APPLE__
+  putenv(g_strdup_printf("PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7"));
 #endif
 }
 
