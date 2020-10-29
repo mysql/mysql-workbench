@@ -382,17 +382,18 @@ class LogView(mforms.Box):
         self.worker = None
 
     def refresh(self):
-        self.log_reader.refresh()
-        if not self.worker:
-            self.bof_button.set_enabled(False)
-            self.back_button.set_enabled(False)
-            self.eof_button.set_enabled(False)
-            self.next_button.set_enabled(False)
-            self.refresh_button.set_enabled(False)
-            # this will create a thread which will read the log data and once it finishes,
-            # self.refresh will be called with the data
-            self.worker = WorkerThreadHelper(self.read_data_worker, self.handle_worker_data)
-            self.worker.start(1)
+        if self.log_reader:
+            self.log_reader.refresh()
+            if not self.worker:
+                self.bof_button.set_enabled(False)
+                self.back_button.set_enabled(False)
+                self.eof_button.set_enabled(False)
+                self.next_button.set_enabled(False)
+                self.refresh_button.set_enabled(False)
+                # this will create a thread which will read the log data and once it finishes,
+                # self.refresh will be called with the data
+                self.worker = WorkerThreadHelper(self.read_data_worker, self.handle_worker_data)
+                self.worker.start(1)
 
     def update(self, records=None):
         if self.log_reader:
