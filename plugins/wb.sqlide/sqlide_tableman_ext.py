@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -45,7 +45,7 @@ def show_table_inspector(editor, selection, page = None):
         dpoint = mforms.fromgrt(editor.dockingPoint)
         dpoint.dock_view(tinspect, "", 0)
         dpoint.select_view(tinspect)
-        tinspect.set_title(u"%s.%s" % (to_unicode(schema), to_unicode(table)))
+        tinspect.set_title("%s.%s" % (to_unicode(schema), to_unicode(table)))
         if page is not None:
             tinspect.switch_to_page(page)
 
@@ -249,7 +249,7 @@ class TableInfoPanel(mforms.Box):
     def refresh(self):
         try:
             rset = self.editor.executeManagementQuery("select * from information_schema.tables WHERE table_schema = '%s' AND table_name = '%s'" % (self._schema, self._table), 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("select * from information_schema.tables WHERE table_schema = '%s' AND table_name = '%s': %s\n" % (self._schema, self._table, e))
             rset = None
             
@@ -277,12 +277,12 @@ class TableInfoPanel(mforms.Box):
                 self.index_length.set_text(human_size(int(column_values['index_length'])))
                 self.data_free.set_text(human_size(int(column_values['data_free'])))
                 self.max_data_length.set_text(human_size(int(column_values['max_data_length'])))
-            except Exception, e:
+            except Exception as e:
                 log_error("Error displaying table info for %s.%s: %s\n" % (self._schema, self._table, e))
 
         try:
             rset = self.editor.executeManagementQuery("select count(*) column_count from information_schema.columns WHERE table_schema = '%s' and table_name = '%s'" % (self._schema, self._table), 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("select count(*) column_count from information_schema.columns WHERE table_schema = '%s' and table_name = '%s': %s\n" % (self._schema, self._table, e))
             rset = None
 
@@ -298,7 +298,7 @@ class TableInfoPanel(mforms.Box):
                 query = "SELECT @@datadir datadir,st.FILE_FORMAT,sd.path FROM information_schema.INNODB_SYS_TABLES st JOIN information_schema.innodb_sys_datafiles sd USING(space) WHERE st.name = '%s/%s'" % (self._schema, self._table)
             try:
                 rset = self.editor.executeManagementQuery(query, 0)
-            except grt.DBError, e:
+            except grt.DBError as e:
                 log_error("%s': %s\n" % (query, e))
                 rset = None
             if rset:
@@ -350,7 +350,7 @@ class TableDDL(mforms.Box):
     def refresh(self):
         try:
             rset = self.editor.executeManagementQuery("show create table `%s`.`%s`" % (self._schema, self._table), 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("show create table `%s`.`%s` : %s\n" % (self._schema, self._table, e))
             rset = None
 
@@ -540,7 +540,7 @@ class CreateIndexForm(mforms.Form):
             try:
                 self._editor.executeManagementCommand(sql, 1)
                 return True
-            except grt.DBError, e:
+            except grt.DBError as e:
                 mforms.Utilities.show_error("Create Index",
                                             "Error creating index.\n%s" % e.args[0],
                                             "OK", "", "")
@@ -678,7 +678,7 @@ class TableIndexInfoPanel(mforms.Box):
                 try:
                     self.editor.executeManagementCommand("DROP INDEX `%s` ON `%s`.`%s`" % (index, self._schema, self._table), 1)
                     self.refresh()
-                except grt.DBError, e:
+                except grt.DBError as e:
                     mforms.Utilities.show_error("Drop Index", "Error dropping index.\n%s" % e.args[0], "OK", "", "")
 
     def do_create_index(self):
@@ -746,14 +746,14 @@ class TableIndexInfoPanel(mforms.Box):
         if table:
             try:
                 rset = self.editor.executeManagementQuery("SHOW INDEX FROM `%s`.`%s`" % (schema, table), 0)
-            except grt.DBError, e:
+            except grt.DBError as e:
                 log_error("Cannot execute SHOW INDEX FROM `%s`.`%s`: %s\n" % (schema, table, e))
                 rset = None
 
             if self.target_version.is_supported_mysql_version_at_least(Version.fromstr("5.6")):
-                index_rs_columns = range(13)
+                index_rs_columns = list(range(13))
             else:
-                index_rs_columns = range(12)
+                index_rs_columns = list(range(12))
             column_rs_columns = [3, 4, 5, 7]
             for i in column_rs_columns:
                 index_rs_columns.remove(i)
@@ -817,7 +817,7 @@ class TableIndexInfoPanel(mforms.Box):
                         node.set_string(3, ", ".join([c[1] for c in columns]))
             try:
                 rset = self.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (schema, table), 0)
-            except grt.DBError, e:
+            except grt.DBError as e:
                 log_error("Cannot execute SHOW COLUMNS FROM `%s`.`%s`: %s\n" % (schema, table, e))
                 rset = None
 
@@ -966,7 +966,7 @@ class GrantsTableManager(TableManDefs, ObjectManager):
         query = "show columns from `mysql`.`tables_priv` like 'table_priv'"
         try:
             rset = self.editor.executeManagementQuery(query, 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             if e.args[1] == 1044 or e.args[1] == 1142:
                 
                 self.show_error("Access Error", "The current user does not have enough privileges to execute %s.\n\n%s" % (query, e.args[0]))
@@ -1055,7 +1055,7 @@ class GrantsColumnManager(TableManDefs, ObjectManager):
         query = "show columns from `mysql`.`columns_priv` like 'Column_priv'"
         try:
             rset = self.editor.executeManagementQuery(query, 0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             if e.args[1] == 1044 or e.args[1] == 1142:
                 self.show_error("Access Error", "The current user does not have enough privileges to execute %s.\n\n%s" % (query, e.args[0]))
             else:

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -289,7 +289,7 @@ class VariablesViewer(mforms.Box):
             else:
                 tag = row.get_tag()
                 if tag and filter_value is not None:
-                    filter_value += self.variables_in_group.get(tag.encode('utf-8'), [])
+                    filter_value.extend(self.variables_in_group.get(tag, []))
         if filter_value:
             filter_value = set(filter_value)
 
@@ -297,7 +297,7 @@ class VariablesViewer(mforms.Box):
 
         self.values.freeze_refresh()
         self.values.clear()
-
+        
         if result is not None:
             while result.nextRow():
                 name = result.stringByName("Variable_name")
@@ -415,8 +415,8 @@ class VariablesViewer(mforms.Box):
             self.menu.add_item_with_title("Add to Custom Category...", self.var_to_custom_group, "Variable to Custome Group", "var_to_custom_group")
             sel_group = self.tree.get_selection()
             for node in sel_group:
-                group = node.get_string(0).encode('utf-8')
-                tag = node.get_tag().encode('utf-8')
+                group = node.get_string(0)
+                tag = node.get_tag()
                 if tag.startswith("Custom: "):
                     self.menu.add_item_with_title("Remove from %s" % group, lambda self=self, x=group: self.remove_from_group(x), "Remove From Group %s" % group, "remove_from_group_%s" % group)
 
@@ -458,7 +458,7 @@ class VariablesViewer(mforms.Box):
                 try:
                     self.ctrl_be.exec_query("RESET PERSIST %s" % value_name)
                     return True
-                except Exception, e:
+                except Exception as e:
                     log_error("Error occured while unsetting persisting variables: %s" % e)
                     mforms.Utilities.show_error('Access denied', 'You need (at least one of) the SUPER or SYSTEM_VARIABLES_ADMIN privilege(s) for this operation.', 'Ok', '', '')
             return False
@@ -479,7 +479,7 @@ class VariablesViewer(mforms.Box):
                     mforms.Utilities.show_message('Information', 'Unable to store status of the value: %s' % name, 'Ok', '', '')
                     return False
                 return True
-        except Exception, e:
+        except Exception as e:
             log_error("Error occured while persisting variables: %s" % e)
             mforms.Utilities.show_error('Access denied', 'You need (at least one of) the SUPER or SYSTEM_VARIABLES_ADMIN privilege(s) for this operation.', 'Ok', '', '')
             return False
@@ -514,8 +514,8 @@ class VariablesViewer(mforms.Box):
 def _decode_list(data):
     rv = []
     for item in data:
-        if isinstance(item, unicode):
-            item = item.encode('utf-8')
+        if isinstance(item, str):
+            item = item
         elif isinstance(item, list):
             item = _decode_list(item)
         elif isinstance(item, dict):
@@ -526,11 +526,11 @@ def _decode_list(data):
 
 def _decode_dict(data):
     rv = {}
-    for key, value in data.iteritems():
-        if isinstance(key, unicode):
-            key = key.encode('utf-8')
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
+    for key, value in data.items():
+        if isinstance(key, str):
+            key = key
+        if isinstance(value, str):
+            value = value
         elif isinstance(value, list):
             value = _decode_list(value)
         elif isinstance(value, dict):
@@ -566,7 +566,7 @@ class VariablesGroupContainer:
             pass
 
     def add(self, name):
-        name = name.strip().encode('utf-8')
+        name = name.strip()
         if name in self.content:
             raise Exception("Already exists", "Category already exists, please specify a different category name")
 
@@ -574,7 +574,7 @@ class VariablesGroupContainer:
 
     def delete(self, group_names):
         for name in group_names:
-            self.content.pop(name.encode('utf-8'), None)
+            self.content.pop(name, None)
 
     def remove_from_group(self, group_name, vals):
         for val in vals:
@@ -668,7 +668,7 @@ class VariablesGroupSelector(mforms.Form):
         for item in self.group_container.content:
             node = self.groups.add_node()
             node.set_string(0, item)
-            if grp_name is not None and item == grp_name.encode('utf-8'):
+            if grp_name is not None and item == grp_name:
                 matched_node = node
         if self.groups.count() > 0:
             self.groups.select_node(self.groups.node_at_row(0))
@@ -721,7 +721,7 @@ class VariablesGroupSelector(mforms.Form):
         if selected_vars:
             group_assign = {}
             for node in selected_vars:
-                group_assign[node.get_string(0).encode('utf-8')] = self.sel_vars
+                group_assign[node.get_string(0)] = self.sel_vars
 
             self.group_container.assign(group_assign)
             self.group_container.save()

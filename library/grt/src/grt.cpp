@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -285,16 +285,8 @@ GRT::~GRT() {
   delete _default_undo_manager;
   _default_undo_manager = nullptr;
 
-  // We need to first release PythonLoader so we don't end up Python calling some WB modules
-  for (std::list<ModuleLoader *>::iterator iter = _loaders.begin(); iter != _loaders.end(); ++iter) {
-    if ((*iter)->get_loader_name() == grt::LanguagePython) {
-      delete *iter;
-      _loaders.erase(iter);
-      break;
-    }
-  }
 
-  for (const auto &it: _modules) {
+  for (const auto it: _modules) {
     auto module = it->getModule();
     delete it;
     if (module) {
@@ -315,6 +307,17 @@ GRT::~GRT() {
   for (std::map<std::string, MetaClass *>::iterator iter = _metaclasses.begin(); iter != _metaclasses.end(); ++iter)
     delete iter->second;
   _metaclasses.clear();
+  
+  // We need to first release PythonLoader so we don't end up Python calling some WB modules
+  auto iter = std::remove_if(_loaders.begin(), _loaders.end(), 
+                  [&](auto module) { return module->get_loader_name() == grt::LanguagePython; });
+
+  for (; iter != _loaders.end(); ++iter) {
+    delete *iter;
+  }
+  
+  _loaders.erase(iter, _loaders.end());
+
 }
 
 void GRT::push_undo_manager(UndoManager *um) {

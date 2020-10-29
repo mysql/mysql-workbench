@@ -656,20 +656,24 @@ void CodeEditor::replace_selected_text(const std::string& text) {
 //----------------------------------------------------------------------------------------------------------------------
 
 const std::string CodeEditor::get_text(bool selection_only) {
-  char* text;
+  char* text = nullptr;
   sptr_t length;
   if (selection_only) {
     length = _code_editor_impl->send_editor(this, SCI_GETSELTEXT, 0, 0);
-    text = (char*)malloc(length);
-    if (text != NULL) // Can be null if not memory is available.
+    if (length > 0) {
+      text = (char*)malloc(length);
+    }
+    if (text != nullptr) // Can be null if not memory is available.
       _code_editor_impl->send_editor(this, SCI_GETSELTEXT, length, (sptr_t)text);
   } else {
     length = _code_editor_impl->send_editor(this, SCI_GETTEXTLENGTH, 0, 0) + 1;
-    text = (char*)malloc(length);
-    if (text != NULL)
+    if (length > 0) {
+      text = (char*)malloc(length);
+    }
+    if (text != nullptr)
       _code_editor_impl->send_editor(this, SCI_GETTEXT, length, (sptr_t)text);
   }
-  if (text != NULL) {
+  if (text != nullptr) {
     std::string result(text, length - 1);
     free(text);
 

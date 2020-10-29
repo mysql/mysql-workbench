@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -30,6 +30,8 @@ from workbench.log import log_error, log_debug
 from wb_admin_perfschema import WbAdminPSBaseTab
 
 from threading import Thread
+
+from wb_common import to_unicode
 
 
 unit_formatters = {
@@ -100,14 +102,14 @@ class PSHelperViewTab(mforms.Box):
             self.remove(self._wait_table)
             self._wait_table = None
 
-        self._title = mforms.newLabel(self.caption.encode("utf8"))
+        self._title = mforms.newLabel(to_unicode(self.caption))
         self._title.set_style(mforms.BigBoldStyle)
         self.add(self._title, False, True)
 
         self._column_file = None
         
         if self.description:
-            self._description = mforms.newLabel(self.description.encode("utf8"))
+            self._description = mforms.newLabel(to_unicode(self.description))
             self.add(self._description, False, True)
             
         self._tree = mforms.newTreeView(mforms.TreeFlatList|mforms.TreeAltRowColors|mforms.TreeShowColumnLines)
@@ -132,7 +134,7 @@ class PSHelperViewTab(mforms.Box):
             width = min(max(length, 40), 300)
             width = grt.root.wb.state.get("wb.admin.psreport:width:%s:%i" % (self.view, i), width)
 
-            label = self.column_label(column)
+            label = to_unicode(self.column_label(column))
             self._column_units.append(unit)
             self._column_names.append(cname)
             self._column_titles.append(label)
@@ -183,7 +185,7 @@ class PSHelperViewTab(mforms.Box):
         try:
             self.result = self.execute()
             error = None
-        except Exception, e:
+        except Exception as e:
             error = str(e)
             log_error("Error executing '%s': %s\n" % (self.get_query(), error))
 
@@ -221,7 +223,7 @@ class PSHelperViewTab(mforms.Box):
         chooser.add_selector_option("format", "Format:", "CSV|csv")
         if chooser.run_modal():
             save_path = "%s.csv" % chooser.get_path() if not chooser.get_path().endswith(".csv") else chooser.get_path()
-            with open(save_path, 'wb') as csvfile:
+            with open(save_path, 'w') as csvfile:
                 try:
                     import csv
                     output = csv.writer(csvfile, quoting = csv.QUOTE_MINIMAL)
@@ -231,7 +233,7 @@ class PSHelperViewTab(mforms.Box):
                     for r in range(root.count()):
                         node = root.get_child(r)
                         output.writerow(self._get_node_values(node))
-                except Exception, e:
+                except Exception as e:
                     log_error("Error exporting PS report: %s\n" % e)
                     mforms.Utilities.show_error("Export Report", "Error exporting PS report.\n%s" % e, "OK", "", "")
 
@@ -303,7 +305,7 @@ class PSHelperViewTab(mforms.Box):
                             node.set_long(i, s or 0)
                         elif self._column_types[i] == mforms.LongIntegerColumnType:
                             s = result.stringByName(self._column_names[i])
-                            node.set_long(i, long(s) if s else 0)
+                            node.set_long(i, int(s) if s else 0)
                         elif self._column_types[i] == mforms.FloatColumnType:
                             unit = self._column_units[i]
                             node.set_float(i, result.floatByName(self._column_names[i]))
@@ -322,7 +324,7 @@ class PSHelperViewTab(mforms.Box):
                             if i == self._column_file and self._owner.instance_info.datadir:
                                 s = s.replace(self._owner.instance_info.datadir, "<datadir>")
                             node.set_string(i, s or "")
-                    except Exception, e:
+                    except Exception as e:
                         import traceback
                         traceback.print_exc()
                         log_error("Error handling column %i (%s) of report for %s: %s\n" % (i, cname, self.view, e))
@@ -340,14 +342,14 @@ class PSHelperViewTab(mforms.Box):
                 elif dtype.lower().startswith("char") and "(" in dtype:
                     try:
                         length = int(dtype[dtype.find("(")+1:-1]) * 10
-                    except Exception, e:
+                    except Exception as e:
                         log_error("Error parsing datatype %s from PS view %s: %s\n" % (dtype, self.view, e))
                         length = 120
                     ctype = mforms.StringColumnType
                 elif dtype.lower().startswith("varchar") and "(" in dtype:
                     try:
                         length = min(int(dtype[dtype.find("(")+1:-1]) * 10, 150)
-                    except Exception, e:
+                    except Exception as e:
                         log_error("Error parsing datatype %s from PS view %s: %s\n" % (dtype, self.view, e))
                         length = 120
                     ctype = mforms.StringColumnType
@@ -503,7 +505,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
 
         try:
             report_data = json.load(open(os.path.join(mforms.App.get().get_resource_path("sys"), "sys_reports.js")))
-        except Exception, e:
+        except Exception as e:
             log_error("Error loading sys_reports.js: %s\n" % e)
             mforms.Utilities.show_error("Error Loading Report Definitions",
                                         "An error occurred loading file %s\n%s" % (os.path.join(mforms.App.get().get_resource_path("sys"), "sys_reports.js"), e),
@@ -524,7 +526,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
 
             try:
                 tab = JSSourceHelperViewTab(self, report)
-            except Exception, e:
+            except Exception as e:
                 log_error("Error processing PS report definition %s:\n%s\n" % (e, report))
                 continue
             setattr(self, "tab_"+tab.caption, tab)
@@ -544,7 +546,7 @@ class WbAdminPerformanceSchema(WbAdminPSBaseTab):
         if parent:
             parent.expand()
 
-        print "The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"])
+        print("The following views are not handled", set([v for v in known_views if not v[0]=='-' and not v.endswith("_raw")]) - set(["wbversion", "version"]))
         return self.content
 
 

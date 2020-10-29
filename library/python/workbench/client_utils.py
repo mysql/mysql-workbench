@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -25,19 +25,16 @@ import os
 
 import tempfile
 import subprocess
-try:
-    import _subprocess
-except ImportError:
-    pass
 
-from Queue import Queue, Empty
+from queue import Queue, Empty
 from threading import Thread
 import mforms
 import grt
 
 from workbench.log import log_info, log_error, log_debug
+from wb_common import to_unicode
 
-from db_utils import ConnectionTunnel
+from .db_utils import ConnectionTunnel
 
 
 def get_path_to_mysql():
@@ -55,12 +52,12 @@ def get_path_to_mysql():
     
     if sys.platform.lower() == "darwin":
         # if path is not specified, use bundled one
-        return mforms.App.get().get_executable_path("mysql").encode("utf8")
+        return mforms.App.get().get_executable_path("mysql")
     elif sys.platform.lower() == "win32":
-        return mforms.App.get().get_executable_path("mysql.exe").encode("utf8")
+        return mforms.App.get().get_executable_path("mysql.exe")
     else:
         # if path is not specified, use bundled one
-        path = mforms.App.get().get_executable_path("mysql").encode("utf8")
+        path = mforms.App.get().get_executable_path("mysql")
         if path:
             return path
         # just pick default
@@ -123,7 +120,7 @@ class MySQLScriptImporter(object):
                 params.append("--ssl-cipher=%s" % conn["sslCipher"])
                 
         if conn.get("OPT_ENABLE_CLEARTEXT_PLUGIN", ""):
-            params.append("--enable-cleartext-plugin")                
+            params.append("--enable-cleartext-plugin")
             
         params += ["--user=" + conn["userName"]]
         self._connection_params = params
@@ -142,7 +139,7 @@ class MySQLScriptImporter(object):
 
 
     def report_output(self, text):
-        print text
+        print(text)
 
     def add_command_parameter(self, param_list, parameter, data = None):
         is_windows = platform.system() == 'Windows'
@@ -176,20 +173,20 @@ class MySQLScriptImporter(object):
         info = None
         if is_windows:
             info = subprocess.STARTUPINFO()
-            info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-            info.wShowWindow = _subprocess.SW_HIDE
+            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            info.wShowWindow = subprocess.SW_HIDE
             # Command line can contain object names in case of export and filename in case of import
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
             fse = sys.getfilesystemencoding()
-            real_command = command.encode(fse) if isinstance(command, unicode) else command
+            real_command = command.encode(fse) if isinstance(command, str) else command
         else:
             real_command = command
         
         try:
             log_debug("Executing command: %s\n" % real_command)
             proc = subprocess.Popen(real_command, cwd=working_directory, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info)
-        except OSError, exc:
+        except OSError as exc:
             log_error("Error executing command %s\n%s\n" % (real_command, exc))
             import traceback
             traceback.print_exc()
@@ -232,7 +229,7 @@ class MySQLScriptImporter(object):
 
             proc.wait()
             self.report_progress("Finished...", 2, 2)
-        except Exception, e:
+        except Exception as e:
             log_error("There was an exception running a process: %s\n%s" % (command, str(e)))
         finally:
             if pwdfilename:
@@ -255,7 +252,7 @@ class MySQLScriptImporter(object):
             pwdfilename = pwdfile.name
             tmpdir = None
         else:
-            params = [self._tool_path]
+            params = [to_unicode(self._tool_path)]
             # use a pipe to feed the password to the client
             tmpdir = tempfile.mkdtemp()
             pwdfilename = os.path.join(tmpdir, 'extraparams.cnf')
@@ -280,34 +277,31 @@ class MySQLScriptImporter(object):
             self.report_progress("Preparing...", None, None)
             if not is_windows:
                 try:
-                    p1 = subprocess.Popen(params, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                except OSError, exc:
+                    p1 = subprocess.Popen(params, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf8')
+                except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (" ".join(params), exc))
                     raise RuntimeError("Error executing %s:\n%s" % (" ".join(params), str(exc)))
 
             # in !Windows feed password to client after it's started (otherwise the fifo would block on open for writing)
-            pwdfile = open(pwdfilename, 'w')
-            pwdfile.write('[client]\npassword=')
-            if self._password is None:
-                self._password = ''
-            pwdfile.write(self._password.replace("\\", "\\\\"))
-            pwdfile.write('\n')
-            pwdfile.close()
+            with open(pwdfilename, 'w') as pwdfile:
+                pwdfile.write('[client]\npassword=')
+                if self._password is None:
+                    self._password = ''
+                pwdfile.write(self._password.replace("\\", "\\\\"))
+                pwdfile.write('\n')
 
             if is_windows:
                 try:
                     info = subprocess.STARTUPINFO()
-                    info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-                    info.wShowWindow = _subprocess.SW_HIDE
+                    info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    info.wShowWindow = subprocess.SW_HIDE
                     # Command line can contain object names in case of export and filename in case of import
                     # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
                     # which probably isn't utf-8 in windows.
-                    fse = sys.getfilesystemencoding()
-                    cmd = cmdstr.encode(fse) if isinstance(cmdstr, unicode) else cmdstr
                     log_debug("Executing command: %s\n" % cmdstr)
-                    p1 = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"')
-                except OSError, exc:
-                    log_error("Error executing command %s\n%s\n" % (cmdstr, exc))
+                    p1 = subprocess.Popen(cmdstr, cwd=workdir, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,startupinfo=info, shell=cmdstr[0] != '"', encoding='utf8')
+                except OSError as exc:
+                    log_error("Error executing command %s\n%s\n" % (cmdstr, str(exc)))
                     import traceback
                     traceback.print_exc()
                     raise RuntimeError("Error executing %s:\n%s" % (cmdstr, str(exc)))
@@ -315,45 +309,43 @@ class MySQLScriptImporter(object):
             # do the import
             total_size = os.stat(path).st_size
             processed = 0
-            
             self.report_progress("Importing %s..." % os.path.basename(path), 0, total_size)
             stdout_q, thr = start_reading_from(p1.stdout)
            
-            input_file = open(path, "r")
-            while p1 and p1.poll() == None:
-                try:
-                    if stdout_q:
-                        text = stdout_q.get_nowait()
-                        if text:
-                            log_info("Task stdout: %s\n" % text)
-                            if 'Access denied for user' in text:
-                                raise grt.DBLoginError(text)
-                            elif "Can't open named pipe to host" in text and sys.platform.lower() == "win32":
-                                text = "%s\n%s" % (text, "Please check if the server started with the --enabled-named-pipe parameter. The parameter can also be set in the config file.")
-                            self.report_output(text.strip())
-                        elif text is None:
-                              stdout_q = None
-                except Empty:
-                    pass
+            with open(path, "r") as input_file:
+                while p1 and p1.poll() == None:
+                    try:
+                        if stdout_q:
+                            text = stdout_q.get_nowait()
+                            if text:
+                                log_info("Task stdout: %s\n" % text)
+                                if 'Access denied for user' in text:
+                                    raise grt.DBLoginError(text)
+                                elif "Can't open named pipe to host" in text and sys.platform.lower() == "win32":
+                                    text = "%s\n%s" % (text, "Please check if the server started with the --enabled-named-pipe parameter. The parameter can also be set in the config file.")
+                                self.report_output(text.strip())
+                            elif text is None:
+                                  stdout_q = None
+                    except Empty:
+                        pass
 
-                line = input_file.readline()
-                if not line:
-                    break
-                processed += len(line)
-                try:
-                    p1.stdin.write(line)
-                except IOError, e:
-                    log_error("Exception writing to stdin from cmdline client: %s\n" % e)
-                    if e.errno == 32: # broken pipe
-                        log_error("Broken pipe from child process\n")
+                    line = input_file.readline()
+                    if not line:
                         break
-                    elif e.errno == 22: # invalid argument (happens in Windows, when child process just dies)
-                      log_error("Broken pipe from child process\n")
-                      break
-                    raise e
-                self.report_progress(None, processed, total_size)
+                    processed += len(line)
+                    try:
+                        p1.stdin.write(line)
+                    except IOError as e:
+                        log_error("Exception writing to stdin from cmdline client: %s\n" % e)
+                        if e.errno == 32: # broken pipe
+                            log_error("Broken pipe from child process\n")
+                            break
+                        elif e.errno == 22: # invalid argument (happens in Windows, when child process just dies)
+                          log_error("Broken pipe from child process\n")
+                          break
+                        raise e
+                    self.report_progress(None, processed, total_size)
                 
-            input_file.close()
 
             # close the writer end of the client's pipe, so it can exit
             p1.stdin.close()

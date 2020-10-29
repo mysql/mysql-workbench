@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
   xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <?if $(var.SETUP_TYPE) = "commercial" ?>
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN)"?>
@@ -43,14 +43,14 @@
 
               <Component DiskId="1" Guid="4E9CC25E-CB45-47e5-931E-DB57AC74991D" Id="Various" Location="either">
                 <?if $(var.LICENSE_TYPE) = "community"?>
-					<File Id="README" Name="README.md"/>
+                <File Id="README" Name="README.md"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-					<File Id="README" Name="README-commercial.md"/>
+                <File Id="README" Name="README-commercial.md"/>
                 <?endif ?>
                 <?if $(var.LICENSE_TYPE) = "community"?>
-					<File Id="License.txt" Name="License.txt"/>
+                <File Id="License.txt" Name="License.txt"/>
                 <?elseif $(var.LICENSE_TYPE) = "commercial"?>
-					<File Id="License_commercial.txt" Name="License-commercial.txt"/>
+                <File Id="License_commercial.txt" Name="License-commercial.txt"/>
                 <?endif ?>
                 <RemoveFolder Directory="Mysql_WB_Dir" Id="RemoveWbDirFolder" On="uninstall"/>
                 <RemoveFolder Directory="MysqlProgramMenuFolder" Id="RemoveProgramMenuFolder" On="uninstall"/>
@@ -62,9 +62,9 @@
                 <File Id="file1027" Name="libcairo.dll"/>
                 <File Id="libcrypto11x64.dll" Name="libcrypto-1_1-x64.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-					<File Id="file1035d" Name="libpng16d.dll"/>
+                <File Id="file1035d" Name="libpng16d.dll"/>
                 <?else ?>
-					<File Id="file1035" Name="libpng16.dll"/>
+                <File Id="file1035" Name="libpng16.dll"/>
                 <?endif ?>
                 <File Id="file1036" Name="libxml2.dll"/>
                 <File Id="file1030" Name="glib.dll"/>
@@ -72,19 +72,19 @@
                 <File Id="file1032" Name="gobject.dll"/>
                 <File Id="file1033" Name="gthread.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
-                <File Id="file1065" Name="zip.dll"/>              
+                <File Id="file1065" Name="zip.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-					<File Id="file1083d" Name="zlibd1.dll"/>
+                <File Id="file1083d" Name="zlibd1.dll"/>
                 <?else ?>
-					<File Id="file1083" Name="zlib1.dll"/>
+                <File Id="file1083" Name="zlib1.dll"/>
                 <?endif ?>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-					<File Id="file1099d" Name="python27_d.dll"/>
-					<File Id="python_d.exe" Name="python_d.exe"/>
+                <File Id="file1099d" Name="python37_d.dll"/>
+                <File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
-					<File Id="file1099" Name="python27.dll"/>
-					<File Id="python.exe" Name="python.exe"/>
+                <File Id="file1099" Name="python37.dll"/>
+                <File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
                 <File Id="file1102" Name="mysql.exe"/>
@@ -92,11 +92,11 @@
                 <File Id="file1104" Name="mysql_system_status_rmt.vbs"/>
                 <File Id="file1106" Name="Scintilla.dll"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-					<File Id="pcred.dll" Name="pcred.dll"/>
-					<File Id="pcrecppd.dll" Name="pcrecppd.dll"/>
+                <File Id="pcred.dll" Name="pcred.dll"/>
+                <File Id="pcrecppd.dll" Name="pcrecppd.dll"/>
                 <?else ?>
-					<File Id="pcre.dll" Name="pcre.dll"/>
-					<File Id="pcrecpp.dll" Name="pcrecpp.dll"/>
+                <File Id="pcre.dll" Name="pcre.dll"/>
+                <File Id="pcrecpp.dll" Name="pcrecpp.dll"/>
                 <?endif ?>
                 <File Id="file68725" Name="sqlite3.dll"/>
                 <File Id="gdal.dll" Name="gdal.dll"/>
@@ -142,8 +142,8 @@
                 <File Id="file1069" Name="wb.model.editors.wbp.wr.dll"/>
                 <File Id="file1070" Name="wb.model.grt.dll"/>
                 <?if $(var.SETUP_TYPE) != "community" ?>
-					<File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
-					<File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
+                <File Id="file1071" Name="wb.model.reporting.wbp.dll"/>
+                <File Id="file1075" Name="wb.mysql.validation.grt.dll"/>
                 <?endif ?>
                 <File Id="file1076" Name="wb.printing.wbp.be.dll"/>
                 <File Id="file1077" Name="wb.printing.wbp.fe.dll"/>
@@ -151,11 +151,11 @@
                 <File Id="file1089" Name="mforms.py"/>
                 <File Id="file1090" Name="cairo.py"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-					<File Id="file1098d" Name="_mforms_d.pyd"/>
-					<File Id="file1096d" Name="_cairo_d.pyd"/>
+                <File Id="file1098d" Name="_mforms_d.pyd"/>
+                <File Id="file1096d" Name="_cairo_d.pyd"/>
                 <?else ?>
-					<File Id="file1098" Name="_mforms.pyd"/>
-					<File Id="file1096" Name="_cairo.pyd"/>
+                <File Id="file1098" Name="_mforms.pyd"/>
+                <File Id="file1096" Name="_cairo.pyd"/>
                 <?endif ?>
                 <File Id="file1097" Name="sshtunnel.py"/>
                 <File Id="file1095" Name="db.mysql.query.grt.dll"/>
@@ -170,7 +170,7 @@
                 <File Id="file1115" Name="parsers.dll"/>
                 <File Id="wbcopytables.exe" Name="wbcopytables.exe"/>
                 <?if $(var.SETUP_TYPE) = "commercial" ?>
-					<File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
+                <File Id="file1117" Name="wb.model.advfind.wbp.dll"/>
                 <?endif ?>
                 <File Id="file1116" Name="wbadminhelper.exe"/>
                 <File Id="file1118" Name="mysqlwbmeb.py"/>
@@ -630,7 +630,7 @@
                     <File Id="file62055" Name="ps_switcher_fully_on.png"/>
                     <File Id="file62056" Name="ps_switcher_legend.png"/>
                     <File Id="ps_switcher_text_light" Name="ps_switcher_text_light.png"/>
-					<File Id="ps_switcher_text_dark" Name="ps_switcher_text_dark.png"/>
+                    <File Id="ps_switcher_text_dark" Name="ps_switcher_text_dark.png"/>
                     <File Id="file62058" Name="ps_overview.png"/>
                     <File Id="file62059" Name="query_continue_on_error.png"/>
                     <File Id="file62069" Name="query_stop_on_error.png"/>
@@ -797,19 +797,19 @@
                     <File Id="sidebar_modeling" Name="sidebar_modeling.png"/>
                     <File Id="home13" Name="wb_tile_folder.png"/>
                     <File Id="wb_tile_folder_mini_dark" Name="wb_tile_folder_mini_dark.png"/>
-					<File Id="wb_tile_folder_mini_light" Name="wb_tile_folder_mini_light.png"/>
+                    <File Id="wb_tile_folder_mini_light" Name="wb_tile_folder_mini_light.png"/>
                     <File Id="wb_tile_network_dark" Name="wb_tile_network_dark.png"/>
-					<File Id="wb_tile_network_light" Name="wb_tile_network_light.png"/>
+                    <File Id="wb_tile_network_light" Name="wb_tile_network_light.png"/>
                     <File Id="wb_tile_plus_dark" Name="wb_tile_plus_dark.png"/>
-					<File Id="wb_tile_plus_light" Name="wb_tile_plus_light.png"/>
+                    <File Id="wb_tile_plus_light" Name="wb_tile_plus_light.png"/>
                     <File Id="wb_tile_sakila_light" Name="wb_tile_sakila_light.png"/>
-					<File Id="wb_tile_sakila_dark" Name="wb_tile_sakila_dark.png"/>
+                    <File Id="wb_tile_sakila_dark" Name="wb_tile_sakila_dark.png"/>
                     <File Id="wb_tile_schema_light" Name="wb_tile_schema_light.png"/>
                     <File Id="wb_tile_schema_dark" Name="wb_tile_schema_dark.png"/>
                     <File Id="wb_tile_time_light" Name="wb_tile_time_light.png"/>
                     <File Id="wb_tile_time_dark" Name="wb_tile_time_dark.png"/>
                     <File Id="wb_tile_user_dark" Name="wb_tile_user_dark.png"/>
-					<File Id="wb_tile_user_light" Name="wb_tile_user_light.png"/>
+                    <File Id="wb_tile_user_light" Name="wb_tile_user_light.png"/>
                     <File Id="home24" Name="wb_doc_model.png"/>
                     <File Id="home24a" Name="wb_doc_model@2x.png"/>
                     <File Id="home25" Name="wb_doc_sql.png"/>
@@ -817,13 +817,13 @@
                     <File Id="wb_tile_number_dark" Name="wb_tile_number_dark.png"/>
                     <File Id="home27" Name="wb_close.png"/>
                     <File Id="wb_tile_manage_dark" Name="wb_tile_manage_dark.png"/>
-					<File Id="wb_tile_manage_light" Name="wb_tile_manage_light.png"/>
+                    <File Id="wb_tile_manage_light" Name="wb_tile_manage_light.png"/>
                     <File Id="wb_tile_more_light" Name="wb_tile_more_light.png"/>
                     <File Id="wb_tile_more_dark" Name="wb_tile_more_dark.png"/>
                     <File Id="wb_tile_open_light" Name="wb_tile_open_light.png"/>
                     <File Id="wb_tile_open_dark" Name="wb_tile_open_dark.png"/>
                     <File Id="home_screen_close_dark" Name="home_screen_close_dark.png"/>
-					<File Id="home_screen_close_light" Name="home_screen_close_light.png"/>
+                    <File Id="home_screen_close_light" Name="home_screen_close_light.png"/>
                   </Component>
                 </Directory>
 
@@ -932,497 +932,977 @@
 
               <!---   BEGIN PYTHON STUFF -->
               <Directory Id="python" Name="python">
+              
                 <Directory Id="python_dlls" Name="DLLs">
                   <Component DiskId="1" Guid="e9a008a8-605a-11e0-a9ed-34159e1d64e6" Id="python_dlls" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68002d" Name="_ctypes_d.pyd"/>
+                    <File Id="file68002d" Name="_ctypes_d.pyd"/>
                     <?else ?>
-						<File Id="file68002" Name="_ctypes.pyd"/>
+                    <File Id="file68002" Name="_ctypes.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68004d" Name="_elementtree_d.pyd"/>
+                    <File Id="file68004d" Name="_elementtree_d.pyd"/>
                     <?else ?>
-						<File Id="file68004" Name="_elementtree.pyd"/>
+                    <File Id="file68004" Name="_elementtree.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68007d" Name="_multiprocessing_d.pyd"/>
+                    <File Id="file68007d" Name="_multiprocessing_d.pyd"/>
                     <?else ?>
-						<File Id="file68007" Name="_multiprocessing.pyd"/>
+                    <File Id="file68007" Name="_multiprocessing.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68008d" Name="_socket_d.pyd"/>
+                    <File Id="file68008d" Name="_socket_d.pyd"/>
                     <?else ?>
-						<File Id="file68008" Name="_socket.pyd"/>
+                    <File Id="file68008" Name="_socket.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68009d" Name="_sqlite3_d.pyd"/>
+                    <File Id="file68009d" Name="_sqlite3_d.pyd"/>
                     <?else ?>
-						<File Id="file68009" Name="_sqlite3.pyd"/>
+                    <File Id="file68009" Name="_sqlite3.pyd"/>
                     <?endif ?>
+                    
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68009ddll" Name="sqlite3_d.dll"/>
+                    <File Id="file68009ddll" Name="sqlite3_d.dll"/>
                     <?else ?>
-						<File Id="file68009dll" Name="sqlite3.dll"/>
+                    <File Id="file68009dll" Name="sqlite3.dll"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68013d" Name="pyexpat_d.pyd"/>
+                    <File Id="file68013d" Name="pyexpat_d.pyd"/>
                     <?else ?>
-						<File Id="file68013" Name="pyexpat.pyd"/>
+                    <File Id="file68013" Name="pyexpat.pyd"/>
                     <?endif ?>
 
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68014d" Name="select_d.pyd"/>
+                    <File Id="file68014d" Name="select_d.pyd"/>
                     <?else ?>
-						<File Id="file68014" Name="select.pyd"/>
+                    <File Id="file68014" Name="select.pyd"/>
                     <?endif ?>
 
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="xxlimited_d.pyd" Name="xxlimited_d.pyd"/>
+                    <?else ?>
+                    <File Id="xxlimited.pyd" Name="xxlimited.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="unicodedata_d.pyd" Name="unicodedata_d.pyd"/>
+                    <?else ?>
+                    <File Id="unicodedata.pyd" Name="unicodedata.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="winsound_d.pyd" Name="winsound_d.pyd"/>
+                    <?else ?>
+                    <File Id="winsound.pyd" Name="winsound.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_queue_d.pyd" Name="_queue_d.pyd"/>
+                    <?else ?>
+                    <File Id="_queue.pyd" Name="_queue.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_overlapped_d.pyd" Name="_overlapped_d.pyd"/>
+                    <?else ?>
+                    <File Id="_overlapped.pyd" Name="_overlapped.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_msi1234_d.pyd" Name="_msi_d.pyd"/>
+                    <?else ?>
+                    <File Id="_msi1234.pyd" Name="_msi.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_decimal_d.pyd" Name="_decimal_d.pyd"/>
+                    <?else ?>
+                    <File Id="_decimal.pyd" Name="_decimal.pyd"/>
+                    <?endif ?>
+
+                    <?if $(var.SETUP_TYPE) = "debug" ?>
+                    <File Id="_asyncio_d.pyd" Name="_asyncio_d.pyd"/>
+                    <?else ?>
+                    <File Id="_asyncio.pyd" Name="_asyncio.pyd"/>
+                    <?endif ?>
+                    
                   </Component>
                 </Directory>
+
                 <Directory Id="python_lib" Name="lib">
                   <Component DiskId="1" Guid="e9a135a2-605a-11e0-a9ed-34159e1d64e6" Id="python_lib" Location="either">
-                    <File Id="file68017" Name="__future__.py"/>
-                    <File Id="file68019" Name="__phello__.foo.py"/>
-                    <File Id="file68020" Name="_abcoll.py"/>
-                    <File Id="file68022" Name="_LWPCookieJar.py"/>
-                    <File Id="file68023" Name="_MozillaCookieJar.py"/>
-                    <File Id="file68024" Name="_pyio.py"/>
-                    <File Id="file68025" Name="_strptime.py"/>
-                    <File Id="file68026" Name="_threading_local.py"/>
-                    <File Id="file68027" Name="_weakrefset.py"/>
-                    <File Id="file68029" Name="abc.py"/>
-                    <File Id="file68031" Name="aifc.py"/>
-                    <File Id="file68032" Name="antigravity.py"/>
-                    <File Id="file68033" Name="anydbm.py"/>
-                    <File Id="file68034" Name="argparse.py"/>
-                    <File Id="file68035" Name="ast.py"/>
-                    <File Id="file68036" Name="asynchat.py"/>
-                    <File Id="file68037" Name="asyncore.py"/>
-                    <File Id="file68038" Name="atexit.py"/>
-                    <File Id="file68040" Name="audiodev.py"/>
-                    <File Id="file68041" Name="base64.py"/>
-                    <File Id="file68043" Name="BaseHTTPServer.py"/>
-                    <File Id="file68044" Name="Bastion.py"/>
-                    <File Id="file68045" Name="bdb.py"/>
-                    <File Id="file68047" Name="binhex.py"/>
-                    <File Id="file68048" Name="bisect.py"/>
-                    <File Id="file68050" Name="calendar.py"/>
-                    <File Id="file68051" Name="cgi.py"/>
-                    <File Id="file68052" Name="CGIHTTPServer.py"/>
-                    <File Id="file68053" Name="cgitb.py"/>
-                    <File Id="file68054" Name="chunk.py"/>
-                    <File Id="file68055" Name="cmd.py"/>
-                    <File Id="file68056" Name="code.py"/>
-                    <File Id="file68057" Name="codecs.py"/>
-                    <File Id="file68059" Name="codeop.py"/>
-                    <File Id="file68060" Name="collections.py"/>
-                    <File Id="file68062" Name="colorsys.py"/>
-                    <File Id="file68063" Name="commands.py"/>
-                    <File Id="file68064" Name="compileall.py"/>
-                    <File Id="file68065" Name="ConfigParser.py"/>
-                    <File Id="file68066" Name="contextlib.py"/>
-                    <File Id="file68067" Name="Cookie.py"/>
-                    <File Id="file68068" Name="cookielib.py"/>
-                    <File Id="file68069" Name="copy.py"/>
-                    <File Id="file68071" Name="copy_reg.py"/>
-                    <File Id="file68073" Name="cProfile.py"/>
-                    <File Id="file68074" Name="csv.py"/>
-                    <File Id="file68075" Name="dbhash.py"/>
-                    <File Id="file68076" Name="decimal.py"/>
-                    <File Id="file68077" Name="difflib.py"/>
-                    <File Id="file68079" Name="dircache.py"/>
-                    <File Id="file68080" Name="dis.py"/>
-                    <File Id="file68081" Name="doctest.py"/>
-                    <File Id="file68082" Name="DocXMLRPCServer.py"/>
-                    <File Id="file68083" Name="dumbdbm.py"/>
-                    <File Id="file68084" Name="dummy_thread.py"/>
-                    <File Id="file68085" Name="dummy_threading.py"/>
-                    <File Id="file68086" Name="filecmp.py"/>
-                    <File Id="file68087" Name="fileinput.py"/>
-                    <File Id="file68088" Name="fnmatch.py"/>
-                    <File Id="file68090" Name="formatter.py"/>
-                    <File Id="file68091" Name="fpformat.py"/>
-                    <File Id="file68092" Name="fractions.py"/>
-                    <File Id="file68093" Name="ftplib.py"/>
-                    <File Id="file68094" Name="functools.py"/>
-                    <File Id="file68096" Name="genericpath.py"/>
-                    <File Id="file68098" Name="getopt.py"/>
-                    <File Id="file68099" Name="getpass.py"/>
-                    <File Id="file68101" Name="gettext.py"/>
-                    <File Id="file68102" Name="glob.py"/>
-                    <File Id="file68103" Name="gzip.py"/>
-                    <File Id="file68104" Name="hashlib.py"/>
-                    <File Id="file68106" Name="heapq.py"/>
-                    <File Id="file68108" Name="hmac.py"/>
-                    <File Id="file68109" Name="htmlentitydefs.py"/>
-                    <File Id="file68110" Name="htmllib.py"/>
-                    <File Id="file68111" Name="HTMLParser.py"/>
-                    <File Id="file68112" Name="httplib.py"/>
-                    <File Id="file68114" Name="ihooks.py"/>
-                    <File Id="file68115" Name="imaplib.py"/>
-                    <File Id="file68116" Name="imghdr.py"/>
-                    <File Id="file68117" Name="imputil.py"/>
-                    <File Id="file68118" Name="inspect.py"/>
-                    <File Id="file68119" Name="io.py"/>
-                    <File Id="file68120" Name="keyword.py"/>
-                    <File Id="file68122" Name="linecache.py"/>
-                    <File Id="file68124" Name="locale.py"/>
-                    <File Id="file68126" Name="macpath.py"/>
-                    <File Id="file68127" Name="macurl2path.py"/>
-                    <File Id="file68128" Name="mailbox.py"/>
-                    <File Id="file68129" Name="mailcap.py"/>
-                    <File Id="file68130" Name="markupbase.py"/>
-                    <File Id="file68131" Name="md5.py"/>
-                    <File Id="file68132" Name="mhlib.py"/>
-                    <File Id="file68133" Name="mimetools.py"/>
-                    <File Id="file68135" Name="mimetypes.py"/>
-                    <File Id="file68136" Name="MimeWriter.py"/>
-                    <File Id="file68137" Name="mimify.py"/>
-                    <File Id="file68138" Name="modulefinder.py"/>
-                    <File Id="file68139" Name="multifile.py"/>
-                    <File Id="file68140" Name="mutex.py"/>
-                    <File Id="file68141" Name="netrc.py"/>
-                    <File Id="file68142" Name="new.py"/>
-                    <File Id="file68144" Name="nntplib.py"/>
-                    <File Id="file68145" Name="ntpath.py"/>
-                    <File Id="file68147" Name="nturl2path.py"/>
-                    <File Id="file68149" Name="numbers.py"/>
-                    <File Id="file68150" Name="opcode.py"/>
-                    <File Id="file68151" Name="optparse.py"/>
-                    <File Id="file68152" Name="os.py"/>
-                    <File Id="file68154" Name="os2emxpath.py"/>
-                    <File Id="file68155" Name="pdb.py"/>
-                    <File Id="file68156" Name="pickle.py"/>
-                    <File Id="file68157" Name="pickletools.py"/>
-                    <File Id="file68158" Name="pipes.py"/>
-                    <File Id="file68159" Name="pkgutil.py"/>
-                    <File Id="file68160" Name="platform.py"/>
-                    <File Id="file68162" Name="plistlib.py"/>
-                    <File Id="file68163" Name="popen2.py"/>
-                    <File Id="file68164" Name="poplib.py"/>
-                    <File Id="file68165" Name="posixfile.py"/>
-                    <File Id="file68166" Name="posixpath.py"/>
-                    <File Id="file68168" Name="pprint.py"/>
-                    <File Id="file68170" Name="profile.py"/>
-                    <File Id="file68171" Name="pstats.py"/>
-                    <File Id="file68172" Name="pty.py"/>
-                    <File Id="file68173" Name="py_compile.py"/>
-                    <File Id="file68175" Name="pydoc.py"/>
-                    <File Id="file68176" Name="Queue.py"/>
-                    <File Id="file68178" Name="quopri.py"/>
-                    <File Id="file68179" Name="random.py"/>
-                    <File Id="file68181" Name="re.py"/>
-                    <File Id="file68183" Name="repr.py"/>
-                    <File Id="file68184" Name="rexec.py"/>
-                    <File Id="file68185" Name="rfc822.py"/>
-                    <File Id="file68187" Name="rlcompleter.py"/>
-                    <File Id="file68188" Name="robotparser.py"/>
-                    <File Id="file68189" Name="runpy.py"/>
-                    <File Id="file68190" Name="sched.py"/>
-                    <File Id="file68191" Name="sets.py"/>
-                    <File Id="file68192" Name="sgmllib.py"/>
-                    <File Id="file68193" Name="sha.py"/>
-                    <File Id="file68194" Name="shelve.py"/>
-                    <File Id="file68195" Name="shlex.py"/>
-                    <File Id="file68196" Name="shutil.py"/>
-                    <File Id="file68198" Name="SimpleHTTPServer.py"/>
-                    <File Id="file68199" Name="SimpleXMLRPCServer.py"/>
-                    <File Id="file68200" Name="site.py"/>
-                    <File Id="file68202" Name="smtpd.py"/>
-                    <File Id="file68203" Name="smtplib.py"/>
-                    <File Id="file68204" Name="sndhdr.py"/>
-                    <File Id="file68205" Name="socket.py"/>
-                    <File Id="file68207" Name="SocketServer.py"/>
-                    <File Id="file68208" Name="sre.py"/>
-                    <File Id="file68209" Name="sre_compile.py"/>
-                    <File Id="file68211" Name="sre_constants.py"/>
-                    <File Id="file68213" Name="sre_parse.py"/>
-                    <File Id="file68215" Name="ssl.py"/>
-                    <File Id="file68217" Name="stat.py"/>
-                    <File Id="file68219" Name="statvfs.py"/>
-                    <File Id="file68220" Name="string.py"/>
-                    <File Id="file68222" Name="StringIO.py"/>
-                    <File Id="file68223" Name="stringold.py"/>
-                    <File Id="file68224" Name="stringprep.py"/>
-                    <File Id="file68225" Name="struct.py"/>
-                    <File Id="file68227" Name="subprocess.py"/>
-                    <File Id="file68229" Name="sunau.py"/>
-                    <File Id="file68230" Name="sunaudio.py"/>
-                    <File Id="file68231" Name="symbol.py"/>
-                    <File Id="file68232" Name="symtable.py"/>
-                    <File Id="file68233" Name="sysconfig.py"/>
-                    <File Id="file68235" Name="tabnanny.py"/>
-                    <File Id="file68236" Name="tarfile.py"/>
-                    <File Id="file68237" Name="telnetlib.py"/>
-                    <File Id="file68238" Name="tempfile.py"/>
-                    <File Id="file68240" Name="textwrap.py"/>
-                    <File Id="file68242" Name="this.py"/>
-                    <File Id="file68243" Name="threading.py"/>
-                    <File Id="file68245" Name="timeit.py"/>
-                    <File Id="file68246" Name="toaiff.py"/>
-                    <File Id="file68247" Name="token.py"/>
-                    <File Id="file68248" Name="tokenize.py"/>
-                    <File Id="file68249" Name="trace.py"/>
-                    <File Id="file68250" Name="traceback.py"/>
-                    <File Id="file68252" Name="tty.py"/>
-                    <File Id="file68253" Name="types.py"/>
-                    <File Id="file68255" Name="urllib.py"/>
-                    <File Id="file68257" Name="urllib2.py"/>
-                    <File Id="file68259" Name="urlparse.py"/>
-                    <File Id="file68261" Name="user.py"/>
-                    <File Id="file68262" Name="UserDict.py"/>
-                    <File Id="file68264" Name="UserList.py"/>
-                    <File Id="file68265" Name="UserString.py"/>
-                    <File Id="file68266" Name="uu.py"/>
-                    <File Id="file68267" Name="uuid.py"/>
-                    <File Id="file68268" Name="warnings.py"/>
-                    <File Id="file68270" Name="wave.py"/>
-                    <File Id="file68271" Name="weakref.py"/>
-                    <File Id="file68273" Name="webbrowser.py"/>
-                    <File Id="file68274" Name="whichdb.py"/>
-                    <File Id="file68275" Name="xdrlib.py"/>
-                    <File Id="file68276" Name="xmllib.py"/>
-                    <File Id="file68277" Name="xmlrpclib.py"/>
-                    <File Id="file68278" Name="zipfile.py"/>
-                    <File Id="file68287" Name="pyclbr.py"/>
+                    <File Id="lib___future__.py" Name="__future__.py" />
+                    <File Id="lib___phello__.foo.py" Name="__phello__.foo.py" />
+                    <File Id="lib__bootlocale.py" Name="_bootlocale.py" />
+                    <File Id="lib__collections_abc.py" Name="_collections_abc.py" />
+                    <File Id="lib__compat_pickle.py" Name="_compat_pickle.py" />
+                    <File Id="lib__compression.py" Name="_compression.py" />
+                    <File Id="lib__dummy_thread.py" Name="_dummy_thread.py" />
+                    <File Id="lib__markupbase.py" Name="_markupbase.py" />
+                    <File Id="lib__osx_support.py" Name="_osx_support.py" />
+                    <File Id="lib__py_abc.py" Name="_py_abc.py" />
+                    <File Id="lib__pydecimal.py" Name="_pydecimal.py" />
+                    <File Id="lib__pyio.py" Name="_pyio.py" />
+                    <File Id="lib__sitebuiltins.py" Name="_sitebuiltins.py" />
+                    <File Id="lib__strptime.py" Name="_strptime.py" />
+                    <File Id="lib__threading_local.py" Name="_threading_local.py" />
+                    <File Id="lib__weakrefset.py" Name="_weakrefset.py" />
+                    <File Id="lib_abc.py" Name="abc.py" />
+                    <File Id="lib_aifc.py" Name="aifc.py" />
+                    <File Id="lib_antigravity.py" Name="antigravity.py" />
+                    <File Id="lib_argparse.py" Name="argparse.py" />
+                    <File Id="lib_ast.py" Name="ast.py" />
+                    <File Id="lib_asynchat.py" Name="asynchat.py" />
+                    <File Id="lib_asyncore.py" Name="asyncore.py" />
+                    <File Id="lib_base64.py" Name="base64.py" />
+                    <File Id="lib_bdb.py" Name="bdb.py" />
+                    <File Id="lib_binhex.py" Name="binhex.py" />
+                    <File Id="lib_bisect.py" Name="bisect.py" />
+                    <File Id="lib_bz2.py" Name="bz2.py" />
+                    <File Id="lib_calendar.py" Name="calendar.py" />
+                    <File Id="lib_cgi.py" Name="cgi.py" />
+                    <File Id="lib_cgitb.py" Name="cgitb.py" />
+                    <File Id="lib_chunk.py" Name="chunk.py" />
+                    <File Id="lib_cmd.py" Name="cmd.py" />
+                    <File Id="lib_code.py" Name="code.py" />
+                    <File Id="lib_codecs.py" Name="codecs.py" />
+                    <File Id="lib_codeop.py" Name="codeop.py" />
+                    <File Id="lib_colorsys.py" Name="colorsys.py" />
+                    <File Id="lib_compileall.py" Name="compileall.py" />
+                    <File Id="lib_configparser.py" Name="configparser.py" />
+                    <File Id="lib_contextlib.py" Name="contextlib.py" />
+                    <File Id="lib_contextvars.py" Name="contextvars.py" />
+                    <File Id="lib_copy.py" Name="copy.py" />
+                    <File Id="lib_copyreg.py" Name="copyreg.py" />
+                    <File Id="lib_cProfile.py" Name="cProfile.py" />
+                    <File Id="lib_crypt.py" Name="crypt.py" />
+                    <File Id="lib_csv.py" Name="csv.py" />
+                    <File Id="lib_dataclasses.py" Name="dataclasses.py" />
+                    <File Id="lib_datetime.py" Name="datetime.py" />
+                    <File Id="lib_decimal.py" Name="decimal.py" />
+                    <File Id="lib_difflib.py" Name="difflib.py" />
+                    <File Id="lib_dis.py" Name="dis.py" />
+                    <File Id="lib_doctest.py" Name="doctest.py" />
+                    <File Id="lib_dummy_threading.py" Name="dummy_threading.py" />
+                    <File Id="lib_enum.py" Name="enum.py" />
+                    <File Id="lib_filecmp.py" Name="filecmp.py" />
+                    <File Id="lib_fileinput.py" Name="fileinput.py" />
+                    <File Id="lib_fnmatch.py" Name="fnmatch.py" />
+                    <File Id="lib_formatter.py" Name="formatter.py" />
+                    <File Id="lib_fractions.py" Name="fractions.py" />
+                    <File Id="lib_ftplib.py" Name="ftplib.py" />
+                    <File Id="lib_functools.py" Name="functools.py" />
+                    <File Id="lib_genericpath.py" Name="genericpath.py" />
+                    <File Id="lib_getopt.py" Name="getopt.py" />
+                    <File Id="lib_getpass.py" Name="getpass.py" />
+                    <File Id="lib_gettext.py" Name="gettext.py" />
+                    <File Id="lib_glob.py" Name="glob.py" />
+                    <File Id="lib_gzip.py" Name="gzip.py" />
+                    <File Id="lib_hashlib.py" Name="hashlib.py" />
+                    <File Id="lib_heapq.py" Name="heapq.py" />
+                    <File Id="lib_hmac.py" Name="hmac.py" />
+                    <File Id="lib_imaplib.py" Name="imaplib.py" />
+                    <File Id="lib_imghdr.py" Name="imghdr.py" />
+                    <File Id="lib_imp.py" Name="imp.py" />
+                    <File Id="lib_inspect.py" Name="inspect.py" />
+                    <File Id="lib_io.py" Name="io.py" />
+                    <File Id="lib_ipaddress.py" Name="ipaddress.py" />
+                    <File Id="lib_keyword.py" Name="keyword.py" />
+                    <File Id="lib_linecache.py" Name="linecache.py" />
+                    <File Id="lib_locale.py" Name="locale.py" />
+                    <File Id="lib_lzma.py" Name="lzma.py" />
+                    <File Id="lib_macpath.py" Name="macpath.py" />
+                    <File Id="lib_mailbox.py" Name="mailbox.py" />
+                    <File Id="lib_mailcap.py" Name="mailcap.py" />
+                    <File Id="lib_mimetypes.py" Name="mimetypes.py" />
+                    <File Id="lib_modulefinder.py" Name="modulefinder.py" />
+                    <File Id="lib_netrc.py" Name="netrc.py" />
+                    <File Id="lib_nntplib.py" Name="nntplib.py" />
+                    <File Id="lib_ntpath.py" Name="ntpath.py" />
+                    <File Id="lib_nturl2path.py" Name="nturl2path.py" />
+                    <File Id="lib_numbers.py" Name="numbers.py" />
+                    <File Id="lib_opcode.py" Name="opcode.py" />
+                    <File Id="lib_operator.py" Name="operator.py" />
+                    <File Id="lib_optparse.py" Name="optparse.py" />
+                    <File Id="lib_os.py" Name="os.py" />
+                    <File Id="lib_pathlib.py" Name="pathlib.py" />
+                    <File Id="lib_pdb.py" Name="pdb.py" />
+                    <File Id="lib_pickle.py" Name="pickle.py" />
+                    <File Id="lib_pickletools.py" Name="pickletools.py" />
+                    <File Id="lib_pipes.py" Name="pipes.py" />
+                    <File Id="lib_pkgutil.py" Name="pkgutil.py" />
+                    <File Id="lib_platform.py" Name="platform.py" />
+                    <File Id="lib_plistlib.py" Name="plistlib.py" />
+                    <File Id="lib_poplib.py" Name="poplib.py" />
+                    <File Id="lib_posixpath.py" Name="posixpath.py" />
+                    <File Id="lib_pprint.py" Name="pprint.py" />
+                    <File Id="lib_profile.py" Name="profile.py" />
+                    <File Id="lib_pstats.py" Name="pstats.py" />
+                    <File Id="lib_pty.py" Name="pty.py" />
+                    <File Id="lib_py_compile.py" Name="py_compile.py" />
+                    <File Id="lib_pyclbr.py" Name="pyclbr.py" />
+                    <File Id="lib_pydoc.py" Name="pydoc.py" />
+                    <File Id="lib_queue.py" Name="queue.py" />
+                    <File Id="lib_quopri.py" Name="quopri.py" />
+                    <File Id="lib_random.py" Name="random.py" />
+                    <File Id="lib_re.py" Name="re.py" />
+                    <File Id="lib_reprlib.py" Name="reprlib.py" />
+                    <File Id="lib_rlcompleter.py" Name="rlcompleter.py" />
+                    <File Id="lib_runpy.py" Name="runpy.py" />
+                    <File Id="lib_sched.py" Name="sched.py" />
+                    <File Id="lib_secrets.py" Name="secrets.py" />
+                    <File Id="lib_selectors.py" Name="selectors.py" />
+                    <File Id="lib_shelve.py" Name="shelve.py" />
+                    <File Id="lib_shlex.py" Name="shlex.py" />
+                    <File Id="lib_shutil.py" Name="shutil.py" />
+                    <File Id="lib_signal.py" Name="signal.py" />
+                    <File Id="lib_site.py" Name="site.py" />
+                    <File Id="lib_smtpd.py" Name="smtpd.py" />
+                    <File Id="lib_smtplib.py" Name="smtplib.py" />
+                    <File Id="lib_sndhdr.py" Name="sndhdr.py" />
+                    <File Id="lib_socket.py" Name="socket.py" />
+                    <File Id="lib_socketserver.py" Name="socketserver.py" />
+                    <File Id="lib_sre_compile.py" Name="sre_compile.py" />
+                    <File Id="lib_sre_constants.py" Name="sre_constants.py" />
+                    <File Id="lib_sre_parse.py" Name="sre_parse.py" />
+                    <File Id="lib_ssl.py" Name="ssl.py" />
+                    <File Id="lib_stat.py" Name="stat.py" />
+                    <File Id="lib_statistics.py" Name="statistics.py" />
+                    <File Id="lib_string.py" Name="string.py" />
+                    <File Id="lib_stringprep.py" Name="stringprep.py" />
+                    <File Id="lib_struct.py" Name="struct.py" />
+                    <File Id="lib_subprocess.py" Name="subprocess.py" />
+                    <File Id="lib_sunau.py" Name="sunau.py" />
+                    <File Id="lib_symbol.py" Name="symbol.py" />
+                    <File Id="lib_symtable.py" Name="symtable.py" />
+                    <File Id="lib_sysconfig.py" Name="sysconfig.py" />
+                    <File Id="lib_tabnanny.py" Name="tabnanny.py" />
+                    <File Id="lib_tarfile.py" Name="tarfile.py" />
+                    <File Id="lib_telnetlib.py" Name="telnetlib.py" />
+                    <File Id="lib_tempfile.py" Name="tempfile.py" />
+                    <File Id="lib_textwrap.py" Name="textwrap.py" />
+                    <File Id="lib_this.py" Name="this.py" />
+                    <File Id="lib_threading.py" Name="threading.py" />
+                    <File Id="lib_timeit.py" Name="timeit.py" />
+                    <File Id="lib_token.py" Name="token.py" />
+                    <File Id="lib_tokenize.py" Name="tokenize.py" />
+                    <File Id="lib_trace.py" Name="trace.py" />
+                    <File Id="lib_traceback.py" Name="traceback.py" />
+                    <File Id="lib_tracemalloc.py" Name="tracemalloc.py" />
+                    <File Id="lib_tty.py" Name="tty.py" />
+                    <File Id="lib_turtle.py" Name="turtle.py" />
+                    <File Id="lib_types.py" Name="types.py" />
+                    <File Id="lib_typing.py" Name="typing.py" />
+                    <File Id="lib_uu.py" Name="uu.py" />
+                    <File Id="lib_uuid.py" Name="uuid.py" />
+                    <File Id="lib_warnings.py" Name="warnings.py" />
+                    <File Id="lib_wave.py" Name="wave.py" />
+                    <File Id="lib_weakref.py" Name="weakref.py" />
+                    <File Id="lib_webbrowser.py" Name="webbrowser.py" />
+                    <File Id="lib_xdrlib.py" Name="xdrlib.py" />
+                    <File Id="lib_zipapp.py" Name="zipapp.py" />
+                    <File Id="lib_zipfile.py" Name="zipfile.py" />
                   </Component>
-
-                  <Directory Id="python_lib_ctypes" Name="ctypes">
-                    <Component DiskId="1" Guid="e9a1f7a8-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_ctypes" Location="either">
-                      <File Id="file68279" Name="__init__.py"/>
-                      <File Id="file68280" Name="_endian.py"/>
-                      <File Id="file68281" Name="util.py"/>
-                      <File Id="file68282" Name="wintypes.py"/>
+                  <Directory Id="python_lib_asyncio" Name="asyncio">
+                    <Component DiskId="1" Guid="F4F546B9-1752-47CE-AFB7-54C733AB7BC8" Id="python_lib_asyncio" Location="either">
+                      <File Id="lib_asyncio___init__.py" Name="__init__.py" />
+                      <File Id="lib_asyncio_base_events.py" Name="base_events.py" />
+                      <File Id="lib_asyncio_base_futures.py" Name="base_futures.py" />
+                      <File Id="lib_asyncio_base_subprocess.py" Name="base_subprocess.py" />
+                      <File Id="lib_asyncio_base_tasks.py" Name="base_tasks.py" />
+                      <File Id="lib_asyncio_constants.py" Name="constants.py" />
+                      <File Id="lib_asyncio_coroutines.py" Name="coroutines.py" />
+                      <File Id="lib_asyncio_events.py" Name="events.py" />
+                      <File Id="lib_asyncio_format_helpers.py" Name="format_helpers.py" />
+                      <File Id="lib_asyncio_futures.py" Name="futures.py" />
+                      <File Id="lib_asyncio_locks.py" Name="locks.py" />
+                      <File Id="lib_asyncio_log.py" Name="log.py" />
+                      <File Id="lib_asyncio_proactor_events.py" Name="proactor_events.py" />
+                      <File Id="lib_asyncio_protocols.py" Name="protocols.py" />
+                      <File Id="lib_asyncio_queues.py" Name="queues.py" />
+                      <File Id="lib_asyncio_runners.py" Name="runners.py" />
+                      <File Id="lib_asyncio_selector_events.py" Name="selector_events.py" />
+                      <File Id="lib_asyncio_sslproto.py" Name="sslproto.py" />
+                      <File Id="lib_asyncio_streams.py" Name="streams.py" />
+                      <File Id="lib_asyncio_subprocess.py" Name="subprocess.py" />
+                      <File Id="lib_asyncio_tasks.py" Name="tasks.py" />
+                      <File Id="lib_asyncio_transports.py" Name="transports.py" />
+                      <File Id="lib_asyncio_unix_events.py" Name="unix_events.py" />
+                      <File Id="lib_asyncio_windows_events.py" Name="windows_events.py" />
+                      <File Id="lib_asyncio_windows_utils.py" Name="windows_utils.py" />
                     </Component>
-                    <Directory Id="python_lib_ctypes_macholib" Name="macholib">
+                  </Directory>
+                  <Directory Id="python_lib_collections" Name="collections">
+                    <Component DiskId="1" Guid="{462C134A-D226-4139-B46F-D9DD66FFB2F9}" Id="python_lib_collections" Location="either">
+                      <File Id="lib_collections___init__.py" Name="__init__.py" />
+                      <File Id="abc.py" Name="abc.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_concurrent" Name="concurrent">
+                    <Component DiskId="1" Guid="{09F33AC7-855B-4EB1-BB39-1FE49177C254}" Id="python_lib_concurrent" Location="either">
+                      <File Id="lib_concurrent___init__.py" Name="__init__.py" />
+                    </Component>
+                    <Directory Id="python_lib_concurrent_futures" Name="futures">
+                      <Component DiskId="1" Guid="{B080FA02-C1A7-4742-AEB9-229AFEE9FD7F}" Id="python_lib_concurrent_futures" Location="either">
+                        <File Id="lib_concurrent_futures___init__.py" Name="__init__.py" />
+                        <File Id="lib_concurrent_futures__base.py" Name="_base.py" />
+                        <File Id="lib_concurrent_futures_process.py" Name="process.py" />
+                        <File Id="lib_concurrent_futures_thread.py" Name="thread.py" />
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_ctypes" Name="ctypes">
+                    <Component DiskId="1" Guid="{007C6A63-8A8D-4E70-993F-4F84554AA954}" Id="python_lib_ctypes" Location="either">
+                      <File Id="lib_ctypes___init__.py" Name="__init__.py"/>
+                      <File Id="lib_ctypes__endian.py" Name="_endian.py"/>
+                      <File Id="lib_ctypes_util.py" Name="util.py"/>
+                      <File Id="lib_ctypes_wintypes.py" Name="wintypes.py"/>
+                    </Component>
+                    <Directory Id="lib_ctypes_macholib" Name="macholib">
                       <Component DiskId="1" Guid="e9a20c0c-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_ctypes_macholib" Location="either">
-                        <File Id="file68283" Name="__init__.py"/>
-                        <File Id="file68284" Name="dyld.py"/>
-                        <File Id="file68285" Name="dylib.py"/>
-                        <File Id="file68286" Name="framework.py"/>
+                        <File Id="lib_ctypes_macholib___init__.py" Name="__init__.py"/>
+                        <File Id="lib_ctypes_macholib_dyld.py" Name="dyld.py"/>
+                        <File Id="lib_ctypes_macholib_dylib.py" Name="dylib.py"/>
+                        <File Id="lib_ctypes_macholib_framework.py" Name="framework.py"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_curses" Name="curses">
+                    <Component DiskId="1" Guid="4BC2DC1E-6B4D-4279-97DF-79C3299CB223" Id="python_lib_curses" Location="either">
+                      <File Id="lib_curses_textpad.py" Name="textpad.py" />
+                      <File Id="lib_curses_panel.py" Name="panel.py" />
+                      <File Id="lib_curses_has_key.py" Name="has_key.py" />
+                      <File Id="lib_curses_ascii.py" Name="ascii.py" />
+                      <File Id="lib_curses___init__.py" Name="__init__.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_dbm" Name="dbm">
+                    <Component DiskId="1" Guid="1FB98543-A487-4EEA-A09D-AF0EAC57B129" Id="python_lib_dbm" Location="either">
+                      <File Id="lib_dbm___init__.py" Name="__init__.py" />
+                      <File Id="lib_dbm_dumb.py" Name="dumb.py" />
+                      <File Id="lib_dbm_gnu.py" Name="gnu.py" />
+                      <File Id="lib_dbm_ndbm.py" Name="ndbm.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_distutils" Name="distutils">
+                    <Component DiskId="1" Guid="" Id="python_lib_distutils" Location="either">
+                      <File Id="lib_distutils___init__.py" Name="__init__.py" />
+                      <File Id="lib_distutils__msvccompiler.py" Name="_msvccompiler.py" />
+                      <File Id="lib_distutils_archive_util.py" Name="archive_util.py" />
+                      <File Id="lib_distutils_bcppcompiler.py" Name="bcppcompiler.py" />
+                      <File Id="lib_distutils_ccompiler.py" Name="ccompiler.py" />
+                      <File Id="lib_distutils_cmd.py" Name="cmd.py" />
+                      <File Id="lib_distutils_config.py" Name="config.py" />
+                      <File Id="lib_distutils_core.py" Name="core.py" />
+                      <File Id="lib_distutils_cygwinccompiler.py" Name="cygwinccompiler.py" />
+                      <File Id="lib_distutils_debug.py" Name="debug.py" />
+                      <File Id="lib_distutils_dep_util.py" Name="dep_util.py" />
+                      <File Id="lib_distutils_dir_util.py" Name="dir_util.py" />
+                      <File Id="lib_distutils_dist.py" Name="dist.py" />
+                      <File Id="lib_distutils_errors.py" Name="errors.py" />
+                      <File Id="lib_distutils_extension.py" Name="extension.py" />
+                      <File Id="lib_distutils_fancy_getopt.py" Name="fancy_getopt.py" />
+                      <File Id="lib_distutils_file_util.py" Name="file_util.py" />
+                      <File Id="lib_distutils_filelist.py" Name="filelist.py" />
+                      <File Id="lib_distutils_log.py" Name="log.py" />
+                      <File Id="lib_distutils_msvc9compiler.py" Name="msvc9compiler.py" />
+                      <File Id="lib_distutils_msvccompiler.py" Name="msvccompiler.py" />
+                      <File Id="lib_distutils_spawn.py" Name="spawn.py" />
+                      <File Id="lib_distutils_sysconfig.py" Name="sysconfig.py" />
+                      <File Id="lib_distutils_text_file.py" Name="text_file.py" />
+                      <File Id="lib_distutils_unixccompiler.py" Name="unixccompiler.py" />
+                      <File Id="lib_distutils_util.py" Name="util.py" />
+                      <File Id="lib_distutils_version.py" Name="version.py" />
+                      <File Id="lib_distutils_versionpredicate.py" Name="versionpredicate.py" />
+                    </Component>
+                    <Directory Id="python_lib_distutils_command" Name="command">
+                      <Component DiskId="1" Guid="" Id="python_lib_distutils_command" Location="either">
+                        <File Id="lib_distutils_command___init__.py" Name="__init__.py" />
+                        <File Id="lib_distutils_command_bdist.py" Name="bdist.py" />
+                        <File Id="lib_distutils_command_bdist_dumb.py" Name="bdist_dumb.py" />
+                        <File Id="lib_distutils_command_bdist_msi.py" Name="bdist_msi.py" />
+                        <File Id="lib_distutils_command_bdist_rpm.py" Name="bdist_rpm.py" />
+                        <File Id="lib_distutils_command_bdist_wininst.py" Name="bdist_wininst.py" />
+                        <File Id="lib_distutils_command_build.py" Name="build.py" />
+                        <File Id="lib_distutils_command_build_clib.py" Name="build_clib.py" />
+                        <File Id="lib_distutils_command_build_ext.py" Name="build_ext.py" />
+                        <File Id="lib_distutils_command_build_py.py" Name="build_py.py" />
+                        <File Id="lib_distutils_command_build_scripts.py" Name="build_scripts.py" />
+                        <File Id="lib_distutils_command_check.py" Name="check.py" />
+                        <File Id="lib_distutils_command_clean.py" Name="clean.py" />
+                        <File Id="lib_distutils_command_config.py" Name="config.py" />
+                        <File Id="lib_distutils_command_install.py" Name="install.py" />
+                        <File Id="lib_distutils_command_install_data.py" Name="install_data.py" />
+                        <File Id="lib_distutils_command_install_egg_info.py" Name="install_egg_info.py" />
+                        <File Id="lib_distutils_command_install_headers.py" Name="install_headers.py" />
+                        <File Id="lib_distutils_command_install_lib.py" Name="install_lib.py" />
+                        <File Id="lib_distutils_command_install_scripts.py" Name="install_scripts.py" />
+                        <File Id="lib_distutils_command_register.py" Name="register.py" />
+                        <File Id="lib_distutils_command_sdist.py" Name="sdist.py" />
+                        <File Id="lib_distutils_command_upload.py" Name="upload.py" />
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_email" Name="email">
+                    <Component DiskId="1" Guid="5F0DFD7E-19D6-4218-A0A2-4FEBD4AA6A40" Id="python_lib_email" Location="either">
+                      <File Id="lib_email___init__.py" Name="__init__.py" />
+                      <File Id="lib_email__encoded_words.py" Name="_encoded_words.py" />
+                      <File Id="lib_email__header_value_parser.py" Name="_header_value_parser.py" />
+                      <File Id="lib_email__parseaddr.py" Name="_parseaddr.py" />
+                      <File Id="lib_email__policybase.py" Name="_policybase.py" />
+                      <File Id="lib_email_base64mime.py" Name="base64mime.py" />
+                      <File Id="lib_email_charset.py" Name="charset.py" />
+                      <File Id="lib_email_contentmanager.py" Name="contentmanager.py" />
+                      <File Id="lib_email_encoders.py" Name="encoders.py" />
+                      <File Id="lib_email_errors.py" Name="errors.py" />
+                      <File Id="lib_email_feedparser.py" Name="feedparser.py" />
+                      <File Id="lib_email_generator.py" Name="generator.py" />
+                      <File Id="lib_email_header.py" Name="header.py" />
+                      <File Id="lib_email_headerregistry.py" Name="headerregistry.py" />
+                      <File Id="lib_email_iterators.py" Name="iterators.py" />
+                      <File Id="lib_email_message.py" Name="message.py" />
+                      <File Id="lib_email_parser.py" Name="parser.py" />
+                      <File Id="lib_email_policy.py" Name="policy.py" />
+                      <File Id="lib_email_quoprimime.py" Name="quoprimime.py" />
+                      <File Id="lib_email_utils.py" Name="utils.py" />
+                      <File Id="lib_email_architecture.rst" Name="architecture.rst" />
+                    </Component>
+                    <Directory Id="python_lib_email_mime" Name="mime">
+                      <Component DiskId="1" Guid="447ABBE1-A7CA-4F91-A18A-12ECCC260E0B" Id="python_lib_email_mime" Location="either">
+                        <File Id="lib_email_mime___init__.py" Name="__init__.py" />
+                        <File Id="lib_email_mime_application.py" Name="application.py" />
+                        <File Id="lib_email_mime_audio.py" Name="audio.py" />
+                        <File Id="lib_email_mime_base.py" Name="base.py" />
+                        <File Id="lib_email_mime_image.py" Name="image.py" />
+                        <File Id="lib_email_mime_message.py" Name="message.py" />
+                        <File Id="lib_email_mime_multipart.py" Name="multipart.py" />
+                        <File Id="lib_email_mime_nonmultipart.py" Name="nonmultipart.py" />
+                        <File Id="lib_email_mime_text.py" Name="text.py" />
                       </Component>
                     </Directory>
                   </Directory>
                   <Directory Id="python_lib_encodings" Name="encodings">
-                    <Component DiskId="1" Guid="e9a247c6-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_encodings" Location="either">
-                      <File Id="file68340" Name="__init__.py"/>
-                      <File Id="file68342" Name="aliases.py"/>
-                      <File Id="file68344" Name="ascii.py"/>
-                      <File Id="file68346" Name="base64_codec.py"/>
-                      <File Id="file68347" Name="big5.py"/>
-                      <File Id="file68348" Name="big5hkscs.py"/>
-                      <File Id="file68349" Name="bz2_codec.py"/>
-                      <File Id="file68350" Name="charmap.py"/>
-                      <File Id="file68351" Name="cp037.py"/>
-                      <File Id="file68352" Name="cp1006.py"/>
-                      <File Id="file68353" Name="cp1026.py"/>
-                      <File Id="file68354" Name="cp1140.py"/>
-                      <File Id="file68355" Name="cp1250.py"/>
-                      <File Id="file68356" Name="cp1251.py"/>
-                      <File Id="file68357" Name="cp1252.py"/>
-                      <File Id="file68359" Name="cp1253.py"/>
-                      <File Id="file68360" Name="cp1254.py"/>
-                      <File Id="file68361" Name="cp1255.py"/>
-                      <File Id="file68362" Name="cp1256.py"/>
-                      <File Id="file68363" Name="cp1257.py"/>
-                      <File Id="file68364" Name="cp1258.py"/>
-                      <File Id="file68365" Name="cp424.py"/>
-                      <File Id="file68366" Name="cp437.py"/>
-                      <File Id="file68367" Name="cp500.py"/>
-                      <File Id="file68368" Name="cp720.py"/>
-                      <File Id="file68369" Name="cp737.py"/>
-                      <File Id="file68370" Name="cp775.py"/>
-                      <File Id="file68371" Name="cp850.py"/>
-                      <File Id="file68372" Name="cp852.py"/>
-                      <File Id="file68373" Name="cp855.py"/>
-                      <File Id="file68374" Name="cp856.py"/>
-                      <File Id="file68375" Name="cp857.py"/>
-                      <File Id="file68376" Name="cp858.py"/>
-                      <File Id="file68377" Name="cp860.py"/>
-                      <File Id="file68378" Name="cp861.py"/>
-                      <File Id="file68379" Name="cp862.py"/>
-                      <File Id="file68380" Name="cp863.py"/>
-                      <File Id="file68381" Name="cp864.py"/>
-                      <File Id="file68382" Name="cp865.py"/>
-                      <File Id="file68383" Name="cp866.py"/>
-                      <File Id="file68384" Name="cp869.py"/>
-                      <File Id="file68385" Name="cp874.py"/>
-                      <File Id="file68386" Name="cp875.py"/>
-                      <File Id="file68387" Name="cp932.py"/>
-                      <File Id="file68388" Name="cp949.py"/>
-                      <File Id="file68389" Name="cp950.py"/>
-                      <File Id="file68390" Name="euc_jis_2004.py"/>
-                      <File Id="file68391" Name="euc_jisx0213.py"/>
-                      <File Id="file68392" Name="euc_jp.py"/>
-                      <File Id="file68393" Name="euc_kr.py"/>
-                      <File Id="file68394" Name="gb18030.py"/>
-                      <File Id="file68395" Name="gb2312.py"/>
-                      <File Id="file68396" Name="gbk.py"/>
-                      <File Id="file68397" Name="hex_codec.py"/>
-                      <File Id="file68398" Name="hp_roman8.py"/>
-                      <File Id="file68399" Name="hz.py"/>
-                      <File Id="file68400" Name="idna.py"/>
-                      <File Id="file68401" Name="iso2022_jp.py"/>
-                      <File Id="file68402" Name="iso2022_jp_1.py"/>
-                      <File Id="file68403" Name="iso2022_jp_2.py"/>
-                      <File Id="file68404" Name="iso2022_jp_2004.py"/>
-                      <File Id="file68405" Name="iso2022_jp_3.py"/>
-                      <File Id="file68406" Name="iso2022_jp_ext.py"/>
-                      <File Id="file68407" Name="iso2022_kr.py"/>
-                      <File Id="file68408" Name="iso8859_1.py"/>
-                      <File Id="file68409" Name="iso8859_10.py"/>
-                      <File Id="file68410" Name="iso8859_11.py"/>
-                      <File Id="file68411" Name="iso8859_13.py"/>
-                      <File Id="file68412" Name="iso8859_14.py"/>
-                      <File Id="file68413" Name="iso8859_15.py"/>
-                      <File Id="file68414" Name="iso8859_16.py"/>
-                      <File Id="file68415" Name="iso8859_2.py"/>
-                      <File Id="file68416" Name="iso8859_3.py"/>
-                      <File Id="file68417" Name="iso8859_4.py"/>
-                      <File Id="file68418" Name="iso8859_5.py"/>
-                      <File Id="file68419" Name="iso8859_6.py"/>
-                      <File Id="file68420" Name="iso8859_7.py"/>
-                      <File Id="file68421" Name="iso8859_8.py"/>
-                      <File Id="file68422" Name="iso8859_9.py"/>
-                      <File Id="file68423" Name="johab.py"/>
-                      <File Id="file68424" Name="koi8_r.py"/>
-                      <File Id="file68425" Name="koi8_u.py"/>
-                      <File Id="file68426" Name="latin_1.py"/>
-                      <File Id="file68427" Name="mac_arabic.py"/>
-                      <File Id="file68428" Name="mac_centeuro.py"/>
-                      <File Id="file68429" Name="mac_croatian.py"/>
-                      <File Id="file68430" Name="mac_cyrillic.py"/>
-                      <File Id="file68431" Name="mac_farsi.py"/>
-                      <File Id="file68432" Name="mac_greek.py"/>
-                      <File Id="file68433" Name="mac_iceland.py"/>
-                      <File Id="file68434" Name="mac_latin2.py"/>
-                      <File Id="file68435" Name="mac_roman.py"/>
-                      <File Id="file68436" Name="mac_romanian.py"/>
-                      <File Id="file68437" Name="mac_turkish.py"/>
-                      <File Id="file68438" Name="mbcs.py"/>
-                      <File Id="file68439" Name="palmos.py"/>
-                      <File Id="file68440" Name="ptcp154.py"/>
-                      <File Id="file68441" Name="punycode.py"/>
-                      <File Id="file68442" Name="quopri_codec.py"/>
-                      <File Id="file68443" Name="raw_unicode_escape.py"/>
-                      <File Id="file68444" Name="rot_13.py"/>
-                      <File Id="file68445" Name="shift_jis.py"/>
-                      <File Id="file68446" Name="shift_jis_2004.py"/>
-                      <File Id="file68447" Name="shift_jisx0213.py"/>
-                      <File Id="file68448" Name="string_escape.py"/>
-                      <File Id="file68449" Name="tis_620.py"/>
-                      <File Id="file68450" Name="undefined.py"/>
-                      <File Id="file68451" Name="unicode_escape.py"/>
-                      <File Id="file68452" Name="unicode_internal.py"/>
-                      <File Id="file68453" Name="utf_16.py"/>
-                      <File Id="file68454" Name="utf_16_be.py"/>
-                      <File Id="file68455" Name="utf_16_le.py"/>
-                      <File Id="file68456" Name="utf_32.py"/>
-                      <File Id="file68457" Name="utf_32_be.py"/>
-                      <File Id="file68458" Name="utf_32_le.py"/>
-                      <File Id="file68459" Name="utf_7.py"/>
-                      <File Id="file68460" Name="utf_8.py"/>
-                      <File Id="file68462" Name="utf_8_sig.py"/>
-                      <File Id="file68463" Name="uu_codec.py"/>
-                      <File Id="file68464" Name="zlib_codec.py"/>
+                    <Component DiskId="1" Guid="56091C58-0167-4774-A4FF-81746CBF91B1" Id="python_lib_encodings" Location="either">
+                      <File Id="lib_encodings___init__.py" Name="__init__.py" />
+                      <File Id="lib_encodings_aliases.py" Name="aliases.py" />
+                      <File Id="lib_encodings_ascii.py" Name="ascii.py" />
+                      <File Id="lib_encodings_base64_codec.py" Name="base64_codec.py" />
+                      <File Id="lib_encodings_big5.py" Name="big5.py" />
+                      <File Id="lib_encodings_big5hkscs.py" Name="big5hkscs.py" />
+                      <File Id="lib_encodings_bz2_codec.py" Name="bz2_codec.py" />
+                      <File Id="lib_encodings_charmap.py" Name="charmap.py" />
+                      <File Id="lib_encodings_cp037.py" Name="cp037.py" />
+                      <File Id="lib_encodings_cp1006.py" Name="cp1006.py" />
+                      <File Id="lib_encodings_cp1026.py" Name="cp1026.py" />
+                      <File Id="lib_encodings_cp1125.py" Name="cp1125.py" />
+                      <File Id="lib_encodings_cp1140.py" Name="cp1140.py" />
+                      <File Id="lib_encodings_cp1250.py" Name="cp1250.py" />
+                      <File Id="lib_encodings_cp1251.py" Name="cp1251.py" />
+                      <File Id="lib_encodings_cp1252.py" Name="cp1252.py" />
+                      <File Id="lib_encodings_cp1253.py" Name="cp1253.py" />
+                      <File Id="lib_encodings_cp1254.py" Name="cp1254.py" />
+                      <File Id="lib_encodings_cp1255.py" Name="cp1255.py" />
+                      <File Id="lib_encodings_cp1256.py" Name="cp1256.py" />
+                      <File Id="lib_encodings_cp1257.py" Name="cp1257.py" />
+                      <File Id="lib_encodings_cp1258.py" Name="cp1258.py" />
+                      <File Id="lib_encodings_cp273.py" Name="cp273.py" />
+                      <File Id="lib_encodings_cp424.py" Name="cp424.py" />
+                      <File Id="lib_encodings_cp437.py" Name="cp437.py" />
+                      <File Id="lib_encodings_cp500.py" Name="cp500.py" />
+                      <File Id="lib_encodings_cp65001.py" Name="cp65001.py" />
+                      <File Id="lib_encodings_cp720.py" Name="cp720.py" />
+                      <File Id="lib_encodings_cp737.py" Name="cp737.py" />
+                      <File Id="lib_encodings_cp775.py" Name="cp775.py" />
+                      <File Id="lib_encodings_cp850.py" Name="cp850.py" />
+                      <File Id="lib_encodings_cp852.py" Name="cp852.py" />
+                      <File Id="lib_encodings_cp855.py" Name="cp855.py" />
+                      <File Id="lib_encodings_cp856.py" Name="cp856.py" />
+                      <File Id="lib_encodings_cp857.py" Name="cp857.py" />
+                      <File Id="lib_encodings_cp858.py" Name="cp858.py" />
+                      <File Id="lib_encodings_cp860.py" Name="cp860.py" />
+                      <File Id="lib_encodings_cp861.py" Name="cp861.py" />
+                      <File Id="lib_encodings_cp862.py" Name="cp862.py" />
+                      <File Id="lib_encodings_cp863.py" Name="cp863.py" />
+                      <File Id="lib_encodings_cp864.py" Name="cp864.py" />
+                      <File Id="lib_encodings_cp865.py" Name="cp865.py" />
+                      <File Id="lib_encodings_cp866.py" Name="cp866.py" />
+                      <File Id="lib_encodings_cp869.py" Name="cp869.py" />
+                      <File Id="lib_encodings_cp874.py" Name="cp874.py" />
+                      <File Id="lib_encodings_cp875.py" Name="cp875.py" />
+                      <File Id="lib_encodings_cp932.py" Name="cp932.py" />
+                      <File Id="lib_encodings_cp949.py" Name="cp949.py" />
+                      <File Id="lib_encodings_cp950.py" Name="cp950.py" />
+                      <File Id="lib_encodings_euc_jis_2004.py" Name="euc_jis_2004.py" />
+                      <File Id="lib_encodings_euc_jisx0213.py" Name="euc_jisx0213.py" />
+                      <File Id="lib_encodings_euc_jp.py" Name="euc_jp.py" />
+                      <File Id="lib_encodings_euc_kr.py" Name="euc_kr.py" />
+                      <File Id="lib_encodings_gb18030.py" Name="gb18030.py" />
+                      <File Id="lib_encodings_gb2312.py" Name="gb2312.py" />
+                      <File Id="lib_encodings_gbk.py" Name="gbk.py" />
+                      <File Id="lib_encodings_hex_codec.py" Name="hex_codec.py" />
+                      <File Id="lib_encodings_hp_roman8.py" Name="hp_roman8.py" />
+                      <File Id="lib_encodings_hz.py" Name="hz.py" />
+                      <File Id="lib_encodings_idna.py" Name="idna.py" />
+                      <File Id="lib_encodings_iso2022_jp.py" Name="iso2022_jp.py" />
+                      <File Id="lib_encodings_iso2022_jp_1.py" Name="iso2022_jp_1.py" />
+                      <File Id="lib_encodings_iso2022_jp_2.py" Name="iso2022_jp_2.py" />
+                      <File Id="lib_encodings_iso2022_jp_2004.py" Name="iso2022_jp_2004.py" />
+                      <File Id="lib_encodings_iso2022_jp_3.py" Name="iso2022_jp_3.py" />
+                      <File Id="lib_encodings_iso2022_jp_ext.py" Name="iso2022_jp_ext.py" />
+                      <File Id="lib_encodings_iso2022_kr.py" Name="iso2022_kr.py" />
+                      <File Id="lib_encodings_iso8859_1.py" Name="iso8859_1.py" />
+                      <File Id="lib_encodings_iso8859_10.py" Name="iso8859_10.py" />
+                      <File Id="lib_encodings_iso8859_11.py" Name="iso8859_11.py" />
+                      <File Id="lib_encodings_iso8859_13.py" Name="iso8859_13.py" />
+                      <File Id="lib_encodings_iso8859_14.py" Name="iso8859_14.py" />
+                      <File Id="lib_encodings_iso8859_15.py" Name="iso8859_15.py" />
+                      <File Id="lib_encodings_iso8859_16.py" Name="iso8859_16.py" />
+                      <File Id="lib_encodings_iso8859_2.py" Name="iso8859_2.py" />
+                      <File Id="lib_encodings_iso8859_3.py" Name="iso8859_3.py" />
+                      <File Id="lib_encodings_iso8859_4.py" Name="iso8859_4.py" />
+                      <File Id="lib_encodings_iso8859_5.py" Name="iso8859_5.py" />
+                      <File Id="lib_encodings_iso8859_6.py" Name="iso8859_6.py" />
+                      <File Id="lib_encodings_iso8859_7.py" Name="iso8859_7.py" />
+                      <File Id="lib_encodings_iso8859_8.py" Name="iso8859_8.py" />
+                      <File Id="lib_encodings_iso8859_9.py" Name="iso8859_9.py" />
+                      <File Id="lib_encodings_johab.py" Name="johab.py" />
+                      <File Id="lib_encodings_koi8_r.py" Name="koi8_r.py" />
+                      <File Id="lib_encodings_koi8_t.py" Name="koi8_t.py" />
+                      <File Id="lib_encodings_koi8_u.py" Name="koi8_u.py" />
+                      <File Id="lib_encodings_kz1048.py" Name="kz1048.py" />
+                      <File Id="lib_encodings_latin_1.py" Name="latin_1.py" />
+                      <File Id="lib_encodings_mac_arabic.py" Name="mac_arabic.py" />
+                      <File Id="lib_encodings_mac_centeuro.py" Name="mac_centeuro.py" />
+                      <File Id="lib_encodings_mac_croatian.py" Name="mac_croatian.py" />
+                      <File Id="lib_encodings_mac_cyrillic.py" Name="mac_cyrillic.py" />
+                      <File Id="lib_encodings_mac_farsi.py" Name="mac_farsi.py" />
+                      <File Id="lib_encodings_mac_greek.py" Name="mac_greek.py" />
+                      <File Id="lib_encodings_mac_iceland.py" Name="mac_iceland.py" />
+                      <File Id="lib_encodings_mac_latin2.py" Name="mac_latin2.py" />
+                      <File Id="lib_encodings_mac_roman.py" Name="mac_roman.py" />
+                      <File Id="lib_encodings_mac_romanian.py" Name="mac_romanian.py" />
+                      <File Id="lib_encodings_mac_turkish.py" Name="mac_turkish.py" />
+                      <File Id="lib_encodings_mbcs.py" Name="mbcs.py" />
+                      <File Id="lib_encodings_oem.py" Name="oem.py" />
+                      <File Id="lib_encodings_palmos.py" Name="palmos.py" />
+                      <File Id="lib_encodings_ptcp154.py" Name="ptcp154.py" />
+                      <File Id="lib_encodings_punycode.py" Name="punycode.py" />
+                      <File Id="lib_encodings_quopri_codec.py" Name="quopri_codec.py" />
+                      <File Id="lib_encodings_raw_unicode_escape.py" Name="raw_unicode_escape.py" />
+                      <File Id="lib_encodings_rot_13.py" Name="rot_13.py" />
+                      <File Id="lib_encodings_shift_jis.py" Name="shift_jis.py" />
+                      <File Id="lib_encodings_shift_jis_2004.py" Name="shift_jis_2004.py" />
+                      <File Id="lib_encodings_shift_jisx0213.py" Name="shift_jisx0213.py" />
+                      <File Id="lib_encodings_tis_620.py" Name="tis_620.py" />
+                      <File Id="lib_encodings_undefined.py" Name="undefined.py" />
+                      <File Id="lib_encodings_unicode_escape.py" Name="unicode_escape.py" />
+                      <File Id="lib_encodings_unicode_internal.py" Name="unicode_internal.py" />
+                      <File Id="lib_encodings_utf_16.py" Name="utf_16.py" />
+                      <File Id="lib_encodings_utf_16_be.py" Name="utf_16_be.py" />
+                      <File Id="lib_encodings_utf_16_le.py" Name="utf_16_le.py" />
+                      <File Id="lib_encodings_utf_32.py" Name="utf_32.py" />
+                      <File Id="lib_encodings_utf_32_be.py" Name="utf_32_be.py" />
+                      <File Id="lib_encodings_utf_32_le.py" Name="utf_32_le.py" />
+                      <File Id="lib_encodings_utf_7.py" Name="utf_7.py" />
+                      <File Id="lib_encodings_utf_8.py" Name="utf_8.py" />
+                      <File Id="lib_encodings_utf_8_sig.py" Name="utf_8_sig.py" />
+                      <File Id="lib_encodings_uu_codec.py" Name="uu_codec.py" />
+                      <File Id="lib_encodings_zlib_codec.py" Name="zlib_codec.py" />
                     </Component>
                   </Directory>
-                  <Directory Id="python_lib_logging" Name="logging">
-                    <Component DiskId="1" Guid="e9a2ad7e-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_logging" Location="either">
-                      <File Id="file68465" Name="__init__.py"/>
-                      <File Id="file68467" Name="config.py"/>
-                      <File Id="file68468" Name="handlers.py"/>
+                  <Directory Id="python_lib_ensurepip" Name="ensurepip">
+                    <Component DiskId="1" Guid="390C2AB7-71DF-4CE8-8361-E8B8087F4570" Id="python_lib_ensurepip" Location="either">
+                      <File Id="lib_ensurepip___init__.py" Name="__init__.py" />
+                      <File Id="lib_ensurepip___main__.py" Name="__main__.py" />
+                      <File Id="lib_ensurepip__uninstall.py" Name="_uninstall.py" />
                     </Component>
                   </Directory>
-                  <Directory Id="python_lib_json" Name="json">
-                    <Component DiskId="1" Guid="e9a2ad7e-605a-11e0-a9ed-34159e1d64e7" Id="python_lib_json" Location="either">
-                      <File Id="file78480" Name="__init__.py"/>
-                      <File Id="file78481" Name="tool.py"/>
-                      <File Id="file78482" Name="encoder.py"/>
-                      <File Id="file78483" Name="decoder.py"/>
-                      <File Id="file78484" Name="scanner.py"/>
+                  <Directory Id="python_lib_html" Name="html">
+                    <Component DiskId="1" Guid="EF80192F-0561-45F3-A85C-8390C0E3A4AC" Id="python_lib_html" Location="either">
+                      <File Id="lib_html___init__.py" Name="__init__.py" />
+                      <File Id="lib_html_entities.py" Name="entities.py" />
+                      <File Id="lib_html_parser.py" Name="parser.py" />
                     </Component>
                   </Directory>
-
-                  <Directory Id="python_lib_multiprocessing" Name="multiprocessing">
-                    <Component DiskId="1" Guid="e9a2bdc8-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_multiprocessing" Location="either">
-                      <File Id="file68469" Name="__init__.py"/>
-                      <File Id="file68470" Name="connection.py"/>
-                      <File Id="file68471" Name="forking.py"/>
-                      <File Id="file68472" Name="heap.py"/>
-                      <File Id="file68473" Name="managers.py"/>
-                      <File Id="file68474" Name="pool.py"/>
-                      <File Id="file68475" Name="process.py"/>
-                      <File Id="file68476" Name="queues.py"/>
-                      <File Id="file68477" Name="reduction.py"/>
-                      <File Id="file68478" Name="sharedctypes.py"/>
-                      <File Id="file68479" Name="synchronize.py"/>
-                      <File Id="file68480" Name="util.py"/>
-                    </Component>
-                    <Directory Id="python_lib_multiprocessing_dummy" Name="dummy">
-                      <Component DiskId="1" Guid="e9a2d556-605a-11e0-a9ed-34159e1d64e6" Id="python_lib_multiprocessing_dummy" Location="either">
-                        <File Id="file68481" Name="__init__.py"/>
-                        <File Id="file68482" Name="connection.py"/>
-                      </Component>
-                    </Directory>
-                  </Directory>
-                  <Directory Id="python_lib_sqlite3" Name="sqlite3">
-                    <Component DiskId="1" Guid="AA06535D-7FA0-4ACF-B628-AD35A294BBCB" Id="python_lib_sqlite3" Location="either">
-                      <File Id="file68726" Name="__init__.py"/>
-                      <File Id="file68727" Name="dbapi2.py"/>
-                      <File Id="file68728" Name="dump.py"/>
+                  <Directory Id="python_lib_http" Name="http">
+                    <Component DiskId="1" Guid="B4C1E5AE-7DFF-492A-88FA-29D6D1167136" Id="python_lib_http" Location="either">
+                      <File Id="lib_http___init__.py" Name="__init__.py" />
+                      <File Id="lib_http_client.py" Name="client.py" />
+                      <File Id="lib_http_cookiejar.py" Name="cookiejar.py" />
+                      <File Id="lib_http_cookies.py" Name="cookies.py" />
+                      <File Id="lib_http_server.py" Name="server.py" />
                     </Component>
                   </Directory>
-
-                  <Directory Id="python_lib_xml" Name="xml">
-                    <Component DiskId="1" Guid="e0a72eda-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml" Location="either">
-                      <File Id="file70000" Name="__init__.py"/>
+                  <Directory Id="python_lib_idlelib" Name="idlelib">
+                    <Component DiskId="1" Guid="E1DD4159-384B-45C0-8AFC-3A0A577C1314" Id="python_lib_idlelib" Location="either">
+                      <File Id="lib_idlelib_idle.bat" Name="idle.bat" />
+                      <File Id="lib_idlelib_configextensions.def" Name="config-extensions.def" />
+                      <File Id="lib_idlelib_confighighlight.def" Name="config-highlight.def" />
+                      <File Id="lib_idlelib_configkeys.def" Name="config-keys.def" />
+                      <File Id="lib_idlelib_configmain.def" Name="config-main.def" />
+                      <File Id="lib_idlelib_help.html" Name="help.html" />
+                      <File Id="lib_idlelib___init__.py" Name="__init__.py" />
+                      <File Id="lib_idlelib___main__.py" Name="__main__.py" />
+                      <File Id="lib_idlelib_autocomplete.py" Name="autocomplete.py" />
+                      <File Id="lib_idlelib_autocomplete_w.py" Name="autocomplete_w.py" />
+                      <File Id="lib_idlelib_autoexpand.py" Name="autoexpand.py" />
+                      <File Id="lib_idlelib_browser.py" Name="browser.py" />
+                      <File Id="lib_idlelib_calltip.py" Name="calltip.py" />
+                      <File Id="lib_idlelib_calltip_w.py" Name="calltip_w.py" />
+                      <File Id="lib_idlelib_codecontext.py" Name="codecontext.py" />
+                      <File Id="lib_idlelib_colorizer.py" Name="colorizer.py" />
+                      <File Id="lib_idlelib_config.py" Name="config.py" />
+                      <File Id="lib_idlelib_config_key.py" Name="config_key.py" />
+                      <File Id="lib_idlelib_configdialog.py" Name="configdialog.py" />
+                      <File Id="lib_idlelib_debugger.py" Name="debugger.py" />
+                      <File Id="lib_idlelib_debugger_r.py" Name="debugger_r.py" />
+                      <File Id="lib_idlelib_debugobj.py" Name="debugobj.py" />
+                      <File Id="lib_idlelib_debugobj_r.py" Name="debugobj_r.py" />
+                      <File Id="lib_idlelib_delegator.py" Name="delegator.py" />
+                      <File Id="lib_idlelib_dynoption.py" Name="dynoption.py" />
+                      <File Id="lib_idlelib_editor.py" Name="editor.py" />
+                      <File Id="lib_idlelib_filelist.py" Name="filelist.py" />
+                      <File Id="lib_idlelib_format.py" Name="format.py" />
+                      <File Id="lib_idlelib_grep.py" Name="grep.py" />
+                      <File Id="lib_idlelib_help.py" Name="help.py" />
+                      <File Id="lib_idlelib_help_about.py" Name="help_about.py" />
+                      <File Id="lib_idlelib_history.py" Name="history.py" />
+                      <File Id="lib_idlelib_hyperparser.py" Name="hyperparser.py" />
+                      <File Id="lib_idlelib_idle.py" Name="idle.py" />
+                      <File Id="lib_idlelib_iomenu.py" Name="iomenu.py" />
+                      <File Id="lib_idlelib_macosx.py" Name="macosx.py" />
+                      <File Id="lib_idlelib_mainmenu.py" Name="mainmenu.py" />
+                      <File Id="lib_idlelib_multicall.py" Name="multicall.py" />
+                      <File Id="lib_idlelib_outwin.py" Name="outwin.py" />
+                      <File Id="lib_idlelib_parenmatch.py" Name="parenmatch.py" />
+                      <File Id="lib_idlelib_pathbrowser.py" Name="pathbrowser.py" />
+                      <File Id="lib_idlelib_percolator.py" Name="percolator.py" />
+                      <File Id="lib_idlelib_pyparse.py" Name="pyparse.py" />
+                      <File Id="lib_idlelib_pyshell.py" Name="pyshell.py" />
+                      <File Id="lib_idlelib_query.py" Name="query.py" />
+                      <File Id="lib_idlelib_redirector.py" Name="redirector.py" />
+                      <File Id="lib_idlelib_replace.py" Name="replace.py" />
+                      <File Id="lib_idlelib_rpc.py" Name="rpc.py" />
+                      <File Id="lib_idlelib_run.py" Name="run.py" />
+                      <File Id="lib_idlelib_runscript.py" Name="runscript.py" />
+                      <File Id="lib_idlelib_scrolledlist.py" Name="scrolledlist.py" />
+                      <File Id="lib_idlelib_search.py" Name="search.py" />
+                      <File Id="lib_idlelib_searchbase.py" Name="searchbase.py" />
+                      <File Id="lib_idlelib_searchengine.py" Name="searchengine.py" />
+                      <File Id="lib_idlelib_sidebar.py" Name="sidebar.py" />
+                      <File Id="lib_idlelib_squeezer.py" Name="squeezer.py" />
+                      <File Id="lib_idlelib_stackviewer.py" Name="stackviewer.py" />
+                      <File Id="lib_idlelib_statusbar.py" Name="statusbar.py" />
+                      <File Id="lib_idlelib_textview.py" Name="textview.py" />
+                      <File Id="lib_idlelib_tooltip.py" Name="tooltip.py" />
+                      <File Id="lib_idlelib_tree.py" Name="tree.py" />
+                      <File Id="lib_idlelib_undo.py" Name="undo.py" />
+                      <File Id="lib_idlelib_window.py" Name="window.py" />
+                      <File Id="lib_idlelib_zoomheight.py" Name="zoomheight.py" />
+                      <File Id="lib_idlelib_zzdummy.py" Name="zzdummy.py" />
+                      <File Id="lib_idlelib_idle.pyw" Name="idle.pyw" />
                     </Component>
-                    <Directory Id="python_lib_xml_dom" Name="dom">
-                      <Component DiskId="1" Guid="e0a73574-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_dom" Location="either">
-                        <File Id="file70001" Name="__init__.py"/>
-                        <File Id="file70002" Name="domreg.py"/>
-                        <File Id="file70003" Name="expatbuilder.py"/>
-                        <File Id="file70004" Name="minicompat.py"/>
-                        <File Id="file70005" Name="minidom.py"/>
-                        <File Id="file70006" Name="NodeFilter.py"/>
-                        <File Id="file70007" Name="pulldom.py"/>
-                        <File Id="file70008" Name="xmlbuilder.py"/>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_lib_xml_etree" Name="etree">
-                      <Component DiskId="1" Guid="e0a73e0c-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_etree" Location="either">
-                        <File Id="file70009" Name="__init__.py"/>
-                        <File Id="file70010" Name="cElementTree.py"/>
-                        <File Id="file70011" Name="ElementInclude.py"/>
-                        <File Id="file70012" Name="ElementPath.py"/>
-                        <File Id="file70013" Name="ElementTree.py"/>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_lib_xml_parsers" Name="parsers">
-                      <Component DiskId="1" Guid="e0a74474-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_parsers" Location="either">
-                        <File Id="file70014" Name="__init__.py"/>
-                        <File Id="file70015" Name="expat.py"/>
-                      </Component>
-                    </Directory>
-                    <Directory Id="python_lib_xml_sax" Name="sax">
-                      <Component DiskId="1" Guid="e0a748e8-2b4c-11e1-a3c3-34159e1d64e6" Id="python_lib_xml_sax" Location="either">
-                        <File Id="file70016" Name="__init__.py"/>
-                        <File Id="file70017" Name="_exceptions.py"/>
-                        <File Id="file70018" Name="expatreader.py"/>
-                        <File Id="file70019" Name="handler.py"/>
-                        <File Id="file70020" Name="saxutils.py"/>
-                        <File Id="file70021" Name="xmlreader.py"/>
+                    <Directory Id="python_lib_idlelib_icons" Name="Icons">
+                      <Component DiskId="1" Guid="50757944-6859-4B2B-9637-30A32AE0EE36" Id="python_lib_idlelib_icons" Location="either">
+                        <File Id="lib_idlelib_Icons_folder.gif" Name="folder.gif" />
+                        <File Id="lib_idlelib_Icons_idle_16.gif" Name="idle_16.gif" />
+                        <File Id="lib_idlelib_Icons_idle_32.gif" Name="idle_32.gif" />
+                        <File Id="lib_idlelib_Icons_idle_48.gif" Name="idle_48.gif" />
+                        <File Id="lib_idlelib_Icons_minusnode.gif" Name="minusnode.gif" />
+                        <File Id="lib_idlelib_Icons_openfolder.gif" Name="openfolder.gif" />
+                        <File Id="lib_idlelib_Icons_plusnode.gif" Name="plusnode.gif" />
+                        <File Id="lib_idlelib_Icons_python.gif" Name="python.gif" />
+                        <File Id="lib_idlelib_Icons_tk.gif" Name="tk.gif" />
+                        <File Id="lib_idlelib_Icons_idle.icns" Name="idle.icns" />
+                        <File Id="lib_idlelib_Icons_idle.ico" Name="idle.ico" />
+                        <File Id="lib_idlelib_Icons_idle_16.png" Name="idle_16.png" />
+                        <File Id="lib_idlelib_Icons_idle_32.png" Name="idle_32.png" />
+                        <File Id="lib_idlelib_Icons_idle_48.png" Name="idle_48.png" />
                       </Component>
                     </Directory>
                   </Directory>
                   <Directory Id="python_lib_importlib" Name="importlib">
-                    <Component DiskId="1" Guid="bfe6ad13-0fd7-4218-865c-fe45d9c41e01" Id="python_lib_importlib" Location="either">
-                      <File Id="file88480" Name="__init__.py"/>
+                    <Component DiskId="1" Guid="6BC70CEC-1D74-490C-B9E0-B229DABCB193" Id="python_lib_importlib" Location="either">
+                      <File Id="lib_importlib___init__.py" Name="__init__.py" />
+                      <File Id="lib_importlib__bootstrap.py" Name="_bootstrap.py" />
+                      <File Id="lib_importlib__bootstrap_external.py" Name="_bootstrap_external.py" />
+                      <File Id="lib_importlib_abc.py" Name="abc.py" />
+                      <File Id="lib_importlib_machinery.py" Name="machinery.py" />
+                      <File Id="lib_importlib_resources.py" Name="resources.py" />
+                      <File Id="lib_importlib_util.py" Name="util.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_json" Name="json">
+                    <Component DiskId="1" Guid="9BB70BAD-CCBC-4711-BE10-E6D5350E8815" Id="python_lib_json" Location="either">
+                      <File Id="lib_json___init__.py" Name="__init__.py" />
+                      <File Id="lib_json_decoder.py" Name="decoder.py" />
+                      <File Id="lib_json_encoder.py" Name="encoder.py" />
+                      <File Id="lib_json_scanner.py" Name="scanner.py" />
+                      <File Id="lib_json_tool.py" Name="tool.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_lib2to3" Name="lib2to3">
+                    <Component DiskId="1" Guid="D349ACF9-FD35-4EDC-91D4-0278EF68191C" Id="python_lib_lib2to3" Location="either">
+                      <File Id="lib_lib2to3___init__.py" Name="__init__.py" />
+                      <File Id="lib_lib2to3___main__.py" Name="__main__.py" />
+                      <File Id="lib_lib2to3_btm_matcher.py" Name="btm_matcher.py" />
+                      <File Id="lib_lib2to3_btm_utils.py" Name="btm_utils.py" />
+                      <File Id="lib_lib2to3_fixer_base.py" Name="fixer_base.py" />
+                      <File Id="lib_lib2to3_fixer_util.py" Name="fixer_util.py" />
+                      <File Id="lib_lib2to3_main.py" Name="main.py" />
+                      <File Id="lib_lib2to3_patcomp.py" Name="patcomp.py" />
+                      <File Id="lib_lib2to3_pygram.py" Name="pygram.py" />
+                      <File Id="lib_lib2to3_pytree.py" Name="pytree.py" />
+                      <File Id="lib_lib2to3_refactor.py" Name="refactor.py" />
+                    </Component>
+                    <Directory Id="python_lib_lib2to3_pgen2" Name="pgen2">
+                      <Component DiskId="1" Guid="17B332E9-B8A9-4371-819C-F38D5CB6E2DD" Id="python_lib_lib2to3_pgen2" Location="either">
+                        <File Id="lib_pgen2___init__.py" Name="__init__.py" />
+                        <File Id="lib_pgen2_conv.py" Name="conv.py" />
+                        <File Id="lib_pgen2_driver.py" Name="driver.py" />
+                        <File Id="lib_pgen2_grammar.py" Name="grammar.py" />
+                        <File Id="lib_pgen2_literals.py" Name="literals.py" />
+                        <File Id="lib_pgen2_parse.py" Name="parse.py" />
+                        <File Id="lib_pgen2_pgen.py" Name="pgen.py" />
+                        <File Id="lib_pgen2_token.py" Name="token.py" />
+                        <File Id="lib_pgen2_tokenize.py" Name="tokenize.py" />
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_lib2to3_fixes" Name="fixes">
+                      <Component DiskId="1" Guid="9EB569BB-EF9C-4C5A-9E87-875499584D3F" Id="python_lib_lib2to3_fixes" Location="either">
+                        <File Id="lib_lib2to3_fixes___init__.py" Name="__init__.py" />
+                        <File Id="lib_lib2to3_fixes_fix_apply.py" Name="fix_apply.py" />
+                        <File Id="lib_lib2to3_fixes_fix_asserts.py" Name="fix_asserts.py" />
+                        <File Id="lib_lib2to3_fixes_fix_basestring.py" Name="fix_basestring.py" />
+                        <File Id="lib_lib2to3_fixes_fix_buffer.py" Name="fix_buffer.py" />
+                        <File Id="lib_lib2to3_fixes_fix_dict.py" Name="fix_dict.py" />
+                        <File Id="lib_lib2to3_fixes_fix_except.py" Name="fix_except.py" />
+                        <File Id="lib_lib2to3_fixes_fix_exec.py" Name="fix_exec.py" />
+                        <File Id="lib_lib2to3_fixes_fix_execfile.py" Name="fix_execfile.py" />
+                        <File Id="lib_lib2to3_fixes_fix_exitfunc.py" Name="fix_exitfunc.py" />
+                        <File Id="lib_lib2to3_fixes_fix_filter.py" Name="fix_filter.py" />
+                        <File Id="lib_lib2to3_fixes_fix_funcattrs.py" Name="fix_funcattrs.py" />
+                        <File Id="lib_lib2to3_fixes_fix_future.py" Name="fix_future.py" />
+                        <File Id="lib_lib2to3_fixes_fix_getcwdu.py" Name="fix_getcwdu.py" />
+                        <File Id="lib_lib2to3_fixes_fix_has_key.py" Name="fix_has_key.py" />
+                        <File Id="lib_lib2to3_fixes_fix_idioms.py" Name="fix_idioms.py" />
+                        <File Id="lib_lib2to3_fixes_fix_import.py" Name="fix_import.py" />
+                        <File Id="lib_lib2to3_fixes_fix_imports.py" Name="fix_imports.py" />
+                        <File Id="lib_lib2to3_fixes_fix_imports2.py" Name="fix_imports2.py" />
+                        <File Id="lib_lib2to3_fixes_fix_input.py" Name="fix_input.py" />
+                        <File Id="lib_lib2to3_fixes_fix_intern.py" Name="fix_intern.py" />
+                        <File Id="lib_lib2to3_fixes_fix_isinstance.py" Name="fix_isinstance.py" />
+                        <File Id="lib_lib2to3_fixes_fix_itertools.py" Name="fix_itertools.py" />
+                        <File Id="lib_lib2to3_fixes_fix_itertools_imports.py" Name="fix_itertools_imports.py" />
+                        <File Id="lib_lib2to3_fixes_fix_long.py" Name="fix_long.py" />
+                        <File Id="lib_lib2to3_fixes_fix_map.py" Name="fix_map.py" />
+                        <File Id="lib_lib2to3_fixes_fix_metaclass.py" Name="fix_metaclass.py" />
+                        <File Id="lib_lib2to3_fixes_fix_methodattrs.py" Name="fix_methodattrs.py" />
+                        <File Id="lib_lib2to3_fixes_fix_ne.py" Name="fix_ne.py" />
+                        <File Id="lib_lib2to3_fixes_fix_next.py" Name="fix_next.py" />
+                        <File Id="lib_lib2to3_fixes_fix_nonzero.py" Name="fix_nonzero.py" />
+                        <File Id="lib_lib2to3_fixes_fix_numliterals.py" Name="fix_numliterals.py" />
+                        <File Id="lib_lib2to3_fixes_fix_operator.py" Name="fix_operator.py" />
+                        <File Id="lib_lib2to3_fixes_fix_paren.py" Name="fix_paren.py" />
+                        <File Id="lib_lib2to3_fixes_fix_print.py" Name="fix_print.py" />
+                        <File Id="lib_lib2to3_fixes_fix_raise.py" Name="fix_raise.py" />
+                        <File Id="lib_lib2to3_fixes_fix_raw_input.py" Name="fix_raw_input.py" />
+                        <File Id="lib_lib2to3_fixes_fix_reduce.py" Name="fix_reduce.py" />
+                        <File Id="lib_lib2to3_fixes_fix_reload.py" Name="fix_reload.py" />
+                        <File Id="lib_lib2to3_fixes_fix_renames.py" Name="fix_renames.py" />
+                        <File Id="lib_lib2to3_fixes_fix_repr.py" Name="fix_repr.py" />
+                        <File Id="lib_lib2to3_fixes_fix_set_literal.py" Name="fix_set_literal.py" />
+                        <File Id="lib_lib2to3_fixes_fix_standarderror.py" Name="fix_standarderror.py" />
+                        <File Id="lib_lib2to3_fixes_fix_sys_exc.py" Name="fix_sys_exc.py" />
+                        <File Id="lib_lib2to3_fixes_fix_throw.py" Name="fix_throw.py" />
+                        <File Id="lib_lib2to3_fixes_fix_tuple_params.py" Name="fix_tuple_params.py" />
+                        <File Id="lib_lib2to3_fixes_fix_types.py" Name="fix_types.py" />
+                        <File Id="lib_lib2to3_fixes_fix_unicode.py" Name="fix_unicode.py" />
+                        <File Id="lib_lib2to3_fixes_fix_urllib.py" Name="fix_urllib.py" />
+                        <File Id="lib_lib2to3_fixes_fix_ws_comma.py" Name="fix_ws_comma.py" />
+                        <File Id="lib_lib2to3_fixes_fix_xrange.py" Name="fix_xrange.py" />
+                        <File Id="lib_lib2to3_fixes_fix_xreadlines.py" Name="fix_xreadlines.py" />
+                        <File Id="lib_lib2to3_fixes_fix_zip.py" Name="fix_zip.py" />
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_logging" Name="logging">
+                    <Component DiskId="1" Guid="FD36C8B7-5DE1-4698-A310-1AB8378F7F05" Id="python_lib_logging" Location="either">
+                      <File Id="lib_logging___init__.py" Name="__init__.py" />
+                      <File Id="lib_logging_config.py" Name="config.py" />
+                      <File Id="lib_logging_handlers.py" Name="handlers.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_msilib" Name="msilib">
+                    <Component DiskId="1" Guid="FE6E7B4E-CE52-4E6E-A0AB-F1DA94C97898" Id="python_lib_msilib" Location="either">
+                      <File Id="lib_mslib___init__.py" Name="__init__.py" />
+                      <File Id="lib_mslib_schema.py" Name="schema.py" />
+                      <File Id="lib_mslib_sequence.py" Name="sequence.py" />
+                      <File Id="lib_mslib_text.py" Name="text.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_multiprocessing" Name="multiprocessing">
+                    <Component DiskId="1" Guid="" Id="python_lib_multiprocessing" Location="either">
+                      <File Id="lib_multiprocessing___init__.py" Name="__init__.py" />
+                      <File Id="lib_multiprocessing_connection.py" Name="connection.py" />
+                      <File Id="lib_multiprocessing_context.py" Name="context.py" />
+                      <File Id="lib_multiprocessing_forkserver.py" Name="forkserver.py" />
+                      <File Id="lib_multiprocessing_heap.py" Name="heap.py" />
+                      <File Id="lib_multiprocessing_managers.py" Name="managers.py" />
+                      <File Id="lib_multiprocessing_pool.py" Name="pool.py" />
+                      <File Id="lib_multiprocessing_popen_fork.py" Name="popen_fork.py" />
+                      <File Id="lib_multiprocessing_popen_forkserver.py" Name="popen_forkserver.py" />
+                      <File Id="lib_multiprocessing_popen_spawn_posix.py" Name="popen_spawn_posix.py" />
+                      <File Id="lib_multiprocessing_popen_spawn_win32.py" Name="popen_spawn_win32.py" />
+                      <File Id="lib_multiprocessing_process.py" Name="process.py" />
+                      <File Id="lib_multiprocessing_queues.py" Name="queues.py" />
+                      <File Id="lib_multiprocessing_reduction.py" Name="reduction.py" />
+                      <File Id="lib_multiprocessing_resource_sharer.py" Name="resource_sharer.py" />
+                      <File Id="lib_multiprocessing_semaphore_tracker.py" Name="semaphore_tracker.py" />
+                      <File Id="lib_multiprocessing_sharedctypes.py" Name="sharedctypes.py" />
+                      <File Id="lib_multiprocessing_spawn.py" Name="spawn.py" />
+                      <File Id="lib_multiprocessing_synchronize.py" Name="synchronize.py" />
+                      <File Id="lib_multiprocessing_util.py" Name="util.py" />
+                    </Component>
+                    <Directory Id="python_lib_multiprocessing_dummy" Name="dummy">
+                      <Component DiskId="1" Guid="44FE7B8E-EF5A-452E-AE2F-C6DB97DDCEB0" Id="python_lib_multiprocessing_dummy" Location="either">
+                        <File Id="lib_multiprocessing_dummy___init__.py" Name="__init__.py" />
+                        <File Id="lib_multiprocessing_dummy_connection.py" Name="connection.py" />
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_pydoc_data" Name="pydoc_data">
+                    <Component DiskId="1" Guid="D1C3CD3E-F415-4161-8222-06BA247D4E8A" Id="python_lib_pydoc_data" Location="either">
+                      <File Id="lib_pyodbc_data___init__.py" Name="__init__.py" />
+                      <File Id="lib_pyodbc_data__pydoc.css" Name="_pydoc.css" />
+                      <File Id="lib_pyodbc_data_topics.py" Name="topics.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_sqlite3" Name="sqlite3">
+                    <Component DiskId="1" Guid="BE3250BD-DFB3-40E8-9DDA-6BBD0E29FD7F" Id="python_lib_sqlite3" Location="either">
+                      <File Id="lib_sqlite3___init__.py" Name="__init__.py" />
+                      <File Id="lib_sqlite3_dbapi2.py" Name="dbapi2.py" />
+                      <File Id="lib_sqlite3_dump.py" Name="dump.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_tkinter" Name="tkinter">
+                    <Component DiskId="1" Guid="9E530BD5-373E-4337-AA9B-65254E7957B4" Id="python_lib_tkinter" Location="either">
+                      <File Id="lib_tkinter___init__.py" Name="__init__.py" />
+                      <File Id="lib_tkinter___main__.py" Name="__main__.py" />
+                      <File Id="lib_tkinter_colorchooser.py" Name="colorchooser.py" />
+                      <File Id="lib_tkinter_commondialog.py" Name="commondialog.py" />
+                      <File Id="lib_tkinter_constants.py" Name="constants.py" />
+                      <File Id="lib_tkinter_dialog.py" Name="dialog.py" />
+                      <File Id="lib_tkinter_dnd.py" Name="dnd.py" />
+                      <File Id="lib_tkinter_filedialog.py" Name="filedialog.py" />
+                      <File Id="lib_tkinter_font.py" Name="font.py" />
+                      <File Id="lib_tkinter_messagebox.py" Name="messagebox.py" />
+                      <File Id="lib_tkinter_scrolledtext.py" Name="scrolledtext.py" />
+                      <File Id="lib_tkinter_simpledialog.py" Name="simpledialog.py" />
+                      <File Id="lib_tkinter_tix.py" Name="tix.py" />
+                      <File Id="lib_tkinter_ttk.py" Name="ttk.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_urllib" Name="urllib">
+                    <Component DiskId="1" Guid="A36A4131-1404-46C0-B723-655E2661B9D9" Id="python_lib_urllib" Location="either">
+                      <File Id="lib_urllib___init__.py" Name="__init__.py" />
+                      <File Id="lib_urllib_error.py" Name="error.py" />
+                      <File Id="lib_urllib_parse.py" Name="parse.py" />
+                      <File Id="lib_urllib_request.py" Name="request.py" />
+                      <File Id="lib_urllib_response.py" Name="response.py" />
+                      <File Id="lib_urllib_robotparser.py" Name="robotparser.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_venv" Name="venv">
+                    <Component DiskId="1" Guid="FF56E5C5-DD7D-4C7F-9E2B-C9D4E593B010" Id="python_lib_venv" Location="either">
+                      <File Id="lib_venv___init__.py" Name="__init__.py" />
+                      <File Id="lib_venv___main__.py" Name="__main__.py" />
+                    </Component>
+                    <Directory Id="python_lib_venv_scripts" Name="scripts">
+                      <!-- <Component DiskId="1" Guid="6213A054-2AA4-4485-8102-1D461ED36BFA" Id="python_lib_venv_scripts" Location="either">
+                      </Component> -->
+                      <Directory Id="python_lib_venv_scripts_common" Name="common">
+                        <Component DiskId="1" Guid="E95983FB-0B49-4890-8A9A-36CB19198E60" Id="python_lib_venv_scripts_common" Location="either">
+                          <File Id="lib_venv_scripts_common_activate" Name="activate" />
+                        </Component>
+                      </Directory>
+                      <Directory Id="python_lib_venv_scripts_nt" Name="nt">
+                        <Component DiskId="1" Guid="945FDF30-E5C6-4165-8C57-2E3A99D3CEB6" Id="python_lib_venv_scripts_nt" Location="either">
+                          <File Id="lib_venv_scripts_nt_activate.bat" Name="activate.bat" />
+                          <File Id="lib_venv_scripts_nt_Activate.ps1" Name="Activate.ps1" />
+                          <File Id="lib_venv_scripts_nt_deactivate.bat" Name="deactivate.bat" />
+                        </Component>
+                      </Directory>
+                      <Directory Id="python_lib_venv_scripts_posix" Name="posix">
+                        <Component DiskId="1" Guid="B48942FF-DA40-4D08-8738-25E614CB3866" Id="python_lib_venv_scripts_posix" Location="either">
+                          <File Id="lib_venv_scripts_posix_activate.csh" Name="activate.csh" />
+                          <File Id="lib_venv_scripts_posix_activate.fish" Name="activate.fish" />
+                        </Component>
+                      </Directory>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_wsgiref" Name="wsgiref">
+                    <Component DiskId="1" Guid="28E828AA-AF6E-4761-9E92-DAA878CE8506" Id="python_lib_wsgiref" Location="either">
+                      <File Id="lib_wsgiref___init__.py" Name="__init__.py" />
+                      <File Id="lib_wsgiref_handlers.py" Name="handlers.py" />
+                      <File Id="lib_wsgiref_headers.py" Name="headers.py" />
+                      <File Id="lib_wsgiref_simple_server.py" Name="simple_server.py" />
+                      <File Id="lib_wsgiref_util.py" Name="util.py" />
+                      <File Id="lib_wsgiref_validate.py" Name="validate.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_xml" Name="xml">
+                    <Component DiskId="1" Guid="18ACE21E-A03D-4006-A573-689901715431" Id="python_lib_xml" Location="either">
+                      <File Id="lib_xml___init__.py" Name="__init__.py" />
+                    </Component>
+                    <Directory Id="python_lib_xml_dom" Name="dom">
+                      <Component DiskId="1" Guid="8AE0C412-05B8-4CE8-9CF9-A792067A2737" Id="python_lib_xml_dom" Location="either">
+                        <File Id="lib_xml_dom___init__.py" Name="__init__.py" />
+                        <File Id="lib_xml_dom_domreg.py" Name="domreg.py" />
+                        <File Id="lib_xml_dom_expatbuilder.py" Name="expatbuilder.py" />
+                        <File Id="lib_xml_dom_minicompat.py" Name="minicompat.py" />
+                        <File Id="lib_xml_dom_minidom.py" Name="minidom.py" />
+                        <File Id="lib_xml_dom_NodeFilter.py" Name="NodeFilter.py" />
+                        <File Id="lib_xml_dom_pulldom.py" Name="pulldom.py" />
+                        <File Id="lib_xml_dom_xmlbuilder.py" Name="xmlbuilder.py" />
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_xml_etree" Name="etree">
+                      <Component DiskId="1" Guid="5189AA36-51C3-49EC-A60C-5807E8635BA3" Id="python_lib_xml_etree" Location="either">
+                        <File Id="lib_xml_etree___init__.py" Name="__init__.py" />
+                        <File Id="lib_xml_etree_cElementTree.py" Name="cElementTree.py" />
+                        <File Id="lib_xml_etree_ElementInclude.py" Name="ElementInclude.py" />
+                        <File Id="lib_xml_etree_ElementPath.py" Name="ElementPath.py" />
+                        <File Id="lib_xml_etree_ElementTree.py" Name="ElementTree.py" />
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_xml_parsers" Name="parsers">
+                      <Component DiskId="1" Guid="AF57EB12-2FFB-4D48-9BBC-4465F665BD75" Id="python_lib_xml_parsers" Location="either">
+                        <File Id="lib_xml_parsers___init__.py" Name="__init__.py" />
+                        <File Id="lib_xml_parsers_expat.py" Name="expat.py" />
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_xml_sax" Name="sax">
+                      <Component DiskId="1" Guid="CC4E9F21-8ED4-4ACC-93DB-88FA2219EB2C" Id="python_lib_xml_sax" Location="either">
+                        <File Id="lib_xml_sax___init__.py" Name="__init__.py" />
+                        <File Id="lib_xml_sax__exceptions.py" Name="_exceptions.py" />
+                        <File Id="lib_xml_sax_expatreader.py" Name="expatreader.py" />
+                        <File Id="lib_xml_sax_handler.py" Name="handler.py" />
+                        <File Id="lib_xml_sax_saxutils.py" Name="saxutils.py" />
+                        <File Id="lib_xml_sax_xmlreader.py" Name="xmlreader.py" />
+                      </Component>
+                    </Directory>
+                  </Directory>
+                  <Directory Id="python_lib_xmlrpc" Name="xmlrpc">
+                    <Component DiskId="1" Guid="A1A49B84-A1E7-4052-9847-3C733DE00FC8" Id="python_lib_xmlrpc" Location="either">
+                      <File Id="lib_xmlrpc___init__.py" Name="__init__.py" />
+                      <File Id="lib_xmlrpc_client.py" Name="client.py" />
+                      <File Id="lib_xmlrpc_server.py" Name="server.py" />
                     </Component>
                   </Directory>
                 </Directory>
@@ -1430,25 +1910,11 @@
                 <Directory Id="python_site_packages" Name="site-packages">
                   <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>
-						<File Id="file68021d" Name="pyodbc.cp37-win_amd64_d.pyd"/>
+                    <File Id="file68021d" Name="pyodbc_d.cp37-win_amd64.pyd"/>
                     <?else ?>
-						<File Id="file68021" Name="pyodbc.cp37-win_amd64.pyd"/>
+                    <File Id="file68021" Name="pyodbc.cp37-win_amd64.pyd"/>
                     <?endif ?>
                   </Component>
-                  <?if $(var.SETUP_TYPE) = "commercial" ?>
-					  <Directory Id="python_site_packages_pysqlite2" Name="pysqlite2">
-						<Component DiskId="1" Guid="1144fb0c-9b34-4d3d-bf0d-7c7811c09677" Id="python_site_packages_pysqlite2" Location="either">
-						  <File Id="file68800" Name="__init__.py"/>
-						  <File Id="file68801" Name="dbapi2.py"/>
-						  <File Id="file68802" Name="dump.py"/>
-						  <?if $(var.LICENSE_TYPE) = "debug"?>
-							<File Id="file68803" Name="_sqlite_d.pyd"/>
-						  <?else ?>
-							<File Id="file68804" Name="_sqlite.pyd"/>
-						  <?endif ?>
-						</Component>
-					  </Directory>
-                  <?endif ?>
                 </Directory>
               </Directory>
               <!---   END PYTHON STUFF -->
@@ -1605,38 +2071,38 @@
                 </Component>
 
                 <?if $(var.LICENSE_TYPE) = "commercial"?>
-					<Directory Id="modules_wba_audit" Name="wba_audit">
-					  <Component DiskId="1" Guid="58D36A5F-774A-443C-9F70-935497D7249C" Id="modules_wba_audit" Location="either">
-						<File Id="wba_audit01" Name="__init__.py"/>
-						<File Id="wba_audit02" Name="wb_admin_audit_inspector.py"/>
-						<File Id="wba_audit03" Name="wb_admin_audit_log_parser.py"/>
-						<File Id="wba_audit04" Name="wb_admin_audit_browser.py"/>
-					  </Component>
-					</Directory>
+                <Directory Id="modules_wba_audit" Name="wba_audit">
+                  <Component DiskId="1" Guid="58D36A5F-774A-443C-9F70-935497D7249C" Id="modules_wba_audit" Location="either">
+                    <File Id="wba_audit01" Name="__init__.py"/>
+                    <File Id="wba_audit02" Name="wb_admin_audit_inspector.py"/>
+                    <File Id="wba_audit03" Name="wb_admin_audit_log_parser.py"/>
+                    <File Id="wba_audit04" Name="wb_admin_audit_browser.py"/>
+                  </Component>
+                </Directory>
 
-					<Directory Id="modules_wba_meb" Name="wba_meb">
-					  <Component DiskId="1" Guid="B3BF58B7-6217-48fb-B1D7-B2265E780CBA" Id="modules_wba_meb" Location="either">
-						<File Id="wba_meb01" Name="__init__.py"/>
-						<File Id="wba_meb02" Name="wb_admin_meb_common.py"/>
-						<File Id="wba_meb03" Name="wb_admin_meb_config.py"/>
-						<File Id="wba_meb04" Name="wb_admin_meb_editor.py"/>
-						<File Id="wba_meb05" Name="wb_admin_meb_management.py"/>
-						<File Id="wba_meb06" Name="wb_admin_meb_overview.py"/>
-						<File Id="wba_meb07" Name="wb_admin_meb_restore.py"/>
-						<File Id="wba_meb08" Name="wb_admin_meb_syshelpers.py"/>
-						<File Id="wba_meb09" Name="wb_admin_meb.py"/>
-					  </Component>
-					</Directory>
+                <Directory Id="modules_wba_meb" Name="wba_meb">
+                  <Component DiskId="1" Guid="B3BF58B7-6217-48fb-B1D7-B2265E780CBA" Id="modules_wba_meb" Location="either">
+                    <File Id="wba_meb01" Name="__init__.py"/>
+                    <File Id="wba_meb02" Name="wb_admin_meb_common.py"/>
+                    <File Id="wba_meb03" Name="wb_admin_meb_config.py"/>
+                    <File Id="wba_meb04" Name="wb_admin_meb_editor.py"/>
+                    <File Id="wba_meb05" Name="wb_admin_meb_management.py"/>
+                    <File Id="wba_meb06" Name="wb_admin_meb_overview.py"/>
+                    <File Id="wba_meb07" Name="wb_admin_meb_restore.py"/>
+                    <File Id="wba_meb08" Name="wb_admin_meb_syshelpers.py"/>
+                    <File Id="wba_meb09" Name="wb_admin_meb.py"/>
+                  </Component>
+                </Directory>
 
-					<Directory Id="modules_wba_firewall" Name="wba_firewall">
-					  <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
-						<File Id="wba_firewall01" Name="__init__.py"/>
-						<File Id="wba_firewall02" Name="wb_admin_firewall.py"/>
-						<File Id="wba_firewall03" Name="wb_admin_firewall_install.py"/>
-						<File Id="wba_firewall04" Name="wb_admin_firewall_manager.py"/>
-						<File Id="wba_firewall05" Name="wb_admin_firewall_utils.py"/>
-					  </Component>
-					</Directory>
+                <Directory Id="modules_wba_firewall" Name="wba_firewall">
+                  <Component DiskId="1" Guid="514f4fc3-d405-492f-85b4-c5295bf78360" Id="modules_wba_firewall" Location="either">
+                    <File Id="wba_firewall01" Name="__init__.py"/>
+                    <File Id="wba_firewall02" Name="wb_admin_firewall.py"/>
+                    <File Id="wba_firewall03" Name="wb_admin_firewall_install.py"/>
+                    <File Id="wba_firewall04" Name="wb_admin_firewall_manager.py"/>
+                    <File Id="wba_firewall05" Name="wb_admin_firewall_utils.py"/>
+                  </Component>
+                </Directory>
                 <?endif ?>
 
                 <Directory Id="data" Name="data">
@@ -1704,66 +2170,66 @@
                   </Directory>
 
                   <?if $(var.SETUP_TYPE) = "commercial" ?>
-					  <Directory Id="wb_model_reporting" Name="wb_model_reporting">
-						<Directory Id="HTML_Basic_Frames.tpl" Name="HTML_Basic_Frames.tpl">
-						  <Component DiskId="1" Guid="33A5782A-F387-4986-9655-0E58B093A111" Id="reporting_HTML_Basic_Frames" Location="either">
-							<File Id="file9001" Name="basic.css.tpl"/>
-							<File Id="file9002" Name="index.html.tpl"/>
-							<File Id="file9003" Name="info.xml"/>
-							<File Id="file9004" Name="overview.html.tpl"/>
-							<File Id="file9005" Name="preview_basic.png"/>
-							<File Id="file9006" Name="restrained.css.tpl"/>
-							<File Id="file9007" Name="table_details.html.tpl"/>
-							<File Id="file9009" Name="preview_restrained.png"/>
-						  </Component>
-						</Directory>
+                  <Directory Id="wb_model_reporting" Name="wb_model_reporting">
+                    <Directory Id="HTML_Basic_Frames.tpl" Name="HTML_Basic_Frames.tpl">
+                      <Component DiskId="1" Guid="33A5782A-F387-4986-9655-0E58B093A111" Id="reporting_HTML_Basic_Frames" Location="either">
+                        <File Id="file9001" Name="basic.css.tpl"/>
+                        <File Id="file9002" Name="index.html.tpl"/>
+                        <File Id="file9003" Name="info.xml"/>
+                        <File Id="file9004" Name="overview.html.tpl"/>
+                        <File Id="file9005" Name="preview_basic.png"/>
+                        <File Id="file9006" Name="restrained.css.tpl"/>
+                        <File Id="file9007" Name="table_details.html.tpl"/>
+                        <File Id="file9009" Name="preview_restrained.png"/>
+                      </Component>
+                    </Directory>
 
-						<Directory Id="HTML_Basic_Single_Page.tpl" Name="HTML_Basic_Single_Page.tpl">
-						  <Component DiskId="1" Guid="5DAE3081-0B3E-48d5-9358-4308ADCE2E7D" Id="reporting_HTML_Basic_Single_Page" Location="either">
-							<File Id="file10001" Name="index.html.tpl"/>
-							<File Id="file10002" Name="info.xml"/>
-							<File Id="file10003" Name="basic.css.tpl"/>
-						  </Component>
-						</Directory>
-
-
-						<Directory Id="HTML_Detailed_Frames.tpl" Name="HTML_Detailed_Frames.tpl">
-						  <Component DiskId="1" Guid="{95F9FB7C-C071-4e37-8BFF-BDF94670EC8B}" Id="reporting_HTML_Detailed_Frames" Location="either">
-							<File Id="file16002" Name="overview_list.html.tpl"/>
-							<File Id="file16003" Name="top.html.tpl"/>
-							<File Id="file16007" Name="basic.css.tpl"/>
-							<File Id="file16008" Name="overview.html.tpl"/>
-							<File Id="file16009" Name="index.html.tpl"/>
-							<File Id="file16011" Name="info.xml"/>
-							<File Id="file16012" Name="table_details.html.tpl"/>
-							<File Id="file16014" Name="coated.css.tpl"/>
-							<File Id="file16020" Name="routine_details.html.tpl"/>
-							<File Id="file16021" Name="view_details.html.tpl"/>
-							<File Id="file16022" Name="table_details_list.html.tpl"/>
-							<File Id="file16023" Name="table_element_details.html.tpl"/>
-						  </Component>
-
-						  <Directory Id="HTML_Detailed_Frames.tpl_images" Name="images">
-							<Component DiskId="1" Guid="{98DBFAD3-A42E-49ce-8D8F-3A18D3517D82}" Id="reporting_HTML_Detailed_Frames_images" Location="either">
-							  <File Id="file16005" Name="logo.png"/>
-							  <File Id="file16015" Name="next.png"/>
-							  <File Id="file16016" Name="title-background.png"/>
-							  <File Id="file16017" Name="back.png"/>
-							  <File Id="file16018" Name="preview_coated.png"/>
-							  <File Id="file16019" Name="preview_main.png"/>
-							</Component>
-						  </Directory>
-						</Directory>
+                    <Directory Id="HTML_Basic_Single_Page.tpl" Name="HTML_Basic_Single_Page.tpl">
+                      <Component DiskId="1" Guid="5DAE3081-0B3E-48d5-9358-4308ADCE2E7D" Id="reporting_HTML_Basic_Single_Page" Location="either">
+                        <File Id="file10001" Name="index.html.tpl"/>
+                        <File Id="file10002" Name="info.xml"/>
+                        <File Id="file10003" Name="basic.css.tpl"/>
+                      </Component>
+                    </Directory>
 
 
-						<Directory Id="Text_Basic.tpl" Name="Text_Basic.tpl">
-						  <Component DiskId="1" Guid="657FBB7A-8E9E-4f20-B93F-E8F8E9D23560" Id="reporting_Text_Basic" Location="either">
-							<File Id="file11001" Name="preview_basic.png"/>
-							<File Id="file11002" Name="report.txt.tpl"/>
-							<File Id="file11003" Name="info.xml"/>
-						  </Component>
-						</Directory>
-					  </Directory>
+                    <Directory Id="HTML_Detailed_Frames.tpl" Name="HTML_Detailed_Frames.tpl">
+                      <Component DiskId="1" Guid="{95F9FB7C-C071-4e37-8BFF-BDF94670EC8B}" Id="reporting_HTML_Detailed_Frames" Location="either">
+                        <File Id="file16002" Name="overview_list.html.tpl"/>
+                        <File Id="file16003" Name="top.html.tpl"/>
+                        <File Id="file16007" Name="basic.css.tpl"/>
+                        <File Id="file16008" Name="overview.html.tpl"/>
+                        <File Id="file16009" Name="index.html.tpl"/>
+                        <File Id="file16011" Name="info.xml"/>
+                        <File Id="file16012" Name="table_details.html.tpl"/>
+                        <File Id="file16014" Name="coated.css.tpl"/>
+                        <File Id="file16020" Name="routine_details.html.tpl"/>
+                        <File Id="file16021" Name="view_details.html.tpl"/>
+                        <File Id="file16022" Name="table_details_list.html.tpl"/>
+                        <File Id="file16023" Name="table_element_details.html.tpl"/>
+                      </Component>
+
+                      <Directory Id="HTML_Detailed_Frames.tpl_images" Name="images">
+                        <Component DiskId="1" Guid="{98DBFAD3-A42E-49ce-8D8F-3A18D3517D82}" Id="reporting_HTML_Detailed_Frames_images" Location="either">
+                          <File Id="file16005" Name="logo.png"/>
+                          <File Id="file16015" Name="next.png"/>
+                          <File Id="file16016" Name="title-background.png"/>
+                          <File Id="file16017" Name="back.png"/>
+                          <File Id="file16018" Name="preview_coated.png"/>
+                          <File Id="file16019" Name="preview_main.png"/>
+                        </Component>
+                      </Directory>
+                    </Directory>
+
+
+                    <Directory Id="Text_Basic.tpl" Name="Text_Basic.tpl">
+                      <Component DiskId="1" Guid="657FBB7A-8E9E-4f20-B93F-E8F8E9D23560" Id="reporting_Text_Basic" Location="either">
+                        <File Id="file11001" Name="preview_basic.png"/>
+                        <File Id="file11002" Name="report.txt.tpl"/>
+                        <File Id="file11003" Name="info.xml"/>
+                      </Component>
+                    </Directory>
+                  </Directory>
                   <?endif ?>
                 </Directory>
               </Directory>

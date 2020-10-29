@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ class CommandProcessor:
         self._commands['GET_FILE_OWNER'] = self._process_get_file_owner
         self._commands['EXEC'] = self._process_exec
 
-        if not self._commands.has_key(self._command):
+        if self._command not in self._commands:
             raise RuntimeError("Command %s is not supported" % self._command)
     
     def execute(self):
@@ -157,7 +157,7 @@ class CommandProcessor:
             
             f.close()
                        
-        except (IOError), e:
+        except (IOError) as e:
             self._result_code = 1
             self._result_message = repr(e)
 
@@ -239,10 +239,10 @@ try:
         
         client.close(processor._result_code, processor._result_message)
     
-except Exception, e:
+except Exception as e:
     if client._connected:
         client.close(1, repr(e))
     else:
-        print e
+        print(e)
 
             

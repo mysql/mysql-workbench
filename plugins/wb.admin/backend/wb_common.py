@@ -33,7 +33,7 @@ else:
     debug_level = 0
 
 if debug_level:
-    print "Debug level -", debug_level
+    print("Debug level -", debug_level)
 
 def dprint_ex(level, *args):
     if level <= debug_level:
@@ -49,7 +49,7 @@ def dprint_ex(level, *args):
 
         msg = method + " : " + " ".join([type(s) is str and s or str(s) for s in args])
 
-        print msg
+        print(msg)
         if write_log:
             f = open(logfile, "a")
             f.write(msg)
@@ -149,7 +149,7 @@ class CmdOutput(object):
 
 def to_unicode(text):
     # Convert to unicode if it's not unicode yet
-    return text if isinstance(text, unicode) else text.decode('utf8')
+    return text if isinstance(text, str) else text.decode('utf8')
 
 def to_encodedString(text):
     # Convert to string if it's unicode

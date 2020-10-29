@@ -24,6 +24,7 @@
 #ifndef __MySQLWorkbench__python__
 #define __MySQLWorkbench__python__
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
 // Undefine some python macros which conflict with C++ functions.

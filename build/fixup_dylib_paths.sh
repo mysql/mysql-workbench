@@ -6,11 +6,11 @@
 # <file to fix>
 
 if test "$NEWTARGETPATH" = ""; then
-NEWTARGETPATH="@executable_path/../Frameworks"
+  NEWTARGETPATH="@executable_path/../Frameworks"
 fi
 
 if test "$CHANGEPATHS" = ""; then
-CHANGEPATHS="/usr/local"
+  CHANGEPATHS="/usr/local"
 fi
 
 for file in $*; do
@@ -28,9 +28,10 @@ for file in $*; do
     fi
 
     for lib in $(otool -L $file|egrep "$CHANGEPATHS"|grep .dylib|cut -f2|cut -f1 -d\  ); do
-	new_id=$NEWTARGETPATH/$(basename $lib)
-	install_name_tool -change $lib $new_id $file
+      new_id=$NEWTARGETPATH/$(basename $lib)
+      install_name_tool -change $lib $new_id $file
     done
+
   fi
 
 done

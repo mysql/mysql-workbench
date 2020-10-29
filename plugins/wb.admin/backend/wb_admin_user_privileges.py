@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -155,7 +155,7 @@ class UserHostPrivileges(object):
         """
         ret_val = 0
 
-        if self._privileges.has_key(level):
+        if level in self._privileges:
             new_value = 0
             
             # Gets the value of each privilege in privileges and appends its
@@ -180,7 +180,7 @@ class UserHostPrivileges(object):
 
         # Creates the entry for the target if it doesn't exist
         target_to_use = None
-        for tgt in self._granted_privileges.keys():
+        for tgt in list(self._granted_privileges.keys()):
             if tgt.matches(target):
                 target_to_use = tgt
 
@@ -192,7 +192,7 @@ class UserHostPrivileges(object):
         self._granted_privileges[target_to_use] |= priv_value
 
     def check_privileges(self, target, privileges):
-        for tgt in self._granted_privileges.keys():
+        for tgt in list(self._granted_privileges.keys()):
             if tgt.matches(target):
                 # Gets the included privileges
                 includes = self._granted_privileges[tgt] & privileges
@@ -253,7 +253,7 @@ class UserHostPrivileges(object):
                             target = None
             
                             # Search for an already existing target
-                            for tgt in self._granted_privileges.keys():
+                            for tgt in list(self._granted_privileges.keys()):
                                 if tgt.identical(target_string):
                                     target = tgt
             
@@ -269,7 +269,7 @@ class UserHostPrivileges(object):
                             self.add_privileges(target, priv_list)
                         else:
                             log_error('An error occurred parsing GRANT statement: %s\n -> %s\n' % (statement, grant_data['error']))
-                    except Exception, exc:
+                    except Exception as exc:
                         log_error('An error occurred parsing GRANT statement: %s\n -> %s\n' % (statement, exc))
 
             else:

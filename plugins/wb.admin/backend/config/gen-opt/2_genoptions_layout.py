@@ -4,7 +4,7 @@ from variable_groups import variable_groups
 
 tabs = {}
 
-print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
+print(('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__))
 
 
 for name, groups in variable_groups:
@@ -31,5 +31,5 @@ out = open("options_layout.py", "w+")
 out.write("layout = ")
 import pprint
 pp = pprint.PrettyPrinter(indent=2, stream=out)
-pp.pprint(mysort(list([(x,list(y.items())) for x,y in tabs.items()])))
+pp.pprint(mysort(list([(x,list(y.items())) for x,y in list(tabs.items())])))
 out.close()

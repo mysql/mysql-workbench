@@ -30,7 +30,7 @@ opts = [
 {'name': 'local-infile', 'values': [{ 'off': '0', 'on': '1', 'type': 'boolean', 'default':'true'}]}
 ]
 
-non_requested = map(lambda x: x['name'], opts)
+non_requested = [x['name'] for x in opts]
 
 def get_def(name):
     adef = None

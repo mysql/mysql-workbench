@@ -4,9 +4,9 @@ import options_layout
 import pprint
 from variable_column_widths import variable_column_widths
 
-print('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__)
+print(('-----------------------------------\nRunning %s\n-----------------------------------\n' % __file__))
 
-print "Converting raw_opts.py to opts.py"
+print("Converting raw_opts.py to opts.py")
 
 
 def hack_option(option):
@@ -49,7 +49,7 @@ def find_var(varlist, option):
     return None
 
 
-print "Generating opts.py"
+print("Generating opts.py")
 out=open("opts.py", "w+")
 out.write("opts_list = [\n")
 handled_options = set()
@@ -59,9 +59,9 @@ for section, section_items in options_layout.layout:
         out.write("\t( '%s', [\n" % group)
         for i, option in enumerate(group_items):
             if option in handled_options:
-                print("Option already handled: %s" % option)
+                print(("Option already handled: %s" % option))
             elif option not in option_dict:
-                print("Option not in dictionalry: %s" % option)
+                print(("Option not in dictionalry: %s" % option))
             else:
             #if option in option_dict and not option in handled_options:
                 handled_options.add(option)
@@ -79,14 +79,14 @@ out.write("]\n")
 
 unhandled_options = set(option_dict.keys()) - handled_options
 if unhandled_options:
-    print "The following options were not handled:", "\n".join(sorted(list(unhandled_options)))
+    print("The following options were not handled:", "\n".join(sorted(list(unhandled_options))))
 
 out.close()
 
 def normalize_dict_keys(d):
     return d
     out = {}
-    for k, v in d.items():
+    for k, v in list(d.items()):
         out[k.replace("-","_")] = v
     return out
 
@@ -108,7 +108,7 @@ for var in raw_vars.status_vars_list:
     #status_var_list.append(tuple(current_var + [status_groups.get(var['name'].replace("-","_"), [])]))
     status_var_list.append(current_var)
 
-print "Generating wb_admin_variable_list.py"
+print("Generating wb_admin_variable_list.py")
 out=open("wb_admin_variable_list.py", "w+")
 
 pp = pprint.PrettyPrinter(indent=2, stream=out)

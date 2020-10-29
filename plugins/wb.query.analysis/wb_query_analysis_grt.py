@@ -47,7 +47,7 @@ class JSONTreeViewer(mforms.TreeView):
             if type(data) is dict:
                 if node:
                     node.set_string(1, "<dict>")
-                for key, value in data.items():
+                for key, value in list(data.items()):
                     ch = create_node()
                     ch.set_string(0, key)
                     add_nodes(ch, ch.add_child, value)
@@ -376,7 +376,7 @@ class TabularExplainTab(mforms.Box):
             for i in range(c):
               value = explain.stringFieldValue(i)
               if i == rows_column:
-                node.set_long(i, long(value) if value else 0)
+                node.set_long(i, int(value) if value else 0)
               else:
                 node.set_string(i, value)
             if not explain.nextRow():
@@ -424,7 +424,7 @@ class ExplainTab(mforms.AppView):
         if json_text:
             try:
                 json_data = decode_json(json_text)
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_error("Error creating query plan: %s\n" % traceback.format_exc())
                 mforms.Utilities.show_error("Query Plan Generation Error",
@@ -445,7 +445,7 @@ class ExplainTab(mforms.AppView):
                 self._query_plan.switcher_item.setInternalName("visual_explain_switcher")
                 self._query_plan.switcher_item.set_selector_items(["Visual Explain", "Tabular Explain"])
                 self._query_plan.switcher_item.add_activated_callback(self.switch_view)
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_error("Error creating query plan: %s\n" % traceback.format_exc())
                 mforms.Utilities.show_error("Query Plan Generation Error",
@@ -528,7 +528,7 @@ def visualExplain(editor, result_panel):
     if statement:
         try:
             explain = editor.owner.executeQuery("EXPLAIN %s" % statement, 1)
-        except Exception, e:
+        except Exception as e:
             log_warning("Could not execute EXPLAIN %s: %s\n" % (statement, e))
             explain = None
 
@@ -555,7 +555,7 @@ def visualExplainForConnection(editor, conn_id, the_query):
 
     try:
         explain = editor.owner.executeManagementQuery("EXPLAIN FOR CONNECTION %s" % conn_id, 1)
-    except grt.DBError, e:
+    except grt.DBError as e:
         if e.args[1] == 0:
             mforms.Utilities.show_message("Explain for Connection",
                                           "Explain for connection %s did not generate any output." % conn_id, "OK", "", "")
@@ -563,7 +563,7 @@ def visualExplainForConnection(editor, conn_id, the_query):
             mforms.Utilities.show_error("Explain for Connection",
                                         "Error executing explain for connection %s\n%s" % (conn_id, e), "OK", "", "")
         return 0
-    except Exception, e:
+    except Exception as e:
         mforms.Utilities.show_error("Explain for Connection",
                                     "Error executing explain for connection %s\n%s" % (conn_id, e), "OK", "", "")
         return 0

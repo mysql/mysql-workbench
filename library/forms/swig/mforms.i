@@ -53,6 +53,8 @@
 #include "mforms_grt.h"
 #include "mforms_drawbox.h"
 
+using namespace boost::placeholders;
+
 
 DEFAULT_LOG_DOMAIN("pymforms")
 

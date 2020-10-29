@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -33,8 +33,8 @@ using namespace base;
 static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (ctx) {
-    const char *type = NULL, *class_name = NULL;
-    PyObject *valueptr = NULL;
+    const char *type = nullptr, *class_name = nullptr;
+    PyObject *valueptr = nullptr;
     static const char *kwlist[] = {"type", "classname", "__valueptr__", 0};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|zzO", (char **)kwlist, &type, &class_name, &valueptr))
@@ -82,14 +82,8 @@ static int list_init(PyGRTListObject *self, PyObject *args, PyObject *kwds) {
 static void list_dealloc(PyGRTListObject *self) {
   delete self->list;
 
-  self->ob_type->tp_free(self);
+  Py_TYPE(self)->tp_free(self);
 }
-
-/*
-static int list_compare(PyGRTListObject *self, PyGRTListObject *other)
-{
-
-}*/
 
 static Py_ssize_t list_length(PyGRTListObject *self) {
   return self->list->count();
@@ -99,21 +93,21 @@ static PyObject *list_item(PyGRTListObject *self, Py_ssize_t index) {
   PythonContext *ctx;
 
   if (!(ctx = PythonContext::get_and_check()))
-    return NULL;
+    return nullptr;
 
   if (index < 0 || index >= (int)self->list->count()) {
     PyErr_SetString(PyExc_IndexError, "list index out of range");
-    return NULL;
+    return nullptr;
   }
 
   try {
     return ctx->from_grt(self->list->get(index));
   } catch (grt::bad_item &exc) {
     PyErr_SetString(PyExc_IndexError, exc.what());
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PyErr_SetString(PyExc_RuntimeError, exc.what());
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -128,7 +122,7 @@ static int list_assign(PyGRTListObject *self, Py_ssize_t index, PyObject *value)
   }
 
   try {
-    if (value == NULL)
+    if (value == nullptr)
       self->list->remove(index);
     else
       self->list->gset(index, ctx->from_pyobject(value));
@@ -158,11 +152,11 @@ static int list_contains(PyGRTListObject *self, PyObject *value) {
 static PyObject *list_inplace_concat(PyGRTListObject *self, PyObject *other) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   other = PySequence_Fast(other, "argument to += must be a sequence");
   if (!other)
-    return NULL;
+    return nullptr;
 
   for (Py_ssize_t i = 0; i < PySequence_Length(other); i++) {
     PyObject *item = PySequence_GetItem(other, i);
@@ -171,123 +165,123 @@ static PyObject *list_inplace_concat(PyGRTListObject *self, PyObject *other) {
       self->list->ginsert(ctx->from_pyobject(item));
     } catch (grt::type_error &exc) {
       PyErr_SetString(PyExc_TypeError, base::strfmt("type of sequence contents: %s", exc.what()).c_str());
-      return NULL;
+      return nullptr;
     } catch (std::exception &exc) {
       PyErr_SetString(PyExc_RuntimeError, exc.what());
-      return NULL;
+      return nullptr;
     }
   }
 
-  Py_INCREF(self);
+  Py_XINCREF(self);
   return (PyObject *)self;
 }
 
 static PyObject *list_printable(PyGRTListObject *self) {
-  return PyString_FromString(self->list->toString().c_str());
+  return PyUnicode_FromString(self->list->toString().c_str());
 }
 
 static PyObject *list_append(PyGRTListObject *self, PyObject *v) {
   if (!v) {
     PyErr_SetString(PyExc_ValueError, "missing argument");
-    return NULL;
+    return nullptr;
   }
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   try {
     self->list->ginsert(ctx->from_pyobject(v));
     Py_RETURN_NONE;
   } catch (grt::type_error &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *list_insert(PyGRTListObject *self, PyObject *args) {
   int i;
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   PyObject *value;
   if (!PyArg_ParseTuple(args, "iO:insert", &i, &value))
-    return NULL;
+    return nullptr;
 
   try {
     self->list->ginsert(ctx->from_pyobject(value), i);
     Py_RETURN_NONE;
   } catch (grt::type_error &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *list_remove(PyGRTListObject *self, PyObject *v) {
   if (!v) {
     PyErr_SetString(PyExc_ValueError, "missing argument");
-    return NULL;
+    return nullptr;
   }
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   try {
     self->list->gremove_value(ctx->from_pyobject(v));
     Py_RETURN_NONE;
   } catch (grt::type_error &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *list_remove_all(PyGRTListObject *self) {
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   try {
     self->list->remove_all();
     Py_RETURN_NONE;
   } catch (grt::type_error &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *list_reorder(PyGRTListObject *self, PyObject *args) {
   int oldi, newi;
   if (!PyArg_ParseTuple(args, "ii:reorder", &oldi, &newi))
-    return NULL;
+    return nullptr;
 
   PythonContext *ctx = PythonContext::get_and_check();
   if (!ctx)
-    return NULL;
+    return nullptr;
 
   try {
     self->list->reorder(oldi, newi);
     Py_RETURN_NONE;
   } catch (std::exception &exc) {
     PythonContext::set_python_error(exc);
-    return NULL;
+    return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *list_get_contenttype(PyGRTListObject *self, void *closure) {
@@ -326,15 +320,15 @@ static PyMethodDef PyGRTListMethods[] = {
   {"reorder", (PyCFunction)list_reorder, METH_VARARGS, reorder_doc},
   {"remove", (PyCFunction)list_remove, METH_O, remove_doc},
   {"remove_all", (PyCFunction)list_remove_all, METH_NOARGS, remove_all_doc},
-  {NULL, NULL, 0, NULL}};
+  {nullptr, nullptr, 0, nullptr}};
 #if !defined(_MSC_VER) && !defined(__APPLE__)
 #pragma GCC diagnostic pop
 #endif
 
 static PyGetSetDef PyGRTListGetSetters[] = {
-  {(char *)"__contenttype__", (getter)list_get_contenttype, NULL, (char *)"(content type, content object class|None)",
-   NULL},
-  {NULL, 0, NULL, NULL, NULL},
+  {(char *)"__contenttype__", (getter)list_get_contenttype, nullptr, (char *)"(content type, content object class|None)",
+   nullptr},
+  {nullptr, 0, nullptr, nullptr, nullptr},
 };
 
 static PySequenceMethods PyGRTListObject_as_sequence = {
@@ -352,83 +346,88 @@ static PySequenceMethods PyGRTListObject_as_sequence = {
 };
 
 static PyTypeObject PyGRTListObjectType = {
-  PyObject_HEAD_INIT(&PyType_Type) // PyObject_VAR_HEAD
-  0,
-  "grt.List",                 // char *tp_name; /* For printing, in format "<module>.<name>" */
-  sizeof(PyGRTListObject), 0, // int tp_basicsize, tp_itemsize; /* For allocation */
-
+  PyVarObject_HEAD_INIT(&PyType_Type, 0) // PyObject_VAR_HEAD
+  "grt.List",   //  tp_name
+  sizeof(PyGRTListObject),  //  tp_basicsize
+  0, /* tp_itemsize For allocation */
+  
   /* Methods to implement standard operations */
 
-  (destructor)list_dealloc, //  destructor tp_dealloc;
-  0,                        //  printfunc tp_print;
-  0,                        //  getattrfunc tp_getattr;
-  0,                        //  setattrfunc tp_setattr;
-  0,                        //(cmpfunc)list_compare, //  cmpfunc tp_compare;
-  0,                        //(reprfunc)list_repr,//  reprfunc tp_repr;
+  (destructor)list_dealloc,   //  tp_dealloc
+  0,  //  tp_vectorcall_offset
+  0,  //  tp_getattr
+  0,  //  tp_setattr
+  0,  //  tp_as_async
+  0,  //  tp_repr
 
   /* Method suites for standard classes */
 
-  0,                            //  PyNumberMethods *tp_as_number;
-  &PyGRTListObject_as_sequence, //  PySequenceMethods *tp_as_sequence;
-  0,                            //  PyMappingMethods *tp_as_mapping;
+  0,  //  tp_as_number
+  &PyGRTListObject_as_sequence, //  tp_as_sequence
+  0,  //  tp_as_mapping
 
   /* More standard operations (here for binary compatibility) */
 
-  0,                        //  hashfunc tp_hash;
-  0,                        //  ternaryfunc tp_call;
-  (reprfunc)list_printable, //  reprfunc tp_str;
-  PyObject_GenericGetAttr,  //  getattrofunc tp_getattro;
-  0,                        //  setattrofunc tp_setattro;
+  0,  //  tp_hash
+  0,  //  tp_call
+  (reprfunc)list_printable, //  tp_str
+
+  PyObject_GenericGetAttr,  //  tp_getattro
+  0,  //  tp_setattro
 
   /* Functions to access object as input/output buffer */
-  0, //  PyBufferProcs *tp_as_buffer;
+  0,  //  tp_as_buffer
 
   /* Flags to define presence of optional/expanded features */
-  Py_TPFLAGS_DEFAULT, //  long tp_flags;
+  Py_TPFLAGS_DEFAULT, //  tp_flags
 
-  PyGRTListDoc, //  char *tp_doc; /* Documentation string */
+  PyGRTListDoc, /* tp_doc Documentation string */
 
   /* Assigned meaning in release 2.0 */
   /* call function for all accessible objects */
-  0, //  traverseproc tp_traverse;
+  0,  //  tp_traverse
 
   /* delete references to contained objects */
-  0, //  inquiry tp_clear;
+  0,  //  tp_clear
 
   /* Assigned meaning in release 2.1 */
   /* rich comparisons */
-  0, //  richcmpfunc tp_richcompare;
+  0,  //  tp_richcompare
 
   /* weak reference enabler */
-  0, //  long tp_weaklistoffset;
+  0,  //  tp_weaklistoffset
 
-  /* Added in release 2.2 */
   /* Iterators */
-  0, //  getiterfunc tp_iter;
-  0, //  iternextfunc tp_iternext;
+  0,  //  tp_iter
+  0,  //  tp_iternext
 
   /* Attribute descriptor and subclassing stuff */
-  PyGRTListMethods,    //  struct PyMethodDef *tp_methods;
-  0,                   //  struct PyMemberDef *tp_members;
-  PyGRTListGetSetters, //  struct PyGetSetDef *tp_getset;
-  0,                   //  struct _typeobject *tp_base;
-  0,                   //  PyObject *tp_dict;
-  0,                   //  descrgetfunc tp_descr_get;
-  0,                   //  descrsetfunc tp_descr_set;
-  0,                   //  long tp_dictoffset;
-  (initproc)list_init, //  initproc tp_init;
-  PyType_GenericAlloc, //  allocfunc tp_alloc;
-  PyType_GenericNew,   //  newfunc tp_new;
-  0,                   //  freefunc tp_free; /* Low-level free-memory routine */
-  0,                   //  inquiry tp_is_gc; /* For PyObject_IS_GC */
-  0,                   //  PyObject *tp_bases;
-  0,                   //  PyObject *tp_mro; /* method resolution order */
-  0,                   //  PyObject *tp_cache;
-  0,                   //  PyObject *tp_subclasses;
-  0,                   //  PyObject *tp_weaklist;
-  0,                   // tp_del
-#if (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION > 5)
-  0 // tp_version_tag
+  PyGRTListMethods, //  tp_methods
+  0,  //  tp_members
+  PyGRTListGetSetters,  //  tp_getset
+  0,  //  tp_base
+  0,  //  tp_dict
+  0,  //  tp_descr_get
+  0,  //  tp_descr_set
+  0,  //  tp_dictoffset
+  (initproc)list_init,  //  tp_init
+  PyType_GenericAlloc,  //  tp_alloc
+  PyType_GenericNew,    //  tp_new
+  0, /* tp_free Low-level free-memory routine */
+  0, /* tp_is_gc For PyObject_IS_GC */
+  0,  //  tp_bases
+  0, /* tp_mro method resolution order */
+  0,  //  tp_cache
+  0,  //  tp_subclasses
+  0,  //  tp_weaklist
+  0,  //  tp_del
+
+  /* Type attribute cache version tag. Added in version 2.6 */
+  0,  //  tp_version_tag
+  0, //  tp_finalize
+#if PY_VERSION_HEX >= 0x03080000
+  nullptr,  //  tp_vectorcall
+  nullptr   //  tp_print
 #endif
 };
 
@@ -438,7 +437,7 @@ void grt::PythonContext::init_grt_list_type() {
     throw std::runtime_error("Could not initialize GRT List type in python");
   }
 
-  Py_INCREF(&PyGRTListObjectType);
+  Py_XINCREF(&PyGRTListObjectType);
   PyModule_AddObject(get_grt_module(), "List", (PyObject *)&PyGRTListObjectType);
 
   _grt_list_class = PyDict_GetItemString(PyModule_GetDict(get_grt_module()), "List");

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -35,7 +35,7 @@ def weakcb(object, cbname):
     def call(ref, cbname):
         callback = getattr(ref(), cbname, None)
         if callback is None:
-            print "Object has no callback %s"%cbname
+            print("Object has no callback %s"%cbname)
         else:
             return callback()
 
@@ -115,11 +115,14 @@ class WbAdminValidationBase:
         warning.show(True)
         return warning
 
+
 ValidationErrorServerNotRunning = "There is no connection to the MySQL Server.\nThis functionality requires an established connection to a running MySQL server."
+ValidationErrorBadConfigFile = "Location of MySQL configuration file (ie: my.cnf) not specified"
+
 
 class WbAdminValidationConnection(WbAdminValidationBase):
     def __init__(self, ctrl_be):
-        WbAdminValidationBase.__init__(self, ValidationErrorServerNotRunning)
+        super().__init__(ValidationErrorServerNotRunning)
         self._ctrl_be = ctrl_be
 
     def validate(self):
@@ -128,7 +131,7 @@ class WbAdminValidationConnection(WbAdminValidationBase):
 
 class WbAdminValidationConfigFile(WbAdminValidationBase):
     def __init__(self, instance_info):
-        WbAdminValidationBase.__init__(self, "Location of MySQL configuration file (ie: my.cnf) not specified")
+        super().__init__(ValidationErrorBadConfigFile)
         self._instance_info = instance_info
 
     def validate(self):
@@ -258,7 +261,8 @@ class WbAdminTabBase(mforms.Box):
 
     def set_body_contents(self, body_contents):
         if self._body_contents:
-            self._body_contents.remove_from_parent()
+            self._page_body.remove(self._body_contents)
+
         self._body_contents = body_contents
 
         if sys.platform.lower() == "darwin":
@@ -323,7 +327,7 @@ class WbAdminTabBase(mforms.Box):
                 self.set_body_contents(self.create_ui())
             else:
                 self.update_ui()
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             log_error("Exception activating the page - %s" % str(e))

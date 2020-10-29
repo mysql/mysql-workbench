@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -76,7 +76,7 @@ def connect(connection, password):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def disconnect(connection):
-    if _connections.has_key(connection.__id__):
+    if connection.__id__ in _connections:
         _connections[connection.__id__].disconnect()
         del _connections[connection.__id__]
     return 0
@@ -84,7 +84,7 @@ def disconnect(connection):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def isConnected(connection):
-    return 1 if _connections.has_key(connection.__id__) else 0
+    return 1 if connection.__id__ in _connections else 0
 
 @ModuleInfo.export(grt.STRING)
 def getTargetDBMSName():

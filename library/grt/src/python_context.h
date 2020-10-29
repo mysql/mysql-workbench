@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -98,6 +98,7 @@ namespace grt {
 
   protected:
     PythonContextHelper(const std::string &module_path);
+    void InitPython();
 
   public:
     virtual ~PythonContextHelper();
@@ -118,7 +119,7 @@ namespace grt {
     static void set_unwrap_pyobject_func(PyObject *(*func)(PyObject *, PyObject *));
 
     void add_module_path(const std::string &path, bool prepend = false);
-    bool import_module(const std::string &name);
+    PyObject *import_module(const std::string &name);
 
     PyObject *from_grt(const ValueRef &value);
     grt::ValueRef from_pyobject(PyObject *object);
@@ -177,6 +178,9 @@ namespace grt {
     void setEventlogCallback(PyObject *obj);
     void printResult(std::map<std::string, std::string> &output);
 
+    static PyObject *grt_module_create();
+//     static PyObject *grt_modules_module_create();
+
   protected:
     std::string _cwd;
     AutoPyObject _grt_module;
@@ -206,7 +210,7 @@ namespace grt {
   private:
     ValueRef simple_type_from_pyobject(PyObject *object, const grt::SimpleTypeSpec &type);
 
-    void register_grt_module();
+    void register_grt_module(PyObject *module);
     void register_grt_functions();
     void redirect_python_output();
 

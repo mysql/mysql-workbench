@@ -24,21 +24,17 @@ import re
 import sys
 import subprocess
 import threading
-import thread
+import _thread
 import time
 import tempfile
 import platform
-import StringIO
+import io
 
 import grt
 
 import wb_admin_export_options
 import wb_common
-
-try:
-    import _subprocess
-except ImportError:
-    pass
+from wb_common import to_unicode
 
 from wb_server_management import local_run_cmd
 
@@ -88,12 +84,12 @@ def get_path_to_mysqldump():
 
     if sys.platform == "darwin":
         # if path is not specified, use bundled one
-        return mforms.App.get().get_executable_path("mysqldump").encode("utf8")
+        return mforms.App.get().get_executable_path("mysqldump")
     elif sys.platform == "win32":
-        return mforms.App.get().get_executable_path("mysqldump.exe").encode("utf8")
+        return mforms.App.get().get_executable_path("mysqldump.exe")
     else:
         # if path is not specified, use bundled one
-        path = mforms.App.get().get_executable_path("mysqldump").encode("utf8")
+        path = mforms.App.get().get_executable_path("mysqldump")
         if path:
             return path
         # just pick default
@@ -108,7 +104,7 @@ def get_mysqldump_version():
         log_error("mysqldump command was not found, please install it or configure it in Edit -> Preferences -> Administration")
         return None
       
-    output = StringIO.StringIO()
+    output = io.StringIO()
     rc = local_run_cmd('"%s" --version' % path, output_handler=output.write)
     output = output.getvalue()
     
@@ -195,11 +191,11 @@ class DumpThread(threading.Thread):
             if platform.system() != 'Windows':
                 try:
                     p1 = subprocess.Popen(logstr,stdout=respipe,stdin=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                except OSError, exc:
+                except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (logstr, exc))
                     import traceback
                     traceback.print_exc()
-                    self.print_log_message(u"Error executing task: %s" % exc)
+                    self.print_log_message("Error executing task: %s" % exc)
 
                 pwdfile = open(pwdfilename, 'w')
             else:
@@ -215,29 +211,24 @@ class DumpThread(threading.Thread):
 
                 for s, t in tables_to_ignore:
                     line = "ignore-table=%s.%s\n" % (s,t)
-                    pwdfile.write(line.encode('utf-8'))
+                    pwdfile.write(line)
 
             pwdfile.close()
             if platform.system() == 'Windows':
                 try:
                     info = subprocess.STARTUPINFO()
-                    info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-                    info.wShowWindow = _subprocess.SW_HIDE
+                    info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    info.wShowWindow = subprocess.SW_HIDE
                     # Command line can contain object names in case of export and filename in case of import
                     # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
                     # which probably isn't utf-8 in windows.
-                    if self.is_import:
-                        fse = sys.getfilesystemencoding()
-                        cmd = logstr.encode(fse) if isinstance(arg,unicode) else logstr
-                    else:
-                        cmd = logstr.encode("utf8") if isinstance(arg,unicode) else logstr
                     log_debug("Executing command: %s\n" % logstr)
-                    p1 = subprocess.Popen(cmd,stdout=respipe or subprocess.PIPE,stdin=subprocess.PIPE, stderr=subprocess.PIPE,startupinfo=info,shell=logstr[0] != '"')
-                except OSError, exc:
+                    p1 = subprocess.Popen(logstr, stdout=respipe, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell=logstr[0] != '"', encoding='utf8')
+                except OSError as exc:
                     log_error("Error executing command %s\n%s\n" % (logstr, exc))
                     import traceback
                     traceback.print_exc()
-                    self.print_log_message(u"Error executing task: %s" % exc)
+                    self.print_log_message("Error executing task: %s" % exc)
                     p1 = None
 #                finally:
 #                    pass
@@ -246,7 +237,7 @@ class DumpThread(threading.Thread):
             self.process_handle = p1
 
             while p1 and p1.poll() == None and not self.abort_requested:
-                err = p1.stderr.read()
+                err = to_unicode(p1.stderr.read())
                 if err != "":
                     log_error("Error from task: %s\n" % err)
                     self.print_log_message(err)
@@ -255,11 +246,11 @@ class DumpThread(threading.Thread):
             result = ""
 
 
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
             log_error("Error executing task: %s\n" % exc)
-            self.print_log_message(u"Error executing task: %s" % exc)
+            self.print_log_message("Error executing task: %s" % exc)
         finally:
             pass
 
@@ -268,7 +259,7 @@ class DumpThread(threading.Thread):
         if platform.system() != 'Windows' and tmpdir:
             os.rmdir(tmpdir)
 
-        err = p1.stderr.read()
+        err = to_unicode(p1.stderr.read())
         if err != "":
             result += err
 
@@ -297,7 +288,7 @@ class DumpThread(threading.Thread):
                 try:
                     log_debug("Sending SIGTERM to task %s\n" % self.process_handle.pid)
                     os.kill(self.process_handle.pid, signal.SIGTERM)
-                except OSError, exc:
+                except OSError as exc:
                     log_error("Exception sending SIGTERM to task: %s\n" % exc)
                     self.print_log_message("kill task: %s" % str(exc))
 
@@ -318,7 +309,7 @@ class DumpThread(threading.Thread):
 
 #            for title, table_count, make_pipe, arguments, objects in self.operations:
             for task in self.operations:
-                self.print_log_message(time.strftime(u'%X ') + task.title.encode('utf-8'))
+                self.print_log_message(time.strftime('%X ') + to_unicode(task.title))
 
                 tables_processed += task.table_count or 1
                 pipe = task.make_pipe()
@@ -340,10 +331,10 @@ class DumpThread(threading.Thread):
 #               Emulate slow dump
 #                import time
 #                time.sleep(1)
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
-            self.print_log_message(u"Error executing task %s" % exc )
+            self.print_log_message("Error executing task %s" % exc )
 #        finally:
         if not self.abort_requested:
             self.progress = 1
@@ -358,14 +349,14 @@ class TableListModel(object):
 
     def get_full_selection(self):
         result = []
-        for schema, (tables, selection) in self.tables_by_schema.items():
+        for schema, (tables, selection) in list(self.tables_by_schema.items()):
             for table in selection:
                 result.append((schema,table))
         result.sort()
         return result
 
     def get_schema_names(self):
-        return self.tables_by_schema.keys()
+        return list(self.tables_by_schema.keys())
 
     def set_schema_selected(self, schema, flag):
         tables = self.get_tables(schema)
@@ -399,28 +390,30 @@ class TableListModel(object):
 
     def get_selection(self, schema):
         selection = []
-        if schema in self.tables_by_schema.keys():
+        if schema in list(self.tables_by_schema.keys()):
             tables, selection = self.tables_by_schema[schema]
         return selection
 
     def count_selected_tables(self):
         count = 0
-        for tlist, selected in self.tables_by_schema.values():
+        for tlist, selected in list(self.tables_by_schema.values()):
             count += len(selected)
         return count
 
     def get_count(self):
-        return sum([len(item[1]) for item in self.tables_by_schema.values()])
+        return sum([len(item[1]) for item in list(self.tables_by_schema.values())])
 
     def get_objects_to_dump(self, include_empty_schemas=False):
         schemas_to_dump = []
         #names = self.tables_by_schema.keys()
         #names.sort()
         
-        schemas_with_selection = set([key for key, value in self.tables_by_schema.items() if value[1]])
+        schemas_with_selection = set([key for key, value in list(self.tables_by_schema.items()) if value[1]])
       
         for schema in self.selected_schemas | schemas_with_selection:
         #No tables selected for schema so skip it
+            if schema not in self.tables_by_schema.keys():
+                continue
             tables, selection = self.tables_by_schema[schema]
             if not selection and not include_empty_schemas:
                 continue
@@ -430,10 +423,12 @@ class TableListModel(object):
 
     def get_tables_to_ignore(self):
         ignore_list = []
-        names = self.tables_by_schema.keys()
+        names = list(self.tables_by_schema.keys())
         names.sort()
         for schema in names:
         #No tables selected for schema so skip it
+            if schema not in self.tables_by_schema.keys():
+                continue
             tables, selection = self.tables_by_schema[schema]
             if not selection or len(selection) == len(tables):
                 continue
@@ -1004,7 +999,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
             try:
                 self.print_log_message("Creating schema %s\n" % name)
                 self.owner.ctrl_be.exec_sql("CREATE DATABASE `%s`" % name, auto_reconnect=False)
-            except QueryError, err:
+            except QueryError as err:
                 self.print_log_message("Error creating schema %s: %s\n" % (name, err))
                 Utilities.show_error("Create Schema", str(err), "OK", "", "")
                 if err.is_connection_error():
@@ -1024,7 +1019,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                 self.schema_names.append(value)
             del result
             self.schema_refresh_done = True
-        except QueryError, exc:
+        except QueryError as exc:
             self.print_log_message("Error fetching schema list: %s" % str(exc))
             if exc.is_connection_error():
                 if self.owner.ctrl_be.handle_sql_disconnection(exc):
@@ -1033,7 +1028,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                     self.schema_refresh_cancelled = "Error fetching schema list:\n%s\nCould not reconnect." % str(exc)
             else:
                 self.schema_refresh_cancelled = "Error fetching schema list:\n%s" % str(exc)
-        except Exception, exc:
+        except Exception as exc:
             self.print_log_message("Error fetching schema list: %s" % str(exc) )
             self.schema_refresh_cancelled = "Error fetching schema list:\n%s" % str(exc)
 
@@ -1133,7 +1128,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                         if not schema or not table:
                             self.progress_tab.print_log_message("%s does not contain schema/table information" % fullname)
                             continue
-                        if tables_by_schema.has_key(schema):
+                        if schema in tables_by_schema:
                             tables, selection = tables_by_schema[schema]
                             if table in tables:
                                 self.schema_list.thaw_refresh()
@@ -1156,7 +1151,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                 if not tables_by_schema:
                     Utilities.show_message("Open Dump Folder", "There were no dump files in the selected folder.", "OK", "", "")
                 else:
-                    names = tables_by_schema.keys()
+                    names = list(tables_by_schema.keys())
                     names.sort()
                     for schema in names:
                         row = self.schema_list.add_node()
@@ -1166,7 +1161,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
                 self.progress_tab.set_start_enabled(True)
             self.schema_list.thaw_refresh()
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             self.schema_list.thaw_refresh()
             traceback.print_exc()
@@ -1177,7 +1172,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
         self.folder_load_btn.set_enabled(True)
 
-        for schema in tables_by_schema.keys():
+        for schema in list(tables_by_schema.keys()):
               self.table_list_model.set_schema_selected(schema, True)
 
     def get_path_to_mysql(self):
@@ -1196,12 +1191,12 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
         if sys.platform.lower() == "darwin":
             # if path is not specified, use bundled one
-            return mforms.App.get().get_executable_path("mysql").encode("utf8")
+            return mforms.App.get().get_executable_path("mysql")
         elif sys.platform.lower() == "win32":
-            return mforms.App.get().get_executable_path("mysql.exe").encode("utf8")
+            return mforms.App.get().get_executable_path("mysql.exe")
         else:
             # if path is not specified, use bundled one
-            path = mforms.App.get().get_executable_path("mysql").encode("utf8")
+            path = mforms.App.get().get_executable_path("mysql")
             if path:
                 return path
             # just pick default
@@ -1253,8 +1248,8 @@ class WbAdminImportTab(WbAdminSchemaListTab):
                         operations.append(task)
         else:
             if not os.path.exists(self.path):
-                Utilities.show_message("Dump file not found", u"File %s doesn't exist" % self.path, "OK", "", "")
-                self.failed(u"Dump file not found: File %s doesn't exist" % self.path)
+                Utilities.show_message("Dump file not found", "File %s doesn't exist" % self.path, "OK", "", "")
+                self.failed("Dump file not found: File %s doesn't exist" % self.path)
                 return
             logmsg = "Restoring " + self.path
             # description, object_count, pipe_factory, extra_args, objects
@@ -1348,7 +1343,7 @@ class WbAdminImportTab(WbAdminSchemaListTab):
 
 
     def tasks_completed(self):
-        logmsg = time.strftime('%X ') + "Import of %s has finished" % self.path.encode("utf8")
+        logmsg = time.strftime('%X ') + "Import of %s has finished" % self.path
         if self.dump_thread.error_count > 0:
             self.progress_tab.set_status("Import Completed With %i Errors" % self.dump_thread.error_count)
             logmsg += " with %i errors" % self.dump_thread.error_count
@@ -1406,7 +1401,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 self.set_schema_data(schema,schematables,viewlist,dbsql)
                 self.schemas_to_load.remove(schema)
             tables = []
-            if schema in self.tables_by_schema.keys():
+            if schema in list(self.tables_by_schema.keys()):
                 tables, selection = self.tables_by_schema[schema]
             return tables
 
@@ -1466,7 +1461,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             dbcreate.nextRow()
             dbsql = dbcreate.unicodeByName("Create Database")
             parts = dbsql.partition("CREATE DATABASE ")
-            dbsql = u"%s%s IF NOT EXISTS %s;\nUSE `%s`;\n" % (parts[0], parts[1], parts[2], escape_sql_identifier(schema))
+            dbsql = "%s%s IF NOT EXISTS %s;\nUSE `%s`;\n" % (parts[0], parts[1], parts[2], escape_sql_identifier(schema))
             while tableset.nextRow():            
                 tabletype = tableset.unicodeByName("Table_type")
                 tablename = tableset.unicodeByName("Tables_in_"+schema)
@@ -1478,10 +1473,10 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                     viewlist.append(tablename)
                 schematables_and_views.append(tablename)
             del tableset
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
-            print "Error retrieving table list form schema '",schema,"'"
+            print("Error retrieving table list form schema '",schema,"'")
             self.progress_tab.print_log_message("Error Fetching Table List From %s (%s)" % (schema, str(exc)) )
         return schema,schematables_and_views,viewlist,dbsql
 
@@ -1508,7 +1503,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 #                    self.table_list_model.set_schema_data(schema,(schematables, set()),viewlist,dbsql)
             else:
                 self.refresh_progress = 1
-        except Exception, exc:
+        except Exception as exc:
             self.print_log_message("Error updating DB: %s" % str(exc) )
 #        finally:
         self.refresh_completed = True
@@ -1613,7 +1608,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         path = get_path_to_mysqldump()
         if path:
             output = []
-            local_run_cmd('"%s" --help' % path, output_handler= lambda line,l=output: l.append(line))
+            local_run_cmd('"%s" --help' % path, output_handler= lambda line,l=output: l.append(line if isinstance(line, str) else line.decode("utf-8")))
             ok = False
             for line in ("\n".join(output)).split("\n"):
                 line = line.strip()
@@ -1684,7 +1679,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         self.out_pipe = open(path,"w")
         if include_schema:
             data = self.table_list_model.get_schema_sql(schemaname)
-            if type(data) is unicode:
+            if type(data) is str:
                 data = data.encode("utf-8")
             self.out_pipe.write(data)
             self.out_pipe.flush()
@@ -1756,7 +1751,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         if save_to_folder:
             if not os.path.exists(self.path):
                 try:
-                    os.makedirs(self.path, mode=0700)
+                    os.makedirs(self.path, mode=0o700)
                 except:
                     Utilities.show_error('Error', 'Access to "%s" failed' % self.path, "OK", "", "")
                     self.export_button.set_enabled(True)
@@ -1906,7 +1901,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
                 del params["host"]
         options = {}
         excludes = ['Show Internal Schemas']
-        for key, value in self.owner.get_export_options(self.mysqldump_defaults).items():
+        for key, value in list(self.owner.get_export_options(self.mysqldump_defaults).items()):
             if not key in excludes:
                 options[key] = value
         params.update(options)
@@ -1936,7 +1931,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         if conn.get("OPT_ENABLE_CLEARTEXT_PLUGIN", ""):
             args.append("--enable-cleartext-plugin")
 
-        for paramname, paramvalue in params.items():
+        for paramname, paramvalue in list(params.items()):
             args.append("--"+paramname+((paramvalue != None and ["="+str(paramvalue)] or [""])[0]))
         cmd = subprocess.list2cmdline(args)
         password = self.get_mysql_password(self.bad_password_detected)
@@ -1981,7 +1976,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
             try:
                 os.rename(self.path, self.path+".cancelled")
                 self.progress_tab.print_log_message("Partial backup file renamed to %s.cancelled" % self.path)
-            except Exception, exc:
+            except Exception as exc:
                 self.progress_tab.print_log_message("Error renaming partial backup file %s: %s" % (self.path, exc))
 
         self.cancelled(time.strftime('%X ') + "Aborted by User")
@@ -1989,7 +1984,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
     def tasks_completed(self):
         self.folder_te.set_value(self.find_available_path(self.folder_te.get_string_value()))
         self.file_te.set_value(self.find_available_path(self.file_te.get_string_value()))
-        logmsg = time.strftime(u'%X ') + "Export of %s has finished" % self.path.encode('utf-8')
+        logmsg = time.strftime('%X ') + "Export of %s has finished" % self.path.encode('utf-8')
         if self.dump_thread.error_count > 0:
             self.progress_tab.set_status("Export Completed With %i Errors" % self.dump_thread.error_count)
             logmsg += " with %i errors" % self.dump_thread.error_count
@@ -2012,7 +2007,7 @@ class WbAdminExportOptionsTab(mforms.Box):
             self.default = default
 
         def get_option(self, defaults):
-            is_bool_option = defaults.has_key(self.optname)
+            is_bool_option = self.optname in defaults
             value = self.checkbox.get_active() and "TRUE" or "FALSE"
             if is_bool_option:
                 if defaults[self.optname] != value:
@@ -2063,7 +2058,7 @@ class WbAdminExportOptionsTab(mforms.Box):
         outerbox = newBox(False)
         outerbox.set_padding(8)
         outerbox.set_spacing(12)
-        for groupname, options in reversed(wb_admin_export_options.export_options.items()):
+        for groupname, options in reversed(list(wb_admin_export_options.export_options.items())):
             box = newBox(False)
             box.set_padding(8)
             box.set_spacing(8)
@@ -2071,7 +2066,7 @@ class WbAdminExportOptionsTab(mforms.Box):
             panel.set_title(groupname)
             panel.set_name(groupname)
 #            print groupname
-            for optname, option_info in reversed(options.items()):
+            for optname, option_info in reversed(list(options.items())):
                 option_type = "BOOL"
                 if len(option_info) == 2:
                     (option, default) = option_info
@@ -2143,7 +2138,7 @@ class WbAdminExportOptionsTab(mforms.Box):
 
     def get_options(self, defaults):
         options = {}
-        for optname, getter in self.options.items():
+        for optname, getter in list(self.options.items()):
             result = getter.get_option(defaults)
             if result != None:
                 options.update(result)
@@ -2151,12 +2146,12 @@ class WbAdminExportOptionsTab(mforms.Box):
         return options
 
     def set_options(self, values):
-        for k, v in values.items():
-            if self.options.has_key(k):
+        for k, v in list(values.items()):
+            if k in self.options:
                 self.options[k].set_option(v)
 
     def restore_default_options(self):
-        for option in self.options.values():
+        for option in list(self.options.values()):
             option.set_option(option.default)
 
     def add_clicked_callback_to_checkbox(self, optname, callback_function):
@@ -2178,7 +2173,7 @@ class WbAdminProgressTab(mforms.Box):
         self.operation_tab = None
         self.is_export = is_export
 
-        self.logging_lock = thread.allocate_lock()
+        self.logging_lock = _thread.allocate_lock()
         self.log_queue = deque([])
 
         statusbox = newBox(False)
@@ -2403,12 +2398,12 @@ class WbAdminExport(WbAdminTabBase):
             dic["wb.admin.export:dumpEvents"] = self.export_tab.dump_events_check.get_active()
             dic["wb.admin.export:dumpTriggers"] = self.export_tab.dump_triggers_check.get_active()
             dic["wb.admin.export:skipData"] = self.export_tab.dump_type_selector.get_selected_index()
-            for key, value in self.get_export_options({}).items():
+            for key, value in list(self.get_export_options({}).items()):
                 dic["wb.admin.export.option:"+key] = value
 
     def recall_options(self):
         dic = grt.root.wb.options.options
-        if dic.has_key("wb.admin.export:exportType"):
+        if "wb.admin.export:exportType" in dic:
             if dic["wb.admin.export:exportType"] == "folder":
                 self.export_tab.folderradio.set_active(True)
             else:
@@ -2418,19 +2413,19 @@ class WbAdminExport(WbAdminTabBase):
 #            self.export_tab.folder_te.set_value(dic["wb.admin.export:selectedFolder"])
 #        if dic.has_key("wb.admin.export:selectedFile"):
 #            self.export_tab.file_te.set_value(dic["wb.admin.export:selectedFile"])
-        if dic.has_key("wb.admin.export:singleTransaction"):
+        if "wb.admin.export:singleTransaction" in dic:
             self.export_tab.single_transaction_check.set_active(dic["wb.admin.export:singleTransaction"] != 0)
-        if dic.has_key("wb.admin.export:dumpRoutines"):
+        if "wb.admin.export:dumpRoutines" in dic:
             self.export_tab.dump_routines_check.set_active(dic["wb.admin.export:dumpRoutines"] != 0)
-        if dic.has_key("wb.admin.export:dumpEvents"):
+        if "wb.admin.export:dumpEvents" in dic:
             self.export_tab.dump_events_check.set_active(dic["wb.admin.export:dumpEvents"] != 0)
-        if dic.has_key("wb.admin.export:dumpTriggers"):
+        if "wb.admin.export:dumpTriggers" in dic:
             self.export_tab.dump_triggers_check.set_active(dic["wb.admin.export:dumpTriggers"] != 0)
-        if dic.has_key("wb.admin.export:skipData"):
+        if "wb.admin.export:skipData" in dic:
             self.export_tab.dump_type_selector.set_selected(dic["wb.admin.export:skipData"] != 0)
         values = {}
-        for key in self.get_export_options({}).keys():
-            if dic.has_key("wb.admin.export.option:"+key):
+        for key in list(self.get_export_options({}).keys()):
+            if "wb.admin.export.option:"+key in dic:
                 values[key] = dic["wb.admin.export.option:"+key]
         self.options_tab.set_options(values)
 

@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+#!/usr/bin/env python3
+# Copyright (c) 2014, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,8 +18,8 @@
 
 import os
 import sys
-import StringIO
-import ConfigParser
+import io
+import configparser
 from time import strptime, strftime
 import re
 import subprocess
@@ -28,6 +28,9 @@ import json
 
 is_library = True
 
+def to_unicode(text):
+    # Convert to unicode if it's not unicode yet
+    return text if isinstance(text, str) else text.decode('utf8')
 
 
 def call_system(command, spawn, output_handler = None):
@@ -49,12 +52,12 @@ def call_system(command, spawn, output_handler = None):
                     pass
                       
             os.execvp("/bin/sh", ["/bin/sh", "-c", command])
-        except OSError, e:
+        except OSError as e:
             logging.error('Error on command execution: %s' % str(e))
             result = 1
 
     else:
-        child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp)
+        child = subprocess.Popen(command, bufsize=0, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True, preexec_fn=os.setpgrp, encoding='utf-8')
         
     if not spawn:
         if output_handler:
@@ -69,7 +72,7 @@ def call_system(command, spawn, output_handler = None):
 
 
 def check_version_at_least(command, major, minor, revno):
-  output = StringIO.StringIO()
+  output = io.StringIO()
   
   ret_val = call_system("%s --version" % command, False, output.write)
   
@@ -81,16 +84,13 @@ def check_version_at_least(command, major, minor, revno):
     found_minor = 0
     found_revno = 0
     
-    for token in tokens:
-      if token == 'version':
-        version = 'found'
-      else:
-        if version == 'found':
-          version = token
-          version_tokens = version.split('.')
-          found_major = int(version_tokens[0])
-          found_minor = int(version_tokens[1])
-          found_revno = int(version_tokens[2])
+    index = (i for i, item in enumerate(tokens) if item == "version" or item == "Ver")
+    index = next(index) + 1                       # index next to "Ver" or "version"
+    version = tokens[index].split('-')[0]     # remove <version>-comercial if necessary
+    version_tokens = version.split('.')
+    found_major = int(version_tokens[0])
+    found_minor = int(version_tokens[1])
+    found_revno = int(version_tokens[2])
     
     return  (found_major, found_minor, found_revno) >= (major, minor, revno)
 
@@ -102,8 +102,8 @@ class ConfigReader(object):
         profile_file = open(file, 'r')
         data = profile_file.read()
 
-        self.doc = ConfigParser.ConfigParser()
-        self.doc.readfp(StringIO.StringIO(data))
+        self.doc = configparser.ConfigParser()
+        self.doc.read_file(io.StringIO(to_unicode(data)))
 
     def read_value(self, section, item, mandatory = False, default = None):
         value = default
@@ -169,7 +169,7 @@ class MEBCommand(object):
 
     def execute(self):
         if self.read_params():
-            print "ERROR: Missing command execution logic"
+            print("ERROR: Missing command execution logic")
         else:
             self.print_usage()
             
@@ -192,7 +192,7 @@ class MEBCommand(object):
         if self.output_handler:
             self.output_handler(output + '\n')
         else:
-            print output
+            print(output)
 
 
 class MEBCommandProcessor(MEBCommand):
@@ -217,7 +217,7 @@ class MEBCommandProcessor(MEBCommand):
                 self.command = sys.argv[2]
                 self.help_needed = True
         except IndexError:
-            print "Error executing helper, use it as follows:"
+            print("Error executing helper, use it as follows:")
             logging.error("Unable to execute %s with no parameters." % __file__)
             ret_val = False
 
@@ -225,18 +225,18 @@ class MEBCommandProcessor(MEBCommand):
 
     def print_usage(self):
         self.write_output("mysqlwbmeb <command> <parameters>")
-        self.write_output("WHERE : <command>        : is one of %s" % ','.join(self._commands.keys()))
+        self.write_output("WHERE : <command>        : is one of %s" % ','.join(list(self._commands.keys())))
         self.write_output("        <parameters>     : are the parameters needed for each command.")
         self.write_output("\nYou can also use as follows to get each command parameters:\n")
         self.write_output("mysqlwbmeb help <command>")
-        self.write_output("WHERE : <command>        : is one of %s\n" % self._commands.keys())
+        self.write_output("WHERE : <command>        : is one of %s\n" % list(self._commands.keys()))
 
     def execute(self):
         processed = False
         ret_val = 1
         if self.read_params():
             command = self.command.upper()
-            if self._commands.has_key(command):
+            if command in self._commands:
                 klass = self._commands[command]
                 instance = klass(self.params, self.output_handler)
                 processed = True
@@ -551,12 +551,12 @@ class MEBUpdateScheduling(MEBCommand):
         self.hour = self.profile.read_value("meb_manager", backup_type + "_backups_hour", "")
         self.minute = self.profile.read_value("meb_manager", backup_type + "_backups_minute", "")
 
-        print "Loaded data for type : %s" % backup_type
-        print "Frequency: %s" % self.frequency
-        print "Month Day: %s" % self.month_day
-        print "Week Days: %s" % self.week_days
-        print "Hour: %s" % self.hour
-        print "Minute: %s" % self.minute
+        print(("Loaded data for type : %s" % backup_type))
+        print(("Frequency: %s" % self.frequency))
+        print(("Month Day: %s" % self.month_day))
+        print(("Week Days: %s" % self.week_days))
+        print(("Hour: %s" % self.hour))
+        print(("Minute: %s" % self.minute))
 
     def get_unschedule_command(self, backup_type):
         cron_file = "%s/wb_cron_file" % os.path.dirname(__file__)
@@ -638,7 +638,7 @@ class MEBUpdateScheduling(MEBCommand):
         return schedule_command
 
     def execute(self):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         ret_val = 0
         if self.read_params():
         
@@ -769,7 +769,7 @@ class MEBGetProfiles(MEBCommand):
     def execute(self):
         # Gets the backups home path
         backups_home = ''
-        if os.environ.has_key('WBMEB_BACKUPSHOME'):
+        if 'WBMEB_BACKUPSHOME' in os.environ:
             backups_home = os.environ['WBMEB_BACKUPSHOME']
 
         if backups_home and self.read_params():
@@ -861,7 +861,7 @@ class MEBGetProfiles(MEBCommand):
                         if include or exclude:
                           profile_issues |= 4
 
-                    # The VALID item will cintain a numeric valid describing the issues encountered on the profile
+                    # The VALID item will contain a numeric value describing the issues encountered on the profile
                     # Validation. Each issue should be assigned a value of 2^x so the different issues can be joined
                     # using bitwise operations
                     # 1 : Indicates the backup folder is not valid to store the backups.
@@ -903,11 +903,11 @@ class MEBHelperVersion(MEBCommand):
 
           file = open (__file__, 'r')
           data = file.read()
-          md5 = hashlib.md5(data)
+          md5 = hashlib.md5(bytes(data, 'utf-8'))
 
           self.write_output(md5.hexdigest())
-        except Exception, e:
-            logging.error('MEBHelperVersion error ' % str(e))
+        except Exception as e:
+            logging.error('MEBHelperVersion error: %s' % str(e))
             return 1
         return 0
 

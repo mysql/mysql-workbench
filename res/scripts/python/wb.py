@@ -1,12 +1,33 @@
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2.0,
+# as published by the Free Software Foundation.
+#
+# This program is also distributed with certain software (including
+# but not limited to OpenSSL) that is licensed under separate terms, as
+# designated in a particular file or component or in included license
+# documentation.  The authors of MySQL hereby grant you an additional
+# permission to link the program and your derivative works with the
+# separately licensed software that they have included with MySQL.
+# This program is distributed in the hope that it will be useful,  but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+# the GNU General Public License, version 2.0, for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
 
 import grt
 
-# NOTE: If you're using this in a module, it should be imported as 
+# NOTE: If you're using this in a module, it should be imported as
 # from wb import *
 
 
 class DefineModule(dict):
-    def __init__(self, name, implements=None, author="", version= "", description= ""):
+    def __init__(self, name, implements=None, author="", version="", description=""):
         """Define a GRT module. Must be called before any function declaration as
         wbmodule = DefineModule('modname')
         """
@@ -63,7 +84,7 @@ class DefineModule(dict):
             plug.description= description
             plug.pluginType= type
             plug.moduleName= self.name
-            plug.moduleFunctionName= fn.func_code.co_name
+            plug.moduleFunctionName= fn.__code__.co_name
             for i in input:
               i.owner= plug
               plug.inputValues.append(i)
@@ -95,7 +116,7 @@ class DefineModule(dict):
             plug.caption= caption
             plug.pluginType= "standalone"
             plug.moduleName= self.name
-            plug.moduleFunctionName= fn.func_code.co_name
+            plug.moduleFunctionName= fn.__code__.co_name
             if input:
                 arg = grt.classes.app_PluginInputDefinition()
                 arg.name= input
@@ -106,7 +127,7 @@ class DefineModule(dict):
             self._pluginList.append(plug)
 
             signature= (grt.STRING, [("text", grt.STRING)])
-            self.functions.append((fn.func_code.co_name, signature, fn))
+            self.functions.append((fn.__code__.co_name, signature, fn))
 
             return fn
 
@@ -127,8 +148,8 @@ class DefineModule(dict):
         """
         typenames= [grt.INT,grt.DOUBLE,grt.STRING,grt.LIST,grt.DICT, grt.OBJECT]
         def set_types(fn):
-            if len(argtypes) != fn.func_code.co_argcount:
-              raise TypeError("module function '%s' has %i arguments, but @export declares %i" % (fn.func_code.co_name, fn.func_code.co_argcount, len(argtypes)))
+            if len(argtypes) != fn.__code__.co_argcount:
+              raise TypeError("module function '%s' has %i arguments, but @export declares %i" % (fn.__code__.co_name, fn.__code__.co_argcount, len(argtypes)))
             arglist= []
             for i in range(len(argtypes)+1):
               if i == 0:
@@ -162,10 +183,10 @@ class DefineModule(dict):
               if i == 0:
                 arglist.append(arg)
               else:
-                arglist.append((fn.func_code.co_varnames[i-1], arg))
+                arglist.append((fn.__code__.co_varnames[i-1], arg))
             signature= (arglist[0], arglist[1:])
         
-            self.functions.append((fn.func_code.co_name, signature, fn))
+            self.functions.append((fn.__code__.co_name, signature, fn))
             return fn
         return set_types
  

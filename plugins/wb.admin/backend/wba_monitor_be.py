@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-import StringIO
+import io
 import socket
 import threading
 import time
@@ -85,7 +85,7 @@ class DBWidgetHandler(object):
                 try:
                     result = float(result)
                 except (ValueError, TypeError):
-                    print("Error! Calculation returned returned wrong value. Expected int or float but got", result)
+                    print(("Error! Calculation returned returned wrong value. Expected int or float but got", result))
                     result = 0.0
                 self.widget.set_value(result)
                 if self.label_cb is not None:
@@ -151,7 +151,7 @@ class ShellDataSource(DataSource):
         self._cpu_stat_return = None
 
     def poll(self):
-        output = StringIO.StringIO()
+        output = io.StringIO()
         
         if self.ctrl_be.server_helper.execute_command("/usr/bin/uptime", output_handler=output.write) == 0:
             data = output.getvalue().strip(" \r\t\n,:.").split("\n")[-1]
@@ -250,12 +250,12 @@ class WinRemoteStats(object):
                     self.read_thread = threading.Thread(target=self.ssh.executeCommand, args=(self.script, Users.CURRENT, None, self.reader, 1, self.save_channel))
                     self.read_thread.setDaemon(True)
                     self.read_thread.start()
-                except IOError, e:
+                except IOError as e:
                     self.ssh.disconnect()
                     self.ssh = None
                     raise e
         else:
-            print "Can't find a place to upload script dirpath='%s'"%dirpath
+            print("Can't find a place to upload script dirpath='%s'"%dirpath)
 
 
     #-----------------------------------------------------------------------------
@@ -357,11 +357,11 @@ class WMIStats(object):
                 try:
                     value = int(value)
                 except:
-                    print "Wmi query: can't cast '%s' to int" % str(value)
+                    print("Wmi query: can't cast '%s' to int" % str(value))
                     value = 1
             else:
-                print "Wmi query: expected '%s' result attribute, got:" % attr
-                print res
+                print("Wmi query: expected '%s' result attribute, got:" % attr)
+                print(res)
                 value = 1
         return value
 
@@ -403,7 +403,7 @@ class WBAdminMonitorBE(object):
                     self.sources.append(stats)
 
         sql_sources = DBStatusDataSource(self)
-        for name, query in sql.iteritems():
+        for name, query in sql.items():
             widget = None
             if name in widgets:
                 widget = widgets[name]

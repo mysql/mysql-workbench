@@ -37,7 +37,7 @@ def preprocess(inpath, inf, outf, vars):
 
         # @ifndistro and @ifnedition also accepted
         for line in inf:
-                for key, value in vars.items():
+                for key, value in list(vars.items()):
                         line = line.replace('@%s@' % key, value)
 
                 if line.startswith("@") and not line.startswith("@@"):
@@ -59,7 +59,7 @@ def preprocess(inpath, inf, outf, vars):
                                 conditions.pop()
                                 continue
                         else:
-                                print inpath+": unknown directive", line
+                                print((inpath+": unknown directive", line))
                 if conditions[-1]:
                         outf.write(line)
                         
@@ -99,7 +99,7 @@ def generate_distro(source_dir, vars):
         inpath = os.path.join(source_dir, "source/lintian-override")
         preprocess(inpath, open(inpath), outf, vars)
 
-        print target_dir, "generated"
+        print((target_dir, "generated"))
 
 if os.path.isdir("../internal"):
     edition = "commercial"

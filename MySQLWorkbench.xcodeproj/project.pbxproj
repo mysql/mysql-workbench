@@ -138,7 +138,7 @@
 		274E9B9B107C9FF100551AC4 /* options-horizontal-separator.png in Resources */ = {isa = PBXBuildFile; fileRef = 274E9B9A107C9FF100551AC4 /* options-horizontal-separator.png */; };
 		27512ED11240F4F600EF37DD /* code_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27512ED01240F4F600EF37DD /* code_editor.cpp */; };
 		27512ED31240F50200EF37DD /* code_editor.h in Headers */ = {isa = PBXBuildFile; fileRef = 27512ED21240F50200EF37DD /* code_editor.h */; };
-		275256491D9517DB0028ACAB /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		275256491D9517DB0028ACAB /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
 		2752564A1D951B060028ACAB /* MySQLRecognizerCommon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 279DDF641D12A55F00857C36 /* MySQLRecognizerCommon.cpp */; };
 		2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27467EBD154A96CB00021708 /* libparsers.dylib */; };
 		2754DF60142CAA9800D1D419 /* snippet_clipboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2754DF5F142CAA9800D1D419 /* snippet_clipboard.png */; };
@@ -1604,7 +1604,7 @@
 		2B6BBEE116BACAD000F8A39E /* db.search.wbp.dylib in Copy Files (plugins) */ = {isa = PBXBuildFile; fileRef = 2B6BBECF16BAC53300F8A39E /* db.search.wbp.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2B6C4FBA18DDD88F00869EBE /* python_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6C4FB818DDD88F00869EBE /* python_utils.cpp */; };
 		2B6C4FBD18DDD8C500869EBE /* python_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6C4FBC18DDD8C500869EBE /* python_utils.h */; };
-		2B6C4FBF18DDE7AB00869EBE /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2B6C4FBF18DDE7AB00869EBE /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
 		2B6C4FC318DE372D00869EBE /* mysql.profiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B6C4FC218DE372D00869EBE /* mysql.profiles */; };
 		2B6D772813BC22920098AA8E /* MTabSwitcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6D772613BC22920098AA8E /* MTabSwitcher.h */; };
 		2B738FFD0F5EB37F0084CA96 /* grtdb_connection_editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B738FFB0F5EB37F0084CA96 /* grtdb_connection_editor.cpp */; };
@@ -2130,7 +2130,7 @@
 		2BC929A0170CD7B300D5BCAD /* edit_table_templates.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC9299F170CD7B300D5BCAD /* edit_table_templates.png */; };
 		2BC929A2170E21D100D5BCAD /* tabview_dock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC929A1170E21D100D5BCAD /* tabview_dock.cpp */; };
 		2BC929A4170E21DB00D5BCAD /* tabview_dock.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC929A3170E21DB00D5BCAD /* tabview_dock.h */; };
-		2BC929AA171831D600D5BCAD /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2BC929AA171831D600D5BCAD /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
 		2BCAD0581006D11A00D1772C /* mforms_wrap.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAD0571006D11A00D1772C /* mforms_wrap.cxx */; };
 		2BCAD05E1006D20B00D1772C /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		2BCAD0731006D31100D1772C /* _mforms.so in Copy Files (python modules) */ = {isa = PBXBuildFile; fileRef = 2BCAD04C1006D09C00D1772C /* _mforms.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -2162,11 +2162,11 @@
 		2BCD412E13837A3500B375FD /* wait_panel_cancel_button.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCD412D13837A3500B375FD /* wait_panel_cancel_button.png */; };
 		2BCD495415BDD55E00F88A38 /* build_freetds.sh in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 2BCD494115BDD53C00F88A38 /* build_freetds.sh */; };
 		2BCD495515BDD55E00F88A38 /* sakila_full.mwb in Copy Extra Files */ = {isa = PBXBuildFile; fileRef = 2BCD494015BDD52F00F88A38 /* sakila_full.mwb */; };
-		2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
-		2BCE4A0615F6478200FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
-		2BCE4A0815F647A400FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
-		2BCE4A0915F647AE00FA0CDC /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2BCE4A0415F646A200FA0CDC /* Python3 in Copy Files (sqlide) */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		2BCE4A0515F6476F00FA0CDC /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
+		2BCE4A0615F6478200FA0CDC /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
+		2BCE4A0815F647A400FA0CDC /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
+		2BCE4A0915F647AE00FA0CDC /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
 		2BCE53DC122C6BE60019C95B /* confirm_save_dialog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */; };
 		2BCE53DD122C6BE60019C95B /* confirm_save_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BCE53DB122C6BE60019C95B /* confirm_save_dialog.cpp */; };
 		2BCEBF9713DBD3F100A23E75 /* mini_edit.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCEBF9513DBD3F100A23E75 /* mini_edit.png */; };
@@ -2385,7 +2385,7 @@
 		2BEC8E771035F77B00607CA4 /* sql_semantic_check.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEC8E751035F77B00607CA4 /* sql_semantic_check.h */; };
 		2BEC8E7C1035F80900607CA4 /* mysql_sql_semantic_check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC8E7A1035F80900607CA4 /* mysql_sql_semantic_check.cpp */; };
 		2BECA53618B3A13D00E12F8B /* sys in Resources */ = {isa = PBXBuildFile; fileRef = 2BECA53518B3A13D00E12F8B /* sys */; };
-		2BECA53918BD2F3000E12F8B /* Python in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python */; };
+		2BECA53918BD2F3000E12F8B /* Python3 in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; };
 		2BF0491C1739925E00A7EA35 /* mysql-logo-00.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490A1739925E00A7EA35 /* mysql-logo-00.png */; };
 		2BF0491D1739925E00A7EA35 /* mysql-logo-00@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490B1739925E00A7EA35 /* mysql-logo-00@2x.png */; };
 		2BF0491E1739925E00A7EA35 /* mysql-logo-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BF0490C1739925E00A7EA35 /* mysql-logo-50.png */; };
@@ -2735,6 +2735,7 @@
 		8E9AE336225205D700C0681C /* overview_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E9AE334225205D600C0681C /* overview_specs.cpp */; };
 		8E9AE33822524DCE00C0681C /* grt_dispatcher_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E9AE33722524DCE00C0681C /* grt_dispatcher_specs.cpp */; };
 		8E9AE33922524DCE00C0681C /* grt_dispatcher_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E9AE33722524DCE00C0681C /* grt_dispatcher_specs.cpp */; };
+		8EDA6B3C24B47596005377C1 /* Python3 in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 2BCE4A0315F6467B00FA0CDC /* Python3 */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		8EEF5E2C2191B6D300CE73B7 /* mssql_rdbms_info.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8EEF5E2B2191B6D300CE73B7 /* mssql_rdbms_info.xml */; };
 		8EEF5E2E2193075100CE73B7 /* sybase_rdbms_info.xml in Resources */ = {isa = PBXBuildFile; fileRef = 8EEF5E2D2193075100CE73B7 /* sybase_rdbms_info.xml */; };
 		8EF64A8A2255EC6300AA8BD1 /* helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF64A882255EC6200AA8BD1 /* helpers.cpp */; };
@@ -3969,6 +3970,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8EDA6B3C24B47596005377C1 /* Python3 in Copy Files (dylibs) */,
 				27DD507620B56D8D00A8F17A /* libwbssh.dylib in Copy Files (dylibs) */,
 				27183E891DA54E0100257580 /* libmtemplate.dylib in Copy Files (dylibs) */,
 				27E0E23015517BAE0073FD6F /* libparsers.dylib in Copy Files (dylibs) */,
@@ -4061,7 +4063,7 @@
 			dstPath = modules/data/sqlide;
 			dstSubfolderSpec = 7;
 			files = (
-				2BCE4A0415F646A200FA0CDC /* Python in Copy Files (sqlide) */,
+				2BCE4A0415F646A200FA0CDC /* Python3 in Copy Files (sqlide) */,
 				2B17615914565C62003EFCF7 /* XML_mysql.post.tpl in Copy Files (sqlide) */,
 				2B17615A14565C62003EFCF7 /* XML_mysql.pre.tpl in Copy Files (sqlide) */,
 				270FF07E1E77E98A007ABFFE /* help-5.6.json in Copy Files (sqlide) */,
@@ -6236,7 +6238,7 @@
 		2BCD494115BDD53C00F88A38 /* build_freetds.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_freetds.sh; path = build/build_freetds.sh; sourceTree = "<group>"; };
 		2BCE49EB15F5341C00FA0CDC /* db_sybase_migration_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_sybase_migration_grt.py; path = modules/db.sybase/db_sybase_migration_grt.py; sourceTree = "<group>"; };
 		2BCE49EC15F5341C00FA0CDC /* db_sybase_re_grt.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; name = db_sybase_re_grt.py; path = modules/db.sybase/db_sybase_re_grt.py; sourceTree = "<group>"; };
-		2BCE4A0315F6467B00FA0CDC /* Python */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python; path = /System/Library/Frameworks/Python.framework/Versions/2.7/Python; sourceTree = "<absolute>"; };
+		2BCE4A0315F6467B00FA0CDC /* Python3 */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = Python3; path = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/Python3; sourceTree = "<absolute>"; };
 		2BCE53DA122C6BE60019C95B /* confirm_save_dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = confirm_save_dialog.h; sourceTree = "<group>"; };
 		2BCE53DB122C6BE60019C95B /* confirm_save_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = confirm_save_dialog.cpp; sourceTree = "<group>"; };
 		2BCEBF9513DBD3F100A23E75 /* mini_edit.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mini_edit.png; sourceTree = "<group>"; };
@@ -6873,8 +6875,8 @@
 				278DFF2320A2F6DA00D7E439 /* libwbssh.dylib in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
 				270124222099F97F00FE448E /* libglib-2.0.0.dylib in Frameworks */,
-				270124242099F9D200FE448E /* libmysqlclient.dylib in Frameworks */,
-				2BECA53918BD2F3000E12F8B /* Python in Frameworks */,
+				270124242099F9D200FE448E /* libmysqlclient.21.dylib in Frameworks */,
+				2BECA53918BD2F3000E12F8B /* Python3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6883,7 +6885,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				27D6EE3F2099DE300050B26B /* libcairo.2.dylib in Frameworks */,
-				2BCE4A0815F647A400FA0CDC /* Python in Frameworks */,
+				2BCE4A0815F647A400FA0CDC /* Python3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7009,7 +7011,7 @@
 				27D6EE412099E2080050B26B /* libgdal.1.dylib in Frameworks */,
 				27D6EE432099E2460050B26B /* libvsqlitepp.3.dylib in Frameworks */,
 				2B6BBB950EB759EC00D71468 /* OpenGL.framework in Frameworks */,
-				2BC929AA171831D600D5BCAD /* Python in Frameworks */,
+				2BC929AA171831D600D5BCAD /* Python3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7020,7 +7022,7 @@
 				27D6EE252099C1580050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2774A4C51C92D31200D1E037 /* Cocoa.framework in Frameworks */,
 				2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */,
-				2B6C4FBF18DDE7AB00869EBE /* Python in Frameworks */,
+				2B6C4FBF18DDE7AB00869EBE /* Python3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7032,7 +7034,7 @@
 				2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */,
 				27D6EE272099C7060050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */,
-				2BCE4A0615F6478200FA0CDC /* Python in Frameworks */,
+				2BCE4A0615F6478200FA0CDC /* Python3 in Frameworks */,
 				27D6EE2C2099D6AD0050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE292099D65A0050B26B /* libgmodule-2.0.0.dylib in Frameworks */,
 			);
@@ -7113,7 +7115,7 @@
 				2BC09089106860D40069AB9A /* libwbpublic.be.dylib in Frameworks */,
 				2B4C9EA710A2AE8A00D5F19E /* libwbbase.dylib in Frameworks */,
 				2BE9FD51151A6ABC00CC0894 /* libgrt.dylib in Frameworks */,
-				2BCE4A0915F647AE00FA0CDC /* Python in Frameworks */,
+				2BCE4A0915F647AE00FA0CDC /* Python3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7138,7 +7140,7 @@
 				27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */,
 				27D6EE512099E43E0050B26B /* libzip.4.dylib in Frameworks */,
-				275256491D9517DB0028ACAB /* Python in Frameworks */,
+				275256491D9517DB0028ACAB /* Python3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7303,7 +7305,7 @@
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
 				27E7D797237BF7560006BD1B /* libssh.4.7.6.dylib in Frameworks */,
 				27810E55209B007F00E6E4CE /* libglib-2.0.0.dylib in Frameworks */,
-				2BCE4A0515F6476F00FA0CDC /* Python in Frameworks */,
+				2BCE4A0515F6476F00FA0CDC /* Python3 in Frameworks */,
 				271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */,
 				272E57321FA0726E002541F5 /* Cocoa.framework in Frameworks */,
 				2BD1FBDD0F33D53100FFC762 /* ExceptionHandling.framework in Frameworks */,
@@ -9656,7 +9658,7 @@
 				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
 				278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */,
 				27D6EE502099E43D0050B26B /* libzip.4.dylib */,
-				2BCE4A0315F6467B00FA0CDC /* Python */,
+				2BCE4A0315F6467B00FA0CDC /* Python3 */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -14388,7 +14390,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH_CE=${SRCROOT}/3rd-party-ce\nRES_SOURCE_PATH_SE=${SRCROOT}/3rd-party-se\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\n\n# copy file if it doesnt exist or is newer\nfunction copy() {\n    from=$1\n    to=$2/`basename $from`\n    if [ ! -f $to ] || [ $from -nt $to ]; then\n        cp -f $from $to\n    fi\n}\n\nfunction copySymlink() {\n    fromPath=$1\n    fromDir=`dirname $fromPath`\n    destName=`readlink $fromPath`\n    while [ -L \"$fromDir/$destName\" ]\n    do\n        destName=`readlink $fromDir/$destName`\n    done\n    destPath=$2/$destName\n    if [ ! -f $fromPath ] || [ $fromPath -nt $destPath ]; then\n        cp -f $fromPath $destPath\n    fi\n}\n\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH_CE}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/License*.txt\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/README*.txt\n\ncopy ${RES_SOURCE_PATH_SE}/bin/ogrinfo ${EXEPATH}\ncopy ${RES_SOURCE_PATH_SE}/bin/ogr2ogr ${EXEPATH}\n\ncopy ${RES_SOURCE_PATH_SE}/lib/libproj.0.dylib ${NEWLIBPATH}\n\necho \"Copy libssh symlink destination into bundle\"\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libssh.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libmysqlcppconn.dylib ${NEWLIBPATH}\n\n# Use commercial libs if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying libraries for standard edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_SE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying libraries for community edition\"\n    copy ${RES_SOURCE_PATH_CE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_CE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n$fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\nCHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\n";
+			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH_CE=${SRCROOT}/3rd-party-ce\nRES_SOURCE_PATH_SE=${SRCROOT}/3rd-party-se\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\npythonfixer=$SRCROOT/build/fixup_python_paths.sh\n\n# copy file if it doesnt exist or is newer\nfunction copy() {\n    from=$1\n    to=$2/`basename $from`\n    if [ ! -f $to ] || [ $from -nt $to ]; then\n        cp -f $from $to\n    fi\n}\n\nfunction copySymlink() {\n    fromPath=$1\n    fromDir=`dirname $fromPath`\n    destName=`readlink $fromPath`\n    while [ -L \"$fromDir/$destName\" ]\n    do\n        destName=`readlink $fromDir/$destName`\n    done\n    destPath=$2/$destName\n    if [ ! -f $fromPath ] || [ $fromPath -nt $destPath ]; then\n        cp -f $fromPath $destPath\n    fi\n}\n\n\necho \"Copy special 3rd party libraries into bundle\"\ncopy ${RES_SOURCE_PATH_CE}/lib/libiconv.2.dylib ${NEWLIBPATH} # Own version with other exported symbol names for ODBC.\n\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/License*.txt\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/README*.txt\n\ncopy ${RES_SOURCE_PATH_SE}/bin/ogrinfo ${EXEPATH}\ncopy ${RES_SOURCE_PATH_SE}/bin/ogr2ogr ${EXEPATH}\n\ncopy ${RES_SOURCE_PATH_SE}/lib/libproj.0.dylib ${NEWLIBPATH}\n\necho \"Copy libssh symlink destination into bundle\"\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libssh.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libmysqlcppconn.dylib ${NEWLIBPATH}\n\n# Use commercial libs if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying libraries for standard edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_SE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying libraries for community edition\"\n    copy ${RES_SOURCE_PATH_CE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_CE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython3 -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython3 -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n$fixer $NEWLIBPATH/libwbbase.dylib\n#$fixer $NEWLIBPATH/libgrt.dylib\n#$fixer $NEWLIBPATH/libwbprivate.be.dylib\n#$fixer $NEWLIBPATH/libwbpublic.be.dylib\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\necho \"Adjusting python paths\"\n$pythonfixer $execfile\n$pythonfixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n$pythonfixer $NEWLIBPATH/libwbbase.dylib\n$pythonfixer $NEWLIBPATH/libgrt.dylib\n$pythonfixer $NEWLIBPATH/libwbprivate.be.dylib\n$pythonfixer $NEWLIBPATH/libwbpublic.be.dylib\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $pythonfixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    $pythonfixer $libpath\ndone\n";
 			showEnvVarsInLog = 0;
 		};
 		2731DE7521A2D4E4002EEE8A /* Copy some binaries */ = {
@@ -17803,14 +17805,14 @@
 					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
 					"$(PROJECT_DIR)/3rd-party-ce/include/cairo",
-					/usr/include/python2.7,
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/include/python3.7m,
 					/usr/include/libxml2,
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/res",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/lib/,
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -17834,14 +17836,14 @@
 					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
 					"$(PROJECT_DIR)/3rd-party-ce/include/cairo",
-					/usr/include/python2.7,
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/include/python3.7m,
 					/usr/include/libxml2,
 				);
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/res",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/lib/,
 				);
 				PRODUCT_NAME = wbbase;
 				SKIP_INSTALL = YES;
@@ -18980,12 +18982,12 @@
 					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
 					"$(PROJECT_DIR)/3rd-party-ce/include/cairo",
-					/usr/include/python2.7,
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/include/python3.7m,
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/lib/,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				ONLY_ACTIVE_ARCH = YES;
@@ -19051,12 +19053,12 @@
 					"$(PROJECT_DIR)/3rd-party-ce/include/glib-2.0",
 					"$(PROJECT_DIR)/3rd-party-ce/lib/glib-2.0/include",
 					"$(PROJECT_DIR)/3rd-party-ce/include/cairo",
-					/usr/include/python2.7,
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/include/python3.7m,
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/3rd-party-ce/lib/**",
-					"$(SYSTEM_LIBRARY_DIR)/Frameworks/Python.framework/Versions/2.7",
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.7/lib/,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";

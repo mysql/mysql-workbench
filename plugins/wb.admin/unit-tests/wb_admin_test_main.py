@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -92,12 +92,12 @@ def create_instance(hostName, port, user, password, login, server):
 
     # Create login part
     li = instance.loginInfo
-    for k,v in login.iteritems():
+    for k,v in login.items():
         li[k] = v
 
     # Create server part
     si = instance.serverInfo
-    for k,v in server.iteritems():
+    for k,v in server.items():
         si[k] = v
 
     return instance

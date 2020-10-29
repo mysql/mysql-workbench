@@ -1,10 +1,31 @@
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2.0,
+# as published by the Free Software Foundation.
+#
+# This program is also distributed with certain software (including
+# but not limited to OpenSSL) that is licensed under separate terms, as
+# designated in a particular file or component or in included license
+# documentation.  The authors of MySQL hereby grant you an additional
+# permission to link the program and your derivative works with the
+# separately licensed software that they have included with MySQL.
+# This program is distributed in the hope that it will be useful,  but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+# the GNU General Public License, version 2.0, for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
 import os
 import sys
 import bdb
-import wbpdb
 import traceback
 import tempfile
 import time
+import imp
 
 
 STOP_REASON_STEP = 0
@@ -60,6 +81,11 @@ class PersistentBreakpoint:
     def deactivate(self):
         self.owner.clear_break(self.owner.canonic(self.file), self.line)
 
+    def __repr__(self):
+        return "[%s] %s:%s" % ("ON" if self.active else "OFF", self.file, self.line)
+
+    def __str__(self):
+        return "[%s] %s:%s" % ("ON" if self.active else "OFF", self.file, self.line)
 
 
 class PyDebugger(bdb.Bdb):
@@ -93,7 +119,7 @@ class PyDebugger(bdb.Bdb):
 
 
     def show_stack(self, stack):
-        import linecache, repr
+        import linecache, reprlib
         self.ui_clear_stack()
         # index 0 is in bdb.py and index 1 is the execfile() command from wdb_run()
         for frame, line in reversed(stack[2:]):
@@ -111,15 +137,17 @@ class PyDebugger(bdb.Bdb):
                 else:
                     location = location+"()"
 
-            self.ui_add_stack(location, self.canonic(frame.f_code.co_filename), line)
+            self.ui_add_stack(location, self.parse_filename(frame), line)
 
 
     def uncaught_exception(self, tb):
         self.handle_program_stop(tb.tb_frame, STOP_REASON_EXCEPTION)
 
+    def parse_filename(self, frame):
+        return self.main_file if frame.f_code.co_filename == '<string>' else self.canonic(frame.f_code.co_filename)
 
     def handle_program_stop(self, frame, reason):
-        filename = frame.f_code.co_filename
+        filename = self.parse_filename(frame)
         line = frame.f_lineno
 
         self.current_stack, self.top_stack_index = self.get_stack(frame, None)
@@ -158,7 +186,7 @@ class PyDebugger(bdb.Bdb):
             self.ui_print("> run\n")
         try:
             self.enable_breakpoints()
-        except Exception, exc:
+        except Exception as exc:
             self.ui_print("Error activating breakpoints: %s\n" % exc)
             self.ui_print(traceback.format_exc()+"\n")
             return
@@ -166,7 +194,7 @@ class PyDebugger(bdb.Bdb):
         self.main_file = self.canonic(filename)
         
         try:
-            self.run('execfile(r"%s")' % self.main_file)
+            self.run('exec(open("%s").read())' % self.main_file.replace("\\","\\\\"))
         except:
             self.ui_print("Uncaught exception while executing %s:\n" % filename)
             e, v, t = sys.exc_info()
@@ -289,12 +317,12 @@ class PyDebugger(bdb.Bdb):
 
     def wdb_toggle_breakpoint(self, file, line):
         pb = self.find_pbreakpoint(file, line)
-        if pb: # remove bp
+        if pb:  # remove bp
             self.persistent_breakpoints.remove(pb)
             pb.deactivate()
-            self.wdb_refresh_breakpoints();
+            self.wdb_refresh_breakpoints()
             return False
-        else: # add bp
+        else:  # add bp
             pb = PersistentBreakpoint(self, file, line)
             self.persistent_breakpoints.append(pb)
             pb.activate()
@@ -321,14 +349,14 @@ class PyDebugger(bdb.Bdb):
     def wdb_reload_module_for_file(self, file):
         path = os.path.splitext(self.canonic(file))[0]
         # find out what module the file corresponds to and reload it
-        for module in sys.modules.values():
+        for module in list(sys.modules.values()):
             mpath = getattr(module, "__file__", None)
             if mpath:
                 mpath = os.path.splitext(mpath)[0]
                 if mpath == path:
                     self.ui_print("Reloading module %s..."%file)
                     try:
-                        reload(module)
+                        imp.reload(module)
                     except:
                         self.ui_print("There was an error reloading %s" % file)
                         import traceback
@@ -391,6 +419,9 @@ class PyDebugger(bdb.Bdb):
         elif self.is_stepping:
             reason = STOP_REASON_STEP
         elif self.break_here(frame):
+            self.ui_print("Breakpoint hit\n")
+            reason = STOP_REASON_BREAKPOINT
+        elif self.parse_filename(frame) in self.breaks and frame.f_lineno in self.breaks[self.parse_filename(frame)]:
             self.ui_print("Breakpoint hit\n")
             reason = STOP_REASON_BREAKPOINT
         else:

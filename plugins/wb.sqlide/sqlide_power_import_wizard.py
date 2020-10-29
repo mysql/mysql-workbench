@@ -1,5 +1,4 @@
-# Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
-#
+# Copyright (c) 2016, 2020, Oracle and/or its affiliates.
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
 # as published by the Free Software Foundation.
@@ -19,7 +18,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 # import the mforms module for GUI stuff
 import mforms
@@ -91,13 +90,13 @@ class ResultsPage(WizardPage):
     def create_ui(self):
         if self.main.import_progress_page.import_time:
             itime = float("%d.%d" % (self.main.import_progress_page.import_time.seconds, self.main.import_progress_page.import_time.microseconds))
-            text = u"File %s was imported in %.3f s" % (self.get_path(), itime)
-            self.content.add(mforms.newLabel(text.encode('utf-8')), False, True)
+            text = "File %s was imported in %.3f s" % (self.get_path(), itime)
+            self.content.add(mforms.newLabel(text), False, True)
         
-        text = u"Table %s.%s %s" % (self.main.destination_table['schema'], 
+        text = "Table %s.%s %s" % (self.main.destination_table['schema'], 
                                                                  self.main.destination_table['table'], 
                                                                  "has been used" if self.main.destination_page.existing_table_radio.get_active() else "was created")
-        self.content.add(mforms.newLabel(text.encode('utf-8')), False, True)
+        self.content.add(mforms.newLabel(text), False, True)
         self.content.add(mforms.newLabel(str("%d records imported" % self.main.import_progress_page.module.item_count)), False, True)
 
 class ImportProgressPage(WizardProgressPage):
@@ -204,7 +203,7 @@ class ConfigurationPage(WizardPage):
             self.optpanel = mforms.newPanel(mforms.TitledBoxPanel)
             self.optpanel.set_title("Options:")
             def set_text_entry(field, output):
-                txt = field.get_string_value().encode('utf-8').strip()
+                txt = field.get_string_value().strip()
                 if len(txt) == 0:
                     operator.setitem(output, 'value', None)
                     mforms.Utilities.add_timeout(0.1, self.call_create_preview_table)
@@ -223,7 +222,7 @@ class ConfigurationPage(WizardPage):
             box = mforms.newBox(False)
             box.set_spacing(8)
             box.set_padding(8)
-            for name, opts in self.active_module.options.iteritems():
+            for name, opts in self.active_module.options.items():
                 label_box = mforms.newBox(True)
                 label_box.set_spacing(8)
                 label_box.add(mforms.newLabel(opts['description']), False, True)
@@ -238,9 +237,9 @@ class ConfigurationPage(WizardPage):
                     opt_val = mforms.newSelector()
                     opt_val.set_size(75, -1)
                     opt_val.add_items([v for v in opts['opts']])
-                    opt_val.set_selected(opts['opts'].values().index(opts['value']))
+                    opt_val.set_selected(list(opts['opts'].values()).index(opts['value']))
                     opt_val.add_changed_callback(lambda selector = opt_val, output = opts: set_selector_entry(selector, output))
-                    self.opts_mapping[name] = lambda input, values =  opts['opts'].values(): opt_val.set_selected(values.index(input) if input in values else 0)
+                    self.opts_mapping[name] = lambda input, values =  list(opts['opts'].values()): opt_val.set_selected(values.index(input) if input in values else 0)
                     label_box.add_end(opt_val, False, True)
                 box.add(label_box, False, True)
             self.optpanel.add(box)
@@ -323,9 +322,9 @@ class ConfigurationPage(WizardPage):
         
     def load_dest_columns(self):
         try:
-            rset = self.main.editor.executeManagementQuery(u"SHOW COLUMNS FROM `%s`.`%s`" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
-        except Exception, e:
-            log_error(u"SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], to_unicode(e.message)))
+            rset = self.main.editor.executeManagementQuery("SHOW COLUMNS FROM `%s`.`%s`" % (self.main.destination_table['schema'], self.main.destination_table['table']), 1)
+        except Exception as e:
+            log_error("SHOW COLUMNS FROM `%s`.`%s` : %s" % (self.main.destination_table['schema'], self.main.destination_table['table'], to_unicode(str(e))))
             rset = None
             
         if rset:
@@ -343,7 +342,7 @@ class ConfigurationPage(WizardPage):
         
         self.create_preview_table(self.call_analyze())
         if self.input_file_type == 'csv' and self.active_module.dialect:
-            for name, opts in self.active_module.options.items():
+            for name, opts in list(self.active_module.options.items()):
                 self.opts_mapping[name](opts['value'])
     
     def call_analyze(self):
@@ -412,7 +411,7 @@ class ConfigurationPage(WizardPage):
             sel = mforms.newSelector()
             sel.set_size(120, -1)
 
-            items = [type for type in type_items.values() if not ((type == "geometry" or type == "json") and self.input_file_type == "json" and not self.is_server_5_7) ]
+            items = [type for type in list(type_items.values()) if not ((type == "geometry" or type == "json") and self.input_file_type == "json" and not self.is_server_5_7) ]
             sel.add_items(items)
             if not self.is_server_5_7 and (row['type'] == "geometry" or row["type"] == "json") and self.input_file_type == "json":
                 row['type'] = "text" # If it's server older than 5.7 we don't have support for geojson so we can't properly import this file, instead we fallback to text
@@ -495,7 +494,7 @@ class ConfigurationPage(WizardPage):
             chk_box = create_chkbox(row)
             self.checkbox_list.append(chk_box)
             self.preview_table.add(chk_box, 0, 1, i+1, i+2, mforms.HFillFlag)
-            self.preview_table.add(mforms.newLabel(str(col['name'].encode('utf8'))), 1, 2, i+1, i+2, mforms.HFillFlag)
+            self.preview_table.add(mforms.newLabel(str(col['name'])), 1, 2, i+1, i+2, mforms.HFillFlag)
             if not self.main.destination_page.new_table_radio.get_active():
                 self.preview_table.add(create_select_dest_col(row, self.dest_cols), 2, 3, i+1, i+2, mforms.HFillFlag)
             else:
@@ -504,7 +503,7 @@ class ConfigurationPage(WizardPage):
             
         self.treeview_preview = newTreeView(mforms.TreeFlatList)
         for i, col in enumerate(self.active_module._columns):
-            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name'].encode('utf8')), 75, True)
+            self.treeview_preview.add_column(mforms.StringColumnType, str(col['name']), 75, True)
         self.treeview_preview.end_columns()
         
         
@@ -528,11 +527,8 @@ class ConfigurationPage(WizardPage):
             for row in col_values:
                 node = self.treeview_preview.add_node()
                 for i, col in enumerate(row):
-                    if hasattr(col, 'encode'):
-                        node.set_string(i, str(col.encode('utf8')))
-                    else:
-                        node.set_string(i, str(col))
-
+                    node.set_string(i, str(col))
+                        
         self.treeview_preview.set_allow_sorting(True)
         self.treeview_preview.set_size(200, 100)
         self.table_preview_box.add(self.treeview_preview, False, True)
@@ -596,23 +592,23 @@ class SelectDestinationPage(WizardPage):
                 db_list.append(dbname)
                 ok = rset.nextRow()
             if self.main.destination_table['schema']:
-                rset = self.main.editor.executeManagementQuery(u"SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
+                rset = self.main.editor.executeManagementQuery("SHOW FULL TABLES FROM `%s`" % self.main.destination_table['schema'], 0)
                 if rset:
                     ok = rset.goToFirstRow()
                     while ok:
                         if rset.stringFieldValue(1) == "BASE TABLE":
                             table_name = to_unicode(rset.stringFieldValue(0)) if not compare_in_lowercase else to_unicode(rset.stringFieldValue(0)).lower()
-                            full_name = u"%s.%s" % (self.main.destination_table['schema'], table_name)
+                            full_name = "%s.%s" % (self.main.destination_table['schema'], table_name)
                             self.table_list[full_name] = {'schema': self.main.destination_table['schema'], 'table': table_name} 
                             
                         ok = rset.nextRow()
             
             self.destination_table_sel.clear()
-            self.destination_table_sel.add_items(self.table_list.keys())
+            self.destination_table_sel.add_items(list(self.table_list.keys()))
             if self.main.destination_table['schema'] and self.main.destination_table['table']:
-                table_name = u"%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
-                if table_name in self.table_list.keys():
-                    self.destination_table_sel.set_selected(self.table_list.keys().index(table_name))
+                table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
+                if table_name in list(self.table_list.keys()):
+                    self.destination_table_sel.set_selected(list(self.table_list.keys()).index(table_name))
             self.destination_database_sel.clear()
             self.destination_database_sel.add_items(db_list)
             if self.main.destination_table['schema']:
@@ -703,7 +699,7 @@ class SelectDestinationPage(WizardPage):
         return False
     
     def check_if_table_exists(self, schema, table):
-        rset = self.main.editor.executeManagementQuery(u"SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
+        rset = self.main.editor.executeManagementQuery("SHOW TABLES FROM `%s` like '%s'" % (schema, table), 1)
         if rset and rset.goToFirstRow():
             return True
         return False
@@ -717,12 +713,12 @@ class SelectDestinationPage(WizardPage):
             self.main.destination_table['table'] = to_unicode(self.new_table_name.get_string_value()).strip()
             if len(self.main.destination_table['table']) == 0:
                 mforms.Utilities.show_error("Table Import", "You need to specify new table name", "Ok", "", "")
-                return False 
+                return False
             
             if compare_in_lowercase:
                 self.main.destination_table['table'] = self.main.destination_table['table'].lower()
             
-            table_name = u"%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
+            table_name = "%s.%s" % (self.main.destination_table['schema'], self.main.destination_table['table'])
 
             if not self.drop_table_cb.get_active() and (table_name in self.table_list or self.check_if_table_exists(self.main.destination_table['schema'], self.main.destination_table['table'])):
                 res = mforms.Utilities.show_message("Table Import", "You specified to create a new table, but a table with the same name already exists in the selected schema. Would you like to drop it, or use the existing one and truncate?", "Drop the table", "Use Existing One and Truncate it", "Cancel")
@@ -731,9 +727,9 @@ class SelectDestinationPage(WizardPage):
                 elif res == mforms.ResultCancel:
                     self.truncate_table_cb.set_active(True)
                     self.existing_table_radio.set_active(True)
-                    self.destination_table_sel.set_selected(self.table_list.keys().index(table_name))
+                    self.destination_table_sel.set_selected(list(self.table_list.keys()).index(table_name))
                 else:
-                    return False 
+                    return False
         return True
 
 class SelectFileWizardPage(WizardPage):

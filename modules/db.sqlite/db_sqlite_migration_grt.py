@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -186,7 +186,7 @@ class SQLiteMigration(GenericMigration):
                 # just fall back to same type name and hope for the best
                 target_datatype = source_datatype
 
-            if mysql_simpleTypes.has_key(target_datatype):
+            if target_datatype in mysql_simpleTypes:
                 target_column.simpleType = mysql_simpleTypes[target_datatype]
             else:
                 grt.log_warning("SQLite migrateTableColumnsToMySQL", "Can't find datatype %s for type %s\n" % (target_datatype, source_datatype))

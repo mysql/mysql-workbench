@@ -1,4 +1,4 @@
-# Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -214,7 +214,7 @@ class MySQLResult:
 
     def unicodeByName(self, name):
         s = modules.DbMySQLQuery.resultFieldStringValueByName(self.result, name)
-        if type(s) is str:
+        if not isinstance(s, str):
             return s.decode("utf-8")
         return s
 
@@ -229,7 +229,7 @@ class MySQLResult:
 
     def unicodeByIndex(self, i):
         s = modules.DbMySQLQuery.resultFieldStringValue(self.result, i)
-        if type(s) is str:
+        if not isinstance(s, str):
             return s.decode("utf-8")
         return s
 
@@ -265,7 +265,7 @@ class MySQLConnection:
               flag = result.nextRow()
     """
     def __init__(self, info, status_cb = None, password = None):
-        assert type(status_cb) is not unicode
+        assert type(status_cb) is not str
         self.connect_info = info
         self.connection = 0
         self.server_down = 0
@@ -284,8 +284,8 @@ class MySQLConnection:
         self.server_down = False
         if not self.connection:
             params = self.connect_info.parameterValues
-            old_timeout_value = None
-            if params.has_key('OPT_READ_TIMEOUT'):
+            old_timeout_value = -1
+            if 'OPT_READ_TIMEOUT' in params.keys():
                 old_timeout_value = params['OPT_READ_TIMEOUT']
             params['OPT_READ_TIMEOUT'] = 5*60
 
@@ -295,7 +295,7 @@ class MySQLConnection:
             else:
                 self.connection = modules.DbMySQLQuery.openConnection(self.connect_info)
 
-            if old_timeout_value:
+            if old_timeout_value >= 0:
                 params['OPT_READ_TIMEOUT'] = old_timeout_value
             else:
                 del params['OPT_READ_TIMEOUT']
@@ -320,7 +320,7 @@ class MySQLConnection:
             return False
         try:
             self.sql.exec_query("select 1")
-        except QueryError, e:
+        except QueryError as e:
             return False
         return True
       
@@ -356,7 +356,7 @@ class MySQLConnection:
     def executeQuery(self, query):
         if self.connection:
             #assert self.thread == thread.get_ident()
-            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if type(query) is unicode else query)
+            result = modules.DbMySQLQuery.executeQuery(self.connection, query.encode("utf-8") if not isinstance(query, str) else query)
             if result < 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)
@@ -371,7 +371,7 @@ class MySQLConnection:
 
     def executeQueryMultiResult(self, query):
         if self.connection:
-            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if type(query) is unicode else query)
+            result = modules.DbMySQLQuery.executeQueryMultiResult(self.connection, query.encode("utf-8") if not isinstance(query, str) else query)
             if len(result) == 0:
                 code = modules.DbMySQLQuery.lastConnectionErrorCode(self.connection)
                 error = modules.DbMySQLQuery.lastConnectionError(self.connection)

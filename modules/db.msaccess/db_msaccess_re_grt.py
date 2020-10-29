@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -100,7 +100,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
         result = grt.List(grt.STRING)
         import pyodbc
         sources = pyodbc.dataSources()
-        for key, value in sources.items():
+        for key, value in list(sources.items()):
             result.append("%s|%s (%s)" % (key, key, value))
         return result
 
@@ -144,10 +144,10 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
             try:
                 if not con.cursor().execute('SELECT 1'):
                     raise Exception("connection error")
-            except Exception, exc:
+            except Exception as exc:
                 grt.send_info("Connection to %s apparently lost, reconnecting..." % connection.hostIdentifier)
                 raise NotConnectedError("Connection error")
-        except NotConnectedError, exc:
+        except NotConnectedError as exc:
             grt.send_info("Connecting to %s..." % connection.hostIdentifier)
             con = db_driver.connect(connection, password)
             if not con:
@@ -505,7 +505,7 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
                 continue
             indices_dict.setdefault(row.index_name, []).append(row)
 
-        for index_name, row_list in indices_dict.iteritems():
+        for index_name, row_list in list(indices_dict.items()):
             index = grt.classes.db_Index()
             index.name = index_name
             index.isPrimary = 1 if index_name == pk_index_name else 0
@@ -624,13 +624,13 @@ class MsAccessReverseEngineering(GenericReverseEngineering):
         try:
             for row in cls.get_connection(connection).cursor().execute("SELECT * FROM MSysRelationships WHERE szObject = ?", (table.name,)):
                 fk_dict.setdefault(row.szRelationship, []).append(row)
-        except pyodbc.ProgrammingError, e:
+        except pyodbc.ProgrammingError as e:
             if e.args[0] == '42000':
                 grt.send_error("\n\nMigration: Could not read from System Tables. You must grant SELECT access on all system tables for the database.")
                 return 1
             raise
 
-        for fk_name, fk_columns in fk_dict.iteritems():
+        for fk_name, fk_columns in list(fk_dict.items()):
             process_fk(catalog, table, fk_name, fk_columns)
         return 0
 

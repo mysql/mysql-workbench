@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -48,14 +48,16 @@ using namespace mforms;
 
 static PyObject *ui_print(PyObject *unused, PyObject *args) {
   PyObject *self;
-  char *s = NULL;
+  char *s = nullptr;
 
-  if (!PyArg_ParseTuple(args, "Os:ui_print", &self, &s))
-    return NULL;
+  if (!PyArg_ParseTuple(args, "Os:ui_print", &self, &s)) {
+    PyErr_Print();
+    return nullptr;
+  }
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->debug_print(s);
 
@@ -67,11 +69,11 @@ static PyObject *ui_clear_breakpoints(PyObject *unused, PyObject *args) {
   PyObject *self;
 
   if (!PyArg_ParseTuple(args, "O:ui_clear_breakpoints", &self))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->ui_clear_breakpoints();
 
@@ -87,11 +89,11 @@ static PyObject *ui_add_breakpoint(PyObject *unused, PyObject *args) {
   const char *condition = "";
 
   if (!PyArg_ParseTuple(args, "Oisiz:ui_add_breakpoint", &self, &active, &file, &line, &condition))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->ui_add_breakpoint(file, line, condition);
 
@@ -106,11 +108,11 @@ static PyObject *ui_program_stopped(PyObject *unused, PyObject *args) {
   int reason = 0;
 
   if (!PyArg_ParseTuple(args, "Osii:ui_breakpoint_hit", &self, &file, &line, &reason))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   const char *next_command = d->ui_program_stopped(file, line, reason);
 
@@ -121,11 +123,11 @@ static PyObject *ui_clear_stack(PyObject *unused, PyObject *args) {
   PyObject *self;
 
   if (!PyArg_ParseTuple(args, "O:ui_clear_stack", &self))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->ui_clear_stack();
 
@@ -140,11 +142,11 @@ static PyObject *ui_add_stack(PyObject *unused, PyObject *args) {
   int line = 0;
 
   if (!PyArg_ParseTuple(args, "Ossi:ui_add_stack", &self, &location, &file, &line))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->ui_add_stack(location, file, line);
 
@@ -156,11 +158,11 @@ static PyObject *ui_clear_variables(PyObject *unused, PyObject *args) {
   PyObject *self;
 
   if (!PyArg_ParseTuple(args, "O:ui_clear_variables", &self))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->ui_clear_variables();
 
@@ -174,11 +176,11 @@ static PyObject *ui_add_variable(PyObject *unused, PyObject *args) {
   const char *value = "";
 
   if (!PyArg_ParseTuple(args, "Oss:ui_add_variable", &self, &variable, &value))
-    return NULL;
+    return nullptr;
 
   PythonDebugger *d = PythonDebugger::from_cobject(self);
   if (!d)
-    return NULL;
+    return nullptr;
 
   d->ui_add_variable(variable, value);
 
@@ -189,35 +191,64 @@ static PyObject *ui_add_variable(PyObject *unused, PyObject *args) {
 static int pdb_desc = 0;
 
 static void init_pdb_python() {
+  static PyObject *module = nullptr;
+
+  if(module)
+    return;
+  
   static PyMethodDef ui_methods[] = {
-    {(char *)"ui_print", (PyCFunction)ui_print, METH_VARARGS, NULL},
-    {(char *)"ui_clear_breakpoints", (PyCFunction)ui_clear_breakpoints, METH_VARARGS, NULL},
-    {(char *)"ui_add_breakpoint", (PyCFunction)ui_add_breakpoint, METH_VARARGS, NULL},
-    {(char *)"ui_program_stopped", (PyCFunction)ui_program_stopped, METH_VARARGS, NULL},
-    {(char *)"ui_clear_stack", (PyCFunction)ui_clear_stack, METH_VARARGS, NULL},
-    {(char *)"ui_add_stack", (PyCFunction)ui_add_stack, METH_VARARGS, NULL},
-    {(char *)"ui_clear_variables", (PyCFunction)ui_clear_variables, METH_VARARGS, NULL},
-    {(char *)"ui_add_variable", (PyCFunction)ui_add_variable, METH_VARARGS, NULL},
-    {NULL, NULL, 0, NULL}};
+    {"ui_print", ui_print, METH_VARARGS, nullptr},
+    {"ui_clear_breakpoints", ui_clear_breakpoints, METH_VARARGS, nullptr},
+    {"ui_add_breakpoint", ui_add_breakpoint, METH_VARARGS, nullptr},
+    {"ui_program_stopped", ui_program_stopped, METH_VARARGS, nullptr},
+    {"ui_clear_stack", ui_clear_stack, METH_VARARGS, nullptr},
+    {"ui_add_stack", ui_add_stack, METH_VARARGS, nullptr},
+    {"ui_clear_variables", ui_clear_variables, METH_VARARGS, nullptr},
+    {"ui_add_variable", ui_add_variable, METH_VARARGS, nullptr},
+    {nullptr, nullptr, 0, nullptr}};
 
-  static PyObject *m = NULL;
+  static struct PyModuleDef wbpdbModuleDef = {
+    PyModuleDef_HEAD_INIT,
+    "wbpdb",      // name
+    nullptr,         // documentation
+    -1,              // size -1 meand it can not be re-initialized
+    ui_methods,      //
+    nullptr,         // reload method
+    nullptr,         // traverse method
+    nullptr,         // clear method
+    nullptr          //  free method
+  };
 
-  if (!m)
-    m = Py_InitModule("wbpdb", ui_methods);
+  module = PyModule_Create(&wbpdbModuleDef);
+  
+  PyObject *main = PyImport_AddModule("__main__");  //  Get module if exists
+  PyDict_SetItemString(PyModule_GetDict(main), "wbpdb", module);
+  
+  grt::PythonContext *pyc = grt::PythonContext::get();
+
+  PyObject *debugger = pyc->import_module("grt_python_debugger");
+
+  if (debugger == nullptr)
+    throw std::runtime_error("Could not import Python debugger");
+  
+  PyDict_SetItemString(PyModule_GetDict(debugger), "wbpdb", module);
+  
 }
 
 PyObject *PythonDebugger::as_cobject() {
-  return PyCObject_FromVoidPtrAndDesc(this, &pdb_desc, NULL);
+  PyObject* ret = PyCapsule_New(this, "PythonDebugger", nullptr);
+  PyCapsule_SetContext(ret, &pdb_desc);
+  return ret;
 }
 
 PythonDebugger *PythonDebugger::from_cobject(PyObject *cobj) {
-  if (!PyCObject_Check(cobj))
-    return NULL;
+  if (!PyCapsule_CheckExact(cobj))
+    return nullptr;
 
-  if (PyCObject_GetDesc(cobj) != &pdb_desc)
-    return NULL;
+  if (PyCapsule_GetContext(cobj) != &pdb_desc)
+    return nullptr;
 
-  return reinterpret_cast<PythonDebugger *>(PyCObject_AsVoidPtr(cobj));
+  return reinterpret_cast<PythonDebugger *>(PyCapsule_GetPointer(cobj, "PythonDebugger"));
 }
 
 PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
@@ -258,12 +289,9 @@ PythonDebugger::PythonDebugger(GRTShellWindow *shell, mforms::TabView *tabview)
 void PythonDebugger::init_pdb() {
   WillEnterPython lock;
 
-  grt::PythonContext *pyc = grt::PythonContext::get();
-
   init_pdb_python();
 
-  if (!pyc->import_module("grt_python_debugger"))
-    throw std::runtime_error("Could not import Python debugger");
+  grt::PythonContext *pyc = grt::PythonContext::get();
 
   PyObject *debugger_class = pyc->eval_string("grt_python_debugger.PyDebugger");
   if (!debugger_class)
@@ -271,16 +299,16 @@ void PythonDebugger::init_pdb() {
 
   PyObject *ui = as_cobject();
 
-  // PyDebugger(this)
-  PyObject *r = PyObject_Call(debugger_class, Py_BuildValue("(O)", ui), NULL);
+  // PyDebugger(this) ctor
+  PyObject *ctor_result = PyObject_Call(debugger_class, Py_BuildValue("(O)", ui), nullptr);
   Py_DECREF(ui);
   Py_DECREF(debugger_class);
 
-  if (!r)
+  if (!ctor_result)
     throw std::runtime_error("Error instantiating Python debugger object");
 
-  _pdb = r;
-  Py_DECREF(r);
+  _pdb = ctor_result;
+  Py_DECREF(ctor_result);
 
   // come up with a global variable name so that we have a reference to the debugger
   // object from Python itself
@@ -336,7 +364,7 @@ void PythonDebugger::editor_text_changed(int line, int linesAdded, GRTCodeEditor
     std::string path = editor->get_path();
 
     grt::AutoPyObject r(
-      PyObject_CallMethod(_pdb, (char *)"wdb_update_breakpoint", (char *)"(sii)", path.c_str(), line + 1, linesAdded),
+      PyObject_CallMethod(_pdb, "wdb_update_breakpoint", "(sii)", path.c_str(), line + 1, linesAdded),
       false);
     if (!r) {
       PyErr_Print();
@@ -350,7 +378,7 @@ void PythonDebugger::edit_breakpoint(mforms::TreeNodeRef node, int column, std::
   if (column == 2 && row >= 0) // edit bp condition
   {
     WillEnterPython lock;
-    grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char *)"wdb_set_bp_condition", (char *)"(is)", row, value.c_str()),
+    grt::AutoPyObject r(PyObject_CallMethod(_pdb, "wdb_set_bp_condition", "(is)", row, value.c_str()),
                         false);
     if (!r) {
       // exception while running, dump the exception to the debugger console
@@ -368,7 +396,7 @@ void PythonDebugger::edit_breakpoint(mforms::TreeNodeRef node, int column, std::
 
 void PythonDebugger::refresh_file(const std::string &file) {
   WillEnterPython lock;
-  grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char *)"wdb_reload_module_for_file", (char *)"(s)", file.c_str()),
+  grt::AutoPyObject r(PyObject_CallMethod(_pdb, "wdb_reload_module_for_file", "(s)", file.c_str()),
                       false);
 }
 
@@ -384,7 +412,7 @@ void PythonDebugger::run(GRTCodeEditor *editor, bool stepping) {
   // run the script
   try {
     grt::AutoPyObject r(
-      PyObject_CallMethod(_pdb, (char *)"wdb_run", (char *)"(si)", editor->get_path().c_str(), stepping ? 1 : 0),
+      PyObject_CallMethod(_pdb, "wdb_run", "(si)", editor->get_path().c_str(), stepping ? 1 : 0),
       false);
     if (!r) {
       // exception while running, dump the exception to the debugger console
@@ -453,7 +481,7 @@ void PythonDebugger::ui_add_breakpoint(const char *file, int line, const char *c
 
 const char *PythonDebugger::ui_program_stopped(const char *file, int line, int reason) {
   GRTCodeEditor *editor = 0;
-  mforms::CodeEditor *code_editor = NULL;
+  mforms::CodeEditor *code_editor = nullptr;
   bool continue_possible = true;
 
   if (_pause_clicked && reason == 5) {
@@ -669,7 +697,7 @@ void PythonDebugger::stack_selected() {
 
   WillEnterPython lock;
 
-  grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char *)"wdb_refresh_variables", (char *)"(i)", show_frame), false);
+  grt::AutoPyObject r(PyObject_CallMethod(_pdb, "wdb_refresh_variables", "(i)", show_frame), false);
   if (!r) {
     debug_print("Internal error showing variables\n");
     PyErr_Print();
@@ -680,7 +708,7 @@ void PythonDebugger::stack_selected() {
 bool PythonDebugger::toggle_breakpoint(const char *file, int line) {
   WillEnterPython lock;
 
-  grt::AutoPyObject r(PyObject_CallMethod(_pdb, (char *)"wdb_toggle_breakpoint", (char *)"(si)", file, line), false);
+  grt::AutoPyObject r(PyObject_CallMethod(_pdb, "wdb_toggle_breakpoint", "(si)", file, line), false);
   if (!r) {
     debug_print("Internal error toggling debugger breakpoint\n");
     PyErr_Print();

@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -114,7 +114,7 @@ class WBThreadStack(mforms.Form):
             if data:
                 data = data.replace("\0", "") # workaround for server bug
                 return self.parse_data(json.loads(data))
-        except Exception, e:
+        except Exception as e:
             import traceback
             #open("/tmp/data.js", "w+").write(data)
             log_error("Exception during sys.ps_thread_stack(%d, %s):\n%s\n" % (self.thread_id, "TRUE" if self.enable_debug_info else "FALSE", traceback.format_exc()))
@@ -261,13 +261,13 @@ class ConnectionDetailsPanel(mforms.Table):
 
 class WbAdminValidationPermissions(WbAdminValidationBase):
     def __init__(self, ctrl_be):
-        WbAdminValidationBase.__init__(self)
+        super().__init__()
         self._ctrl_be = ctrl_be
         
     def validate(self):
         try:
             self._ctrl_be.exec_query("SELECT COUNT(*) FROM performance_schema.threads")
-        except QueryError, e:
+        except QueryError as e:
             import traceback
             log_error("QueryError in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
             if e.error == 1142:
@@ -275,7 +275,7 @@ class WbAdminValidationPermissions(WbAdminValidationBase):
             else:
                 self.set_error_message("There was a problem opening the Client Connections. Please check the error log for more details.")
             return False
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Exception in Admin for Client Connections:\n%s\n\n%s\n" % (e, traceback.format_exc()))
             self.set_error_message("There was a problem opening the Client Connections. Please check the error log for more details.")
@@ -745,7 +745,7 @@ class WbAdminConnections(WbAdminTabBase):
                     node = self.attributes_list.add_node()
                     node.set_string(0, result.stringByName("ATTR_NAME"))
                     node.set_string(1, result.stringByName("ATTR_VALUE"))
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Error looking up attribute information: %s\n" % traceback.format_exc())
             mforms.Utilities.show_error("Lookup Connection Attributes", "Error looking up connection attributes: %s" % e, "OK", "", "")
@@ -830,7 +830,7 @@ class WbAdminConnections(WbAdminTabBase):
                                 subnode.set_string(2, subresult.stringByName("LOCK_DURATION"))
             else:
                 waiting_label_text = ""
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Error looking up metadata lock information: %s\n" % traceback.format_exc())
             mforms.Utilities.show_error("Lookup Metadata Locks", "Error looking up metadata lock information: %s" % e, "OK", "", "")
@@ -913,7 +913,7 @@ class WbAdminConnections(WbAdminTabBase):
             connid = sel.get_long(7)
             try:
                 self.ctrl_be.exec_sql("UPDATE performance_schema.threads SET instrumented = '%s' WHERE thread_id = %d LIMIT 1" % (instr_state, connid))
-            except Exception, e:
+            except Exception as e:
                 log_error("Error enabling thread instrumentation: %s\n" % e)
                 mforms.Utilities.show_error("Toggle Thread Instrumentation", "Error setting instrumentation for thread %d: %s" % (connid, e), "OK",  "", "")
                 break
@@ -928,7 +928,7 @@ class WbAdminConnections(WbAdminTabBase):
     def enable_mdl_instrumentation(self):
         try:
             self.ctrl_be.exec_sql("UPDATE performance_schema.setup_instruments SET enabled='YES' WHERE name = 'wait/lock/metadata/sql/mdl'")
-        except Exception, e:
+        except Exception as e:
             log_error("Error enabling MDL instrumentation: %s\n" % e)
             mforms.Utilities.show_error("Enable MDL Instrumentation", "Error enabling performance_schema MDL instrumentation.\n%s" % e, "OK",  "", "")
             return
@@ -1071,7 +1071,7 @@ class WbAdminConnections(WbAdminTabBase):
                     for c, field in enumerate(row):
                         if c in self.long_int_columns:
                             try:
-                                field = long(field)
+                                field = int(field)
                             except Exception:
                                 field = 0
                             r.set_long(c, field)
@@ -1119,7 +1119,7 @@ class WbAdminConnections(WbAdminTabBase):
 
             try:
                 self.ctrl_be.exec_sql("KILL CONNECTION %s"%connid)
-            except Exception, e:
+            except Exception as e:
                 mforms.Utilities.show_error("Error Killing Connection", "%s" % e, "OK",  "", "")
                 break
                 
@@ -1142,7 +1142,7 @@ class WbAdminConnections(WbAdminTabBase):
 
             try:
                 self.ctrl_be.exec_sql("KILL QUERY %s"%connid)
-            except Exception, e:
+            except Exception as e:
                 mforms.Utilities.show_error("Error Killing Connection", "Error executing KILL QUERY on thread %d: %s" % (connid, e), "OK",  "", "")
                 break
           

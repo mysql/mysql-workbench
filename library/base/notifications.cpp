@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -24,6 +24,7 @@
 #include "base/notifications.h"
 #include "base/log.h"
 #include <stdexcept>
+#include <algorithm>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_BASE);
 
@@ -96,16 +97,13 @@ void NotificationCenter::add_observer(Observer *observer, const std::string &nam
 //----------------------------------------------------------------------------------------------------------------------
 
 bool NotificationCenter::remove_observer(Observer *observer, const std::string &name) {
-  bool found = false;
-  for (std::list<ObserverEntry>::iterator next, iter = _observers.begin(); iter != _observers.end();) {
-    next = iter;
-    ++next;
-    if (iter->observer == observer && (name.empty() || name == iter->observed_notification)) {
-      found = true;
-      _observers.erase(iter);
-    }
-    iter = next;
-  }
+  auto iter = std::remove_if(_observers.begin(), _observers.end(), [&](auto &value) {
+    return value.observer == observer && (name.empty() || name == value.observed_notification);
+  });
+  
+  bool found = iter != _observers.end();
+  
+  _observers.erase(iter, _observers.end());
 
   return found;
 }

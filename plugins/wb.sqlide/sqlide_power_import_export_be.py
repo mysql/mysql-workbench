@@ -1,4 +1,4 @@
-# Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2016, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 # import the mforms module for GUI stuff
 import mforms
@@ -117,7 +117,7 @@ class base_module:
 
     def fix_column_duplication(self, name):
         # Just to be on the safe side if the column name is not a plain string so python is happy
-        bname = base64.b64encode(name)
+        bname = name
         if bname in self._columnNames:
             name = "%s_[%d]" % (name, self._columnNames[bname])
             self._columnNames[bname] += 1
@@ -269,7 +269,7 @@ class base_module:
             for col in self._mapping:
                 col['dest_col'] = col['name']
             return True
-        except Exception, e:
+        except Exception as e:
             log_error("Error creating table for import: %s" % e)
             if len(e.args) == 2 and e.args[1] == 1050 and self._force_drop_table:
                 try:
@@ -306,32 +306,6 @@ class base_module:
             self.is_running = False
             raise
 
-class Utf8Reader:
-    def __init__(self, f, enc):
-        import codecs
-        self.reader = codecs.getreader(enc)(f)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        return self.reader.next().encode("utf-8")
-
-class UniReader:
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **args):
-        f = Utf8Reader(f, encoding)
-        self.csvreader = csv.reader(f, dialect=dialect, **args)
-
-    def next(self):
-        row = self.csvreader.next()
-        return [unicode(s, "utf-8") for s in row]
-        
-    @property
-    def line_num(self):
-        return self.csvreader.line_num
-
-    def __iter__(self):
-        return self
 
 class csv_module(base_module):
     def __init__(self, editor, is_import):
@@ -386,11 +360,11 @@ class csv_module(base_module):
                     
                 self._max_rows = rset.rowCount
                 self.update_progress(0.0, "Begin Export")
-                with open(self._filepath, 'wb') as csvfile:
+                with open(self._filepath, 'w') as csvfile:
                     output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
                                         lineterminator = self.options['lineseparator']['value'], 
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC if self.options['encolsestring']['value'] else csv.QUOTE_NONE)
-                    output.writerow([value['name'].encode('utf-8') for value in self._columns])
+                    output.writerow([value['name'] for value in self._columns])
                     ok = rset.goToFirstRow()
                     
                     # Because there's no realiable way to use offset only, we'll do this here.
@@ -444,9 +418,9 @@ class csv_module(base_module):
             
         result = True
         
-        with open(self._filepath, 'rb') as csvfile:
+        with open(self._filepath, 'r') as csvfile:
             self.update_progress(0.0, "Prepare Import")
-            dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
+            dest_col_order = [i['dest_col'] for i in self._mapping if i['active']]
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['col_no']) for i in self._mapping if i['active']])
             col_type = dict([(i['dest_col'], i['type']) for i in self._mapping if i['active']])
@@ -456,17 +430,17 @@ class csv_module(base_module):
             self._editor.executeManagementCommand(query, 1)
             try:
                 is_header = self.has_header
-                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
+                reader = csv.reader(csvfile, self.dialect)
                 self._max_rows = os.path.getsize(self._filepath)
                 self.update_progress(0.0, "Begin Import")
+                self._current_row = 0
                 for row in reader:
                     if self._thread_event and self._thread_event.is_set():
                         self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
                         log_debug2("Worker thread was stopped by user")
                         self.update_progress(round(self._current_row / self._max_rows, 2), "Import stopped by user request")
                         return False
-
-                    self._current_row = float(csvfile.tell())
+                    self._current_row += 1
                     
                     if is_header:
                         is_header = False
@@ -499,21 +473,22 @@ class csv_module(base_module):
                                 val = val.replace("\\", "\\\\").replace("'", "\\'")
 
                             if self.options['nullwordaskeyword']['value'] == "y" and val.upper() == "NULL":
-                                self._editor.executeManagementCommand("""SET @a%d = NULL """ % (i), 0)
+                                stmt = """SET @a%d = NULL """ % (i)
                             else:
-                                self._editor.executeManagementCommand("""SET @a%d = '%s' """ % (i, val), 0)
+                                stmt = """SET @a%d = '%s' """ % (i, val)
+                            self._editor.executeManagementCommand(stmt, 0)
                     else:
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                             self.item_count = self.item_count + 1
                             self.update_progress(round(self._current_row / self._max_rows, 2), "Data import")
-                        except Exception, e:
+                        except Exception as e:
                             log_error("Row import failed with error: %s" % e)
                             self.update_progress(round(self._current_row / self._max_rows, 2), "Row import failed with error: %s" % e)
                             result = False
 
                 self.update_progress(1.0, "Import finished")
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)
@@ -523,7 +498,7 @@ class csv_module(base_module):
 
     def analyze_file(self):
         self.reset_column_fix()
-        with open(self._filepath, 'rb') as csvfile:
+        with open(self._filepath, 'r') as csvfile:
             if self.dialect is None:
                 csvsample = []
                 for i in range(0,2): #read two lines as a sample
@@ -550,12 +525,12 @@ class csv_module(base_module):
                 csvfile.seek(0)
                 
             try:
-                reader = UniReader(csvfile, self.dialect, encoding=self._encoding)
+                reader = csv.reader(csvfile, self.dialect)
                 self._columns = []
                 row_line = None
                 try:
-                    row_line = reader.next()
-                except StopIteration, e:
+                    row_line = next(reader)
+                except StopIteration as e:
                     pass
                 
                 
@@ -610,7 +585,7 @@ class csv_module(base_module):
                                         col[attrib] = True
                                     else:
                                         col[attrib] = False
-            except (UnicodeError, UnicodeDecodeError), e:
+            except (UnicodeError, UnicodeDecodeError) as e:
                 import traceback
                 log_error("Error analyzing file, probably encoding issue: %s\n Traceback is: %s" % (e, traceback.format_exc()))
                 self._last_analyze = False
@@ -633,7 +608,7 @@ class json_module(base_module):
             limit = "LIMIT %d" % int(self._limit)
             if self._offset:
                 limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
-        return u"""SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
+        return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
     
     def start_export(self):
         if self._user_query:
@@ -647,7 +622,7 @@ class json_module(base_module):
                 self.read_user_query_columns(rset)
                 
             with open(self._filepath, 'wb') as jsonfile:
-                jsonfile.write('[')
+                jsonfile.write('['.encode('utf-8'))
                 ok = rset.goToFirstRow()
                 self._max_rows = rset.rowCount
                 
@@ -678,14 +653,14 @@ class json_module(base_module):
                             row.append("\"%s\":%s" % (col['name'], rset.geoJsonFieldValueByName(col['name'])))
                         else:
                             if col['type'] == "json":
-                                row.append(u"\"%s\":%s" % (col['name'], to_unicode(rset.stringFieldValueByName(col['name']))))
+                                row.append("\"%s\":%s" % (col['name'], to_unicode(rset.stringFieldValueByName(col['name']))))
                             else:
                                 row.append("\"%s\":%s" % (col['name'], json.dumps(to_unicode(rset.stringFieldValueByName(col['name'])))))
                     ok = rset.nextRow()
-                    line = u"{%s}%s" % (', '.join(row), ",\n " if ok else "")
+                    line = "{%s}%s" % (', '.join(row), ",\n " if ok else "")
                     jsonfile.write(line.encode('utf-8'))
                     jsonfile.flush()
-                jsonfile.write(']')
+                jsonfile.write(']'.encode('utf-8'))
 
         return True
 
@@ -704,7 +679,7 @@ class json_module(base_module):
         result = True
         with open(self._filepath, 'rb') as jsonfile:
             data = json.load(jsonfile)
-            dest_col_order = list(set([i['dest_col'] for i in self._mapping if i['active']]))
+            dest_col_order = [i['dest_col'] for i in self._mapping if i['active']]
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
             col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
@@ -751,10 +726,10 @@ class json_module(base_module):
                         try:
                             self._editor.executeManagementCommand("EXECUTE stmt USING %s" % ", ".join(['@a%d' % i for i, col in enumerate(col_order)]), 0)
                             self.item_count = self.item_count + 1
-                        except Exception, e:
+                        except Exception as e:
                             log_error("Row import failed with error: %s" % e)
                         
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)

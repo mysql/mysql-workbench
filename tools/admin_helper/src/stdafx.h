@@ -36,3 +36,5 @@
 #include <iostream>
 
 #include <Python.h>
+
+#include <glib.h>

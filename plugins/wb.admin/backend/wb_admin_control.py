@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -23,8 +23,8 @@ import os
 import socket
 import threading
 import time
-import Queue
-import StringIO
+import queue
+import io
 import traceback
 
 from workbench.utils import Version
@@ -184,7 +184,7 @@ class WbAdminControl(object):
         self.server_profile = server_profile
         self.server_control_output_handler = None
 
-        self.task_queue = Queue.Queue(512)
+        self.task_queue = queue.Queue(512)
 
         self.sql_enabled = connect_sql
         self.password_handler = PasswordHandler(server_profile)
@@ -243,7 +243,7 @@ class WbAdminControl(object):
                     msg['obj'].client.save_host_keys(msg['obj'].client._host_keys_filename)
                     log_warning("Successfully saved host_keys file.\n")
                     return True
-                except IOError, e:
+                except IOError as e:
                     error = str(e)
                     raise e
         else:
@@ -303,7 +303,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 self.connect_sql()
                 break
-            except MySQLError, err:
+            except MySQLError as err:
                 log_error("Error connecting to MySQL: %s\n" % err)
                 if err.code == MYSQL_ERR_ACCESS_DENIED:
                     # Invalid password, request password
@@ -480,7 +480,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         try:
             if not self.is_sql_connected():
                 self.connect_sql()
-        except Exception, e:
+        except Exception as e:
             log_error("Error connecting to MySQL: %s\n" % e)
             mforms.Utilities.show_error("Connect Error", "Could not connect to MySQL: %s" % e, "OK", "", "")
 
@@ -557,7 +557,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             password = self.get_mysql_password()
             self.poll_connection = MySQLConnection(self.server_profile.db_connection_params, password=password)
             self.poll_connection.connect()
-        except MySQLError, err:
+        except MySQLError as err:
             log_error("Error creating SQL connection for monitoring: %r\n" % err)
             self.poll_connection = None
             mforms.Utilities.driver_shutdown()
@@ -599,13 +599,13 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             try:
                 self.sql.exec_query("select 1")
                 ret = True
-            except QueryError, e:
+            except QueryError as e:
                 if not e.is_connection_error():
                     ret = True # Any other error except connection ones is from server
         else:
             try:
                 self.connect_sql()
-            except MySQLError, e:
+            except MySQLError as e:
                 pass # ignore connection errors, since it likely means the server is down
 
             # Do not do anything for now, connection status check will be perfomed
@@ -618,8 +618,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         if self.sql is not None:
             try:
                 ret = self.sql.exec_query(q)
-            except QueryError, e:
-                log = u"Error executing query %s: %s\n" % (q, strip_password(to_unicode(e.message)))
+            except QueryError as e:
+                log = "Error executing query %s: %s\n" % (q, strip_password(to_unicode(str(e))))
                 log_warning(log)
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query: Loss of connection to mysql server was detected.\n")
@@ -636,8 +636,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         if self.sql is not None:
             try:
                 ret = self.sql.exec_query_multi_result(q)
-            except QueryError, e:
-                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(e.message)))
+            except QueryError as e:
+                log_warning("Error executing query multi result %s: %s\n"%(q, strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_query_multi_result: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
@@ -654,8 +654,8 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 ret = self.sql.execute(q)
                 cnt = self.sql.updateCount()
                 return ret, cnt
-            except QueryError, e:
-                log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(e.message)))
+            except QueryError as e:
+                log_warning("Error executing SQL %s: %s\n"%(strip_password(q), strip_password(str(e))))
                 if auto_reconnect and e.is_connection_error():
                     log_warning("exec_sql: Loss of connection to mysql server was detected.\n")
                     self.handle_sql_disconnection(e)
@@ -674,7 +674,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 self.connect_sql()
                 if self.is_sql_connected():
                     return True
-            except MySQLError, er:
+            except MySQLError as er:
                 log_warning("Auto-reconnection failed: %s\n" % er)
             return False
         return False
@@ -742,21 +742,21 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
         def get_config_options():
             if self.server_profile.config_file_path and self.server_helper:
                 try:
-                    cfg_file = StringIO.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path))
+                    cfg_file = io.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path))
                 except PermissionDeniedError:
                     log_debug('Could not open the file "%s" as the current user. Trying as admin\n' % self.server_profile.config_file_path)
                     while True:
                         try:
                             password = self.password_handler.get_password_for('file')
-                            cfg_file = StringIO.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path,
+                            cfg_file = io.StringIO(self.server_helper.get_file_content(self.server_profile.config_file_path,
                                               as_user=Users.ADMIN, user_password = password))
                             break
                         except InvalidPasswordError:
                             self.password_handler.reset_password_for('file')
-                        except Exception, err:
+                        except Exception as err:
                             log_error('Could not open the file "%s": %s\n' % (self.server_profile.config_file_path, str(err)))
                             return {}
-                except Exception, err:
+                except Exception as err:
                     log_error('Could not open the file "%s": %s\n' % (self.server_profile.config_file_path, str(err)))
                     return {}
 
@@ -817,19 +817,19 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 pass
 
         if not self.target_version or not self.target_version.is_supported_mysql_version_at_least(5, 1, 29):
-            general_log_file_path = opts[config_section].get('log', '').strip(' "') if opts.has_key(config_section) else ''
+            general_log_file_path = opts[config_section].get('log', '').strip(' "') if config_section in opts else ''
             general_log_file_path = normpath(general_log_file_path) if general_log_file_path else ''
             if general_log_file_path and self.server_profile.general_log_file_path != general_log_file_path:
                 self.server_profile.general_log_file_path = general_log_file_path or os.path.join(self.server_profile.datadir, hostname + '.log')
                 request_save_profile = True
 
-            slow_query_log_file = opts[config_section].get('log-slow-queries', '').strip(' "') if opts.has_key(config_section) else ''
+            slow_query_log_file = opts[config_section].get('log-slow-queries', '').strip(' "') if config_section in opts else ''
             slow_query_log_file = normpath(slow_query_log_file) if slow_query_log_file else ''
             if slow_query_log_file and self.server_profile.slow_log_file_path != slow_query_log_file:
                 self.server_profile.slow_log_file_path = slow_query_log_file or os.path.join(self.server_profile.datadir, hostname + '.slow')
                 request_save_profile = True
 
-            error_log_file_path = opts[config_section].get('log-error', '').strip(' "') if opts.has_key(config_section) else ''
+            error_log_file_path = opts[config_section].get('log-error', '').strip(' "') if config_section in opts else ''
             error_log_file_path = normpath(error_log_file_path) if error_log_file_path else ''
             if error_log_file_path and self.server_profile.error_log_file_path != error_log_file_path:
                 self.server_profile.error_log_file_path = error_log_file_path or os.path.join(self.server_profile.datadir, hostname + '.err')
@@ -861,8 +861,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
 
         # Save the server profile if at least one of its values has changed:
         if request_save_profile:
-            from grt.modules import Workbench
-            Workbench.saveInstances()
+            grt.modules.Workbench.saveInstances()
 
 
     #---------------------------------------------------------------------------
@@ -878,7 +877,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             os_version: the version of the OS (for example 19.10)
         """
         if self.is_ssh_connected() or self.server_profile.is_local:
-            o = StringIO.StringIO()
+            o = io.StringIO()
             # check if windows
             rc = self.server_helper.execute_command('ver', output_handler=o.write)
             if rc == 0 and o.getvalue().strip().startswith("Microsoft Windows"):
@@ -887,7 +886,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                 os_variant = "Windows"
                 os_version = o.getvalue().strip()
 
-                o = StringIO.StringIO()
+                o = io.StringIO()
                 rc = self.server_helper.execute_command('reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" /v "ProductName"', output_handler=o.write)
                 if rc == 0:
                     os_name = " ".join(o.getvalue().strip().split("\n")[-1].split()[2:])
@@ -895,13 +894,13 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
             else:
                 os_type, os_name, os_variant, os_version = (None, None, None, None)
 
-                o = StringIO.StringIO()
+                o = io.StringIO()
                 if self.server_helper.execute_command("uname", output_handler=o.write) == 0:
                     ostype = o.getvalue().strip()
                     log_debug("uname in remote system returned %s\n"%ostype)
                     if ostype == "Darwin":
                         os_type = wbaOS.darwin
-                        o = StringIO.StringIO()
+                        o = io.StringIO()
                         if self.server_helper.execute_command("sw_vers", output_handler=o.write) == 0:
                             for line in o.getvalue().strip().split("\n"):
                                 line = line.strip()
@@ -915,7 +914,7 @@ uses_ssh: %i uses_wmi: %i\n""" % (self.server_profile.uses_ssh, self.server_prof
                     else:
                         os_type = wbaOS.linux
 
-                        o = StringIO.StringIO()
+                        o = io.StringIO()
                         if self.server_helper.execute_command("lsb_release -a", output_handler=o.write) == 0:
                             os_name = "Linux"
                             for line in o.getvalue().strip().split("\n"):

@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2015, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -147,7 +147,7 @@ class VariablesGrouper(mforms.Box):
             self.value_group_pair[sel.get_string(0)] = self.split_groups(sel.get_string(1))
 
     def add_group(self):
-        print "Adding new group: %s" % self.group_entry.get_string_value()
+        print("Adding new group: %s" % self.group_entry.get_string_value())
         v = self.group_entry.get_string_value()
         self.groups.add(v)
         self.value_selected()
@@ -176,7 +176,7 @@ file_chooser = mforms.newFileChooser(form, mforms.OpenDirectory)
 file_chooser.set_title('Choose the base directory')
 file_chooser.set_path(script_dir)
 file_chooser_result = file_chooser.run_modal()
-print "File chooser result: %s" % file_chooser_result
+print("File chooser result: %s" % file_chooser_result)
 if not file_chooser_result:
     sys.exit()
 

@@ -500,9 +500,9 @@ class SQLPrettifier:
             try:
                 if self.opt_func_arg_per_line or len(flattened) > self.opt_expr_length_per_line or "\n" in flattened:
                     flattened = flatten_comma_sep_node_multiline(node)
-            except Exception, exc:
-                print "Error formatting: %s"%exc
-                print node
+            except Exception as exc:
+                print("Error formatting: %s"%exc)
+                print(node)
         return flattened
 
     sym_expr_list = sym_udf_expr_list
@@ -524,9 +524,9 @@ class SQLPrettifier:
                     tmp = head
                     tmp += indent_tail(flatten_comma_sep_node(node, newline_on_comma=True))
                     flattened = tmp
-            except Exception, exc:
-                print "Error formatting function: %s"%exc
-                print node
+            except Exception as exc:
+                print("Error formatting function: %s"%exc)
+                print(node)
         return flattened
 
     sym_function_call_keyword = sym_function_call_generic
@@ -635,7 +635,7 @@ class SQLPrettifier:
                 text += node_value(c[i])
                 i+=1
             else:
-                print "Unexpected symbol in GROUP_CONCAT", node
+                print("Unexpected symbol in GROUP_CONCAT", node)
                 return "????"
             if node_symbol(c[i]) == "opt_gorder_clause":
                 text += "\n"+indent(node_value(c[i]))

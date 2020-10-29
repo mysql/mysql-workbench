@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,9 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-# import the wb module
 from wb import DefineModule
-# import the grt module
 import grt
 from workbench import db_utils
 from workbench.exceptions import NotConnectedError
@@ -45,7 +43,7 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
                 obj.customData["migration:new_temp_sql"] = comment_out(obj, sql)
                 obj.customData["migration:temp_sql_changed"] = sql != comment_out(obj, sql)
         else:
-            if obj.customData.has_key("migration:new_temp_sql"):
+            if obj.customData.get("migration:new_temp_sql", False):
                 del obj.customData["migration:new_temp_sql"]
                 del obj.customData["migration:temp_sql_changed"]
             if sql is not None:
@@ -55,7 +53,9 @@ def apply_scripts_to_catalog(catalog, create_scripts, drop_scripts):
     
     for schema in catalog.schemata:
         delimiter = grt.root.wb.options.options['SqlDelimiter']
-        apply_script(schema, create_scripts.get(schema.__id__, None), drop_scripts.get(schema.__id__, None))
+        create_schema = create_scripts[schema.__id__] if create_scripts.get(schema.__id__, False) else None
+        drop_schema = drop_scripts[schema.__id__] if drop_scripts.get(schema.__id__, False)  else None
+        apply_script(schema, create_schema, drop_schema)
         for table in schema.tables:
             apply_script(table, create_scripts.get(table.__id__, None))
             for trigger in table.triggers:
@@ -81,7 +81,6 @@ def generateSQLCreateStatements(catalog, targetVersion, objectCreationParams):
     #options["GenerateUse"] = 1
     #        options['GenerateCreateIndex'] = 1
     options['GenerateWarnings'] = 1
-    
     options['UseOIDAsResultDictKey'] = 1
     if targetVersion:
         options['DBSettings'] = grt.modules.DbMySQL.getTraitsForServerVersion(targetVersion.majorNumber, targetVersion.minorNumber, targetVersion.releaseNumber)
@@ -91,10 +90,8 @@ def generateSQLCreateStatements(catalog, targetVersion, objectCreationParams):
     else:
         drop_scripts = grt.modules.DbMySQL.generateSQLForDifferences(catalog, grt.classes.db_mysql_Catalog(), options)
     apply_scripts_to_catalog(catalog, create_scripts, drop_scripts)
-    
     preamble = getSchemaCreatePreamble(catalog, objectCreationParams)
     catalog.customData["migration:preamble"] = preamble
-
     postamble = getSchemaCreatePostamble(catalog, objectCreationParams)
     catalog.customData["migration:postamble"] = postamble
 
@@ -120,7 +117,7 @@ def getSchemaCreatePostamble(catalog, objectCreationParams):
 _connections = {}
 
 def get_connection(connection_object):
-    if _connections.has_key(connection_object.__id__):
+    if connection_object.__id__ in _connections:
         return _connections[connection_object.__id__]
     else:
         raise NotConnectedError("No open connection to %s" % connection_object.hostIdentifier)
@@ -148,7 +145,7 @@ def connect(connection, password):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def disconnect(connection):
-    if _connections.has_key(connection.__id__):
+    if connection.__id__ in _connections:
         _connections[connection.__id__].disconnect()
         del _connections[connection.__id__]
     return 0
@@ -156,7 +153,7 @@ def disconnect(connection):
 
 @ModuleInfo.export(grt.INT, grt.classes.db_mgmt_Connection)
 def isConnected(connection):
-    return 1 if _connections.has_key(connection.__id__) else 0
+    return 1 if connection.__id__ in _connections else 0
 
 
 def execute_script(connection, script, log):
@@ -171,7 +168,7 @@ def execute_script(connection, script, log):
             grt.send_info("Execute statement", statement)
             grt.log_debug3("DbMySQLFE", "Execute %s\n" % statement)
             connection.execute(statement)
-        except db_utils.QueryError, exc:
+        except db_utils.QueryError as exc:
             if log:
                 entry = grt.classes.GrtLogEntry()
                 entry.owner = log
@@ -181,7 +178,7 @@ def execute_script(connection, script, log):
             grt.send_warning("%s" % exc)
             grt.log_error("DbMySQLFE", "Exception executing '%s': %s\n" % (statement, exc))
             return False
-        except Exception, exc:
+        except Exception as exc:
             if log:
                 entry = grt.classes.GrtLogEntry()
                 entry.owner = log

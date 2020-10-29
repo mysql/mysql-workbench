@@ -1,4 +1,4 @@
-# Copyright (c) 2011, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2011, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -118,7 +118,7 @@ def ts_iso_to_local(ts, fmt):
     try:
         local_time = calendar.timegm(datetime.datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S").timetuple())
         return time.strftime(fmt, time.localtime(local_time))+ms
-    except Exception, e:
+    except Exception as e:
         log_warning("Error parsing timestamp %s: %s\n" % (ts, e))
         return ts
 
@@ -171,7 +171,7 @@ class BaseQueryLogReader(object):
         self.show_start = max(self.show_start - self.show_count, 0)
         return self._query_records()
 
-    def next(self):
+    def __next__(self):
         self.show_start = min(self.show_start + self.show_count, self.total_count)
         return self._query_records()
 
@@ -194,7 +194,7 @@ class BaseQueryLogReader(object):
     def refresh(self):
         try:
             result = self.ctrl_be.exec_query("SELECT count(*) AS count FROM %s" % self.log_table)
-        except Exception, e:
+        except Exception as e:
             raise ServerIOError('Error fetching log contents: %s' % e)
         if not result or not result.nextRow():
             raise ServerIOError('Error fetching log contents')
@@ -208,7 +208,7 @@ class BaseQueryLogReader(object):
                         self.show_count)
         try:
             result = self.ctrl_be.exec_query(query)
-        except Exception, e:
+        except Exception as e:
             raise ServerIOError('Error fetching log contents: %s' % e)
 
         records = []
@@ -359,7 +359,7 @@ class BaseLogFileReader(object):
             try:
                 self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
                 self.file_size = self.log_file.size
-            except InvalidPasswordError, error:
+            except InvalidPasswordError as error:
                 if password is None:
                     retry = True
                 else:
@@ -371,7 +371,7 @@ class BaseLogFileReader(object):
                 try:
                     self.log_file = SudoTailInputFile(self.ctrl_be.server_helper, self.log_file_name, password)
                     self.file_size = self.log_file.size
-                except InvalidPasswordError, error:
+                except InvalidPasswordError as error:
                     log_error("Invalid password to sudo %s\n" % error)
                     ctrl_be.password_handler.reset_password_for('file')
                     raise
@@ -396,20 +396,22 @@ class BaseLogFileReader(object):
         self.chunk_end = self.file_size
 
         self.record_count = 0
-
+        
+        data = self.log_file.get_range(0, self.chunk_size)
+        self.first_record_position = self._get_offset_to_first_record(data)
 
 
     def has_previous(self):
         '''
             If there is a previous chunk that can be read.
             '''
-        return self.chunk_start > 0
+        return self.chunk_start > self.first_record_position
 
     def has_next(self):
         '''
             If there is a next chunk that can be read.
             '''
-        return self.chunk_end != self.file_size
+        return self.chunk_end < self.file_size
 
     def range_text(self):
         return '%s records starting at byte offset %s' % (self.record_count, self.chunk_start)
@@ -477,12 +479,9 @@ class BaseLogFileReader(object):
             the log viewer shortening to 256 characters and taking care of encoding issues
             '''
         l = len(data)
-        try:
-            abbr = data[:256].encode('utf-8')
-        except ValueError:
-            abbr = data[:256].decode('latin1').encode('utf-8')
+        abbr = data[:256]
         size = '%d bytes' % l if l < 1024 else '%.1f KB' % (l / 1024.0)
-        return abbr if l <= 256 else abbr + ' [truncated, %s total]' % size
+        return data if l <= 256 else data + ' [truncated, %s total]' % size
 
 
     def current(self):
@@ -492,13 +491,13 @@ class BaseLogFileReader(object):
             the corresponding log entry.
             '''
         data = self.log_file.get_range(self.chunk_start, self.chunk_end)
-        if self.chunk_start > self.chunk_size / 10:
-            # adjust the start of the current chunk to the start of the 1st record (if we're not too close to the top)
-            offset = self._get_offset_to_first_record(data)
-            self.chunk_start += offset
-        else:
-            offset = 0
-        return self._parse_chunk(data[offset:])
+
+        # adjust the start of the current chunk to the start of the 1st record (if we're not too close to the top)
+        offset = self._get_offset_to_first_record(data)
+
+        data = data[offset:]
+        self.chunk_start += offset
+        return self._parse_chunk(data)
 
     def previous(self):
         '''
@@ -508,11 +507,12 @@ class BaseLogFileReader(object):
             '''
         if self.chunk_start == 0:
             return []
-        self.chunk_end = self.chunk_start
-        self.chunk_start = max(0, self.chunk_start - self.chunk_size)
+       
+        self.chunk_end = max(self.chunk_start, self.first_record_position + self.chunk_size)
+        self.chunk_start = max(self.first_record_position, self.chunk_start - self.chunk_size)
         return self.current()
     
-    def next(self):
+    def __next__(self):
         '''
             Returns a list with the records in the next chunk.
             Each record is a list with the values for each column of
@@ -528,17 +528,23 @@ class BaseLogFileReader(object):
         '''
             Returns a list with the records in the first chunk
             '''
-        self.chunk_start = 0
-        self.chunk_end = self.chunk_size
+        self.chunk_start = self.first_record_position
+        self.chunk_end = self.first_record_position + self.chunk_size
         return self.current()
     
     def last(self):
         '''
             Returns a list with the records in the first chunk
             '''
-        self.chunk_start = max(0, self.file_size - self.chunk_size)
+        self.chunk_start = max(self.first_record_position, self.file_size - self.chunk_size)
         self.chunk_end = self.file_size
         return self.current()
+
+    def file_changed(self):
+        if self.log_file.path == "stderr":
+            return True
+
+        return self.file_size != self.log_file.size
 
     def refresh(self):
         '''
@@ -548,12 +554,12 @@ class BaseLogFileReader(object):
             '''
         if self.log_file.path == "stderr":
             return
-        else:
-            new_size = self.log_file.size
-            if new_size != self.file_size:
-                self.file_size = new_size
-                self.chunk_start = max(0, self.file_size - self.chunk_size)
-                self.chunk_end = self.file_size
+      
+        new_size = self.log_file.size
+        if new_size != self.file_size:
+            self.file_size = new_size
+            self.chunk_start = max(self.first_record_position, self.file_size - self.chunk_size)
+            self.chunk_end = self.file_size
 
 
 #==============================================================================

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -20,7 +20,7 @@
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 import grt
-from grt.modules import Workbench
+#from grt.modules import Workbench
 import mforms
 from wb import wbinputs
 from wb_utils_grt import ModuleInfo
@@ -37,14 +37,14 @@ def copySQLToClipboard(obj):
         else:
             script.append(grt.modules.DbMySQL.makeCreateScriptForObject(obj))
 
-        Workbench.copyToClipboard(''.join(script))
+        grt.modules.Workbench.copyToClipboard(''.join(script))
         return 0
           
 @ModuleInfo.plugin('wb.util.copyColumnNamesToClipboard', caption='Copy Column Names to Clipboard', input= [wbinputs.objectOfClass('db.Table')], groups= ['Catalog/Utilities', 'Menu/Objects'], accessibilityName="Copy Column Names to Clipboard")
 @ModuleInfo.export(grt.INT, grt.classes.db_Table)
 def copyColumnNamesToClipboard(table):
         data = ', '.join([column.name for column in table.columns])
-        Workbench.copyToClipboard(data)
+        grt.modules.Workbench.copyToClipboard(data)
         return 0
 
 @ModuleInfo.plugin('wb.util.copyTableListToClipboard', caption='Copy Table List to Clipboard', input= [wbinputs.currentCatalog()], groups= ['Catalog/Utilities', 'Menu/Catalog'], accessibilityName="Copy Table List to Clipboard")
@@ -55,7 +55,7 @@ def copyTableListToClipboard(cat):
     for schema in cat.schemata:
         insert = insert + ', '.join(['`'+schema.name+'`.`'+tbl.name+'`' for tbl in schema.tables])
              
-    Workbench.copyToClipboard(insert)
+    grt.modules.Workbench.copyToClipboard(insert)
     return 0
 
 def generateName(name_prefix, names_map):
@@ -172,7 +172,7 @@ def changeStorageEngines(cat):
             new_engine = engine_name
 
      if not engine_found:
-        Workbench.confirm('Change Storage Engines', 'Invalid storage engine name: ' + new_engine)
+        grt.modules.Workbench.confirm('Change Storage Engines', 'Invalid storage engine name: ' + new_engine)
         return 2
 
      for schema in cat.schemata:

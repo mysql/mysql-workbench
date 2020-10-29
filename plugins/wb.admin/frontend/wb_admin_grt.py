@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2020, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -127,6 +127,9 @@ class AdministratorContext:
 
     @property
     def instance_profile(self):
+        print(type(grt.root.wb))
+        print(grt.root.wb)
+      
         for instance in grt.root.wb.rdbmsMgmt.storedInstances:
             if instance.connection == self.connection:
                 return instance
@@ -178,17 +181,17 @@ class AdministratorContext:
                 self.ctrl_be.acquire_admin_access()
                 mforms.App.get().set_status_text("Management support for target host enabled successfully.")
                 return True
-            except OperationCancelledError, exc:
+            except OperationCancelledError as exc:
                 self.admin_access_status = "Remote management capabilities are currently unavailable.\nSSH connection was cancelled"
                 mforms.App.get().set_status_text("Cancelled SSH connection (%s)"%exc)
                 return None
-            except InvalidPasswordError, exc:
+            except InvalidPasswordError as exc:
                 self.admin_access_status = "Remote management capabilities are currently unavailable.\nCould not acquire management access to the server\n\n%s" % exc
                 if Utilities.show_error("Could not acquire management access for administration", "%s" % exc, "Retry", "Cancel", "") == mforms.ResultOk:
                     continue
                 mforms.App.get().set_status_text("Could not Open WB Admin")
                 return None
-            except Exception, exc:
+            except Exception as exc:
                 import traceback
                 traceback.print_exc()
                 self.admin_access_status = "Remote management capabilities are currently unavailable.\nCould not acquire management access to the server\n\n%s" % exc
@@ -223,7 +226,7 @@ class AdministratorContext:
             return False
 
         def validate_setting(settings, option, norm_cb, msg):
-            if settings.has_key(option):
+            if option in settings:
                 if norm_cb is not None:
                     norm_cb(settings, option)
             else:
@@ -233,7 +236,7 @@ class AdministratorContext:
 
         def norm_to_switch(settings, option):
             value = 0
-            if settings.has_key(option):
+            if option in settings:
                 value = settings[option]
                 if value > 0:
                     value = 1
@@ -243,7 +246,7 @@ class AdministratorContext:
             settings[option] = value
 
         def make_str_existing(settings, option):
-            if not settings.has_key(option):
+            if option not in settings:
                 settings[option] = ""
 
         validate_setting(server_instance.serverInfo, "sys.usesudo", norm_to_switch, None)#"Server profile has no indication of sudo usage")
@@ -258,19 +261,19 @@ class AdministratorContext:
             self.ctrl_be.init()
 
             self.admin_tab = wb_admin_main.AdministratorTab(self.ctrl_be, self.server_profile, self, self.editor)
-        except MySQLError, exc:
-            if exc.message:
+        except MySQLError as exc:
+            if str(exc):
                 Utilities.show_error("Error Connecting to MySQL Server (%s)" % exc.location, str(exc), "OK", "", "")
             app.set_status_text("Could not Open WB Admin")
             return None
-        except OperationCancelledError, exc:
+        except OperationCancelledError as exc:
             app.set_status_text("Cancelled (%s)"%exc)
             return None
-        except NoDriverInConnection, exc:
+        except NoDriverInConnection as exc:
             Utilities.show_error('Missing connection driver', str(exc), 'OK', '', '')
             app.set_status_text("Could not Open WB Admin")
             return None
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
             Utilities.show_error("Error Starting Workbench Administrator", "%s: %s" % (type(exc).__name__, exc), "OK", "", "")
@@ -302,7 +305,7 @@ class AdministratorContext:
             self.open_into_section(entry_id)
 
     def refresh_admin_links(self):
-        for ident in self.disabled_pages.keys():
+        for ident in list(self.disabled_pages.keys()):
             if (not self.server_profile or (self.server_profile and not self.server_profile.is_local and not self.server_profile.remote_admin_enabled)):
                 pass
             else:
@@ -448,7 +451,7 @@ def autoDetectLocalInstance(connection):
         matched_profiles = []
         for f in files:
             data = grt.unserialize(os.path.join(path, f))
-            if data and data.has_key("sys.system") and data["sys.system"] == system:
+            if data and "sys.system" in data and data["sys.system"] == system:
                 profiles.append(data)
                 profile_version = Version.fromstr(data.get("serverVersion"))
                 if version.majorNumber == profile_version.majorNumber or version.minorNumber == profile_version.minorNumber:
@@ -629,8 +632,7 @@ class PasswordExpiredDialog(mforms.Form):
                 return self.run()
             
             con = self._conn.shallow_copy()
-            old_multi_statements = con.parameterValues.get("CLIENT_MULTI_STATEMENTS")
-            old_script = con.parameterValues.get("preInit")
+
             con.parameterValues["CLIENT_MULTI_STATEMENTS"] = 1
             if self.legacy.get_active():
                 con.parameterValues["preInit"] = "SET PASSWORD = PASSWORD('%s')" % escape_sql_string(self.password.get_string_value())
@@ -644,10 +646,13 @@ class PasswordExpiredDialog(mforms.Form):
             try:
                 log_info("About to connecto to MySQL Server to change expired password")
                 c.connect()
-            except MySQLError, e:
+                mforms.Utilities_store_password(c.connect_info.hostIdentifier, c.connect_info.parameterValues.userName, self.password.get_string_value())
+            except MySQLError as e:
                 if mforms.Utilities.show_error("Reset Password", str(e), "Retry", "Cancel", "") == mforms.ResultOk:
                     retry = True
                 result = 0
+            except Exception as e:
+                print("Error handling expired password: %s" % str(e))
 
             if retry:
                 return self.run()
@@ -699,8 +704,8 @@ def testInstanceSettingByName(what, connection, server_instance):
             test_ssh_connection.init()
 
             grt.send_info("connected.")
-        except Exception, exc:
-            log_error("Exception: %s\n" % exc.message)
+        except Exception as exc:
+            log_error("Exception: %s\n" % str(exc))
             import traceback
             log_debug2("Backtrace was: ", traceback.format_stack())
             return "ERROR "+str(exc)
@@ -709,9 +714,9 @@ def testInstanceSettingByName(what, connection, server_instance):
 
         try:
             test_ssh_connection.acquire_admin_access()
-        except Exception, exc:
+        except Exception as exc:
             
-            log_error("Exception: %s\n" % exc.message)
+            log_error("Exception: %s\n" % str(exc))
             import traceback
             log_debug2("Backtrace was: " % traceback.format_stack())
             return "ERROR "+str(exc)
@@ -741,12 +746,12 @@ def testInstanceSettingByName(what, connection, server_instance):
 
     elif what in ("find_config_file", "check_config_path", "check_config_section"):
         config_file = profile.config_file_path
-        print "Check if %s exists in remote host" % config_file
+        print("Check if %s exists in remote host" % config_file)
         try:
             if not test_ssh_connection.ssh.fileExists(config_file):
                 return "ERROR File %s doesn't exist" % config_file
             else:
-                print "File was found in expected location"
+                print("File was found in expected location")
         except IOError:
             return 'ERROR Could not verify the existence of the file %s' % config_file
 
@@ -755,11 +760,11 @@ def testInstanceSettingByName(what, connection, server_instance):
 
         section = profile.config_file_section
         cfg_file_content = ""
-        print "Check if %s section exists in %s" % (section, config_file)
+        print("Check if %s section exists in %s" % (section, config_file))
         try:
             #local_file = test_ssh_connection.fetch_file(config_file)
             cfg_file_content = test_ssh_connection.server_helper.get_file_content(path=config_file)
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             traceback.print_exc()
             return "ERROR "+str(exc)
@@ -771,9 +776,9 @@ def testInstanceSettingByName(what, connection, server_instance):
     elif what in ("find_config_file/local", "check_config_path/local", "check_config_section/local"):
         config_file = profile.config_file_path
         config_file = wb_admin_control.WbAdminControl(profile, None, connect_sql=False).expand_path_variables(config_file)
-        print "Check if %s can be accessed" % config_file
+        print("Check if %s can be accessed" % config_file)
         if os.path.exists(config_file):
-            print "File was found at the expected location"
+            print("File was found at the expected location")
         else:
             return "ERROR File %s doesn't exist" % config_file
 
@@ -781,9 +786,9 @@ def testInstanceSettingByName(what, connection, server_instance):
             return "OK"
 
         section = profile.config_file_section
-        print "Check if section for instance %s exists in %s" % (section, config_file)
+        print("Check if section for instance %s exists in %s" % (section, config_file))
         if check_if_config_file_has_section(open(config_file, "r"), section):
-            print "[%s] section found in configuration file" % section
+            print("[%s] section found in configuration file" % section)
             return "OK"
         return "ERROR Couldn't find section [%s] in the config file %s" % (section, config_file)
 

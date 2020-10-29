@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -63,7 +63,7 @@ def quoteString(text):
       escape= '\\'
     elif c == "'":
       escape= "'"
-    elif ord(c) == 032:
+    elif ord(c) == 0o32:
       escape= 'Z' 
 
     if escape is not None:

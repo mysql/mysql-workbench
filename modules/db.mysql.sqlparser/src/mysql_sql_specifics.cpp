@@ -67,7 +67,7 @@ public:
     _limit_ins_pos = limit_ins_pos;
     _statement_valid = false;
 
-    _process_sql_statement = boost::bind(&Mysql_sql_statement_info::process_sql_statement, this, _1);
+    _process_sql_statement = boost::bind(&Mysql_sql_statement_info::process_sql_statement, this, boost::placeholders::_1);
 
     Mysql_sql_parser_fe sql_parser_fe(bec::GRTManager::get()->get_app_option_string("SqlMode"));
     sql_parser_fe.ignore_dml = false;

@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 from workbench.log import log_info, log_error, log_warning, log_debug3
 
 from workbench.utils import format_duration, Version
@@ -150,7 +150,7 @@ class ConnectionInfo(mforms.Box):
 
         uptime = status.get("Uptime", None)
         if uptime:
-            uptime = long(uptime)
+            uptime = int(uptime)
             stradd(self.info_table, 6, "Running Since", "%s (%s)" % (time.ctime(ctrl_be.status_variables_time-uptime), format_duration(uptime, True)))
         else:
             stradd(self.info_table, 6, "Running Since", "n/a")
@@ -319,7 +319,7 @@ class WbAdminServerStatus(mforms.Box):
         res = None
         try:
             res = self.ctrl_be.exec_query("SHOW SLAVE STATUS")
-        except QueryError, e:
+        except QueryError as e:
             if e.error == 1227:
                 repl_error = "Insufficient privileges to view replica status"
             else:
@@ -350,7 +350,7 @@ class WbAdminServerStatus(mforms.Box):
             self.controls[""][0].set_text(repl_error or "this server is not a replica in a replication setup")
         table.relayout()
 
-        for key, (control, value_source) in self.controls.items():
+        for key, (control, value_source) in list(self.controls.items()):
             if callable(value_source):
                 if isinstance(control, mforms.Label):
                     resp = value_source(info, plugins, status)
@@ -389,7 +389,7 @@ class WbAdminServerStatus(mforms.Box):
         semi_sync_master = tristate(info.get("rpl_semi_sync_master_enabled"))
         semi_sync_slave = tristate(info.get("rpl_semi_sync_slave_enabled"))
         semi_sync_status = (semi_sync_master or semi_sync_slave, "(%s)"% ", ".join([x for x in [semi_sync_master and "master", semi_sync_slave and "slave"] if x]))
-        memcached_status = True if plugins.has_key('daemon_memcached') else None
+        memcached_status = True if 'daemon_memcached' in plugins else None
         
         if not repl:
             if semi_sync_master:
@@ -406,7 +406,7 @@ class WbAdminServerStatus(mforms.Box):
                                ("Memcached Plugin", lambda info, plugins, status: memcached_status),
                                ("Semisync Replication Plugin", lambda info, plugins, status: semi_sync_status),
                                ("SSL Availability", lambda info, plugins, status: info.get("have_openssl") == "YES" or info.get("have_ssl") == "YES"),
-                               ("Windows Authentication", lambda info, plugins, status: plugins.has_key("authentication_windows")) if self.server_profile.target_is_windows else ("PAM Authentication", lambda info, plugins, status: plugins.has_key("authentication_pam")),
+                               ("Windows Authentication", lambda info, plugins, status: "authentication_windows" in plugins) if self.server_profile.target_is_windows else ("PAM Authentication", lambda info, plugins, status: "authentication_pam" in plugins),
                                ("Password Validation", lambda info, plugins, status: (tristate(info.get("validate_password_policy")), "(Policy: %s)" % info.get("validate_password_policy"))),
                                ("Audit Log", lambda info, plugins, status: (tristate(info.get("audit_log_policy")), "(Log Policy: %s)" % info.get("audit_log_policy"))),
                                ("Firewall", lambda info, plugins, status: tristate(info.get("mysql_firewall_mode"))),
@@ -470,9 +470,9 @@ class WbAdminServerStatus(mforms.Box):
 
         hbox = mforms.newBox(True)
 
-        info_table = self.make_info_table(info[:len(info)/2], params)
+        info_table = self.make_info_table(info[:len(info)//2], params)
         hbox.add(info_table, True, True)
-        info_table = self.make_info_table(info[len(info)/2:], params)
+        info_table = self.make_info_table(info[len(info)//2:], params)
         hbox.add(info_table, True, True)
 
         self.content.add(hbox, False, True)
@@ -511,7 +511,7 @@ class WbAdminServerStatus(mforms.Box):
             else:
                 value = value_source
 
-            if self.controls.has_key(label):
+            if label in self.controls:
                 info_table.remove(self.controls[label][0])
             else:
                 l = mforms.newLabel(label + ":")
@@ -571,6 +571,6 @@ class WbAdminServerStatus(mforms.Box):
         new_value = self.gtid_mode_selector.get_string_value()
         try:
             self.ctrl_be.exec_query("SET @@GLOBAL.GTID_MODE = %s;" % new_value)
-        except QueryError, e:
+        except QueryError as e:
             log_error("Error update GTID mode: %s" % str(e))
 

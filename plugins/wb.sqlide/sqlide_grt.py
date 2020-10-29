@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 # import the wb module
 from wb import DefineModule, wbinputs
@@ -78,7 +78,7 @@ def importRecordsetDataFromFile(resultset):
     file_chooser.set_directory(os.path.expanduser('~'))
     file_chooser.set_extensions('CSV Files (*.csv)|*.csv', 'import')
     if file_chooser.run_modal():
-        with open(file_chooser.get_path(), 'rb') as import_file:
+        with open(file_chooser.get_path(), 'r') as import_file:
             ext = os.path.splitext(import_file.name)[1].lower()
             import_module = None
             if ext == '.csv':
@@ -226,8 +226,7 @@ def verticalOutput(editor):
 
 
 def doReformatSQLStatement(text, return_none_if_unsupported):
-    from grt.modules import MysqlSqlFacade
-    ast_list = MysqlSqlFacade.parseAstFromSqlScript(text)
+    ast_list = grt.modules.MysqlSqlFacade.parseAstFromSqlScript(text)
     if len(ast_list) != 1:
         raise Exception("Error parsing statement")
     if type(ast_list[0]) is str:
@@ -275,8 +274,6 @@ def reformatSQLStatement(text):
 def enbeautificate(editor):
     """Reformat the selected SQL statements or the one under the cursor."""
 
-    from grt.modules import MysqlSqlFacade
-
     text = editor.selectedText
     selectionOnly = True
     if not text:
@@ -288,7 +285,7 @@ def enbeautificate(editor):
     
     prev_end = 0
     new_text = []
-    ranges = MysqlSqlFacade.getSqlStatementRanges(text)
+    ranges = grt.modules.MysqlSqlFacade.getSqlStatementRanges(text)
     for begin, end in ranges:
         end = begin + end
         if begin > prev_end:
@@ -365,7 +362,6 @@ def enbeautificate(editor):
 
 
 def apply_to_keywords(editor, callable):
-    from grt.modules import MysqlSqlFacade
     non_keywords = ["ident", "ident_or_text", "TEXT_STRING", "text_string", "TEXT_STRING_filesystem", "TEXT_STRING_literal", "TEXT_STRING_sys",
                     "part_name"]
 
@@ -376,12 +372,12 @@ def apply_to_keywords(editor, callable):
         text = editor.script
     
     new_text = ""
-    ast_list = MysqlSqlFacade.parseAstFromSqlScript(text)
+    ast_list = grt.modules.MysqlSqlFacade.parseAstFromSqlScript(text)
     bb = 0
     for ast in ast_list:
         if type(ast) is str:
             # error
-            print ast
+            print(ast)
             mforms.App.get().set_status_text("Cannot format invalid SQL: %s"%ast)
             return 1
         else:

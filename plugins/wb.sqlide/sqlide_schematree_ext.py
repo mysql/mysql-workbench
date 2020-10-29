@@ -1,4 +1,4 @@
-# Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -29,6 +29,7 @@ from table_templates import TableTemplateManager
 
 from sqlide_tableman_ext import CreateIndexForm
 from sqlide_catalogman_ext import show_schema_manager
+from functools import reduce
 
 def esc_ident(s):
     # escape SQL identifier and add backtics only if needed
@@ -121,7 +122,7 @@ def handleLiveTreeContextMenu(name, sender, args):
                 selection_type = s.owner.type+':'+s.type
             column_selected = True
         else:
-            print "Unhandled type", s.type
+            print("Unhandled type", s.type)
 
     if mixed:
         selection_type = None
@@ -373,7 +374,7 @@ def do_truncate_table(editor, selection):
             stmt = "TRUNCATE %s" % table
             editor.executeManagementCommand(stmt, 1)
             count += 1
-        except Exception, exc:
+        except Exception as exc:
             if count < len(tables)-1:
                 if mforms.Utilities.show_error("Could not Truncate Table", str(exc)+"\nClick Cancel to stop truncating other tables.\n\n"+stmt, "OK", "Cancel", "") == mforms.ResultCancel:
                     break
@@ -432,7 +433,7 @@ def do_drop_object(editor, selection):
             stmt = "DROP INDEX %s ON %s.%s" % (esc_ident(obj.name), esc_ident(obj.owner.schemaName), esc_ident(obj.owner.name))
             object_types.add("Index")
         else:
-            print "Unsupported type for drop", obj.type
+            print("Unsupported type for drop", obj.type)
         statements.append((1, stmt))
 
     # multiple tables can be dropped in the same command (probably so that we dont get ref constraint errors)
@@ -491,7 +492,7 @@ def do_drop_object(editor, selection):
             #This should be run in background because of the bug: #71327
             editor.executeCommand(stmt,1 ,1)
             drop_count += c
-        except Exception, exc:
+        except Exception as exc:
             if i < len(statements)-1:
                 if mforms.Utilities.show_error("Could not Drop Object", str(exc)+"\nClick Cancel to stop dropping other objects.\n\n"+stmt, "OK", "Cancel", "") == mforms.ResultCancel:
                     break
@@ -581,7 +582,7 @@ class DependencyAnalyzer:
         distance = {}
 
         # initialization
-        for table in self.tables_by_name.values():
+        for table in list(self.tables_by_name.values()):
             predecessor[table] = None
             distance[table] = 99999999
         distance[from_table] = 0
@@ -599,7 +600,7 @@ class DependencyAnalyzer:
             return v
 
         # main loop
-        remaining = self.tables_by_name.values()
+        remaining = list(self.tables_by_name.values())
         while remaining:
             u = get_cheapest(remaining)
             for v in self.get_referenced_tables(u):
@@ -656,7 +657,7 @@ def join_tables(info, tables, auto_add_missing):
                 if auto_add_missing:
                     fks = info.find_foreign_key_path_between(t1, t2) or info.find_foreign_key_path_between(t2, t1)
                     if not fks:
-                        print "Could not find path from %s to %s" % (t1.name, t2.name)
+                        print("Could not find path from %s to %s" % (t1.name, t2.name))
                         return None
                     joins.update(fks)
                 else:
@@ -699,7 +700,7 @@ class CodeGenerator:
 
     def get_table_columns(self, schema, table):
         info_key = "%s:%s.%s" % (self.editor.__id__, schema, table)
-        if table_column_cache.has_key(info_key):
+        if info_key in table_column_cache:
             return table_column_cache[info_key]
 
         rs = self.editor.executeManagementQuery("SHOW COLUMNS FROM %s.%s" % (esc_ident(schema), esc_ident(table)), 0)
@@ -713,7 +714,7 @@ class CodeGenerator:
                 columns.append((name, is_key, default))
                 ok = rs.nextRow()
             table_column_cache[info_key] = columns
-            print columns
+            print(columns)
             return columns
         else:
             return None
@@ -840,16 +841,16 @@ class CodeGenerator:
                 rs = self.editor.executeManagementQuery("SHOW CREATE VIEW %s.%s" % (esc_ident(obj.schemaName), esc_ident(obj.name)), 0)
                 field_name = 'Create View'
             else:
-                print "Unsupported type", obj.type
+                print("Unsupported type", obj.type)
                 continue
             if rs and rs.goToFirstRow():
                 sql = rs.stringFieldValueByName(field_name)
                 if not sql:
-                    print "No field %s for %s" % (field_name, obj.name)
+                    print("No field %s for %s" % (field_name, obj.name))
                 else:
                     parts.append(wrapper % sql)
             else:
-                print "Couldn't fetch create code for %s" % obj.name
+                print("Couldn't fetch create code for %s" % obj.name)
 
         self.send("\n".join(parts))
 

@@ -24,8 +24,8 @@ import threading
 import time
 import random
 import string
-from SocketServer import TCPServer
-from SocketServer import BaseRequestHandler
+from socketserver import TCPServer
+from socketserver import BaseRequestHandler
 
 class TCPCommandListener(threading.Thread):
   """
@@ -93,7 +93,7 @@ class HandShakeHandler(BaseRequestHandler):
         self.request.send(".")
         self._pinger = threading.Timer(1, self._ping)
         self._pinger.start()
-      except Exception, e:
+      except Exception as e:
         self.exit_status = 1
         self.exit_message = repr(e)
         self._client_connected = False
@@ -142,9 +142,9 @@ class HandShakeHandler(BaseRequestHandler):
           else:
             self.process_data(data)
 
-      except Exception, e:
+      except Exception as e:
           # Error 10054 indicates the client connection terminated
-          print "EXCEPTION : ", e
+          print(("EXCEPTION : ", e))
           #if e.errno == 10054:
           #  self._client_connected = False
           #else:
@@ -191,7 +191,7 @@ class SocketServer(threading.Thread):
       self._socket.bind((self.host, self.port))
       self.port = self._socket.getsockname()
       self._bound = True
-    except Exception, e:
+    except Exception as e:
       self.exit_status = 1
       self.exit_message = repr(e)
 
@@ -212,7 +212,7 @@ class SocketServer(threading.Thread):
         self._connection.send(".")
         self._pinger = threading.Timer(1, self._ping)
         self._pinger.start()
-      except Exception, e:
+      except Exception as e:
         self.exit_status = 1
         self.exit_message = repr(e)
         self._client_connected = False
@@ -278,13 +278,13 @@ class SocketServer(threading.Thread):
               else:
                 self.process_data(data)
 
-          except Exception, e:
+          except Exception as e:
             self.exit_status = 1
             self.exit_message = repr(e)
             self._client_connected = False
 
     # Any error starting the server will be printed
-    except socket.error, e:
+    except socket.error as e:
       self.exit_status = 1
       self.exit_message = repr(e)
 
@@ -355,12 +355,12 @@ class SocketClient(object):
                   if not self._authenticated:
                       self._connected = False
                       self.close()
-    except socket.error, e:
+    except socket.error as e:
       # Connection was not done, probably target is not listening
       # This error just gets printed as there's no way to tell the
       # server
       if e.errno == 10061:
-        print e
+        print(e)
 
     return self._connected
                 

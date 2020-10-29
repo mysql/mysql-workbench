@@ -79,7 +79,7 @@ std::vector<std::string> PythonShell::complete_line(const std::string &line, std
 static void add_matching_tokens_from_list(std::vector<std::string> &tokens, PyObject *list, const char *base,
                                           const char *prefix, const char *append = "") {
   for (Py_ssize_t i = 0; i < PyList_Size(list); i++) {
-    const char *str = PyString_AsString(PyList_GetItem(list, i));
+    const char *str = PyUnicode_AsUTF8(PyList_GetItem(list, i));
     if (g_str_has_prefix(str, prefix)) {
       if (base)
         tokens.push_back(strfmt("%s.%s%s", base, str, append));

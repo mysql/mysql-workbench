@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -49,13 +49,13 @@ class TimeProfiler(object):
 
             def newfunc(*args, **kwargs):
                 startt = datetime.now()
-                print('--> Begin: %s' % methodname)
+                print(('--> Begin: %s' % methodname))
                 result = attr(*args, **kwargs)
                 endtt = datetime.now()
                 deltat= endtt - startt
                 minutes = deltat.seconds / 60
                 seconds = deltat.seconds - (minutes * 60)
-                print('--> End: %s [%s:%s.%s]' % (methodname, minutes, seconds, deltat.microseconds))
+                print(('--> End: %s [%s:%s.%s]' % (methodname, minutes, seconds, deltat.microseconds)))
                 return result
             return newfunc
         else:

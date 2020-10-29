@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -26,7 +26,7 @@ import re
 import os
 
 from threading import Thread
-from Queue import Queue, Empty
+from queue import Queue, Empty
 from workbench.client_utils import MySQLScriptImporter
 
 from wb_admin_utils import weakcb, MessageButtonPanel, WbAdminTabBase, WbAdminValidationBase, WbAdminValidationConnection
@@ -108,7 +108,7 @@ def get_installed_sys_version(sql_editor):
         res = sql_editor.executeManagementQuery("SELECT sys_version FROM sys.version", 0)
         if res.goToFirstRow():
             return res.stringFieldValue(0)
-    except grt.DBError, e:
+    except grt.DBError as e:
         log_error("MySQL error getting sys schema version: %s\n" % e)
         if e.args[1] == 1146: # table doesn't exist
             return None
@@ -210,13 +210,13 @@ class HelperInstallPanel(mforms.Table):
                 self.importer.import_script(f, db)
 
             log_info("sys schema installation finished\n")
-        except grt.DBLoginError, e:
+        except grt.DBLoginError as e:
             log_error("MySQL login error installing sys schema: %s\n" % e)
             self._worker_queue.put(e)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("MySQL error installing sys schema: %s\n" % e)
             self._worker_queue.put(e)
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Unexpected exception installing sys schema: %s\n%s\n" % (e, traceback.format_exc()))
             self._worker_queue.put(e)
@@ -249,7 +249,7 @@ class HelperInstallPanel(mforms.Table):
                         
                 log_info("Installing sys schema supplied by workbench\n")
                 self.install_scripts(files, "Installing Workbench script")
-        except Exception, e:
+        except Exception as e:
               log_error("Runtime error when installing the sys schema: %s\n" % str(e))
               self._worker_queue.put(e)
         
@@ -284,7 +284,7 @@ class HelperInstallPanel(mforms.Table):
 
 class WbAdminValidationPSUsable(WbAdminValidationBase):
     def __init__(self, main_view):
-        WbAdminValidationBase.__init__(self, "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
+        super().__init__("Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
         self._main_view = main_view
         
     def validate(self):
@@ -292,14 +292,14 @@ class WbAdminValidationPSUsable(WbAdminValidationBase):
             res = self._main_view.editor.executeManagementQuery("select @@performance_schema", 0)
             if res.goToFirstRow():
                 return res.stringFieldValue(0) == "1"
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("MySQL error retrieving the performance_schema variable: %s\n" % e)
         return False
 
 
 class WbAdminValidationNeedsInstallation(WbAdminValidationBase):
     def __init__(self, main_view, ctrl_be, owner):
-        WbAdminValidationBase.__init__(self, "Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
+        super().__init__("Performance Schema is either unavailable or disabled on this server.\nYou need a MySQL server version 5.6 or newer, with the performance_schema feature enabled.")
         self._main_view = main_view
         self._ctrl_be = ctrl_be
         self._error_title = ""
@@ -317,7 +317,7 @@ class WbAdminValidationNeedsInstallation(WbAdminValidationBase):
             res = self._main_view.editor.executeManagementQuery("show grants", 0)
             if res.goToFirstRow():
                 current_user_grants = res.stringFieldValue(0)
-        except grt.DBError, e:
+        except grt.DBError as e:
             log_error("MySQL error retrieving user grants: %s\n" % e)
 
         # First we check if there's full grant set,
@@ -385,11 +385,11 @@ class WbAdminValidationNeedsInstallation(WbAdminValidationBase):
                     self.set_error_message("Performance Schema helper schema (sys) is outdated\n\nMySQL Workbench needs to upgrade it.\n(current version is %s, server has %s%s)." % (curversion, installed_version, install_text))
                     self.add_install_button()
                     return False
-        except grt.DBError, e:
+        except grt.DBError as e:
             self.set_error_message("Unable to access Performance Schema helper schema (sys)\n\n%s (error %s)\n\nIf the sys schema is already installed, make sure you have SELECT privileges on it.\nIf not, you will need privileges to create the `sys` schema and populate it with views and stored procedures for PERFORMANCE_SCHEMA." % e.args)
             return False
 
-        except Exception, e:
+        except Exception as e:
             import traceback
             log_error("Error checking for PS helper: %s\n" % traceback.format_exc())
             self.set_error_message("Unable to access Performance Schema helper (sys) \n\n%s\n\nIf the sys schema is already installed, make sure you have SELECT privileges on it.\nIf not, you will need privileges to create the `sys` schema and populate it with views and stored procedures for PERFORMANCE_SCHEMA." % str(e))

@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -42,7 +42,7 @@ class SybaseMigration(GenericMigration):
         if not mysql_valid_regex.match(mysql_name) and log:
             entry = grt.classes.GrtLogEntry()
             entry.entryType = 2
-            entry.name = u'Sybase migrateIdentifier: Could not migrate identifier %s' % sybase_name
+            entry.name = 'Sybase migrateIdentifier: Could not migrate identifier %s' % sybase_name
             log.entries.append(entry)
         
         # truncate too long identifiers
@@ -53,7 +53,7 @@ class SybaseMigration(GenericMigration):
             if log:
                 entry = grt.classes.GrtLogEntry()
                 entry.entryType = 1
-                entry.name = u'Identifier `%s` is too long, truncated to `%s`' % (sybase_name, mysql_name)
+                entry.name = 'Identifier `%s` is too long, truncated to `%s`' % (sybase_name, mysql_name)
                 log.entries.append(entry)
         
         return mysql_name
@@ -200,7 +200,7 @@ class SybaseMigration(GenericMigration):
                 # just fall back to same type name and hope for the best
                 target_datatype = source_datatype
 
-            if mysql_simpleTypes.has_key(target_datatype):
+            if target_datatype in mysql_simpleTypes:
                 target_column.simpleType = mysql_simpleTypes[target_datatype]
             else:
                 grt.log_warning("Sybase migrateTableColumnsToMySQL", "Can't find datatype %s for type %s\n" % (target_datatype, source_datatype))

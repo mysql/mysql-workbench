@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -230,7 +230,7 @@ class AddSchemaPrivilegeForm(mforms.Form):
         box.set_spacing(8)
         self.set_content(box)
 
-        label = newLabel(("Select the Schema for which the user '%s' will have the privileges you want to define." % user).encode('utf-8'))
+        label = newLabel("Select the Schema for which the user '%s' will have the privileges you want to define." % user)
         box.add(label, False, True)
 
         panel = newPanel(mforms.TitledBoxPanel)
@@ -471,7 +471,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
     def schema_priv_checked(self):
         privs = []
-        for name, cb in self.schema_rights_checks.iteritems():
+        for name, cb in self.schema_rights_checks.items():
             if cb.get_active():
                 privs.append(name)
         sel = self.privs_list.get_selected_row()
@@ -524,7 +524,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
 
     def grant_all_schema_privs(self):
-        for name, cb in self.schema_rights_checks.iteritems():
+        for name, cb in self.schema_rights_checks.items():
             if name != "Grant_priv":
                 cb.set_active(True)
             else:
@@ -534,7 +534,7 @@ class SecuritySchemaPrivileges(mforms.Box):
 
 
     def revoke_all_schema_privs(self):
-        for cb in self.schema_rights_checks.itervalues():
+        for cb in self.schema_rights_checks.values():
             cb.set_active(False)
         self.schema_priv_checked()
         self._owner.set_dirty()
@@ -574,14 +574,14 @@ class SecuritySchemaPrivileges(mforms.Box):
         if entry:
             db, privs = entry.db, entry.privileges
 
-            text = u"The user '%s'@'%s' " % (self._owner._selected_user.username, self._owner._selected_user.host)
+            text = "The user '%s'@'%s' " % (self._owner._selected_user.username, self._owner._selected_user.host)
             if '_' in db or '%' in db:
                 if db == '%':
                     text += "will have the following access rights to any schema:"
                 else:
-                    text += u"will have the following access rights to schemas matching '%s':" % db
+                    text += "will have the following access rights to schemas matching '%s':" % db
             else:
-                text += u"will have the following access rights to the schema '%s':" % db
+                text += "will have the following access rights to the schema '%s':" % db
             self.schema_priv_label.set_text(text)
 
             self.del_entry_button.set_enabled(True)
@@ -589,7 +589,7 @@ class SecuritySchemaPrivileges(mforms.Box):
             self.grant_all.set_enabled(True)
             self.revoke_all.set_enabled(True)
 
-            for priv, check in self.schema_rights_checks.iteritems():
+            for priv, check in self.schema_rights_checks.items():
                 check.set_active(priv in privs)
         else:
             self.schema_priv_label.set_text("")
@@ -598,7 +598,7 @@ class SecuritySchemaPrivileges(mforms.Box):
             self.grant_all.set_enabled(False)
             self.revoke_all.set_enabled(False)
 
-            for priv, check in self.schema_rights_checks.iteritems():
+            for priv, check in self.schema_rights_checks.items():
                 check.set_active(False)
 
 
@@ -683,7 +683,7 @@ class FirewallCommands:
     def get_cached_user_rules(self, userhost):
         result = []
 
-        query_result = self.execute_result_command(u"SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        query_result = self.execute_result_command("SELECT RULE FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         if not query_result:
             return result
 
@@ -692,7 +692,7 @@ class FirewallCommands:
         return result
 
     def get_rule_count(self, userhost):
-        result = self.execute_result_command(u"SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = self.execute_result_command("SELECT COUNT(*) CNT FROM mysql.firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         if not result:
             return 0
           
@@ -700,15 +700,15 @@ class FirewallCommands:
         return result.stringByIndex(1)
 
     def get_cached_rule_count(self, userhost):
-        result = self.execute_result_command(u"SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
+        result = self.execute_result_command("SELECT COUNT(*) CNT FROM information_schema.mysql_firewall_whitelist WHERE USERHOST='%s'" % (userhost))
         result.nextRow()
         return result.stringByIndex(1)
 
     def reload_rules(self, userhost):
-        self.execute_multiresult_command(u"CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
+        self.execute_multiresult_command("CALL mysql.sp_reload_firewall_rules('%s')" % userhost)
 
     def delete_user_rule(self, userhost, rule):
-        result, cnt = self.execute_command(u"DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
+        result, cnt = self.execute_command("DELETE FROM mysql.firewall_whitelist WHERE USERHOST='%s' AND RULE='%s'" % (userhost, db_utils.escape_sql_string(rule)))
         deleted_something = cnt > 0
         if deleted_something:
             self.reload_rules(userhost)
@@ -721,7 +721,7 @@ class FirewallCommands:
             firewall_rule = rule
             
         if firewall_rule:
-            result = self.execute_command(u"INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
+            result = self.execute_command("INSERT INTO mysql.firewall_whitelist (USERHOST, RULE) VALUES ('%s', '%s')" % (userhost, db_utils.escape_sql_string(firewall_rule)))
             if result:
                 self.reload_rules(userhost)
             return True
@@ -729,7 +729,7 @@ class FirewallCommands:
         return False
 
     def normalize_query(self, query):
-        query_result = self.execute_result_command(u"SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
+        query_result = self.execute_result_command("SELECT normalize_statement('%s')" % db_utils.escape_sql_string(query))
         if not query_result:
             return False
         
@@ -746,7 +746,7 @@ class FirewallCommands:
         return result
 
     def get_user_mode(self, userhost):
-        result = self.execute_result_command(u"SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
+        result = self.execute_result_command("SELECT mode FROM mysql.firewall_users WHERE userhost='%s'" % userhost)
         if not result:
             return False
         
@@ -755,7 +755,7 @@ class FirewallCommands:
         return "OFF"
 
     def set_user_mode(self, userhost, mode):
-        multi_result = self.execute_multiresult_command(u"CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
+        multi_result = self.execute_multiresult_command("CALL mysql.sp_set_firewall_mode('%s', '%s')" % (userhost, mode))
         if not multi_result:
             return False
         
@@ -768,13 +768,13 @@ class FirewallCommands:
                     return False
             log_debug3("Firewall: Returning 'True' due to lack of 'ERROR' records\n")
             return True
-        except SystemError, err:  # sp_set_firewall_mode return resultset only on error, but nextRow will throw exception if result is missing resultset.
+        except SystemError as err:  # sp_set_firewall_mode return resultset only on error, but nextRow will throw exception if result is missing resultset.
             if self.owner.ctrl_be.target_version and self.owner.ctrl_be.target_version.is_supported_mysql_version_at_least(5, 6, 27):
                 log_debug3("Firewall: Returning 'True' due to server ('%s') not responding with the 'OK' record any more\n" % self.owner.ctrl_be.target_version)
                 return True
             import traceback
             log_error("Exception while setting firewall user mode: Expecting 'OK' record for this version ('%s')\n" % str(self.owner.ctrl_be.target_version))
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             log_error("Exception while setting firewall user mode: %s\n" % (traceback.format_exc()))
           
@@ -1007,7 +1007,7 @@ class FirewallUserInterface(FirewallUserInterfaceBase):
         self.note.set_text(text)
         
     def refresh_row(self, current_row, user, host):
-        userhost = u"%s@%s" % (db_utils.escape_sql_string(user), host)
+        userhost = "%s@%s" % (db_utils.escape_sql_string(user), host)
         if self.commands.is_enabled():
             current_row.set_string(2, str(self.commands.get_user_mode(userhost)))
             current_row.set_string(3, str(self.commands.get_rule_count(userhost)))
@@ -1142,7 +1142,7 @@ class SecurityAccount(mforms.Box):
         self.suspend_layout()
         self.set_spacing(8)
 
-        if 'mysql_firewall_mode' in self.owner.ctrl_be.server_variables.keys():
+        if 'mysql_firewall_mode' in list(self.owner.ctrl_be.server_variables.keys()):
             self.firewall_rules = FirewallUserInterface(self)
         else:
             self.firewall_rules = FirewallUserInterfaceDummy(self)
@@ -1257,7 +1257,7 @@ class SecurityAccount(mforms.Box):
             self.auth_type_sel.add_changed_callback(self.auth_type_changed)
             self.auth_type_list = []
             for plugin in self.active_plugins:
-                if AUTHENTICATION_PLUGIN_TYPES.has_key(plugin):
+                if plugin in AUTHENTICATION_PLUGIN_TYPES:
                     self.auth_type_sel.add_item(AUTHENTICATION_PLUGIN_TYPES[plugin]["name"])
                 else:
                     self.auth_type_sel.add_item(plugin)
@@ -1604,7 +1604,7 @@ class SecurityAccount(mforms.Box):
             else:
                 try:
                     self.owner.secman.async_get_account(self.show_user, user, host)
-                except Exception, e:
+                except Exception as e:
                     if str(e).startswith("Could not load account information for"):
                         log_debug3("Unable to load the account information for %s@%s. Probably the user was not created in the server yet and revert was pressed." % (user, host))
                         return
@@ -1738,10 +1738,10 @@ class SecurityAccount(mforms.Box):
             self._selected_user.confirm_password = confirm_password
             try:
                 self._selected_user.upgrade_password_format()
-            except WBSecurityValidationError, exc:
+            except WBSecurityValidationError as exc:
                 Utilities.show_error("Upgrade", str(exc), "OK", "", "")
                 return
-            except Exception, exc:
+            except Exception as exc:
                 import traceback
                 log_error("Exception while upgrading account auth type: %s\n" % traceback.format_exc())
                 Utilities.show_error("Error Upgrading Authentication Method", str(exc), "OK", "", "")
@@ -1784,7 +1784,7 @@ class SecurityAccount(mforms.Box):
                 the_name = self._selected_user.formatted_name()
                 try:
                     self.owner.secman.delete_account(self._selected_user)
-                except Exception, e:
+                except Exception as e:
                     log_error("Exception while removing account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
@@ -1809,7 +1809,7 @@ class SecurityAccount(mforms.Box):
                     t.is_commited = True
                     user.remove_from_parent()
                     self.owner.secman.delete_account(t)
-                except Exception, e:
+                except Exception as e:
                     log_error("Exception while removing zombi account: %s\n" % str(e))
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error("Delete account", '%s\n%s' % (title, message), 'OK', '', '')
@@ -1862,7 +1862,7 @@ class SecurityAccount(mforms.Box):
     def refresh_priv_list(self):
         self.role_priv_list.clear()
         if self._selected_user:
-            all_supported_privs = sorted( [val[0] for key, val in PrivilegeInfo.iteritems() if key in self.owner.secman.global_privilege_names] )
+            all_supported_privs = sorted( [val[0] for key, val in PrivilegeInfo.items() if key in self.owner.secman.global_privilege_names] )
             privs = self._selected_user.raw_privilege_names
             for priv in all_supported_privs:
                 row = self.role_priv_list.add_node()
@@ -1921,7 +1921,7 @@ class SecurityAccount(mforms.Box):
         if self._selected_user:
             try:
                 self._selected_user.expire_password()
-            except Exception, e:
+            except Exception as e:
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error(title, message, 'OK', '', '')
         self.refresh()
@@ -1935,7 +1935,7 @@ class SecurityAccount(mforms.Box):
                     self._selected_user.revoke_all()
                     self._selected_user.load(self._selected_user.username, self._selected_user.host)
                     self.show_user(self._selected_user)
-                except Exception, e:
+                except Exception as e:
                     title, message = e.args[:2] if len(e.args) > 1 else ('Error:', str(e))
                     Utilities.show_error(title, message, 'OK', '', '')
 
@@ -1958,11 +1958,11 @@ class SecurityAccount(mforms.Box):
         #if self._selected_user:
         username = to_unicode(self.username.get_string_value())
         host = to_unicode(self.hostlimithost.get_string_value())
-        
+
         if not self.valid_name:
             Utilities.show_error('Invalid host specification',
-                'The host specification "%s" is not valid. Please correct it and try again.' % host,
-                                'OK', '', '' )
+                                 'The host specification "%s" is not valid. Please correct it and try again.' % host,
+                                 'OK', '', '')
             self.current_action = ""
             return
 
@@ -1971,19 +1971,19 @@ class SecurityAccount(mforms.Box):
         password_unneeded = False
         self.password_label.set_text("Password has expired. User must change password to use the account." if self._selected_user.password_expired else self.password_advice)
         plugin_info = AUTHENTICATION_PLUGIN_TYPES.get(self.selected_plugin_type(), {})
-        
+
         if self.has_extra_plugins and not plugin_info.get("enable_password", True):
             password_unneeded = True
-        
+
         if is_new_user and not self.password.get_string_value() and not password_unneeded:
             if Utilities.show_warning("Save Account Changes",
                     "It is a security hazard to create an account with no password.\nPlease confirm creation of '%s'@'%s' with no password."%(username, host),
                     "Create", "Cancel", "") != mforms.ResultOk:
                 self.current_action = ""
                 return
-        
+
         lcase_host = host.lower()
-        
+
         if lcase_host != host:
             if Utilities.show_message_and_remember("Save Account Changes",
                                         "MySQL only allows lowercase characters for hostnames, the account host will be updated accordingly.",
@@ -2006,8 +2006,8 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_questions < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Max. Queries',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_questions.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
 
@@ -2016,8 +2016,8 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_updates < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Max. Updates',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_updates.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
 
@@ -2026,8 +2026,8 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_connections < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Max. Connections',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_connections.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
         try:
@@ -2035,12 +2035,10 @@ class SecurityAccount(mforms.Box):
             if self._selected_user.max_user_connections < 0: raise ValueError
         except ValueError:
             Utilities.show_error('Wrong Value for Concurrent Connections',
-                    'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
-                    'OK', '', '')
+                                 'Cannot convert "%s" to a valid non-negative integer.\nPlease correct this value and try again.' % self.max_uconnections.get_string_value(),
+                                 'OK', '', '')
             self.current_action = ""
             return
-        
-        
 
         if is_new_user and self.has_extra_plugins:
             self._selected_user.auth_plugin = self.selected_plugin_type()
@@ -2051,36 +2049,36 @@ class SecurityAccount(mforms.Box):
 
         try:
             self._selected_user.save()
-        except WBSecurityValidationError, exc:
+        except WBSecurityValidationError as exc:
             Utilities.show_error("Save Account Changes",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
-        except PermissionDeniedError, exc:
+        except PermissionDeniedError as exc:
             Utilities.show_error("Permission Errors",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             log_error("Exception while saving account: %s\n" % traceback.format_exc())
             Utilities.show_error("Error Saving Account",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
-        
+
         try:
             self.firewall_rules.save()
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             log_error("Exception while saving account: %s\n" % traceback.format_exc())
             Utilities.show_error("Error Saving Account",
-                    exc.message, "OK", "", "")
+                                 str(exc), "OK", "", "")
             self.current_action = ""
             return
 
         self.reload_user(is_new_user)
-        
+
         self.owner.secman.async_refresh(self.refresh)
 
         self.add_button.set_enabled(True)
@@ -2093,7 +2091,7 @@ class SecurityAccount(mforms.Box):
 
     def setup_bottom_message_box(self, user):
         if not user:
-            return               
+            return
 
         caption = ''
         if user.old_authentication:
@@ -2125,21 +2123,21 @@ or a new password must be supplied.'''
             mforms.App.get().set_status_text("Updated account '%s'" % the_name)
 
 
-
-
 #############################
+
 
 class WbAdminValidationPermissions(WbAdminValidationBase):
     def __init__(self, owner):
-        WbAdminValidationBase.__init__(self, WbAdminValidationPermissions)
+        super().__init__("The account you are currently using does not have sufficient privileges to view the client connections.")
         self.owner = owner
-        
+
     def validate(self):
-            try:
-                self.owner.secman.async_refresh(self.owner.async_callback)
-            except PermissionDeniedError:
-                return False
-            return True
+        try:
+            self.owner.secman.async_refresh(self.owner.async_callback)
+        except PermissionDeniedError:
+            return False
+        return True
+
 
 class WbAdminSecurity(WbAdminTabBase):
     _schema_priv_entries = []

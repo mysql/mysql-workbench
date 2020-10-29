@@ -102,9 +102,6 @@
         <RegistryValue Id="Version" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" Name="Version" Type="string" Value="[ProductVersion]"/>
 
         <RegistryValue Id="Location" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" Name="Location" Type="string" Value="[INSTALLDIR]"/>
-        <?if $(var.SETUP_TYPE) = "commercial" ?>
-        <RemoveFile Id="pyc_cleanup22" Name="*.pyc" On="both" Directory="python_site_packages_pysqlite2" />
-        <?endif?>
         <RemoveFile Id="pyc_cleanup25" Name="*.pyc" On="both" Property="LEFTOVERDIR1" />
         <RemoveFile Id="pyc_cleanup26" Name="*.pyc" On="both" Property="LEFTOVERDIR2" />
         <RemoveFile Id="pyc_cleanup27" Name="pyodbc*.pyd" On="both" Directory="python_site_packages" />
@@ -144,27 +141,55 @@
       <ComponentRef Id="modules_data_sqlite" />
       <ComponentRef Id="library_workbench" />
       <ComponentRef Id="library_workbench_graphics" />
+
       <ComponentRef Id="python_dlls" />
       <ComponentRef Id="python_lib" />
+      <ComponentRef Id="python_lib_asyncio" />
+      <ComponentRef Id="python_lib_collections" />
+      <ComponentRef Id="python_lib_concurrent" />
+      <ComponentRef Id="python_lib_concurrent_futures" />
       <ComponentRef Id="python_lib_ctypes" />
       <ComponentRef Id="python_lib_ctypes_macholib" />
+      <ComponentRef Id="python_lib_curses" />
+      <ComponentRef Id="python_lib_dbm" />
+      <ComponentRef Id="python_lib_distutils" />
+      <ComponentRef Id="python_lib_distutils_command" />
+      <ComponentRef Id="python_lib_email" />
+      <ComponentRef Id="python_lib_email_mime" />
       <ComponentRef Id="python_lib_encodings" />
-      <ComponentRef Id="python_lib_logging" />
+      <ComponentRef Id="python_lib_ensurepip" />
+      <ComponentRef Id="python_lib_html" />
+      <ComponentRef Id="python_lib_http" />
+      <ComponentRef Id="python_lib_idlelib" />
+      <ComponentRef Id="python_lib_idlelib_icons" />
+      <ComponentRef Id="python_lib_importlib" />
       <ComponentRef Id="python_lib_json" />
+      <ComponentRef Id="python_lib_lib2to3" />
+      <ComponentRef Id="python_lib_lib2to3_pgen2" />
+      <ComponentRef Id="python_lib_lib2to3_fixes" />
+      <ComponentRef Id="python_lib_logging" />
+      <ComponentRef Id="python_lib_msilib" />
       <ComponentRef Id="python_lib_multiprocessing" />
       <ComponentRef Id="python_lib_multiprocessing_dummy" />
+      <ComponentRef Id="python_lib_pydoc_data" />
       <ComponentRef Id="python_lib_sqlite3" />
+      <ComponentRef Id="python_lib_tkinter" />
+      <ComponentRef Id="python_lib_urllib" />
+      <ComponentRef Id="python_lib_venv" />
+      <!-- <ComponentRef Id="python_lib_venv_scripts" /> -->
+      <ComponentRef Id="python_lib_venv_scripts_common" />
+      <ComponentRef Id="python_lib_venv_scripts_nt" />
+      <ComponentRef Id="python_lib_venv_scripts_posix" />
+      <ComponentRef Id="python_lib_wsgiref" />
       <ComponentRef Id="python_lib_xml" />
       <ComponentRef Id="python_lib_xml_dom" />
-      <ComponentRef Id="python_lib_xml_sax" />
-      <ComponentRef Id="python_lib_xml_parsers" />
       <ComponentRef Id="python_lib_xml_etree" />
-      <ComponentRef Id="python_lib_importlib" />
-      <!--			<ComponentRef Id="python_libs" /> -->
+      <ComponentRef Id="python_lib_xml_parsers" />
+      <ComponentRef Id="python_lib_xml_sax" />
+      <ComponentRef Id="python_lib_xmlrpc" />
       <ComponentRef Id="python_site_packages_pyodbc" />
 
       <?if $(var.SETUP_TYPE) = "commercial" ?>
-      <ComponentRef Id="python_site_packages_pysqlite2" />
       <ComponentRef Id="reporting_HTML_Basic_Frames" />
       <ComponentRef Id="reporting_HTML_Basic_Single_Page" />
       <ComponentRef Id="reporting_HTML_Detailed_Frames" />

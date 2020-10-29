@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import with_statement
+
 
 # import the mforms module for GUI stuff
 import mforms
@@ -37,11 +37,6 @@ if sys.platform=="darwin":
 from mforms import newButton, newCheckBox, newTreeView
 from mforms import FileChooser
 from datetime import datetime
-
-try:
-    import _subprocess
-except ImportError:
-    pass
 
 from workbench.log import log_error, log_debug, log_info
 
@@ -78,28 +73,28 @@ def cmd_executor(cmd):
     if platform.system() != "Windows":
         try:
             p1 = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr=subprocess.PIPE, shell = True)
-        except OSError, exc:
+        except OSError as exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc));
             import traceback
             traceback.print_exc()
     else:
         try:
             info = subprocess.STARTUPINFO()
-            info.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
-            info.wShowWindow = _subprocess.SW_HIDE
+            info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            info.wShowWindow = subprocess.SW_HIDE
             # Command line can contain object names in case of export and filename in case of import
             # Object names must be in utf-8 but filename must be encoded in the filesystem encoding,
             # which probably isn't utf-8 in windows.
             
             if isinstance(cmd, list):
                 for idx,item in enumerate(cmd):
-                    cmd[idx] = item.encode("utf8") if isinstance(item,unicode) else item 
+                    cmd[idx] = item.encode("utf8") if isinstance(item,str) else item 
                 log_debug("Executing command: %s\n" % "".join(cmd))
             else:
-                cmd = cmd.encode("utf8") if isinstance(cmd,unicode) else cmd
+                cmd = cmd.encode("utf8") if isinstance(cmd,str) else cmd
                 log_debug("Executing command: %s\n" % cmd)
             p1 = subprocess.Popen(str(cmd), stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=info, shell = True)
-        except OSError, exc:
+        except OSError as exc:
             log_error("Error executing command %s\n%s\n" % (cmd, exc))
             import traceback
             traceback.print_exc()
@@ -175,7 +170,7 @@ class SpatialImporter:
 
 
     def print_log_message(self, msg):
-        print msg
+        print(msg)
  
     def kill(self):
         self.abort_requested = True
@@ -191,7 +186,7 @@ class SpatialImporter:
                     log_debug("Sending SIGTERM to task %s\n" % self.process_handle.pid)
                     os.kill(self.process_handle.pid, signal.SIGTERM)
                     self.user_cancel = True
-                except OSError, exc:
+                except OSError as exc:
                     log_error("Exception sending SIGTERM to task: %s\n" % exc)
                     self.print_log_message("kill task: %s" % str(exc))
                      
@@ -252,7 +247,7 @@ class SpatialImporter:
         except grt.UserInterrupt:
             log_info("User cancelled")
             raise
-        except Exception, exc:
+        except Exception as exc:
             import traceback
             log_error("An error occured during execution of ogr2ogr file import: %s, stack: %s\n The command was: %s\n" % (exc, traceback.format_exc(), cmd))
             raise
@@ -434,8 +429,7 @@ class ContentPreviewPage(WizardPage):
                     row.set_bool(0, True)
                     row.set_string(1, m.group(1))
 
-        from grt.modules import Utilities
-        res = Utilities.fetchAuthorityCodeFromFile("%s.prj" % os.path.splitext(self.get_path())[0])
+        res = grt.modules.Utilities.fetchAuthorityCodeFromFile("%s.prj" % os.path.splitext(self.get_path())[0])
         if res:
             self.epsg_lbl.set_text(res)
         else:

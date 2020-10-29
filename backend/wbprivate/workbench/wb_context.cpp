@@ -21,7 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "wb_tunnel.h" // needs to come 1st because this header include Python.h indirectly
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+#include "wb_tunnel.h"
 
 #include <errno.h>
 #include <glib.h>

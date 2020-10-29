@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2020, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -76,7 +76,7 @@ class DatabaseSchemaSelector(mforms.Box):
                            len(database_objects) > 0 and
                            all( isinstance(item, (list, tuple)) and
                                len(item) == 2 and
-                               isinstance(item[0], (str, unicode)) and
+                               isinstance(item[0], str) and
                                isinstance(item[1], (list, tuple))
                                for item in database_objects
                                )
@@ -97,7 +97,7 @@ class DatabaseSchemaSelector(mforms.Box):
         
         # Update the ui settings dict with the custom settings supplied by the user (if any):
         if isinstance(ui_settings, dict):
-            for key, value in ui_settings.iteritems():
+            for key, value in list(ui_settings.items()):
                 if key not in self.ui_settings or not isinstance(value, dict):
                     continue
                 self.ui_settings[key].update(value)
@@ -196,7 +196,7 @@ class DatabaseSchemaSelector(mforms.Box):
                     parent_node = node.get_parent()
                     is_catalog = parent_node == self.schema_list_tree.root_node()
                     catalog_name = node.get_string(1) if is_catalog else parent_node.get_string(1)
-                    schema_count = len(self._schemata[catalog_name.encode(encoding='UTF-8',errors='strict')])
+                    schema_count = len(self._schemata[catalog_name])
                     if is_catalog:
                         for idx in range(schema_count):
                             node.get_child(idx).set_bool(0, checked)

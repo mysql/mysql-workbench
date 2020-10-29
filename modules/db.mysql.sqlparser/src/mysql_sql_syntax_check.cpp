@@ -32,6 +32,7 @@
 
 using namespace grt;
 using namespace base;
+using namespace boost::placeholders;
 
 static size_t MAX_INSERT_SQL_LENGTH = 8 * 1024; // determines max length of passed sql to be checked
 
