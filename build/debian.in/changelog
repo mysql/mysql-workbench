@@ -1,3 +1,9 @@
+mysql-workbench-@edition@ (8.0.24-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Milosz Bodzek <milosz.bodzek@oracle.com>  Fri, 30 Oct 2020 07:47:36 +0100
+
 mysql-workbench-@edition@ (8.0.23-1@distrov@) @distro@; urgency=low
 
   * New release
