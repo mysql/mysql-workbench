@@ -293,7 +293,7 @@ DbSqlEditorContextHelp::DbSqlEditorContextHelp() {
 
   loaderThread = std::thread([this]() {
     std::string dataDir = base::makePath(mforms::App::get()->baseDir(), "modules/data/sqlide");
-    for (long version : { 800, 507, 506, 505 }) {
+    for (long version : { 800, 507, 506 }) {
       std::string fileName = "help-" + std::to_string(version / 100) + "." + std::to_string(version % 10) + ".json";
       std::string path = base::makePath(dataDir, fileName);
       if (!base::file_exists(path)) {
