@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -103,11 +103,11 @@ $describe("DBC: general tests") {
         std::cout << "  Schema Objects:" << std::endl;
       }
 
-      std::unique_ptr<sql::ResultSet> rset2(meta->getSchemaObjects("", rset->getString("database")));
+      std::unique_ptr<sql::ResultSet> rset2(meta->getSchemaObjects("", rset->getString("Database")));
       while (rset2->next()) {
         if (getenv("VERBOSE"))
-          std::cout << rset2->getString("object_type") << ": " << rset2->getString("name") << ","
-                    << rset2->getString("ddl") << std::endl;
+          std::cout << rset2->getString("OBJECT_TYPE") << ": " << rset2->getString("NAME") << ","
+                    << rset2->getString("DDL") << std::endl;
       }
     }
   });

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -830,8 +830,8 @@ std::vector<SqlEditorForm::PSStage> SqlEditorForm::query_ps_stages(std::int64_t 
       base::strfmt("SELECT st.* FROM performance_schema.events_stages_history_long st WHERE st.nesting_event_id = %lli",
                    (long long int)stmt_event_id)));
     while (result->next()) {
-      double wait_time = (double)result->getInt64("timer_wait") / 1000000000.0; // ps to ms
-      std::string event = result->getString("event_name");
+      double wait_time = (double)result->getInt64("TIMER_WAIT") / 1000000000.0; // ps to ms
+      std::string event = result->getString("EVENT_NAME");
 
       // rename the stage/sql/Sending data event to something more suitable
       if (event == "stage/sql/Sending data")
@@ -872,8 +872,8 @@ std::vector<SqlEditorForm::PSWait> SqlEditorForm::query_ps_waits(std::int64_t st
       base::strfmt("SELECT st.* FROM performance_schema.events_waits_history_long st WHERE st.nesting_event_id = %lli",
                    (long long int)stmt_event_id)));
     while (result->next()) {
-      double wait_time = (double)result->getInt64("timer_wait") / 1000000000.0; // ps to ms
-      std::string event = result->getString("event_name");
+      double wait_time = (double)result->getInt64("TIMER_WAIT") / 1000000000.0; // ps to ms
+      std::string event = result->getString("EVENT_NAME");
       bool flag = false;
       for (std::vector<PSWait>::iterator iter = waits.begin(); iter != waits.end(); ++iter) {
         if (iter->name == event) {
