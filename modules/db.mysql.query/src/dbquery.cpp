@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -672,9 +672,9 @@ int DbMySQLQueryImpl::loadSchemata(int conn, grt::StringListRef schemata) {
     sql::DatabaseMetaData *dbc_meta(con->getMetaData());
     std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", "", "schema"));
     while (rset->next()) {
-      std::string name = rset->getString("name");
+      std::string name = rset->getString("NAME");
       schemata.insert(name);
-      // schemata_ddl.insert(rset->getString("ddl"));
+      // schemata_ddl.insert(rset->getString("DDL"));
     }
   } catch (sql::SQLException &exc) {
     _last_error = exc.what();
@@ -763,8 +763,8 @@ int DbMySQLQueryImpl::loadSchemaObjects(int conn, grt::StringRef schema, grt::St
     for (std::list<std::string>::const_iterator i = object_types.begin(), end = object_types.end(); i != end; ++i) {
       std::unique_ptr<sql::ResultSet> rset(dbc_meta->getSchemaObjects("", *schema, *object_type));
       while (rset->next()) {
-        std::string name = rset->getString("name");
-        std::string ddl = rset->getString("ddl");
+        std::string name = rset->getString("NAME");
+        std::string ddl = rset->getString("DDL");
         objects.gset(name, ddl);
       }
     }

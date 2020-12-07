@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -195,10 +195,10 @@ void Db_plugin::load_schemata(std::vector<std::string> &schemata) {
   float total = (float)rset->rowsCount();
   int current = 0;
   while (rset->next()) {
-    std::string name = rset->getString("name");
+    std::string name = rset->getString("NAME");
     if (name != "mysql" && name != "information_schema" && name != "performance_schema" && name != "sys") {
       _schemata.push_back(name);
-      _schemata_ddl[name] = rset->getString("ddl");
+      _schemata_ddl[name] = rset->getString("DDL");
     }
     grt::GRT::get()->send_progress(current++ / total, name, "");
   }
@@ -275,8 +275,8 @@ void Db_plugin::load_db_objects(Db_object_type db_object_type) {
         while (rset->next()) {
           Db_obj_handle db_obj;
           db_obj.schema = schema_name;
-          db_obj.name = rset->getString("name");
-          db_obj.ddl = rset->getString("ddl");
+          db_obj.name = rset->getString("NAME");
+          db_obj.ddl = rset->getString("DDL");
           setup->all.push_back(db_obj);
 
           // prefixed by schema name
@@ -366,7 +366,7 @@ void Db_plugin::read_back_view_ddl() {
 
       // take a snapshot of the server version of the SQL
       if (rset->next())
-        view->oldServerSqlDefinition(grt::StringRef(rset->getString("ddl")));
+        view->oldServerSqlDefinition(grt::StringRef(rset->getString("DDL")));
       else
         grt::GRT::get()->send_info(
           base::strfmt("Could not get definition for %s.%s from server", schema->name().c_str(), view->name().c_str()));
