@@ -121,7 +121,7 @@
                 <File Id="file113" Name="db.mysql.wbp.dll"/>
                 <File Id="file115" Name="grt.db.fe.dll"/>
                 <File Id="file116" Name="mysql.forms.dll"/>
-                <File Id="file117" Name="mysqlcppconn-7-vs14.dll"/>
+                <File Id="file117" Name="mysqlcppconn-9-vs14.dll"/>
                 <File Id="file118" Name="sqlide.fe.dll"/>
                 <File Id="file122" Name="WbPlugins.dll"/>
                 <File Id="file123" Name="wbprivate.be.dll"/>
