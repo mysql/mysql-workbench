@@ -196,9 +196,11 @@ static PyTypeObject PyGRTFunctionObjectType = {
   0,  //  tp_version_tag
 
   0, //  tp_finalize
-#if PY_VERSION_HEX >= 0x03080000
-  0,  //  tp_vectorcall
-  0   //  tp_print
+#if PY_VERSION_HEX >= 0x03090000
+  nullptr   //  tp_vectorcall
+#elif PY_VERSION_HEX >= 0x03080000
+  nullptr,  //  tp_vectorcall
+  nullptr   //  tp_print
 #endif
 };
 
@@ -381,11 +383,12 @@ static PyTypeObject PyGRTModuleObjectType = {
   0,  //  tp_version_tag
 
   0, //  tp_finalize
-#if PY_VERSION_HEX >= 0x03080000
-  0, //  tp_vectorcall
-  0  //  tp_print
+#if PY_VERSION_HEX >= 0x03090000
+  nullptr   //  tp_vectorcall
+#elif PY_VERSION_HEX >= 0x03080000
+  nullptr,  //  tp_vectorcall
+  nullptr   //  tp_print
 #endif
-  
 };
 
 void grt::PythonContext::init_grt_module_type() {

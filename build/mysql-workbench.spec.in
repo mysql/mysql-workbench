@@ -218,11 +218,19 @@ fi
 %endif
        -DBOOST_ROOT=%{bundles_path}/include 
 
+%if 0%{?fedora}
+%cmake_build
+%else
 make %{?_smp_mflags}
+%endif
 
 
 %install
+%if 0%{?fedora}
+%cmake_install
+%else
 make install DESTDIR=%{buildroot}
+%endif
 rm -fr %{buildroot}/usr/share/doc/mysql-workbench
 
 # Bundle client programs and lib
