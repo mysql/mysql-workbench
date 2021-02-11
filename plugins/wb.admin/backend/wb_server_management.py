@@ -358,12 +358,12 @@ def local_run_cmd_windows(command, as_user=Users.CURRENT, user_password=None, su
 
         try:
             from ctypes import c_int, WINFUNCTYPE, windll
-            from ctypes.wintypes import HWND, LPCSTR, UINT
-            prototype = WINFUNCTYPE(c_int, HWND, LPCSTR, LPCSTR, LPCSTR, LPCSTR, UINT)
+            from ctypes.wintypes import HWND, LPCSTR, LPCWSTR, UINT
+            prototype = WINFUNCTYPE(c_int, HWND, LPCWSTR, LPCWSTR, LPCWSTR, LPCWSTR, UINT)
 
-            paramflags = (1, "hwnd", 0), (1, "operation", "runas"), (1, "file", cmdname), (1, "params", cmdparams), (1, "dir", None), (1, "showcmd", 0)
-            SHellExecute = prototype(("ShellExecuteA", windll.shell32), paramflags)
-            ret = SHellExecute()
+            paramflags = ((1, "hwnd"), (1, "operation"), (1, "file"), (1, "params"), (1, "dir"), (1, "showcmd"))
+            SHellExecute = prototype(("ShellExecuteW", windll.shell32), paramflags)
+            ret = SHellExecute(0, "runas", cmdname, cmdparams, None , 0)
 
             # If the user chooses to not allow privilege elevation for the operation
             # a PermissionDeniedError is launched
