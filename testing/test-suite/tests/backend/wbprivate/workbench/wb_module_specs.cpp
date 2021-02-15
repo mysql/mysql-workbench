@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2019, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "wb_test_helpers.h"
@@ -110,14 +110,14 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("..... OS X 10.1 .....")).toBeFalse();
     $expect(isOsSupportedProxy("OS X 10.10")).toBeFalse();
     $expect(isOsSupportedProxy("OS X 10.10 i386")).toBeFalse();
-    $expect(isOsSupportedProxy("macOS 10.13")).toBeFalse();
-    $expect(isOsSupportedProxy("..... macOS 10.13 i386 .....")).toBeFalse();
-    $expect(isOsSupportedProxy("macOS 10.14 x86_64")).toBeTrue();
-    $expect(isOsSupportedProxy("..... macOS 10.14 ..... x86_64 .....")).toBeTrue();
-    $expect(isOsSupportedProxy("..... macOS ..... 10.14 ..... x86_64 .....")).toBeFalse();
-    $expect(isOsSupportedProxy("macOS 10.15")).toBeTrue();
+    $expect(isOsSupportedProxy("macOS 10.14")).toBeFalse();
+    $expect(isOsSupportedProxy("..... macOS 10.14 i386 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("macOS 10.15 x86_64")).toBeTrue();
     $expect(isOsSupportedProxy("..... macOS 10.15 ..... x86_64 .....")).toBeTrue();
     $expect(isOsSupportedProxy("..... macOS ..... 10.15 ..... x86_64 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("macOS 11.2")).toBeTrue();
+    $expect(isOsSupportedProxy("..... macOS 11.2 ..... x86_64 .....")).toBeTrue();
+    $expect(isOsSupportedProxy("..... macOS ..... 11.2 ..... x86_64 .....")).toBeFalse();
 
     // other debian-based
     $expect(isOsSupportedProxy("Debian 5 x86_64")).toBeFalse();

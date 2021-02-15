@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2021, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <glib/gstdio.h>
@@ -300,10 +300,10 @@ std::string get_local_os_name() {
   *dot_position = 0;
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
+    case 20:
+      return std::string("macOS 11.2.x Big Sur ") + info.machine;
     case 19:
       return std::string("macOS 10.15.x Catalina ") + info.machine;
-    case 18:
-      return std::string("macOS 10.14.x Mojave ") + info.machine;
   }
   return "unknown";
 }
@@ -812,13 +812,13 @@ namespace base {
 
     return date;
   }
-  
+
 
   BASELIBRARY_PUBLIC_FUNC std::string getVersion(void) {
     return strfmt("%u.%u.%u", APP_MAJOR_NUMBER, APP_MINOR_NUMBER, APP_RELEASE_NUMBER);
   }
-  
-  
+
+
 } // namespace base
 
 //--------------------------------------------------------------------------------------------------
