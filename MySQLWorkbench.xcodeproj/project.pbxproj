@@ -96,6 +96,10 @@
 		2725AD572284419B0049CCB9 /* keyword_list56.h in Headers */ = {isa = PBXBuildFile; fileRef = 2725AD552284419A0049CCB9 /* keyword_list56.h */; };
 		27273AE0220DDDAD008B2F44 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
 		27273AE1220DDE0D008B2F44 /* db_mysql_params.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7331A0EFAFBF600287AE0 /* db_mysql_params.cpp */; };
+		272D30E825DD177A00170B5E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 272D309F25DD176E00170B5E /* libxml2.tbd */; };
+		272D310D25DD178000170B5E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 272D309F25DD176E00170B5E /* libxml2.tbd */; };
+		272D313225DD179A00170B5E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 272D309F25DD176E00170B5E /* libxml2.tbd */; };
+		272D317B25DD17B800170B5E /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 272D309F25DD176E00170B5E /* libxml2.tbd */; };
 		272E037A2277018100B9803D /* grtdiff_alter_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 272E03792277018000B9803D /* grtdiff_alter_specs.cpp */; };
 		272E037B2277018100B9803D /* grtdiff_alter_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 272E03792277018000B9803D /* grtdiff_alter_specs.cpp */; };
 		272E57321FA0726E002541F5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2774A4C41C92D31200D1E037 /* Cocoa.framework */; };
@@ -1745,7 +1749,6 @@
 		2B7FC506112D9C2B008C07BF /* wb_rel_nm.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC4A0112D9C2B008C07BF /* wb_rel_nm.png */; };
 		2B7FC507112D9C2B008C07BF /* wb_rubber.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC4A1112D9C2B008C07BF /* wb_rubber.png */; };
 		2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B825D1D0E0B578600BE52DF /* InfoPlist.strings */; };
-		2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2B825DA50E0B604D00BE52DF /* changefactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D960E0B604D00BE52DF /* changefactory.cpp */; };
 		2B825DA60E0B604D00BE52DF /* changefactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B825D970E0B604D00BE52DF /* changefactory.h */; };
 		2B825DA70E0B604D00BE52DF /* changelistobjects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B825D980E0B604D00BE52DF /* changelistobjects.cpp */; };
@@ -2144,7 +2147,6 @@
 		2BCB319A0E88461A005C8ED2 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BCB31D70E88493F005C8ED2 /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2BCB31DB0E88493F005C8ED2 /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
-		2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BCB3C1F183C18E1007D06F4 /* ps_overview.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCB3C1E183C18E1007D06F4 /* ps_overview.png */; };
 		2BCC4ACC12D24F5B0092AA6F /* db.Schema.side.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCC4AC712D24F5B0092AA6F /* db.Schema.side.16x16.png */; };
 		2BCC4ACD12D24F5B0092AA6F /* db.Table.many.side.16x16.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCC4AC812D24F5B0092AA6F /* db.Table.many.side.16x16.png */; };
@@ -2291,7 +2293,6 @@
 		2BD9E7A71860012000A7252B /* native.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD9E7A61860012000A7252B /* native.h */; };
 		2BDAE46111139AA500AC1D7A /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDAE46B11139B3B00AC1D7A /* file_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDAE46911139B3B00AC1D7A /* file_functions.h */; };
-		2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */; };
 		2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D290E0B59A100BE52DF /* libwbbase.dylib */; };
 		2BDC26950E8567530018CE34 /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BDC26470E8567510018CE34 /* hash.h */; };
@@ -2637,7 +2638,6 @@
 		449B5FEE1FE2E96900BE0F12 /* db_mgmt_SSHFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 449B5FE61FE2E96400BE0F12 /* db_mgmt_SSHFile.h */; };
 		44A338921DC1FED800FFAC83 /* xml_functions.h in Headers */ = {isa = PBXBuildFile; fileRef = 44A3388F1DC1FED200FFAC83 /* xml_functions.h */; };
 		44A338931DC1FED800FFAC83 /* xml_functions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 44A338901DC1FED200FFAC83 /* xml_functions.cpp */; };
-		44A338961DC2006500FFAC83 /* libxml2.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */; };
 		44B7DC961C0C7A39000D608D /* wba_firewall in CopyFiles */ = {isa = PBXBuildFile; fileRef = 44B7DC951C0C7A39000D608D /* wba_firewall */; };
 		44B7DC9C1C0C7A72000D608D /* admin_firewall_reports.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC971C0C7A72000D608D /* admin_firewall_reports.png */; };
 		44B7DC9D1C0C7A72000D608D /* admin_firewall.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7DC981C0C7A72000D608D /* admin_firewall.png */; };
@@ -4188,6 +4188,7 @@
 		2725AD5122841CD20049CCB9 /* keyword_list80.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyword_list80.h; path = res/server/keyword_list80.h; sourceTree = "<group>"; };
 		2725AD54228441990049CCB9 /* keyword_list57.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyword_list57.h; path = res/server/keyword_list57.h; sourceTree = "<group>"; };
 		2725AD552284419A0049CCB9 /* keyword_list56.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyword_list56.h; path = res/server/keyword_list56.h; sourceTree = "<group>"; };
+		272D309F25DD176E00170B5E /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		272E03792277018000B9803D /* grtdiff_alter_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = grtdiff_alter_specs.cpp; path = "testing/test-suite/tests/library/grt/grtdiff_alter_specs.cpp"; sourceTree = "<group>"; };
 		2731DE4F21A2CD70002EEE8A /* genobj */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genobj; sourceTree = BUILT_PRODUCTS_DIR; };
 		2731DE5A21A2CDA0002EEE8A /* genwrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genwrap; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -4570,7 +4571,7 @@
 		27E59B84106B914400C2DA47 /* admin_info_running.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_running.png; path = images/admin/admin_info_running.png; sourceTree = "<group>"; };
 		27E59B85106B914400C2DA47 /* admin_info_stopped.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = admin_info_stopped.png; path = images/admin/admin_info_stopped.png; sourceTree = "<group>"; };
 		27E63EB31FB9E33B001C5BE8 /* accessibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = accessibility.h; path = library/base/base/accessibility.h; sourceTree = "<group>"; };
-		27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.6.dylib; path = "../../3rd-party-ce/lib/libssh.4.7.6.dylib"; sourceTree = "<group>"; };
+		27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssh.4.7.6.dylib; path = "./3rd-party-ce/lib/libssh.4.7.6.dylib"; sourceTree = "<group>"; };
 		27EADE1618E5707100D3C85D /* cppdbc_public_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc_public_interface.h; path = library/cdbc/src/cppdbc_public_interface.h; sourceTree = SOURCE_ROOT; };
 		27EADE1718E5707100D3C85D /* cppdbc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppdbc.h; path = library/cdbc/src/cppdbc.h; sourceTree = SOURCE_ROOT; };
 		27EADE1818E5707100D3C85D /* driver_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = driver_manager.cpp; path = library/cdbc/src/driver_manager.cpp; sourceTree = SOURCE_ROOT; };
@@ -5810,7 +5811,6 @@
 		2B825D290E0B59A100BE52DF /* libwbbase.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwbbase.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B825D370E0B59EE00BE52DF /* entities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = entities.h; path = library/base/base/entities.h; sourceTree = "<group>"; };
 		2B825D3A0E0B59EE00BE52DF /* util_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util_functions.h; path = library/base/base/util_functions.h; sourceTree = "<group>"; };
-		2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.dylib; path = /usr/lib/libxml2.2.dylib; sourceTree = "<absolute>"; };
 		2B825D920E0B604400BE52DF /* libgrt.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgrt.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B825D960E0B604D00BE52DF /* changefactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = changefactory.cpp; sourceTree = "<group>"; };
 		2B825D970E0B604D00BE52DF /* changefactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = changefactory.h; sourceTree = "<group>"; };
@@ -7016,10 +7016,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				272D310D25DD178000170B5E /* libxml2.tbd in Frameworks */,
 				27D6EE252099C1580050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2774A4C51C92D31200D1E037 /* Cocoa.framework in Frameworks */,
 				8E4E66F725D697150060A2FA /* Python3.framework in Frameworks */,
-				2B825D640E0B5F2B00BE52DF /* libxml2.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7027,8 +7027,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				272D30E825DD177A00170B5E /* libxml2.tbd in Frameworks */,
 				2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */,
-				2BDC26080E855F470018CE34 /* libxml2.2.dylib in Frameworks */,
 				27D6EE272099C7060050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */,
 				8E4E66F825D697160060A2FA /* Python3.framework in Frameworks */,
@@ -7052,11 +7052,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				272D313225DD179A00170B5E /* libxml2.tbd in Frameworks */,
 				27B2535B1E49DE530002AB7D /* libparsers.dylib in Frameworks */,
 				2760C4E3107499F800FD1366 /* libwbbase.dylib in Frameworks */,
 				27D6EE3D2099DDD30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE3E2099DDE70050B26B /* libglib-2.0.0.dylib in Frameworks */,
-				44A338961DC2006500FFAC83 /* libxml2.2.dylib in Frameworks */,
 				2BB37A121108026800DA4577 /* Security.framework in Frameworks */,
 				2798BEBA118AAAD50090590E /* WebKit.framework in Frameworks */,
 				2B83E5B51992B2C600781432 /* libmysql.canvas.dylib in Frameworks */,
@@ -7120,6 +7120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				272D317B25DD17B800170B5E /* libxml2.tbd in Frameworks */,
 				278DFF2420A2F86A00D7E439 /* libwbssh.dylib in Frameworks */,
 				2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */,
 				2BCB31990E884615005C8ED2 /* libmysql.canvas.dylib in Frameworks */,
@@ -7136,7 +7137,6 @@
 				27D6EE482099E3B30050B26B /* libcairo.2.dylib in Frameworks */,
 				27D6EE492099E3B60050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE4A2099E3E70050B26B /* libglib-2.0.0.dylib in Frameworks */,
-				2BCB31E70E8849A2005C8ED2 /* libxml2.2.dylib in Frameworks */,
 				27D6EE512099E43E0050B26B /* libzip.4.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -9652,7 +9652,7 @@
 				27E7D796237BF7560006BD1B /* libssh.4.7.6.dylib */,
 				27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */,
 				27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */,
-				2B825D630E0B5F2B00BE52DF /* libxml2.2.dylib */,
+				272D309F25DD176E00170B5E /* libxml2.tbd */,
 				278DFEC420A2E0FF00D7E439 /* libz.so.1.2.5 */,
 				27D6EE502099E43D0050B26B /* libzip.4.dylib */,
 			);
@@ -13285,7 +13285,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1240;
 				ORGANIZATIONNAME = "Oracle and/or its affiliates";
 				TargetAttributes = {
 					2731DE4E21A2CD70002EEE8A = {
@@ -16375,7 +16375,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.genobj;
@@ -16409,7 +16408,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.genobj;
@@ -16452,7 +16450,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.genwrap;
@@ -16491,7 +16488,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.genwrap;
@@ -16658,7 +16654,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.workbench.test-suite";
@@ -16718,7 +16713,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.workbench.test-suite";
@@ -16778,7 +16772,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.workbench.test-suite";
@@ -16838,7 +16831,6 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.oracle.workbench.test-suite";
@@ -18955,7 +18947,6 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-Wl,-stack_size,0x10000000",
@@ -19008,7 +18999,6 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 					"$(PROJECT_DIR)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-Wl,-stack_size,0x10000000",
@@ -19040,6 +19030,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -19075,7 +19066,7 @@
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/3rd-party-ce/lib/**";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
@@ -19110,6 +19101,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -19142,7 +19134,7 @@
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/3rd-party-ce/lib/**";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 11.1;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;

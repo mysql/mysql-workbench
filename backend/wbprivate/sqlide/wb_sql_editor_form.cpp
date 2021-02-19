@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2007, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1250,13 +1250,13 @@ bool SqlEditorForm::connect(std::shared_ptr<SSHTunnel> tunnel) {
           current_method = KeychainPassword;
         } else {
           // not in keychain, go straight to interactive
-          pwd = sql::DriverManager::getDriverManager()->requestPassword(auth->connectionProperties(), false);
+          pwd = sql::DriverManager::getDriverManager()->requestPassword(auth->connectionProperties(), true);
           auth->set_password(pwd.c_str());
           current_method = InteractivePassword;
         }
       } else if (current_method == KeychainPassword) {
         // now try interactive
-        std::string pwd = sql::DriverManager::getDriverManager()->requestPassword(auth->connectionProperties(), false);
+        std::string pwd = sql::DriverManager::getDriverManager()->requestPassword(auth->connectionProperties(), true);
         auth->set_password(pwd.c_str());
       } else // if interactive failed, pass the exception higher up to be displayed to the user
         throw;
