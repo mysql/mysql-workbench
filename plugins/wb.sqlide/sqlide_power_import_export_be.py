@@ -55,7 +55,7 @@ def handleContextMenu(name, sender, args):
 
     # Add extra menu items to the SQL editor live schema tree context menu
     user_selection = None
-    
+
     for s in selection:
         if s.type == 'db.Schema':
             user_selection = {'schema': to_unicode(s.name), 'table': None}
@@ -71,13 +71,13 @@ def handleContextMenu(name, sender, args):
             item = mforms.newMenuItem("Table Data Export")
             item.add_clicked_callback(lambda sender=sender : showPowerExport(sender, user_selection))
             menu.insert_item(3, item)
-    
+
         item = mforms.newMenuItem("Table Data Import")
         item.add_clicked_callback(lambda sender=sender : showPowerImport(sender, user_selection))
         menu.insert_item(4, item)
-        
+
         menu.insert_item(5, mforms.newMenuItem("", mforms.SeparatorMenuItem))
-    
+
 class base_module:
     def __init__(self, editor, is_import):
         self.name = ""
@@ -137,7 +137,7 @@ class base_module:
     def guess_type(self, vals):
         def is_json(v):
             return True if type(v) in [dict, list] else False
-        
+
         def is_float(v):
             if hasattr(v, 'encode'):
                 v = v.encode('utf8')
@@ -149,7 +149,7 @@ class base_module:
                 return False
             except:
                 return False
-        
+
         def is_int(v):
             if hasattr(v, 'encode'):
                 v = v.encode('utf8')
@@ -161,11 +161,11 @@ class base_module:
                 return False
             except:
                 return False
-        
+
         cur_type = None
         for v in vals:
             if is_json(v):
-                return "json" # If JSON then we can return immediately. 
+                return "json" # If JSON then we can return immediately.
             if is_int(v):
                 if not cur_type:
                     #We know that it's int, but let's see if it's maybe big int
@@ -175,7 +175,7 @@ class base_module:
                     else:
                         cur_type = "int"
                 continue
-    
+
             if is_float(v):
                 if cur_type in [None, "int"]:
                     cur_type = "double"
@@ -184,7 +184,7 @@ class base_module:
             break
         return cur_type
 
-        
+
     def update_progress(self, pct, msg):
         if self.progress_info:
             self.progress_info(pct, msg)
@@ -194,10 +194,10 @@ class base_module:
 
     def set_encoding(self, encoding):
         self._encoding = encoding
-        
-    def get_current_row(self):    
+
+    def get_current_row(self):
         return self._current_row
-    
+
     def set_user_query(self, query):
         self._user_query = query
 
@@ -206,7 +206,7 @@ class base_module:
 
     def create_new_table(self, create):
         self._new_table = create
-        
+
     def truncate_table(self, trunc):
         self._truncate_table = trunc
 
@@ -215,52 +215,52 @@ class base_module:
             self._table_w_prefix = "`%s`.`%s`" % (schema, table)
         else:
             self._table_w_prefix = "`%s`" % str(table)
-        
+
     def set_mapping(self, mapping):
         self._mapping = mapping
-    
+
     def allow_remote(self):
         return self._allow_remote;
-    
+
     def get_file_extension(self):
         return self._extension
-    
+
     def set_columns(self, cols):
-        self._columns = cols        
-    
+        self._columns = cols
+
     def set_filepath(self, filename):
         self._filepath = filename
-    
+
     def set_limit(self, limit):
         self._limit = limit;
-        
+
     def set_offset(self, offset):
         self._offset = offset;
-    
+
     def set_local(self, local):
         if self._allow_remote:
             self._local = local
-            
+
     def set_decimal_separator(self, separator):
         self._decimal_separator = separator
-    
+
     def set_date_format(self, format):
         self._date_format = format
-    
+
     def read_user_query_columns(self, result):
         self._columns = []
         for c in result.columns:
-            self._columns.append({'name': c.name, 'type': c.columnType, 
+            self._columns.append({'name': c.name, 'type': c.columnType,
                    'is_string': any(x in c.columnType for x in ['char', 'text', 'set', 'enum']),
-                   'is_json': any(x in c.columnType for x in ['json']), 
+                   'is_json': any(x in c.columnType for x in ['json']),
                    'is_number': any(x in c.columnType for x in ['int', 'integer']),
                    'is_bignumber':  any(x in c.columnType for x in ['bigint']),
                    'is_geometry':  any(x in c.columnType for x in ['geometry','geometrycollection', 'linestring', 'multilinestring', 'multipoint', 'multipolygon', 'point' , 'polygon']),
-                   'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']), 
+                   'is_date_or_time': any(x in c.columnType for x in ['timestamp', 'time', 'datetime', 'date']),
                    'is_bin': any(x in c.columnType for x in ['geo', 'blob', 'binary']),
                    'is_float': any(x in c.columnType for x in ['decimal', 'float', 'double', 'real']),
                    'value': None})
-    
+
     def prepare_new_table(self):
         try:
             self._editor.executeManagementCommand(""" CREATE TABLE %s (%s)""" % (self._table_w_prefix, ", ".join(["`%s` %s" % (col['name'], col["type"]) for col in self._mapping if col['active'] is True])), 1)
@@ -281,17 +281,17 @@ class base_module:
                     log_error("Error dropping table for import: %s" % e)
                     raise
             raise
-        
-    
+
+
     def get_command(self):
         return False
-    
+
     def start_export(self):
         return False
-    
+
     def start_import(self):
         return False
-    
+
     def start(self, event):
         self._thread_event = event
         try:
@@ -316,13 +316,13 @@ class csv_module(base_module):
         self.name = "csv"
         self.title = self.name
         self.options = {'filedseparator': {'description':'Field Separator', 'type':'select', 'opts':{'TAB':'\t','|':'|',';':';', ':':':', ',':','}, 'value':';', 'entry': None},
-                'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None}, 
+                'lineseparator': {'description':'Line Separator', 'type':'select','opts':{"CR":'\r', "CR LF":'\r\n', "LF":'\n'}, 'value':'\n', 'entry': None},
                 'encolsestring': {'description':'Enclose Strings in', 'type':'text', 'value':'"', 'entry': None},
                 'nullwordaskeyword': {'description':'null and NULL word as SQL keyword', 'type':'select', 'opts':{'YES':'y', 'NO':'n'}, 'value':'y', 'entry': None}};
-        
+
         self._extension = ["Comma Separated Values (*.csv)|*.csv", "csv"]
-        self._allow_remote = True 
-    
+        self._allow_remote = True
+
     def get_query(self):
         if self._local:
             limit = ""
@@ -341,9 +341,9 @@ class csv_module(base_module):
             if sys.platform.lower() == "win32":
                 fpath = fpath.replace("\\","\\\\")
 
-            return """SELECT %s FROM %s INTO OUTFILE '%s' 
-                        FIELDS TERMINATED BY '%s' 
-                        ENCLOSED BY '%s' 
+            return """SELECT %s FROM %s INTO OUTFILE '%s'
+                        FIELDS TERMINATED BY '%s'
+                        ENCLOSED BY '%s'
                         LINES TERMINATED BY %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, fpath,
                                                        self.options['filedseparator']['value'], self.options['encolsestring']['value'], repr(self.options['lineseparator']['value']), limit)
 
@@ -357,16 +357,16 @@ class csv_module(base_module):
             if rset:
                 if self._user_query: #We need to get columns info
                     self.read_user_query_columns(rset)
-                    
+
                 self._max_rows = rset.rowCount
                 self.update_progress(0.0, "Begin Export")
                 with open(self._filepath, 'w') as csvfile:
-                    output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'], 
-                                        lineterminator = self.options['lineseparator']['value'], 
+                    output = csv.writer(csvfile, delimiter = self.options['filedseparator']['value'],
+                                        lineterminator = self.options['lineseparator']['value'],
                                         quotechar = self.options['encolsestring']['value'], quoting = csv.QUOTE_NONNUMERIC if self.options['encolsestring']['value'] else csv.QUOTE_NONE)
                     output.writerow([value['name'] for value in self._columns])
                     ok = rset.goToFirstRow()
-                    
+
                     # Because there's no realiable way to use offset only, we'll do this here.
                     offset = 0
                     if self._offset and not self._limit:
@@ -382,7 +382,7 @@ class csv_module(base_module):
                         if offset > 0 and i <= offset:
                             ok = rset.nextRow()
                             continue
-                        self.item_count = self.item_count + 1 
+                        self.item_count = self.item_count + 1
                         self._current_row = float(rset.currentRow + 1)
                         self.update_progress(round(self._current_row / self._max_rows, 2), "Data export")
                         row = []
@@ -403,21 +403,21 @@ class csv_module(base_module):
             self._editor.executeManagementCommand(query, 1)
 
         return True
-    
+
     def start_import(self):
         if not self._last_analyze:
             return False
-        
+
         if self._new_table:
             if not self.prepare_new_table():
                 return False
-            
+
         if self._truncate_table:
             self.update_progress(0.0, "Truncate table")
             self._editor.executeManagementCommand("TRUNCATE TABLE %s" % self._table_w_prefix, 1)
-            
+
         result = True
-        
+
         with open(self._filepath, 'r') as csvfile:
             self.update_progress(0.0, "Prepare Import")
             dest_col_order = [i['dest_col'] for i in self._mapping if i['active']]
@@ -426,7 +426,7 @@ class csv_module(base_module):
             col_type = dict([(i['dest_col'], i['type']) for i in self._mapping if i['active']])
 
             is_server_5_7 = self._targetVersion.is_supported_mysql_version_at_least(Version.fromstr("5.7.5"))
-            
+
             self._editor.executeManagementCommand(query, 1)
             try:
                 is_header = self.has_header
@@ -441,13 +441,13 @@ class csv_module(base_module):
                         self.update_progress(round(self._current_row / self._max_rows, 2), "Import stopped by user request")
                         return False
                     self._current_row += 1
-                    
+
                     if is_header:
                         is_header = False
                         continue
 
-                    
-                    
+
+
 
                     for i, col in enumerate(col_order):
                         if col_order[col] >= len(row):
@@ -514,16 +514,16 @@ class csv_module(base_module):
                     self.has_header = False
 
                 csvfile.seek(0)
-                self.options['filedseparator']['value'] = self.dialect.delimiter 
-                self.options['lineseparator']['value'] = self.dialect.lineterminator 
-                self.options['encolsestring']['value'] = self.dialect.quotechar 
+                self.options['filedseparator']['value'] = self.dialect.delimiter
+                self.options['lineseparator']['value'] = self.dialect.lineterminator
+                self.options['encolsestring']['value'] = self.dialect.quotechar
             else:
                 self.dialect.delimiter = self.options['filedseparator']['value']
                 self.dialect.lineterminator = self.options['lineseparator']['value']
                 self.dialect.quotechar = self.options['encolsestring']['value']
 
                 csvfile.seek(0)
-                
+
             try:
                 reader = csv.reader(csvfile, self.dialect)
                 self._columns = []
@@ -532,12 +532,12 @@ class csv_module(base_module):
                     row_line = next(reader)
                 except StopIteration as e:
                     pass
-                
-                
+
+
                 if row_line:
                     for col_value in row_line:
                         self._columns.append({'name': self.fix_column_name(col_value) , 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False,'value': []})
-                        
+
                     ii = -1
                     for ii, row in enumerate(reader): #we will read only first few rows
                         if ii < 5:
@@ -552,7 +552,7 @@ class csv_module(base_module):
                         else:
                             break
 
-                    # We hit here an edge case, enumerate didn't run but row_line contains something, 
+                    # We hit here an edge case, enumerate didn't run but row_line contains something,
                     # we will assume this means that there's just one line
                     if ii == -1 and len(row_line) > 0:
                         ii = 1
@@ -590,10 +590,10 @@ class csv_module(base_module):
                 log_error("Error analyzing file, probably encoding issue: %s\n Traceback is: %s" % (e, traceback.format_exc()))
                 self._last_analyze = False
                 return False
-                
+
         self._last_analyze = True
         return True
-        
+
 class json_module(base_module):
     def __init__(self, editor, is_import):
         base_module.__init__(self, editor, is_import)
@@ -601,15 +601,15 @@ class json_module(base_module):
         self.title = self.name
         self._extension = ["JavaScript Object Notation (*.json)|*.json", "json"]
         self._allow_remote = False
-        
+
     def get_query(self):
         limit = ""
         if self._limit:
             limit = "LIMIT %d" % int(self._limit)
             if self._offset:
                 limit = "LIMIT %d,%d" % (int(self._offset), int(self._limit))
-        return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)                
-    
+        return """SELECT %s FROM %s %s""" % (",".join(["`%s`" % value['name'] for value in self._columns]), self._table_w_prefix, limit)
+
     def start_export(self):
         if self._user_query:
             query = self._user_query
@@ -620,12 +620,12 @@ class json_module(base_module):
         if rset:
             if self._user_query: #We need to get columns info
                 self.read_user_query_columns(rset)
-                
+
             with open(self._filepath, 'wb') as jsonfile:
                 jsonfile.write('['.encode('utf-8'))
                 ok = rset.goToFirstRow()
                 self._max_rows = rset.rowCount
-                
+
                 # Because there's no realiable way to use offset only, we'll do this here.
                 offset = 0
                 if self._offset and not self._limit:
@@ -671,11 +671,11 @@ class json_module(base_module):
         if self._new_table:
             if not self.prepare_new_table():
                 return False
-        
+
         if self._truncate_table:
             self.update_progress(0.0, "Truncate table")
             self._editor.executeManagementCommand("TRUNCATE TABLE %s" % self._table_w_prefix, 1)
-        
+
         result = True
         with open(self._filepath, 'rb') as jsonfile:
             data = json.load(jsonfile)
@@ -683,7 +683,7 @@ class json_module(base_module):
             query = """PREPARE stmt FROM 'INSERT INTO %s (%s) VALUES(%s)'""" % (self._table_w_prefix, ",".join(["`%s`" % col for col in dest_col_order]), ",".join(["?" for i in dest_col_order]))
             col_order = dict([(i['dest_col'], i['name']) for i in self._mapping if i['active']])
             col_type = dict([(i['name'], i['type']) for i in self._mapping if i['active']])
-            
+
             self._editor.executeManagementCommand(query, 1)
             try:
                 self._max_rows = len(data)
@@ -704,19 +704,19 @@ class json_module(base_module):
 
                         if col_type[col] == "geometry":
                             val = """ ST_GeomFromGeoJSON('%s')""" % json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
-                                 
+
                             self._editor.executeManagementCommand("""SET @a%d = %s """ % (i, val), 0)
                         else:
                             if col_type[col_name] != "json" and hasattr(val, "replace"):
                                 val = val.replace("\\", "\\\\").replace("'", "\\'")
-                                
+
                             if col_type[col_name] == 'double':
-                                val = val(str).replace(self._decimal_separator, '.')
+                                val = val(str.replace(self._decimal_separator, '.'))
                             elif col_type[col_name] == 'datetime':
                                 val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             elif col_type[col_name] == "json":
-                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")                                
-    
+                                val = json.dumps(val).replace("\\", "\\\\").replace("'", "\\'")
+
                             if col_type[col_name] == "int":
                                 self._editor.executeManagementCommand("""SET @a%d = %d """ % (i, int(val)), 0)
                             else:
@@ -728,13 +728,13 @@ class json_module(base_module):
                             self.item_count = self.item_count + 1
                         except Exception as e:
                             log_error("Row import failed with error: %s" % e)
-                        
+
             except Exception as e:
                 import traceback
                 log_debug3("Import failed traceback: %s" % traceback.format_exc())
                 log_error("Import failed: %s" % e)
             self._editor.executeManagementCommand("DEALLOCATE PREPARE stmt", 1)
-            
+
         return result
 
     def analyze_file(self):
@@ -746,17 +746,17 @@ class json_module(base_module):
                 log_error("JSON file is invalid: %s\n" % (self._filepath))
                 self._last_analyze = False
                 return False
-                
+
         if len(data) == 0:
             log_error("JSON file contains no data: %s\n" % (self._filepath))
             self._last_analyze = False
             return False
-                
+
         self._columns = []
-        
+
         if type(data) == dict: # We need to have list so if it's dict after that we will be able to handle it.
             data = [data]
-        
+
         for elem in data[0]:
             self._columns.append({'name': elem, 'type': 'text', 'is_string': True, 'is_geometry': False, 'is_bignumber': False, 'is_number': False, 'is_date_or_time': False, 'is_bin': False, 'is_float':False, 'is_json':False, 'value': []})
 
@@ -766,7 +766,7 @@ class json_module(base_module):
                     self._columns[i]['is_string'] = False
                     self._columns[i]['is_json'] = True
                 self._columns[i]['value'].append(row[elem])
-                
+
         for col in self._columns:
             gtype = self.guess_type(col['value'])
             if gtype not in self._type_map:
