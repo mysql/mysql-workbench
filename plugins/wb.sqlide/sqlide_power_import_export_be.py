@@ -711,7 +711,7 @@ class json_module(base_module):
                                 val = val.replace("\\", "\\\\").replace("'", "\\'")
                                 
                             if col_type[col_name] == 'double':
-                                val = val(str).replace(self._decimal_separator, '.')
+                                val = val(str.replace(self._decimal_separator, '.'))
                             elif col_type[col_name] == 'datetime':
                                 val = datetime.datetime.strptime(val, self._date_format).strftime("%Y-%m-%d %H:%M:%S")
                             elif col_type[col_name] == "json":
