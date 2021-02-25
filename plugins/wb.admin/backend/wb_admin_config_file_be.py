@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -724,7 +724,7 @@ class WbAdminConfigFileBE(object):
             for i,line in enumerate(self.file_lines):
                 sline = line.strip(" \r\n\t")
                 # Skip empty and commented out lines
-                if len(sline) > 0 and ((sline[0] is not '#') and (sline[0] is not ';')):
+                if len(sline) > 0 and ((sline[0] != '#') and (sline[0] != ';')):
                 # Got section start line
                     if sline[0] == '[':
                         current_section = sline.strip("[]")
@@ -818,7 +818,7 @@ class WbAdminConfigFileBE(object):
             value = True
 
         if section is None:
-            section = self.server_profile.config_file_section if self.server_profile.config_file_section is not '' else default_section
+            section = self.server_profile.config_file_section if self.server_profile.config_file_section != '' else default_section
 
         odef = self.get_option_def(name)
         option_type    = odef.get('type')

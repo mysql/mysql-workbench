@@ -209,7 +209,7 @@ fi
        -DVSQLITE_LIBRARIES="-L%{bundles_path}/lib -lvsqlitepp" \
        -DANTLR4_INCLUDE_DIR=%{bundles_path}/include \
        -DANTLR4_LIBRARIES="-L%{bundles_path}/lib -lantlr4-runtime" \
-       -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.7.1-complete.jar \
+       -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.9.1-complete.jar \
        -DLibSSH_INCLUDE_DIR=%{bundles_path}/include \
        -DLibSSH_LIBRARIES="-L%{bundles_path}/lib -lssh" \
 %if %{defined python_lib_path}
