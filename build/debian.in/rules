@@ -84,8 +84,7 @@ configure-stamp:
 	  -DIODBC_LIBRARIES_PATH=$(BUNDLES_PATH)/lib \
 	  -DVSQLITE_INCLUDE_DIR=$(BUNDLES_PATH)/include \
 	  -DVSQLITE_LIBRARIES="-L$(BUNDLES_PATH)/lib -lvsqlitepp" \
-	  -DLibSSH_INCLUDE_DIR=$(BUNDLES_PATH)/include \
-	  -DLibSSH_LIBRARIES="-L$(BUNDLES_PATH)/lib -lssh" \
+	  -Dlibssh_DIR=$(BUNDLES_PATH)/lib/cmake/libssh \
 	  -DANTLR4_INCLUDE_DIR=$(BUNDLES_PATH)/include \
 	  -DANTLR4_LIBRARIES="-L$(BUNDLES_PATH)/lib -lantlr4-runtime" \
 	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH} \

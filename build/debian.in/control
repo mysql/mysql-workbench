@@ -2,11 +2,7 @@ Source: mysql-workbench-@edition@
 Section: utils
 Priority: extra
 Maintainer: MySQL Release Engineering <mysql-build@oss.oracle.com>
-@ifversion >= 2004
-Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-3.0-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python2-dev (>= 2.6), libsqlite3-dev, libboost-dev, xdg-utils, cmake, swig (>= 1.3), libproj-dev, cmake, autoconf, autogen, libsecret-1-dev
-@else
-Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-3.0-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python-dev (>= 2.6), libsqlite3-dev, libboost-dev, xdg-utils, cmake, swig (>= 1.3), libproj-dev, cmake, autoconf, autogen, libsecret-1-dev
-@endif
+Build-Depends: debhelper (>= 5), libzip-dev, libgtkmm-3.0-dev, libxml2-dev, libgl1-mesa-dev, libpcre3-dev, python3-dev (>= 3.7), libsqlite3-dev, libboost-dev, xdg-utils, cmake, swig (>= 3.0), libproj-dev, cmake, autoconf, autogen, libsecret-1-dev
 Standards-Version: 3.9.8
 Homepage: http://dev.mysql.com/workbench/
 
