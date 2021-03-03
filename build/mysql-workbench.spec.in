@@ -215,7 +215,8 @@ fi
        -DPYTHON_LIBRARY=%{python_lib_path} \
        -DPYTHON_INCLUDE_DIR=%{python_inc_dir} \
 %endif
-       -DBOOST_ROOT=%{bundles_path}/include 
+       -DBOOST_ROOT=%{bundles_path}/include \
+       -DBoost_NO_BOOST_CMAKE=ON
 
 %if 0%{?fedora}
 %cmake_build

@@ -88,7 +88,8 @@ configure-stamp:
 	  -DANTLR4_INCLUDE_DIR=$(BUNDLES_PATH)/include \
 	  -DANTLR4_LIBRARIES="-L$(BUNDLES_PATH)/lib -lantlr4-runtime" \
 	  -DWITH_ANTLR_JAR=${ANTLR_JAR_PATH} \
-	  -DBOOST_ROOT=$(BOOST_ROOT)
+	  -DBOOST_ROOT=$(BOOST_ROOT) \
+	  -DBoost_NO_BOOST_CMAKE=ON
 
 	touch configure-stamp
 
