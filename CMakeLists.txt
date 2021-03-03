@@ -41,9 +41,15 @@ if(ENABLE_COTIRE)
   set_property(DIRECTORY PROPERTY COTIRE_UNITY_LINK_LIBRARIES_INIT "COPY_UNITY")
 endif()
 
-cmake_policy(SET CMP0072 NEW)
-cmake_policy(SET CMP0078 OLD)
-cmake_policy(SET CMP0086 OLD)
+if(POLICY CMP0072)
+  cmake_policy(SET CMP0072 NEW) # cmake-3.11
+endif()
+if(POLICY CMP0078)
+  cmake_policy(SET CMP0078 OLD) # cmake-3.13
+endif()
+if(POLICY CMP0086)
+  cmake_policy(SET CMP0086 OLD) # cmake-3.14
+endif()
 
 find_package(PkgConfig REQUIRED)
 find_package(Java QUIET)
