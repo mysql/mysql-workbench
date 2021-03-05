@@ -171,7 +171,7 @@ class CommandExecutePanel(mforms.Form):
 
 
     def get_log_text(self):
-        return self.logbox.get_string_value().encode("utf8")
+        return self.logbox.get_string_value()
 
 
     def append_log(self, text):
