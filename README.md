@@ -38,3 +38,4 @@ MySQL Workbench functionality covers five main topics:
 ![Performance dashboard](https://dev.mysql.com/doc/workbench/en/images/wb-performance-dashboard.png)
 
 The [code repository on Github](https://github.com/mysql/mysql-workbench) is where we publish a snapshot of our internal repository everytime a new release of the product is published. Use the [MySQL bug system](http://bugs.mysql.com/) to report any issue you have. You can use Github or the MySQL bug system to contribute to the development. File a pull request on Github or a new issue on the MySQL Bug system with your patch and we will take care of it.
+
