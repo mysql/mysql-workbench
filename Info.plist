@@ -80,14 +80,14 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.11.0</string>
+	<string>11.2.0</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright (c) 2008, 2020, Oracle and/or its affiliates.</string>
+	<string>Copyright (c) 2008, 2021, Oracle and/or its affiliates.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
