@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2009, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -428,8 +428,7 @@ static PyTypeObject PyGRTListObjectType = {
 #if PY_VERSION_HEX >= 0x03090000
   nullptr   //  tp_vectorcall
 #elif PY_VERSION_HEX >= 0x03080000
-  nullptr,  //  tp_vectorcall
-  nullptr   //  tp_print
+  nullptr  //  tp_vectorcall
 #endif
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -251,7 +251,7 @@ $describe("SQL code completion tests") {
       "PARTITION t13 VALUES LESS THAN (13) ENGINE = MyISAM,\n"
       "PARTITION t14 VALUES LESS THAN (14) ENGINE = MyISAM,\n"
       "PARTITION t15 VALUES LESS THAN (15) ENGINE = MyISAM,\n"
-      "PARTITION t16 VALUES LESS THAN MAXVALUE ENGINE = MyISAM) */;");
+      "PARTITION t16 VALUES LESS THAN MAXVALUE ENGINE = MyISAM) */;"s);
 
     MySQLLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
