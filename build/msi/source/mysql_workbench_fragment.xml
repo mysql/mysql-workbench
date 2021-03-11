@@ -58,7 +58,6 @@
 
               <Component DiskId="1" Guid="F7B89C4E-BAA9-44e6-9FB1-F6DB8148790F" Id="Third_Party_Libraries" Location="either">
                 <File Id="file1023" Name="iconv.dll"/>
-                <File Id="file1085" Name="intl.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
                 <File Id="libcrypto11x64.dll" Name="libcrypto-1_1-x64.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
@@ -67,16 +66,16 @@
                 <File Id="file1035" Name="libpng16.dll"/>
                 <?endif ?>
                 <File Id="file1036" Name="libxml2.dll"/>
-                <File Id="file1030" Name="glib.dll"/>
-                <File Id="file1031" Name="gmodule.dll"/>
-                <File Id="file1032" Name="gobject.dll"/>
-                <File Id="file1033" Name="gthread.dll"/>
+                <File Id="file1030" Name="glib-2.0-0.dll"/>
+                <File Id="file1031" Name="gmodule-2.0-0.dll"/>
+                <File Id="file1032" Name="gobject-2.0-0.dll"/>
+                <File Id="file1033" Name="gthread-2.0-0.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
                 <File Id="file1065" Name="zip.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
-                <File Id="file1083d" Name="zlibd1.dll"/>
+                <File Id="file1083d" Name="zlibd.dll"/>
                 <?else ?>
-                <File Id="file1083" Name="zlib1.dll"/>
+                <File Id="file1083" Name="zlib.dll"/>
                 <?endif ?>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>

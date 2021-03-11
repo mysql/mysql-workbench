@@ -194,18 +194,18 @@ xcopy /i /s /y /d %EXT_LIB_DIR%\libcrypto-1_1-x64.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\libssl-1_1-x64.dll %TARGET_DIR%\.
 
 echo * glib libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\glib.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\gmodule.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\gobject.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\gthread.dll %TARGET_DIR%\.
-xcopy /i /s /y /d %EXT_LIB_DIR%\intl.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\glib*.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gmodule*.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gobject*.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gthread*.dll %TARGET_DIR%\.
+rem xcopy /i /s /y /d %EXT_LIB_DIR%\intl.dll %TARGET_DIR%\.
 
 echo * libxml2 libraries ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\libxml2.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\iconv.dll %TARGET_DIR%\.
 
 echo * zlib + libzip libraries ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\zlib%DEBUG_PREFIX%1.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\zlib%DEBUG_PREFIX%.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\zip.dll %TARGET_DIR%\.
 
 echo * ANTLR4 runtime lib ...

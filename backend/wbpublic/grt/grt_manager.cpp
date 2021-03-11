@@ -616,12 +616,7 @@ bool GRTManager::init_module_loaders(const std::string &loader_module_path, bool
 bool GRTManager::load_libraries() {
   gchar **paths = g_strsplit(_libraries_pathlist.c_str(), G_SEARCHPATH_SEPARATOR_S, 0);
   for (size_t i = 0; paths[i]; i++) {
-#ifdef _MSC_VER
-    GDir *dir = g_dir_open_utf8(paths[i], 0, NULL);
-#else
     GDir *dir = g_dir_open(paths[i], 0, NULL);
-#endif
-
     if (dir) {
       const gchar *fname;
       while ((fname = g_dir_read_name(dir))) {
