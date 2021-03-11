@@ -481,7 +481,8 @@ static PyTypeObject PyGRTDictObjectType = {
 #if PY_VERSION_HEX >= 0x03090000
   nullptr   //  tp_vectorcall
 #elif PY_VERSION_HEX >= 0x03080000
-  nullptr  //  tp_vectorcall
+  nullptr,  //  tp_vectorcall
+  nullptr   //  tp_print
 #endif
 };
 
@@ -581,7 +582,8 @@ static PyTypeObject PyGRTDictIteratorObjectType = {
 #if PY_VERSION_HEX >= 0x03090000
   nullptr   //  tp_vectorcall
 #elif PY_VERSION_HEX >= 0x03080000
-  nullptr  //  tp_vectorcall
+  nullptr,  //  tp_vectorcall
+  nullptr   //  tp_print
 #endif
 };
 
