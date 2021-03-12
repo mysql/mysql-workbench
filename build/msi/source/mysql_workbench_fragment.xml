@@ -71,6 +71,7 @@
                 <File Id="file1032" Name="gobject-2.0-0.dll"/>
                 <File Id="file1033" Name="gthread-2.0-0.dll"/>
                 <File Id="file1050" Name="Aga.Controls.dll"/>
+                <File Id="pixman-1-0.dll" Name="pixman-1-0.dll"/>
                 <File Id="file1065" Name="zip.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
                 <File Id="file1083d" Name="zlibd.dll"/>
