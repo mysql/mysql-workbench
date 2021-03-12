@@ -217,6 +217,9 @@ xcopy /i /s /y /d %EXT_LIB_DIR%\libcairo.dll %TARGET_DIR%\. 1> nul 2> nul
 echo * png library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\libpng16%DEBUG_PREFIX%.dll %TARGET_DIR%\. 1> nul 2> nul
 
+echo * pixman library ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\pixman*.dll %TARGET_DIR%\. 1> nul 2> nul
+
 echo * cppconn library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\mysqlcppconn-9-vs14.dll %TARGET_DIR%\. 1> nul 2> nul
 
