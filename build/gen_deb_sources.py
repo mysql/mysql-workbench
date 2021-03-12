@@ -5,12 +5,13 @@
 
 
 output_distros = [
+    ("hirsute", "ubuntu21.04", "2104", ""),
     ("focal", "ubuntu20.04", "2004", ""),
     ("groovy", "ubuntu20.10", "2010", ""),
     ("disco", "ubuntu19.04", "1904", ""),
     ("bionic", "ubuntu18.04", "1804", ""),
-    ("stretch" ,"debian9"     ,"9"     ,""),
-    ("buster" ,"debian10"     ,"10"     ,""),
+    ("stretch", "debian9", "9", ""),
+    ("buster", "debian10", "10", "")
 ]
 
 editions = ["community", "commercial"]

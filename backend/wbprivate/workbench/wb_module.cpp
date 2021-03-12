@@ -213,7 +213,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
   }
 
   static std::vector<std::string> supportedOsList {
-    "Ubuntu 20.04", "Ubuntu 20.10", "Debian 10",
+    "Ubuntu 20.04", "Ubuntu 21.04", "Debian 10",
 
     "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
                                                  // 7.1 (Maipo)"
