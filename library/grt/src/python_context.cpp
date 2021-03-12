@@ -101,12 +101,6 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;%s",
                          module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str(),
                          wb_pythonpath.c_str()));
-// putenv("PYTHONHOME=C:\\nowhere"); s
-#elif __APPLE__
-#ifndef ENABLE_DEBUG
-  putenv(g_strdup_printf("PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7"));
-#endif
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,8 +125,8 @@ void PythonContextHelper::InitPython() {
       "\n" \
       "\n" \
       "sys.meta_path.append(Finder())\n" \
-  );  
-  
+  );
+
   // Stores the main thread state
   _main_thread_state = PyThreadState_Get();
 
@@ -165,7 +159,7 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   PyDict_SetItemString(PyModule_GetDict(main), "grt", module);
 
   register_grt_module( module );
-  
+
   PySys_SetObject((char *)"real_stdout", PySys_GetObject((char *)"stdout"));
   PySys_SetObject((char *)"real_stderr", PySys_GetObject((char *)"stderr"));
   PySys_SetObject((char *)"real_stdin", PySys_GetObject((char *)"stdin"));
@@ -1191,7 +1185,7 @@ void PythonContext::register_grt_module(PyObject *module) {
   _grt_modules_module = PyModule_Create(&grtModulesModuleDef);
   if (!_grt_modules_module)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
-  
+
   if(PyModule_AddObject(_grt_modules_module, "__path__", Py_BuildValue("[s]", "grt/modules")) < 0) {
     PyErr_Print();
     throw std::runtime_error("Error initializing grt.modules module in Python support");
@@ -1209,10 +1203,10 @@ void PythonContext::register_grt_module(PyObject *module) {
     throw std::runtime_error("Error initializing grt.modules module in Python support");
 
   _grt_classes_module = PyModule_Create(&grtClassesModuleDef);
-  
+
   if (!_grt_classes_module)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
-  
+
 //   PyDict_SetItemString(PyModule_GetDict(module), "classes", (PyObject *)_grt_classes_module);
 
   Py_XINCREF(_grt_classes_module);
@@ -1225,16 +1219,16 @@ void PythonContext::register_grt_module(PyObject *module) {
   Py_XINCREF(_grt_classes_module);
   if(PyModule_AddObject(_grt_module, "classes", _grt_classes_module) < 0)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
-  
+
 }
 
 PyObject *PythonContext::grt_module_create(){
   PyObject *module = PyModule_Create(&grtModuleDef);
   if (module == nullptr)
     throw std::runtime_error("Error initializing GRT module in Python support");
-  
+
   PyModule_AddObject(module, "__path__", Py_BuildValue("[]"));
-  
+
   return module;
 }
 
@@ -1393,14 +1387,14 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
 bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_string, bool convert) {
   PyObject *ref = strobject;
   ret_string = "";
-  
+
   if (!PyUnicode_Check(strobject)) {
     if (convert)
       ref = PyObject_Str(strobject);
     else
       ref = PyUnicode_AsUTF8String(strobject);
   }
-  
+
   if (ref == nullptr)
     return false;
 
@@ -1738,7 +1732,7 @@ static void create_class_wrapper(grt::MetaClass *meta, PyObject *locals) {
   }
 
   PyDict_SetItemString(locals, "__builtins__", PyEval_GetBuiltins());
-  
+
   if (!PyRun_String(script.c_str(), Py_single_input, locals, locals))
     PythonContext::log_python_error((std::string("Error creating class wrapper:\n") + script).c_str());
 }
@@ -1802,7 +1796,7 @@ void PythonContext::log_python_error(const char *message) {
       Py_DECREF(tmp);
     }
   }
-  
+
   if (tb) {
     PyTracebackObject *trace = (PyTracebackObject *)tb;
 
