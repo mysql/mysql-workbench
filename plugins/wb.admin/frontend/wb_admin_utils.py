@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -261,7 +261,10 @@ class WbAdminTabBase(mforms.Box):
 
     def set_body_contents(self, body_contents):
         if self._body_contents:
-            self._page_body.remove(self._body_contents)
+            if isinstance(self._page_body, mforms.Box):
+              self._page_body.remove(self._body_contents)
+            else:
+              self._page_body.remove()
 
         self._body_contents = body_contents
 
