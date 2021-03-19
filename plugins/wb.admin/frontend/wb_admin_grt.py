@@ -127,9 +127,6 @@ class AdministratorContext:
 
     @property
     def instance_profile(self):
-        print(type(grt.root.wb))
-        print(grt.root.wb)
-      
         for instance in grt.root.wb.rdbmsMgmt.storedInstances:
             if instance.connection == self.connection:
                 return instance

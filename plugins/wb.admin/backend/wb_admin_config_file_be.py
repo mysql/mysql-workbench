@@ -1679,7 +1679,6 @@ def unit_test_14(ctx):
 
     cfg_be.parse_file()
     innodb = cfg_be.original_opts.get('innodb')
-    print(cfg_be.original_opts)
     if None == innodb:
         status = False
         msg += "innodb option disappeared after change"

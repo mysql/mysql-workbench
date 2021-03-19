@@ -1,4 +1,4 @@
-# Copyright (c) 2013, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2013, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -251,7 +251,6 @@ class EasySetupPage(mforms.Box):
                     consumers = DEFAULT_CONSUMERS_56
                 mforms.App.get().set_status_text("Resetting Performance Schema settings to default instrumentation...")
                 sql = self.generate_updates_for_reset(instruments, consumers)
-                print(sql)
             for s in sql:
                 log_info("Executing %s...\n" % s)
                 self.owner.main_view.editor.executeManagementCommand(s, 0)
@@ -296,7 +295,6 @@ class EasySetupPage(mforms.Box):
 
     def reload(self):
         state = self.check_instrumentation_level()
-        print(state)
         self.logo.set_image(mforms.App.get().get_resource_path("ps_easysetup_logo_enabled.png" if state != "disabled" else "ps_easysetup_logo.png"))
         self.switch_image.set_state(state)
 
