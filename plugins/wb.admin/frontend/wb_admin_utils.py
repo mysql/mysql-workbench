@@ -137,6 +137,22 @@ class WbAdminValidationConfigFile(WbAdminValidationBase):
     def validate(self):
         return self._instance_info.config_file_path
 
+class WbAdminValidationRemoteAccess(WbAdminValidationBase):
+    def __init__(self, instance_info):
+        super().__init__()
+        
+        self._instance_info = instance_info
+
+        if self._instance_info.uses_ssh:
+            self.set_error_message("There is no SSH connection to the server.\nTo use this functionality, the server where MySQL is located must have an SSH server running\nand you must provide its login information in the server profile.")
+        elif self._instance_info.uses_wmi:
+            self.set_error_message("There is no WMI connection to the server.\nTo use this functionality, the server where MySQL is located must be configured to use WMI\nand you must provide its login information in the server profile.")
+        else:
+            self.set_error_message("Remote Administration is disabled.\nTo use this functionality, the server where MySQL is located must have either an SSH server running,\nor if it is a computer running Windows, must have WMI enabled.\nAdditionally, you must enable remote administration in the server profile and provide login details for it.")
+
+    def validate(self):
+        return self._instance_info.admin_enabled
+
 #
 # New features can be easily implemented, now...like:
 #   - Auto page update

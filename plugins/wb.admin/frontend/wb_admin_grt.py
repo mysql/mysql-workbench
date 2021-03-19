@@ -1,4 +1,4 @@
-# Copyright (c) 2009, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2009, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -149,6 +149,7 @@ class AdministratorContext:
         self.admin_access_status = None
         self.page_instances = {}
         self.sidebar.clear_selection()
+        self.error_box = None
 
 
     def handle_reconnect(self):

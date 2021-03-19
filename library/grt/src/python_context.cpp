@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2009, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1145,17 +1145,16 @@ void PythonContext::register_grt_module(PyObject *module) {
 
   // add the context ptr
   PyObject *context_object = PyCapsule_New(this, "contextObject", nullptr);
-  int result = PyCapsule_SetContext(context_object, &GRTTypeSignature);
-  std::cout << "result: " << result << std::endl;
+  PyCapsule_SetContext(context_object, &GRTTypeSignature);
   if (context_object != nullptr)
-    result = PyModule_AddObject(module, "__GRT__", context_object);
+    PyModule_AddObject(module, "__GRT__", context_object);
 
-  result = PyModule_AddStringConstant(module, "INT", (char *)type_to_str(IntegerType).c_str());
-  result = PyModule_AddStringConstant(module, "DOUBLE", (char *)type_to_str(DoubleType).c_str());
-  result = PyModule_AddStringConstant(module, "STRING", (char *)type_to_str(StringType).c_str());
-  result = PyModule_AddStringConstant(module, "LIST", (char *)type_to_str(ListType).c_str());
-  result = PyModule_AddStringConstant(module, "DICT", (char *)type_to_str(DictType).c_str());
-  result = PyModule_AddStringConstant(module, "OBJECT", (char *)type_to_str(ObjectType).c_str());
+  PyModule_AddStringConstant(module, "INT", (char *)type_to_str(IntegerType).c_str());
+  PyModule_AddStringConstant(module, "DOUBLE", (char *)type_to_str(DoubleType).c_str());
+  PyModule_AddStringConstant(module, "STRING", (char *)type_to_str(StringType).c_str());
+  PyModule_AddStringConstant(module, "LIST", (char *)type_to_str(ListType).c_str());
+  PyModule_AddStringConstant(module, "DICT", (char *)type_to_str(DictType).c_str());
+  PyModule_AddStringConstant(module, "OBJECT", (char *)type_to_str(ObjectType).c_str());
 
   init_grt_module_type();
   init_grt_list_type();
@@ -1164,23 +1163,23 @@ void PythonContext::register_grt_module(PyObject *module) {
 
   {
     _grt_user_interrupt_error = PyErr_NewException((char *)"grt.UserInterrupt", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "UserInterrupt", _grt_user_interrupt_error);
+    PyModule_AddObject(_grt_module, "UserInterrupt", _grt_user_interrupt_error);
   }
   {
     _grt_db_error = PyErr_NewException((char *)"grt.DBError", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBError", _grt_db_error);
+    PyModule_AddObject(_grt_module, "DBError", _grt_db_error);
   }
   {
     _grt_db_access_denied_error = PyErr_NewException((char *)"grt.DBAccessDenied", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBAccessDenied", _grt_db_access_denied_error);
+    PyModule_AddObject(_grt_module, "DBAccessDenied", _grt_db_access_denied_error);
   }
   {
     _grt_db_login_error = PyErr_NewException((char *)"grt.DBLoginError", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBLoginError", _grt_db_login_error);
+    PyModule_AddObject(_grt_module, "DBLoginError", _grt_db_login_error);
   }
   {
     _grt_db_not_connected = PyErr_NewException((char *)"grt.DBNotConnected", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBNotConnected", _grt_db_not_connected);
+    PyModule_AddObject(_grt_module, "DBNotConnected", _grt_db_not_connected);
   }
 
   _grt_modules_module = PyModule_Create(&grtModulesModuleDef);

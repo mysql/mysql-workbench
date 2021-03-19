@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -33,7 +33,7 @@ from wb_admin_config_file_be import multi_separator
 
 from workbench.utils import server_os_path
 
-from wb_admin_utils import WbAdminTabBase, WbAdminValidationConfigFile, WbAdminValidationConnection, WbAdminValidationBase
+from wb_admin_utils import WbAdminTabBase, WbAdminValidationConfigFile, WbAdminValidationConnection, WbAdminValidationBase, WbAdminValidationRemoteAccess
 
 #from grt.modules.WBAdmin import openRemoteFileSelector
 
@@ -174,6 +174,7 @@ class WbAdminConfigFileUI(WbAdminTabBase):
     def __init__(self, ctrl_be, instance_info, main_view, version="5.1"):
         WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
 
+        self.add_validation(WbAdminValidationRemoteAccess(instance_info))
         self.add_validation(WbAdminValidationConfigFile(instance_info))
         self.add_validation(WbAdminValidationRequiredRemoteAdmin(instance_info))
 

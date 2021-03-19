@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -29,23 +29,7 @@ from wb_admin_utils import no_remote_admin_warning_label
 from wb_log_reader import ErrorLogFileReader
 from workbench.notifications import nc
 
-from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection, WbAdminValidationBase
-
-class WbAdminValidationRemoteAccess(WbAdminValidationBase):
-    def __init__(self, instance_info):
-        super().__init__()
-        
-        self._instance_info = instance_info
-
-        if self._instance_info.uses_ssh:
-            self.set_error_message("There is no SSH connection to the server.\nTo use this functionality, the server where MySQL is located must have an SSH server running\nand you must provide its login information in the server profile.")
-        elif self._instance_info.uses_wmi:
-            self.set_error_message("There is no WMI connection to the server.\nTo use this functionality, the server where MySQL is located must be configured to use WMI\nand you must provide its login information in the server profile.")
-        else:
-            self.set_error_message("Remote Administration is disabled.\nTo use this functionality, the server where MySQL is located must have either an SSH server running,\nor if it is a computer running Windows, must have WMI enabled.\nAdditionally, you must enable remote administration in the server profile and provide login details for it.")
-
-    def validate(self):
-        return self._instance_info.admin_enabled
+from wb_admin_utils import weakcb, WbAdminTabBase, WbAdminValidationConnection, WbAdminValidationRemoteAccess
 
 
 class WbAdminConfigurationStartup(WbAdminTabBase):
