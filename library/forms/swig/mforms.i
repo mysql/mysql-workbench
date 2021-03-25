@@ -59,11 +59,11 @@ using namespace boost::placeholders;
 DEFAULT_LOG_DOMAIN("pymforms")
 
 /// begin python specific stuff
-    
-struct PyObjectRef 
+
+struct PyObjectRef
 {
   PyObject *object;
-  
+
   PyObjectRef(PyObject *obj)
     : object(obj)
   {
@@ -81,12 +81,12 @@ struct PyObjectRef
     WillEnterPython gil;
     Py_XDECREF(object);
   }
-  
+
   operator PyObject*()
   {
     return object;
   }
-  
+
   PyObjectRef &operator =(const PyObjectRef &other)
   {
     WillEnterPython gil;
@@ -109,10 +109,9 @@ static std::string format_string_list(PyObject *list) {
     int count = PyList_Size(list);
     for (int index = 0; index < count; ++index) {
         item = PyList_GetItem(list, index);
-        if (PyUnicode_Check(item)) {
-            result +=  PyUnicode_AsUTF8(item);
-        } else {
-            result +=  PyString_AsString(item);
+        const *char text =  PyUnicode_AsUTF8(item);
+        if(text) {
+          result += text;
         }
     }
     return result;
@@ -120,19 +119,19 @@ static std::string format_string_list(PyObject *list) {
 
 static void show_python_exception()
 {
-  if (!PyErr_Occurred()) 
+  if (!PyErr_Occurred())
     return;
-    
+
   PyObject *type, *value, *traceback;
   PyObject *pythonErrorDescryption, *moduleName, *pythonModule, *formatExceptionFunction;
 
   PyErr_Fetch(&type, &value, &traceback);
   pythonErrorDescryption = PyObject_Str(value);
   std::string errorDescription;
-  if (PyUnicode_Check(pythonErrorDescryption)) {
-      errorDescription = PyUnicode_AsUTF8(pythonErrorDescryption);
-  } else {
-      errorDescription = PyString_AsString(pythonErrorDescryption);
+
+  const *char description =  PyUnicode_AsUTF8(pythonErrorDescryption);
+  if(description) {
+    errorDescription = description;
   }
   std::string result;
 
@@ -143,7 +142,7 @@ static void show_python_exception()
 
   if (pythonModule) {
     formatExceptionFunction = PyObject_GetAttrString(pythonModule, "format_exception");
-    
+
     if (formatExceptionFunction && PyCallable_Check(formatExceptionFunction)) {
       PyObject *formatExceptionFunctionResult;
 
@@ -722,17 +721,17 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 %typemap(argout) std::string &ret_password {
     PyObject *o= PyUnicode_DecodeUTF8(($1)->data(), ($1)->size(), NULL);
-    $result= SWIG_Python_AppendOutput($result, o); 
-} 
+    $result= SWIG_Python_AppendOutput($result, o);
+}
 
 %typemap(in,numinputs=0) std::string &ret_password(std::string temp) {
     $1 = &temp;
 }
 
-%typemap(argout) std::string &ret_value { 
+%typemap(argout) std::string &ret_value {
     PyObject *o= PyUnicode_DecodeUTF8(($1)->data(), ($1)->size(), NULL);
-    $result= SWIG_Python_AppendOutput($result, o); 
-} 
+    $result= SWIG_Python_AppendOutput($result, o);
+}
 
 %typemap(in,numinputs=0) std::string &ret_value(std::string temp) {
     $1 = &temp;
@@ -1178,7 +1177,7 @@ SWIG_ADD_SIGNAL_VOID_CALLBACK(changed_callback, self->signal_changed());
 %extend mforms::Utilities {
 static mforms::TimeoutHandle add_timeout(float interval, PyObject *callback) { return mforms::Utilities::add_timeout(interval, (pycall_bool_fun(callback))); }
 
-static void perform_from_main_thread(PyObject *callable, bool wait) { 
+static void perform_from_main_thread(PyObject *callable, bool wait) {
   WillLeavePython gil;
   mforms::Utilities::perform_from_main_thread(pycall_ignoreret_voidptr_fun(callable), wait); }
 }
