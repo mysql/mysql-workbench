@@ -32,10 +32,9 @@
 
 // python internals
 #include <node.h>
-//#include <grammar.h>
-//#include <parsetok.h>
 #include <errcode.h>
 #include <token.h>
+#include <frameobject.h>
 
 #include "python_grtobject.h"
 #include "python_grtlist.h"
@@ -881,8 +880,6 @@ static PyObject *grt_query_status(PyObject *self, PyObject *args) {
     Py_RETURN_FALSE;
 }
 
-//
-
 static PyObject *grt_serialize(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
@@ -1271,17 +1268,6 @@ PyObject *PythonContext::eval_string(const std::string &expression) {
 }
 
 PyObject *PythonContext::get_global(const std::string &value) {
-  /*
-  PyObject *mainmod= PyImport_AddModule("__main__");
-  if (!mainmod)
-  {
-    PyErr_Clear();
-    return nullptr;
-  }
-  PyObject *globals= PyModule_GetDict(mainmod);
-  if (globals)
-    return PyDict_GetItemString(globals, value.c_str());
-   */
   return eval_string(value);
 }
 
@@ -1330,13 +1316,6 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
   if (value.is_valid()) {
     switch (value.type()) {
       case IntegerType: {
-        /*
-        long l = *IntegerRef::cast_from(value);
-        if ((long)(int)l == l)
-          return PyInt_FromLong(l);
-        else
-          return PyLong_FromLong(l);
-          */
         return PyLong_FromSsize_t(*IntegerRef::cast_from(value));
       }
 
@@ -1777,7 +1756,6 @@ int PythonContext::refresh() {
 
   return 0;
 }
-#include <frameobject.h>
 
 void PythonContext::log_python_error(const char *message) {
   PythonContext *ctx = PythonContext::get();

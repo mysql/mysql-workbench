@@ -109,7 +109,11 @@ static std::string format_string_list(PyObject *list) {
     int count = PyList_Size(list);
     for (int index = 0; index < count; ++index) {
         item = PyList_GetItem(list, index);
-        result += PyString_AsString(item);
+        if (PyUnicode_Check(item)) {
+            result +=  PyUnicode_AsUTF8(item);
+        } else {
+            result +=  PyString_AsString(item);
+        }
     }
     return result;
 }
@@ -124,7 +128,12 @@ static void show_python_exception()
 
   PyErr_Fetch(&type, &value, &traceback);
   pythonErrorDescryption = PyObject_Str(value);
-  std::string errorDescription = PyString_AsString(pythonErrorDescryption);
+  std::string errorDescription;
+  if (PyUnicode_Check(pythonErrorDescryption)) {
+      errorDescription = PyUnicode_AsUTF8(pythonErrorDescryption);
+  } else {
+      errorDescription = PyString_AsString(pythonErrorDescryption);
+  }
   std::string result;
 
   /* See if we can get a full traceback */
