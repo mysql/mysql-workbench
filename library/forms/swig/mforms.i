@@ -109,7 +109,7 @@ static std::string format_string_list(PyObject *list) {
     int count = PyList_Size(list);
     for (int index = 0; index < count; ++index) {
         item = PyList_GetItem(list, index);
-        const *char text =  PyUnicode_AsUTF8(item);
+        const char *text = PyUnicode_AsUTF8(item);
         if(text) {
           result += text;
         }
@@ -129,7 +129,7 @@ static void show_python_exception()
   pythonErrorDescryption = PyObject_Str(value);
   std::string errorDescription;
 
-  const *char description =  PyUnicode_AsUTF8(pythonErrorDescryption);
+  const char *description =  PyUnicode_AsUTF8(pythonErrorDescryption);
   if(description) {
     errorDescription = description;
   }
