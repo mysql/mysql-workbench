@@ -103,12 +103,13 @@ struct PyObjectRef
 
 
 static std::string format_string_list(PyObject *list) {
-    std::string result;
-    PyObject *item;
-
+   std::string result;
+    if(!list) {
+      return result;
+    }
     int count = PyList_Size(list);
     for (int index = 0; index < count; ++index) {
-        item = PyList_GetItem(list, index);
+        PyObject *item = PyList_GetItem(list, index);
         const char *text = PyUnicode_AsUTF8(item);
         if(text) {
           result += text;
