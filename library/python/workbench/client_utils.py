@@ -257,7 +257,7 @@ class MySQLScriptImporter(object):
             tmpdir = tempfile.mkdtemp()
             pwdfilename = os.path.join(tmpdir, 'extraparams.cnf')
             os.mkfifo(pwdfilename)
-        params.append('--defaults-extra-file=' + pwdfilename)
+        params.append('--defaults-extra-file="' + pwdfilename + '"')
 
         if default_charset:
             params.append("--default-character-set=%s" % default_charset)
