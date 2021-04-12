@@ -124,7 +124,7 @@ set_target_properties(_mforms
                       PROPERTIES VERSION   ${WB_VERSION}
                                  SOVERSION ${WB_VERSION})
 
-target_compile_options(_cairo PUBLIC ${WB_CXXFLAGS})
+target_compile_options(_cairo PUBLIC ${WB_CXXFLAGS} -Wno-misleading-indentation)
 
 set_target_properties(_cairo
                       PROPERTIES VERSION   ${WB_VERSION}

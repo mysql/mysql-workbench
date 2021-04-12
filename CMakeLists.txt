@@ -211,7 +211,7 @@ if(BUILD_FOR_GCOV)
     set(WB_CXXFLAGS ${WB_CXXFLAGS} -fprofile-arcs -ftest-coverage )
     set(WB_CFLAGS ${WB_CFLAGS} -fprofile-arcs -ftest-coverage)
 else()
-    set(WB_CXXFLAGS ${WB_CXXFLAGS} -Werror)
+    set(WB_CXXFLAGS ${WB_CXXFLAGS} -Werror -Wno-nonnull)
     set(WB_CFLAGS ${WB_CFLAGS} -Werror)
 endif()
 
