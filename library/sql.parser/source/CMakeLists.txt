@@ -65,6 +65,8 @@ set_source_files_properties(myx_sql_tree_item.cpp PROPERTIES COMPILE_FLAGS -Wno-
 set_source_files_properties(myx_unicode_scanner.cpp PROPERTIES COMPILE_FLAGS "-Wno-empty-body -Wno-pragmas -Wno-implicit-fallthrough")
 set_source_files_properties(ctype-utf8.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 set_source_files_properties(myx_statement_parser.cpp PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
+set_source_files_properties(linux/myx_sql_parser.cpp PROPERTIES COMPILE_FLAGS -Wno-free-nonheap-object)
+
 
 target_compile_options(sqlparser PRIVATE ${WB_CXXFLAGS})
 
