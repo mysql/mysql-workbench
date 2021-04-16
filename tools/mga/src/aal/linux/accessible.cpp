@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1612,7 +1612,7 @@ static void modifierKey(aal::Modifier mod, bool press = true) {
   AtspiKeySynthType sType = press ? ATSPI_KEY_PRESS : ATSPI_KEY_RELEASE;
 
   GError *error = nullptr;
-  for(const auto it: modMap) {
+  for(const auto &it: modMap) {
     if (containsModifier(mod, it.first)) {
       if (!atspi_generate_keyboard_event(getKeyCodeFromKeyval(it.second), nullptr, sType, &error))
             std::cerr << "Unable to generate modifier key event" << std::endl;
