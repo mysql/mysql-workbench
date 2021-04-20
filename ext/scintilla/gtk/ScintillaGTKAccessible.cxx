@@ -1010,7 +1010,7 @@ static gpointer scintilla_object_accessible_parent_class = nullptr;
 
 // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
 static GType scintilla_object_accessible_get_type(GType parent_type G_GNUC_UNUSED) {
-	static volatile gsize type_id_result = 0;
+	static gsize type_id_result = 0;
 
 	if (g_once_init_enter(&type_id_result)) {
 		GTypeInfo tinfo = {

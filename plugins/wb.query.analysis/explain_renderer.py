@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2021, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -343,8 +343,6 @@ class ExplainNode(VBoxFigure):
 
         text = self.get_hint_text()
         if text:
-            if type(text) is str:
-                text = text.encode("utf8")
             self._context.tooltip = mforms.newPopover(None, mforms.PopoverStyleTooltip)
 
             if fig.is_container:

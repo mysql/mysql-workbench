@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2020, Oracle and/or its affiliates.
+ * Copyright (c) 2009, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -32,10 +32,9 @@
 
 // python internals
 #include <node.h>
-//#include <grammar.h>
-//#include <parsetok.h>
 #include <errcode.h>
 #include <token.h>
+#include <frameobject.h>
 
 #include "python_grtobject.h"
 #include "python_grtlist.h"
@@ -101,11 +100,6 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
   putenv(g_strdup_printf("PYTHONPATH=%s\\Python;%s\\Python\\DLLs;%s\\Python\\Lib;%s\\Python\\mysql_libs.zip;%s",
                          module_path.c_str(), module_path.c_str(), module_path.c_str(), module_path.c_str(),
                          wb_pythonpath.c_str()));
-// putenv("PYTHONHOME=C:\\nowhere"); s
-#elif __APPLE__
-#ifndef ENABLE_DEBUG
-  putenv(g_strdup_printf("PYTHONHOME=/Library/Frameworks/Python.framework/Versions/3.7"));
-#endif
 #endif
 }
 
@@ -131,8 +125,8 @@ void PythonContextHelper::InitPython() {
       "\n" \
       "\n" \
       "sys.meta_path.append(Finder())\n" \
-  );  
-  
+  );
+
   // Stores the main thread state
   _main_thread_state = PyThreadState_Get();
 
@@ -165,7 +159,7 @@ PythonContext::PythonContext(const std::string &module_path) : PythonContextHelp
   PyDict_SetItemString(PyModule_GetDict(main), "grt", module);
 
   register_grt_module( module );
-  
+
   PySys_SetObject((char *)"real_stdout", PySys_GetObject((char *)"stdout"));
   PySys_SetObject((char *)"real_stderr", PySys_GetObject((char *)"stderr"));
   PySys_SetObject((char *)"real_stdin", PySys_GetObject((char *)"stdin"));
@@ -886,8 +880,6 @@ static PyObject *grt_query_status(PyObject *self, PyObject *args) {
     Py_RETURN_FALSE;
 }
 
-//
-
 static PyObject *grt_serialize(PyObject *self, PyObject *args) {
   PythonContext *ctx;
   if (!(ctx = PythonContext::get_and_check()))
@@ -1150,17 +1142,16 @@ void PythonContext::register_grt_module(PyObject *module) {
 
   // add the context ptr
   PyObject *context_object = PyCapsule_New(this, "contextObject", nullptr);
-  int result = PyCapsule_SetContext(context_object, &GRTTypeSignature);
-  std::cout << "result: " << result << std::endl;
+  PyCapsule_SetContext(context_object, &GRTTypeSignature);
   if (context_object != nullptr)
-    result = PyModule_AddObject(module, "__GRT__", context_object);
+    PyModule_AddObject(module, "__GRT__", context_object);
 
-  result = PyModule_AddStringConstant(module, "INT", (char *)type_to_str(IntegerType).c_str());
-  result = PyModule_AddStringConstant(module, "DOUBLE", (char *)type_to_str(DoubleType).c_str());
-  result = PyModule_AddStringConstant(module, "STRING", (char *)type_to_str(StringType).c_str());
-  result = PyModule_AddStringConstant(module, "LIST", (char *)type_to_str(ListType).c_str());
-  result = PyModule_AddStringConstant(module, "DICT", (char *)type_to_str(DictType).c_str());
-  result = PyModule_AddStringConstant(module, "OBJECT", (char *)type_to_str(ObjectType).c_str());
+  PyModule_AddStringConstant(module, "INT", (char *)type_to_str(IntegerType).c_str());
+  PyModule_AddStringConstant(module, "DOUBLE", (char *)type_to_str(DoubleType).c_str());
+  PyModule_AddStringConstant(module, "STRING", (char *)type_to_str(StringType).c_str());
+  PyModule_AddStringConstant(module, "LIST", (char *)type_to_str(ListType).c_str());
+  PyModule_AddStringConstant(module, "DICT", (char *)type_to_str(DictType).c_str());
+  PyModule_AddStringConstant(module, "OBJECT", (char *)type_to_str(ObjectType).c_str());
 
   init_grt_module_type();
   init_grt_list_type();
@@ -1169,29 +1160,29 @@ void PythonContext::register_grt_module(PyObject *module) {
 
   {
     _grt_user_interrupt_error = PyErr_NewException((char *)"grt.UserInterrupt", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "UserInterrupt", _grt_user_interrupt_error);
+    PyModule_AddObject(_grt_module, "UserInterrupt", _grt_user_interrupt_error);
   }
   {
     _grt_db_error = PyErr_NewException((char *)"grt.DBError", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBError", _grt_db_error);
+    PyModule_AddObject(_grt_module, "DBError", _grt_db_error);
   }
   {
     _grt_db_access_denied_error = PyErr_NewException((char *)"grt.DBAccessDenied", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBAccessDenied", _grt_db_access_denied_error);
+    PyModule_AddObject(_grt_module, "DBAccessDenied", _grt_db_access_denied_error);
   }
   {
     _grt_db_login_error = PyErr_NewException((char *)"grt.DBLoginError", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBLoginError", _grt_db_login_error);
+    PyModule_AddObject(_grt_module, "DBLoginError", _grt_db_login_error);
   }
   {
     _grt_db_not_connected = PyErr_NewException((char *)"grt.DBNotConnected", nullptr, nullptr);
-    result = PyModule_AddObject(_grt_module, "DBNotConnected", _grt_db_not_connected);
+    PyModule_AddObject(_grt_module, "DBNotConnected", _grt_db_not_connected);
   }
 
   _grt_modules_module = PyModule_Create(&grtModulesModuleDef);
   if (!_grt_modules_module)
     throw std::runtime_error("Error initializing grt.modules module in Python support");
-  
+
   if(PyModule_AddObject(_grt_modules_module, "__path__", Py_BuildValue("[s]", "grt/modules")) < 0) {
     PyErr_Print();
     throw std::runtime_error("Error initializing grt.modules module in Python support");
@@ -1209,10 +1200,10 @@ void PythonContext::register_grt_module(PyObject *module) {
     throw std::runtime_error("Error initializing grt.modules module in Python support");
 
   _grt_classes_module = PyModule_Create(&grtClassesModuleDef);
-  
+
   if (!_grt_classes_module)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
-  
+
 //   PyDict_SetItemString(PyModule_GetDict(module), "classes", (PyObject *)_grt_classes_module);
 
   Py_XINCREF(_grt_classes_module);
@@ -1225,16 +1216,16 @@ void PythonContext::register_grt_module(PyObject *module) {
   Py_XINCREF(_grt_classes_module);
   if(PyModule_AddObject(_grt_module, "classes", _grt_classes_module) < 0)
     throw std::runtime_error("Error initializing grt.classes module in Python support");
-  
+
 }
 
 PyObject *PythonContext::grt_module_create(){
   PyObject *module = PyModule_Create(&grtModuleDef);
   if (module == nullptr)
     throw std::runtime_error("Error initializing GRT module in Python support");
-  
+
   PyModule_AddObject(module, "__path__", Py_BuildValue("[]"));
-  
+
   return module;
 }
 
@@ -1277,17 +1268,6 @@ PyObject *PythonContext::eval_string(const std::string &expression) {
 }
 
 PyObject *PythonContext::get_global(const std::string &value) {
-  /*
-  PyObject *mainmod= PyImport_AddModule("__main__");
-  if (!mainmod)
-  {
-    PyErr_Clear();
-    return nullptr;
-  }
-  PyObject *globals= PyModule_GetDict(mainmod);
-  if (globals)
-    return PyDict_GetItemString(globals, value.c_str());
-   */
   return eval_string(value);
 }
 
@@ -1336,13 +1316,6 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
   if (value.is_valid()) {
     switch (value.type()) {
       case IntegerType: {
-        /*
-        long l = *IntegerRef::cast_from(value);
-        if ((long)(int)l == l)
-          return PyInt_FromLong(l);
-        else
-          return PyLong_FromLong(l);
-          */
         return PyLong_FromSsize_t(*IntegerRef::cast_from(value));
       }
 
@@ -1393,14 +1366,14 @@ PyObject *PythonContext::from_grt(const ValueRef &value) {
 bool PythonContext::pystring_to_string(PyObject *strobject, std::string &ret_string, bool convert) {
   PyObject *ref = strobject;
   ret_string = "";
-  
+
   if (!PyUnicode_Check(strobject)) {
     if (convert)
       ref = PyObject_Str(strobject);
     else
       ref = PyUnicode_AsUTF8String(strobject);
   }
-  
+
   if (ref == nullptr)
     return false;
 
@@ -1738,7 +1711,7 @@ static void create_class_wrapper(grt::MetaClass *meta, PyObject *locals) {
   }
 
   PyDict_SetItemString(locals, "__builtins__", PyEval_GetBuiltins());
-  
+
   if (!PyRun_String(script.c_str(), Py_single_input, locals, locals))
     PythonContext::log_python_error((std::string("Error creating class wrapper:\n") + script).c_str());
 }
@@ -1783,7 +1756,6 @@ int PythonContext::refresh() {
 
   return 0;
 }
-#include <frameobject.h>
 
 void PythonContext::log_python_error(const char *message) {
   PythonContext *ctx = PythonContext::get();
@@ -1802,7 +1774,7 @@ void PythonContext::log_python_error(const char *message) {
       Py_DECREF(tmp);
     }
   }
-  
+
   if (tb) {
     PyTracebackObject *trace = (PyTracebackObject *)tb;
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2014, 2021, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -21,16 +21,13 @@
 
 import grt
 import mforms
-
-import os, sys
-from xml.dom import minidom
-
+import sys
 
 class TemplateEditor(mforms.Form):
     def __init__(self, owner):
         mforms.Form.__init__(self, None, mforms.FormDialogFrame|mforms.FormResizable|mforms.FormMinimizable)
         self.owner = owner
-        
+
         # We need to have some default catalog and schema so parser is happy
         self.tmpCatalog = grt.classes.db_mysql_Catalog()
         self.tmpCatalog.name = 'tmpCatalog'
@@ -42,7 +39,7 @@ class TemplateEditor(mforms.Form):
         self.tmpSchema.oldName = self.tmpSchema.name
         self.tmpSchema.owner = self.tmpCatalog
         self.tmpCatalog.schemata.append(self.tmpSchema)
-        
+
         self.tables_by_id = {}
 
         self.set_title("Table Templates")
@@ -80,16 +77,18 @@ class TemplateEditor(mforms.Form):
         self.duplicate = mforms.newButton()
         self.duplicate.set_text("Duplicate")
         self.duplicate.add_clicked_callback(self.dup_templ)
+        self.duplicate.set_enabled(False)
         bbox.add(self.duplicate, False, True)
 
         self.delete = mforms.newButton()
         self.delete.set_text("Delete")
         self.delete.add_clicked_callback(self.del_templ)
+        self.delete.set_enabled(False)
         bbox.add(self.delete, False, True)
 
         hbox = mforms.newBox(True)
         hbox.set_spacing(12)
-      
+
         self.column_list = mforms.newTreeView(mforms.TreeFlatList)
         self.column_list.add_column(mforms.IconStringColumnType, "Column", 100, True)
         self.column_list.add_column(mforms.StringColumnType, "Datatype", 100, True)
@@ -102,10 +101,10 @@ class TemplateEditor(mforms.Form):
         self.column_list.set_cell_edited_callback(self.column_edited)
         self.column_list.add_changed_callback(self.column_selected)
         hbox.add(self.column_list, True, True)
-      
+
         vbox = mforms.newBox(False)
         vbox.set_spacing(8)
-      
+
         vbox.add(mforms.newLabel("Column Collation:"), False, True)
         self.charset = mforms.newSelector(mforms.SelectorPopup)
         self.charset.add_changed_callback(self.collation_changed)
@@ -119,7 +118,7 @@ class TemplateEditor(mforms.Form):
         self.flag_checkboxes = []
         hbox.add(vbox, False, True)
         self.column_details = vbox
-      
+
         box.add(hbox, True, True)
 
         self.column_menu = mforms.newContextMenu()
@@ -147,7 +146,7 @@ class TemplateEditor(mforms.Form):
         self.tmpSchema.tables.append(table)
         self.tables_by_id[table.__id__] = table
         self.owner.templates.append(table)
-        
+
 
         node = self.template_list.add_node()
         node.set_icon_path(0, mforms.App.get().get_resource_path("db.Table.16x16.png"))
@@ -212,6 +211,8 @@ class TemplateEditor(mforms.Form):
 
     def table_selected(self):
         self.refresh_columns()
+        self.duplicate.set_enabled(self.template_list.get_selected_node())
+        self.delete.set_enabled(self.template_list.get_selected_node())
 
 
     def refresh_tables(self):
@@ -232,8 +233,8 @@ class TemplateEditor(mforms.Form):
         if node:
             return self.tables_by_id[node.get_tag()]
         return None
-    
-    
+
+
     def selected_column(self):
         node = self.column_list.get_selected_node()
         table = self.selected_table()
@@ -285,7 +286,7 @@ class TemplateEditor(mforms.Form):
                     self.column_details.add(check, False, True)
                     self.flag_checkboxes.append(check)
                     check.add_clicked_callback(lambda check=check, flag=flag:self.flag_checked(check, flag))
-        
+
                 if column.simpleType.group.name != "string" and not column.simpleType.name.lower().endswith("text"):
                     self.charset.set_selected(0)
                     self.charset.set_enabled(False)
@@ -328,7 +329,7 @@ class TemplateEditor(mforms.Form):
 
 
     def column_edited(self, node, tree_column, new_value):
-        table = self.selected_table() 
+        table = self.selected_table()
         if not table or node.get_string(0) == new_value:
             return
         if node.get_tag() == "placeholder":
@@ -467,14 +468,14 @@ class TableTemplateManager:
         schema.oldName = schema.name
         schema.owner = catalog
         catalog.schemata.append(schema)
-        
+
         copy.owner = schema
         schema.tables.append(copy)
-        
+
         if editor:
             editor.editLiveObject(copy, ocatalog)
-    
-    
+
+
     def create_table_like(self, editor, schema_name, table_name):
         pass
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -1679,8 +1679,6 @@ class WbAdminExportTab(WbAdminSchemaListTab):
         self.out_pipe = open(path,"w")
         if include_schema:
             data = self.table_list_model.get_schema_sql(schemaname)
-            if type(data) is str:
-                data = data.encode("utf-8")
             self.out_pipe.write(data)
             self.out_pipe.flush()
         return self.out_pipe
@@ -1954,10 +1952,10 @@ class WbAdminExportTab(WbAdminSchemaListTab):
 
     def dump_to_file(self, schemanames, include_schema):
         if self.out_pipe == None:
-            self.out_pipe = open(self.path,"w")
+            self.out_pipe = open(self.path, "w")
         if include_schema:
             for schema in schemanames:
-                self.out_pipe.write(self.table_list_model.get_schema_sql(schema).encode('utf-8'))
+                self.out_pipe.write(self.table_list_model.get_schema_sql(schema))
             self.out_pipe.flush()
         return self.out_pipe
 
@@ -1984,7 +1982,7 @@ class WbAdminExportTab(WbAdminSchemaListTab):
     def tasks_completed(self):
         self.folder_te.set_value(self.find_available_path(self.folder_te.get_string_value()))
         self.file_te.set_value(self.find_available_path(self.file_te.get_string_value()))
-        logmsg = time.strftime('%X ') + "Export of %s has finished" % self.path.encode('utf-8')
+        logmsg = time.strftime('%X ') + "Export of %s has finished" % self.path
         if self.dump_thread.error_count > 0:
             self.progress_tab.set_status("Export Completed With %i Errors" % self.dump_thread.error_count)
             logmsg += " with %i errors" % self.dump_thread.error_count

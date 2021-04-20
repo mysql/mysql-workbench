@@ -85,7 +85,7 @@ BuildRequires: mesa-libGL-devel
 BuildRequires: make
 BuildRequires: tar
 BuildRequires: gcc-c++
-BuildRequires: swig >= 1.3
+BuildRequires: swig >= 3.0
 BuildRequires: proj-devel
 BuildRequires: libsecret-devel
 
@@ -209,14 +209,14 @@ fi
        -DVSQLITE_LIBRARIES="-L%{bundles_path}/lib -lvsqlitepp" \
        -DANTLR4_INCLUDE_DIR=%{bundles_path}/include \
        -DANTLR4_LIBRARIES="-L%{bundles_path}/lib -lantlr4-runtime" \
-       -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.7.1-complete.jar \
-       -DLibSSH_INCLUDE_DIR=%{bundles_path}/include \
-       -DLibSSH_LIBRARIES="-L%{bundles_path}/lib -lssh" \
+       -DWITH_ANTLR_JAR=%{bundles_path}/bin/antlr-4.9.1-complete.jar \
+       -Dlibssh_DIR=%{bundles_path}/lib/cmake/libssh \
 %if %{defined python_lib_path}
        -DPYTHON_LIBRARY=%{python_lib_path} \
        -DPYTHON_INCLUDE_DIR=%{python_inc_dir} \
 %endif
-       -DBOOST_ROOT=%{bundles_path}/include 
+       -DBOOST_ROOT=%{bundles_path}/include \
+       -DBoost_NO_BOOST_CMAKE=ON
 
 %if 0%{?fedora}
 %cmake_build

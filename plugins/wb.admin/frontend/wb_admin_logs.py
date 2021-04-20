@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -182,7 +182,7 @@ from workbench.utils import WorkerThreadHelper
 
 from workbench.log import log_error, log_debug
 
-from wb_admin_utils import WbAdminTabBase, WbAdminValidationConfigFile, WbAdminValidationConnection, WbAdminValidationBase
+from wb_admin_utils import WbAdminTabBase, WbAdminValidationConfigFile, WbAdminValidationConnection, WbAdminValidationBase, WbAdminValidationRemoteAccess
 
 
 class LogView(mforms.Box):
@@ -542,6 +542,7 @@ class WbAdminLogs(WbAdminTabBase):
         WbAdminTabBase.__init__(self, ctrl_be, instance_info, main_view)
         self.disable_log_refresh = False
         
+        self.add_validation(WbAdminValidationRemoteAccess(instance_info))
         self.add_validation(WbAdminValidationConnection(ctrl_be))
         self.add_validation(WbAdminValidationConfigFile(instance_info))
         self.add_validation(WbAdminValidationLogOutputType(instance_info))

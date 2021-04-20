@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1495,7 +1495,7 @@ static std::string get_resource_path(mforms::App *app, const std::string &file) 
     return bec::IconManager::get_instance()->get_icon_path(file);
   else if (g_str_has_suffix(file.c_str(), ".txt")) { // This is special handling for txt only on Linux.
     auto parts = base::split(bec::GRTManager::get()->get_basedir(), "/");
-    std::string last = parts.back();
+    std::string last = parts.back() + (wb::WBContextUI::get()->get_wb()->is_commercial() ? "-commercial" : "-community");
     parts.pop_back();
     parts.push_back("doc");
     parts.push_back(last);

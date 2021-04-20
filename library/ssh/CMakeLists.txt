@@ -11,18 +11,11 @@ target_include_directories(wbssh
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-target_include_directories(wbssh
- SYSTEM
-  PUBLIC
-    $<BUILD_INTERFACE:${LibSSH_INCLUDE_DIRS}>
-)
-
-
 target_compile_options(wbssh PRIVATE ${WB_CXXFLAGS})
 
 target_link_libraries(wbssh 
   PUBLIC 
-    ${LibSSH_LIBRARIES} 
+    ssh
   PRIVATE 
     wbbase
 )

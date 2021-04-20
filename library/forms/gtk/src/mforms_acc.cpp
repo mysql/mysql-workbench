@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2021 Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -176,7 +176,7 @@ namespace mforms {
 
     // @p parent_type is only required on GTK 3.2 to 3.6, and only on the first call
     GType mforms_object_accessible_get_type(GType parent_type G_GNUC_UNUSED) {
-      static volatile gsize typeIdResult = 0;
+      static gsize typeIdResult = 0;
 
       if (g_once_init_enter(&typeIdResult)) {
         GTypeInfo tinfo = { 0, /* class size */

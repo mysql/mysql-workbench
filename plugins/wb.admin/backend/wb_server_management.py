@@ -1,4 +1,4 @@
-# Copyright (c) 2007, 2020, Oracle and/or its affiliates.
+# Copyright (c) 2007, 2021, Oracle and/or its affiliates.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -1661,7 +1661,6 @@ _file_ops_classes.append(FileOpsRemoteUnix)
 class FileOpsRemoteWindows(object):
     @classmethod
     def match(cls, target_os, connection_method):
-        print("AAAAAAAAA - TARGETOS: %s - %s" % (target_os, wbaOS.windows))
         return connection_method == "ssh" and target_os == wbaOS.windows
 
     def __init__(self, process_ops, ssh, target_os):
@@ -1809,7 +1808,6 @@ class FileOpsRemoteWindows(object):
                 backup_cmd = "copy /y " + quote_path_win(path) + " " + quote_path_win(path+backup_extension)
                 msg, code = self.process_ops.get_cmd_output(backup_cmd)
                 if code != 0:
-                    print(backup_cmd, "->", msg)
                     log_error('%s: Error backing up file: %s\n' % (self.__class__.__name__, backup_cmd+'->'+msg) )
                     raise RuntimeError("Error backing up file: %s" % msg)
 
@@ -1818,7 +1816,6 @@ class FileOpsRemoteWindows(object):
             log_debug('%s: Copying file to final destination: "%s"\n' % (self.__class__.__name__, copy_to_dest) )
             msg, code = self.process_ops.get_cmd_output(copy_to_dest)
             if code != 0:
-                print(copy_to_dest, "->", msg)
                 log_error('%s: Error copying temporary file over destination file: %s\n%s to %s\n' % (self.__class__.__name__, msg, tmpfilename, path) )
                 raise RuntimeError("Error copying temporary file over destination file: %s\n%s to %s" % (msg, tmpfilename, path))
             log_debug('%s: Deleting tmp file: "%s"\n' % (self.__class__.__name__, delete_tmp) )

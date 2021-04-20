@@ -6,7 +6,7 @@ then
   exit
 fi 
 
-LOCATION=../../../3rd-party-ce/bin/antlr-4.7.1-complete.jar
+LOCATION=../../../3rd-party-ce/bin/antlr-4.9.1-complete.jar
 case "$1" in
   "mysql") echo "Building MySQL parser"
     java -jar $LOCATION -Dlanguage=Cpp -listener -visitor -o ../mysql -package parsers MySQLLexer.g4 MySQLParser.g4
