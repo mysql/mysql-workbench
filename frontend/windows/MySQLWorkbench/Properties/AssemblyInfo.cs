@@ -11,7 +11,7 @@ using MySQL.GUI.Workbench;
 [assembly: AssemblyConfiguration("development")]
 [assembly: AssemblyCompany("Oracle Corporation")]
 [assembly: AssemblyProduct("MySQL Workbench")]
-[assembly: AssemblyCopyright("Copyright (c) 2006, 2020, Oracle and/or its affiliates")]
+[assembly: AssemblyCopyright("Copyright (c) 2006, 2021, Oracle and/or its affiliates")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -29,5 +29,5 @@ using MySQL.GUI.Workbench;
 //      Minor Version 
 //      Release Number
 //
-[assembly: AssemblyVersion("8.0.24")]
-[assembly: AssemblyFileVersion("8.0.24")]
+[assembly: AssemblyVersion("8.0.25")]
+[assembly: AssemblyFileVersion("8.0.25")]
