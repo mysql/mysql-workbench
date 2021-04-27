@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -54,6 +54,9 @@ void MySQLBaseLexer::reset() {
  * allowed as identifiers when unquoted (non-reserved keywords).
  */
 bool MySQLBaseLexer::isIdentifier(size_t type) const {
+  if (type == MySQLLexer::EOF)
+    return false;
+
   if ((type == MySQLLexer::IDENTIFIER) || (type == MySQLLexer::BACK_TICK_QUOTED_ID))
     return true;
 
