@@ -7,6 +7,7 @@ target_include_directories(cdbc
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/generated>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/library/forms>
 )
 
 target_include_directories(cdbc

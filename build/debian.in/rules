@@ -138,6 +138,8 @@ install: build
 
 	# Bundle client programs and lib
 	cp -a $(BUNDLES_PATH)/lib/mysql/libmysqlclient.so.*  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/mysql/authentication_kerberos_client.so  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
+	cp -a $(BUNDLES_PATH)/lib/mysql/authentication_ldap_sasl_client.so  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysql                  $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(MYSQL_HOME)/bin/mysqldump              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)
 	cp -a $(BUNDLES_PATH)/bin/ogr2ogr              $(CURDIR)/debian/$(WBDIRNAME)$(WBLIBPATH)

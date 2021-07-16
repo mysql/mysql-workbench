@@ -240,6 +240,10 @@ xcopy /i /s /y /d %EXT_LIB_DIR%\*.exe %TARGET_DIR%\. 1> nul 2> nul
 echo * ssh library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\ssh.dll %TARGET_DIR%\.
 
+echo * auth plugins ...
+if %2 == Release xcopy /i /s /y /d %EXT_LIB_DIR%\authentication_ldap_sasl_client.dll %TARGET_DIR%\.
+if %2 == Release xcopy /i /s /y /d %EXT_LIB_DIR%\authentication_kerberos_client.dll %TARGET_DIR%\.
+
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
 xcopy /i /s /y /d %RES_DIR%\sqlidedata\templates\*.* %TARGET_DIR%\modules\data\sqlide\. 1> nul 2> nul

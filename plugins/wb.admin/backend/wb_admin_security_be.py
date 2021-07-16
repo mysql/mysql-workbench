@@ -886,6 +886,8 @@ class AdminAccount(object):
             except QueryError as e:
                 if e.error == 1142:
                     raise Exception("Error %s account %s@%s: Insufficient rights to perform operation"%(action, self.username, self.host))
+                elif e.error == 1045:
+                    raise Exception("Error %s account %s@%s: Missing GRANT OPTION privilege"%(action, self.username, self.host))
                 else:
                     raise Exception("Error %s account %s@%s: %s"%(action, self.username, self.host, e.errortext or e))
             except Exception as e:
@@ -1060,6 +1062,8 @@ class AdminAccount(object):
             except QueryError as e:
                 if e.error == 1142:
                     raise Exception("Error %s account %s@%s: Insufficient rights to perform operation"%(action, self.username, self.host))
+                elif e.error == 1045:
+                    raise Exception("Error %s account %s@%s: Missing GRANT OPTION privilege"%(action, self.username, self.host))
                 else:
                     raise Exception("Error %s account %s@%s: %s"%(action, self.username, self.host, e.errortext or e))
             except Exception as e:

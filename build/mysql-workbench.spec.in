@@ -1,6 +1,6 @@
 
 # This is the SPEC file to build RPM packages for MySQL Workbench
-# 
+#
 # To use this file, you should define several macros when calling
 # rpmbuild, in order to specify the edition, version and release
 # numbers of the current build.
@@ -165,10 +165,10 @@ Conflicts: mysql-workbench-commercial
 
 
 %description
-MySQL Workbench is a unified visual tool for database architects, developers, 
-and DBAs. MySQL Workbench provides data modeling, SQL development, and 
-comprehensive administration tools for server configuration, user 
-administration, backup, and much more. MySQL Workbench is available on 
+MySQL Workbench is a unified visual tool for database architects, developers,
+and DBAs. MySQL Workbench provides data modeling, SQL development, and
+comprehensive administration tools for server configuration, user
+administration, backup, and much more. MySQL Workbench is available on
 Windows, Linux and Mac OS X.
 
 
@@ -231,7 +231,7 @@ make %{?_smp_mflags}
 %else
 make install DESTDIR=%{buildroot}
 %endif
-rm -fr %{buildroot}/usr/share/doc/mysql-workbench
+rm -fr %{buildroot}/usr/share/doc/mysql-workbench*
 
 # Bundle client programs and lib
 %if %{defined mysql_home}
@@ -266,6 +266,8 @@ find %{buildroot}%{_libdir}/mysql-workbench -name \*.la -exec rm {} \; -print
   cp -a %{bundles_path}/bin/iodbcadm-gtk                %{buildroot}%{_libexecdir}/mysql-workbench/
   cp -a %{bundles_path}/lib/libssh.so*                  %{buildroot}%{_libdir}/mysql-workbench/
   cp -a %{bundles_path}/lib/mysql/libmysqlclient.so.*   %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/mysql/authentication_kerberos_client.so   %{buildroot}%{_libdir}/mysql-workbench/
+  cp -a %{bundles_path}/lib/mysql/authentication_ldap_sasl_client.so   %{buildroot}%{_libdir}/mysql-workbench/
 %endif
 
 # If python path is specified that means we are using pb2 built
@@ -310,7 +312,7 @@ rm -rf %{buildroot}
 rm -rf %{_builddir}/%{name}-%{version}-src
 
 
-%files 
+%files
 %defattr(0644, root, root, 0755)
 %doc %{license_file} %{readme_file}
 
