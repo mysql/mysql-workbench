@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -31,7 +31,11 @@
 #include "cppconn/exception.h"
 #include "cppconn/metadata.h"
 #include "base/string_utilities.h"
+#include "base/file_utilities.h"
 #include "grt.h"
+#ifndef __APPLE__
+#include "mforms/app.h"
+#endif
 
 #include <gmodule.h>
 
@@ -169,7 +173,7 @@ namespace sql {
     return std::shared_ptr<SSHTunnel>();
   }
 
-//--------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
 
 #define MYSQL_PASSWORD_CACHE_TIMEOUT 60
 
@@ -227,8 +231,6 @@ namespace sql {
                                                  std::shared_ptr<SSHTunnel> tunnel, Authentication::Ref password,
                                                  ConnectionInitSlot connection_init_slot) {
     grt::DictRef parameter_values = connectionProperties->parameterValues();
-    if (parameter_values.get_string("userName").empty())
-      throw SQLException("No user name set for this connection");
 
     // Load the driver for the connection dynamically. However for the C++ connector we have a static
     // link anyway, so use this instead.
@@ -253,6 +255,10 @@ namespace sql {
 #else
       library.append(".so");
 #endif
+
+      if (drv->name() != "MysqlNativeSaslKerberos" && drv->name() != "MysqlNativeKerberos" &&
+          parameter_values.get_string("userName").empty())
+        throw SQLException("No user name set for this connection");
 
       // 1. find driver
       GModule *gmodule = g_module_open((_driver_path + "/" + library).c_str(), G_MODULE_BIND_LOCAL);
@@ -343,11 +349,10 @@ namespace sql {
 
     ssize_t sslModeWb = parameter_values.get_int("useSSL", 0);
     sql::ssl_mode sslMode = sql::SSL_MODE_DISABLED;
-    switch(sslModeWb)
-    {
+    switch (sslModeWb) {
       case 0:
-         sslMode = sql::SSL_MODE_DISABLED;
-         properties["OPT_GET_SERVER_PUBLIC_KEY"] = true;
+        sslMode = sql::SSL_MODE_DISABLED;
+        properties["OPT_GET_SERVER_PUBLIC_KEY"] = true;
         break;
       case 1:
         sslMode = sql::SSL_MODE_PREFERRED;
@@ -377,6 +382,40 @@ namespace sql {
 #else
       properties["hostName"] = std::string();
 #endif
+    } else if (drv->name() == "MysqlNativeSaslKerberos") {
+#if !defined(__APPLE__) && !defined(_MSC_VER)
+      properties["defaultAuth"] = "authentication_ldap_sasl_client";
+      std::string plugin_dir_path = parameter_values.get_string("mysqlplugindir");
+      if (!plugin_dir_path.empty()) {
+        properties["pluginDir"] = plugin_dir_path;
+      } else {
+        std::string libName = "authentication_ldap_sasl_client";
+#ifdef _MSC_VER
+        libName.append(".dll");
+#else
+        libName.append(".so");
+#endif
+        properties["pluginDir"] = base::dirname(mforms::App::get()->get_executable_path(libName));
+      }
+#endif
+    } else if (drv->name() == "MysqlNativeKerberos") {
+#ifndef __APPLE__
+      properties["defaultAuth"] = "authentication_kerberos_client";
+      std::string plugin_dir_path = parameter_values.get_string("mysqlplugindir");
+      if (!plugin_dir_path.empty()) {
+        properties["pluginDir"] = plugin_dir_path;
+      } else {
+        std::string libName = "authentication_kerberos_client";
+#ifdef _MSC_VER
+        libName.append(".dll");
+#else
+        libName.append(".so");
+#endif
+        properties["pluginDir"] = base::dirname(mforms::App::get()->get_executable_path(libName));
+      }
+#endif
+    } else if (drv->name() == "MysqlNativeLDAP") {
+      properties["OPT_ENABLE_CLEARTEXT_PLUGIN"] = true;
     }
 
     if (tunnel) {
@@ -393,7 +432,7 @@ namespace sql {
     // If we get an auth error, then we ask for the password
     bool force_ask_password = false;
   retry:
-    if (password) {
+    if (password && drv->name() != "MysqlNativeSaslKerberos" && drv->name() != "MysqlNativeKerberos") {
       authref = password;
       if (password->is_valid())
         properties["password"] = std::string(authref->password());
@@ -491,10 +530,12 @@ namespace sql {
     } catch (sql::SQLException &exc) {
       // authentication error
       if (exc.getErrorCode() == 0 && getClientLibVersionNumeric(driver) >= 80019) {
-         throw sql::SQLException(exc.what(), exc.getSQLStateCStr(), 2003);  //  Convert to to error 2003 as the previous connector
-      } else if (exc.getErrorCode() == 1045 || exc.getErrorCode() == 1044 ||
-                 exc.getErrorCode() == 1968 // ER_ACCESS_DENIED_NO_PASSWORD_ERROR
-                ) {
+        throw sql::SQLException(exc.what(), exc.getSQLStateCStr(),
+                                2003); //  Convert to to error 2003 as the previous connector
+      } else if (exc.getErrorCode() == 1045 
+                || exc.getErrorCode() == 1044 
+                || exc.getErrorCode() == 1968 // ER_ACCESS_DENIED_NO_PASSWORD_ERROR
+                || (exc.getErrorCode() == 2000 && drv->name() == "MysqlNativeKerberos")) {
         if (!force_ask_password) {
           if (authref) {
             authref->invalidate();

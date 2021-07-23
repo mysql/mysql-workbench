@@ -1130,6 +1130,24 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
       _views.push_back(ctrl);
       break;
     }
+    case ::ctDirSelector: {
+      FsObjectSelector *ctrl = new FsObjectSelector();
+      ctrl->set_name(driver_param->get_accessibility_name());
+      ctrl->setInternalName(driver_param->get_control_name());
+      // value
+      grt::StringRef value = driver_param->get_value_repr();
+      std::string initial_value = "";
+      if (value.is_valid())
+        initial_value = *value;
+
+      ctrl->set_size(bounds.width, -1);
+
+      ctrl->initialize(initial_value, mforms::OpenDirectory, "", true,
+                       std::bind(&DbConnectPanel::param_value_changed, this, ctrl, true));
+      box->add(mforms::manage(ctrl), true, true);
+      _views.push_back(ctrl);
+      break;
+    }
     case ::ctEnumSelector: {
       mforms::Selector *ctrl = new Selector();
       ctrl->set_name(driver_param->get_accessibility_name());
