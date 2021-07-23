@@ -246,6 +246,7 @@ void Global::activate(ScriptingContext &context, JSObject &exports) {
     object.defineProperty("HideOthers", static_cast<int>(ShowState::HideOthers));
   });
 
+  exports.defineProperty("default", exports);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

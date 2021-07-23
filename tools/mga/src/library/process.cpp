@@ -86,12 +86,9 @@ std::string Process::cwd() {
 
 #else
   char currentPath[FILENAME_MAX + 1];
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-  ::getcwd(currentPath, FILENAME_MAX);
+  std::ignore = ::getcwd(currentPath, FILENAME_MAX);
 
   return currentPath;
-#pragma GCC diagnostic pop
 #endif
 }
 
@@ -113,7 +110,7 @@ void Process::exit(ExitCode code) {
   Platform::get().exit(code);
 #ifndef _MSC_VER
   ::exit(static_cast<int>(code));
-#endif // ! 
+#endif 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -135,13 +132,13 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
   }, [&](JSObject &prototype) {
     // Publish the entire env map as property on our module.
     prototype.defineProperty("env", environment);
-    prototype.defineVirtualArrayProperty("argv", arguments, false);
+    prototype.defineArrayProperty("argv", *arguments, false);
 
     // execArgv and argv0 contain node specific values, which we do not support atm.
     prototype.defineProperty("execPath", (*arguments)[0]);
 
 #ifdef _MSC_VER
-    prototype.defineProperty("platform", "win32");
+    prototype.defineProperty("platform", "windows");
     prototype.defineProperty("EOL", "\r\n");
 #elif __APPLE__
     prototype.defineProperty("platform", "macOS");
@@ -154,10 +151,10 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
     JSObject values(&context);
     values.defineProperty("node", "8.12.0");
     values.defineProperty("unicode", "9.0.0");
+    values.defineProperty("mga", "1.0.1");
     prototype.defineProperty("versions", values);
 
     prototype.defineProperty("title", "MySQL GUI Automator");
-    prototype.defineProperty("version", "0.1.0");
 
     prototype.defineVirtualProperty("exitCode", [](ScriptingContext *, JSExport *, std::string const& name) {
       std::ignore = name;
@@ -207,7 +204,7 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
     Platform::get().writeText(chunk, false);
   });
 
-  writer.defineProperty("isTTY", true); // TODO: implement non-tty situations (e.g. when redirected to a stream).
+  writer.defineProperty("isTTY", Platform::get().isTTY(stdout));
   process.defineProperty("stdout", writer);
 
   writer = context.createJsInstance("Writable", {});
@@ -217,7 +214,10 @@ void Process::activate(ScriptingContext &context, JSObject &exports) {
     Platform::get().writeText(chunk, true);
   });
 
+  writer.defineProperty("isTTY", Platform::get().isTTY(stderr));
   process.defineProperty("stderr", writer);
+
+  exports.defineProperty("default", exports);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

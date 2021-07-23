@@ -199,13 +199,10 @@ public:
   AccessibleDetails getDetails() const;
 
   void takeScreenShot(std::string const& path, bool onlyWindow, geometry::Rectangle rect) const;
-  void saveImage(std::string const& path) const;
   
   static void handleUnsupportedError(AXError error, std::string const& attribute);
   
 private:
-  static std::shared_ptr<Accessible> _systemRoot;
-
   AXUIElementRef _native;
   Role _role = Role::Unknown;
 

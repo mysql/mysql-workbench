@@ -274,3 +274,16 @@ UserInfo Platform::getCurrentUserInfo() const {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Is the given file a tele type terminal (e.g. non-redirected stdin, stdout, stderr)?
+ */
+bool Platform::isTTY(FILE *file) const {
+#ifdef _MSC_VER
+  return _isatty(_fileno(file));
+#else
+  return isatty(fileno(file));
+#endif
+}
+
+//----------------------------------------------------------------------------------------------------------------------

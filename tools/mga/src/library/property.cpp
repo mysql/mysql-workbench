@@ -47,7 +47,7 @@ std::string mga::propertyToString(const mga::Property property) {
     { Property::IsSecure, "isSecure" },
     { Property::CaretPosition, "caretPosition" },
     { Property::SelectedText, "selectedText" },
-    { Property::SelectionRange, "selectedRange" },
+    { Property::SelectionRange, "selectionRange" },
     { Property::CharacterCount, "characterCount" },
     { Property::Horizontal, "horizontal" },
     { Property::Date, "date" },
@@ -58,7 +58,10 @@ std::string mga::propertyToString(const mga::Property property) {
     { Property::Position, "position" },
     { Property::Shown, "shown" },
     { Property::Bounds, "bounds" },
-    { Property::Scroll, "scroll" },
+    { Property::ScrollLeft, "scrollLeft" },
+    { Property::ScrollRight, "scrollRight" },
+    { Property::ScrollUp, "scrollUp" },
+    { Property::ScrollDown, "scrollDown" },
     { Property::Increment, "increment" },
     { Property::Decrement, "decrement" },
     { Property::StepUp, "stepUp" },
@@ -70,7 +73,8 @@ std::string mga::propertyToString(const mga::Property property) {
     { Property::CloseButton, "closeButton" },
     { Property::Entries, "entries" },
     { Property::Header, "header" },
-    { Property::Scrollbar, "scrollbar" },
+    { Property::HorizontalScrollbar, "horizontalScrollBar" },
+    { Property::VerticalScrollbar, "verticalScrollBar" },
     { Property::Screen, "screen" },
 
     { Property::Press, "press" },
@@ -79,6 +83,7 @@ std::string mga::propertyToString(const mga::Property property) {
     { Property::ShowContextMenu, "showContextMenu" },
     { Property::TakeScreenShot, "takeScreenShot" },
     { Property::GetBounds, "getBounds" },
+    { Property::InsertText, "insertText" },
   };
 
   assert(propertyMap.size() == static_cast<size_t>(Property::PropertyCount));
@@ -125,7 +130,10 @@ mga::Property mga::propertyFromString(const std::string text) {
     { "position", Property::Position },
     { "shown", Property::Shown },
     { "bounds", Property::Bounds },
-    { "scroll", Property::Scroll },
+    { "scrollLeft", Property::ScrollLeft },
+    { "scrollRight", Property::ScrollRight },
+    { "scrollUp", Property::ScrollUp },
+    { "scrollDown", Property::ScrollDown },
     { "increment", Property::Increment },
     { "decrement", Property::Decrement },
     { "stepUp", Property::StepUp },
@@ -137,7 +145,8 @@ mga::Property mga::propertyFromString(const std::string text) {
     { "closeButton", Property::CloseButton },
     { "entries", Property::Entries },
     { "header", Property::Header },
-    { "scrollbar", Property::Scrollbar },
+    { "horizontalScrollBar", Property::HorizontalScrollbar },
+    { "verticalScrollBar", Property::VerticalScrollbar },
     { "screen", Property::Screen },
 
     { "press", Property::Press },
@@ -146,6 +155,7 @@ mga::Property mga::propertyFromString(const std::string text) {
     { "showContextMenu", Property::ShowContextMenu },
     { "takeScreenShot", Property::TakeScreenShot },
     { "getBounds", Property::GetBounds },
+    { "inserText", Property::InsertText },
   };
 
   assert(propertyMap.size() == static_cast<size_t>(Property::PropertyCount));

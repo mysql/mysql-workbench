@@ -651,7 +651,8 @@ std::set<size_t> aal::AccessibleWr::getSelectedIndexes() const {
     cli::array<unsigned __int64> ^list = _managedObject->SelectedIndexes;
     std::set<size_t> result;
     for (int i = 0; i < list->Length; ++i) {
-      result.insert(list[i]);
+      size_t val = list[i];
+      result.insert(val);
     }
     return result;
   } catch (System::Exception ^e) {

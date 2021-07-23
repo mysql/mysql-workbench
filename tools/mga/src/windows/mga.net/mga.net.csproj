@@ -60,4 +60,18 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Debug" (
+  set EXT_LIB_DIR=%25WB_3DPARTY_PATH%25\$(ConfigurationName)\Lib
+) else (
+  set EXT_LIB_DIR=%25WB_3DPARTY_PATH%25\Lib
+)
+xcopy /i /s /y /d %25EXT_LIB_DIR%25\libssl-1_1-x64.dll $(OutDir)
+xcopy /i /s /y /d %25EXT_LIB_DIR%25\libcrypto-1_1-x64.dll $(OutDir)
+xcopy /i /s /y /d %25EXT_LIB_DIR%25\mysqlcppconn-9-vs14.dll $(OutDir)</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>

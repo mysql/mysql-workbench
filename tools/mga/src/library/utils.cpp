@@ -81,6 +81,8 @@ void Utils::activate(ScriptingContext &context, JSObject &exports) {
     std::string text = args.getThis().stringContent();
     args.pushResult(Utilities::normalize(text, iterator->second));
   });
+
+  exports.defineProperty("default", exports);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -89,7 +89,7 @@ namespace mga {
     void runFunctionFromThis(std::string const& name, int argCount);
     void callConstructor(std::string const& className, VariantArray const& args);
     void establishInheritance();
-    
+
     // Timers + callbacks.
     std::string setImmediate() const;
     bool clearImmediate() const;
@@ -112,8 +112,8 @@ namespace mga {
     void removeEventListener(EventEmitter const* emitter) const;
 
     // Utility functions.
-    std::string logOutput(const char *errorName = nullptr) const;
-    void format() const;
+    std::string logOutput(const char *errorName = nullptr);
+    void format();
 
     static void registerModule(std::string const& name, ModuleActivationFunction activation);
 
@@ -139,7 +139,7 @@ namespace mga {
     void removeListeners(std::string const& id, std::string const& event, std::set<duk_uarridx_t> indices) const;
 
     static ScriptingContext* fromDuktapeContext(duk_context *ctx);
-    
+
   private:
     duk_context *_ctx;
 
@@ -158,5 +158,5 @@ namespace mga {
     static duk_ret_t resolveModule(duk_context* ctx);
     static duk_ret_t loadModule(duk_context* ctx);
   };
-  
+
 }

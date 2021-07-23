@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "duk_module_node.h"
@@ -256,7 +256,7 @@ void ScriptingContext::runImmediates() {
 
       // Finally remove the callback object from the stash.
       duk_del_prop_string(_ctx, -1, id.c_str());
-      
+
       duk_debugger_cooperate(_ctx);
     }
   }
@@ -287,7 +287,7 @@ JSObject ScriptingContext::loadJsonFile(std::string const& fileName) {
   } catch (...) {
     checkForErrors();
   }
-  
+
   auto result = JSObject(this, -1);
   duk_pop(_ctx);
 
@@ -321,7 +321,7 @@ void ScriptingContext::checkForErrors() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Creates an error in the scripting enironment (which acts like a normal exception on C++ side). 
+ * Creates an error in the scripting enironment (which acts like a normal exception on C++ side).
  */
 void ScriptingContext::throwScriptingError(ScriptingError error, std::string const& message) const {
   duk_push_error_object_raw(_ctx, static_cast<duk_int_t>(error), nullptr, 0, "%s", message.c_str());
@@ -382,7 +382,7 @@ void ScriptingContext::defineClass(JSObject &target, std::string const& name, st
   duk_push_c_function(_ctx, ScriptingContext::constructor, argCount);
   duk_push_string(_ctx, "name");
   duk_push_string(_ctx, name.c_str());
-  duk_def_prop(_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY); // Cannot be changed.
+  duk_def_prop(_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY | DUK_DEFPROP_SET_ENUMERABLE); // Cannot be changed.
 
   // Stash the new class, so we can find it later (for inheritance or manual instantiation).
   // We can do this as we use this method only for internal class references (otherwise we would need to "require()"
@@ -965,7 +965,7 @@ void ScriptingContext::removeEventListener(EventEmitter const* emitter) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::string ScriptingContext::logOutput(const char *errorName) const {
+std::string ScriptingContext::logOutput(const char *errorName) {
   // stack: [ message? <varargs> ]
   format();
 
@@ -973,7 +973,7 @@ std::string ScriptingContext::logOutput(const char *errorName) const {
     duk_push_error_object(_ctx, DUK_ERR_ERROR, "%s", duk_require_string(_ctx, -1));
     duk_push_string(_ctx, "name");
     duk_push_string(_ctx, errorName);
-    duk_def_prop(_ctx, -3, DUK_DEFPROP_FORCE | DUK_DEFPROP_HAVE_VALUE);
+    duk_def_prop(_ctx, -3, DUK_DEFPROP_FORCE | DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_ENUMERABLE);
     duk_get_prop_string(_ctx, -1, "stack");
     getCleanedStackTrace();
   }
@@ -994,7 +994,7 @@ std::string ScriptingContext::logOutput(const char *errorName) const {
  *
  * Expects all parameters on the stack and returns the formatted string as new TOS.
  */
-void ScriptingContext::format() const {
+void ScriptingContext::format() {
 
   // Stack can vary here. There can be no format string or the format string doesn't contain (enough) format specifiers
   // for all parameters. In that case they are simply stringified and appended to the result string.
@@ -1006,13 +1006,18 @@ void ScriptingContext::format() const {
   }
 
   std::string result;
-
   if (top == 1 || !duk_is_string(_ctx, 0)) {
-    // No format string or no additional parameters.
-    for (duk_int_t i = 0; i < top; ++i) {
-      if (!result.empty())
-        result += " ";
-      result += duk_to_string(_ctx, i);
+    if (duk_is_object(_ctx, 0)) {
+      duk_dup(_ctx, static_cast<duk_idx_t>(0));
+      result = JSValueBase(this, -1).dumpObject(false, 5);
+      duk_pop(_ctx);
+    } else {
+      // No format string or no additional parameters.
+      for (duk_int_t i = 0; i < top; ++i) {
+        if (!result.empty())
+          result += " ";
+        result += duk_to_string(_ctx, i);
+      }
     }
   } else {
     std::string format = duk_get_string(_ctx, 0);
@@ -1075,7 +1080,7 @@ void ScriptingContext::format() const {
       result += std::string(" ") + duk_to_string(_ctx, currentArgument++);
     }
   }
-  
+
   duk_push_lstring(_ctx, result.c_str(), result.size());
 }
 

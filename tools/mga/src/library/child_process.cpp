@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2021, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "scripting-context.h"
@@ -40,12 +40,13 @@ public:
 
   static void registerInContext(ScriptingContext &context, JSObject &exports) {
     std::ignore = context;
-    exports.defineClass("ChildProcess", "EventEmitter", 1, [](JSObject *instance, JSValues &args) {
-      std::ignore = args;
-      instance->setBacking(new ChildProcess());
-    }, [](JSObject &prototype) {
-      std::ignore = prototype;
-    });
+    exports.defineClass(
+      "ChildProcess", "EventEmitter", 1,
+      [](JSObject *instance, JSValues &args) {
+        std::ignore = args;
+        instance->setBacking(new ChildProcess());
+      },
+      [](JSObject &prototype) { std::ignore = prototype; });
   }
 };
 
@@ -66,7 +67,6 @@ void ChildProcesses::activate(ScriptingContext &context, JSObject &exports) {
   exports.defineFunction({ "spawn" }, JSExport::VarArgs, [](JSExport *, JSValues &args) {
     // parameters: command, args?, options?
     std::vector<std::string> params;
-
 
     if (args.is(ValueType::String, 0)) {
       std::string name = args.get(0);
@@ -90,7 +90,7 @@ void ChildProcesses::activate(ScriptingContext &context, JSObject &exports) {
           JSObject envp = options.get("env", JSObject());
           if (envp.isValid()) {
             auto keys = envp.getPropertyKeys();
-            for(auto it: keys) {
+            for (auto it : keys) {
               envVars[it] = (std::string)envp.get(it);
             }
           }
@@ -138,7 +138,7 @@ void ChildProcesses::activate(ScriptingContext &context, JSObject &exports) {
           JSObject envp = options.get("env", JSObject());
           if (envp.isValid()) {
             auto keys = envp.getPropertyKeys();
-            for(auto it: keys) {
+            for (auto it : keys) {
               envVars[it] = (std::string)envp.get(it);
             }
           }
@@ -155,6 +155,8 @@ void ChildProcesses::activate(ScriptingContext &context, JSObject &exports) {
       args.context()->throwScriptingError(ScriptingError::Error, "Unhandled argument type");
     }
   });
+
+  exports.defineProperty("default", exports);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

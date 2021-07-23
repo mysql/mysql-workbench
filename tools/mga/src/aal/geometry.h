@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2021, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -36,7 +36,6 @@ namespace geometry {
 
     Point() : x(0), y(0) {}
     Point(int x, int y) : x(x), y(y) {}
-    Point(const Point &p) : x(p.x), y(p.y) {}
 
     bool operator == (Point const& other) const;
     bool operator != (Point const& other) const;
@@ -50,7 +49,6 @@ namespace geometry {
 
     Size() : width(0), height(0) {}
     Size(int width, int height) : width(width), height(height) {}
-    Size(const Size &p) : width(p.width), height(p.height) {}
 
     bool operator == (Size const& other) const;
     bool operator != (Size const& other) const;
@@ -64,7 +62,6 @@ namespace geometry {
     Size size;
 
     Rectangle() {}
-    Rectangle(const Rectangle &rect) : position(rect.position), size(rect.size) {}
     Rectangle(int x, int y, int width, int height) : position(x, y), size(width, height) {}
 
     bool contains(Point const& p) const;

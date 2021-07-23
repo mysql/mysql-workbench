@@ -170,7 +170,6 @@ namespace aal {
     void printNativeInfo() const;
     
     bool takeScreenShot(std::string const& path, bool onlyWindow, geometry::Rectangle rect) const;
-    void saveImage(std::string const& path) const;
 
     static std::string getClipboardText();
     static void setClipboardText(const std::string &content);
