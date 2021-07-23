@@ -191,7 +191,6 @@ public:
   void setBounds(geometry::Rectangle const& bounds);
 
   void takeScreenShot(const std::string &path, bool onlyWindow, geometry::Rectangle rect) const;
-  void saveImage(std::string const& path) const;
 
   void show();
   void bringToFront();

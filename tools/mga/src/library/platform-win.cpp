@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include <psapi.h>
@@ -39,6 +39,7 @@ using namespace aal;
 
 class WinStat : public Stat {
   friend Stat;
+
 protected:
   virtual void initialize(const std::string &path, bool followSymlinks) override;
   virtual timespec getTimeSpec(TimeSpecs spec) const override;
@@ -48,21 +49,21 @@ protected:
 
 class WinPlatform : public Platform {
 public:
-  virtual int launchApplication(std::string const& name, std::vector<std::string> const& params,
-    bool newInstance, ShowState showState, std::map<std::string, std::string> const& env = {}) const override;
+  virtual int launchApplication(std::string const &name, std::vector<std::string> const &params, bool newInstance,
+                                ShowState showState, std::map<std::string, std::string> const &env = {}) const override;
 
   virtual bool isRunning(int processID) const override;
-  virtual int getPidByName(std::string const& name) const override;
+  virtual int getPidByName(std::string const &name) const override;
   virtual std::string getTempDirName() const override;
   virtual bool terminate(int processID, bool force = false) const override;
-  virtual void initialize(int argc, const char* argv[], char *envp[]) const override;
+  virtual void initialize(int argc, const char *argv[], char *envp[]) const override;
   virtual void exit(ExitCode code) const override;
-  virtual void writeText(std::string const& text, bool error) const override;
-  virtual void createFolder(std::string const& name) const override;
-  virtual void removeFolder(std::string const& name) const override;
-  virtual void removeFile(std::string const& name) const override;
-  
-  virtual geometry::Size WinPlatform::getImageResolution(std::string const& path) const override;
+  virtual void writeText(std::string const &text, bool error) const override;
+  virtual void createFolder(std::string const &name) const override;
+  virtual void removeFolder(std::string const &name) const override;
+  virtual void removeFile(std::string const &name) const override;
+
+  virtual geometry::Size WinPlatform::getImageResolution(std::string const &path) const override;
   virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const override;
   virtual void defineFsConstants(ScriptingContext &context, JSObject &constants) const override;
   virtual std::vector<Cpu> cpuInfo() const override;
@@ -95,7 +96,7 @@ std::unique_ptr<Stat> Stat::get(const std::string &path, bool followSymlinks) {
 void WinStat::initialize(const std::string &path, bool followSymlinks) {
   std::ignore = followSymlinks;
 
-  // For now we don't support symlinks on Windows. 
+  // For now we don't support symlinks on Windows.
   if (_wstat(Utilities::s2ws(path).c_str(), &_buffer) != 0)
     throw std::runtime_error("Cannot create stats: " + Utilities::getLastError());
 }
@@ -104,7 +105,7 @@ void WinStat::initialize(const std::string &path, bool followSymlinks) {
 
 timespec WinStat::getTimeSpec(TimeSpecs spec) const {
   timespec result = { 0, 0 };
-  switch(spec) {
+  switch (spec) {
     case TimeSpecs::atime:
       result.tv_sec = _buffer.st_atime;
       break;
@@ -123,15 +124,14 @@ timespec WinStat::getTimeSpec(TimeSpecs spec) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
-Platform& Platform::get() {
+Platform &Platform::get() {
   static WinPlatform singleton;
   return singleton;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, ShowState showState) {
+static int runNewInstance(std::wstring const &wexe, std::wstring const &wparam, ShowState showState) {
   SHELLEXECUTEINFO shellExeInfo;
   memset(&shellExeInfo, 0, sizeof(shellExeInfo));
   shellExeInfo.cbSize = sizeof(shellExeInfo);
@@ -151,7 +151,7 @@ static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, 
     LPVOID msgBuf = NULL;
     DWORD lastErr = GetLastError();
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, lastErr,
-      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msgBuf, 0, nullptr);
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msgBuf, 0, nullptr);
     std::wstring msg = (LPCTSTR)msgBuf;
     LocalFree(msgBuf);
     SetLastError(ERROR_SUCCESS);
@@ -163,9 +163,8 @@ static int runNewInstance(std::wstring const& wexe, std::wstring const& wparam, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int WinPlatform::launchApplication(std::string const& name, std::vector<std::string> const& params,
-                                   bool newInstance, ShowState showState,
-                                   std::map<std::string, std::string> const& /*env*/) const {
+int WinPlatform::launchApplication(std::string const &name, std::vector<std::string> const &params, bool newInstance,
+                                   ShowState showState, std::map<std::string, std::string> const & /*env*/) const {
   std::stringstream ss;
   std::copy(params.begin(), params.end(), std::ostream_iterator<std::string>(ss, " "));
 
@@ -201,7 +200,7 @@ bool WinPlatform::isRunning(int processID) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int WinPlatform::getPidByName(std::string const& name) const {
+int WinPlatform::getPidByName(std::string const &name) const {
   auto processList = Accessible::getRunningProcessByName(Utilities::s2ws(name));
   size_t size = processList.size();
   if (size > 0) {
@@ -238,7 +237,7 @@ bool WinPlatform::terminate(int processID, bool /*force*/) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WinPlatform::initialize(int argc, const char* argv[], char *envp[]) const {
+void WinPlatform::initialize(int argc, const char *argv[], char *envp[]) const {
   std::ignore = argc;
   std::ignore = argv;
   std::ignore = envp;
@@ -246,6 +245,20 @@ void WinPlatform::initialize(int argc, const char* argv[], char *envp[]) const {
   // In order to properly display UTF-8 output, we have to explicitly set the console to that encoding.
   // Using a different encoding (e.g. UTF-16) doesn't work with certain IDEs like Visual Studio Code.
   SetConsoleOutputCP(CP_UTF8);
+
+// Also enable ANSI code parsing if possible (for colored output).
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+
+  // Set output mode to handle virtual terminal sequences.
+  HANDLE outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (outputHandle == INVALID_HANDLE_VALUE)
+    return;
+
+  DWORD currentMode = 0;
+  if (GetConsoleMode(outputHandle, &currentMode))
+    SetConsoleMode(outputHandle, currentMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
   WORD requestedVersion = MAKEWORD(2, 2);
   WSADATA data;
@@ -271,7 +284,7 @@ void WinPlatform::exit(ExitCode code) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WinPlatform::writeText(std::string const& text, bool error) const {
+void WinPlatform::writeText(std::string const &text, bool error) const {
   if (error) {
     fputs(text.c_str(), stderr);
     fflush(stderr);
@@ -283,7 +296,7 @@ void WinPlatform::writeText(std::string const& text, bool error) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WinPlatform::createFolder(std::string const& name) const {
+void WinPlatform::createFolder(std::string const &name) const {
   if (name.back() == ':') {
     UINT type = GetDriveType(Utilities::s2ws(name).c_str());
     if (type == DRIVE_UNKNOWN) {
@@ -303,7 +316,7 @@ void WinPlatform::createFolder(std::string const& name) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WinPlatform::removeFolder(std::string const& name) const {
+void WinPlatform::removeFolder(std::string const &name) const {
   std::wstring converted = Utilities::s2ws(name);
   if (_wrmdir(converted.c_str()) != 0) {
     wchar_t *error = _wcserror(errno);
@@ -314,7 +327,7 @@ void WinPlatform::removeFolder(std::string const& name) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WinPlatform::removeFile(std::string const& name) const {
+void WinPlatform::removeFile(std::string const &name) const {
   std::wstring converted = Utilities::s2ws(name);
   if (_wremove(converted.c_str()) != 0) {
     wchar_t *error = _wcserror(errno);
@@ -325,7 +338,7 @@ void WinPlatform::removeFile(std::string const& name) const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-geometry::Size WinPlatform::getImageResolution(std::string const& path) const {
+geometry::Size WinPlatform::getImageResolution(std::string const &path) const {
   int const CheckingPart = 24;
   std::ifstream is;
   is.open(path, std::ios::binary);
@@ -338,18 +351,20 @@ geometry::Size WinPlatform::getImageResolution(std::string const& path) const {
   is.seekg(0, std::ios::beg);
 
   unsigned char buf[CheckingPart] = { 0 };
-  is.read((char*)buf, sizeof(buf));
+  is.read((char *)buf, sizeof(buf));
   // For JPEGs, we need to read the first 12 bytes of each chunk.
-  if (buf[0] == 0xFF && buf[1] == 0xD8 && buf[2] == 0xFF && buf[3] == 0xE0 && buf[6] == 'J' && buf[7] == 'F' && buf[8] == 'I' && buf[9] == 'F') {
+  if (buf[0] == 0xFF && buf[1] == 0xD8 && buf[2] == 0xFF && buf[3] == 0xE0 && buf[6] == 'J' && buf[7] == 'F' &&
+      buf[8] == 'I' && buf[9] == 'F') {
     long pos = 2;
     while (buf[2] == 0xFF) {
-      if (buf[3] == 0xC0 || buf[3] == 0xC1 || buf[3] == 0xC2 || buf[3] == 0xC3 || buf[3] == 0xC9 || buf[3] == 0xCA || buf[3] == 0xCB)
+      if (buf[3] == 0xC0 || buf[3] == 0xC1 || buf[3] == 0xC2 || buf[3] == 0xC3 || buf[3] == 0xC9 || buf[3] == 0xCA ||
+          buf[3] == 0xCB)
         break;
       pos += 2 + (buf[4] << 8) + buf[5];
-      if (pos + 12 > length) 
+      if (pos + 12 > length)
         break;
       is.seekg(pos, SEEK_SET);
-      is.read((char*)buf + 2, CheckingPart - 2);
+      is.read((char *)buf + 2, CheckingPart - 2);
     }
   }
   is.close();
@@ -361,8 +376,9 @@ geometry::Size WinPlatform::getImageResolution(std::string const& path) const {
   } else if (buf[0] == 'G' && buf[1] == 'I' && buf[2] == 'F') {
     size.width = buf[6] + (buf[7] << 8);
     size.height = buf[8] + (buf[9] << 8);
-  } else  if ((BYTE)buf[0] == 0x89 && buf[1] == 'P' && buf[2] == 'N' && buf[3] == 'G' && (BYTE)buf[4] == 0x0D &&
-    (BYTE)buf[5] == 0x0A && (BYTE)buf[6] == 0x1A && (BYTE)buf[7] == 0x0A && buf[12] == 'I' && buf[13] == 'H' && buf[14] == 'D' && buf[15] == 'R') {
+  } else if ((BYTE)buf[0] == 0x89 && buf[1] == 'P' && buf[2] == 'N' && buf[3] == 'G' && (BYTE)buf[4] == 0x0D &&
+             (BYTE)buf[5] == 0x0A && (BYTE)buf[6] == 0x1A && (BYTE)buf[7] == 0x0A && buf[12] == 'I' && buf[13] == 'H' &&
+             buf[14] == 'D' && buf[15] == 'R') {
     size.width = (buf[16] << 24) + (buf[17] << 16) + (buf[18] << 8) + (buf[19] << 0);
     size.height = (buf[20] << 24) + (buf[21] << 16) + (buf[22] << 8) + (buf[23] << 0);
   }
@@ -440,7 +456,7 @@ void WinPlatform::defineOsConstants(ScriptingContext &context, JSObject &constan
 
 void WinPlatform::defineFsConstants(ScriptingContext &context, JSObject &constants) const {
   Platform::defineFsConstants(context, constants);
-  
+
   DEFINE_CONSTANT(constants, O_RDONLY);
   DEFINE_CONSTANT(constants, O_WRONLY);
   DEFINE_CONSTANT(constants, O_RDWR);
@@ -469,8 +485,8 @@ std::vector<Cpu> WinPlatform::cpuInfo() const {
   ULONG processorInfoSize = processorCount * sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION);
   ULONG resultSize;
   auto *processorInfo = new SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION[processorCount];
-  NTSTATUS status = NtQuerySystemInformation(SystemProcessorPerformanceInformation, processorInfo, processorInfoSize,
-    &resultSize);
+  NTSTATUS status =
+    NtQuerySystemInformation(SystemProcessorPerformanceInformation, processorInfo, processorInfoSize, &resultSize);
 
   std::vector<Cpu> result;
   if (NT_SUCCESS(status)) {
@@ -480,17 +496,17 @@ std::vector<Cpu> WinPlatform::cpuInfo() const {
       HKEY processorKey;
       std::wstring keyName = L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\" + std::to_wstring(i);
       if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &processorKey) == ERROR_SUCCESS) {
-        
         DWORD speed;
         DWORD keySize = sizeof(speed);
-        if (RegQueryValueEx(processorKey, L"~MHz", nullptr, nullptr, reinterpret_cast<BYTE*>(&speed), &keySize) == ERROR_SUCCESS) {
+        if (RegQueryValueEx(processorKey, L"~MHz", nullptr, nullptr, reinterpret_cast<BYTE *>(&speed), &keySize) ==
+            ERROR_SUCCESS) {
           cpu.speed = speed;
         }
 
         WCHAR brand[256];
         keySize = sizeof(brand);
-        if (RegQueryValueEx(processorKey, L"ProcessorNameString", nullptr, nullptr, reinterpret_cast<BYTE*>(&brand),
-          &keySize) == ERROR_SUCCESS) {
+        if (RegQueryValueEx(processorKey, L"ProcessorNameString", nullptr, nullptr, reinterpret_cast<BYTE *>(&brand),
+                            &keySize) == ERROR_SUCCESS) {
           cpu.model = Utilities::ws2s(brand);
         }
       }
@@ -509,7 +525,7 @@ std::vector<Cpu> WinPlatform::cpuInfo() const {
     }
   }
 
-  delete [] processorInfo;
+  delete[] processorInfo;
 
   return result;
 }
@@ -584,7 +600,7 @@ std::map<std::string, std::vector<NetworkInterface>> WinPlatform::networkInterfa
 
     bufferSize *= 2;
   }
-  
+
   for (IP_ADAPTER_ADDRESSES *adapter = addressBuffer; adapter != nullptr; adapter = adapter->Next) {
     if (adapter->OperStatus != IfOperStatusUp || adapter->FirstUnicastAddress == nullptr)
       continue;
@@ -605,7 +621,7 @@ std::map<std::string, std::vector<NetworkInterface>> WinPlatform::networkInterfa
 
       nic.internal = (adapter->IfType == IF_TYPE_SOFTWARE_LOOPBACK);
 
-      UINT8 prefixLength = reinterpret_cast<IP_ADAPTER_UNICAST_ADDRESS_LH*>(address)->OnLinkPrefixLength;
+      UINT8 prefixLength = reinterpret_cast<IP_ADAPTER_UNICAST_ADDRESS_LH *>(address)->OnLinkPrefixLength;
       UINT8 remainingBits = prefixLength % 8;
 
       if (socketAddress->sa_family == AF_INET6) {
@@ -649,7 +665,7 @@ std::map<std::string, std::vector<NetworkInterface>> WinPlatform::networkInterfa
 
 //----------------------------------------------------------------------------------------------------------------------
 
-#pragma warning( disable: 4996 ) // GetVersionEx is deprecated.
+#pragma warning(disable : 4996) // GetVersionEx is deprecated.
 
 std::string WinPlatform::getRelease() const {
   OSVERSIONINFO info;
@@ -667,14 +683,13 @@ Version WinPlatform::getVersion() const {
   info.dwOSVersionInfoSize = sizeof(info);
   if (GetVersionEx(&info) == TRUE) {
     return { info.dwMajorVersion, info.dwMinorVersion, info.dwBuildNumber };
-  }
-  else
+  } else
     throw std::runtime_error("GetVersionEx failed");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-#pragma warning( default: 4996 )
+#pragma warning(default : 4996)
 
 double WinPlatform::getUptime() const {
   return GetTickCount64() / 1000.0;
@@ -685,7 +700,6 @@ double WinPlatform::getUptime() const {
 void WinPlatform::loadAvg(double (&avg)[3]) const {
   std::ignore = avg;
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -744,7 +758,8 @@ BOOL MonitorEnumProc(HMONITOR hMonitor, HDC /*hdc*/, LPRECT /*prect*/, LPARAM da
   if (GetMonitorInfo(hMonitor, &info)) {
     Screen screen;
     screen.bounds.position = geometry::Point(0, 0);
-    screen.bounds.size = geometry::Size(std::abs(info.rcMonitor.left - info.rcMonitor.right), std::abs(info.rcMonitor.top - info.rcMonitor.bottom));
+    screen.bounds.size = geometry::Size(std::abs(info.rcMonitor.left - info.rcMonitor.right),
+                                        std::abs(info.rcMonitor.top - info.rcMonitor.bottom));
     HDC dc = CreateDC(L"DISPLAY", info.szDevice, NULL, NULL);
     if (dc != nullptr) {
       int logicalScreenHeight = GetDeviceCaps(dc, VERTRES);
@@ -766,7 +781,7 @@ std::vector<Screen> WinPlatform::getScreens() const {
   if (EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&vec))) {
     return vec;
   }
-  return {};  
+  return {};
 }
 
 //----------------------------------------------------------------------------------------------------------------------

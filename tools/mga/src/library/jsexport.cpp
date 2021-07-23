@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -29,91 +29,205 @@
 #include "jsexport.h"
 
 using namespace mga;
+using namespace std::string_literals;
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static bool recursiveDump(duk_context *ctx, size_t level, size_t maxLevel, std::ostream &target,
+                          std::set<void *> &visited, unsigned enumFlags, bool singleLine);
+
 /**
- * Special dump function for functions (which must be on the TOS). No recursion takes place here.
+ * Dumps a single member of an object.
  */
-static void dumpFunction(duk_context *ctx, std::ostream &target) {
-  duk_get_prop_string(ctx, -1, "length");
-  duk_int_t length = duk_get_int(ctx, -1);
-  duk_pop(ctx);
+static bool dumpMember(duk_context *ctx, size_t level, size_t maxLevel, std::ostream &target,
+                       std::set<void *> &visited, unsigned enumFlags, bool singleLine, std::string const& separator) {
+  // Expected stack [ ... enum key value ].
+  switch (duk_get_type(ctx, -1)) {
+    case DUK_TYPE_STRING:
+      target << "\"" << Utilities::escapeJSONString(duk_to_string(ctx, -1)) << "\"";
+      break;
 
-  std::string name;
-  duk_get_prop_string(ctx, -1, "name");
-  if (!duk_is_undefined(ctx, -1))
-    name = duk_get_string(ctx, -1);
-  else
-    if (duk_is_array(ctx, -1))
-      name = "Array";
-  if (name.empty())
-    name = "<native>";
-  duk_pop(ctx);
+    case DUK_TYPE_LIGHTFUNC:
+    case DUK_TYPE_OBJECT: {
+      auto begin = "{";
+      auto end = "}";
+      if (duk_is_array(ctx, -1) != 0 || duk_is_function(ctx, -1) != 0) {
+        begin = "[";
+        end = "]";
+      }
 
-  target << name << "(";
-  if (length == 0)
-    target << " varags or 0 parameters)";
-  else
-    target << length << (length == 1 ? " parameter" : " parameters") << ")";
-  target << std::endl;
+      std::stringstream localTarget;
+      localTarget << begin;
+      if (!recursiveDump(ctx, level + 1, maxLevel, localTarget, visited, enumFlags, true)) {
+        if (singleLine)
+          return false;
+
+        localTarget.str("");
+        localTarget.clear();
+        localTarget << begin;
+        recursiveDump(ctx, level + 1, maxLevel, localTarget, visited, enumFlags, false);
+        localTarget << separator << end;
+      } else {
+        localTarget << " " << end;
+      }
+
+      target << localTarget.str();
+      break;
+    }
+    default:
+      target << Utilities::escapeJSONString(duk_to_string(ctx, -1));
+      break;
+  }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static void recursiveDump(duk_context *ctx, size_t level, size_t maxLevel, std::ostream &target,
-                          std::set<void *> &visited, unsigned enumFlags) {
+/**
+ * Converts the current TOS element to a JSON like structure, including all it's sub objects. The implementation
+ * detects circular references.
+ *
+ * Returns false if the produced output does not fit on a single line of 80 chars (if singleLine is true), otherwise true.
+ */
+static bool recursiveDump(duk_context *ctx, size_t level, size_t maxLevel, std::ostream &target,
+                          std::set<void *> &visited, unsigned enumFlags, bool singleLine) {
 
-  std::string indentation(2 * level, ' ');
+  std::ostream::pos_type maxLength = singleLine ? 80 : INT_MAX;
+
+  auto separator = singleLine ? "" : "\n";
+  auto indentation = singleLine ? " " : std::string(2 * level, ' ');
+
   if (maxLevel > 0 && level > maxLevel) {
-    target << indentation << "..." << std::endl;
-    return;
+    target << indentation << "..." << separator;
+    return target.tellp() < maxLength;
   }
 
   void *p = duk_get_heapptr(ctx, -1);
-  if (p == nullptr || visited.count(p) > 0)
-    return;
+  if (p == nullptr || visited.count(p) > 0) {
+    if (visited.count(p) > 0)
+      target << " [Circular]";
+    return target.tellp() < maxLength;
+  }
 
   visited.insert(p);
 
+  bool firstEntry = true;
+  bool isFunction = duk_is_function(ctx, -1) != 0;
+  if (isFunction) {
+    target << separator << indentation ;
+    if (duk_is_c_function(ctx, -1) != 0)
+      target << "Native ";
+    if (duk_has_prop_string(ctx, -1, "prototype"))
+      target << "Constructor";
+    else
+      target << "Function";
+  }
+
   duk_enum(ctx, -1, enumFlags);
-
   while (duk_next(ctx, -1, 1)) {
-
     // stack [ ... enum key value ]
     std::string key = duk_get_string(ctx, -2);
+    if (key == "prototype") {
+      duk_pop_2(ctx);
+      continue;
+    }
 
-    target << indentation << key << ": ";
-    if (duk_is_function(ctx, -1)) // Includes constructors. TODO: what about properties on functions?
-      //if (key == "constructor")
-      dumpFunction(ctx, target);
-    else {
-      switch (duk_get_type(ctx, -1)) {
-        case DUK_TYPE_STRING:
-          target << "\"" << duk_to_string(ctx, -1) << "\"" << std::endl;
-          break;
-        case DUK_TYPE_OBJECT:
-          if (duk_is_array(ctx, -1)) {
-            target << "[" << std::endl;
-            recursiveDump(ctx, level + 1, maxLevel, target, visited, enumFlags);
-            target << indentation << "]" << std::endl;
-          } else {
-            target << "{" << std::endl;
-            recursiveDump(ctx, level + 1, maxLevel, target, visited, enumFlags);
-            target << indentation << "}" << std::endl;
-          }
-          break;
-        default:
-          target << duk_to_string(ctx, -1) << std::endl;
-          break;
+    if (!firstEntry)
+      target << ",";
+    else
+      firstEntry = false;
+
+    if (isFunction && key == "name") {
+      std::string name = duk_get_string(ctx, -1);
+      target << ": " << name;
+    } else {
+      target << separator << indentation << key << ": ";
+      if (!dumpMember(ctx, level, maxLevel, target, visited, enumFlags, singleLine, separator + indentation) && singleLine) {
+        duk_pop_3(ctx); // Remove key/value from enumerator + the enumerator itself.
+        visited.erase(p);
+        return false;
       }
     }
 
     duk_pop_2(ctx);
+
+    if (target.tellp() >= maxLength) {
+      duk_pop(ctx); // Remove the enumerator.
+      visited.erase(p);
+      return false;
+    }
   }
 
   duk_pop(ctx); // Remove the enumerator.
 
+  // Now enumerate the immediate prototype.
+  duk_get_prop_string(ctx, -1, "prototype"); // For classes.
+  if (duk_is_undefined(ctx, -1)) {
+    duk_pop(ctx);
+    duk_get_prop_string(ctx, -1, "__proto__"); // For objects.
+  }
+
+  if (!duk_is_undefined(ctx, -1)) {
+    duk_enum(ctx, -1, enumFlags);
+    while (duk_next(ctx, -1, 0)) {
+      std::string key = duk_get_string(ctx, -1);
+
+      if (!firstEntry)
+        target << ",";
+      else
+        firstEntry = false;
+
+      target << separator << indentation << key << ": ";
+
+      bool hasGetter = false;
+      bool hasSetter = false;
+      duk_get_prop_desc(ctx, -3, 0);
+      if (duk_is_object(ctx, -1)) {
+        hasGetter = duk_has_prop_string(ctx, -1, "get");
+        hasSetter = duk_has_prop_string(ctx, -1, "set");
+      }
+      duk_pop(ctx); // Remove the property description.
+
+      if (hasGetter || hasSetter) {
+        target << "[";
+        if (hasGetter)
+          target << "Getter";
+        if (hasSetter) {
+          if (hasGetter)
+            target << ", ";
+          target << "Setter";
+        }
+        target << "]";
+        continue;
+      } else {
+        duk_push_string(ctx, key.c_str()); // The key has been replaced by the property description.
+        duk_get_prop(ctx, -3);
+      }
+
+      if (!dumpMember(ctx, level, maxLevel, target, visited, enumFlags, singleLine, separator + indentation) && singleLine) {
+        duk_pop_3(ctx); // Remove the value, the enumerator and the prototype.
+        visited.erase(p);
+        return false;
+      }
+
+      duk_pop(ctx);
+
+      if (target.tellp() >= maxLength) {
+        duk_pop_2(ctx); // Remove the enumerator and the prototype.
+        visited.erase(p);
+        return false;
+      }
+    }
+
+    duk_pop(ctx); // Remove the prototype.
+  }
+
+  duk_pop(ctx); // Remove the enumerator.
+
+  visited.erase(p);
+
+  return target.tellp() < maxLength;
 }
 
 //----------------- JSValueBase ----------------------------------------------------------------------------------------
@@ -227,29 +341,31 @@ std::string JSValueBase::dumpObject(bool showHidden, size_t maxDepth) const {
   std::string result;
 
   _context->usingStashedValue(_id, [&]() {
-    unsigned enumFlags = DUK_ENUM_INCLUDE_SYMBOLS;
+    unsigned enumFlags = DUK_ENUM_OWN_PROPERTIES_ONLY;
     if (showHidden)
-      enumFlags |= DUK_ENUM_INCLUDE_NONENUMERABLE | DUK_ENUM_INCLUDE_HIDDEN;
+      enumFlags |=  DUK_ENUM_INCLUDE_HIDDEN;
 
     std::stringstream stream;
     std::set<void *> visited;
 
+    bool singleLine = true;
     bool isArray = duk_is_array(_context->_ctx, -1) != 0;
     bool isObject = !isArray && duk_is_object(_context->_ctx, -1);
 
-    if (isArray)
-      stream << "[" << std::endl;
-    else if (isObject)
-      stream << "{" << std::endl;
+    size_t indentation = isArray || isObject ? 1 : 0;
+    if (!recursiveDump(_context->_ctx, indentation, maxDepth, stream, visited, enumFlags, singleLine)) {
+      singleLine = false;
+      stream.str("");
+      stream.clear();
+      recursiveDump(_context->_ctx, indentation, maxDepth, stream, visited, enumFlags, singleLine);
+    }
 
-    recursiveDump(_context->_ctx, (isArray || isObject) ? 1 : 0, maxDepth, stream, visited, enumFlags);
-
     if (isArray)
-      stream << "]" << std::endl;
+      result = "["s + stream.str() + (singleLine ? " " : "\n") + "]";
     else if (isObject)
-      stream << "}" << std::endl;
-    
-    result = stream.str();
+      result = "{"s + stream.str() + (singleLine ? " " : "\n") + "}";
+    else
+      result = stream.str();
   });  
 
   return result;
@@ -674,7 +790,7 @@ void JSObject::defineProperty(std::string const& name, std::map<std::string, std
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void JSObject::defineProperty(std::string const& name, std::vector<std::string> const& value, bool readOnly) const {
+void JSObject::defineArrayProperty(std::string const& name, std::vector<std::string> const& value, bool readOnly) const {
   checkValidity();
 
   _context->usingStashedValue(_id, [&]() {
@@ -720,7 +836,7 @@ void JSObject::defineVirtualProperty(std::string const& name, PropertyGetter get
       flags |= DUK_DEFPROP_HAVE_GETTER;
       duk_push_c_function(_context->_ctx, dispatchGetProperty, 1);
 
-      duk_push_string(_context->_ctx, "ptr");
+      duk_push_string(_context->_ctx, DUK_HIDDEN_SYMBOL("ptr"));
       duk_push_pointer(_context->_ctx, ptr);
       duk_def_prop(_context->_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY);
     }
@@ -729,7 +845,7 @@ void JSObject::defineVirtualProperty(std::string const& name, PropertyGetter get
       flags |= DUK_DEFPROP_HAVE_SETTER;
       duk_push_c_function(_context->_ctx, dispatchSetProperty, 2);
 
-      duk_push_string(_context->_ctx, "ptr");
+      duk_push_string(_context->_ctx, DUK_HIDDEN_SYMBOL("ptr"));
       duk_push_pointer(_context->_ctx, ptr);
       duk_def_prop(_context->_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY);
     }
@@ -743,8 +859,9 @@ void JSObject::defineVirtualProperty(std::string const& name, PropertyGetter get
 /**
  * A virtual array is a special virtual property where not the property itself is backed by getters and setters but
  * the individual elements.
+ * Note: since virtual arrays use a proxy the elements cannot be enumerated.
  */
-void JSObject::defineVirtualArrayProperty(std::string const& name, StringArrayRef const& array, bool readOnly) const {
+void JSObject::defineVirtualArrayProperty(std::string const& name, StringArrayRef const& array, bool /*readOnly*/) const {
   checkValidity();
 
   _context->usingStashedValue(_id, [&]() {
@@ -769,11 +886,14 @@ void JSObject::defineVirtualArrayProperty(std::string const& name, StringArrayRe
 
     duk_new(_context->_ctx, 2);
     duk_put_prop_string(_context->_ctx, -2, name.c_str());
+/*
+    duk_uint_t flags = DUK_DEFPROP_SET_ENUMERABLE;
+    if (readOnly)
+      flags |= DUK_READ_ONLY;
 
-    if (readOnly) {
-      duk_push_string(_context->_ctx, name.c_str());
-      duk_def_prop(_context->_ctx, -2, DUK_READ_ONLY);
-    }
+    duk_push_string(_context->_ctx, name.c_str());
+    duk_def_prop(_context->_ctx, -2, flags);*/
+
   });
 }
 
@@ -790,7 +910,7 @@ void JSObject::defineEnum(std::string const& name, ObjectDefCallback callback, b
 
     object.push();
 
-    duk_uint_t flags = DUK_DEFPROP_HAVE_VALUE;
+    duk_uint_t flags = DUK_DEFPROP_HAVE_VALUE | DUK_DEFPROP_SET_ENUMERABLE;
     if (readOnly)
       flags |= DUK_READ_ONLY;
     duk_def_prop(_context->_ctx, -3, flags);
@@ -820,9 +940,9 @@ void JSObject::defineFunction(std::set<std::string> const& names, int argCount, 
 
       duk_push_string(_context->_ctx, "name");
       duk_push_string(_context->_ctx, name.c_str());
-      duk_def_prop(_context->_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY);
+      duk_def_prop(_context->_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY | DUK_DEFPROP_SET_ENUMERABLE);
 
-      duk_push_string(_context->_ctx, "ptr");
+      duk_push_string(_context->_ctx, DUK_HIDDEN_SYMBOL("ptr"));
       duk_push_pointer(_context->_ctx, ptr);
       duk_def_prop(_context->_ctx, -3, DUK_DEFPROP_HAVE_VALUE | DUK_READ_ONLY);
 
@@ -880,7 +1000,7 @@ FunctionCallback JSObject::lookupFunction(void *target, std::string const& name)
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
- * Central callback for all registerd functions.
+ * Central callback for all registered functions.
  */
 duk_ret_t JSObject::dispatchFunction(duk_context *ctx) {
   auto context = ScriptingContext::fromDuktapeContext(ctx);
@@ -894,7 +1014,7 @@ duk_ret_t JSObject::dispatchFunction(duk_context *ctx) {
   duk_pop(ctx);
 
   // Get the heap pointer of the object (or prototype) on which this function has been defined.
-  duk_get_prop_string(ctx, -1, "ptr");
+  duk_get_prop_string(ctx, -1, DUK_HIDDEN_SYMBOL("ptr"));
   void *ptr = duk_get_pointer(ctx, -1);
 
   duk_pop_2(ctx);
@@ -933,7 +1053,7 @@ duk_ret_t JSObject::dispatchGetProperty(duk_context *ctx) {
   std::string property = duk_get_string(ctx, -1);
 
   duk_push_current_function(ctx);
-  duk_get_prop_string(ctx, -1, "ptr");
+  duk_get_prop_string(ctx, -1, DUK_HIDDEN_SYMBOL("ptr"));
   void *ptr = duk_get_pointer(ctx, -1);
   duk_pop_2(ctx);
 
@@ -1005,7 +1125,7 @@ duk_ret_t JSObject::dispatchSetProperty(duk_context *ctx) {
   }
 
   duk_push_current_function(ctx);
-  duk_get_prop_string(ctx, -1, "ptr");
+  duk_get_prop_string(ctx, -1, DUK_HIDDEN_SYMBOL("ptr"));
   void *ptr = duk_get_pointer(ctx, -1);
   duk_pop_2(ctx);
 

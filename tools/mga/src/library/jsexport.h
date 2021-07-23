@@ -115,7 +115,7 @@ namespace mga {
     void defineProperty(std::string const& name, JSVariant const& value, bool readOnly = true) const;
     void defineProperty(std::string const& name, std::map<std::string, std::string> const& value,
                         bool readOnly = true) const;
-    void defineProperty(std::string const& name, std::vector<std::string> const& value, bool readOnly = true) const;
+    void defineArrayProperty(std::string const& name, std::vector<std::string> const& value, bool readOnly = true) const;
     void defineVirtualProperty(std::string const& name, PropertyGetter getter, PropertySetter setter) const;
     void defineVirtualArrayProperty(std::string const& name, StringArrayRef const& array, bool readOnly) const;
     void defineEnum(std::string const& name, ObjectDefCallback callback, bool readOnly = true) const;

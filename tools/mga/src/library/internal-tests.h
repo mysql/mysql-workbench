@@ -192,7 +192,7 @@ namespace mga {
       try {
         _context.setIt(name);
         func();
-      } catch (std::exception e) { 
+      } catch (std::exception &e) { 
         _context.expectFailed(e.what());
       } catch (...) {
         _context.expectFailed("Unhandled exception...");

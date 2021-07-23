@@ -96,27 +96,24 @@ ExitCode ApplicationContext::parseParams(int argc, const char **argv, char **env
   for (int i = 1; i < argc; ++i) {
     std::string arg = argv[i];
 
+    if (arg == "--version"|| arg == "-v") {
+      std::cout << "MGA version: " <<  MGA_VERSION << std::endl;
+      return ExitCode::Other;
+    }
+
     if (arg == "--debugger") {
       _debugMode = true;
       continue;
-    }
-    else if (arg == "--wait") {
+    } else if (arg == "--wait") {
       Process::waitBeforeExit = true;
       continue;
-    }
-    else if (arg == "--help") {
+    } else if (arg == "--help") {
       showHelp();
       return ExitCode::Success;
-    }
-    else if (Utilities::hasSuffix(arg, ".json")) {
+    } else if (Utilities::hasSuffix(arg, ".json")) {
       _configFile = arg;
       continue;
-    }
-    else {
-      std::cerr << "Unknown argument: " << arg << std::endl;
-      showHelp();
-      return ExitCode::Other;
-    }
+    } // Ignore any parameter we don't understand. Can be used in tests for custom configuration.
   }
 
   if (_configFile.empty()) {

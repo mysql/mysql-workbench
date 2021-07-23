@@ -795,15 +795,6 @@ bool Accessible::takeScreenShot(std::string const& path, bool onlyWindow, geomet
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::saveImage(std::string const& path) const {
-  std::ignore = path;
-
-  NOT_IMPLEMENTED;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-
 std::string Accessible::getClipboardText()
 {
   return AccessibleWr::getClipboardText();

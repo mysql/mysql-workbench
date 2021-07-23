@@ -58,7 +58,10 @@ namespace mga {
     Position,
     Shown,
     Bounds,
-    Scroll,
+    ScrollLeft,
+    ScrollRight,
+    ScrollUp,
+    ScrollDown,
     Increment,
     Decrement,
     StepUp,
@@ -70,7 +73,8 @@ namespace mga {
     CloseButton,
     Entries,
     Header,
-    Scrollbar,
+    HorizontalScrollbar,
+    VerticalScrollbar,
     Screen,
 
     Press,
@@ -79,6 +83,7 @@ namespace mga {
     ShowContextMenu,
     TakeScreenShot,
     GetBounds,
+    InsertText,
 
     PropertyCount // Sentinel
   };

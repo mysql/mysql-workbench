@@ -311,6 +311,8 @@ void Path::activate(ScriptingContext &context, JSObject &exports) {
   exports.defineProperty("delimiter", ":");
   exports.defineProperty("sep", "/");
 #endif
+
+  exports.defineProperty("default", exports);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

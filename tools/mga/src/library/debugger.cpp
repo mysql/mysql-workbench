@@ -203,7 +203,7 @@ duk_size_t DebugAdapter::readCallback(void *data, char *buffer, duk_size_t lengt
     adapter->close();
     std::cerr << "Debug adapter: no more data, closing connection: " << Utilities::getLastError() << std::endl;
     return 0;
-  } else if (ret > (ssize_t) length) {
+  } else if (ret > static_cast<ssize_t>(length)) {
     adapter->close();
     std::cerr << "Debug adapter: too much data was sent, closing connection" << std::endl;
     return 0;

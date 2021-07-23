@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017, 2021, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -64,47 +64,56 @@ namespace mga {
     size_t patch;
   };
 
-  enum class UiToolkit {
-    Unknown,
-    DotNet,
-    Cocoa,
-    Gtk,
-    Qt
-  };
+  enum class UiToolkit { Unknown, DotNet, Cocoa, Gtk, Qt };
 
   class ScriptingContext;
 
   struct Stat {
-    enum class TimeSpecs {
-      atime,
-      ctime,
-      mtime,
-      birthdate
-    };
-    
+    enum class TimeSpecs { atime, ctime, mtime, birthdate };
+
     struct internalTimeSpec {
       time_t secs;
       time_t nsecs;
     };
-    
-    int getDev() const { return _buffer.st_dev; }
-    size_t getIno() const { return _buffer.st_ino; }
-    uint16_t getMode() const { return _buffer.st_mode; }
-    int getNLink() const { return _buffer.st_nlink; }
-    size_t getUid() const { return _buffer.st_uid; }
-    size_t getGid() const { return _buffer.st_gid; }
-    int getRdev() const { return _buffer.st_rdev; }
-    ssize_t getSize() const { return _buffer.st_size; }
-    int getBlockkSize() const { return _blockSize; }
-    ssize_t getBlocks() const { return _blocks; }
-    
+
+    int getDev() const {
+      return _buffer.st_dev;
+    }
+    size_t getIno() const {
+      return _buffer.st_ino;
+    }
+    uint16_t getMode() const {
+      return _buffer.st_mode;
+    }
+    int getNLink() const {
+      return _buffer.st_nlink;
+    }
+    size_t getUid() const {
+      return _buffer.st_uid;
+    }
+    size_t getGid() const {
+      return _buffer.st_gid;
+    }
+    int getRdev() const {
+      return _buffer.st_rdev;
+    }
+    ssize_t getSize() const {
+      return _buffer.st_size;
+    }
+    int getBlockkSize() const {
+      return _blockSize;
+    }
+    ssize_t getBlocks() const {
+      return _blocks;
+    }
+
     double getTimeMS(TimeSpecs spec) const;
     std::string getTimeString(TimeSpecs spec) const;
-    
+
     static std::unique_ptr<Stat> get(const std::string &path, bool followLinks);
 
-    virtual ~Stat() {};
-    
+    virtual ~Stat(){};
+
   protected:
 #ifdef _MSC_VER
     struct _stat _buffer;
@@ -128,11 +137,11 @@ namespace mga {
 
   class Platform {
   public:
-    static Platform& get();
-    virtual ~Platform() {};
+    static Platform &get();
+    virtual ~Platform(){};
 
-    virtual int launchApplication(std::string const& name, std::vector<std::string> const& params,  bool newInstance,
-                                  ShowState showState, std::map<std::string, std::string> const& env = {}) const = 0;
+    virtual int launchApplication(std::string const &name, std::vector<std::string> const &params, bool newInstance,
+                                  ShowState showState, std::map<std::string, std::string> const &env = {}) const = 0;
 
     virtual int getPidByName(const std::string &name) const = 0;
     virtual std::string getTempDirName() const = 0;
@@ -140,16 +149,18 @@ namespace mga {
     virtual void initialize(int, const char *[], char *[]) const {};
     virtual void exit(ExitCode) const {};
     virtual void runLoopRun(ScriptingContext &context) const;
-    virtual bool isRunning(int processID) const { return false; };
+    virtual bool isRunning(int /*processID*/) const {
+      return false;
+    };
 
-    virtual void writeText(std::string const& text, bool error = false) const;
-    virtual void createFolder(std::string const& name) const;
-    virtual void removeFolder(std::string const& name) const;
-    virtual void removeFile(std::string const& name) const;
+    virtual void writeText(std::string const &text, bool error = false) const;
+    virtual void createFolder(std::string const &name) const;
+    virtual void removeFolder(std::string const &name) const;
+    virtual void removeFile(std::string const &name) const;
 
     virtual void defineOsConstants(ScriptingContext &context, JSObject &constants) const;
     virtual void defineFsConstants(ScriptingContext &context, JSObject &constants) const;
-    virtual geometry::Size getImageResolution(std::string const& path) const = 0;
+    virtual geometry::Size getImageResolution(std::string const &path) const = 0;
 
     virtual std::vector<Cpu> cpuInfo() const = 0;
     virtual size_t getFreeMem() const = 0;
@@ -165,11 +176,13 @@ namespace mga {
     virtual double getUptime() const = 0;
     virtual UserInfo getCurrentUserInfo() const;
     virtual void loadAvg(double (&avg)[3]) const = 0;
-    
+
     virtual UiToolkit getUiToolkit() const = 0;
 
     virtual std::string getClipboardText() const = 0;
     virtual void setClipboardText(const std::string &text) const = 0;
     virtual std::vector<Screen> getScreens() const = 0;
+
+    virtual bool isTTY(FILE *file) const;
   };
-}
+} // namespace mga

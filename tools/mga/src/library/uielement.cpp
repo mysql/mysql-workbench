@@ -767,7 +767,7 @@ void UIElement::defineUITextBox(ScriptingContext &context, JSObject &module) {
 
     prototype.defineFunction({ "insertText" }, 2, [](JSExport *element, JSValues &args) {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Text);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::InsertText);
 
       int offset = args.get(0);
       std::string text = args.get(1);
@@ -896,6 +896,8 @@ void UIElement::defineUIMenuItem(ScriptingContext &context, JSObject &module) {
     args.context()->callConstructor("UIMenuBase", { backend });
   }, [](JSObject &prototype) {
     prototype.defineVirtualProperty("title", getter, nullptr);
+    prototype.defineVirtualProperty("selected", getter, setter);
+    prototype.defineVirtualProperty("checkState", getter, nullptr);
   });
 }
 
@@ -957,11 +959,7 @@ void UIElement::defineUIImage(ScriptingContext &context, JSObject &module) {
     void *backend = args.get(0);
     args.context()->callConstructor("UIElement", { backend });
   }, [](JSObject &prototype) {
-    prototype.defineFunction({ "saveContent" }, 2, [](JSExport *element, JSValues &args) {
-      auto me = validate(element);
-      std::string path = args.get(0, ".");
-      me->_accessible->saveImage(path);
-    });
+    std::ignore = prototype;
   });
 }
 
@@ -1093,8 +1091,10 @@ void UIElement::defineUIColumn(ScriptingContext &context, JSObject &module) {
         me->_root->context().incStatCount(me, StatCounterType::Read, Property::Header);
 
         UIElement *ptr = me->header().release();
-        if (!ptr->isValid())
+        if (!ptr->isValid()) {
+          delete ptr;
           return JSVariant();
+        }
 
         return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
       }, nullptr
@@ -1125,46 +1125,56 @@ void UIElement::defineUIScrollBox(ScriptingContext &context, JSObject &module) {
     void *backend = args.get(0);
     args.context()->callConstructor("UIElement", { backend });
   }, [](JSObject &prototype) {
-    prototype.defineVirtualProperty("horizontalScrollBar", [](ScriptingContext *context, JSExport *element, std::string const&) {
+    prototype.defineVirtualProperty("horizontalScrollBar", [](ScriptingContext *context, JSExport *element, std::string const&) -> JSVariant {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Scrollbar);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::HorizontalScrollbar);
 
       UIElement *ptr = me->horizontalScrollBar().release();
+      if (!ptr->isValid()) {
+        delete ptr;
+        return JSVariant();
+      }
+
       return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
     }, nullptr);
 
-    prototype.defineVirtualProperty("verticalScrollBar", [](ScriptingContext *context, JSExport *element, std::string const&) {
+    prototype.defineVirtualProperty("verticalScrollBar", [](ScriptingContext *context, JSExport *element, std::string const&) -> JSVariant {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Read, Property::Scrollbar);
+      me->_root->context().incStatCount(me, StatCounterType::Read, Property::VerticalScrollbar);
 
       UIElement *ptr = me->verticalScrollBar().release();
+      if (!ptr->isValid()) {
+        delete ptr;
+        return JSVariant();
+      }
+
       return context->createJsInstance(roleToJSType(ptr->_accessible->getRole()), { ptr });
     }, nullptr);
 
     prototype.defineFunction({ "scrollLeft" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::ScrollLeft);
 
       me->_accessible->scrollLeft();
     });
 
     prototype.defineFunction({ "scrollRight" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::ScrollRight);
 
       me->_accessible->scrollRight();
     });
 
     prototype.defineFunction({ "scrollUp" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::ScrollUp);
 
       me->_accessible->scrollUp();
     });
 
     prototype.defineFunction({ "scrollDown" }, 0, [](JSExport *element, JSValues &) {
       auto me = validate(element);
-      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::Scroll);
+      me->_root->context().incStatCount(me, StatCounterType::Execute, Property::ScrollDown);
 
       me->_accessible->scrollDown();
     });

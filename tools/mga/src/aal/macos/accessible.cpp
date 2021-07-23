@@ -35,8 +35,6 @@ extern "C" AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID *out);
 // Used for conversion of CFStringRef instances to std::string.
 #define toString(ref) [(__bridge NSString *)ref UTF8String]
 
-std::shared_ptr<Accessible> Accessible::_systemRoot = nullptr;
-
 //----------------------------------------------------------------------------------------------------------------------
 
 static std::string getNativeRole(AXUIElementRef ref, CFStringRef type = kAXRoleAttribute) {
@@ -167,22 +165,22 @@ size_t Accessible::getHash() const {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool Accessible::canFocus()const {
+bool Accessible::canFocus() const {
   // Don't check only for settable values. Sometimes focus cannot be set when it is already.
-  return isSettable(_native, kAXFocusedAttribute) || getBoolValue(_native, kAXFocusedAttribute, "focused", true);
+  return isSettable(_native, kAXFocusedAttribute) || isFocused();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 bool Accessible::isFocused() const {
-  return getBoolValue(_native, kAXFocusedAttribute, "focused");
+  return getBoolValue(_native, kAXFocusedAttribute, "focused", true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::setFocused() {
   // Cannot set focus twice, so check if it is set already.
-  if (!getBoolValue(_native, kAXFocusedAttribute, "focused"))
+  if (canFocus() && !isFocused())
     setBoolValue(_native, kAXFocusedAttribute, true, "focused");
 }
 
@@ -279,8 +277,20 @@ bool Accessible::isHorizontal() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 CheckState Accessible::getCheckState() const {
-  if (_role != Role::CheckBox && _role != Role::RadioButton)
+  if (_role != Role::CheckBox && _role != Role::RadioButton && _role != Role::MenuItem)
     throw std::runtime_error("Check states not supported by this element.");
+
+  // For menu items the value property is not supported and no other attribute exists to indicate the check state.
+  // Hence we have to use the character that is shown for that.
+  if (_role == Role::MenuItem) {
+    std::string checkValue = getStringValue(_native, kAXMenuItemMarkCharAttribute, "menu item check mark value", true);
+    if (checkValue.empty())
+      return CheckState::Unchecked;
+    if (checkValue == "-")
+      return CheckState::Indeterminate;
+
+    return CheckState::Checked;
+  }
 
   switch (getNumberValue(_native, kAXValueAttribute, "value").intValue) {
     case 0:
@@ -459,7 +469,7 @@ bool Accessible::isActiveTab() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 bool Accessible::isSelected() const {
-  if (_role != Role::Row && _role != Role::Column)
+  if (_role != Role::Row && _role != Role::Column && _role != Role::MenuItem)
     throw std::runtime_error("This element cannot be selected.");
 
   return getBoolValue(_native, kAXSelectedAttribute, "selected");
@@ -468,7 +478,7 @@ bool Accessible::isSelected() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 void Accessible::setSelected(bool value) {
-  if (_role != Role::Row && _role != Role::Column)
+  if (_role != Role::Row && _role != Role::Column && _role != Role::MenuItem)
     throw std::runtime_error("This element cannot be selected.");
 
   setBoolValue(_native, kAXSelectedAttribute, value, "selected");
@@ -624,7 +634,8 @@ AccessibleRef Accessible::getHorizontalScrollBar() const {
   handleUnsupportedError(error, "horizontal scrollbar");
 
   auto result = AccessibleRef(new Accessible(static_cast<AXUIElementRef>(value)));
-  CFRelease(value);
+  if (error == kAXErrorSuccess)
+    CFRelease(value);
   return result;
 }
 
@@ -636,7 +647,8 @@ AccessibleRef Accessible::getVerticalScrollBar() const {
   handleUnsupportedError(error, "vertical scrollbar");
 
   auto result = AccessibleRef(new Accessible(static_cast<AXUIElementRef>(value)));
-  CFRelease(value);
+  if (error == kAXErrorSuccess)
+    CFRelease(value);
   return result;
 }
 
@@ -651,7 +663,8 @@ AccessibleRef Accessible::getHeader() const {
   handleUnsupportedError(error, "header");
 
   auto result = AccessibleRef(new Accessible(static_cast<AXUIElementRef>(value)));
-  CFRelease(value);
+  if (error == kAXErrorSuccess)
+    CFRelease(value);
   return result;
 }
 
@@ -710,7 +723,7 @@ void Accessible::bringToFront() {
 
 @implementation HighlightWindow
 - (NSTimeInterval)animationResizeTime: (NSRect)newFrame {
-  return 0.05;
+  return 0.1;
 }
 
 @end
@@ -988,56 +1001,56 @@ static std::map<std::string, std::string> subRoleMap = {
 
 // Attributes refering to other UI elements.
 static std::set<std::string> references = {
- toString(kAXParentAttribute),
- toString(kAXChildrenAttribute),
- toString(kAXSelectedChildrenAttribute),
- toString(kAXVisibleChildrenAttribute),
- toString(kAXWindowAttribute),
- toString(kAXTopLevelUIElementAttribute),
- toString(kAXTitleUIElementAttribute),
- toString(kAXMainAttribute),
- toString(kAXCloseButtonAttribute),
- toString(kAXZoomButtonAttribute),
- toString(kAXMinimizeButtonAttribute),
- toString(kAXToolbarButtonAttribute),
- toString(kAXFullScreenButtonAttribute),
- toString(kAXGrowAreaAttribute),
- toString(kAXDefaultButtonAttribute),
- toString(kAXCancelButtonAttribute),
- toString(kAXMenuBarAttribute),
- toString(kAXWindowsAttribute),
- toString(kAXMainWindowAttribute),
- toString(kAXFocusedWindowAttribute),
- toString(kAXFocusedUIElementAttribute),
- toString(kAXHourFieldAttribute),
- toString(kAXMinuteFieldAttribute),
- toString(kAXSecondFieldAttribute),
- toString(kAXAMPMFieldAttribute),
- toString(kAXDayFieldAttribute),
- toString(kAXMonthFieldAttribute),
- toString(kAXYearFieldAttribute),
- toString(kAXRowsAttribute),
- toString(kAXVisibleRowsAttribute),
- toString(kAXSelectedRowsAttribute),
- toString(kAXColumnsAttribute),
- toString(kAXVisibleColumnsAttribute),
- toString(kAXSelectedColumnsAttribute),
- toString(kAXColumnHeaderUIElementsAttribute),
- toString(kAXDisclosedRowsAttribute),
- toString(kAXHorizontalScrollBarAttribute),
- toString(kAXVerticalScrollBarAttribute),
- toString(kAXHeaderAttribute),
- toString(kAXTabsAttribute),
- toString(kAXOverflowButtonAttribute),
- toString(kAXSplittersAttribute),
- toString(kAXContentsAttribute),
- toString(kAXNextContentsAttribute),
- toString(kAXPreviousContentsAttribute),
- toString(kAXDocumentAttribute),
- toString(kAXIncrementorAttribute),
- toString(kAXDecrementButtonAttribute),
- toString(kAXIncrementButtonAttribute),
- toString(kAXShownMenuUIElementAttribute),
+  toString(kAXParentAttribute),
+  toString(kAXChildrenAttribute),
+  toString(kAXSelectedChildrenAttribute),
+  toString(kAXVisibleChildrenAttribute),
+  toString(kAXWindowAttribute),
+  toString(kAXTopLevelUIElementAttribute),
+  toString(kAXTitleUIElementAttribute),
+  toString(kAXMainAttribute),
+  toString(kAXCloseButtonAttribute),
+  toString(kAXZoomButtonAttribute),
+  toString(kAXMinimizeButtonAttribute),
+  toString(kAXToolbarButtonAttribute),
+  toString(kAXFullScreenButtonAttribute),
+  toString(kAXGrowAreaAttribute),
+  toString(kAXDefaultButtonAttribute),
+  toString(kAXCancelButtonAttribute),
+  toString(kAXMenuBarAttribute),
+  toString(kAXWindowsAttribute),
+  toString(kAXMainWindowAttribute),
+  toString(kAXFocusedWindowAttribute),
+  toString(kAXFocusedUIElementAttribute),
+  toString(kAXHourFieldAttribute),
+  toString(kAXMinuteFieldAttribute),
+  toString(kAXSecondFieldAttribute),
+  toString(kAXAMPMFieldAttribute),
+  toString(kAXDayFieldAttribute),
+  toString(kAXMonthFieldAttribute),
+  toString(kAXYearFieldAttribute),
+  toString(kAXRowsAttribute),
+  toString(kAXVisibleRowsAttribute),
+  toString(kAXSelectedRowsAttribute),
+  toString(kAXColumnsAttribute),
+  toString(kAXVisibleColumnsAttribute),
+  toString(kAXSelectedColumnsAttribute),
+  toString(kAXColumnHeaderUIElementsAttribute),
+  toString(kAXDisclosedRowsAttribute),
+  toString(kAXHorizontalScrollBarAttribute),
+  toString(kAXVerticalScrollBarAttribute),
+  toString(kAXHeaderAttribute),
+  toString(kAXTabsAttribute),
+  toString(kAXOverflowButtonAttribute),
+  toString(kAXSplittersAttribute),
+  toString(kAXContentsAttribute),
+  toString(kAXNextContentsAttribute),
+  toString(kAXPreviousContentsAttribute),
+  toString(kAXDocumentAttribute),
+  toString(kAXIncrementorAttribute),
+  toString(kAXDecrementButtonAttribute),
+  toString(kAXIncrementButtonAttribute),
+  toString(kAXShownMenuUIElementAttribute),
 };
 
 static std::map<std::string, std::string> actionMap = {
@@ -1157,15 +1170,6 @@ void Accessible::takeScreenShot(std::string const& path, bool onlyWindow, geomet
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Accessible::saveImage(std::string const& path) const {
-  if (_role != Role::Image)
-    throw std::runtime_error("Can only save the content of an image element.");
-
-  NOT_IMPLEMENTED;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 /**
  * Retrieves the frame of the view represented by this accessible.
  * Origin is the upper left corner of the screen holding the menu bar or the upper left corner of this UI element,
@@ -1194,7 +1198,7 @@ std::string Accessible::getTitle() const {
     CFTypeRef titleElement;
     AXError error = AXUIElementCopyAttributeValue(_native, kAXTitleUIElementAttribute, &titleElement);
     if (error != kAXErrorSuccess || titleElement == nullptr) {
-      return nullptr;
+      return "";
     }
     std::string title = getStringValue(static_cast<AXUIElementRef>(titleElement), kAXValueAttribute, "title");
     return title;
@@ -1232,7 +1236,9 @@ void Accessible::setCaretPosition(size_t position) {
 //----------------------------------------------------------------------------------------------------------------------
 
 std::size_t Accessible::getCharacterCount() const {
-  return getStringValue(_native, kAXValueAttribute, "value").size();
+  auto text = getStringValue(_native, kAXValueAttribute, "value");
+  auto wideText = mga::Utilities::s2ws(text);
+  return wideText.size();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1356,9 +1362,10 @@ void Accessible::setSelectedIndexes(std::set<size_t> const& indexes) {
 void Accessible::insertText(const std::size_t offset, const std::string &text) {
   NSRange range;
   range.location = offset;
-  range.length = offset;
+  range.length = 0;
   AXValueRef valueRef = AXValueCreate(static_cast<AXValueType>(kAXValueCFRangeType), static_cast<const void *>(&range));
-  AXUIElementSetAttributeValue(_native, kAXSelectedTextRangeAttribute, valueRef);
+  AXError error = AXUIElementSetAttributeValue(_native, kAXSelectedTextRangeAttribute, valueRef);
+  handleUnsupportedError(error, "selection range");
 
   setStringValue(_native, kAXSelectedTextAttribute, text, "text");
 }
@@ -1421,7 +1428,16 @@ std::string Accessible::getDate() const {
   if (_role != Role::DatePicker)
     throw std::runtime_error("This element does not support date values.");
 
-  return getStringValue(_native, kAXValueAttribute, "value");
+  CFTypeRef value;
+  AXError error = AXUIElementCopyAttributeValue(_native, kAXValueAttribute, &value);
+  handleUnsupportedError(error, "date");
+
+  NSDate *date = (NSDate *)CFBridgingRelease(value);
+  NSISO8601DateFormatter *formatter = [NSISO8601DateFormatter new];
+  formatter.formatOptions |= kCFISO8601DateFormatWithFractionalSeconds;
+  NSString *string = [formatter stringFromDate: date];
+  std::string result = string.UTF8String;
+  return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1430,7 +1446,12 @@ void Accessible::setDate(std::string const& date) {
   if (_role != Role::DatePicker)
     throw std::runtime_error("This element does not support date values.");
 
-  setStringValue(_native, kAXValueAttribute, date, "value");
+  NSISO8601DateFormatter *formatter = [NSISO8601DateFormatter new];
+  formatter.formatOptions |= kCFISO8601DateFormatWithFractionalSeconds;
+  NSDate *value = [formatter dateFromString: [NSString stringWithUTF8String: date.c_str()]];
+
+  AXError error = AXUIElementSetAttributeValue(_native, kAXValueAttribute, (__bridge CFTypeRef)value);
+  handleUnsupportedError(error, "date");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1691,7 +1712,6 @@ void Accessible::scrollRight() {
   if (_role != Role::ScrollBox)
     throw std::runtime_error("Only scrollbox elements support this action.");
 
-  // Seems there are no constants for these actions.
   AXUIElementPerformAction(_native, CFSTR("AXScrollRightByPage"));
 }
 
@@ -1938,19 +1958,8 @@ AccessibleList Accessible::columnEntries() const {
 //----------------------------------------------------------------------------------------------------------------------
 
 AccessibleRef Accessible::fromPoint(geometry::Point point, Accessible *application) {
-  if (_systemRoot == nullptr)
-    _systemRoot.reset(new Accessible(AXUIElementCreateSystemWide()));
-
   AXUIElementRef element;
-  if (AXUIElementCopyElementAtPosition(_systemRoot->_native, point.x, point.y, &element) != kAXErrorSuccess)
-    return nullptr;
-
-  pid_t elementPid;
-  if (AXUIElementGetPid(element, &elementPid) != kAXErrorSuccess)
-    return nullptr;
-
-  pid_t pid;
-  if (AXUIElementGetPid(application->_native, &pid) != kAXErrorSuccess || pid != elementPid)
+  if (AXUIElementCopyElementAtPosition(application->_native, point.x, point.y, &element) != kAXErrorSuccess)
     return nullptr;
 
   auto result = AccessibleRef(new Accessible(element));
@@ -2041,6 +2050,9 @@ std::string Accessible::getStringValue(AXUIElementRef ref, CFStringRef attribute
                                        std::string const& attributeName, bool noThrow) {
   CFTypeRef result;
   AXError error = AXUIElementCopyAttributeValue(ref, attribute, &result);
+  if (error == kAXErrorNoValue)
+    return "";
+
   if (!noThrow)
     handleUnsupportedError(error, attributeName);
 
@@ -2071,6 +2083,9 @@ bool Accessible::getBoolValue(AXUIElementRef ref, CFStringRef attribute, std::st
                               bool noThrow) {
   CFTypeRef value;
   AXError error = AXUIElementCopyAttributeValue(ref, attribute, &value);
+  if (error == kAXErrorNoValue)
+    return false;
+
   if (!noThrow)
     handleUnsupportedError(error, attributeName);
   else if (error != kAXErrorSuccess)
@@ -2109,6 +2124,9 @@ NSNumber *Accessible::getNumberValue(AXUIElementRef ref, CFStringRef attribute, 
                                      bool noThrow) {
   CFTypeRef result;
   AXError error = AXUIElementCopyAttributeValue(ref, attribute, &result);
+  if (error == kAXErrorNoValue)
+    return nil;
+
   if (!noThrow)
     handleUnsupportedError(error, attributeName);
   else if (error != kAXErrorSuccess)
@@ -2133,6 +2151,9 @@ void Accessible::setNumberValue(AXUIElementRef ref, CFStringRef attribute, NSNum
 AXUIElementRef Accessible::getElementValue(AXUIElementRef ref, bool noThrow) {
   CFTypeRef value;
   AXError error = AXUIElementCopyAttributeValue(ref, kAXValueAttribute, &value);
+  if (error == kAXErrorNoValue)
+    return nil;
+
   if (!noThrow)
     handleUnsupportedError(error, "value");
   else if (error != kAXErrorSuccess)

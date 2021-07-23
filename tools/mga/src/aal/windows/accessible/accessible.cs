@@ -79,14 +79,24 @@ namespace aal {
 
     #region Static functions
 
+    [DllImport("Kernel32.dll")]
+    private static extern bool QueryFullProcessImageName([In] IntPtr hProcess, [In] uint dwFlags, [Out] StringBuilder lpExeName, [In, Out] ref uint lpdwSize);
+
+    public static string GetMainModuleFileName(Process process, int buffer = 1024) {
+      var fileNameBuilder = new StringBuilder(buffer);
+      uint bufferLength = (uint)fileNameBuilder.Capacity + 1;
+      return QueryFullProcessImageName(process.Handle, 0, fileNameBuilder, ref bufferLength) ?
+          fileNameBuilder.ToString() :
+          null;
+    }
+
     public static int GetRunningProcess(string fileName) {
       string moduleName = fileName.Replace("/", "\\");
       Process[] processes = Process.GetProcesses();
       foreach (Process process in processes) {
         try {
           if (process.MainWindowHandle != IntPtr.Zero) { // We can only deal with GUI processes.
-            ProcessModule module = process.MainModule;
-            string guiModuleName = module.FileName;
+            string guiModuleName = GetMainModuleFileName(process);
             if (guiModuleName.Equals(fileName, StringComparison.CurrentCultureIgnoreCase)) {
               return process.Id;
             }
@@ -103,9 +113,8 @@ namespace aal {
       foreach (Process process in processes) {
         try {
           if (process.MainWindowHandle != IntPtr.Zero) { // We can only deal with GUI processes.
-            ProcessModule module = process.MainModule;
-            string guiModuleName = module.ModuleName;
-            if (guiModuleName.Equals(processName, StringComparison.CurrentCultureIgnoreCase)) {
+            string module = process.ProcessName;
+            if (module.Equals(processName, StringComparison.CurrentCultureIgnoreCase)) {
               processList.Add(process.Id);
             }
           }

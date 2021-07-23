@@ -753,6 +753,8 @@ void FS::activate(ScriptingContext &context, JSObject &exports) {
   JSObject constants(&context);
   Platform::get().defineFsConstants(context, constants);
   exports.defineProperty("constants", constants);
+
+  exports.defineProperty("default", exports);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
