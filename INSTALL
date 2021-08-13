@@ -76,7 +76,7 @@ depends on. You can use a C++ package manager for Windows, Linux and MacOS
 https://docs.microsoft.com/en-us/cpp/vcpkg?view=vs-2017
 
 To Build:
-- Create folder bundle or similar and put there all 3dpart libs. Folder should look like:
+- Create folder bundle or similar and put there all 3rd-party libs. Folder should look like:
      * bin
      * include
      * lib
@@ -85,7 +85,7 @@ To Build:
       ** include
       ** lib
      * python
-- Create in system environoment variable which point to folder where 3rd party libs are located WB_3DPARTY_LIB=<libs and headers files directory>
+- Create a system environment variable which points to the folder where 3rd party libs are located: WB_3DPARTY_LIB=<libs and headers files directory>
 - Go to the mysql-workbench directory
 - Open MySQLWorkbench.sln solution file
 - Select Release_OSS or the Debug Configuration
