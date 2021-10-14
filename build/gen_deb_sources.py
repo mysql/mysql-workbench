@@ -5,7 +5,7 @@
 
 
 output_distros = [
-    ("hirsute", "ubuntu21.04", "2104", ""),
+    ("impish", "ubuntu21.10", "2110", ""),
     ("focal", "ubuntu20.04", "2004", ""),
     ("groovy", "ubuntu20.10", "2010", ""),
     ("disco", "ubuntu19.04", "1904", ""),
