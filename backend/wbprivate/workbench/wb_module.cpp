@@ -222,10 +222,10 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
 
     "Windows 10", "Windows Server 2016", "Windows Server 2019",
 
-    "macOS 11.5"
+    "macOS 11", "macOS 12"
   };
 
-  for (std::string s : supportedOsList) {
+  for (std::string s : supportedOsList) { 
     if (os.find(s) != std::string::npos) {
       logDebug2("OS '%s' is supported\n", os.c_str());
       return true;
