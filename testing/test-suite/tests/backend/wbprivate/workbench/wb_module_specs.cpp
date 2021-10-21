@@ -117,9 +117,8 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("macOS 10.15 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("..... macOS 10.15 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("..... macOS ..... 10.15 ..... x86_64 .....")).toBeFalse();
-    $expect(isOsSupportedProxy("macOS 11.2")).toBeFalse();
-    $expect(isOsSupportedProxy("..... macOS 11.5 ..... x86_64 .....")).toBeTrue();
-    $expect(isOsSupportedProxy("..... macOS ..... 11.2 ..... x86_64 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("macOS 11")).toBeTrue();
+    $expect(isOsSupportedProxy("macOS 12")).toBeTrue();
 
     // other debian-based
     $expect(isOsSupportedProxy("Debian 5 x86_64")).toBeFalse();

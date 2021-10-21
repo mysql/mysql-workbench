@@ -300,8 +300,10 @@ std::string get_local_os_name() {
   *dot_position = 0;
   int version = base::atoi<int>(info.release, 0);
   switch (version) {
+    case 21:
+      return std::string("macOS 12.x Monterey ") + info.machine;
     case 20:
-      return std::string("macOS 11.2.x Big Sur ") + info.machine;
+      return std::string("macOS 11.x Big Sur ") + info.machine;
     case 19:
       return std::string("macOS 10.15.x Catalina ") + info.machine;
   }
