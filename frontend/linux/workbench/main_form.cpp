@@ -113,11 +113,11 @@ MainForm::MainForm() : _exiting(false) {
   }
   _gui_locked = false;
 
-  Gdk::Screen::get_default()->property_resolution().signal_changed().connect([this]{
+  Gdk::Screen::get_default()->property_resolution().signal_changed().connect([]{
 	  base::NotificationCenter::get()->send("GNBackingScaleChanged", nullptr);
   });
 
-  get_mainwindow()->property_scale_factor().signal_changed().connect([this]{
+  get_mainwindow()->property_scale_factor().signal_changed().connect([]{
 	  base::NotificationCenter::get()->send("GNBackingScaleChanged", nullptr);
   });
 
