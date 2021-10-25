@@ -339,17 +339,17 @@ RowBuffer::RowBuffer(std::shared_ptr<std::vector<ColumnInfo> > columns,
           base::strfmt("Unhandled MySQL type %i for column '%s'", col->target_type, col->target_name.c_str()));
     }
 
-#if MYSQL_VERSION_ID >= 80004
-    typedef bool WB_BOOL;
-#else
-    typedef my_bool WB_BOOL;
-#endif
+//#if MYSQL_VERSION_ID >= 80004
+//    typedef bool WB_BOOL;
+//#else
+//    typedef my_bool WB_BOOL;
+//#endif
 
-    bind.error = (WB_BOOL *)malloc(sizeof(WB_BOOL));
+    bind.error = (my_bool *)malloc(sizeof(my_bool));
     if (!bind.error)
       throw std::runtime_error("Could not allocate memory for row buffer");
     if (col->target_type != MYSQL_TYPE_NULL) {
-      bind.is_null = (WB_BOOL *)malloc(sizeof(WB_BOOL));
+      bind.is_null = (my_bool *)malloc(sizeof(my_bool));
       if (!bind.is_null) {
         if (bind.length) {
           free(bind.length);
@@ -2276,7 +2276,7 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index) {
       case MYSQL_TYPE_TIME2:
 #endif
 #if MYSQL_VERSION_ID > 80016
-      case MYSQL_TYPE_TYPED_ARRAY: /* Used only for replication. */
+//      case MYSQL_TYPE_TYPED_ARRAY: /* Used only for replication. */
 #endif
         // TODO: implement handling
         break;
@@ -2291,14 +2291,16 @@ bool MySQLCopyDataTarget::append_bulk_column(size_t col_index) {
         _bulk_insert_record.append("')");
         break;
 #if MYSQL_VERSION_ID > 80021
-      case MYSQL_TYPE_INVALID:
+     // case MYSQL_TYPE_INVALID:
         // TODO: added to fix the build. Need to check how to handle this.
-        break;
-      case MYSQL_TYPE_BOOL:
+     //   break;
+     // case MYSQL_TYPE_BOOL:
         // TODO: added to fix the build. Need to check how to handle this. In the current version this is just a placeholder.
-        break;
+     //   break;
 #endif
-      
+      default:
+        /* clang dont handle well MYSQL_VERSION_ID and there is a missing case lost */
+      break;
     }
   }
 
@@ -2687,9 +2689,10 @@ bool MySQLCopyDataTarget::InsertBuffer::append_escaped(const char *data, size_t 
 
 
 #if MYSQL_VERSION_ID >= 50706
-  if (_target->is_mysql_version_at_least(5, 7, 6))
-    ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '\'');
-  else
+  //Clang claims here undeclared identifier
+  //if (_target->is_mysql_version_at_least(5, 7, 6))
+  //  ret_length += mysql_real_escape_string_quote(_mysql, buffer + length, data, (unsigned long)dlength, '\'');
+  //else
     ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
 #else
   ret_length += mysql_real_escape_string(_mysql, buffer + length, data, (unsigned long)dlength);
