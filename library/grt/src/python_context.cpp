@@ -31,7 +31,7 @@
 #include "base/wb_memory.h"
 
 // python internals
-#include <node.h>
+#include <Python.h>
 #include <errcode.h>
 #include <token.h>
 #include <frameobject.h>
@@ -1598,88 +1598,28 @@ int PythonContext::run_file(const std::string &file, bool interactive) {
  If line_buffer is null, the passed buffer will be expected to contain complete code.
  */
 int PythonContext::run_buffer(const std::string &buffer, std::string *line_buffer) {
-  node *n;
-  PyObject *result;
-  PyObject *mainmod;
-  PyObject *globals;
-
-  std::string old_buff;
-  if (line_buffer)
-    old_buff.append(*line_buffer);
-
   if (line_buffer) {
     // if previous buff is empty and new command is plain enter key, do nothing
     if (line_buffer->empty() && buffer[0] == '\n')
       return 0;
-
     line_buffer->append(buffer);
   }
-
+  
   WillEnterPython lock;
-
-  n = PyParser_SimpleParseStringFlags(line_buffer ? line_buffer->c_str() : buffer.c_str(),
-                                      line_buffer ? Py_single_input : Py_file_input, 0);
-
-  if (n && (!buffer.empty() && (buffer[0] == ' ' || buffer[0] == '\t')) && line_buffer) {
-    return 0; // continued line
-  }
-  if (!n && PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_SyntaxError)) {
-    PyObject *excep;
-    PyObject *value;
-    PyObject *message;
-    PyObject *trace;
-    PyErr_Fetch(&excep, &value, &trace);
-    message = PyTuple_GetItem(value, 0);
-    if (strstr(PyUnicode_AsUTF8(message), "expected an indented block") ||
-        strstr(PyUnicode_AsUTF8(message), "unexpected EOF") || strncmp(PyUnicode_AsUTF8(message), "EOF", 3) == 0) {
-      Py_XDECREF(excep);
-      Py_XDECREF(value);
-      Py_XDECREF(trace);
-      PyErr_Clear();
-      return 0; // continued line
-    }
-    PyErr_Restore(excep, value, trace);
-  }
-
-  if (!n) {
+  PyCompilerFlags flags;
+  flags.cf_flags = line_buffer ? Py_single_input : Py_file_input;
+  flags.cf_feature_version = 0;
+  
+  //  This command will compile and run the code in line_buffer or buffer
+  if(PyRun_SimpleStringFlags(line_buffer ? line_buffer->c_str() : buffer.c_str(), &flags) == -1){
     PythonContext::log_python_error("Error running buffer");
-
+    
     if (line_buffer)
       line_buffer->clear();
-
-    PyErr_Clear();
+    
     return -1;
   }
-
-  PyNode_Free(n);
-  PyErr_Clear();
-
-  // command is supposedly complete, try to execute it
-
-  mainmod = PyImport_AddModule("__main__");
-  if (!mainmod) {
-    return -1;
-  }
-  globals = PyModule_GetDict(mainmod);
-
-  if (line_buffer) {
-    result = PyRun_String(line_buffer->c_str(), Py_single_input, globals, globals);
-
-    line_buffer->clear();
-  } else
-    result = PyRun_String(buffer.c_str(), Py_file_input, globals, globals);
-
-  if (!result) {
-    if (PyErr_Occurred()) {
-      PythonContext::log_python_error("Error running buffer");
-      PyErr_Print();
-    }
-
-    return -1;
-  } else {
-    Py_DECREF(result);
-  }
-
+  
   return 0;
 }
 
