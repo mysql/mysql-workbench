@@ -844,7 +844,7 @@
                         <value type="int" key="required">0</value>
                     </value>
 
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl0">
                         <value type="string" key="caption">Use SSL</value>
                         <value type="string" key="accessibilityName">Use SSL</value>
                         <value type="string" key="defaultValue">1</value>
@@ -1483,7 +1483,7 @@
                     </value>
 
 
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.aparam2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native_sshtun.ssl0">
                         <value type="string" key="caption">Use SSL</value>
                         <value type="string" key="accessibilityName">Use SSL</value>
                         <value type="string" key="defaultValue">1</value>
@@ -1613,7 +1613,7 @@
                 <value type="string" key="name">MysqlNativeLDAP</value>
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value _ptr_="017258B3" type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param1">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param1">
                         <value type="string" key="caption">Hostname:</value>
                         <value type="string" key="accessibilityName">Host Name</value>
                         <value type="string" key="defaultValue">127.0.0.1</value>
@@ -1629,7 +1629,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param2">
                         <value type="string" key="caption">Port:</value>
                         <value type="string" key="accessibilityName">Port</value>
                         <value type="string" key="defaultValue">3306</value>
@@ -1645,7 +1645,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param3">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param3">
                         <value type="string" key="caption">Username:</value>
                         <value type="string" key="accessibilityName">User Name</value>
                         <value type="string" key="defaultValue">root</value>
@@ -1661,7 +1661,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param4">
                         <value type="string" key="caption">Password:</value>
                         <value type="string" key="accessibilityName">Password</value>
                         <value type="string" key="defaultValue"></value>
@@ -1679,7 +1679,7 @@
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param5">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param5">
                         <value type="string" key="caption">Default Schema:</value>
                         <value type="string" key="accessibilityName">Default Schema</value>
                         <value type="string" key="defaultValue"></value>
@@ -1695,7 +1695,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param6">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param6">
                         <value type="string" key="caption">Use compression protocol</value>
                         <value type="string" key="accessibilityName">Use Compression Protocol</value>
                         <value type="string" key="defaultValue"></value>
@@ -1711,7 +1711,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param8">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.param8">
                         <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
                         <value type="string" key="accessibilityName">Use ANSI Quotes to Quote Identifiers</value>
                         <value type="string" key="defaultValue"></value>
@@ -1727,7 +1727,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.timeout">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.timeout">
                         <value type="string" key="caption">Timeout:</value>
                         <value type="string" key="accessibilityName">Timeout</value>
                         <value type="string" key="defaultValue"></value>
@@ -1743,7 +1743,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.sqlmode">
                         <value type="string" key="caption">SQL_MODE:</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
@@ -1758,7 +1758,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.others">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.others">
                         <value type="string" key="caption">Others:</value>
                         <value type="string" key="accessibilityName">Others</value>
                         <value type="string" key="defaultValue"></value>
@@ -1775,10 +1775,10 @@
                         <value type="int" key="required">0</value>
                     </value>
 
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl0">
                         <value type="string" key="caption">Use SSL</value>
                         <value type="string" key="accessibilityName">Use SSL</value>
-                        <value type="string" key="defaultValue">1</value>
+                        <value type="string" key="defaultValue">0</value>
                         <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
                         <value type="int" key="layoutAdvanced">2</value>
                         <value type="int" key="layoutRow">-1</value>
@@ -1789,12 +1789,12 @@
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
                         <value type="string" key="paramType">enum</value>
                         <value type="dict" content-type="string" key="paramTypeDetails">
-                            <value type="string" key="options">2|Require,3|Require and Verify CA,4|Require and Verify Identity</value>
+                            <value type="string" key="options">0|Require,1|Require and Verify CA,2|Require and Verify Identity</value>
                             <value type="string" key="type">int</value>
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl3">
                       <value type="string" key="caption">SSL Key File:</value>
                       <value type="string" key="accessibilityName">SSL Key File</value>
                       <value type="string" key="defaultValue"></value>
@@ -1810,7 +1810,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl2">
                       <value type="string" key="caption">SSL CERT File:</value>
                       <value type="string" key="accessibilityName">SSL CERT File</value>
                       <value type="string" key="defaultValue"></value>
@@ -1826,7 +1826,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl1">
                       <value type="string" key="caption">SSL CA File:</value>
                       <value type="string" key="accessibilityName">SSL CA File</value>
                       <value type="string" key="defaultValue"></value>
@@ -1842,7 +1842,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl4">
                       <value type="string" key="caption">SSL Cipher:</value>
                       <value type="string" key="accessibilityName">SSL Cipher</value>
                       <value type="string" key="defaultValue"></value>
@@ -1858,7 +1858,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
                         <value type="string" key="accessibilityName">SSL Wizard</value>
                         <value type="string" key="defaultValue"></value>
@@ -1874,7 +1874,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_user_password.ssl6">
                         <value type="string" key="caption">Files ...</value>
                         <value type="string" key="accessibilityName">Files</value>
                         <value type="string" key="defaultValue"></value>
@@ -1904,7 +1904,7 @@
                 <value type="string" key="name">MysqlNativeSaslKerberos</value>
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value _ptr_="017258B3" type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param1">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param1">
                         <value type="string" key="caption">Hostname:</value>
                         <value type="string" key="accessibilityName">Host Name</value>
                         <value type="string" key="defaultValue">127.0.0.1</value>
@@ -1920,7 +1920,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param2">
                         <value type="string" key="caption">Port:</value>
                         <value type="string" key="accessibilityName">Port</value>
                         <value type="string" key="defaultValue">3306</value>
@@ -1936,7 +1936,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param3">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param3">
                         <value type="string" key="caption">Username:</value>
                         <value type="string" key="accessibilityName">User Name</value>
                         <value type="string" key="defaultValue">root</value>
@@ -1952,7 +1952,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param4">
                         <value type="string" key="caption">Password:</value>
                         <value type="string" key="accessibilityName">Password</value>
                         <value type="string" key="defaultValue"></value>
@@ -1970,7 +1970,7 @@
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param5">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param5">
                         <value type="string" key="caption">Default Schema:</value>
                         <value type="string" key="accessibilityName">Default Schema</value>
                         <value type="string" key="defaultValue"></value>
@@ -1986,7 +1986,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param6">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param6">
                         <value type="string" key="caption">Use compression protocol</value>
                         <value type="string" key="accessibilityName">Use Compression Protocol</value>
                         <value type="string" key="defaultValue"></value>
@@ -2002,7 +2002,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param8">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param8">
                         <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
                         <value type="string" key="accessibilityName">Use ANSI Quotes to Quote Identifiers</value>
                         <value type="string" key="defaultValue"></value>
@@ -2018,7 +2018,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param9">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.param9">
                         <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="accessibilityName">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="defaultValue"></value>
@@ -2034,7 +2034,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.timeout">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.timeout">
                         <value type="string" key="caption">Timeout:</value>
                         <value type="string" key="accessibilityName">Timeout</value>
                         <value type="string" key="defaultValue"></value>
@@ -2050,7 +2050,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.sqlmode">
                         <value type="string" key="caption">SQL_MODE:</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
@@ -2065,7 +2065,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.mysqlplugindir">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.mysqlplugindir">
                       <value type="string" key="caption">Path to plugin directory:</value>
                       <value type="string" key="defaultValue"></value>
                       <value type="string" key="description">Path to MySQL Server client plugin directory.</value>
@@ -2080,7 +2080,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.others">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.others">
                         <value type="string" key="caption">Others:</value>
                         <value type="string" key="accessibilityName">Others</value>
                         <value type="string" key="defaultValue"></value>
@@ -2097,10 +2097,10 @@
                         <value type="int" key="required">0</value>
                     </value>
 
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl0">
                         <value type="string" key="caption">Use SSL</value>
                         <value type="string" key="accessibilityName">Use SSL</value>
-                        <value type="string" key="defaultValue">1</value>
+                        <value type="string" key="defaultValue">0</value>
                         <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
                         <value type="int" key="layoutAdvanced">2</value>
                         <value type="int" key="layoutRow">-1</value>
@@ -2111,12 +2111,12 @@
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
                         <value type="string" key="paramType">enum</value>
                         <value type="dict" content-type="string" key="paramTypeDetails">
-                            <value type="string" key="options">2|Require,3|Require and Verify CA,4|Require and Verify Identity</value>
+                            <value type="string" key="options">0|Require,1|Require and Verify CA,2|Require and Verify Identity</value>
                             <value type="string" key="type">int</value>
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl3">
                       <value type="string" key="caption">SSL Key File:</value>
                       <value type="string" key="accessibilityName">SSL Key File</value>
                       <value type="string" key="defaultValue"></value>
@@ -2132,7 +2132,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl2">
                       <value type="string" key="caption">SSL CERT File:</value>
                       <value type="string" key="accessibilityName">SSL CERT File</value>
                       <value type="string" key="defaultValue"></value>
@@ -2148,7 +2148,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl1">
                       <value type="string" key="caption">SSL CA File:</value>
                       <value type="string" key="accessibilityName">SSL CA File</value>
                       <value type="string" key="defaultValue"></value>
@@ -2164,7 +2164,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl4">
                       <value type="string" key="caption">SSL Cipher:</value>
                       <value type="string" key="accessibilityName">SSL Cipher</value>
                       <value type="string" key="defaultValue"></value>
@@ -2180,7 +2180,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
                         <value type="string" key="accessibilityName">SSL Wizard</value>
                         <value type="string" key="defaultValue"></value>
@@ -2196,7 +2196,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_sasl_kerberos.ssl6">
                         <value type="string" key="caption">Files ...</value>
                         <value type="string" key="accessibilityName">Files</value>
                         <value type="string" key="defaultValue"></value>
@@ -2226,7 +2226,7 @@
                 <value type="string" key="name">MysqlNativeKerberos</value>
                 <link type="object" key="owner">com.mysql.rdbms.mysql</link>
                 <value _ptr_="017258B3" type="list" content-type="object" content-struct-name="db.mgmt.DriverParameter" key="parameters">
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param1">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param1">
                         <value type="string" key="caption">Hostname:</value>
                         <value type="string" key="accessibilityName">Host Name</value>
                         <value type="string" key="defaultValue">127.0.0.1</value>
@@ -2242,7 +2242,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param2">
                         <value type="string" key="caption">Port:</value>
                         <value type="string" key="accessibilityName">Port</value>
                         <value type="string" key="defaultValue">3306</value>
@@ -2258,7 +2258,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param3">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param3">
                         <value type="string" key="caption">Username:</value>
                         <value type="string" key="accessibilityName">User Name</value>
                         <value type="string" key="defaultValue">root</value>
@@ -2274,7 +2274,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">1</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param4">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param4">
                         <value type="string" key="caption">Password:</value>
                         <value type="string" key="accessibilityName">Password</value>
                         <value type="string" key="defaultValue"></value>
@@ -2292,7 +2292,7 @@
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param5">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param5">
                         <value type="string" key="caption">Default Schema:</value>
                         <value type="string" key="accessibilityName">Default Schema</value>
                         <value type="string" key="defaultValue"></value>
@@ -2308,7 +2308,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param6">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param6">
                         <value type="string" key="caption">Use compression protocol</value>
                         <value type="string" key="accessibilityName">Use Compression Protocol</value>
                         <value type="string" key="defaultValue"></value>
@@ -2324,7 +2324,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param8">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param8">
                         <value type="string" key="caption">Use ANSI quotes to quote identifiers</value>
                         <value type="string" key="accessibilityName">Use ANSI Quotes to Quote Identifiers</value>
                         <value type="string" key="defaultValue"></value>
@@ -2340,7 +2340,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param9">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.param9">
                         <value type="string" key="caption">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="accessibilityName">Enable Cleartext Authentication Plugin</value>
                         <value type="string" key="defaultValue"></value>
@@ -2356,7 +2356,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.timeout">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.timeout">
                         <value type="string" key="caption">Timeout:</value>
                         <value type="string" key="accessibilityName">Timeout</value>
                         <value type="string" key="defaultValue"></value>
@@ -2372,7 +2372,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.sqlmode">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.sqlmode">
                         <value type="string" key="caption">SQL_MODE:</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Override the default SQL_MODE used by the server.</value>
@@ -2387,7 +2387,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.mysqlplugindir">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.mysqlplugindir">
                         <value type="string" key="caption">Path to plugin directory:</value>
                         <value type="string" key="defaultValue"></value>
                         <value type="string" key="description">Path to MySQL Server client plugin directory.</value>
@@ -2402,7 +2402,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.others">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.others">
                         <value type="string" key="caption">Others:</value>
                         <value type="string" key="accessibilityName">Others</value>
                         <value type="string" key="defaultValue"></value>
@@ -2419,10 +2419,10 @@
                         <value type="int" key="required">0</value>
                     </value>
 
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.param7">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl0">
                         <value type="string" key="caption">Use SSL</value>
                         <value type="string" key="accessibilityName">Use SSL</value>
-                        <value type="string" key="defaultValue">1</value>
+                        <value type="string" key="defaultValue">0</value>
                         <value type="string" key="description">Turns on SSL encryption. Connection will fail if SSL is not available.</value>
                         <value type="int" key="layoutAdvanced">2</value>
                         <value type="int" key="layoutRow">-1</value>
@@ -2433,12 +2433,12 @@
                         <link type="object" key="owner">com.mysql.rdbms.mysql.driver.native</link>
                         <value type="string" key="paramType">enum</value>
                         <value type="dict" content-type="string" key="paramTypeDetails">
-                            <value type="string" key="options">2|Require,3|Require and Verify CA,4|Require and Verify Identity</value>
+                            <value type="string" key="options">0|Require,1|Require and Verify CA,2|Require and Verify Identity</value>
                             <value type="string" key="type">int</value>
                         </value>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl3">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl3">
                       <value type="string" key="caption">SSL Key File:</value>
                       <value type="string" key="accessibilityName">SSL Key File</value>
                       <value type="string" key="defaultValue"></value>
@@ -2454,7 +2454,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl2">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl2">
                       <value type="string" key="caption">SSL CERT File:</value>
                       <value type="string" key="accessibilityName">SSL CERT File</value>
                       <value type="string" key="defaultValue"></value>
@@ -2470,7 +2470,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl1">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl1">
                       <value type="string" key="caption">SSL CA File:</value>
                       <value type="string" key="accessibilityName">SSL CA File</value>
                       <value type="string" key="defaultValue"></value>
@@ -2486,7 +2486,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl4">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl4">
                       <value type="string" key="caption">SSL Cipher:</value>
                       <value type="string" key="accessibilityName">SSL Cipher</value>
                       <value type="string" key="defaultValue"></value>
@@ -2502,7 +2502,7 @@
                       <value type="dict" content-type="string" key="paramTypeDetails"/>
                       <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl5">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl5">
                         <value type="string" key="caption">SSL Wizard ...</value>
                         <value type="string" key="accessibilityName">SSL Wizard</value>
                         <value type="string" key="defaultValue"></value>
@@ -2518,7 +2518,7 @@
                         <value type="dict" content-type="string" key="paramTypeDetails"/>
                         <value type="int" key="required">0</value>
                     </value>
-                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.native.ssl6">
+                    <value type="object" struct-name="db.mgmt.DriverParameter" id="com.mysql.rdbms.mysql.driver.ldap_kerberos.ssl6">
                         <value type="string" key="caption">Files ...</value>
                         <value type="string" key="accessibilityName">Files</value>
                         <value type="string" key="defaultValue"></value>
