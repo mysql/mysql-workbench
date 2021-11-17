@@ -163,6 +163,7 @@
       <ComponentRef Id="python_lib_idlelib" />
       <ComponentRef Id="python_lib_idlelib_icons" />
       <ComponentRef Id="python_lib_importlib" />
+      <ComponentRef Id="python_lib_zoneinfo" />
       <ComponentRef Id="python_lib_json" />
       <ComponentRef Id="python_lib_lib2to3" />
       <ComponentRef Id="python_lib_lib2to3_pgen2" />

@@ -169,6 +169,7 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\urllib %TARGET_DIR%\python\lib\urllib 1> n
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
+xcopy /i /s /y /d %PYTHON_COMMON_DIR%\zoneinfo %TARGET_DIR%\python\lib\zoneinfo 1> nul 2> nul
 robocopy %PYTHON_COMMON_DIR%\lib2to3 %TARGET_DIR%\python\lib\lib2to3 /E /xd %PYTHON_COMMON_DIR%\lib2to3\tests\
 
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
