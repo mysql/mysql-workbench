@@ -19,6 +19,12 @@
 
 #pragma once
 
+#ifdef _WIN64
+typedef __int64 ssize_t;
+#else
+typedef int ssize_t;
+#endif
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 

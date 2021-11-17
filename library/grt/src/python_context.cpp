@@ -132,7 +132,10 @@ void PythonContextHelper::InitPython() {
 
   PySys_SetArgv(1, const_cast<wchar_t **>(argv));
 
-  PyEval_InitThreads();
+  // PyEval_InitThreads();
+  // Changed in version 3.9: The function now does nothing.
+  // Changed in version 3.7: This function is now called by Py_Initialize(),
+  //                         so you don’t have to call it yourself anymore.
 }
 
 //--------------------------------------------------------------------------------------------------

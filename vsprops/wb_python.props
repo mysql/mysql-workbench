@@ -8,7 +8,7 @@
       <AdditionalIncludeDirectories>$(WB_3DPARTY_PATH)\Python\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>python37_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python310_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Python\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -17,7 +17,7 @@
       <AdditionalIncludeDirectories>$(WB_3DPARTY_PATH)\Python\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>python37.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python310.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Python\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -26,7 +26,7 @@
       <AdditionalIncludeDirectories>$(WB_3DPARTY_PATH)\Python\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>python37.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>python310.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Python\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

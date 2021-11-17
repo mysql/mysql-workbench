@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2021, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -430,56 +430,59 @@ bool PythonCopyDataSource::fetch_row(RowBuffer &rowbuffer) {
           return false;
         }
       }
-      const char *blob_read_buffer;
-      Py_ssize_t blob_read_buffer_len;
-      int res = PyObject_AsReadBuffer(element, (const void **)&blob_read_buffer, &blob_read_buffer_len);
+      Py_buffer view;
+      //Py_ssize_t blob_read_buffer_len;
+      int res = PyObject_GetBuffer(element, &view, PyBUF_SIMPLE);
       if (res != 0) {
-        if (PyErr_Occurred())
+        if (PyErr_Occurred()) {
           PyErr_Print();
+        }
         logError("Could not get a read buffer for the BLOB column %s.%s. Skipping table!\n", _table_name.c_str(),
                  (*_columns)[i].source_name.c_str());
         Py_DECREF(element);
         PyGILState_Release(state);
         return false;
       }
-      if (blob_read_buffer_len > _max_parameter_size) {
+      if (view.len > _max_parameter_size) {
         if (_abort_on_oversized_blobs) {
+
           PyGILState_Release(state);
           throw std::runtime_error(base::strfmt("oversized blob found in table %s.%s, size: %lu", _schema_name.c_str(),
-                                                _table_name.c_str(), (long unsigned int)blob_read_buffer_len));
+                                                _table_name.c_str(), (long unsigned int)view.len));
+          PyBuffer_Release(&view);
         } else {
           logError("Oversized blob found in table %s.%s, size: %lu", _schema_name.c_str(), _table_name.c_str(),
-                   (long unsigned int)blob_read_buffer_len);
+                   (long unsigned int)view.len);
           rowbuffer.finish_field(true);
           Py_DECREF(element);
+          PyBuffer_Release(&view);
           continue;
         }
-      } else // Proceed to copy from the buffer
-      {
+      } else { // Proceed to copy from the buffer
         Py_ssize_t copied_bytes = 0;
-        if (!blob_read_buffer_len) // empty buffer
-        {
-          rowbuffer[i].buffer_length = *rowbuffer[i].length = (unsigned long)blob_read_buffer_len;
-          rowbuffer[i].buffer = NULL;
+        if (!view.len) { // empty buffer
+          rowbuffer[i].buffer_length = *rowbuffer[i].length = (unsigned long)view.len;
+          rowbuffer[i].buffer = nullptr;
         }
-        while (copied_bytes < blob_read_buffer_len) {
-          Py_ssize_t this_pass_size = std::min(blob_read_buffer_len - copied_bytes, (Py_ssize_t)_max_blob_chunk_size);
+        while (copied_bytes < view.len) {
+          Py_ssize_t this_pass_size = std::min(view.len - copied_bytes, (Py_ssize_t)_max_blob_chunk_size);
           // ---- Begin Section: This will fail if multiple passes are done. TODO: Fix this.
           if (_use_bulk_inserts) {
             if (rowbuffer[i].buffer_length)
               free(rowbuffer[i].buffer);
 
-            *rowbuffer[i].length = (unsigned long)blob_read_buffer_len;
-            rowbuffer[i].buffer_length = (unsigned long)blob_read_buffer_len;
-            rowbuffer[i].buffer = malloc(blob_read_buffer_len);
+            *rowbuffer[i].length = (unsigned long)view.len;
+            rowbuffer[i].buffer_length = (unsigned long)view.len;
+            rowbuffer[i].buffer = malloc(view.len);
 
-            memcpy(rowbuffer[i].buffer, blob_read_buffer, blob_read_buffer_len);
+            memcpy(rowbuffer[i].buffer, view.buf, view.len);
           } else
-            rowbuffer.send_blob_data(blob_read_buffer + copied_bytes, this_pass_size);
+            rowbuffer.send_blob_data((const char*)view.buf + copied_bytes, this_pass_size);
           // ---- End Section
-          copied_bytes += this_pass_size;
+          copied_bytes += this_pass_size;         
         }
         rowbuffer.finish_field(false);
+        PyBuffer_Release(&view);
         Py_DECREF(element);
         continue;
       }
