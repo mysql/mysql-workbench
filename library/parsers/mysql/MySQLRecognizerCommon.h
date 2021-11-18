@@ -1,12 +1,4 @@
 /*
- * @Descripttion: YD Security 
- * @version: 1.0
- * @Author: frank
- * @Date: 2021-11-18 09:34:16
- * @LastEditors: frank
- * @LastEditTime: 2021-11-18 09:37:47
- */
-/*
  * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
