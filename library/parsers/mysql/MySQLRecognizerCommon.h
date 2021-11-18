@@ -1,4 +1,12 @@
 /*
+ * @Descripttion: YD Security 
+ * @version: 1.0
+ * @Author: frank
+ * @Date: 2021-11-18 09:34:16
+ * @LastEditors: frank
+ * @LastEditTime: 2021-11-18 09:37:47
+ */
+/*
  * Copyright (c) 2016, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -59,7 +67,7 @@ namespace parsers {
 
     // For parameterizing the parsing process.
     long serverVersion;
-    SqlMode sqlMode; // A collection of flags indicating which of relevant SQL modes are active.
+    SqlMode sqlMode = NoMode; // A collection of flags indicating which of relevant SQL modes are active.
 
     // Returns true if the given mode (one of the enums above) is set.
     bool isSqlModeActive(size_t mode);
