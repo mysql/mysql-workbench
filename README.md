@@ -1,6 +1,6 @@
 # MySQL Workbench
 
-Copyright (c) 2007, 2021, Oracle and/or its affiliates.
+Copyright (c) 2007, 2022, Oracle and/or its affiliates.
 
 This is a release of [MySQL Workbench](https://mysqlworkbench.org), a graphical tool for working with MySQL servers and databases.
 
