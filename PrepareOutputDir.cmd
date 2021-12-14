@@ -126,7 +126,7 @@ rem Python executable needed by MSI Custom Action (to precompile Python files) a
 rem xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
 if %2 == Debug ( set DEBUG_PREFIX=_d)
 if not %2 == Debug ( set EXCLUDE_CMD=/xf *_d.* )
-robocopy %PYTHON_DIR% %TARGET_DIR% python310%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
+robocopy %PYTHON_DIR% %TARGET_DIR% python37%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc*%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
 
@@ -169,7 +169,6 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\urllib %TARGET_DIR%\python\lib\urllib 1> n
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
-xcopy /i /s /y /d %PYTHON_COMMON_DIR%\zoneinfo %TARGET_DIR%\python\lib\zoneinfo 1> nul 2> nul
 robocopy %PYTHON_COMMON_DIR%\lib2to3 %TARGET_DIR%\python\lib\lib2to3 /E /xd %PYTHON_COMMON_DIR%\lib2to3\tests\
 
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
