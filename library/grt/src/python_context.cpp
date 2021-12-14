@@ -1611,7 +1611,9 @@ int PythonContext::run_buffer(const std::string &buffer, std::string *line_buffe
   WillEnterPython lock;
   PyCompilerFlags flags;
   flags.cf_flags = line_buffer ? Py_single_input : Py_file_input;
-  flags.cf_feature_version = 0;
+#ifndef _MSC_VER
+  flags.cf_feature_version = PY_MINOR_VERSION;
+#endif
   
   //  This command will compile and run the code in line_buffer or buffer
   if(PyRun_SimpleStringFlags(line_buffer ? line_buffer->c_str() : buffer.c_str(), &flags) == -1){
