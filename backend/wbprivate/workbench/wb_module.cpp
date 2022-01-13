@@ -218,9 +218,10 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
     "Red Hat Enterprise Linux release 8",        // Oracle 8.0: Red Hat Enterprise Linux release 8.0 (Ootpa)
     "Fedora release 35", "CentOS release 7",
 
-    "Windows 10", "Windows Server 2016", "Windows Server 2019",
+    "Windows 10", "Windows Server 2016", "Windows Server 2019", 
+    "Windows 11", "Windows Server 2022",
 
-    "macOS 11", "macOS 12"
+    "macOS 12"
   };
 
   for (std::string s : supportedOsList) { 

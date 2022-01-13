@@ -69,6 +69,8 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Windows 10")).toBeTrue();
     $expect(isOsSupportedProxy("..... Windows 10 .....")).toBeTrue();
     $expect(isOsSupportedProxy("..... Windows ..... 10 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Windows 11 .....")).toBeTrue();
+    $expect(isOsSupportedProxy("..... Windows ..... 11 .....")).toBeFalse();
 
     // debian-based
     $expect(isOsSupportedProxy("Ubuntu")).toBeFalse();
@@ -117,7 +119,10 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("macOS 10.15 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("..... macOS 10.15 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("..... macOS ..... 10.15 ..... x86_64 .....")).toBeFalse();
-    $expect(isOsSupportedProxy("macOS 11")).toBeTrue();
+    $expect(isOsSupportedProxy("macOS 11.2")).toBeFalse();
+    $expect(isOsSupportedProxy("..... macOS 11.5 ..... x86_64 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("..... macOS ..... 11.2 ..... x86_64 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("..... macOS 12 ..... x86_64 .....")).toBeTrue();
     $expect(isOsSupportedProxy("macOS 12")).toBeTrue();
 
     // other debian-based
