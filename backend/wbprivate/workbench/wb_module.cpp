@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2021, Oracle and/or its affiliates.
+ * Copyright (c) 2007, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -215,10 +215,8 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
   static std::vector<std::string> supportedOsList {
     "Ubuntu 20.04", "Ubuntu 21.10", "Debian 10",
 
-    "Red Hat Enterprise Linux Server release 7", // Oracle 7.1 looks like this: "Red Hat Enterprise Linux Server release
-                                                 // 7.1 (Maipo)"
     "Red Hat Enterprise Linux release 8",        // Oracle 8.0: Red Hat Enterprise Linux release 8.0 (Ootpa)
-    "Fedora release 34", "Fedora release 35", "CentOS release 7",
+    "Fedora release 35", "CentOS release 7",
 
     "Windows 10", "Windows Server 2016", "Windows Server 2019",
 

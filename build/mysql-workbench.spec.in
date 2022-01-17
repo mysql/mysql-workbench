@@ -71,11 +71,7 @@ Source : %{name}-%{version}-src.tar.gz
 BuildRoot    : %{_tmppath}/%{name}-%{version}-root
 
 BuildRequires: pcre-devel >= 3.9
-%if 0%{?rhel} == 7
-BuildRequires: cmake3 >= 3.6
-%else
 BuildRequires: cmake >= 3.6
-%endif
 BuildRequires: libzip-devel libxml2-devel
 %if 0%{?fedora}
 BuildRequires: python3-devel >= 3.7
@@ -106,19 +102,7 @@ BuildRequires: unixODBC-devel
 BuildRequires: gdal-devel
 %endif
 
-%if 0%{?rhel} == 7
-# Disable execution of automatic bytecompilation of python libs
-%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
-%endif
-
 %if !%{defined python_lib_path} || !%{defined python_inc_dir}
-%if 0%{?rhel} == 7
-# if el7, and python_lib_path is not specified
-# then make sure python37-devel is installed
-BuildRequires: python37-devel
-%define python_lib_path /usr/lib/libpython3.7m.so
-%define python_inc_dir /usr/include/python3.7m
-%endif
 %if 0%{?rhel} == 8
 %define python_lib_path /usr/lib64/libpython3.8.so
 %define python_inc_dir /usr/include/python3.8
@@ -160,11 +144,7 @@ Conflicts: mysql-workbench-commercial
 
 # Filtering: https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering (from EL7)
 # FIXME if using system installs of one of these, this list is not correct
-%if 0%{?rhel} == 7
-%global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|python3.7m|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient)\\.so.*$
-%else
 %global __requires_exclude ^lib(antlr4|antlr4-runtime|cdbc|gdal|grt|iodbc|iodbcadm|iodbcinst|linux_utilities|mdcanvas|mdcanvasgtk|mforms|mysqlcppconn|parsers|sqlide|sqlite3|sqlparser|vsqlitepp|wbbase|wbprivate|wbpublic|wbscintilla|mtemplate|ssh|gcrypt|gpg-error|wbssh|mysqlclient)\\.so.*$
-%endif
 %global __provides_exclude_from ^(%{_libdir}/mysql.workbench/.*\\.so.*)$
 
 
@@ -186,15 +166,10 @@ fi
 # Add the -D flag if you don't want to delete the source root on each build
 %setup -q -n %{name}-%{version}-src
 
-
 %build
 %undefine _hardened_build #need to undefine because of some memory problems
 # CMAKE_INSTALL_PREFIX etc is handled by the cmake macro
-%if 0%{?rhel} == 7
-%cmake3 \
-%else
 %cmake \
-%endif
        -DCMAKE_BUILD_TYPE=Release \
        -DREAL_EXECUTABLE_DIR=%{_libexecdir}/mysql-workbench \
 %if %{defined mysql_home}
@@ -220,21 +195,14 @@ fi
        -DPYTHON_INCLUDE_DIR=%{python_inc_dir} \
 %endif
        -DBOOST_ROOT=%{bundles_path}/include \
-       -DBoost_NO_BOOST_CMAKE=ON
-
-%if 0%{?fedora}
+       -DBoost_NO_BOOST_CMAKE=ON 
+       
 %cmake_build
-%else
-make %{?_smp_mflags}
-%endif
 
 
 %install
-%if 0%{?fedora}
 %cmake_install
-%else
-make install DESTDIR=%{buildroot}
-%endif
+
 rm -fr %{buildroot}/usr/share/doc/mysql-workbench*
 
 # Bundle client programs and lib
@@ -342,10 +310,5 @@ rm -rf %{_builddir}/%{name}-%{version}-src
 %{_datadir}/mime-info/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*.desktop
-
-
-%if 0%{?fedora} == 19
-%debug_package
-%endif
 
 %changelog

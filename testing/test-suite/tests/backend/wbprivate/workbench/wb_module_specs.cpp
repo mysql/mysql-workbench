@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+ * Copyright (c) 2019, 2022, Oracle and/or its affiliates.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -97,10 +97,10 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release")).toBeFalse();
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 6")).toBeFalse();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 6 .....")).toBeFalse();
-    $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 7")).toBeTrue();
-    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7 i386 .....")).toBeTrue();
-    $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 7.1 x86_64")).toBeTrue();
-    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7.1 ..... x86_64 .....")).toBeTrue();
+    $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 7")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7 i386 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 7.1 x86_64")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7.1 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release ..... 7.1 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8 .....")).toBeTrue();
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux release 8.0")).toBeTrue();
@@ -134,7 +134,7 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Fedora release 31 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 32 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 33 x86_64")).toBeFalse();
-    $expect(isOsSupportedProxy("Fedora release 34 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("Fedora release 34 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 35 x86_64")).toBeTrue();
   });
 }
