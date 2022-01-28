@@ -863,8 +863,8 @@ TEXT_SYMBOL:                     T E X T;
 THAN_SYMBOL:                     T H A N;
 THEN_SYMBOL:                     T H E N;                                    // SQL-2003-R
 TIMESTAMP_SYMBOL:                T I M E S T A M P;                          // SQL-2003-R
-TIMESTAMP_ADD_SYMBOL:            T I M E S T A M P '_' A D D;
-TIMESTAMP_DIFF_SYMBOL:           T I M E S T A M P '_' D I F F;
+TIMESTAMP_ADD_SYMBOL:            T I M E S T A M P A D D;
+TIMESTAMP_DIFF_SYMBOL:           T I M E S T A M P D I F F;
 TIME_SYMBOL:                     T I M E;                                    // SQL-2003-R
 TINYBLOB_SYMBOL:                 T I N Y B L O B;                            // MYSQL
 TINYINT_SYMBOL:                  T I N Y I N T;                              // MYSQL
