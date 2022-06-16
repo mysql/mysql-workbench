@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Workbench 8.0.
 
-   Last updated: March 2022
+   Last updated: May 2022
 
 Licensing Information
 
@@ -3729,7 +3729,7 @@ zlib
    and Mark Adler in creating the zlib general purpose compression library
    which is used in this product.
 
-(C) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
