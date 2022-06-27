@@ -113,7 +113,7 @@ namespace base {
     const gchar *filename;
     while ((filename = g_dir_read_name(dir))) {
       std::string full_path = strfmt("%s%s%s", path.c_str(), G_DIR_SEPARATOR_S, filename);
-      if (g_pattern_match_string(pat, filename))
+      if (g_pattern_spec_match_string(pat, filename))
         matches.push_back(full_path);
 
       if (recursive && g_file_test(full_path.c_str(), G_FILE_TEST_IS_DIR)) {
