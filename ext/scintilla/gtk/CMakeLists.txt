@@ -190,7 +190,7 @@ endif()
 
 set(NEW_WB_CFLAGS ${WB_CFLAGS})
 list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
-list(APPEND NEW_WB_CFLAGS -DGTK -DSCI_LEXER -DSCI_NAMESPACE -Wno-deprecated-register -Wno-implicit-fallthrough)
+list(APPEND NEW_WB_CFLAGS -DGTK -DSCI_LEXER -DSCI_NAMESPACE -Wno-implicit-fallthrough)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND NEW_WB_CFLAGS -DNO_CXX11_REGEX)
 endif()
