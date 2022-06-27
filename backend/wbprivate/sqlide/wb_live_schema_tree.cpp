@@ -1802,7 +1802,7 @@ bool LiveSchemaTree::filter_children(ObjectType type, mforms::TreeNodeRef& sourc
   int count = source->count();
   for (int index = 0; index < count; index++) {
     mforms::TreeNodeRef source_node = source->get_child(index);
-    if (!validate || g_pattern_match_string(pattern, base::toupper(source_node->get_string(0)).c_str())) {
+    if (!validate || g_pattern_spec_match_string(pattern, base::toupper(source_node->get_string(0)).c_str())) {
       std::vector<mforms::TreeNodeRef> group_added_nodes;
       _node_collections[type].captions.clear();
       _node_collections[type].captions.push_back(source_node->get_string(0));

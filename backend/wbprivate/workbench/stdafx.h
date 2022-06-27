@@ -66,6 +66,7 @@
 #include <gl/glu.h>
 
 #include <glib.h>
+#include <glib/gpattern.h>
 
 #include "grts/structs.db.mgmt.h"
 #include "grts/structs.db.mysql.h"
