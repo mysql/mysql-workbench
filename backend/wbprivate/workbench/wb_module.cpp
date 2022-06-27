@@ -213,7 +213,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
   }
 
   static std::vector<std::string> supportedOsList {
-    "Ubuntu 20.04", "Ubuntu 21.10", "Debian 10",
+    "Ubuntu 22.04", "Debian 10",
 
     "Red Hat Enterprise Linux release 8",        // Oracle 8.0: Red Hat Enterprise Linux release 8.0 (Ootpa)
     "Fedora release 35", "CentOS release 7",
