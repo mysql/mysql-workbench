@@ -334,13 +334,13 @@ static int classifyFoldPointMetapost(const char* s,WordList *keywordlists[]) {
 
 }
 
-static int ParseMetapostWord(Sci_PositionU pos, Accessor &styler, char *word)
+static int ParseMetapostWord(Sci_PositionU pos, Accessor &styler, char *word, const size_t word_len)
 {
   int length=0;
   char ch=styler.SafeGetCharAt(pos);
   *word=0;
 
-  while(isMETAPOSTidentifier(ch) && isalpha(ch) && length<100){
+  while(isMETAPOSTidentifier(ch) && isalpha(ch) && length<word_len - 1){
           word[length]=ch;
           length++;
           ch=styler.SafeGetCharAt(pos+length);
@@ -359,7 +359,8 @@ static void FoldMetapostDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 	int levelCurrent=levelPrev;
 	char chNext=styler[startPos];
 
-	char buffer[100]="";
+  const size_t buffer_length = 100;
+	char buffer[buffer_length]="";
 
 	for (Sci_PositionU i=startPos; i < endPos; i++) {
 		char ch=chNext;
@@ -369,7 +370,7 @@ static void FoldMetapostDoc(Sci_PositionU startPos, Sci_Position length, int, Wo
 
 		if(i==0 || chPrev == '\r' || chPrev=='\n'|| chPrev==' '|| chPrev=='(' || chPrev=='$')
 		{
-            ParseMetapostWord(i, styler, buffer);
+            ParseMetapostWord(i, styler, buffer, buffer_length);
 			levelCurrent += classifyFoldPointMetapost(buffer,keywordlists);
 		}
 

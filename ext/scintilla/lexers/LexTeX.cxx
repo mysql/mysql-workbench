@@ -295,7 +295,7 @@ static inline bool isWordChar(int ch) {
 	return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'));
 }
 
-static Sci_Position ParseTeXCommand(Sci_PositionU pos, Accessor &styler, char *command)
+static Sci_Position ParseTeXCommand(Sci_PositionU pos, Accessor &styler, char *command, size_t commanr_len)
 {
   Sci_Position length=0;
   char ch=styler.SafeGetCharAt(pos+1);
@@ -307,7 +307,7 @@ static Sci_Position ParseTeXCommand(Sci_PositionU pos, Accessor &styler, char *c
   }
 
   // find end
-     while(isWordChar(ch) && !isNumber(ch) && ch!='_' && ch!='.' && length<100){
+     while(isWordChar(ch) && !isNumber(ch) && ch!='_' && ch!='.' && length<commanr_len - 1){
           command[length]=ch;
           length++;
           ch=styler.SafeGetCharAt(pos+length+1);
@@ -387,7 +387,8 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 	int levelPrev=styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
 	int levelCurrent=levelPrev;
 	char chNext=styler[startPos];
-	char buffer[100]="";
+	const size_t buffer_len = 100;
+	char buffer[buffer_len]="";
 
 	for (Sci_PositionU i=startPos; i < endPos; i++) {
 		char ch=chNext;
@@ -395,12 +396,12 @@ static void FoldTexDoc(Sci_PositionU startPos, Sci_Position length, int, WordLis
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 
         if(ch=='\\') {
-            ParseTeXCommand(i, styler, buffer);
+            ParseTeXCommand(i, styler, buffer, buffer_len);
 			levelCurrent += classifyFoldPointTeXPaired(buffer)+classifyFoldPointTeXUnpaired(buffer);
 		}
 
 		if (levelCurrent > SC_FOLDLEVELBASE && ((ch == '\r' || ch=='\n') && (chNext == '\\'))) {
-            ParseTeXCommand(i+1, styler, buffer);
+            ParseTeXCommand(i+1, styler, buffer, buffer_len);
 			levelCurrent -= classifyFoldPointTeXUnpaired(buffer);
 		}
 

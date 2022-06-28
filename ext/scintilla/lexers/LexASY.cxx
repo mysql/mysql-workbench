@@ -150,13 +150,13 @@ static inline bool isASYidentifier(int ch) {
       ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) ;
 }
 
-static int ParseASYWord(Sci_PositionU pos, Accessor &styler, char *word)
+static int ParseASYWord(Sci_PositionU pos, Accessor &styler, char *word, size_t word_len)
 {
   int length=0;
   char ch=styler.SafeGetCharAt(pos);
   *word=0;
 
-  while(isASYidentifier(ch) && length<100){
+  while(isASYidentifier(ch) && length<word_len - 1){
           word[length]=ch;
           length++;
           ch=styler.SafeGetCharAt(pos+length);
@@ -170,11 +170,12 @@ static bool IsASYDrawingLine(Sci_Position line, Accessor &styler) {
 	Sci_Position eol_pos = styler.LineStart(line + 1) - 1;
 
 	Sci_Position startpos = pos;
-	char buffer[100]="";
+	const size_t length = 100;
+	char buffer[length]="";
 
 	while (startpos<eol_pos){
 		char ch = styler[startpos];
-		ParseASYWord(startpos,styler,buffer);
+		ParseASYWord(startpos,styler,buffer, length);
 		bool drawcommands = strncmp(buffer,"draw",4)==0||
 			strncmp(buffer,"pair",4)==0||strncmp(buffer,"label",5)==0;
 		if (!drawcommands && ch!=' ') return false;
