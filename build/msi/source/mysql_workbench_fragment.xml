@@ -106,10 +106,8 @@
                 <File Id="file1122" Name="antlr4-runtime.dll"/>
                 <File Id="ssh.dll" Name="ssh.dll"/>
                 <File Id="libssl11x64.dll" Name="libssl-1_1-x64.dll"/>
-                <?if $(var.SETUP_TYPE) = "commercial" ?>
-                  <File Id="authentication_kerberos_client" Name="authentication_kerberos_client.dll"/>
-                  <File Id="authentication_ldap_sasl_client" Name="authentication_ldap_sasl_client.dll"/>
-                <?endif ?>
+                <File Id="authentication_kerberos_client" Name="authentication_kerberos_client.dll"/>
+                <File Id="authentication_ldap_sasl_client" Name="authentication_ldap_sasl_client.dll"/>
               </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
