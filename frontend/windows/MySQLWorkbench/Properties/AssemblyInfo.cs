@@ -29,5 +29,5 @@ using MySQL.GUI.Workbench;
 //      Minor Version 
 //      Release Number
 //
-[assembly: AssemblyVersion("8.0.29")]
-[assembly: AssemblyFileVersion("8.0.29")]
+[assembly: AssemblyVersion("8.0.30")]
+[assembly: AssemblyFileVersion("8.0.30")]
