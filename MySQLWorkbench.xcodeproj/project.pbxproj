@@ -2744,6 +2744,7 @@
 		8EF64AB02260D05F00AA8BD1 /* wb_context_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF64AAE2260D05F00AA8BD1 /* wb_context_specs.cpp */; };
 		8EF64AB92267563300AA8BD1 /* wb_lowlevel_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF64AB82267563200AA8BD1 /* wb_lowlevel_specs.cpp */; };
 		8EF64ABA2267563300AA8BD1 /* wb_lowlevel_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF64AB82267563200AA8BD1 /* wb_lowlevel_specs.cpp */; };
+		8EF87004289D1E9800A33DDA /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
 		ED0955E1177374690051CF28 /* page_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DE177374690051CF28 /* page_restore.png */; };
 		ED0955E2177374690051CF28 /* title_backup.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DF177374690051CF28 /* title_backup.png */; };
 		ED0955E3177374690051CF28 /* title_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955E0177374690051CF28 /* title_restore.png */; };
@@ -6968,6 +6969,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8EF87004289D1E9800A33DDA /* libmforms.dylib in Frameworks */,
 				443D2B901C6CAF1A00C7FC85 /* libwbbase.dylib in Frameworks */,
 				2B750E6A0E87851B0003120A /* libgrt.dylib in Frameworks */,
 				271F744A239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
@@ -17682,6 +17684,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/3rd-party-ce/include/cppconn",
 					"$(PROJECT_DIR)/library/grt/src",
+					"$(PROJECT_DIR)/library/forms/**",
 					"$(PROJECT_DIR)/generated",
 					"$(inherited)",
 				);
@@ -17710,6 +17713,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/3rd-party-ce/include/cppconn",
 					"$(PROJECT_DIR)/library/grt/src",
+					"$(PROJECT_DIR)/library/forms/**",
 					"$(PROJECT_DIR)/generated",
 					"$(inherited)",
 				);

@@ -33,9 +33,7 @@
 #include "base/string_utilities.h"
 #include "base/file_utilities.h"
 #include "grt.h"
-#ifndef __APPLE__
 #include "mforms/app.h"
-#endif
 
 #include <gmodule.h>
 
@@ -383,7 +381,6 @@ namespace sql {
       properties["hostName"] = std::string();
 #endif
     } else if (drv->name() == "MysqlNativeSaslKerberos") {
-#if !defined(__APPLE__) && !defined(_MSC_VER)
       properties["defaultAuth"] = "authentication_ldap_sasl_client";
       std::string plugin_dir_path = parameter_values.get_string("mysqlplugindir");
       if (!plugin_dir_path.empty()) {
@@ -397,9 +394,7 @@ namespace sql {
 #endif
         properties["pluginDir"] = base::dirname(mforms::App::get()->get_executable_path(libName));
       }
-#endif
     } else if (drv->name() == "MysqlNativeKerberos") {
-#ifndef __APPLE__
       properties["defaultAuth"] = "authentication_kerberos_client";
       std::string plugin_dir_path = parameter_values.get_string("mysqlplugindir");
       if (!plugin_dir_path.empty()) {
@@ -413,7 +408,6 @@ namespace sql {
 #endif
         properties["pluginDir"] = base::dirname(mforms::App::get()->get_executable_path(libName));
       }
-#endif
     } else if (drv->name() == "MysqlNativeLDAP") {
       properties["OPT_ENABLE_CLEARTEXT_PLUGIN"] = true;
     }
