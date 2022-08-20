@@ -33,7 +33,7 @@
 # Disable global build id because of cpp connector bundle
 %global _build_id_links none
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} == 9
 %else
 %include %{_rpmconfigdir}/macros.python
 %endif
@@ -76,8 +76,8 @@ BuildRequires: libzip-devel libxml2-devel
 %if 0%{?fedora}
 BuildRequires: python3-devel >= 3.7
 %else
-%if 0%{?rhel} == 8
-BuildRequires: python38-devel
+%if 0%{?rhel} == 9
+BuildRequires: python3-devel >= 3.9
 %endif
 %endif
 BuildRequires: gtk3-devel
@@ -103,9 +103,9 @@ BuildRequires: gdal-devel
 %endif
 
 %if !%{defined python_lib_path} || !%{defined python_inc_dir}
-%if 0%{?rhel} == 8
-%define python_lib_path /usr/lib64/libpython3.8.so
-%define python_inc_dir /usr/include/python3.8
+%if 0%{?rhel} == 9
+%define python_lib_path /usr/lib64/libpython3.9.so
+%define python_inc_dir /usr/include/python3.9
 %endif
 %endif
 
