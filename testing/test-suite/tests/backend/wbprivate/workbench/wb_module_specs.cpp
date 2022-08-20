@@ -105,9 +105,9 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release 7.1 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release 7.1 ..... x86_64 .....")).toBeFalse();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux Server release ..... 7.1 ..... x86_64 .....")).toBeFalse();
-    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8 .....")).toBeTrue();
-    $expect(isOsSupportedProxy("Red Hat Enterprise Linux release 8.0")).toBeTrue();
-    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8.0")).toBeTrue();
+    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8 .....")).toBeFalse();
+    $expect(isOsSupportedProxy("Red Hat Enterprise Linux release 8.0")).toBeFalse();
+    $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 8.0")).toBeFalse();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 9 .....")).toBeTrue();
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux release 9.0")).toBeTrue();
     $expect(isOsSupportedProxy("..... Red Hat Enterprise Linux release 9.0")).toBeTrue();
