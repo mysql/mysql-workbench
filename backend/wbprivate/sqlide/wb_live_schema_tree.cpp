@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2022, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -1802,7 +1802,9 @@ bool LiveSchemaTree::filter_children(ObjectType type, mforms::TreeNodeRef& sourc
   int count = source->count();
   for (int index = 0; index < count; index++) {
     mforms::TreeNodeRef source_node = source->get_child(index);
-#ifdef GLIB_VERSION_2_70      
+
+// #ifdef GLIB_VERSION_2_70 won't work in RHEL9/OL9 because the glib-2.68 package already contains this definition
+#ifdef g_pattern_spec_match_string
       bool match_string  = g_pattern_spec_match_string(pattern, base::toupper(source_node->get_string(0)).c_str());
 #else
       bool match_string = g_pattern_match_string(pattern, base::toupper(source_node->get_string(0)).c_str());

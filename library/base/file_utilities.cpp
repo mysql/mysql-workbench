@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -113,7 +113,8 @@ namespace base {
     const gchar *filename;
     while ((filename = g_dir_read_name(dir))) {
       std::string full_path = strfmt("%s%s%s", path.c_str(), G_DIR_SEPARATOR_S, filename);
-#ifdef GLIB_VERSION_2_70      
+// #ifdef GLIB_VERSION_2_70 won't work in RHEL9/OL9 because the glib-2.68 package already contains this definition
+#if GLIB_VERSION_CUR_STABLE >= GLIB_VERSION_2_70
       bool match_string  = g_pattern_spec_match_string(pat, filename);
 #else
       bool match_string = g_pattern_match_string(pat, filename);
