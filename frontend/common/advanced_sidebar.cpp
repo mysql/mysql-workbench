@@ -1273,8 +1273,8 @@ void AdvancedSidebar::setup_schema_tree() {
   _schema_search_text.set_placeholder_text("Filter objects");
   _schema_search_text.set_tooltip(
     "You can use wildcards to search for objects in multiple schemas.\n"
-    "* - a substitue for zero or more characters\n"
-    "? - a substitue for single character\n"
+    "* - a substitute for zero or more characters\n"
+    "? - a substitute for single character\n"
     "Search is possible only through already loaded schemas.");
   _schema_search_text.set_name("Schema Filter Entry");
   _schema_search_box.add(&_schema_search_text, true, true);
