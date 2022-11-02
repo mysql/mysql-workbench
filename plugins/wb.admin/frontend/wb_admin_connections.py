@@ -343,7 +343,7 @@ class WbAdminConnections(WbAdminTabBase):
             self.columns = [("Id", mforms.LongIntegerColumnType, "Id", 50),
                             ("User", mforms.StringColumnType, "User", 80),
                             ("Host", mforms.StringColumnType, "Host", 120),
-                            ("DB", mforms.StringColumnType, "DB", 100),
+                            ("db", mforms.StringColumnType, "DB", 100),
                             ("Command", mforms.StringColumnType, "Command", 80),
                             ("Time", mforms.LongIntegerColumnType, "Time", 60),
                             ("State", mforms.StringColumnType, "State", 80),
