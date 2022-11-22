@@ -1726,12 +1726,24 @@ void PythonContext::log_python_error(const char *message) {
     stack = "Traceback:\n";
     while (trace && trace->tb_frame) {
       PyFrameObject *frame = (PyFrameObject *)trace->tb_frame;
-      stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyUnicode_AsUTF8(frame->f_code->co_filename),
-                            trace->tb_lineno, PyUnicode_AsUTF8(frame->f_code->co_name));
-      PyObject *code = PyErr_ProgramText(PyUnicode_AsUTF8(frame->f_code->co_filename), trace->tb_lineno);
-      if (code) {
-        stack += base::strfmt("    %s", PyUnicode_AsUTF8(code));
-        Py_DECREF(code);
+      if (frame) {
+#if defined(__APPLE__) || defined(_MSC_VER)
+        auto *codeObject = frame->f_code;
+#else
+        PyCodeObject *codeObject = PyFrame_GetCode(frame);
+#endif
+        if (codeObject) {
+          stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyUnicode_AsUTF8(codeObject->co_filename),
+                                trace->tb_lineno, PyUnicode_AsUTF8(codeObject->co_name));
+          PyObject *code = PyErr_ProgramText(PyUnicode_AsUTF8(codeObject->co_filename), trace->tb_lineno);
+          if (code) {
+            stack += base::strfmt("    %s", PyUnicode_AsUTF8(code));
+            Py_DECREF(code);
+          }
+#ifndef _MSC_VER
+          Py_DECREF(codeObject);
+#endif
+        }
       }
       trace = trace->tb_next;
     }

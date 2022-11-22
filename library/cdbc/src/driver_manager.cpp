@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2022, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -36,6 +36,7 @@
 #include "mforms/app.h"
 
 #include <gmodule.h>
+#include <stdlib.h>
 
 using namespace wb;
 
@@ -317,6 +318,33 @@ namespace sql {
         properties["OPT_CONNECT_TIMEOUT"] = conn_timeout;
       if (properties.find("OPT_READ_TIMEOUT") == properties.end())
         properties["OPT_READ_TIMEOUT"] = read_timeout;
+#ifdef _MSC_VER
+      properties["pluginDir"] = base::dirname(mforms::App::get()->get_executable_path("base.dll"));
+#endif
+      properties["OPT_AUTHENTICATION_KERBEROS_CLIENT_MODE"] = "";
+      std::string krb5 = parameter_values.get_string("krb5");
+      std::string krb5cache = parameter_values.get_string("krb5cache");
+      std::vector<char> env;
+      if (!krb5.empty()) {
+        auto tmp = std::string("KRB5_CONFIG=" + krb5);
+        env = std::vector<char>(tmp.begin(), tmp.end());
+      } else {
+        auto tmp = std::string("KRB5_CONFIG=");
+        env = std::vector<char>(tmp.begin(), tmp.end());
+      }
+      putenv(&env[0]);
+
+      env.clear();
+      if (!krb5cache.empty()) {
+        auto tmp = std::string("KRB5CCNAME=" + krb5cache);
+        env = std::vector<char>(tmp.begin(), tmp.end());
+      } else {
+        auto tmp = std::string("KRB5CCNAME=");
+        env = std::vector<char>(tmp.begin(), tmp.end());
+      }
+      putenv(&env[0]);
+
+      properties["defaultAuth"] = "";
     }
     properties["OPT_CAN_HANDLE_EXPIRED_PASSWORDS"] = true;
     properties["CLIENT_MULTI_STATEMENTS"] = true;
@@ -408,6 +436,8 @@ namespace sql {
 #endif
         properties["pluginDir"] = base::dirname(mforms::App::get()->get_executable_path(libName));
       }
+
+      properties["OPT_AUTHENTICATION_KERBEROS_CLIENT_MODE"] = parameter_values.get_int("kerberosMode", 0) == 1 ? "SSPI": "GSSAPI";
     } else if (drv->name() == "MysqlNativeLDAP") {
       properties["OPT_ENABLE_CLEARTEXT_PLUGIN"] = true;
     }

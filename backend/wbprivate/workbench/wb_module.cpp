@@ -213,7 +213,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
   }
 
   static std::vector<std::string> supportedOsList {
-    "Ubuntu 22.04", "Debian 10",
+    "Ubuntu 22.04", "Ubuntu 22.10", "Debian 10",
 
     "Red Hat Enterprise Linux release 9",        // Oracle 9.0: Red Hat Enterprise Linux release 9.0 (Plow)
     "Fedora release 36", "CentOS release 7",

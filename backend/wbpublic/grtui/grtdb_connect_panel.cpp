@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2022, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -35,6 +35,7 @@
 #include "mforms/checkbox.h"
 #include "mforms/textbox.h"
 #include "mforms/app.h"
+#include <mforms/radiobutton.h>
 
 #include "objimpl/wrapper/mforms_ObjectReference_impl.h"
 
@@ -1183,6 +1184,46 @@ void DbConnectPanel::create_control(::DbDriverParam *driver_param, const ::Contr
                      std::bind(&DbConnectPanel::enum_param_value_changed, this, ctrl, option_ids));
       box->add(mforms::manage(ctrl), true, true);
       _views.push_back(ctrl);
+      break;
+    }
+    case ::ctEnumOption: {
+      std::vector<std::pair<std::string, std::string> > options;
+      std::string value;
+      try {
+        options = driver_param->get_enum_options();
+        value = _connection->get_connection()->parameterValues().get("kerberosMode").toString();
+      } catch (std::exception &e) {
+        logError("Error calling get_enum_options() for param %s: %s", driver_param->get_control_name().c_str(),
+                 e.what());
+        mforms::Utilities::show_error(
+          "Connection Setup",
+          base::strfmt("An error occurred while retrieving values for option '%s' from '%s'.\n\n%s",
+                       driver_param->object()->name().c_str(), selected_driver()->name().c_str(), e.what()),
+          "OK", "", "");
+      }
+      Box *inner_box = new Box(false);
+      unsigned int group_id = mforms::RadioButton::new_id();
+      
+      for (auto &option: options) {
+        mforms::RadioButton *rb = new mforms::RadioButton(group_id);
+        rb->set_text(option.second);
+        rb->set_name(driver_param->get_accessibility_name().toString() + "_" + option.first);
+        rb->setInternalName(driver_param->get_control_name().toString() + "_" + option.first);
+        
+        rb->set_active(option.first == value);
+#ifndef _MSC_VER
+        if (option.first == "1")
+          rb->set_enabled(false);
+#endif        
+
+        scoped_connect(rb->signal_clicked(), [=](){
+          _connection->get_connection()->parameterValues().gset("kerberosMode", option.first);
+        });
+         
+        inner_box->add(mforms::manage(rb), false, true);
+      }
+
+      box->add(mforms::manage(inner_box), true, true);
       break;
     }
     default:

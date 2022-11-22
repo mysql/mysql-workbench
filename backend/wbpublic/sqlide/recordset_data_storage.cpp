@@ -21,7 +21,14 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#ifndef _MSC_VER
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include "sqlide_generics_private.h"
+#ifndef _MSC_VER
+#pragma GCC diagnostic pop
+#endif
 
 #include "recordset_data_storage.h"
 #include "base/string_utilities.h"
@@ -205,3 +212,7 @@ void Recordset_data_storage::update_data_swap_record(sqlite::connection *data_sw
   boost::apply_visitor(bind_sql_command_var, value);
   update_command->emit();
 }
+
+#ifndef _MSC_VER
+#pragma GCC diagnostic pop
+#endif

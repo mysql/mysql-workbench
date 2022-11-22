@@ -108,7 +108,17 @@
                 <File Id="libssl11x64.dll" Name="libssl-1_1-x64.dll"/>
                 <File Id="authentication_kerberos_client" Name="authentication_kerberos_client.dll"/>
                 <File Id="authentication_ldap_sasl_client" Name="authentication_ldap_sasl_client.dll"/>
-              </Component>
+                <File Id="k5sprt64" Name="k5sprt64.dll"/>
+                <File Id="krb5_64" Name="krb5_64.dll"/>
+                <File Id="krbcc64" Name="krbcc64.dll"/>
+                <File Id="libsasl" Name="libsasl.dll"/>
+                <File Id="saslSCRAM" Name="saslSCRAM.dll"/>
+                <File Id="xpprof64" Name="xpprof64.dll"/>
+                <File Id="comerr64" Name="comerr64.dll"/>
+                <File Id="fido2" Name="fido2.dll"/>
+                <File Id="gssapi64" Name="gssapi64.dll"/>
+                <File Id="ccapiserver.exe" Name="ccapiserver.exe"/>
+                </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">
                 <File Id="file101" Name="utilities.grt.dll"/>

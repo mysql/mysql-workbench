@@ -120,6 +120,7 @@ xcopy /i /s /y /d %EXT_BIN_DIR%\mysql.exe %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_BIN_DIR%\ogrinfo.exe %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_BIN_DIR%\ogr2ogr.exe %TARGET_DIR%\.
 
+xcopy /i /s /y /d %EXT_BIN_DIR%\ccapiserver.exe %TARGET_DIR%\.
 
 rem Do not remove
 rem Python executable needed by MSI Custom Action (to precompile Python files) and maybe some externally executed scripts...
@@ -243,6 +244,15 @@ xcopy /i /s /y /d %EXT_LIB_DIR%\ssh.dll %TARGET_DIR%\.
 echo * auth plugins ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\authentication_ldap_sasl_client.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %EXT_LIB_DIR%\authentication_kerberos_client.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\comerr64.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\fido2.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\gssapi64.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\k5sprt64.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\krb5_64.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\krbcc64.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\libsasl.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\saslSCRAM.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\xpprof64.dll %TARGET_DIR%\.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide

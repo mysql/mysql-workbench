@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2022, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -76,6 +76,8 @@ DbDriverParam::ParamType DbDriverParam::decode_param_type(std::string type_name,
   else if (0 == type_name.compare("enum")) {
     if (real_type == "int")
       result = ptIntEnum;
+    else if (real_type == "unsigned int")
+      result = ptIntOption;
     else
       result = ptEnum;
   } else if (0 == type_name.compare("text"))
@@ -118,6 +120,8 @@ ControlType DbDriverParam::get_control_type() const {
     case DbDriverParam::ptEnum:
     case DbDriverParam::ptIntEnum:
       return ctEnumSelector;
+    case DbDriverParam::ptIntOption:
+      return ctEnumOption;
     case DbDriverParam::ptText:
       return ctText;
     case DbDriverParam::ptButton:
@@ -146,6 +150,7 @@ void DbDriverParam::set_value(const grt::ValueRef &value) {
     case ptInt:
     case ptBoolean:
     case ptTristate:
+    case ptIntOption:
     case ptIntEnum: {
       if (value.type() == grt::IntegerType)
         _value = value;

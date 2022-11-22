@@ -142,7 +142,7 @@ void MyxStatementParser::process(std::istream& is, process_sql_statement_callbac
   static const char *kwd= "DELIMITER";
   
   int c;
-  ParserState state= start, prevState;
+  ParserState state = start, prevState = start;
   std::string stmt_buffer;
   std::string delim_buffer;
   char strchar = 0;
