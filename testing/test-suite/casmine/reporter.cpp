@@ -46,6 +46,10 @@ using namespace std::string_literals;
   #define SUCCESSFUL_TEST "√"
 #endif
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 //----------------------------------------------------------------------------------------------------------------------
 
 /**

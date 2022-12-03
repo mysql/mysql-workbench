@@ -29,6 +29,10 @@ using namespace rapidjson;
 
 using namespace std::chrono;
 
+#ifdef _MSC_VER
+#undef GetObject
+#endif
+
 
 //----------------------------------------------------------------------------------------------------------------------
 
