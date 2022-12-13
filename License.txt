@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Workbench 8.0.
 
-   Last updated: August 2022
+   Last updated: November 2022
 
 Licensing Information
 
@@ -443,12 +443,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    ======================================================================
    ======================================================================
 
-Boost Library
+Boost C++ Libraries
 
-   Boost C++ Libraries
-
-   Use of any of this software is governed by the terms of the license
-   below:
+Use of any of this software is governed by the terms of the license
+below:
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
@@ -531,8 +529,8 @@ file under each directory and the opening comment of each file for copyright
 and licensing information.
 
 == COPYING-LGPL-2.1 file from download package
-GNU Lesser General Public License Version 2.1, February 1999. See the 'Standard
-Licenses'
+GNU Lesser General Public License v2.1, February 1999. See the 'Standard License
+s'
 section for license text.
 
 == COPYING-MPL-1.1
@@ -682,8 +680,6 @@ possible. They may also add themselves to the list below.
 
 FreeTDS
 
-   FreeTDS
-
 You are receiving a copy of FreeTDS in both source and object code. The terms
 of the Oracle license do NOT apply to FreeTDS; Oracle distributes it under
 the GNU Lesser General Public License Version 2.0 separately from the Oracle
@@ -691,14 +687,12 @@ programs you receive. If you do not wish to install this program, you may
 delete freetds.so (*nix) and dylib (windows) from the installation directory
 (or uninstall Workbench completely).
 
-   This component is licensed under the GNU GPL license, version 2.0.
+This component is licensed under the GNU GPL license, version 2.0.
 
    ======================================================================
    ======================================================================
 
 GDAL/OGR
-
-   GDAL/OGR
 
 GDAL/OGR Licensing
 ==================
@@ -939,7 +933,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-
    ======================================================================
    ======================================================================
 
@@ -970,9 +963,9 @@ folder and remove or replace the files
 Note that the Oracle program might not operate properly or at all without the
 library.
 
-   This component is licensed under GNU Lesser General Public License
-   Version 2.1, February 1999. See the 'Standard Licenses' section for
-   license text.
+This component is licensed under
+GNU Lesser General Public License v2.1, February 1999.
+See the 'Standard Licenses' section for license text.
 
    ======================================================================
    ======================================================================
@@ -1107,8 +1100,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 
 == LICENSE.LGPL file from download package
-GNU Lesser General Public License Version 2, June 1991. See the 'Standard Licens
-es'
+GNU Lesser General Public License v2, June 1991. See the 'Standard Licenses'
 section for license text.
 
    ======================================================================
@@ -2464,8 +2456,6 @@ Libffi
 
 libpng
 
-   libpng
-
 PNG Reference Library License version 2
 ---------------------------------------
 
@@ -2602,8 +2592,6 @@ be appreciated.
 
 libssh
 
-   libssh
-
 You are receiving a copy of libssh as part of MySQL Workbench in object code
 form. The terms of the Oracle license do NOT apply to libssh; libssh is licensed
 under the LGPLv2.1 license, separate from MySQL. If you do not wish to install
@@ -2656,27 +2644,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-   This component is licensed under GNU Lesser General Public License
-   Version 2.1, February 1999. See the 'Standard Licenses' section for
-   license text.
+This component is licensed under
+GNU Lesser General Public License v2.1, February 1999.
+See the 'Standard Licenses' section for license text.
 
    ======================================================================
    ======================================================================
 
-Libxml2
+LibXML2
 
 Except where otherwise noted in the source code (e.g. the files hash.c,
-list.c and the trio files, which are covered by a similar licence but with
-different Copyright notices) all the files are:
+list.c and the trio files, which are covered by a similar license but
+with different Copyright notices) all the files are:
 
-Copyright (C) 1998-2012 Daniel Veillard.  All Rights Reserved.
+ Copyright (C) 1998-2012 Daniel Veillard.  All Rights Reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is fur-
-nished to do so, subject to the following conditions:
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
@@ -2689,26 +2677,48 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-== Additional copyright for specific files
-hash.c - Copyright (C) 2000,2012 Bjorn Reese and Daniel Veillard.
-list.c - Copyright (C) 2000 Gary Pennington and Daniel Veillard.
-trio.h / trio.c - Copyright (C) 1998 Bjorn Reese and Daniel Stenberg.
+*
+ * hash.c: chained hash tables
+ *
+ * Reference: Your favorite introductory book on algorithms
+ *
+ * Copyright (C) 2000,2012 Bjorn Reese and Daniel Veillard.
+ *
 
+/*
+ * list.c: lists handling implementation
+ *
+ * Copyright (C) 2000 Gary Pennington and Daniel Veillard.
+ *
+
+trio.c / trio.h
+ * Copyright (C) 1998 Bjorn Reese and Daniel Stenberg.
+ *
+
+triodef.h / trionan.c / trionan.h / triostr.c / triostr.h
+ * Copyright (C) 2001 Bjorn Reese <breese@users.sourceforge.net>
+ *
+
+triop.h
+ * Copyright (C) 2000 Bjorn Reese and Daniel Stenberg.
+ *
+
+License text for hash.c / list.c / trio*.* files
+ *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
  *
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * THIS SOFTWARE IS PROVIDED ''AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS AND
  * CONTRIBUTORS ACCEPT NO RESPONSIBILITY IN ANY CONCEIVABLE MANNER.
+ *
 
    ======================================================================
    ======================================================================
 
 Libzip
-
-libzip
 
 Copyright (C) 1999-2013 Dieter Baron and Thomas Klausner
 The authors can be contacted at <libzip@nih.at>
@@ -2738,7 +2748,6 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
    ======================================================================
    ======================================================================
@@ -2775,12 +2784,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OpenSSL 1.x
 
-   You are receiving a copy of OpenSSL as part of this product in object
-   code form. The terms of the Oracle license do NOT apply to OpenSSL.
-   OpenSSL is licensed under a double license, of the OpenSSL License and
-   the original SSLeay license, separate from the Oracle product. If you
-   do not wish to install this library, you may remove it, but the Oracle
-   program might not operate properly or at all without it.
+You are receiving a copy of OpenSSL as part of this product in
+object code form. The terms of the Oracle license do NOT apply to
+OpenSSL. OpenSSL is licensed under a double license, of the OpenSSL
+License and the original SSLeay license, separate from the Oracle
+product. If you do not wish to install this library, you may remove
+it, but the Oracle program might not operate properly or at all
+without it.
+
+---------------------------------------------------------------------
 
   LICENSE ISSUES
   ==============
@@ -2928,15 +2940,13 @@ the Oracle program might not operate properly or at all without it.
  * https://www.openssl.org/source/license.html
 */
 
-See Apache License Version 2.0, January 2004 in the
+See Apache License v2.0, January 2004 in the
 'Standard Licenses' section.
 
    ======================================================================
    ======================================================================
 
-PCRE
-
-   PCRE (Perl Compatible Regular Expressions) Library
+PCRE (Perl Compatible Regular Expressions) Library
 
 PCRE is a library of functions to support regular expressions whose syntax
 and semantics are as close as possible to those of the Perl 5 language.
@@ -3723,11 +3733,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 zlib
 
-   zlib
-
-   Oracle gratefully acknowledges the contributions of Jean-loup Gailly
-   and Mark Adler in creating the zlib general purpose compression library
-   which is used in this product.
+Oracle gratefully acknowledges the contributions of Jean-loup Gailly
+and Mark Adler in creating the zlib general purpose compression
+library which is used in this product.
 
 Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
 
@@ -3762,9 +3770,7 @@ the FAQ for more information on the distribution of modified source versions.
    ======================================================================
    ======================================================================
 
-ZSTD
-
-   Zstandard
+ZSTD (Zstandard)
 
 Zstandard is dual-licensed under [BSD](LICENSE) and [GPLv2](COPYING).
 
@@ -4161,7 +4167,7 @@ Public License instead of this License.
 
 Standard Licenses
 
-GNU Lesser General Public License Version 2.1, February 1999
+GNU Lesser General Public License v2.1, February 1999
 
 The following applies to all products licensed under the
 GNU Lesser General Public License, Version 2.1: You may
@@ -5088,7 +5094,7 @@ EXHIBIT A -Mozilla Public License.
    ======================================================================
    ======================================================================
 
-GNU Lesser General Public License Version 2, June 1991
+GNU Lesser General Public License v2, June 1991
 
 GNU LIBRARY GENERAL PUBLIC LICENSE
 
@@ -5539,7 +5545,7 @@ That's all there is to it!
    ======================================================================
    ======================================================================
 
-Apache License Version 2.0, January 2004
+Apache License v2.0, January 2004
 
 The following applies to all products licensed under the Apache 2.0
 License: You may not use the identified files except in compliance
