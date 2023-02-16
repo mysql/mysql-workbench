@@ -2027,6 +2027,16 @@ static int treeview_get_column_width(mforms::TreeView *self, int column) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static void beginUpdate(mforms::TreeView *self) {
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+static void endUpdate(mforms::TreeView *self) {
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void cf_treeview_init() {
   mforms::ControlFactory *f = mforms::ControlFactory::get_instance();
 
@@ -2064,6 +2074,9 @@ void cf_treeview_init() {
   
   f->_treeview_impl.set_column_width = &treeview_set_column_width;
   f->_treeview_impl.get_column_width = &treeview_get_column_width;
+    
+  f->_treeview_impl.BeginUpdate = &beginUpdate;
+  f->_treeview_impl.EndUpdate = &endUpdate;
 }
 
 @end

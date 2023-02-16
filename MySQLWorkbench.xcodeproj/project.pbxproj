@@ -2775,7 +2775,7 @@
 				"${INPUT_FILE_DIR}/${INPUT_FILE_BASE}_wrap.cxx\n",
 				"${INPUT_FILE_DIR}/${INPUT_FILE_BASE}.py",
 			);
-			script = "";
+			script = "# Type a script or drag a script file from your workspace to insert its path.\n";
 		};
 /* End PBXBuildRule section */
 
@@ -18933,7 +18933,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 					"$(PROJECT_DIR)",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-Wl,-stack_size,0x10000000",
 					"-headerpad_max_install_names",
@@ -18941,7 +18941,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.MySQLWorkbench;
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Debug;
 		};
@@ -18985,7 +18984,7 @@
 					"$(PROJECT_DIR)/3rd-party-ce/lib",
 					"$(PROJECT_DIR)",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-Wl,-stack_size,0x10000000",
 					"-headerpad_max_install_names",
@@ -18993,7 +18992,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.oracle.workbench.MySQLWorkbench;
 				PRODUCT_NAME = MySQLWorkbench;
 				SDKROOT = macosx;
-				VALID_ARCHS = "i386 x86_64";
 			};
 			name = Release;
 		};
@@ -19052,12 +19050,13 @@
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/3rd-party-ce/lib/**";
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = "x86_64 arm64";
+				"VALID_ARCHS[sdk=macosx*][arch=arm64]" = arm64;
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wno-overloaded-virtual",
@@ -19120,11 +19119,13 @@
 					/usr/include/libxml2,
 				);
 				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/3rd-party-ce/lib/**";
-				MACOSX_DEPLOYMENT_TARGET = 11.1;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
-				VALID_ARCHS = x86_64;
+				VALID_ARCHS = "x86_64 arm64";
+				"VALID_ARCHS[sdk=macosx*][arch=arm64]" = arm64;
 				WARNING_CFLAGS = (
 					"-Wall",
 					"-Wno-overloaded-virtual",
