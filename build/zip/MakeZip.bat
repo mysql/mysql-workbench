@@ -79,6 +79,15 @@ pushd %TMP_DIR%
 rem precompile Python sources
 %PYTHON_EXE_PATH% -mcompileall %OUTPUT_DIRNAME%
 if %ERRORLEVEL% == 1 goto ERROR5
+
+rem -------------------------------------------------------------------------------------
+echo Remove python cache files
+erase /S /Q *.pyc
+FOR /d /r %%F IN (__pycache__?) DO (
+    echo deleting folder: %%F
+    @IF EXIST %%F RMDIR /S /Q "%%F"
+)
+echo .
   
 zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%
 if %ERRORLEVEL% == 1 goto ERROR6
