@@ -1,3 +1,9 @@
+mysql-workbench-@edition@ (8.0.33-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Marcin Marek <marcin.marek@oracle.com>  Sat, 11 Mar 2023 21:24:04 +0100
+
 mysql-workbench-@edition@ (8.0.32-1@distrov@) @distro@; urgency=low
 
   * New release
