@@ -114,7 +114,7 @@ namespace base {
     while ((filename = g_dir_read_name(dir))) {
       std::string full_path = strfmt("%s%s%s", path.c_str(), G_DIR_SEPARATOR_S, filename);
 // #ifdef GLIB_VERSION_2_70 won't work in RHEL9/OL9 because the glib-2.68 package already contains this definition
-#if GLIB_VERSION_CUR_STABLE >= GLIB_VERSION_2_70
+#if defined(GLIB_VERSION_CUR_STABLE) && defined(GLIB_VERSION_2_70) && GLIB_VERSION_CUR_STABLE >= GLIB_VERSION_2_70
       bool match_string  = g_pattern_spec_match_string(pat, filename);
 #else
       bool match_string = g_pattern_match_string(pat, filename);
