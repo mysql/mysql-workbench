@@ -15,19 +15,75 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 
-find_path(UNIXODBC_INCLUDE_DIR unixodbc_conf.h)
+if (UNIXODBC_INCLUDE_PATH)
+    find_path(UNIXODBC_INCLUDE_DIRS unixodbc.h
+      PATHS ${UNIXODBC_INCLUDE_PATH} 
+            ${CMAKE_SYSTEM_INCLUDE_PATH}
+            /usr/include
+            /usr/local/include
+            /usr/include/x86_64-linux-gnu
+    )
+else()
+    find_path(UNIXODBC_INCLUDE_DIRS unixodbc.h
+      PATHS ${CMAKE_SYSTEM_INCLUDE_PATH}
+            /usr/include
+            /usr/local/include
+            /usr/include/x86_64-linux-gnu
+    )
+endif(UNIXODBC_INCLUDE_PATH)
 
-if (UNIXODBC_INCLUDE_DIR)
-  find_library(UNIXODBC_LIBRARY odbc)
+if (UNIXODBC_INCLUDE_DIRS AND UNIXODBC_LIBRARIES)
+  set(UNIXODBC_FOUND true)
+endif(UNIXODBC_INCLUDE_DIRS AND UNIXODBC_LIBRARIES)
 
-  set(UNIXODBC_INCLUDE_DIRS ${UNIXODBC_INCLUDE_DIR} )
-  set(UNIXODBC_LIBRARIES ${UNIXODBC_LIBRARY} )
+if (UNIXODBC_CONFIG_PATH)
+
+  if (UNIXODBC_LIBRARIES_PATH)
+    # Converto to a list of library argments
+    string(REPLACE " " ";" UNIXODBC_LIB_ARGS ${UNIXODBC_LIBRARIES_PATH})
+    # Parse the list in order to find the library path
+    foreach(UNIXODBC_LIB_ARG ${UNIXODBC_LIB_ARGS})
+      string(REPLACE "-L" "" UNIXODBC_LIB_ARG_CLEAR ${UNIXODBC_LIB_ARG})
+      if(NOT ${UNIXODBC_LIB_ARG_CLEAR} STREQUAL ${UNIXODBC_LIB_ARG})
+        set(UNIXODBC_SUPPLIED_LIB_DIR ${UNIXODBC_LIB_ARG_CLEAR})
+      else()
+        set(UNIXODBC_SUPPLIED_LIB_DIR ${UNIXODBC_LIB_ARG})
+      endif()
+    endforeach(UNIXODBC_LIB_ARG)
+  
+    find_library(lib_odbc NAMES libodbc.so HINTS ${UNIXODBC_SUPPLIED_LIB_DIR})
+    find_library(lib_odbcinst NAMES libodbcinst.so HINTS ${UNIXODBC_SUPPLIED_LIB_DIR})
+    
+    unset(UNIXODBC_LIB_ARG_CLEAR)
+    unset(UNIXODBC_LIB_ARG)
+    unset(UNIXODBC_LIB_ARGS)
+    
+    set(UNIXODBC_LIBRARIES ${lib_odbc} ${lib_odbcinst})
+
+  else()
+    exec_program(${UNIXODBC_CONFIG_PATH} ARGS --libs
+                    OUTPUT_VARIABLE UNIXODBC_LIBRARIES)
+  endif(UNIXODBC_LIBRARIES_PATH)
+
+  find_program(UNIXODBC_CONFIG_PATH odbc-config)
+
+
+  if (NOT EXISTS ${UNIXODBC_CONFIG_PATH})
+    MESSAGE(FATAL_ERROR "odbc-config not found in " ${UNIXODBC_CONFIG_PATH})
+  endif()
+
+  exec_program(${UNIXODBC_CONFIG_PATH} ARGS --cflags
+                  OUTPUT_VARIABLE UNIXODBC_DEFINITIONS)
 
   include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set UNIXODBC_FOUND to TRUE
-# if all listed variables are TRUE
-  find_package_handle_standard_args(unixODBC  DEFAULT_MSG
-                                    UNIXODBC_LIBRARY UNIXODBC_INCLUDE_DIR)
+  find_package_handle_standard_args(UNIXODBC DEFAULT_MSG
+    UNIXODBC_CONFIG_PATH UNIXODBC_LIBRARIES UNIXODBC_DEFINITIONS
+           )
 
-  mark_as_advanced(UNIXODBC_INCLUDE_DIR UNIXODBC_LIBRARY)
-endif (UNIXODBC_INCLUDE_DIR)
+  mark_as_advanced(
+    UNIXODBC_CONFIG_PATH
+    UNIXODBC_LIBRARIES
+    UNIXODBC_DEFINITIONS
+    UNIXODBC_INCLUDE_DIRS
+    )
+endif (UNIXODBC_CONFIG_PATH)
