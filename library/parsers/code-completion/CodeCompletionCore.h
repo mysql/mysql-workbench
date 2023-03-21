@@ -110,11 +110,11 @@ namespace antlr4 {
       size_t tokenIndex;
     };
 
-    bool checkPredicate(antlr4::atn::PredicateTransition *transition) const;
+    bool checkPredicate(const antlr4::atn::PredicateTransition *transition) const;
     bool translateToRuleIndex(std::vector<size_t> const& ruleStack);
     void printRuleState(std::vector<size_t> const& stack) const;
 
-    TokenList getFollowingTokens(antlr4::atn::Transition *transition) const;
+    TokenList getFollowingTokens(antlr4::atn::ConstTransitionPtr const&  transition) const;
     FollowSetsList determineFollowSets(antlr4::atn::ATNState *start, antlr4::atn::ATNState *stop) const;
     void collectFollowSets(antlr4::atn::ATNState *s, antlr4::atn::ATNState *stopState,
                            FollowSetsList &followSets, std::unordered_set<antlr4::atn::ATNState *> &seen,

@@ -101,7 +101,7 @@ CandidatesCollection CodeCompletionCore::collectCandidates(size_t caretTokenInde
 /**
  * Checks if the predicate associated with the given transition evaluates to true.
  */
-bool CodeCompletionCore::checkPredicate(PredicateTransition *transition) const {
+bool CodeCompletionCore::checkPredicate(const PredicateTransition *transition) const {
   return transition->getPredicate()->eval(_parser, &ParserRuleContext::EMPTY);
 };
 
@@ -167,18 +167,19 @@ void CodeCompletionCore::printRuleState(std::vector<size_t> const& stack) const 
  * This method follows the given transition and collects all symbols within the same rule that directly follow it
  * without intermediate transitions to other rules and only if there is a single symbol for a transition.
  */
-std::vector<size_t> CodeCompletionCore::getFollowingTokens(Transition *transition) const {
+std::vector<size_t> CodeCompletionCore::getFollowingTokens(const ConstTransitionPtr& transition) const {
   std::vector<size_t> result;
 
   std::vector<ATNState *> seen;
-  std::vector<ATNState *> pipeline { transition->target };
+  std::vector<const ATNState*> pipeline;
+  pipeline.push_back(transition->target);
 
   while (!pipeline.empty()) {
-    ATNState *state = pipeline.back();
+    auto state = pipeline.back();
     pipeline.pop_back();
 
-    for (Transition *transition : state->transitions) {
-      if (transition->getSerializationType() == Transition::ATOM) {
+    for (auto const& transition : state->transitions) {
+      if (transition->getTransitionType() == TransitionType::ATOM) {
         if (!transition->isEpsilon()) {
           std::vector<ssize_t> list = transition->label().toList();
           if (list.size() == 1 && ignoredTokens.count(list[0]) == 0) {
@@ -224,14 +225,14 @@ void CodeCompletionCore::collectFollowSets(ATNState *s, ATNState *stopState, Fol
 
   seen.insert(s);
 
-  if (s == stopState || s->getStateType() == ATNState::RULE_STOP) {
+  if (s == stopState || s->getStateType() == ATNStateType::RULE_STOP) {
     followSets.push_back({ IntervalSet::of(Token::EPSILON), ruleStack, {} });
     return;
   }
 
-  for (Transition *transition : s->transitions) {
-    if (transition->getSerializationType() == Transition::RULE) {
-      RuleTransition *ruleTransition = static_cast<RuleTransition*>(transition);
+  for (auto const& transition : s->transitions) {
+    if (transition->getTransitionType() == TransitionType::RULE) {
+      const RuleTransition *ruleTransition = static_cast<const RuleTransition*>(transition.get());
       if (std::find(ruleStack.rbegin(), ruleStack.rend(), ruleTransition->target->ruleIndex) != ruleStack.rend()) {
         continue;
       }
@@ -240,17 +241,17 @@ void CodeCompletionCore::collectFollowSets(ATNState *s, ATNState *stopState, Fol
       collectFollowSets(transition->target, stopState, followSets, seen, ruleStack);
       ruleStack.pop_back();
 
-    } else if (transition->getSerializationType() == Transition::PREDICATE) {
-      if (checkPredicate(static_cast<PredicateTransition*>(transition)))
+    } else if (transition->getTransitionType() == TransitionType::PREDICATE) {
+      if (checkPredicate(static_cast<const PredicateTransition*>(transition.get())))
         collectFollowSets(transition->target, stopState, followSets, seen, ruleStack);
     } else if (transition->isEpsilon()) {
       collectFollowSets(transition->target, stopState, followSets, seen, ruleStack);
-    } else if (transition->getSerializationType() == Transition::WILDCARD) {
+    } else if (transition->getTransitionType() == TransitionType::WILDCARD) {
       followSets.push_back({ IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType), ruleStack, {} });
     } else {
       misc::IntervalSet set = transition->label();
       if (!set.isEmpty()) {
-        if (transition->getSerializationType() == Transition::NOT_SET) {
+        if (transition->getTransitionType() == TransitionType::NOT_SET) {
           set = set.complement(misc::IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType));
         }
         followSets.push_back({ set, ruleStack, getFollowingTokens(transition) });
@@ -368,12 +369,12 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
     }
 
     switch (currentEntry.state->getStateType()) {
-      case ATNState::RULE_START: // Happens only for the first state in this rule, not subrules.
+      case ATNStateType::RULE_START: // Happens only for the first state in this rule, not subrules.
         indentation += "  ";
         break;
 
       // Found the end of this rule. Determine the following states and return to the caller.
-      case ATNState::RULE_STOP: {
+      case ATNStateType::RULE_STOP: {
         // Record the token index we are at, to report it to the caller.
         result.insert(currentEntry.tokenIndex);
         continue;
@@ -383,22 +384,22 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
         break;
     }
 
-    for (auto transition : currentEntry.state->transitions) {
-      switch (transition->getSerializationType()) {
-        case Transition::RULE: {
+    for (auto const& transition : currentEntry.state->transitions) {
+      switch (transition->getTransitionType()) {
+        case TransitionType::RULE: {
           auto endStatus = processRule(transition->target, currentEntry.tokenIndex, callStack, indentation);
           for (auto &status : endStatus)
-            statePipeline.push_back({ dynamic_cast<RuleTransition *>(transition)->followState, status });
+            statePipeline.push_back({ dynamic_cast<const RuleTransition *>(transition.get())->followState, status });
           break;
         }
 
-        case Transition::PREDICATE: {
-            if (checkPredicate(dynamic_cast<PredicateTransition *>(transition)))
+        case TransitionType::PREDICATE: {
+            if (checkPredicate(dynamic_cast<const PredicateTransition *>(transition.get())))
               statePipeline.push_back({ transition->target, currentEntry.tokenIndex });
           break;
         }
 
-        case Transition::WILDCARD: {
+        case TransitionType::WILDCARD: {
           if (atCaret) {
             if (!translateToRuleIndex(callStack)) {
               for (ssize_t token : misc::IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType).toList())
@@ -424,7 +425,7 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
 
           misc::IntervalSet set = transition->label();
           if (!set.isEmpty()) {
-            if (transition->getSerializationType() == Transition::NOT_SET) {
+            if (transition->getTransitionType() == TransitionType::NOT_SET) {
               set = set.complement(misc::IntervalSet::of(Token::MIN_USER_TOKEN_TYPE, (ssize_t)_atn.maxTokenType));
             }
             if (atCaret) {
@@ -464,7 +465,7 @@ CodeCompletionCore::RuleEndStatus CodeCompletionCore::processRule(ATNState *star
 
 std::string CodeCompletionCore::generateBaseDescription(ATNState *state) const {
   std::string stateValue = state->stateNumber == ATNState::INVALID_STATE_NUMBER ? "Invalid" : std::to_string(state->stateNumber);
-  return "[" + stateValue + " " + ATNState::serializationNames[state->getStateType()] + "] in " + _ruleNames[state->ruleIndex];
+  return "[" + stateValue + " " + antlr4::atn::atnStateTypeName(state->getStateType()) + "] in " + _ruleNames[state->ruleIndex];
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -477,7 +478,7 @@ void CodeCompletionCore::printDescription(std::string const& currentIndent, ATNS
   std::string transitionDescription;
   if (debugOutputWithTransitions)
   {
-    for (auto transition : state->transitions)
+    for (auto const& transition : state->transitions)
     {
       std::string labels;
       auto symbols = transition->label().toList();
@@ -498,7 +499,7 @@ void CodeCompletionCore::printDescription(std::string const& currentIndent, ATNS
       if (labels.empty())
         labels = "ε";
       transitionDescription += "\n" + currentIndent + "\t(" + labels + ") -> " + "[" + std::to_string(transition->target->stateNumber) + " " +
-      ATNState::serializationNames[transition->target->getStateType()] + "] in " + _ruleNames[transition->target->ruleIndex];
+        antlr4::atn::atnStateTypeName(state->getStateType()) + "] in " + _ruleNames[transition->target->ruleIndex];
     }
   }
 

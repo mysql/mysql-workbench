@@ -64,7 +64,7 @@ bool MySQLBaseLexer::isIdentifier(size_t type) const {
   if (((sqlMode & AnsiQuotes) != 0) && (type == MySQLLexer::DOUBLE_QUOTED_TEXT))
     return true;
 
-  std::string symbol = getVocabulary().getSymbolicName(type);
+  std::string symbol = getVocabulary().getSymbolicName(type).data();
   if (!symbol.empty() && !MySQLSymbolInfo::isReservedKeyword(symbol, MySQLSymbolInfo::numberToVersion(serverVersion)))
     return true;
 
@@ -86,7 +86,7 @@ size_t MySQLBaseLexer::keywordFromText(std::string const& name) {
     auto &vocabulary = getVocabulary();
     size_t max = vocabulary.getMaxTokenType();
     for (size_t i = 0; i <= max; ++i)
-      _symbols[vocabulary.getSymbolicName(i)] = i;
+      _symbols[vocabulary.getSymbolicName(i).data()] = i;
   }
 
   // Here we know for sure we got a keyword.

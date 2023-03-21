@@ -42,6 +42,7 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <iomanip>
+#include <cstdint>
 
 #define _(s) s // TODO: replace with localization code.
 

@@ -21,9 +21,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include <gdal/ogrsf_frmts.h>
-#include <gdal/ogr_api.h>
-#include <gdal/gdal.h>
+#include <ogrsf_frmts.h>
+#include <ogr_api.h>
+#include <gdal.h>
 
 #include <grts/structs.db.query.h>
 #include <grtpp_util.h>

@@ -118,6 +118,11 @@
                 <File Id="fido2" Name="fido2.dll"/>
                 <File Id="gssapi64" Name="gssapi64.dll"/>
                 <File Id="ccapiserver.exe" Name="ccapiserver.exe"/>
+		    <?if $(var.LICENSE_TYPE) = "debug"?>
+                <File Id="proj_9_1_d.dll" Name="proj_9_1_d.dll"/>
+                <?else ?>
+                <File Id="proj_9_1.dll" Name="proj_9_1.dll"/>
+                <?endif ?>
                 </Component>
 
               <Component DiskId="1" Guid="87543D9F-DCBF-41bd-89ED-42161A8DA2AA" Id="Libraries" Location="either">

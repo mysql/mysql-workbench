@@ -378,7 +378,7 @@ bool GRT::metaclassesNeedRegister() {
   return !internal::ClassRegistry::get_instance()->isEmpty();
 }
 
-void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requires) {
+void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requiresList) {
   xmlNodePtr root;
   xmlDocPtr doc;
 
@@ -406,8 +406,8 @@ void GRT::load_metaclasses(const std::string &file, std::list<std::string> *requ
       } else if (xmlStrcmp(root->name, (xmlChar *)"requires") == 0) {
         xmlChar *path = xmlGetProp(root, (xmlChar *)"file");
         if (path) {
-          if (requires)
-            requires->push_back((char *)path);
+          if (requiresList)
+            requiresList->push_back((char *)path);
           xmlFree(path);
         }
       }
@@ -485,7 +485,7 @@ void GRT::reinitialiseForTests() {
 
 //--------------------------------------------------------------------------------------------------
 
-int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::string, std::string> *requires) {
+int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::string, std::string> *requiresMap) {
   GDir *dir;
   const char *entry;
   size_t old_count = _metaclasses.size();
@@ -507,9 +507,9 @@ int GRT::scan_metaclasses_in(const std::string &directory, std::multimap<std::st
         throw;
       }
 
-      if (requires) {
+      if (requiresMap) {
         for (std::list<std::string>::const_iterator i = reqs.begin(); i != reqs.end(); ++i)
-          requires->insert(std::pair<std::string, std::string>(path, *i));
+          requiresMap->insert(std::pair<std::string, std::string>(path, *i));
       }
 
       g_free(path);

@@ -808,14 +808,14 @@ static std::string used_class_name(const TypeSpec &type) {
 //--------------------------------------------------------------------------------------------------
 
 static bool is_header_included_somehow(const std::string &xml_for_header, const std::string &in_xml_for_header,
-                                       const std::multimap<std::string, std::string> &requires) {
+                                       const std::multimap<std::string, std::string> &requiresMap) {
   if (xml_for_header == in_xml_for_header)
     return true;
 
-  for (std::multimap<std::string, std::string>::const_iterator r = requires.find(in_xml_for_header);
-       r != requires.end() && r->first == in_xml_for_header; ++r) {
+  for (std::multimap<std::string, std::string>::const_iterator r = requiresMap.find(in_xml_for_header);
+       r != requiresMap.end() && r->first == in_xml_for_header; ++r) {
     if (basename(r->second) == xml_for_header ||
-        is_header_included_somehow(xml_for_header, basename(r->second), requires))
+        is_header_included_somehow(xml_for_header, basename(r->second), requiresMap))
       return true;
   }
   return false;
@@ -828,12 +828,12 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
                                        const std::multimap<std::string, std::string> &requires_orig) {
   std::map<std::string, FILE *> files;
   std::map<std::string, std::set<std::string>> foreign_classes; // packagename -> class list
-  std::multimap<std::string, std::string> requires;
+  std::multimap<std::string, std::string> requiresMap;
   const std::list<MetaClass *> &meta(grt::GRT::get()->get_metaclasses());
 
   // requires list is keyed by the full path of the xml, so we add the same entries to a copy of the list with basenames
   for (std::multimap<std::string, std::string>::const_iterator r = requires_orig.begin(); r != requires_orig.end(); ++r)
-    requires.insert(std::make_pair(basename(r->first), r->second));
+    requiresMap.insert(std::make_pair(basename(r->first), r->second));
 
   {
     std::map<std::string, std::string> package_for_struct; // structname -> packagename
@@ -850,20 +850,20 @@ void grt::helper::generate_struct_code(const std::string &target_file, const std
            mem != (*iter)->get_members_partial().end(); ++mem) {
         std::string class_name = used_class_name(mem->second.type);
         if (!class_name.empty() && pkgname(package_for_struct[class_name]) != pkgname((*iter)->source()) &&
-            !is_header_included_somehow(package_for_struct[class_name], basename((*iter)->source()), requires))
+            !is_header_included_somehow(package_for_struct[class_name], basename((*iter)->source()), requiresMap))
           foreign_classes[(*iter)->source()].insert(class_name);
       }
       for (MetaClass::MethodList::const_iterator met = (*iter)->get_methods_partial().begin();
            met != (*iter)->get_methods_partial().end(); ++met) {
         std::string class_name = used_class_name(met->second.ret_type);
         if (!class_name.empty() && pkgname(package_for_struct[class_name]) != pkgname((*iter)->source()) &&
-            !is_header_included_somehow(package_for_struct[class_name], basename((*iter)->source()), requires))
+            !is_header_included_somehow(package_for_struct[class_name], basename((*iter)->source()), requiresMap))
           foreign_classes[(*iter)->source()].insert(class_name);
         for (ArgSpecList::const_iterator arg = met->second.arg_types.begin(); arg != met->second.arg_types.end();
              ++arg) {
           class_name = used_class_name(arg->type);
           if (!class_name.empty() && pkgname(package_for_struct[class_name]) != pkgname((*iter)->source()) &&
-              !is_header_included_somehow(package_for_struct[class_name], basename((*iter)->source()), requires))
+              !is_header_included_somehow(package_for_struct[class_name], basename((*iter)->source()), requiresMap))
             foreign_classes[(*iter)->source()].insert(class_name);
         }
       }

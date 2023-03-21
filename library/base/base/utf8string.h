@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <vector>
 #include <cstring>
+#include <cstdint>
 
 namespace base {
   /**

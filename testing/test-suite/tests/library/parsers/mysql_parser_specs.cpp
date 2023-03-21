@@ -118,12 +118,12 @@ public:
 
   virtual Any visitSelectItem(MySQLParser::SelectItemContext *context) override {
     Any result = visitChildren(context);
-    results.push_back(result.as<EvalValue>());
+    results.push_back(std::any_cast<EvalValue>(result));
     return result;
   }
 
   virtual Any visitExprNot(MySQLParser::ExprNotContext *context) override {
-    EvalValue value = visit(context->expr());
+    EvalValue value = std::any_cast<EvalValue>(visit(context->expr()));
     switch (value.type) {
       case EvalValue::Null:
         return EvalValue::fromNotNull();
@@ -135,8 +135,8 @@ public:
   }
 
   virtual Any visitExprAnd(MySQLParser::ExprAndContext *context) override {
-    EvalValue left = visit(context->expr(0));
-    EvalValue right = visit(context->expr(1));
+    EvalValue left = std::any_cast<EvalValue>(visit(context->expr(0)));
+    EvalValue right = std::any_cast<EvalValue>(visit(context->expr(1)));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -146,8 +146,8 @@ public:
   }
 
   virtual Any visitExprXor(MySQLParser::ExprXorContext *context) override {
-    EvalValue left = visit(context->expr(0));
-    EvalValue right = visit(context->expr(1));
+    EvalValue left = std::any_cast<EvalValue>(visit(context->expr(0)));
+    EvalValue right = std::any_cast<EvalValue>(visit(context->expr(1)));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -155,8 +155,8 @@ public:
   }
 
   virtual Any visitExprOr(MySQLParser::ExprOrContext *context) override {
-    EvalValue left = visit(context->expr(0));
-    EvalValue right = visit(context->expr(1));
+    EvalValue left = std::any_cast<EvalValue>(visit(context->expr(0)));
+    EvalValue right = std::any_cast<EvalValue>(visit(context->expr(1)));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -164,7 +164,7 @@ public:
   }
 
   virtual Any visitExprIs(MySQLParser::ExprIsContext *context) override {
-    EvalValue value = visit(context->boolPri());
+    EvalValue value = std::any_cast<EvalValue>(visit(context->boolPri()));
     if (context->IS_SYMBOL() == nullptr)
       return value;
 
@@ -186,15 +186,15 @@ public:
   }
 
   virtual Any visitPrimaryExprIsNull(MySQLParser::PrimaryExprIsNullContext *context) override {
-    EvalValue value = visit(context->boolPri());
+    EvalValue value = std::any_cast<EvalValue>(visit(context->boolPri()));
     if (context->notRule() == nullptr)
       return EvalValue::fromBool(value.type == EvalValue::Null);
     return EvalValue::fromBool(value.type != EvalValue::Null);
   }
 
   virtual Any visitPrimaryExprCompare(MySQLParser::PrimaryExprCompareContext *context) override {
-    EvalValue left = visit(context->boolPri());
-    EvalValue right = visit(context->predicate());
+    EvalValue left = std::any_cast<EvalValue>(visit(context->boolPri()));
+    EvalValue right = std::any_cast<EvalValue>(visit(context->predicate()));
 
     ssize_t op = context->compOp()->getStart()->getType();
     if (left.isNullType() || right.isNullType()) {
@@ -237,8 +237,8 @@ public:
     if (context->simpleExpr() != nullptr)
       return visit(context->simpleExpr());
 
-    EvalValue left = visit(context->bitExpr(0));
-    EvalValue right = visit(context->bitExpr(1));
+    EvalValue left = std::any_cast<EvalValue>(visit(context->bitExpr(0)));
+    EvalValue right = std::any_cast<EvalValue>(visit(context->bitExpr(1)));
 
     if (left.isNullType() || right.isNullType())
       return EvalValue::fromNull();
@@ -306,7 +306,7 @@ public:
   }
 
   virtual Any visitSimpleExprNot(MySQLParser::SimpleExprNotContext *context) override {
-    EvalValue value = visit(context->simpleExpr());
+    EvalValue value = std::any_cast<EvalValue>(visit(context->simpleExpr()));
     if (value.isNullType())
       return EvalValue::fromNull();
     return EvalValue::fromBool(!asBool(value));

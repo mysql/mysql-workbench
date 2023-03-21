@@ -25,7 +25,7 @@
 #define _GEOM_DRAW_BOX_H_
 
 #include <mforms/drawbox.h>
-#include <gdal/ogr_geometry.h>
+#include <ogr_geometry.h>
 #include "wbpublic_public_interface.h"
 
 class WBPUBLICBACKEND_PUBLIC_FUNC GeomDrawBox : public mforms::DrawBox {

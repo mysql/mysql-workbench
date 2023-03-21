@@ -2478,7 +2478,7 @@ namespace grt {
      *
      * @param requires list of other XML files required by the loaded one
      */
-    void load_metaclasses(const std::string &file, std::list<std::string> *requires = 0);
+    void load_metaclasses(const std::string &file, std::list<std::string> * requiresList = 0);
 
     /**
      * This one should not be used during normal workbench run,
@@ -2500,7 +2500,7 @@ namespace grt {
      * @param requires optional pointer to a multimap where required XML files for each loaded
      * files is stored
      */
-    int scan_metaclasses_in(const std::string &dir, std::multimap<std::string, std::string> *requires = 0);
+    int scan_metaclasses_in(const std::string &dir, std::multimap<std::string, std::string> *requiresMap = 0);
     /** End loading of metaclass definition files.
      * Finishes up loading of metaclass definition XMLs files. This will
      * check that all metaclasses referred by something were loaded. It will

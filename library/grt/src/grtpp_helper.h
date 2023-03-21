@@ -27,7 +27,7 @@ namespace grt {
   namespace helper {
     void MYSQLGRT_PUBLIC generate_struct_code(const std::string &file, const std::string &outpath,
                                               const std::string &imploutpath,
-                                              const std::multimap<std::string, std::string> &requires);
+                                              const std::multimap<std::string, std::string> & requiresMap);
 
     void MYSQLGRT_PUBLIC generate_module_wrappers(const std::string &outpath, const std::vector<Module *> &modules);
   };

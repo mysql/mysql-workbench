@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <list>
 #include "Lexer.h"
 #include "MySQLRecognizerCommon.h"
 #include "mysql-recognition-types.h"

@@ -24,12 +24,12 @@
 #ifndef SPATIAL_HANDLER_H_
 #define SPATIAL_HANDLER_H_
 
-#include <gdal/ogrsf_frmts.h>
-#include <gdal/ogr_api.h>
-#include <gdal/gdal_pam.h>
-#include <gdal/memdataset.h>
-#include <gdal/gdal_alg.h>
-#include <gdal/gdal.h>
+#include <ogrsf_frmts.h>
+#include <ogr_api.h>
+#include <gdal_pam.h>
+#include <memdataset.h>
+#include <gdal_alg.h>
+#include <gdal.h>
 #include <deque>
 #include "base/geometry.h"
 #include "wbpublic_public_interface.h"

@@ -255,6 +255,9 @@ xcopy /i /s /y /d %AUTH_LIB_DIR%\libsasl.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %AUTH_LIB_DIR%\saslSCRAM.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %AUTH_LIB_DIR%\xpprof64.dll %TARGET_DIR%\.
 
+echo * proj9 library ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\proj_9_1%DEBUG_PREFIX%.dll %TARGET_DIR%\.
+
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide
 xcopy /i /s /y /d %RES_DIR%\sqlidedata\templates\*.* %TARGET_DIR%\modules\data\sqlide\. 1> nul 2> nul

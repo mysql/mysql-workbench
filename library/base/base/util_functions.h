@@ -28,6 +28,7 @@
 #include "common.h"
 
 #ifdef __linux__
+#include <cstdint>
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>

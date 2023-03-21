@@ -48,14 +48,14 @@ int main(int argc, char **argv) {
   std::string output_dir = argv[3];
   std::string impl_output_dir = argv[4];
 
-  std::multimap<std::string, std::string> requires;
+  std::multimap<std::string, std::string> requiresMap;
 
   std::cout << "Reading structs from '" << structs_dir << "', outputing classes to '" << output_dir << "'\n" << std::endl;
 
-  grt::GRT::get()->scan_metaclasses_in(structs_dir, &requires);
+  grt::GRT::get()->scan_metaclasses_in(structs_dir, &requiresMap);
   grt::GRT::get()->end_loading_metaclasses(false);
 
-  grt::helper::generate_struct_code(structs_file, output_dir, impl_output_dir, requires);
+  grt::helper::generate_struct_code(structs_file, output_dir, impl_output_dir, requiresMap);
 
   return 0;
 }
