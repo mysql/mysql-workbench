@@ -150,6 +150,7 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Fedora release 35 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 36 x86_64")).toBeFalse();
     $expect(isOsSupportedProxy("Fedora release 37 x86_64")).toBeTrue();
+    $expect(isOsSupportedProxy("Fedora release 38 x86_64")).toBeTrue();
   });
 }
 }

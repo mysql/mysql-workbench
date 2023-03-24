@@ -216,7 +216,7 @@ int WorkbenchImpl::isOsSupported(const std::string &os) {
     "Ubuntu 22.04", "Ubuntu 22.10", "Debian 10",
 
     "Red Hat Enterprise Linux release 9",        // Oracle 9.0: Red Hat Enterprise Linux release 9.0 (Plow)
-    "Fedora release 37", "CentOS release 7",
+    "Fedora release 37", "Fedora release 38", "CentOS release 7",
 
     "Windows 10", "Windows Server 2016", "Windows Server 2019", 
     "Windows 11", "Windows Server 2022",
