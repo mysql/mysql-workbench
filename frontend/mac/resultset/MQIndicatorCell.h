@@ -33,4 +33,7 @@
 - (void)setSelected:(BOOL)flag;
 - (void)setPlaceholder:(BOOL)flag;
 
+- (void)setIsNull:(BOOL)flag;
+- (void)setIsBlob:(BOOL)flag;
+
 @end
