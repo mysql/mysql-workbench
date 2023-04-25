@@ -1,4 +1,4 @@
-mysql-workbench-@edition@ (8.0.34.commercial-1@distrov@) @distro@; urgency=low
+mysql-workbench-@edition@ (8.0.34-1@distrov@) @distro@; urgency=low
 
   * New release
 
