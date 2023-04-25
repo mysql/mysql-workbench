@@ -24,10 +24,10 @@
 
 #define APP_MAJOR_NUMBER 8
 #define APP_MINOR_NUMBER 0
-#define APP_RELEASE_NUMBER 33
+#define APP_RELEASE_NUMBER 34
 
 #define APP_BUILD_NUMBER 0
-#define APP_RELEASE_TYPE ""
+#define APP_RELEASE_TYPE "commercial"
 
 #define APP_LICENSE_TYPE "GPL"
 #define APP_EDITION_NAME "development"
