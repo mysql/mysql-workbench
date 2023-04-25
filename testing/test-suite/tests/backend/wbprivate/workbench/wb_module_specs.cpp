@@ -96,6 +96,7 @@ $describe("wb_module tests for Workbench") {
     $expect(isOsSupportedProxy("Ubuntu 21.10")).toBeFalse();
     $expect(isOsSupportedProxy("Ubuntu 22.04")).toBeTrue();
     $expect(isOsSupportedProxy("Ubuntu 22.10")).toBeTrue();
+    $expect(isOsSupportedProxy("Ubuntu 23.40")).toBeTrue();
 
     // red-hat based
     $expect(isOsSupportedProxy("Red Hat Enterprise Linux Server release")).toBeFalse();
