@@ -10,7 +10,7 @@ Introduction
    third-party software which may be included in this distribution of
    MySQL Workbench 8.0.
 
-   Last updated: February 2023
+   Last updated: May 2023
 
 Licensing Information
 
@@ -480,7 +480,7 @@ IN THE SOFTWARE.
 
 Cairo
 
-You are receiving a copy of the Cairo in both source and object code in the
+You are receiving a copy of Cairo in the
 following DLL (libcairo.dll) or dynamic libraries
 (MySQLWorkbench.app/Contents/Frameworks/libcairo.2.dylib and
 MySQLWorkbench.app/Contents/Frameworks/libpixman-1.0.dylib). The terms of the
@@ -680,7 +680,7 @@ possible. They may also add themselves to the list below.
 
 FreeTDS
 
-You are receiving a copy of FreeTDS in both source and object code. The terms
+You are receiving a copy of FreeTDS. The terms
 of the Oracle license do NOT apply to FreeTDS; Oracle distributes it under
 the GNU Lesser General Public License Version 2.0 separately from the Oracle
 programs you receive. If you do not wish to install this program, you may
@@ -940,8 +940,7 @@ GLib (for MySQL Workbench)
 
 GLib
 
-You are receiving a copy of the GLib library in both source and
-object code in the following folder:
+You are receiving a copy of the GLib library in the following folder:
 C:\Program Files(x86)\MySQL\MySQLWorkbench <ver>\ on Windows
 and MySQLWorkbench.app/Contents/Frameworks on Mac OS X.
 The terms of the Oracle license do NOT apply to the GLib library;
