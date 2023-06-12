@@ -28,7 +28,7 @@
 
 namespace base {
   namespace xml {
-    BASELIBRARY_PUBLIC_FUNC xmlDocPtr loadXMLDoc(const std::string &path, bool asEntity = false);
+    BASELIBRARY_PUBLIC_FUNC xmlDocPtr loadXMLDoc(const std::string &path);
     BASELIBRARY_PUBLIC_FUNC xmlDocPtr xmlParseFragment(const std::string &buff);
     BASELIBRARY_PUBLIC_FUNC xmlNodePtr getXmlRoot(xmlDocPtr doc);
     BASELIBRARY_PUBLIC_FUNC bool nameIs(xmlNodePtr node, const std::string &name);

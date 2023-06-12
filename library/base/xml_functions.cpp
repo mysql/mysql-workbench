@@ -45,17 +45,13 @@ static void xmlErrorHandling(void *ctx, const char *msg, ...) {
   logError("LibXml: %s\n", buff.data());
 }
 
-xmlDocPtr base::xml::loadXMLDoc(const std::string &path, bool asEntity) {
+xmlDocPtr base::xml::loadXMLDoc(const std::string &path) {
   xmlSetGenericErrorFunc(nullptr, xmlErrorHandling);
-  xmlDocPtr doc = nullptr;
 
   if (!base::file_exists(path))
     throw std::runtime_error("unable to open XML file, doesn't exists: " + path);
 
-  if (asEntity)
-    doc = xmlParseEntity(path.c_str());
-  else
-    doc = xmlParseFile(path.c_str());
+  xmlDocPtr doc = xmlParseFile(path.c_str());
 
   if (doc == nullptr)
     throw std::runtime_error("unable to parse XML file " + path);
