@@ -59,7 +59,7 @@
               <Component DiskId="1" Guid="F7B89C4E-BAA9-44e6-9FB1-F6DB8148790F" Id="Third_Party_Libraries" Location="either">
                 <File Id="file1023" Name="iconv.dll"/>
                 <File Id="file1027" Name="libcairo.dll"/>
-                <File Id="libcrypto11x64.dll" Name="libcrypto-1_1-x64.dll"/>
+                <File Id="libcrypto_3_x64" Name="libcrypto-3-x64.dll"/>
                 <?if $(var.SETUP_TYPE) = "debug" ?>
                 <File Id="file1035d" Name="libpng16d.dll"/>
                 <?else ?>
@@ -105,7 +105,7 @@
                 <File Id="file1121" Name="vsqlite++.dll"/>
                 <File Id="file1122" Name="antlr4-runtime.dll"/>
                 <File Id="ssh.dll" Name="ssh.dll"/>
-                <File Id="libssl11x64.dll" Name="libssl-1_1-x64.dll"/>
+                <File Id="libssl_3_x64" Name="libssl-3-x64.dll"/>
                 <File Id="authentication_kerberos_client" Name="authentication_kerberos_client.dll"/>
                 <File Id="authentication_ldap_sasl_client" Name="authentication_ldap_sasl_client.dll"/>
                 <File Id="k5sprt64" Name="k5sprt64.dll"/>

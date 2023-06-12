@@ -70,8 +70,8 @@
 		27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E67209B2E50002EC0D4 /* libsqlite3.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		27189E6B209B2E9E002EC0D4 /* libiconv.2.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E6A209B2E84002EC0D4 /* libiconv.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		27189E71209B30E2002EC0D4 /* libcrypto.1.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		27189E72209B30EA002EC0D4 /* libssl.1.1.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27189E71209B30E2002EC0D4 /* libcrypto.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E70209B30DC002EC0D4 /* libcrypto.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		27189E72209B30EA002EC0D4 /* libssl.3.dylib in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 27189E6F209B30C7002EC0D4 /* libssl.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		271957B81136BE6C008BAEAB /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
 		271C7F9C1DE2FEF9006D6C88 /* CodeCompletionCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271C7F981DE2FEF9006D6C88 /* CodeCompletionCore.cpp */; };
 		271C7F9D1DE2FEF9006D6C88 /* mysql-code-completion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 271C7F991DE2FEF9006D6C88 /* mysql-code-completion.cpp */; };
@@ -3978,7 +3978,7 @@
 				2B7F77EB0F0133EB00C3C53E /* libwbprivate.be.dylib in Copy Files (dylibs) */,
 				27189E53209B2852002EC0D4 /* libantlr4-runtime.dylib in Copy Files (dylibs) */,
 				27189E54209B2856002EC0D4 /* libcairo.2.dylib in Copy Files (dylibs) */,
-				27189E71209B30E2002EC0D4 /* libcrypto.1.1.dylib in Copy Files (dylibs) */,
+				27189E71209B30E2002EC0D4 /* libcrypto.3.dylib in Copy Files (dylibs) */,
 				27189E57209B28E7002EC0D4 /* libpixman-1.0.dylib in Copy Files (dylibs) */,
 				27189E58209B28EB002EC0D4 /* libpng16.16.dylib in Copy Files (dylibs) */,
 				27189E5B209B2CE5002EC0D4 /* libglib-2.0.0.dylib in Copy Files (dylibs) */,
@@ -3987,7 +3987,7 @@
 				27189E60209B2D12002EC0D4 /* libpcre.1.dylib in Copy Files (dylibs) */,
 				27189E61209B2D16002EC0D4 /* libpcrecpp.0.dylib in Copy Files (dylibs) */,
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
-				27189E72209B30EA002EC0D4 /* libssl.1.1.dylib in Copy Files (dylibs) */,
+				27189E72209B30EA002EC0D4 /* libssl.3.dylib in Copy Files (dylibs) */,
 				27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */,
 				8E4E698F25D6A63B0060A2FA /* Python3.framework in Copy Files (dylibs) */,
 			);
@@ -4156,8 +4156,8 @@
 		27189E56209B28D8002EC0D4 /* libpng16.16.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpng16.16.dylib; path = "3rd-party-ce/lib/libpng16.16.dylib"; sourceTree = "<group>"; };
 		27189E67209B2E50002EC0D4 /* libsqlite3.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.so; path = "3rd-party-ce/lib/libsqlite3.so"; sourceTree = "<group>"; };
 		27189E6A209B2E84002EC0D4 /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.2.dylib; path = "3rd-party-ce/lib/libiconv.2.dylib"; sourceTree = "<group>"; };
-		27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.1.1.dylib; path = "3rd-party-ce/lib/libssl.1.1.dylib"; sourceTree = "<group>"; };
-		27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.1.1.dylib; path = "3rd-party-ce/lib/libcrypto.1.1.dylib"; sourceTree = "<group>"; };
+		27189E6F209B30C7002EC0D4 /* libssl.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libssl.3.dylib; path = "3rd-party-ce/lib/libssl.3.dylib"; sourceTree = "<group>"; };
+		27189E70209B30DC002EC0D4 /* libcrypto.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.3.dylib; path = "3rd-party-ce/lib/libcrypto.3.dylib"; sourceTree = "<group>"; };
 		27189E76209B369B002EC0D4 /* libproj.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libproj.dylib; path = "3rd-party-ce/lib/libproj.dylib"; sourceTree = "<group>"; };
 		271C7F981DE2FEF9006D6C88 /* CodeCompletionCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CodeCompletionCore.cpp; path = "library/parsers/code-completion/CodeCompletionCore.cpp"; sourceTree = "<group>"; };
 		271C7F991DE2FEF9006D6C88 /* mysql-code-completion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "mysql-code-completion.cpp"; path = "library/parsers/code-completion/mysql-code-completion.cpp"; sourceTree = "<group>"; };
@@ -9620,7 +9620,7 @@
 			children = (
 				27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */,
 				27D6EE362099D8210050B26B /* libcairo.2.dylib */,
-				27189E70209B30DC002EC0D4 /* libcrypto.1.1.dylib */,
+				27189E70209B30DC002EC0D4 /* libcrypto.3.dylib */,
 				27D6EE402099E2070050B26B /* libgdal.dylib */,
 				27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */,
 				27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */,
@@ -9635,7 +9635,7 @@
 				27189E76209B369B002EC0D4 /* libproj.dylib */,
 				27189E67209B2E50002EC0D4 /* libsqlite3.so */,
 				27E7D796237BF7560006BD1B /* libssh.dylib */,
-				27189E6F209B30C7002EC0D4 /* libssl.1.1.dylib */,
+				27189E6F209B30C7002EC0D4 /* libssl.3.dylib */,
 				27D6EE422099E2460050B26B /* libvsqlitepp.3.dylib */,
 				272D309F25DD176E00170B5E /* libxml2.tbd */,
 				27D6EE502099E43D0050B26B /* libzip.dylib */,
