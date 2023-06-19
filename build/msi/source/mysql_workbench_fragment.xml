@@ -1635,7 +1635,6 @@
                         <File Id="lib_idlelib_Icons_plusnode.gif" Name="plusnode.gif" />
                         <File Id="lib_idlelib_Icons_python.gif" Name="python.gif" />
                         <File Id="lib_idlelib_Icons_tk.gif" Name="tk.gif" />
-                        <File Id="lib_idlelib_Icons_idle.icns" Name="idle.icns" />
                         <File Id="lib_idlelib_Icons_idle.ico" Name="idle.ico" />
                         <File Id="lib_idlelib_Icons_idle_16.png" Name="idle_16.png" />
                         <File Id="lib_idlelib_Icons_idle_32.png" Name="idle_32.png" />
