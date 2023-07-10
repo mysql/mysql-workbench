@@ -42,7 +42,7 @@ namespace grt {
 
     // Assigning another auto object always makes this one ref-counting as they share
     // now the same object. Same for the assignment operator.
-    AutoPyObject(const AutoPyObject &other) : object(other.object), autorelease(true) {
+    AutoPyObject(const AutoPyObject &other) : object(other.object), autorelease(false) {
       Py_XINCREF(object);
     }
 
@@ -72,7 +72,7 @@ namespace grt {
       }
 
       object = other;
-      autorelease = true;
+      autorelease = false;
       Py_XINCREF(object);
 
       return *this;
@@ -95,6 +95,9 @@ namespace grt {
   class MYSQLGRT_PUBLIC PythonContextHelper {
   private:
     PyThreadState *_main_thread_state;
+#ifdef _MSC_VER
+    PyConfig _config;
+#endif
 
   protected:
     PythonContextHelper(const std::string &module_path);

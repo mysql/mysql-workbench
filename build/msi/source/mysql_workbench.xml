@@ -145,6 +145,15 @@
       <ComponentRef Id="python_dlls" />
       <ComponentRef Id="python_lib" />
       <ComponentRef Id="python_lib_asyncio" />
+  
+      <ComponentRef Id="python_lib_importlib_resources" />
+      <ComponentRef Id="python_lib_re" />
+      <ComponentRef Id="python_lib_tomllib" />
+      <ComponentRef Id="python_lib_zoneinfo" />
+      <ComponentRef Id="python_lib___phello__" />
+      <ComponentRef Id="python_lib_importlib_metadata" />
+      <ComponentRef Id="python_lib___phello__ham" />
+
       <ComponentRef Id="python_lib_collections" />
       <ComponentRef Id="python_lib_concurrent" />
       <ComponentRef Id="python_lib_concurrent_futures" />

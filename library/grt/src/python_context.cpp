@@ -106,6 +106,7 @@ PythonContextHelper::PythonContextHelper(const std::string &module_path) {
 //--------------------------------------------------------------------------------------------------
 
 void PythonContextHelper::InitPython() {
+#ifndef _MSC_VER
   static const wchar_t *argv[2] = { L"/dev/null", nullptr };
   Py_InitializeEx(0); // skips signal handler init
 
@@ -136,6 +137,57 @@ void PythonContextHelper::InitPython() {
   // Changed in version 3.9: The function now does nothing.
   // Changed in version 3.7: This function is now called by Py_Initialize(),
   //                         so you don’t have to call it yourself anymore.
+#else
+  char const* argv[2] = { "/dev/null", nullptr };
+  Py_InitializeEx(0);
+  PyStatus status; 
+  PyConfig_InitPythonConfig(&_config);
+  _config.use_environment = 1;
+
+  do {
+    status = PyConfig_SetBytesArgv(&_config, 1, const_cast<char *const *>(argv));
+    if (PyStatus_Exception(status)) {
+      break;
+    }
+
+    status = Py_InitializeFromConfig(&_config);
+    if (PyStatus_Exception(status)) {
+      break;
+    }
+
+    int ret = Py_IsInitialized();
+    if (ret == 0) {
+      break;
+    }
+
+    PyRun_SimpleString(
+      "from importlib.abc import MetaPathFinder\n"
+      "from importlib.machinery import ModuleSpec, BuiltinImporter\n"
+      "import sys\n"
+      "\n"
+      "\n"
+      "class Finder(MetaPathFinder):\n"
+      "    def find_spec(self, fullname, path, target=None):\n"
+      "        if fullname in sys.builtin_module_names:\n"
+      "            return ModuleSpec(\n"
+      "                fullname,\n"
+      "                BuiltinImporter,\n"
+      "            )\n"
+      "\n"
+      "\n"
+      "sys.meta_path.append(Finder())\n");
+
+    _main_thread_state = PyThreadState_Get();
+    return;
+  } while (1 == 0);
+
+  PyConfig_Clear(&_config);
+  if (PyStatus_IsExit(status)) {
+    return;
+  }
+  Py_ExitStatusException(status);
+
+ #endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,6 +195,9 @@ void PythonContextHelper::InitPython() {
 PythonContextHelper::~PythonContextHelper() {
   PyEval_RestoreThread(_main_thread_state);
   _main_thread_state = nullptr;
+#ifdef _MSC_VER
+  PyConfig_Clear(&_config);
+#endif
   Py_Finalize();
 }
 
@@ -1721,7 +1776,7 @@ void PythonContext::log_python_error(const char *message) {
   }
 
   if (tb) {
-    PyTracebackObject *trace = (PyTracebackObject *)tb;
+    /*PyTracebackObject *trace = (PyTracebackObject *)tb;
 
     stack = "Traceback:\n";
     while (trace && trace->tb_frame) {
@@ -1746,7 +1801,7 @@ void PythonContext::log_python_error(const char *message) {
         }
       }
       trace = trace->tb_next;
-    }
+    }*/
   }
 
   base::Logger::log(base::Logger::LogLevel::Error, "python", "%s\n%sNameError: %s\n", message, stack.c_str(), reason.c_str());

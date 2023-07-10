@@ -80,10 +80,10 @@
                 <?endif ?>
                 <File Id="file1087" Name="wb.py"/>
                 <?if $(var.LICENSE_TYPE) = "debug"?>
-                <File Id="file1099d" Name="python37_d.dll"/>
+                <File Id="file1099d" Name="python311_d.dll"/>
                 <File Id="python_d.exe" Name="python_d.exe"/>
                 <?else ?>
-                <File Id="file1099" Name="python37.dll"/>
+                <File Id="file1099" Name="python311.dll"/>
                 <File Id="python.exe" Name="python.exe"/>
                 <?endif ?>
                 <File Id="file1101" Name="mysqldump.exe"/>
@@ -105,6 +105,7 @@
                 <File Id="file1121" Name="vsqlite++.dll"/>
                 <File Id="file1122" Name="antlr4-runtime.dll"/>
                 <File Id="ssh.dll" Name="ssh.dll"/>
+                <File Id="libffi.dll" Name="libffi.dll"/>
                 <File Id="libssl_3_x64" Name="libssl-3-x64.dll"/>
                 <File Id="authentication_kerberos_client" Name="authentication_kerberos_client.dll"/>
                 <File Id="authentication_ldap_sasl_client" Name="authentication_ldap_sasl_client.dll"/>
@@ -1054,12 +1055,14 @@
                 <Directory Id="python_lib" Name="lib">
                   <Component DiskId="1" Guid="e9a135a2-605a-11e0-a9ed-34159e1d64e6" Id="python_lib" Location="either">
                     <File Id="lib___future__.py" Name="__future__.py" />
-                    <File Id="lib___phello__.foo.py" Name="__phello__.foo.py" />
-                    <File Id="lib__bootlocale.py" Name="_bootlocale.py" />
+                    <File Id="lib___hello__.py" Name="__hello__.py" />
+                    <File Id="lib__aix_support.py" Name="_aix_support.py" />
+                    <File Id="lib_zipimport.py" Name="zipimport.py" />
+                    <File Id="lib__bootsubprocess.py" Name="_bootsubprocess.py" />
+                    <File Id="lib_graphlib.py" Name="graphlib.py" />
                     <File Id="lib__collections_abc.py" Name="_collections_abc.py" />
                     <File Id="lib__compat_pickle.py" Name="_compat_pickle.py" />
                     <File Id="lib__compression.py" Name="_compression.py" />
-                    <File Id="lib__dummy_thread.py" Name="_dummy_thread.py" />
                     <File Id="lib__markupbase.py" Name="_markupbase.py" />
                     <File Id="lib__osx_support.py" Name="_osx_support.py" />
                     <File Id="lib__py_abc.py" Name="_py_abc.py" />
@@ -1078,7 +1081,6 @@
                     <File Id="lib_asyncore.py" Name="asyncore.py" />
                     <File Id="lib_base64.py" Name="base64.py" />
                     <File Id="lib_bdb.py" Name="bdb.py" />
-                    <File Id="lib_binhex.py" Name="binhex.py" />
                     <File Id="lib_bisect.py" Name="bisect.py" />
                     <File Id="lib_bz2.py" Name="bz2.py" />
                     <File Id="lib_calendar.py" Name="calendar.py" />
@@ -1105,12 +1107,10 @@
                     <File Id="lib_difflib.py" Name="difflib.py" />
                     <File Id="lib_dis.py" Name="dis.py" />
                     <File Id="lib_doctest.py" Name="doctest.py" />
-                    <File Id="lib_dummy_threading.py" Name="dummy_threading.py" />
                     <File Id="lib_enum.py" Name="enum.py" />
                     <File Id="lib_filecmp.py" Name="filecmp.py" />
                     <File Id="lib_fileinput.py" Name="fileinput.py" />
                     <File Id="lib_fnmatch.py" Name="fnmatch.py" />
-                    <File Id="lib_formatter.py" Name="formatter.py" />
                     <File Id="lib_fractions.py" Name="fractions.py" />
                     <File Id="lib_ftplib.py" Name="ftplib.py" />
                     <File Id="lib_functools.py" Name="functools.py" />
@@ -1133,7 +1133,6 @@
                     <File Id="lib_linecache.py" Name="linecache.py" />
                     <File Id="lib_locale.py" Name="locale.py" />
                     <File Id="lib_lzma.py" Name="lzma.py" />
-                    <File Id="lib_macpath.py" Name="macpath.py" />
                     <File Id="lib_mailbox.py" Name="mailbox.py" />
                     <File Id="lib_mailcap.py" Name="mailcap.py" />
                     <File Id="lib_mimetypes.py" Name="mimetypes.py" />
@@ -1167,7 +1166,6 @@
                     <File Id="lib_queue.py" Name="queue.py" />
                     <File Id="lib_quopri.py" Name="quopri.py" />
                     <File Id="lib_random.py" Name="random.py" />
-                    <File Id="lib_re.py" Name="re.py" />
                     <File Id="lib_reprlib.py" Name="reprlib.py" />
                     <File Id="lib_rlcompleter.py" Name="rlcompleter.py" />
                     <File Id="lib_runpy.py" Name="runpy.py" />
@@ -1195,7 +1193,6 @@
                     <File Id="lib_struct.py" Name="struct.py" />
                     <File Id="lib_subprocess.py" Name="subprocess.py" />
                     <File Id="lib_sunau.py" Name="sunau.py" />
-                    <File Id="lib_symbol.py" Name="symbol.py" />
                     <File Id="lib_symtable.py" Name="symtable.py" />
                     <File Id="lib_sysconfig.py" Name="sysconfig.py" />
                     <File Id="lib_tabnanny.py" Name="tabnanny.py" />
@@ -1225,6 +1222,18 @@
                     <File Id="lib_zipapp.py" Name="zipapp.py" />
                     <File Id="lib_zipfile.py" Name="zipfile.py" />
                   </Component>
+                  <Directory Id="python_lib___phello__" Name="__phello__">
+                    <Component DiskId="1" Guid="129E9DD6-B40E-4572-A1FD-EBF7028CC3E3" Id="python_lib___phello__" Location="either">
+                      <File Id="python_lib___phello__spam.py" Name="spam.py" />
+                      <File Id="python_lib___phello____init__.py" Name="__init__.py" />
+                    </Component>
+                    <Directory Id="python_lib___phello__ham" Name="ham">
+                      <Component DiskId="1" Guid="0D3D8B4A-886C-4861-91F9-224C80F856C2" Id="python_lib___phello__ham" Location="either">
+                        <File Id="python_lib___phello__ham_eggs.py" Name="eggs.py" />
+                        <File Id="python_lib___phello__ham___init__.py" Name="__init__.py" />
+                      </Component>
+                    </Directory>
+                  </Directory>
                   <Directory Id="python_lib_asyncio" Name="asyncio">
                     <Component DiskId="1" Guid="F4F546B9-1752-47CE-AFB7-54C733AB7BC8" Id="python_lib_asyncio" Location="either">
                       <File Id="lib_asyncio___init__.py" Name="__init__.py" />
@@ -1252,6 +1261,14 @@
                       <File Id="lib_asyncio_unix_events.py" Name="unix_events.py" />
                       <File Id="lib_asyncio_windows_events.py" Name="windows_events.py" />
                       <File Id="lib_asyncio_windows_utils.py" Name="windows_utils.py" />
+                      <File Id="lib_asyncio_timeouts.py" Name="timeouts.py" />
+                      <File Id="lib_asyncio_trsock.py" Name="trsock.py" />
+                      <File Id="lib_asyncio___main__.py" Name="__main__.py" />
+                      <File Id="lib_asyncio_exceptions.py" Name="exceptions.py" />
+                      <File Id="lib_asyncio_mixins.py" Name="mixins.py" />
+                      <File Id="lib_asyncio_staggered.py" Name="staggered.py" />
+                      <File Id="lib_asyncio_taskgroups.py" Name="taskgroups.py" />
+                      <File Id="lib_asyncio_threads.py" Name="threads.py" />
                     </Component>
                   </Directory>
                   <Directory Id="python_lib_collections" Name="collections">
@@ -1342,9 +1359,7 @@
                         <File Id="lib_distutils_command___init__.py" Name="__init__.py" />
                         <File Id="lib_distutils_command_bdist.py" Name="bdist.py" />
                         <File Id="lib_distutils_command_bdist_dumb.py" Name="bdist_dumb.py" />
-                        <File Id="lib_distutils_command_bdist_msi.py" Name="bdist_msi.py" />
                         <File Id="lib_distutils_command_bdist_rpm.py" Name="bdist_rpm.py" />
-                        <File Id="lib_distutils_command_bdist_wininst.py" Name="bdist_wininst.py" />
                         <File Id="lib_distutils_command_build.py" Name="build.py" />
                         <File Id="lib_distutils_command_build_clib.py" Name="build_clib.py" />
                         <File Id="lib_distutils_command_build_ext.py" Name="build_ext.py" />
@@ -1431,7 +1446,6 @@
                       <File Id="lib_encodings_cp424.py" Name="cp424.py" />
                       <File Id="lib_encodings_cp437.py" Name="cp437.py" />
                       <File Id="lib_encodings_cp500.py" Name="cp500.py" />
-                      <File Id="lib_encodings_cp65001.py" Name="cp65001.py" />
                       <File Id="lib_encodings_cp720.py" Name="cp720.py" />
                       <File Id="lib_encodings_cp737.py" Name="cp737.py" />
                       <File Id="lib_encodings_cp775.py" Name="cp775.py" />
@@ -1494,7 +1508,6 @@
                       <File Id="lib_encodings_kz1048.py" Name="kz1048.py" />
                       <File Id="lib_encodings_latin_1.py" Name="latin_1.py" />
                       <File Id="lib_encodings_mac_arabic.py" Name="mac_arabic.py" />
-                      <File Id="lib_encodings_mac_centeuro.py" Name="mac_centeuro.py" />
                       <File Id="lib_encodings_mac_croatian.py" Name="mac_croatian.py" />
                       <File Id="lib_encodings_mac_cyrillic.py" Name="mac_cyrillic.py" />
                       <File Id="lib_encodings_mac_farsi.py" Name="mac_farsi.py" />
@@ -1518,7 +1531,6 @@
                       <File Id="lib_encodings_tis_620.py" Name="tis_620.py" />
                       <File Id="lib_encodings_undefined.py" Name="undefined.py" />
                       <File Id="lib_encodings_unicode_escape.py" Name="unicode_escape.py" />
-                      <File Id="lib_encodings_unicode_internal.py" Name="unicode_internal.py" />
                       <File Id="lib_encodings_utf_16.py" Name="utf_16.py" />
                       <File Id="lib_encodings_utf_16_be.py" Name="utf_16_be.py" />
                       <File Id="lib_encodings_utf_16_le.py" Name="utf_16_le.py" />
@@ -1623,6 +1635,7 @@
                       <File Id="lib_idlelib_zoomheight.py" Name="zoomheight.py" />
                       <File Id="lib_idlelib_zzdummy.py" Name="zzdummy.py" />
                       <File Id="lib_idlelib_idle.pyw" Name="idle.pyw" />
+                      <File Id="lib_idlelib_util.py" Name="util.py" />
                     </Component>
                     <Directory Id="python_lib_idlelib_icons" Name="Icons">
                       <Component DiskId="1" Guid="50757944-6859-4B2B-9637-30A32AE0EE36" Id="python_lib_idlelib_icons" Location="either">
@@ -1649,9 +1662,34 @@
                       <File Id="lib_importlib__bootstrap_external.py" Name="_bootstrap_external.py" />
                       <File Id="lib_importlib_abc.py" Name="abc.py" />
                       <File Id="lib_importlib_machinery.py" Name="machinery.py" />
-                      <File Id="lib_importlib_resources.py" Name="resources.py" />
                       <File Id="lib_importlib_util.py" Name="util.py" />
+                      <File Id="lib_importlib_readers.py" Name="readers.py" />
+                      <File Id="lib_importlib_simple.py" Name="simple.py" />
+                      <File Id="lib_importlib__abc.py" Name="_abc.py" />
                     </Component>
+                    <Directory Id="python_lib_importlib_metadata" Name="metadata">
+                      <Component DiskId="1" Guid="F0BD5E58-13F0-4B82-9334-F8DA0432565C" Id="python_lib_importlib_metadata" Location="either">
+                        <File Id="python_lib_importlib_metadata__functools.py" Name="_functools.py" />
+                        <File Id="python_lib_importlib_metadata__itertools.py" Name="_itertools.py" />
+                        <File Id="python_lib_importlib_metadata__meta.py" Name="_meta.py" />
+                        <File Id="python_lib_importlib_metadata__text.py" Name="_text.py" />
+                        <File Id="python_lib_importlib_metadata___init__.py" Name="__init__.py" />
+                        <File Id="python_lib_importlib_metadata__adapters.py" Name="_adapters.py" />
+                        <File Id="python_lib_importlib_metadata__collections.py" Name="_collections.py" />
+                      </Component>
+                    </Directory>
+                    <Directory Id="python_lib_importlib_resources" Name="resources">
+                      <Component DiskId="1" Guid="A1D6A195-DAB2-41FA-AECB-6F08E84B4D8B" Id="python_lib_importlib_resources" Location="either">
+                        <File Id="python_lib_importlib_resources_simple.py" Name="simple.py" />
+                        <File Id="python_lib_importlib_resources___init__.py" Name="__init__.py" />
+                        <File Id="python_lib_importlib_resources__adapters.py" Name="_adapters.py" />
+                        <File Id="python_lib_importlib_resources__common.py" Name="_common.py" />
+                        <File Id="python_lib_importlib_resources__itertools.py" Name="_itertools.py" />
+                        <File Id="python_lib_importlib_resources__legacy.py" Name="_legacy.py" />
+                        <File Id="python_lib_importlib_resources_abc.py" Name="abc.py" />
+                        <File Id="python_lib_importlib_resources_readers.py" Name="readers.py" />
+                      </Component>
+                    </Directory>
                   </Directory>
                   <Directory Id="python_lib_json" Name="json">
                     <Component DiskId="1" Guid="9BB70BAD-CCBC-4711-BE10-E6D5350E8815" Id="python_lib_json" Location="either">
@@ -1779,11 +1817,12 @@
                       <File Id="lib_multiprocessing_queues.py" Name="queues.py" />
                       <File Id="lib_multiprocessing_reduction.py" Name="reduction.py" />
                       <File Id="lib_multiprocessing_resource_sharer.py" Name="resource_sharer.py" />
-                      <File Id="lib_multiprocessing_semaphore_tracker.py" Name="semaphore_tracker.py" />
                       <File Id="lib_multiprocessing_sharedctypes.py" Name="sharedctypes.py" />
                       <File Id="lib_multiprocessing_spawn.py" Name="spawn.py" />
                       <File Id="lib_multiprocessing_synchronize.py" Name="synchronize.py" />
                       <File Id="lib_multiprocessing_util.py" Name="util.py" />
+                      <File Id="lib_multiprocessing_shared_memory.py" Name="shared_memory.py" />
+                      <File Id="lib_multiprocessing_resource_tracker.py" Name="resource_tracker.py" />
                     </Component>
                     <Directory Id="python_lib_multiprocessing_dummy" Name="dummy">
                       <Component DiskId="1" Guid="44FE7B8E-EF5A-452E-AE2F-C6DB97DDCEB0" Id="python_lib_multiprocessing_dummy" Location="either">
@@ -1799,6 +1838,15 @@
                       <File Id="lib_pyodbc_data_topics.py" Name="topics.py" />
                     </Component>
                   </Directory>
+                  <Directory Id="python_lib_re" Name="re">
+                      <Component DiskId="1" Guid="71012757-1E1A-43A1-925B-CC27C1E2CB3B" Id="python_lib_re" Location="either">
+                        <File Id="python_lib_re__constants.py" Name="_constants.py" />
+                        <File Id="python_lib_re__parser.py" Name="_parser.py" />
+                        <File Id="python_lib_re___init__.py" Name="__init__.py" />
+                        <File Id="python_lib_re__casefix.py" Name="_casefix.py" />
+                        <File Id="python_lib_re__compiler.py" Name="_compiler.py" />
+                      </Component>
+                    </Directory>
                   <Directory Id="python_lib_sqlite3" Name="sqlite3">
                     <Component DiskId="1" Guid="BE3250BD-DFB3-40E8-9DDA-6BBD0E29FD7F" Id="python_lib_sqlite3" Location="either">
                       <File Id="lib_sqlite3___init__.py" Name="__init__.py" />
@@ -1822,6 +1870,14 @@
                       <File Id="lib_tkinter_simpledialog.py" Name="simpledialog.py" />
                       <File Id="lib_tkinter_tix.py" Name="tix.py" />
                       <File Id="lib_tkinter_ttk.py" Name="ttk.py" />
+                    </Component>
+                  </Directory>
+                  <Directory Id="python_lib_tomllib" Name="tomllib">
+                    <Component DiskId="1" Guid="9FEF7ACC-133E-464C-B402-78EC3574BC10" Id="python_lib_tomllib" Location="either">
+                        <File Id="python_lib_tomllib___init__.py" Name="__init__.py" />
+                        <File Id="python_lib_tomllib__parser.py" Name="_parser.py" />
+                        <File Id="python_lib_tomllib__re.py" Name="_re.py" />
+                        <File Id="python_lib_tomllib__types.py" Name="_types.py" />
                     </Component>
                   </Directory>
                   <Directory Id="python_lib_urllib" Name="urllib">
@@ -1850,7 +1906,7 @@
                       <Directory Id="python_lib_venv_scripts_nt" Name="nt">
                         <Component DiskId="1" Guid="945FDF30-E5C6-4165-8C57-2E3A99D3CEB6" Id="python_lib_venv_scripts_nt" Location="either">
                           <File Id="lib_venv_scripts_nt_activate.bat" Name="activate.bat" />
-                          <File Id="lib_venv_scripts_nt_Activate.ps1" Name="Activate.ps1" />
+                          <!-- <File Id="lib_venv_scripts_nt_Activate.ps1" Name="Activate.ps1" /> -->
                           <File Id="lib_venv_scripts_nt_deactivate.bat" Name="deactivate.bat" />
                         </Component>
                       </Directory>
@@ -1870,6 +1926,7 @@
                       <File Id="lib_wsgiref_simple_server.py" Name="simple_server.py" />
                       <File Id="lib_wsgiref_util.py" Name="util.py" />
                       <File Id="lib_wsgiref_validate.py" Name="validate.py" />
+                      <File Id="lib_wsgiref_types.py" Name="types.py" />
                     </Component>
                   </Directory>
                   <Directory Id="python_lib_xml" Name="xml">
@@ -1921,8 +1978,15 @@
                       <File Id="lib_xmlrpc_server.py" Name="server.py" />
                     </Component>
                   </Directory>
+                  <Directory Id="python_lib_zoneinfo" Name="zoneinfo">
+                    <Component DiskId="1" Guid="FC4D1EA3-8BB7-4873-8DC9-DA3F574491F8" Id="python_lib_zoneinfo" Location="either">
+                        <File Id="python_lib_zoneinfo__init__.py" Name="__init__.py" />
+                        <File Id="python_lib_zoneinfo__common.py" Name="_common.py" />
+                        <File Id="python_lib_zoneinfo__tzpath.py" Name="_tzpath.py" />
+                        <File Id="python_lib_zoneinfo__zoneinfo.py" Name="_zoneinfo.py" />
+                    </Component>
+                  </Directory>
                 </Directory>
-
                 <Directory Id="python_site_packages" Name="site-packages">
                   <Component DiskId="1" Guid="cc59f4da-0c26-4471-a957-bc9180d45fc4" Id="python_site_packages_pyodbc" Location="either">
                     <?if $(var.SETUP_TYPE) = "debug" ?>

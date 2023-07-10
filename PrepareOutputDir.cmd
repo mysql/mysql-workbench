@@ -127,7 +127,7 @@ rem Python executable needed by MSI Custom Action (to precompile Python files) a
 rem xcopy /i /s /y /d %EXT_BIN_DIR%\python*.exe %TARGET_DIR%\.
 if %2 == Debug ( set DEBUG_PREFIX=_d)
 if not %2 == Debug ( set EXCLUDE_CMD=/xf *_d.* )
-robocopy %PYTHON_DIR% %TARGET_DIR% python37%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
+robocopy %PYTHON_DIR% %TARGET_DIR% python311%DEBUG_PREFIX%.dll %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR% python%DEBUG_PREFIX%.exe %EXCLUDE_CMD%
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages pyodbc*%DEBUG_PREFIX%.pyd %EXCLUDE_CMD%
 
@@ -171,6 +171,11 @@ xcopy /i /s /y /d %PYTHON_COMMON_DIR%\venv %TARGET_DIR%\python\lib\venv 1> nul 2
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\wsgiref %TARGET_DIR%\python\lib\wsgiref 1> nul 2> nul
 xcopy /i /s /y /d %PYTHON_COMMON_DIR%\xmlrpc %TARGET_DIR%\python\lib\xmlrpc 1> nul 2> nul
 robocopy %PYTHON_COMMON_DIR%\lib2to3 %TARGET_DIR%\python\lib\lib2to3 /E /xd %PYTHON_COMMON_DIR%\lib2to3\tests\
+robocopy %PYTHON_COMMON_DIR%\__phello__ %TARGET_DIR%\python\lib\__phello__
+robocopy %PYTHON_COMMON_DIR%\__phello__\ham %TARGET_DIR%\python\lib\__phello__\ham
+robocopy %PYTHON_COMMON_DIR%\re %TARGET_DIR%\python\lib\re
+robocopy %PYTHON_COMMON_DIR%\tomllib %TARGET_DIR%\python\lib\tomllib
+robocopy %PYTHON_COMMON_DIR%\zoneinfo %TARGET_DIR%\python\lib\zoneinfo
 
 robocopy %PYTHON_DLLS_DIR% %TARGET_DIR%\python\DLLs *%DEBUG_PREFIX%.pyd %EXCLUDE_CMD% _ctypes_test*.pyd
 robocopy %PYTHON_DIR% %TARGET_DIR%\python\site-packages\ pyodbc%DEBUG_PREFIX%*.pyd %EXCLUDE_CMD%
@@ -241,6 +246,9 @@ xcopy /i /s /y /d %EXT_LIB_DIR%\*.exe %TARGET_DIR%\. 1> nul 2> nul
 echo * ssh library ...
 xcopy /i /s /y /d %EXT_LIB_DIR%\ssh.dll %TARGET_DIR%\.
 
+echo * ffi library ...
+xcopy /i /s /y /d %EXT_LIB_DIR%\libffi.dll %TARGET_DIR%\.
+
 echo * auth plugins ...
 set AUTH_LIB_DIR=%WB_3DPARTY_PATH%\Lib
 xcopy /i /s /y /d %AUTH_LIB_DIR%\authentication_ldap_sasl_client.dll %TARGET_DIR%\.
@@ -256,7 +264,7 @@ xcopy /i /s /y /d %AUTH_LIB_DIR%\saslSCRAM.dll %TARGET_DIR%\.
 xcopy /i /s /y /d %AUTH_LIB_DIR%\xpprof64.dll %TARGET_DIR%\.
 
 echo * proj9 library ...
-xcopy /i /s /y /d %EXT_LIB_DIR%\proj_9_1%DEBUG_PREFIX%.dll %TARGET_DIR%\.
+xcopy /i /s /y /d %EXT_LIB_DIR%\proj*%DEBUG_PREFIX%.dll %TARGET_DIR%\.
 
 echo * Templates
 if not exist %TARGET_DIR%\modules\data\sqlide mkdir %TARGET_DIR%\modules\data\sqlide

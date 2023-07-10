@@ -24,7 +24,17 @@
 
 //--------------------------------------------------------------------------------------------------
 
-static void setup_python(int argc, wchar_t **argv) {
+static void clean_python(PyConfig *config, PyStatus status) {
+  PyConfig_Clear(config);
+  if (PyStatus_IsExit(status)) {
+    return;
+  }
+  Py_ExitStatusException(status);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+static void setup_python(PyConfig& config, int argc, wchar_t** argv) {
   char *pathlist = NULL;
   TCHAR szPath[MAX_PATH];
   std::string module_path;
@@ -63,7 +73,9 @@ static void setup_python(int argc, wchar_t **argv) {
   if (pathlist)
     free(pathlist);
 
-  Py_SetProgramName(argv[0]);
+  
+  PyConfig_InitPythonConfig(&config);
+  config.program_name = argv[0];
 
   // Here comes some ugly hack to fix PYTHONPATH init problem.
   // Create dummy site package to avoid error import site message from Py_Initialize();
@@ -71,14 +83,25 @@ static void setup_python(int argc, wchar_t **argv) {
   pFile = fopen("site.py", "w");
   if (pFile != NULL)
     fclose(pFile);
-
-  Py_Initialize();
-
+  
   // Delete dummy site module.
   remove("site.py");
   remove("site.pyc");
 
-  PySys_SetArgv(argc, argv);
+  PyStatus status = PyConfig_SetArgv(&config, argc, argv);
+  if (PyStatus_Exception(status)) {
+    clean_python(&config, status);
+  }
+
+  status = Py_InitializeFromConfig(&config);
+  if (PyStatus_Exception(status)) {
+    clean_python(&config, status);
+  }
+
+  int ret = Py_IsInitialized();
+  if (ret == 0) {
+    clean_python(&config, status);
+  }
 
   // Now import sys and modify PYTHONPATH.
   PyRun_SimpleString("import sys");
@@ -95,15 +118,16 @@ static void setup_python(int argc, wchar_t **argv) {
 
 //--------------------------------------------------------------------------------------------------
 
-static void finalize_python() {
-  Py_Finalize();
+static void finalize_python(PyConfig& config) {
+  PyConfig_Clear(&config);
 }
 
 //--------------------------------------------------------------------------------------------------
 
 int wmain(int argc, wchar_t **argv) {
   // Set the python interpreter.
-  setup_python(argc, argv);
+  PyConfig config;
+  setup_python(config, argc, argv);
 
   auto filepath = base::wstring_to_string(argv[0]);
 
@@ -117,16 +141,18 @@ int wmain(int argc, wchar_t **argv) {
 
   // Configures the execution of the script to take the same
   // parameters as this helper tool.
-  Py_SetProgramName(argv[0]);
 
-  PySys_SetArgv(argc, argv);
+
+  //Py_SetProgramName(argv[0]);
+
+  //PySys_SetArgv(argc, argv);
 
   // Executes the helper script.
   FILE* f = base_fopen(helper_path.c_str(), "r");
 
   PyRun_SimpleFileEx(f, "wbadminhelper.py", 1);
 
-  finalize_python();
+  finalize_python(config);
 
   return 0;
 }

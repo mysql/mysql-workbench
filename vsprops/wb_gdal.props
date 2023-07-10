@@ -8,7 +8,7 @@
       <AdditionalIncludeDirectories>$(WB_3DPARTY_PATH)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>gdal_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdald.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(WB_3DPARTY_PATH)\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
