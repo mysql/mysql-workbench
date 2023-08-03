@@ -589,7 +589,6 @@ class CheckForUpdateThread(threading.Thread):
         self.is_running = True
         try:
             import urllib.request, urllib.error, urllib.parse
-            import ssl
             import json
             import base64
 
