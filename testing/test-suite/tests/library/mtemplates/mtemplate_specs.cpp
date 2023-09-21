@@ -67,7 +67,7 @@ struct CSVTokenQuoteModifier : public mtemplate::Modifier {
       search_for += ';';
 
     if (input.find_first_of(search_for) != std::string::npos) {
-      base::replaceString(result, "\"", "\"\"");
+      result = base::replaceString(result, "\"", "\"\"");
       result = base::utf8string("\"") + result + base::utf8string("\"");
     }
 
