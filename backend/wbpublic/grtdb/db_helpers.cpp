@@ -267,7 +267,7 @@ bool bec::version_greater(GrtVersionRef a, GrtVersionRef b) {
  */
 bool bec::is_supported_mysql_version(int mysql_major, int mysql_minor, int mysql_release) {
   return ((mysql_major == 5 && (mysql_minor == 6 || mysql_minor == 7)) ||
-          (mysql_major == 8 && mysql_minor == 0));
+          (mysql_major == 8 && (mysql_minor >= 0 || mysql_minor <= 9)));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
