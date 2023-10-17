@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
-  xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <?if $(var.SETUP_TYPE) = "commercial" ?>
   <?define PRODUCT_NAME  = "MySQL Workbench $(var.VERSION_MAIN)"?>
@@ -19,9 +17,9 @@
   <?define COMPONENT_REG_GUID  = "4AB9F1DE-7679-4728-9BC4-5FE2176E8483"?>
   <?endif?>
 
-  <Product Id="*" Language="1033" Manufacturer="Oracle Corporation" Name="$(var.PRODUCT_NAME)" UpgradeCode="$(var.UPGRADE_CODE)" Version="$(var.VERSION_DETAIL)">
+  <Package Language="1033" Manufacturer="Oracle Corporation" Name="$(var.PRODUCT_NAME)" UpgradeCode="$(var.UPGRADE_CODE)" Version="$(var.VERSION_DETAIL)" Scope="perMachine">
 
-    <Package Compressed="yes" Description="MySQL Workbench" InstallerVersion="200" Keywords="Installer,MSI,Database" Languages="1033" Manufacturer="Oracle Corporation" Platform="$(sys.BUILDARCH)" />
+    <SummaryInformation Description="MySQL Workbench" Keywords="Installer,MSI,Database" Manufacturer="Oracle Corporation" />
 
     <MajorUpgrade Schedule="afterInstallValidate" DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit.">
     </MajorUpgrade>
@@ -58,43 +56,48 @@
       <RegistrySearch Id="OldMySQLWBLocation" Type="raw" Root="HKLM" Key="Software\MySQL AB\$(var.OLD_PRODUCT_NAME)" Name="Location" />
     </Property>
 
-    <Condition Message="The operating system is not adequate for running [ProductName]. You need Windows 7 or newer and .Net 4.0 Client Profile installed.">
-          VersionNT &gt;= 601</Condition>
-    <Condition Message="The processor is not adequate for running [ProductName].">Intel &gt;= 5</Condition>
-    <Condition Message="The amount of RAM is not adequate for running [ProductName].">PhysicalMemory &gt;= 64</Condition>
-    <Condition Message="You need Administrator privileges to be able to install [ProductName].">Privileged</Condition>
-    <Condition Message="MySQL Workbench requires the Visual C++ 2019 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR CPP_2019_REDISTRIBUTABLE_1 >= "#20" OR CPP_2019_REDISTRIBUTABLE_2 >= "#20"]]></Condition>
-    <Condition Message="MySQL Workbench requires the .Net Framework 4.5 to be installed. Click the Download-Button on the next page to open a web page containing further instructions."><![CDATA[Installed OR WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED]]></Condition>
+    <Launch Condition="VersionNT &gt;= 601" Message="The operating system is not adequate for running [ProductName]. You need Windows 7 or newer and .Net 4.0 Client Profile installed." />
+    <Launch Condition="Intel &gt;= 5" Message="The processor is not adequate for running [ProductName]." />
+    <Launch Condition="PhysicalMemory &gt;= 64" Message="The amount of RAM is not adequate for running [ProductName]." />
+    <Launch Condition="Privileged" Message="You need Administrator privileges to be able to install [ProductName]." />
+    <Launch Condition="Installed OR CPP_2019_REDISTRIBUTABLE_1 &gt;= &quot;#20&quot; OR CPP_2019_REDISTRIBUTABLE_2 &gt;= &quot;#20&quot;" Message="MySQL Workbench requires the Visual C++ 2019 Redistributable Package to be installed. Click the Download-Button on the next page to open a web page containing further instructions." />
+    <Launch Condition="Installed OR WIX_IS_NETFRAMEWORK_45_OR_LATER_INSTALLED" Message="MySQL Workbench requires the .Net Framework 4.5 to be installed. Click the Download-Button on the next page to open a web page containing further instructions." />
 
     <CustomAction Id="NewerVersionInstalled" Error="A newer version of this product is already installed." />
 
     <Property Id="WixShellExecTarget" Value="http://dev.mysql.com/resources/workbench_prerequisites.html" />
 
-    <CustomAction Id="LaunchDL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+    <CustomAction Id="LaunchDL" DllEntry="WixShellExec" Impersonate="yes" BinaryRef="Wix4UtilCA_X86" />
 
     <CustomAction Id="SetAdditionalCleanupDir1" Property="LEFTOVERDIR1" Value="[INSTALLDIR]python\encodings" />
     <CustomAction Id="SetAdditionalCleanupDir2" Property="LEFTOVERDIR2" Value="[INSTALLDIR]python\logging" />
     <CustomAction Id="SetAdditionalCleanupDir3" Property="LEFTOVERDIR3" Value="[INSTALLDIR]workbench\graphics" />
     <Binary Id="MySQLCA" SourceFile="$(env.WB_3DPARTY_PATH)\bin\MySQLCA.CA.dll" />
 
-    <CustomAction Id="PrecompilePythonFiles" BinaryKey="MySQLCA" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" />
-    <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]"/>
+    <CustomAction Id="PrecompilePythonFiles" DllEntry="PrecompilePythonFiles" Execute="deferred" Impersonate="no" Return="asyncWait" BinaryRef="MySQLCA" />
+    <CustomAction Id="PrecompilePythonFiles.SetProperty" Return="check" Property="PrecompilePythonFiles" Value="[INSTALLDIR]" />
 
-    <CustomAction Id="DeletePythonFolder" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
-    <CustomAction Id="DeletePythonFolder.SetProperty" Return="check" Property="DeletePythonFolder" Value="[INSTALLDIR]python"/>
+    <CustomAction Id="DeletePythonFolder" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore" BinaryRef="MySQLCA" />
+    <CustomAction Id="DeletePythonFolder.SetProperty" Return="check" Property="DeletePythonFolder" Value="[INSTALLDIR]python" />
 
-    <CustomAction Id="DeleteModulesFolder" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
-    <CustomAction Id="DeleteModulesFolder.SetProperty" Return="check" Property="DeleteModulesFolder" Value="[INSTALLDIR]modules"/>
+    <CustomAction Id="DeleteModulesFolder" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore" BinaryRef="MySQLCA" />
+    <CustomAction Id="DeleteModulesFolder.SetProperty" Return="check" Property="DeleteModulesFolder" Value="[INSTALLDIR]modules" />
 
-    <CustomAction Id="DeletePycFiles" BinaryKey="MySQLCA" DllEntry="DeleteFilesWildcard" Execute="deferred" Impersonate="no" Return="ignore"/>
-    <CustomAction Id="DeletePycFiles.SetProperty" Return="check" Property="DeletePycFiles" Value="[INSTALLDIR],*.pyc"/>
+    <CustomAction Id="DeletePycFiles" DllEntry="DeleteFilesWildcard" Execute="deferred" Impersonate="no" Return="ignore" BinaryRef="MySQLCA" />
+    <CustomAction Id="DeletePycFiles.SetProperty" Return="check" Property="DeletePycFiles" Value="[INSTALLDIR],*.pyc" />
 
-    <CustomAction Id="DeletePythonFolderOldInstall" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
-    <CustomAction Id="DeletePythonFolderOldInstall.SetProperty" Return="check" Property="DeletePythonFolderOldInstall" Value="[OLDINSTALLDIR]python"/>
+    <CustomAction Id="DeletePythonFolderOldInstall" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore" BinaryRef="MySQLCA" />
+    <CustomAction Id="DeletePythonFolderOldInstall.SetProperty" Return="check" Property="DeletePythonFolderOldInstall" Value="[OLDINSTALLDIR]python" />
 
-    <CustomAction Id="DeleteUtilitiesFolderOldInstall" BinaryKey="MySQLCA" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore"/>
-    <CustomAction Id="DeleteUtilitiesFolderOldInstall.SetProperty" Return="check" Property="DeleteUtilitiesFolderOldInstall" Value="[OLDINSTALLDIR]utilities"/>
+    <CustomAction Id="DeleteUtilitiesFolderOldInstall" DllEntry="DeleteFolders" Execute="deferred" Impersonate="no" Return="ignore" BinaryRef="MySQLCA" />
+    <CustomAction Id="DeleteUtilitiesFolderOldInstall.SetProperty" Return="check" Property="DeleteUtilitiesFolderOldInstall" Value="[OLDINSTALLDIR]utilities" />
 
+    <?ifdef env.WB_UPGRADE_CA_PATH?>
+    <!-- Part of fix for BUG#35869936 -->
+    <Binary Id="MySQLUpgradeCA" SourceFile="$(env.WB_UPGRADE_CA_PATH)" />
+    <CustomAction Id="SetAllUsers" DllEntry="SetAllUsers" Execute="immediate" Impersonate="yes" Return="check" BinaryRef="MySQLUpgradeCA" />
+    <CustomAction Id="RevertAllUsers" DllEntry="RevertAllUsers" Execute="immediate" Impersonate="yes" Return="check" BinaryRef="MySQLUpgradeCA" />
+    <?endif?>
     <DirectoryRef Id="INSTALLDIR">
       <Component Id="RegKeys" Guid="$(var.COMPONENT_REG_GUID)" DiskId="1">
         <RegistryKey Id="MysqlKey" Root="HKLM" Key="SOFTWARE\MySQL AB\[ProductName]" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes"/>
@@ -117,7 +120,7 @@
     </DirectoryRef>
 
 
-    <Feature Id="MysqlWorkbenchCore" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR" Description="Core components needed to run MySQL Workbench" Level="1" Title="MySQL Workbench Core">
+    <Feature Id="MysqlWorkbenchCore" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR" Description="Core components needed to run MySQL Workbench" Level="1" Title="MySQL Workbench Core" AllowAbsent="no">
       <ComponentRef Id="Various" />
       <ComponentRef Id="Third_Party_Libraries" />
       <ComponentRef Id="Libraries" />
@@ -236,7 +239,7 @@
     <Property Id="DefaultUIFont" Value="Tahoma8" />
     <Property Id="_IsMaintenance" Value="Change" />
     <Property Id="_IsSetupTypeMin" Value="Complete" />
-    <Property Id="ALLUSERS" Value="2" />
+<!--    <Property Id="ALLUSERS" Value="2" /> -->
     <Property Id="ApplicationUsers" Value="AllUsers" />
     <Property Id="ARPPRODUCTICON" Value="WBIcon.exe" />
     <Property Id="ARPURLUPDATEINFO" Value="http://dev.mysql.com/downloads/workbench/6.2.html" />
@@ -254,44 +257,56 @@
     <Property Id="NEWERPRODUCTFOUND" Secure="yes" />
     <Property Id="PREVIOUSVERSIONINSTALLED" Secure="yes" />
     <Property Id="LAUNCHAPPONEXIT" Value="1" />
-    <CustomAction Id="LaunchApplication" FileKey="file1056" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" />
+    <CustomAction Id="LaunchApplication" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" FileRef="file1056" />
 
     <InstallExecuteSequence>
       <Custom Action="SetAdditionalCleanupDir1" Before="InstallInitialize"/>
       <Custom Action="SetAdditionalCleanupDir2" Before="InstallInitialize"/>
       <Custom Action="SetAdditionalCleanupDir3" Before="InstallInitialize"/>
-      <Custom Action="NewerVersionInstalled" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
+      <Custom Action="NewerVersionInstalled" After="FindRelatedProducts" Condition="NEWERPRODUCTFOUND" />
 
-      <Custom Action="PrecompilePythonFiles.SetProperty" Before="PrecompilePythonFiles">NOT(REMOVE="ALL")</Custom>
-      <Custom Action="PrecompilePythonFiles" After="InstallFiles">NOT(REMOVE="ALL")</Custom>
+      <Custom Action="PrecompilePythonFiles.SetProperty" Before="PrecompilePythonFiles" Condition="NOT(REMOVE=&quot;ALL&quot;)" />
+      <Custom Action="PrecompilePythonFiles" After="InstallFiles" Condition="NOT(REMOVE=&quot;ALL&quot;)" />
 
-      <Custom Action="DeletePythonFolder.SetProperty" Before="DeletePythonFolder">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
-      <Custom Action="DeletePythonFolder" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="DeletePythonFolder.SetProperty" Before="DeletePythonFolder" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+      <Custom Action="DeletePythonFolder" Before="InstallFinalize" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
 
-      <Custom Action="DeleteModulesFolder.SetProperty" Before="DeleteModulesFolder">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
-      <Custom Action="DeleteModulesFolder" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="DeleteModulesFolder.SetProperty" Before="DeleteModulesFolder" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+      <Custom Action="DeleteModulesFolder" Before="InstallFinalize" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
 
-      <Custom Action="DeletePycFiles.SetProperty" Before="DeletePycFiles">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
-      <Custom Action="DeletePycFiles" Before="InstallFinalize">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+      <Custom Action="DeletePycFiles.SetProperty" Before="DeletePycFiles" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
+      <Custom Action="DeletePycFiles" Before="InstallFinalize" Condition="REMOVE=&quot;ALL&quot; AND NOT UPGRADINGPRODUCTCODE" />
 
-      <Custom Action="DeletePythonFolderOldInstall.SetProperty" Before="DeletePythonFolderOldInstall">NOT(REMOVE="ALL")</Custom>
-      <Custom Action="DeletePythonFolderOldInstall" Before="InstallFinalize">NOT(REMOVE="ALL")</Custom>
+      <Custom Action="DeletePythonFolderOldInstall.SetProperty" Before="DeletePythonFolderOldInstall" Condition="NOT(REMOVE=&quot;ALL&quot;)" />
+      <Custom Action="DeletePythonFolderOldInstall" Before="InstallFinalize" Condition="NOT(REMOVE=&quot;ALL&quot;)" />
 
-      <Custom Action="DeleteUtilitiesFolderOldInstall.SetProperty" Before="DeleteUtilitiesFolderOldInstall">NOT(REMOVE="ALL")</Custom>
-      <Custom Action="DeleteUtilitiesFolderOldInstall" Before="InstallFinalize">NOT(REMOVE="ALL")</Custom>
+      <Custom Action="DeleteUtilitiesFolderOldInstall.SetProperty" Before="DeleteUtilitiesFolderOldInstall" Condition="NOT(REMOVE=&quot;ALL&quot;)" />
+      <Custom Action="DeleteUtilitiesFolderOldInstall" Before="InstallFinalize" Condition="NOT(REMOVE=&quot;ALL&quot;)" />
 
+      <?ifdef env.WB_UPGRADE_CA_PATH?>
+      <!-- Part of fix for BUG#35869936 -->
+      <Custom Action="SetAllUsers" Before="FindRelatedProducts" Condition="NOT UPGRADINGPRODUCTCODE" />
+      <Custom Action="RevertAllUsers" After="FindRelatedProducts" Condition="NOT UPGRADINGPRODUCTCODE" />
+      <?endif?>
 
     </InstallExecuteSequence>
 
     <InstallUISequence>
-      <Custom Action="NewerVersionInstalled" After="FindRelatedProducts">NEWERPRODUCTFOUND</Custom>
+      <Custom Action="NewerVersionInstalled" After="FindRelatedProducts" Condition="NEWERPRODUCTFOUND" />
       <Show Dialog="SetupCompleteErrorDialog" OnExit="error" />
       <Show Dialog="SetupInterruptedDialog" OnExit="cancel" />
       <Show Dialog="SetupCompleteSuccessDialog" OnExit="success" />
-      <Show Dialog="InstallWelcomeDialog" After="CostFinalize">Not Installed And (Not PATCH Or IS_MAJOR_UPGRADE)</Show>
-      <Show Dialog="SetupResumeDialog" After="InstallWelcomeDialog">Installed And (RESUME Or Preselected) And Not PATCH</Show>
-      <Show Dialog="MaintenanceWelcomeDialog" After="SetupResumeDialog">Installed And Not RESUME And Not Preselected And Not PATCH</Show>
+      <Show Dialog="InstallWelcomeDialog" After="CostFinalize" Condition="Not Installed And (Not PATCH Or IS_MAJOR_UPGRADE)" />
+      <Show Dialog="SetupResumeDialog" After="InstallWelcomeDialog" Condition="Installed And (RESUME Or Preselected) And Not PATCH" />
+      <Show Dialog="MaintenanceWelcomeDialog" After="SetupResumeDialog" Condition="Installed And Not RESUME And Not Preselected And Not PATCH" />
       <Show Dialog="SetupProgressDialog" After="MaintenanceWelcomeDialog" />
+
+      <?ifdef env.WB_UPGRADE_CA_PATH?>
+      <!-- Part of fix for BUG#35869936 -->
+      <Custom Action="SetAllUsers" Before="FindRelatedProducts" Condition="NOT UPGRADINGPRODUCTCODE" />
+      <Custom Action="RevertAllUsers" After="FindRelatedProducts" Condition="NOT UPGRADINGPRODUCTCODE" />
+      <?endif?>
+
     </InstallUISequence>
 
     <AdminUISequence>
@@ -305,5 +320,5 @@
 
     <?include source\mysql_common_ui.xml ?>
 
-  </Product>
+  </Package>
 </Wix>

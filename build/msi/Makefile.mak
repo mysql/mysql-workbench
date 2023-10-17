@@ -11,25 +11,14 @@
 # Set BIN_DIR="..\..\bin\x86\release"
 ###############################################################
 
-CANDLE=candle -nologo -ext WiXNetFxExtension -ext WixUtilExtension
-LIGHT=light -nologo -ext WiXNetFxExtension -ext WixUtilExtension
+WIX=wix build -nologo -ext WixToolset.Netfx.wixext -ext WixToolset.Util.wixext
 COMMON_GUI=source
 
 all: mysql_workbench.msi
 
-mysql_workbench.msi: mysql_workbench.wixobj mysql_workbench_fragment.wixobj
-  $(LIGHT) -b $(BIN_DIR)  $** -out $@
-
-mysql_workbench.wixobj: mysql_workbench.xml $(COMMON_GUI)\mysql_common_ui.xml
-  $(CANDLE) mysql_workbench.xml -out $@ -dLICENSE_TYPE=$(LICENSE_TYPE) -dSETUP_TYPE=$(SETUP_TYPE) -dVERSION_MAIN=$(VERSION_MAIN) -dVERSION_DETAIL=$(VERSION_DETAIL) -dLICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE)
-
-mysql_workbench_fragment.wixobj: mysql_workbench_fragment.xml
-  $(CANDLE) $** -out $@ -dLICENSE_TYPE=$(LICENSE_TYPE) -dSETUP_TYPE=$(SETUP_TYPE) -dVERSION_MAIN=$(VERSION_MAIN) -dVERSION_DETAIL=$(VERSION_DETAIL) -dLICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE)
+mysql_workbench.msi: mysql_workbench.xml mysql_workbench_fragment.xml $(COMMON_GUI)\mysql_common_ui.xml
+  $(WIX) -out $@ -b $(BIN_DIR) -d LICENSE_TYPE=$(LICENSE_TYPE) -d SETUP_TYPE=$(SETUP_TYPE) -d VERSION_MAIN=$(VERSION_MAIN) -d VERSION_DETAIL=$(VERSION_DETAIL) -d LICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE) mysql_workbench.xml mysql_workbench_fragment.xml
 
 clean:
-  del *.wixobj 1> nul 2> nul
   del mysql_workbench.msi 1> nul 2> nul
   del mysql_workbench*.xml 1> nul 2> nul
-
-
-
