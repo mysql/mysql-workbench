@@ -493,6 +493,7 @@ namespace sql {
       std::list<std::string> prop_names;
       prop_names.push_back("socket");
       prop_names.push_back("schema");
+      prop_names.push_back("defaultAuth");
       for (const std::string &prop_name : prop_names) {
         ConnectOptionsMap::iterator prop_iter = properties.find(prop_name);
         if (properties.end() != prop_iter) {
