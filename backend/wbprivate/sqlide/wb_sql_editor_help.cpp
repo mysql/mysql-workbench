@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2023, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,7 +21,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include <pcrecpp.h>
+#include <regex>
 #include <thread>
 #include <rapidjson/istreamwrapper.h>
 #include <fstream>
@@ -141,10 +141,9 @@ std::string convertXRef(long version, std::string const &source) {
   if (source.find("<xref") == std::string::npos)
     return source;
 
-  // We cannot use std::regex here atm, as this crashes on macOS. Maybe later...
-  std::string result = source;
-  static pcrecpp::RE pattern = "<xref linkend=\"([^\"]+)\" />";
-  pattern.GlobalReplace("<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/\\1.html'>\\1</a>", &result);
+  std::regex pattern("<xref linkend=\"([^\"]+)\" />", std::regex::ECMAScript | std::regex ::icase);
+  std::string result =
+    std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/\\1.html'>\\1</a>");
 
   result = base::replaceString(result, "{0}", std::to_string(version / 100));
   result = base::replaceString(result, "{1}", std::to_string(version % 10));
@@ -158,9 +157,10 @@ std::string convertExternalLinks(long version, std::string const &source) {
   if (source.find("<link") == std::string::npos)
     return source;
 
-  std::string result = source;
-  static pcrecpp::RE pattern = "<link linkend=\"([^\"]+)\">([^<]+)<\\/link>";
-  pattern.GlobalReplace("<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/glossary.html#\\1'>\\2</a>", &result);
+  std::regex pattern("<link linkend=\"([^\"]+)\">([^<]+)<\\/link>", std::regex::ECMAScript | std::regex ::icase);
+  std::string result =
+    std::regex_replace(source, pattern, "<a href='http://dev.mysql.com/doc/refman/{0}.{1}/en/glossary.html#\\1'>\\2</a>");
+
 
   result = base::replaceString(result, "{0}", std::to_string(version / 100));
   result = base::replaceString(result, "{1}", std::to_string(version % 10));
@@ -173,9 +173,10 @@ std::string convertInternalLinks(std::string const &source) {
   if (source.find("role=\"stmt\"") == std::string::npos)
     return source;
 
-  std::string result = source;
-  static pcrecpp::RE pattern = "<literal role=\"stmt\">([^<]+)</literal>";
-  pattern.GlobalReplace("<a href='local:\\1'>\\1</a>", &result);
+  std::regex pattern("<literal role=\"stmt\">([^<]+)</literal>", std::regex::ECMAScript | std::regex ::icase);
+  std::string result = std::regex_replace(
+    source, pattern, "<a href='local:\\1'>\\1</a>");
+
   return result;
 }
 

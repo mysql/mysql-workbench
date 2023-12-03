@@ -47,7 +47,6 @@
     <Import Project="..\..\vsprops\wb_glib.props" />
     <Import Project="..\..\vsprops\wb_boost.props" />
     <Import Project="..\..\vsprops\wb_libxml.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
     <Import Project="..\..\vsprops\wb_rapidjson.props" />
   </ImportGroup>
@@ -56,7 +55,6 @@
     <Import Project="..\..\vsprops\wb_glib.props" />
     <Import Project="..\..\vsprops\wb_boost.props" />
     <Import Project="..\..\vsprops\wb_libxml.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
     <Import Project="..\..\vsprops\wb_rapidjson.props" />
   </ImportGroup>
@@ -65,7 +63,6 @@
     <Import Project="..\..\vsprops\wb_glib.props" />
     <Import Project="..\..\vsprops\wb_boost.props" />
     <Import Project="..\..\vsprops\wb_libxml.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
     <Import Project="..\..\vsprops\wb_rapidjson.props" />
   </ImportGroup>
