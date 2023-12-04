@@ -11,5 +11,6 @@ for file in $*; do
     install_name_tool -change "@rpath/Python3.framework/Versions/3.8/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.8/Python3" $file
     install_name_tool -change "@rpath/Python3.framework/Versions/3.9/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.9/Python3" $file
     install_name_tool -change "@rpath/Python3.framework/Versions/3.10/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.10/Python3" $file
+    install_name_tool -change "@rpath/Python3.framework/Versions/3.11/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.11/Python3" $file
   fi
 done
