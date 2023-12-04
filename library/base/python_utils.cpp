@@ -39,11 +39,15 @@ std::string format_python_traceback(PyObject *tb) {
   stack = "Traceback:\n";
   while (trace && trace->tb_frame) {
     PyFrameObject *frame = (PyFrameObject *)trace->tb_frame;
-    stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyUnicode_AsUTF8(frame->f_code->co_filename),
-                          trace->tb_lineno, PyUnicode_AsUTF8(frame->f_code->co_name));
-    PyObject *code = PyErr_ProgramText(PyUnicode_AsUTF8(frame->f_code->co_filename), trace->tb_lineno);
-    if (code) {
-      stack += base::strfmt("    %s", PyUnicode_AsUTF8(code));
+    PyCodeObject *code = PyFrame_GetCode(frame);
+    if(code) {
+      stack += base::strfmt("  File \"%s\", line %i, in %s\n", PyUnicode_AsUTF8(code->co_filename),
+                            trace->tb_lineno, PyUnicode_AsUTF8(code->co_name));
+      PyObject *error = PyErr_ProgramText(PyUnicode_AsUTF8(code->co_filename), trace->tb_lineno);
+      if (error) {
+        stack += base::strfmt("    %s", PyUnicode_AsUTF8(error));
+        Py_DECREF(error);
+      }
       Py_DECREF(code);
     }
     trace = trace->tb_next;

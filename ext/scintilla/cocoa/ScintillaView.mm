@@ -336,7 +336,9 @@ static NSCursor *cursorFromEnum(Window::Cursor cursor) {
  */
 - (void) drawRect: (NSRect) rect {
 	CGContextRef context = (CGContextRef) [NSGraphicsContext currentContext].graphicsPort;
-
+  if (!NSContainsRect(self.bounds, rect)) {
+    rect = self.bounds;
+  }
 	if (!mOwner.backend->Draw(rect, context)) {
 		dispatch_async(dispatch_get_main_queue(), ^ {
 			[self setNeedsDisplay: YES];
