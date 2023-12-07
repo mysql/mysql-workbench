@@ -39,6 +39,9 @@
     mOwner = aBox;
     mOwner->set_data(self);
   }
+  if (@available(iOS 14.0, *)) {
+    self.clipsToBounds = TRUE;
+  }
   return self;
 }
 
