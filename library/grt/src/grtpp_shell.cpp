@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,48 +21,32 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
-#include <pcre.h>
+#include <regex>
+#include "base/string_utilities.h"
 #include "grtpp_shell.h"
 
 using namespace grt;
 
 #define O_VECTOR_COUNT 64 // max # of ()*2+2
 
-char *get_value_from_text_ex_opt(const char *txt, int txt_length, const char *regexpr, unsigned int substring_nr,
-                                 int options_for_exec) {
-  pcre *pcre_exp;
-  const char *error_str;
-  int erroffset;
-  int o_vector[O_VECTOR_COUNT];
-  int rc;
-  const char *ret_val;
-  char *value = NULL;
+std::string get_value_from_text_ex(const std::string& txt, const std::string& regexpr, unsigned int substringNr) {
+  std::regex regex(regexpr, std::regex::icase);
+  auto begin = std::sregex_iterator(txt.begin(), txt.end(), regex);
+  auto end = std::sregex_iterator();
+  if(std::distance(begin, end) >= substringNr)
+    return "";
 
-  if (txt && *txt) {
-    pcre_exp = pcre_compile(regexpr, PCRE_CASELESS, &error_str, &erroffset, NULL);
-    if (pcre_exp) {
-      if ((rc = pcre_exec(pcre_exp, NULL, txt, txt_length, 0, options_for_exec, o_vector, O_VECTOR_COUNT)) > 0) {
-        if (o_vector[substring_nr * 2] != -1) {
-          pcre_get_substring(txt, o_vector, rc, substring_nr, &ret_val);
-
-          value = g_strdup(ret_val);
-
-          pcre_free_substring((char *)ret_val);
-        }
-      }
-
-      pcre_free(pcre_exp);
+  unsigned int idx = 0; 
+  for (std::sregex_iterator i = begin; i != end; ++i, ++idx) {
+    if (idx == substringNr) {
+      std::smatch match = *i;
+      return match.str();
     }
   }
 
-  return value;
+  return "";
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-
-char *get_value_from_text_ex(const char *txt, int txt_length, const char *regexpr, unsigned int substring_nr) {
-  return get_value_from_text_ex_opt(txt, txt_length, regexpr, substring_nr, 0);
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -162,35 +146,34 @@ bool Shell::set_disable_quit(bool flag) {
  ****************************************************************************
  */
 ShellCommand Shell::execute(const std::string &linebuf) {
-  char *cmd;
-  unsigned int cmd_len;
-  char *cmd_param = NULL;
-  ShellCommand res = ShellCommandUnknown;
+    ShellCommand res = ShellCommandUnknown;
   char *preprocessed_cmd = NULL;
-  char *line;
-
-  line = g_strdup(linebuf.c_str());
+  
+  /*line = g_strdup(linebuf.c_str());
   cmd = g_strchug(g_strchomp(line));
-  cmd_len = (unsigned int)strlen(cmd);
+  cmd_len = (unsigned int)strlen(cmd);*/
+
+  std::string cmd = base::trim(linebuf);
+  std::string cmdParam;
 
   // Help command
-  if (strcmp(cmd, "help") == 0) {
+  if (strcmp(cmd.c_str(), "help") == 0) {
     show_help("");
 
     res = ShellCommandHelp;
-  } else if ((cmd_param = get_value_from_text_ex(cmd, cmd_len, "^(help|\\\\h)\\s+([\\w\\/\\.]*)", 2))) {
-    show_help(cmd_param);
+  } else if (!(cmdParam = get_value_from_text_ex(cmd, "^(help|\\\\h)\\s+([\\w\\/\\.]*)", 2)).empty()) {
+    show_help(cmdParam);
 
     res = ShellCommandHelp;
-  } else if ((cmd_param = get_value_from_text_ex(cmd, cmd_len, "^(\\?|\\-\\?)\\s*([\\w\\/\\.]*)", 2))) {
-    show_help(cmd_param);
+  } else if (!(cmdParam = get_value_from_text_ex(cmd, "^(\\?|\\-\\?)\\s*([\\w\\/\\.]*)", 2)).empty()) {
+    show_help(cmdParam);
 
     res = ShellCommandHelp;
   }
   // Quit command
-  else if ((strcmp(cmd, "quit") == 0) || (strcmp(cmd, "quit;") == 0) || (strcmp(cmd, "exit") == 0) ||
-           (strcmp(cmd, "exit;") == 0) || (strcmp(cmd, "\\q") == 0) || (strcmp(cmd, "q") == 0) ||
-           (strcmp(cmd, "\\e") == 0)) {
+  else if ((strcmp(cmd.c_str(), "quit") == 0) || (strcmp(cmd.c_str(), "quit;") == 0) ||
+           (strcmp(cmd.c_str(), "exit") == 0) || (strcmp(cmd.c_str(), "exit;") == 0) ||
+           (strcmp(cmd.c_str(), "\\q") == 0) || (strcmp(cmd.c_str(), "q") == 0) || (strcmp(cmd.c_str(), "\\e") == 0)) {
     if (_disable_quit)
       print("Command not available\n");
     else {
@@ -198,96 +181,90 @@ ShellCommand Shell::execute(const std::string &linebuf) {
 
       res = ShellCommandExit;
     }
-  } else if ((strcmp(cmd, "run") == 0) || (g_str_has_prefix(cmd, "\\r")) || (g_str_has_prefix(cmd, "run "))) {
-    char *file_name = get_value_from_text_ex(cmd, (int)strlen(cmd), "(run|\\\\r)\\s+(.+)", 2);
+  } else if ((strcmp(cmd.c_str(), "run") == 0) || (g_str_has_prefix(cmd.c_str(), "\\r")) ||
+             (g_str_has_prefix(cmd.c_str(), "run "))) {
+    std::string fileName = get_value_from_text_ex(cmd, "(run|\\\\r)\\s+(.+)", 2);
 
-    if ((file_name) && (file_name[0])) {
-      preprocessed_cmd = g_strdup_printf("run(\"%s\")\n", file_name);
+    if (!fileName.empty()) {
+      preprocessed_cmd = g_strdup_printf("run(\"%s\")\n", fileName.c_str());
       res = ShellCommandStatement;
     } else {
       show_help("run");
       res = ShellCommandHelp;
     }
-    g_free(file_name);
   }
   // Automatically convert cd.. to cd(".." and
   //   cd objectname to cd("objectname")
-  else if ((strcmp(cmd, "cd") == 0) || (strcmp(cmd, "cd..") == 0) || (g_str_has_prefix(cmd, "cd "))) {
-    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "cd\\s*(.+)", 1);
+  else if ((strcmp(cmd.c_str(), "cd") == 0) || (strcmp(cmd.c_str(), "cd..") == 0) ||
+           (g_str_has_prefix(cmd.c_str(), "cd "))) {
+    std::string path = get_value_from_text_ex(cmd, "cd\\s*(.+)", 1);
 
-    if ((path) && (path[0])) {
-      preprocessed_cmd = g_strdup_printf("cd(\"%s\")\n", path);
+    if (!path.empty()) {
+      preprocessed_cmd = g_strdup_printf("cd(\"%s\")\n", path.c_str());
       res = ShellCommandStatement;
     } else {
       preprocessed_cmd = g_strdup_printf("print(pwd())\n");
       res = ShellCommandStatement;
     }
-
-    g_free(path);
   }
   // Automatically convert ls -t to table.foreach(x, print)
-  else if (g_str_has_prefix(cmd, "ls -t ")) {
-    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-t\\s+(.+)", 1);
+  else if (g_str_has_prefix(cmd.c_str(), "ls -t ")) {
+    std::string path = get_value_from_text_ex(cmd, "ls\\s+\\-t\\s+(.+)", 1);
 
-    if ((path) && (path[0])) {
-      preprocessed_cmd = g_strdup_printf("table.foreach(%s, print)\n", path);
+    if (!path.empty()) {
+      preprocessed_cmd = g_strdup_printf("table.foreach(%s, print)\n", path.c_str());
       res = ShellCommandStatement;
     }
-    g_free(path);
   }
   // Automatically convert ls -m module to grtM.show()
-  else if (g_str_has_prefix(cmd, "ls -m ")) {
-    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-m\\s+(.+)", 1);
+  else if (g_str_has_prefix(cmd.c_str(), "ls -m ")) {
+    std::string path = get_value_from_text_ex(cmd, "ls\\s+\\-m\\s+(.+)", 1);
 
-    if ((path) && (path[0])) {
-      preprocessed_cmd = g_strdup_printf("grtM.show(\"%s\")\n", path);
+    if (!path.empty()) {
+      preprocessed_cmd = g_strdup_printf("grtM.show(\"%s\")\n", path.c_str());
       res = ShellCommandStatement;
     }
-    g_free(path);
   }
   // Automatically convert ls -m to grtM.list()
   else
     // TODO: Parsing for the poor. What if there is more than a space char between the command and its parameter?
-    if ((strcmp(cmd, "ls -m") == 0) || (strcmp(cmd, "dir -m") == 0)) {
+    if ((strcmp(cmd.c_str(), "ls -m") == 0) || (strcmp(cmd.c_str(), "dir -m") == 0)) {
     preprocessed_cmd = g_strdup("grtM.list()\n");
     res = ShellCommandStatement;
   }
   // Automatically convert ls -s to grtS.list()
-  else if ((strcmp(cmd, "ls -s") == 0) || (strcmp(cmd, "dir -s") == 0)) {
+  else if ((strcmp(cmd.c_str(), "ls -s") == 0) || (strcmp(cmd.c_str(), "dir -s") == 0)) {
     preprocessed_cmd = g_strdup("grtS.list()\n");
     res = ShellCommandStatement;
   }
   // Automatically convert ls -m module to grtS.show()
-  else if (g_str_has_prefix(cmd, "ls -s ")) {
-    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "ls\\s+\\-s\\s+(.+)", 1);
+  else if (g_str_has_prefix(cmd.c_str(), "ls -s ")) {
+    std::string path = get_value_from_text_ex(cmd, "ls\\s+\\-s\\s+(.+)", 1);
 
-    if ((path) && (path[0])) {
-      preprocessed_cmd = g_strdup_printf("grtS.show(\"%s\")\n", path);
+    if (!path.empty()) {
+      preprocessed_cmd = g_strdup_printf("grtS.show(\"%s\")\n", path.c_str());
       res = ShellCommandStatement;
     }
-    g_free(path);
   }
   // Automatically convert ls to ls()
-  else if ((strcmp(cmd, "ls") == 0) || (strcmp(cmd, "dir") == 0) || g_str_has_prefix(cmd, "ls ") ||
-           g_str_has_prefix(cmd, "dir ")) {
+  else if ((strcmp(cmd.c_str(), "ls") == 0) || (strcmp(cmd.c_str(), "dir") == 0) ||
+           g_str_has_prefix(cmd.c_str(), "ls ") || g_str_has_prefix(cmd.c_str(), "dir ")) {
     preprocessed_cmd = g_strdup("ls()\n");
     res = ShellCommandStatement;
   }
   // Automatically convert show to show(grt2Lua(pwd()))
-  else if (strcmp(cmd, "show") == 0) {
+  else if (strcmp(cmd.c_str(), "show") == 0) {
     preprocessed_cmd = g_strdup_printf("print(" MYX_SHELL_CURNODE ")\n");
     res = ShellCommandStatement;
   }
   // Automatically convert show objectname to show(getGlobal("objectname"))
-  else if (g_str_has_prefix(cmd, "show ")) {
-    char *path = get_value_from_text_ex(cmd, (int)strlen(cmd), "show\\s+(.+)", 1);
+  else if (g_str_has_prefix(cmd.c_str(), "show ")) {
+    std::string path = get_value_from_text_ex(cmd, "show\\s+(.+)", 1);
 
-    if ((path) && (path[0])) {
-      preprocessed_cmd = g_strdup_printf("print(grtV.getGlobal(\"%s\"))\n", path);
+    if (!path.empty()) {
+      preprocessed_cmd = g_strdup_printf("print(grtV.getGlobal(\"%s\"))\n", path.c_str());
       res = ShellCommandStatement;
     }
-
-    g_free(path);
   }
 
   // If the command is still unknown, it needs to be a Python command
@@ -308,9 +285,7 @@ ShellCommand Shell::execute(const std::string &linebuf) {
   }
 
   // g_free(cmd);
-  g_free(cmd_param);
   g_free(preprocessed_cmd);
-  g_free(line);
 
   return res;
 }
