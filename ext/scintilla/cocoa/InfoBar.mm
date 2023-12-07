@@ -91,7 +91,9 @@
     mCurrentCaretX = 0;
     mCurrentCaretY = 0;
     [self createItems];
-    self.clipsToBounds = TRUE;
+    if (@available(iOS 14.0, *)) {
+      self.clipsToBounds = TRUE;
+    }
   }
   return self;
 }

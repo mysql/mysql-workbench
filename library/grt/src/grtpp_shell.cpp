@@ -221,7 +221,7 @@ ShellCommand Shell::execute(const std::string &linebuf) {
     std::string path = get_value_from_text_ex(cmd, "ls\\s+\\-m\\s+(.+)", 1);
 
     if (!path.empty()) {
-      preprocessed_cmd = g_strdup_printf("grtM.show(\"%s\")\n", path);
+      preprocessed_cmd = g_strdup_printf("grtM.show(\"%s\")\n", path.c_str());
       res = ShellCommandStatement;
     }
   }
