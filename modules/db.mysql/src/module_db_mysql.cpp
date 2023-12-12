@@ -1493,17 +1493,17 @@ namespace {
 
     std::regex pattern("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", std::regex::ECMAScript | std::regex ::icase);
     std::smatch itemsMatch;
-    if (!std::regex_match(view_def, itemsMatch, pattern)) {
+    if (!std::regex_search(view_def, itemsMatch, pattern) && itemsMatch.size() > 0) {
       or_replace_present = true;
     }
 
     if (!or_replace_present) {
       pattern = std::regex("^\\s*CREATE\\s+", std::regex::ECMAScript | std::regex ::icase);
-      if (!std::regex_match(view_def, itemsMatch, pattern)) {
+      if (std::regex_search(view_def, itemsMatch, pattern)) {
         // The first sub_match is the whole string; the next
         // sub_match is the first parenthesized expression.
-        if (itemsMatch.size() == 2) {
-          std::ssub_match subMatch = itemsMatch[1];
+        if (itemsMatch.size() > 0) {
+          std::ssub_match subMatch = itemsMatch[0];
           view_def.insert(subMatch.str().size(), " OR REPLACE ");
         }
       }
