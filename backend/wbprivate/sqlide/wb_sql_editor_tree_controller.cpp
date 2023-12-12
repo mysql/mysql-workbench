@@ -911,8 +911,7 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string &schema_n
       std::vector<std::string> def_lines = base::split(statement.substr(def_start, def_end - def_start), "\n");
 
       const std::string pattern =
-        "CONSTRAINT\\s*(\\S*)\\s*FOREIGN "
-        "KEY\\s*\\((\\S*)\\)\\s*REFERENCES\\s*(\\S*)\\s*\\((\\S*)\\)\\s*((\\w*\\s*)*),?$";
+        "CONSTRAINT\\s*(\\S*)\\s*FOREIGN KEY\\s*\\((\\S*)\\)\\s*REFERENCES\\s*(\\S*)\\s*\\((\\S*)\\)\\s*((\\w*\\s*)*),?$";
 
       std::regex selfRegex(pattern, std::regex_constants::icase);
 
@@ -926,31 +925,34 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string &schema_n
         auto resultBegin = std::sregex_iterator(def_lines[index].begin(), def_lines[index].end(), selfRegex);
         auto resultEnd = std::sregex_iterator();
         auto count = std::distance(resultBegin, resultEnd);
-        if (count >= 5) {
-          int i = 0;
-          for (auto iter = resultBegin; iter != resultEnd; ++iter, ++i) {
+        if (count > 0) {
+          
+          for (auto iter = resultBegin; iter != resultEnd; ++iter) {
             std::smatch match = *iter;
-            switch (i) {
-              case 1:
-                fk_name = match.str();
-                fk_name = base::unquote_identifier(fk_name);
-                break;
-              case 2:
-                fk_columns = match.str();
-                break;
-              case 3:
-                fk_ref_table = match.str();
-                fk_ref_table = base::unquote_identifier(fk_ref_table);
-                ;
-                break;
-              case 4:
-                fk_ref_columns = match.str();
-                break;
-              case 5:
-                fk_rules = match.str();
-                break;
-              default:
-                break;
+            for (int i = 0; i < match.length(); ++i) {
+              switch (i) {
+                case 1:
+                  fk_name = match[i].str();
+                  fk_name = base::unquote_identifier(fk_name);
+                  break;
+                case 2:
+                  fk_columns = match[i].str();
+                  break;
+                case 3:
+                  fk_ref_table = match[i].str();
+                  fk_ref_table = base::unquote_identifier(fk_ref_table);
+                  ;
+                  break;
+                case 4:
+                  fk_ref_columns = match[i].str();
+                  break;
+                case 5:
+                  fk_rules = match[i].str();
+                  break;
+                default:
+                  break;
+              }
+
             }
           }
           

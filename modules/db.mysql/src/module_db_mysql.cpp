@@ -1504,7 +1504,7 @@ namespace {
         // sub_match is the first parenthesized expression.
         if (itemsMatch.size() > 0) {
           std::ssub_match subMatch = itemsMatch[0];
-          view_def.insert(subMatch.str().size(), " OR REPLACE ");
+          view_def.insert(itemsMatch.prefix().str().size() + subMatch.str().size(), " OR REPLACE ");
         }
       }
     }
