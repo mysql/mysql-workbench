@@ -2697,15 +2697,7 @@
 		44FFC3DA1AA0BC3A00950A48 /* sqlide_power_import_wizard.py in Copy Files (python plugins) */ = {isa = PBXBuildFile; fileRef = 44FFC3D41AA0BA1F00950A48 /* sqlide_power_import_wizard.py */; };
 		75C847F51067E9C70067947D /* opts.py in Resources */ = {isa = PBXBuildFile; fileRef = 75C847F21067E9C70067947D /* opts.py */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
-		8E4E66F525D6970F0060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66F625D697100060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66F725D697150060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66F825D697160060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66F925D697160060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66FA25D697170060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66FB25D697180060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E66FC25D697190060A2FA /* Python3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; };
-		8E4E698F25D6A63B0060A2FA /* Python3.framework in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python3.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8E4E698F25D6A63B0060A2FA /* Python.framework in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8E6F7E842268AEBE00DAFB62 /* grt_inspector_value_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E6F7E832268AEBE00DAFB62 /* grt_inspector_value_specs.cpp */; };
 		8E6F7E852268AEBE00DAFB62 /* grt_inspector_value_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E6F7E832268AEBE00DAFB62 /* grt_inspector_value_specs.cpp */; };
 		8E6F7E88227094C500DAFB62 /* comparer_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E6F7E87227094C500DAFB62 /* comparer_specs.cpp */; };
@@ -2745,6 +2737,14 @@
 		8EF64AB92267563300AA8BD1 /* wb_lowlevel_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF64AB82267563200AA8BD1 /* wb_lowlevel_specs.cpp */; };
 		8EF64ABA2267563300AA8BD1 /* wb_lowlevel_specs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EF64AB82267563200AA8BD1 /* wb_lowlevel_specs.cpp */; };
 		8EF87004289D1E9800A33DDA /* libmforms.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B96161B0F2759A400F0B599 /* libmforms.dylib */; };
+		D0437BFB2B1F423D00114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437BFC2B1F430800114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437BFD2B1F431100114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437BFE2B1F432200114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437BFF2B1F433300114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437C002B1F433E00114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437C012B1F434B00114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D0437C022B1F435700114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
 		ED0955E1177374690051CF28 /* page_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DE177374690051CF28 /* page_restore.png */; };
 		ED0955E2177374690051CF28 /* title_backup.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955DF177374690051CF28 /* title_backup.png */; };
 		ED0955E3177374690051CF28 /* title_restore.png in Resources */ = {isa = PBXBuildFile; fileRef = ED0955E0177374690051CF28 /* title_restore.png */; };
@@ -3989,7 +3989,7 @@
 				27189E68209B2E5A002EC0D4 /* libsqlite3.so in Copy Files (dylibs) */,
 				27189E72209B30EA002EC0D4 /* libssl.3.dylib in Copy Files (dylibs) */,
 				27189E63209B2D21002EC0D4 /* libvsqlitepp.3.dylib in Copy Files (dylibs) */,
-				8E4E698F25D6A63B0060A2FA /* Python3.framework in Copy Files (dylibs) */,
+				8E4E698F25D6A63B0060A2FA /* Python.framework in Copy Files (dylibs) */,
 			);
 			name = "Copy Files (dylibs)";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6723,7 +6723,7 @@
 		75C847F81067E9DF0067947D /* wb_admin_config_file_ui.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = wb_admin_config_file_ui.py; path = plugins/wb.admin/frontend/wb_admin_config_file_ui.py; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* MySQLWorkbench.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MySQLWorkbench.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8E4E66F425D697060060A2FA /* Python3.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python3.framework; path = Library/Frameworks/Python3.framework; sourceTree = DEVELOPER_DIR; };
+		8E4E66F425D697060060A2FA /* Python.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Python.framework; path = "${SRCROOT}/3rd-party-ce/Python/Python.framework"; sourceTree = DEVELOPER_DIR; };
 		8E6F7E832268AEBE00DAFB62 /* grt_inspector_value_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grt_inspector_value_specs.cpp; sourceTree = "<group>"; };
 		8E6F7E87227094C500DAFB62 /* comparer_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = comparer_specs.cpp; path = "testing/test-suite/tests/library/grt/comparer_specs.cpp"; sourceTree = "<group>"; };
 		8E6F7E8E2271BBC700DAFB62 /* diff_tree_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = diff_tree_specs.cpp; path = "testing/test-suite/tests/library/grt/diff_tree_specs.cpp"; sourceTree = "<group>"; };
@@ -6856,7 +6856,7 @@
 			files = (
 				2B2E92F21589991B0078D08A /* libwbbase.dylib in Frameworks */,
 				278DFF2320A2F6DA00D7E439 /* libwbssh.dylib in Frameworks */,
-				8E4E66F625D697100060A2FA /* Python3.framework in Frameworks */,
+				D0437C022B1F435700114F67 /* Python.framework in Frameworks */,
 				2B2E92FE158999890078D08A /* libiodbc.dylib in Frameworks */,
 				270124222099F97F00FE448E /* libglib-2.0.0.dylib in Frameworks */,
 				270124242099F9D200FE448E /* libmysqlclient.dylib in Frameworks */,
@@ -6867,8 +6867,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8E4E66F925D697160060A2FA /* Python3.framework in Frameworks */,
 				27D6EE3F2099DE300050B26B /* libcairo.2.dylib in Frameworks */,
+				D0437BFE2B1F432200114F67 /* Python.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6986,7 +6986,7 @@
 				4401E1CA1D996B620027AD13 /* libmtemplate.dylib in Frameworks */,
 				2B3D4F9D0F40BC98009238A7 /* libcdbc.dylib in Frameworks */,
 				2B75117D0E87E5340003120A /* libgrt.dylib in Frameworks */,
-				8E4E66FB25D697180060A2FA /* Python3.framework in Frameworks */,
+				D0437BFF2B1F433300114F67 /* Python.framework in Frameworks */,
 				27E0E18415516CB10073FD6F /* libparsers.dylib in Frameworks */,
 				2B75116E0E87E43E0003120A /* libmysql.canvas.dylib in Frameworks */,
 				2B3D4A870F3E7C2F009238A7 /* libmforms.dylib in Frameworks */,
@@ -7003,10 +7003,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0437BFB2B1F423D00114F67 /* Python.framework in Frameworks */,
 				272D310D25DD178000170B5E /* libxml2.tbd in Frameworks */,
 				27D6EE252099C1580050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2774A4C51C92D31200D1E037 /* Cocoa.framework in Frameworks */,
-				8E4E66F725D697150060A2FA /* Python3.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7014,11 +7014,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0437BFC2B1F430800114F67 /* Python.framework in Frameworks */,
 				272D30E825DD177A00170B5E /* libxml2.tbd in Frameworks */,
 				2BDC261B0E8565C20018CE34 /* libwbbase.dylib in Frameworks */,
 				27D6EE272099C7060050B26B /* libglib-2.0.0.dylib in Frameworks */,
 				2BDC260A0E8561EB0018CE34 /* CoreFoundation.framework in Frameworks */,
-				8E4E66F825D697160060A2FA /* Python3.framework in Frameworks */,
 				27D6EE2C2099D6AD0050B26B /* libpcre.1.dylib in Frameworks */,
 				27D6EE292099D65A0050B26B /* libgmodule-2.0.0.dylib in Frameworks */,
 			);
@@ -7095,11 +7095,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0437BFD2B1F431100114F67 /* Python.framework in Frameworks */,
 				2BCAD05E1006D20B00D1772C /* libmforms.dylib in Frameworks */,
 				2BC09089106860D40069AB9A /* libwbpublic.be.dylib in Frameworks */,
 				2B4C9EA710A2AE8A00D5F19E /* libwbbase.dylib in Frameworks */,
 				2BE9FD51151A6ABC00CC0894 /* libgrt.dylib in Frameworks */,
-				8E4E66FA25D697170060A2FA /* Python3.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7116,8 +7116,8 @@
 				2BCB319A0E88461A005C8ED2 /* libwbbase.dylib in Frameworks */,
 				2B6A60C00EB0BBF1008E6D11 /* libcdbc.dylib in Frameworks */,
 				2B30C0A70F7039EC00D3E2B1 /* libmforms.dylib in Frameworks */,
-				8E4E66FC25D697190060A2FA /* Python3.framework in Frameworks */,
 				2701241F2099F8C400FE448E /* libpcrecpp.0.dylib in Frameworks */,
+				D0437C002B1F433E00114F67 /* Python.framework in Frameworks */,
 				271F744B239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
 				27D6EE472099E3B10050B26B /* libantlr4-runtime.dylib in Frameworks */,
 				27E7D79A237BF7940006BD1B /* libssh.dylib in Frameworks */,
@@ -7283,7 +7283,7 @@
 				2B263B520E94031D00933149 /* libwbpublic.be.dylib in Frameworks */,
 				2B263B530E94031D00933149 /* libwbprivate.be.dylib in Frameworks */,
 				2B9617B50F277C3800F0B599 /* libmforms.dylib in Frameworks */,
-				8E4E66F525D6970F0060A2FA /* Python3.framework in Frameworks */,
+				D0437C012B1F434B00114F67 /* Python.framework in Frameworks */,
 				27E0E21A155173380073FD6F /* libparsers.dylib in Frameworks */,
 				271F7449239117CD005B0EEB /* libmysqlcppconn.dylib in Frameworks */,
 				2BD1FB170F33D2B000FFC762 /* WBExtras.framework in Frameworks */,
@@ -7302,7 +7302,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8E4E66F425D697060060A2FA /* Python3.framework */,
+				8E4E66F425D697060060A2FA /* Python.framework */,
 				2BD820110F4F0E7D009E485D /* Carbon.framework */,
 				2774A4C41C92D31200D1E037 /* Cocoa.framework */,
 				16E036BE0F3062AC004651CB /* ExceptionHandling.framework */,
@@ -17102,7 +17102,10 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -17133,7 +17136,10 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -17164,7 +17170,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = so;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -17208,7 +17217,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_EXTENSION = so;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -17737,7 +17749,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -17782,7 +17797,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
 				HEADER_SEARCH_PATHS = (
@@ -17824,7 +17842,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = (
@@ -17858,7 +17879,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/ext",
 					"$(PROJECT_DIR)/library/base",
@@ -17889,7 +17913,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/library/grt",
@@ -17916,7 +17943,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(PROJECT_DIR)/library/grt",
 					"$(PROJECT_DIR)/generated",
@@ -18226,7 +18256,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_EXTENSION = so;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -18270,7 +18303,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_EXTENSION = so;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -18311,7 +18347,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -18359,7 +18398,10 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					TIXML_USE_STL,
@@ -18896,7 +18938,10 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = NO;
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
@@ -18952,7 +18997,10 @@
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = /Applications/Xcode.app/Contents/Developer/Library/Frameworks/;
+				FRAMEWORK_SEARCH_PATHS = (
+					/Applications/Xcode.app/Contents/Developer/Library/Frameworks/,
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
 				GCC_MODEL_TUNING = G5;
 				GCC_OBJC_CALL_CXX_CDTORS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_PYTHON_MODULES;
