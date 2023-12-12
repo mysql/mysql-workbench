@@ -45,7 +45,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\vsprops\wb_glib.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_libxml_inc.props" />
     <Import Project="..\..\vsprops\wb_boost.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
@@ -53,7 +52,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\vsprops\wb_glib.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_libxml_inc.props" />
     <Import Project="..\..\vsprops\wb_boost.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />
@@ -61,7 +59,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_OSS|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\vsprops\wb_glib.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_libxml_inc.props" />
     <Import Project="..\..\vsprops\wb_boost.props" />
     <Import Project="..\..\vsprops\wb_cpp_std.props" />

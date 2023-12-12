@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,6 +21,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#include <regex>
+
 #include "grtpp_util.h"
 #include "wb_sql_editor_tree_controller.h"
 #include "wb_sql_editor_form.h"
@@ -36,8 +38,6 @@
 
 #include "workbench/wb_command_ui.h"
 #include "workbench/wb_context_ui.h"
-
-#include <pcre.h>
 
 #include <boost/signals2/connection.hpp>
 
@@ -910,52 +910,50 @@ void SqlEditorTreeController::fetch_foreign_key_data(const std::string &schema_n
 
       std::vector<std::string> def_lines = base::split(statement.substr(def_start, def_end - def_start), "\n");
 
-      const char *errptr;
-      int erroffs = 0;
-      const char *pattern =
+      const std::string pattern =
         "CONSTRAINT\\s*(\\S*)\\s*FOREIGN "
         "KEY\\s*\\((\\S*)\\)\\s*REFERENCES\\s*(\\S*)\\s*\\((\\S*)\\)\\s*((\\w*\\s*)*),?$";
-      int patres[64];
 
-      pcre *patre = pcre_compile(pattern, 0, &errptr, &erroffs, NULL);
-      if (!patre)
-        throw std::logic_error("error compiling regex " + std::string(errptr));
+      std::regex selfRegex(pattern, std::regex_constants::icase);
 
       std::string fk_name;
       std::string fk_columns;
       std::string fk_ref_table;
       std::string fk_ref_columns;
       std::string fk_rules;
-      const char *value;
 
       for (size_t index = 0; index < def_lines.size(); index++) {
-        int rc = pcre_exec(patre, NULL, def_lines[index].c_str(), (int)def_lines[index].length(), 0, 0, patres,
-                           sizeof(patres) / sizeof(int));
-
-        if (rc > 0) {
-          // gets the values timestamp and
-          pcre_get_substring(def_lines[index].c_str(), patres, rc, 1, &value);
-          fk_name = value;
-          pcre_free_substring(value);
-          fk_name = base::unquote_identifier(fk_name);
-
-          pcre_get_substring(def_lines[index].c_str(), patres, rc, 2, &value);
-          fk_columns = value;
-          pcre_free_substring(value);
-
-          pcre_get_substring(def_lines[index].c_str(), patres, rc, 3, &value);
-          fk_ref_table = value;
-          pcre_free_substring(value);
-          fk_ref_table = base::unquote_identifier(fk_ref_table);
-
-          pcre_get_substring(def_lines[index].c_str(), patres, rc, 4, &value);
-          fk_ref_columns = value;
-          pcre_free_substring(value);
-
-          pcre_get_substring(def_lines[index].c_str(), patres, rc, 5, &value);
-          fk_rules = value;
-          pcre_free_substring(value);
-
+        auto resultBegin = std::sregex_iterator(def_lines[index].begin(), def_lines[index].end(), selfRegex);
+        auto resultEnd = std::sregex_iterator();
+        auto count = std::distance(resultBegin, resultEnd);
+        if (count >= 5) {
+          int i = 0;
+          for (auto iter = resultBegin; iter != resultEnd; ++iter, ++i) {
+            std::smatch match = *iter;
+            switch (i) {
+              case 1:
+                fk_name = match.str();
+                fk_name = base::unquote_identifier(fk_name);
+                break;
+              case 2:
+                fk_columns = match.str();
+                break;
+              case 3:
+                fk_ref_table = match.str();
+                fk_ref_table = base::unquote_identifier(fk_ref_table);
+                ;
+                break;
+              case 4:
+                fk_ref_columns = match.str();
+                break;
+              case 5:
+                fk_rules = match.str();
+                break;
+              default:
+                break;
+            }
+          }
+          
           // Parses the list fields
           std::vector<std::string> fk_column_list = base::split(fk_columns, ",");
           std::vector<std::string> fk_ref_column_list = base::split(fk_ref_columns, ",");

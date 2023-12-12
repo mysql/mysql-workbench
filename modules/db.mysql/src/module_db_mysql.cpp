@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2023, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -22,10 +22,10 @@
  */
 
 #ifndef _MSC_VER
-#include <pcre.h>
 #include <stdio.h>
 #endif
 
+#include <regex>
 #include "base/sqlstring.h"
 
 #include "grt/grt_manager.h"
@@ -1491,24 +1491,22 @@ namespace {
     std::string view_def;
     view_def.append(view->sqlDefinition().c_str());
 
-    pcre* patre =
-      pcre_compile("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", PCRE_CASELESS | PCRE_MULTILINE, &errptr, &erroffs, NULL);
-    if (patre && (pcre_exec(patre, NULL, view_def.c_str(), (int)view_def.length(), 0, 0, patres,
-                            sizeof(patres) / sizeof(int)) > 0)) {
+    std::regex pattern("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", std::regex::ECMAScript | std::regex ::icase);
+    std::smatch itemsMatch;
+    if (!std::regex_match(view_def, itemsMatch, pattern)) {
       or_replace_present = true;
     }
 
-    if (patre)
-      pcre_free(patre);
-
     if (!or_replace_present) {
-      patre = pcre_compile("^\\s*CREATE\\s+", PCRE_CASELESS | PCRE_MULTILINE, &errptr, &erroffs, NULL);
-      if (patre && (pcre_exec(patre, NULL, view_def.c_str(), (int)view_def.length(), 0, 0, patres,
-                              sizeof(patres) / sizeof(int)) > 0))
-        view_def.insert(patres[1], " OR REPLACE ");
-
-      if (patre)
-        pcre_free(patre);
+      pattern = std::regex("^\\s*CREATE\\s+", std::regex::ECMAScript | std::regex ::icase);
+      if (!std::regex_match(view_def, itemsMatch, pattern)) {
+        // The first sub_match is the whole string; the next
+        // sub_match is the first parenthesized expression.
+        if (itemsMatch.size() == 2) {
+          std::ssub_match subMatch = itemsMatch[1];
+          view_def.insert(subMatch.str().size(), " OR REPLACE ");
+        }
+      }
     }
 
     if (_omitSchemas) {

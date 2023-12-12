@@ -51,7 +51,6 @@
     <Import Project="..\..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\..\vsprops\wb_sqlite.props" />
     <Import Project="..\..\..\vsprops\wb_vsqlite++.props" />
-    <Import Project="..\..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\..\vsprops\wb_glib.props" />
     <Import Project="..\..\..\vsprops\wb_cpp_std.props" />
   </ImportGroup>
@@ -61,7 +60,6 @@
     <Import Project="..\..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\..\vsprops\wb_sqlite.props" />
     <Import Project="..\..\..\vsprops\wb_vsqlite++.props" />
-    <Import Project="..\..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\..\vsprops\wb_glib.props" />
     <Import Project="..\..\..\vsprops\wb_cpp_std.props" />
   </ImportGroup>
@@ -71,7 +69,6 @@
     <Import Project="..\..\..\vsprops\wb_libxml.props" />
     <Import Project="..\..\..\vsprops\wb_sqlite.props" />
     <Import Project="..\..\..\vsprops\wb_vsqlite++.props" />
-    <Import Project="..\..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\..\vsprops\wb_glib.props" />
     <Import Project="..\..\..\vsprops\wb_cpp_std.props" />
   </ImportGroup>

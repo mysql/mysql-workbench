@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -21,8 +21,8 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
  */
 
+#include <regex>
 #include "grt_string_list_model.h"
-#include <pcre.h>
 #include "grtpp_util.h"
 
 using namespace bec;
@@ -265,34 +265,21 @@ void GrtStringListModel::process_mask(const std::string &mask, std::vector<bool>
     }
   }
 
-  // compile regexp
-  pcre *patre;
-  {
-    const char *error;
-    int erroffset;
-    patre = pcre_compile(regexp.c_str(), PCRE_UTF8 | PCRE_EXTRA, &error, &erroffset, NULL);
-    if (!patre)
-      throw std::logic_error("error compiling regex " + std::string(error));
-  }
-
+  std::regex regex(regexp, std::regex::icase);
+  std::smatch itemsMatch;
   // sift items
   size_t n = 0;
+  size_t itemsSize = _items.size();
   for (std::vector<bool>::iterator i = items.begin(); i != items.end(); ++i, ++n) {
-    if (*i) {
+    if (*i && itemsSize < n) {
       const Item_handler &item = _items[n];
-      int patres[2];
-
-      int substr_count = pcre_exec(patre, NULL, item.val.c_str(), static_cast<int>(item.val.size()), 0, 0, patres,
-                                   sizeof(patres) / sizeof(int));
-
-      if (substr_count > 0 && patres[1] == (int)item.val.size())
+      if (std::regex_match(item.val, itemsMatch, regex)) {
         *i = match_means_visible;
-      else
+      } else {
         *i = !match_means_visible;
+      }
     }
   }
-
-  pcre_free(patre);
 }
 
 std::string GrtStringListModel::terminate_wildcard_symbols(const std::string &str) {

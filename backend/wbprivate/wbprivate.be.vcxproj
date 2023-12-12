@@ -52,7 +52,6 @@
     <Import Project="..\..\vsprops\wb_gdal.props" />
     <Import Project="..\..\vsprops\wb_antlr4.props" />
     <Import Project="..\..\vsprops\wb_cairo.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_zlib.props" />
     <Import Project="..\..\vsprops\wb_python.props" />
     <Import Project="..\..\vsprops\wb_libssh.props" />
@@ -69,7 +68,6 @@
     <Import Project="..\..\vsprops\wb_gdal.props" />
     <Import Project="..\..\vsprops\wb_antlr4.props" />
     <Import Project="..\..\vsprops\wb_cairo.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_zlib.props" />
     <Import Project="..\..\vsprops\wb_python.props" />
     <Import Project="..\..\vsprops\wb_libssh.props" />
@@ -86,7 +84,6 @@
     <Import Project="..\..\vsprops\wb_gdal.props" />
     <Import Project="..\..\vsprops\wb_antlr4.props" />
     <Import Project="..\..\vsprops\wb_cairo.props" />
-    <Import Project="..\..\vsprops\wb_pcre.props" />
     <Import Project="..\..\vsprops\wb_zlib.props" />
     <Import Project="..\..\vsprops\wb_python.props" />
     <Import Project="..\..\vsprops\wb_libssh.props" />
