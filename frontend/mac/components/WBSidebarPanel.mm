@@ -111,12 +111,14 @@
 
   {
     BOOL newCollapseState = [self.splitView isSubviewCollapsed: sidebar];
-    BOOL hidden = !mToolbar->get_item_checked("wb.toggleSidebar");
-
-    if (newCollapseState != hidden)
-    {
-      bec::GRTManager::get()->set_app_option(mOptionName+":SidebarHidden", grt::IntegerRef(newCollapseState));
-      mToolbar->set_item_checked("wb.toggleSidebar", newCollapseState);
+    if (mToolbar) {
+      BOOL hidden = !mToolbar->get_item_checked("wb.toggleSidebar");
+      
+      if (newCollapseState != hidden)
+      {
+        bec::GRTManager::get()->set_app_option(mOptionName+":SidebarHidden", grt::IntegerRef(newCollapseState));
+        mToolbar->set_item_checked("wb.toggleSidebar", newCollapseState);
+      }
     }
     if (!newCollapseState)
     {
@@ -140,12 +142,14 @@
     }
     {
       BOOL newCollapseState = [self.splitView isSubviewCollapsed: secondarySidebar];
-      BOOL hidden = !mToolbar->get_item_checked("wb.toggleSecondarySidebar");
-
-      if (newCollapseState != hidden)
-      {
-        bec::GRTManager::get()->set_app_option(mOptionName+":SecondarySidebarHidden", grt::IntegerRef(newCollapseState));
-        mToolbar->set_item_checked("wb.toggleSecondarySidebar", !newCollapseState);
+      if (mToolbar) {
+        BOOL hidden = !mToolbar->get_item_checked("wb.toggleSecondarySidebar");
+        
+        if (newCollapseState != hidden)
+        {
+          bec::GRTManager::get()->set_app_option(mOptionName+":SecondarySidebarHidden", grt::IntegerRef(newCollapseState));
+          mToolbar->set_item_checked("wb.toggleSecondarySidebar", !newCollapseState);
+        }
       }
       if (!newCollapseState)
       {
