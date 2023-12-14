@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2023, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -23,9 +23,8 @@
 
 #include <glib.h>
 #include <string.h>
-#include <pcre.h>
 #include <algorithm>
-
+#include <regex>
 #include "base/log.h"
 
 #include "grtpp_helper.h"
@@ -74,29 +73,21 @@ void do_generate_interface_classes(const char *outfile, const std::vector<std::s
 
 void generate_interface_classes(const char *header, const char *outfile) {
   std::vector<std::string> interfaces;
-  char line[1024];
+  char line[1024] = {0};
   FILE *f = fopen(header, "rb");
   if (!f) {
     fprintf(stderr, "ERROR: could not open header file '%s'\n", header);
     exit(1);
   }
 
-  const char *errs;
-  int erro;
-  pcre *pat = pcre_compile("^\\s*DECLARE_REGISTER_INTERFACE\\(\\s*(\\w+)Impl\\s*,", 0, &errs, &erro, NULL);
-  if (!pat) {
-    fclose(f);
-    fprintf(stderr, "ERROR compiling internal regex pattern (%s)\n", errs);
-    exit(1);
-  }
-
+  std::regex pat("^\\s*DECLARE_REGISTER_INTERFACE\\(\\s*(\\w+)Impl\\s*,");
   while (fgets(line, sizeof(line), f)) {
-    int vec[6];
-
-    if (pcre_exec(pat, NULL, line, static_cast<int>(strlen(line)), 0, 0, vec, 6) == 2) {
-      char buf[1024];
-      pcre_copy_substring(line, vec, 2, 1, buf, sizeof(buf));
-      interfaces.push_back(buf);
+    std::string tmp = line;
+    auto begin = std::sregex_iterator(tmp.begin(), tmp.end(), pat);
+    auto end = std::sregex_iterator();
+    if(std::distance(begin, end) == 2) {
+      std::smatch match = *begin;
+      interfaces.push_back(match.str());
     }
   }
 
