@@ -63,8 +63,6 @@ echo Make Setup script started...
 echo .
 
 echo Clean old object files ...
-rem Cleaning is necessary because *.wixobj files must be remade if the license
-rem type changes.
 nmake /NOLOGO -f Makefile.mak clean
 echo .
 
