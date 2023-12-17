@@ -504,9 +504,9 @@ namespace {
     sql.append(" ");
 
     if (column->simpleType().is_valid())
-      if (*column->simpleType()->name() != "JSON"
-        && (!column->simpleType()->group().is_valid() || *column->simpleType()->group()->name() == "string" ||
-          *column->simpleType()->group()->name() == "text" || *column->simpleType()->name() == "ENUM")) {
+      if (*column->simpleType()->name() != "JSON" &&
+          (!column->simpleType()->group().is_valid() || *column->simpleType()->group()->name() == "string" ||
+           *column->simpleType()->group()->name() == "text" || *column->simpleType()->name() == "ENUM")) {
         if (!(*column->characterSetName()).empty())
           sql.append("CHARACTER SET '").append(column->characterSetName()).append("' ");
         if (!(*column->collationName()).empty() &&
@@ -656,10 +656,10 @@ namespace {
 
     auto catalog = db_CatalogRef::cast_from(index->owner()->owner()->owner());
 
-
     GrtVersionRef version;
     if (catalog->owner().is_valid())
-      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
+      version = GrtVersionRef::cast_from(
+        bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
     else
       version = catalog->version();
 
@@ -1222,12 +1222,12 @@ namespace {
   }
 
   void ActionGenerateSQL::alter_table_change_index(db_mysql_IndexRef orgIndex, db_mysql_IndexRef newIndex) {
-
     auto catalog = db_CatalogRef::cast_from(orgIndex->owner()->owner()->owner());
 
     GrtVersionRef version;
     if (catalog->owner().is_valid())
-      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
+      version = GrtVersionRef::cast_from(
+        bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion"));
     else
       version = catalog->version();
 
@@ -1247,7 +1247,8 @@ namespace {
     }
 
     for (size_t i = 0; i < orgColumns.count(); i++) {
-      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name() || orgColumns[i]->descend() != newColumns[i]->descend()) {
+      if (orgColumns[i]->referencedColumn()->name() != newColumns[i]->referencedColumn()->name() ||
+          orgColumns[i]->descend() != newColumns[i]->descend()) {
         alter_table_drop_index(newIndex);
         alter_table_add_index(newIndex);
         return;
@@ -1257,7 +1258,7 @@ namespace {
     auto properties = { "algorithm", "keyBlockSize", "lockOption", "withParser", "visible", "comment" };
 
     std::vector<std::string> diffProps;
-    for (const auto &it : properties) {
+    for (const auto& it : properties) {
       if (orgIndex->get_member(it) != newIndex->get_member(it))
         diffProps.push_back(it);
     }
@@ -1278,18 +1279,15 @@ namespace {
         return;
 
       indexAlter.append(strfmt("ALTER TABLE `%s`.`%s` RENAME INDEX `%s` TO `%s`;\n",
-                        db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
-                        db_TableRef::cast_from(newIndex->owner())->name().c_str(),
-                        newIndex->oldName().c_str(),
-                        newIndex->name().c_str()));
+                               db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+                               db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->oldName().c_str(),
+                               newIndex->name().c_str()));
     }
 
-    indexAlter.append(
-      strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
-             db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
-             db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
-             newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
-
+    indexAlter.append(strfmt("ALTER TABLE `%s`.`%s` ALTER INDEX `%s` %s",
+                             db_SchemaRef::cast_from(newIndex->owner()->owner())->name().c_str(),
+                             db_TableRef::cast_from(newIndex->owner())->name().c_str(), newIndex->name().c_str(),
+                             newIndex->visible() == 1 ? "VISIBLE" : "INVISIBLE"));
   }
 
   void ActionGenerateSQL::alter_table_indexes_end(db_mysql_TableRef) {
@@ -1487,25 +1485,26 @@ namespace {
 
     std::string view_def;
     view_def.append(view->sqlDefinition().c_str());
+
+    std::vector<std::string> lines = base::split(view_def, "\n");
     auto flag = std::regex::ECMAScript | std::regex::icase;
-#if __cplusplus >= 201703L || !defined __STRICT_ANSI__
-    flag |= std::regex::multiline;
-#endif
-
-    std::regex pattern("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", flag);
-    std::smatch itemsMatch;
-    if (std::regex_search(view_def, itemsMatch, pattern) && itemsMatch.size() > 0) {
-      or_replace_present = true;
-    }
-
-    if (!or_replace_present) {
-      pattern = std::regex("^\\s*CREATE\\s+", flag);
-      if (std::regex_search(view_def, itemsMatch, pattern) && itemsMatch.size() > 0) {
-        std::ssub_match subMatch = itemsMatch[0];
-        view_def.insert(itemsMatch.prefix().str().size() + subMatch.str().size(), " OR REPLACE ");
+    for (auto& line : lines) {
+      std::regex pattern("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", flag);
+      std::smatch itemsMatch;
+      if (std::regex_search(line, itemsMatch, pattern) && itemsMatch.size() > 0) {
+        or_replace_present = true;
+        break;
+      }
+      if (!or_replace_present) {
+        pattern = std::regex("^\\s*CREATE\\s+", flag);
+        if (std::regex_search(line, itemsMatch, pattern) && itemsMatch.size() > 0) {
+          std::ssub_match subMatch = itemsMatch[0];
+          line.insert(itemsMatch.prefix().str().size() + subMatch.str().size(), " OR REPLACE ");
+          view_def = base::join(lines, "\n");
+          break;
+        }
       }
     }
-
     if (_omitSchemas) {
       SqlFacade* parser = SqlFacade::instance_for_rdbms_name("Mysql");
       Sql_schema_rename::Ref renamer = parser->sqlSchemaRenamer();
@@ -1598,7 +1597,8 @@ namespace {
 
     GrtVersionRef version;
     if (catalog->owner().is_valid())
-      version = GrtVersionRef::cast_from(bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion", true));
+      version = GrtVersionRef::cast_from(
+        bec::getModelOption(workbench_physical_ModelRef::cast_from(catalog->owner()), "CatalogVersion", true));
     else
       version = catalog->version();
 
@@ -1809,7 +1809,9 @@ protected:
   alias_map_t alias_map;
 
   SQLComposer(const grt::DictRef options) : _case_sensitive(false) {
-    sql_mode = options.get_string("SQL_MODE", "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION");
+    sql_mode = options.get_string("SQL_MODE",
+                                  "ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_"
+                                  "DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION");
     SqlFacade::Ref sql_facade = SqlFacade::instance_for_rdbms_name("Mysql");
     Sql_specifics::Ref sql_specifics = sql_facade->sqlSpecifics();
     non_std_sql_delimiter = bec::GRTManager::get()->get_app_option_string("SqlDelimiter", "$$");
@@ -2283,11 +2285,11 @@ public:
       std::vector<db_mysql_TableRef> sortedTables;
       if (sortTablesAlphabetically) {
         sortedTables.reserve(tables.count());
-        for(const auto &it: tables) {
+        for (const auto& it : tables) {
           sortedTables.push_back(it);
         }
 
-        std::sort(sortedTables.begin(), sortedTables.end(), [&](db_mysql_TableRef &first, db_mysql_TableRef &second) {
+        std::sort(sortedTables.begin(), sortedTables.end(), [&](db_mysql_TableRef& first, db_mysql_TableRef& second) {
           return base::string_compare(first->name(), second->name(), caseSensitive) < 0 ? true : false;
         });
       } else {
@@ -2803,24 +2805,24 @@ grt::ListRef<db_UserDatatype> DbMySQLImpl::getDefaultUserDatatypes(db_mgmt_Rdbms
     const char* sql_def;
   } type_init_data[] = {
     // These are type aliases, not UDTs
-    {"com.mysql.rdbms.mysql.userdatatype.bool", "BOOL", "TINYINT(1)"},
-    {"com.mysql.rdbms.mysql.userdatatype.boolean", "BOOLEAN", "TINYINT(1)"},
-    {"com.mysql.rdbms.mysql.userdatatype.fixed", "FIXED", "DECIMAL(10,0)"},
-    {"com.mysql.rdbms.mysql.userdatatype.float4", "FLOAT4", "FLOAT"},
-    {"com.mysql.rdbms.mysql.userdatatype.float8", "FLOAT8", "DOUBLE"},
-    {"com.mysql.rdbms.mysql.userdatatype.int1", "INT1", "TINYINT(4)"},
-    {"com.mysql.rdbms.mysql.userdatatype.int2", "INT2", "SMALLINT(6)"},
-    {"com.mysql.rdbms.mysql.userdatatype.int3", "INT3", "MEDIUMINT(9)"},
-    {"com.mysql.rdbms.mysql.userdatatype.int4", "INT4", "INT(11)"},
-    {"com.mysql.rdbms.mysql.userdatatype.int8", "INT8", "BIGINT(20)"},
-    {"com.mysql.rdbms.mysql.userdatatype.integer", "INTEGER", "INT(11)"},
-    {"com.mysql.rdbms.mysql.userdatatype.longvarbinary", "LONG VARBINARY", "MEDIUMBLOB"},
-    {"com.mysql.rdbms.mysql.userdatatype.longvarchar", "LONG VARCHAR", "MEDIUMTEXT"},
-    {"com.mysql.rdbms.mysql.userdatatype.long", "LONG", "MEDIUMTEXT"},
-    {"com.mysql.rdbms.mysql.userdatatype.middleint", "MIDDLEINT", "MEDIUMINT(9)"},
-    {"com.mysql.rdbms.mysql.userdatatype.numeric", "NUMERIC", "DECIMAL(10,0)"},
-    {"com.mysql.rdbms.mysql.userdatatype.dec", "DEC", "DECIMAL(10,0)"},
-    {"com.mysql.rdbms.mysql.userdatatype.character", "CHARACTER", "CHAR(1)"}
+    { "com.mysql.rdbms.mysql.userdatatype.bool", "BOOL", "TINYINT(1)" },
+    { "com.mysql.rdbms.mysql.userdatatype.boolean", "BOOLEAN", "TINYINT(1)" },
+    { "com.mysql.rdbms.mysql.userdatatype.fixed", "FIXED", "DECIMAL(10,0)" },
+    { "com.mysql.rdbms.mysql.userdatatype.float4", "FLOAT4", "FLOAT" },
+    { "com.mysql.rdbms.mysql.userdatatype.float8", "FLOAT8", "DOUBLE" },
+    { "com.mysql.rdbms.mysql.userdatatype.int1", "INT1", "TINYINT(4)" },
+    { "com.mysql.rdbms.mysql.userdatatype.int2", "INT2", "SMALLINT(6)" },
+    { "com.mysql.rdbms.mysql.userdatatype.int3", "INT3", "MEDIUMINT(9)" },
+    { "com.mysql.rdbms.mysql.userdatatype.int4", "INT4", "INT(11)" },
+    { "com.mysql.rdbms.mysql.userdatatype.int8", "INT8", "BIGINT(20)" },
+    { "com.mysql.rdbms.mysql.userdatatype.integer", "INTEGER", "INT(11)" },
+    { "com.mysql.rdbms.mysql.userdatatype.longvarbinary", "LONG VARBINARY", "MEDIUMBLOB" },
+    { "com.mysql.rdbms.mysql.userdatatype.longvarchar", "LONG VARCHAR", "MEDIUMTEXT" },
+    { "com.mysql.rdbms.mysql.userdatatype.long", "LONG", "MEDIUMTEXT" },
+    { "com.mysql.rdbms.mysql.userdatatype.middleint", "MIDDLEINT", "MEDIUMINT(9)" },
+    { "com.mysql.rdbms.mysql.userdatatype.numeric", "NUMERIC", "DECIMAL(10,0)" },
+    { "com.mysql.rdbms.mysql.userdatatype.dec", "DEC", "DECIMAL(10,0)" },
+    { "com.mysql.rdbms.mysql.userdatatype.character", "CHARACTER", "CHAR(1)" }
     // End type aliases
   };
 
