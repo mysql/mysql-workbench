@@ -1483,25 +1483,24 @@ namespace {
   // views
 
   void ActionGenerateSQL::create_view(db_mysql_ViewRef view) {
-    const char* errptr;
-    int erroffs;
     bool or_replace_present = false;
-    int patres[3];
 
     std::string view_def;
     view_def.append(view->sqlDefinition().c_str());
+    auto flag = std::regex::ECMAScript | std::regex::icase;
+#if __cplusplus >= 201703L || !defined __STRICT_ANSI__
+    flag |= std::regex::multiline;
+#endif
 
-    std::regex pattern("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", std::regex::ECMAScript | std::regex ::icase);
+    std::regex pattern("^\\s*CREATE\\s+OR\\s+REPLACE\\s+", flag);
     std::smatch itemsMatch;
     if (std::regex_search(view_def, itemsMatch, pattern) && itemsMatch.size() > 0) {
       or_replace_present = true;
     }
 
     if (!or_replace_present) {
-      pattern = std::regex("^\\s*CREATE\\s+", std::regex::ECMAScript | std::regex ::icase);
+      pattern = std::regex("^\\s*CREATE\\s+", flag);
       if (std::regex_search(view_def, itemsMatch, pattern) && itemsMatch.size() > 0) {
-        // The first sub_match is the whole string; the next
-        // sub_match is the first parenthesized expression.
         std::ssub_match subMatch = itemsMatch[0];
         view_def.insert(itemsMatch.prefix().str().size() + subMatch.str().size(), " OR REPLACE ");
       }
