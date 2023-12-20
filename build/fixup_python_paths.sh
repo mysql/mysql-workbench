@@ -5,13 +5,12 @@
 
 # <file to fix>
 
+new_path="@executable_path/../Frameworks/Python.framework/Versions/3.11/Python"
+
 for file in $*; do
   if [ -f $file ]; then
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.7/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.7/Python3" $file
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.8/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.8/Python3" $file
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.9/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.9/Python3" $file
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.10/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.10/Python3" $file
-    install_name_tool -change "@rpath/Python3.framework/Versions/3.11/Python3" "@executable_path/../Frameworks/Python3.framework/Versions/3.11/Python3" $file
-    install_name_tool -change "@executable_path/../Frameworks/Python" "@executable_path/../Frameworks/Python.framework/Versions/3.11/Python" $file
+    install_name_tool -change "@executable_path/../Frameworks/Python" "$new_path" $file
+    install_name_tool -change "@rpath/Python"                         "$new_path" $file
+    install_name_tool -change "Python"                                "$new_path" $file
   fi
 done

@@ -98,7 +98,6 @@
 		2731DE6221A2CE17002EEE8A /* genwrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2731DE6121A2CE15002EEE8A /* genwrap.cpp */; };
 		2731DE6421A2CE39002EEE8A /* genobj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2731DE6321A2CE37002EEE8A /* genobj.cpp */; };
 		2731DE6921A2D121002EEE8A /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
-		2731DE6A21A2D14E002EEE8A /* libpcre.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */; };
 		2731DE6D21A2D1B4002EEE8A /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
 		2731DE7221A2D1F2002EEE8A /* libgrt.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B825D920E0B604400BE52DF /* libgrt.dylib */; };
 		2731DE7321A2D1FB002EEE8A /* libwbpublic.be.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7510D80E8799D00003120A /* libwbpublic.be.dylib */; };
@@ -4127,7 +4126,6 @@
 		16F7A2450F1CFFDC0084C11D /* WBObjectPropertiesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBObjectPropertiesController.h; path = frontend/mac/workbench/WBObjectPropertiesController.h; sourceTree = "<group>"; };
 		16F7A3B80F1F0D2E0084C11D /* WBColorCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBColorCell.h; path = frontend/mac/components/WBColorCell/WBColorCell.h; sourceTree = "<group>"; };
 		16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WBColorCell.m; path = frontend/mac/components/WBColorCell/WBColorCell.m; sourceTree = "<group>"; };
-		2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcrecpp.0.dylib; path = "3rd-party-ce/lib/libpcrecpp.0.dylib"; sourceTree = "<group>"; };
 		270124232099F9D100FE448E /* libmysqlclient.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.dylib"; sourceTree = "<group>"; };
 		27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_innodb_dark@2x.png"; path = "images/admin/dashboard_header_innodb_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_mysql_dark@2x.png"; path = "images/admin/dashboard_header_mysql_dark@2x.png"; sourceTree = "<group>"; };
@@ -4492,7 +4490,6 @@
 		27D6594C1076539D0030F627 /* sectionbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sectionbox.h; path = library/forms/mforms/sectionbox.h; sourceTree = "<group>"; };
 		27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libglib-2.0.0.dylib"; path = "3rd-party-ce/lib/libglib-2.0.0.dylib"; sourceTree = "<group>"; };
 		27D6EE282099D65A0050B26B /* libgmodule-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libgmodule-2.0.0.dylib"; path = "3rd-party-ce/lib/libgmodule-2.0.0.dylib"; sourceTree = "<group>"; };
-		27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpcre.1.dylib; path = "3rd-party-ce/lib/libpcre.1.dylib"; sourceTree = "<group>"; };
 		27D6EE362099D8210050B26B /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.2.dylib; path = "3rd-party-ce/lib/libcairo.2.dylib"; sourceTree = "<group>"; };
 		27D6EE392099D8DC0050B26B /* libantlr4-runtime.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libantlr4-runtime.dylib"; path = "3rd-party-ce/lib/libantlr4-runtime.dylib"; sourceTree = "<group>"; };
 		27D6EE402099E2070050B26B /* libgdal.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgdal.dylib; path = "3rd-party-ce/lib/libgdal.dylib"; sourceTree = "<group>"; };
@@ -6768,7 +6765,6 @@
 				2731DE8021A2FF17002EEE8A /* libwbbase.dylib in Frameworks */,
 				2731DE6D21A2D1B4002EEE8A /* libwbpublic.be.dylib in Frameworks */,
 				2731DE6921A2D121002EEE8A /* libgrt.dylib in Frameworks */,
-				2731DE6A21A2D14E002EEE8A /* libpcre.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -9612,8 +9608,6 @@
 				2B2E92FD158999890078D08A /* libiodbc.dylib */,
 				270124232099F9D100FE448E /* libmysqlclient.dylib */,
 				271F7448239117CD005B0EEB /* libmysqlcppconn.dylib */,
-				27D6EE2B2099D6AD0050B26B /* libpcre.1.dylib */,
-				2701241E2099F8C400FE448E /* libpcrecpp.0.dylib */,
 				27189E55209B28B4002EC0D4 /* libpixman-1.0.dylib */,
 				27189E56209B28D8002EC0D4 /* libpng16.16.dylib */,
 				27189E76209B369B002EC0D4 /* libproj.dylib */,
