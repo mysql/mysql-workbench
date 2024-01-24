@@ -1456,11 +1456,11 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "SqlEditor:geographicLocationURL", "http://www.openstreetmap.org/?mlat=%LAT%&mlon=%LON%");
 
   // Name templates
-  set_default(options, "PkColumnNameTemplate", "id%table%");
+  set_default(options, "PkColumnNameTemplate", "%table%_id");
   set_default(options, "DefaultPkColumnType", "INT");
 
-  set_default(options, "ColumnNameTemplate", "%table%col");
-  set_default(options, "DefaultColumnType", "VARCHAR(45)");
+  set_default(options, "ColumnNameTemplate", "%table%_col");
+  set_default(options, "DefaultColumnType", "VARCHAR(75)");
 
   set_default(options, "FKNameTemplate", "fk_%stable%_%dtable%");
   set_default(options, "FKColumnNameTemplate", "%table%_%column%");
