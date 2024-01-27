@@ -34,6 +34,7 @@
 #include <vector>
 #include <stdexcept>
 #include <boost/function.hpp>
+#include <libxml/tree.h>
 #include <libxml/xmlmemory.h>
 #include "base/threading.h"
 #include <string>
