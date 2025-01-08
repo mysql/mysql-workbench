@@ -28,7 +28,7 @@ import errno
 import threading
 import tempfile
 import io
-import pipes
+import shlex
 import subprocess
 import time
 import inspect
@@ -511,7 +511,7 @@ class ProcessOpsLinuxLocal(ProcessOpsBase):
         return 0
 
     def list2cmdline(self, args):
-        return " ".join([pipes.quote(a) or "''" for a in args])
+        return " ".join([shlex.quote(a) or "''" for a in args])
 
 
 _process_ops_classes.append(ProcessOpsLinuxLocal)
@@ -592,7 +592,7 @@ class ProcessOpsLinuxRemote(ProcessOpsBase):
 
 
     def list2cmdline(self, args):
-        return " ".join([pipes.quote(a) or "''" for a in args])
+        return " ".join([shlex.quote(a) or "''" for a in args])
 
 _process_ops_classes.append(ProcessOpsLinuxRemote)
 
