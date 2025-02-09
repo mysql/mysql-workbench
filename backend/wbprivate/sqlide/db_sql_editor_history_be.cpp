@@ -383,7 +383,14 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
         xmlFree(xmlDoc);
       }
 
-      std::reverse(_data.begin(), _data.end());
+      
+      size_t num_entries = _data.size() / 2; // Each entry has now 2 elements (timestamp + SQL)
+      for (size_t i = 0; i < num_entries / 2; ++i) {
+      size_t front = i * 2;
+      size_t back = (num_entries - 1 - i) * 2;
+      std::swap(_data[front], _data[back]);         // Swap timestamp.
+      std::swap(_data[front + 1], _data[back + 1]); // Swap SQL query
+}
 
       _data_frame_end = _row_count;
 
@@ -472,12 +479,12 @@ void DbSqlEditorHistory::DetailsModel::add_entries(const std::list<std::string> 
           if (*rit != _last_timestamp.toString())
             _last_timestamp = *rit;
 
-          _data.insert(_data.begin(), _last_timestamp);
+          _data.push_back(_last_timestamp);
         } else {
           if (*rit != _last_statement.toString())
             _last_statement = *rit;
 
-          _data.insert(_data.begin(), _last_statement);
+          _data.push_back(_last_statement);
         }
         index++;
       }
