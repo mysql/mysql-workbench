@@ -384,12 +384,12 @@ void DbSqlEditorHistory::DetailsModel::load(const std::string &storage_file_path
       }
 
       
-      size_t num_entries = _data.size() / 2; // Each entry has now 2 elements (timestamp + SQL)
+      size_t num_entries = _data.size() / 2; 
       for (size_t i = 0; i < num_entries / 2; ++i) {
       size_t front = i * 2;
       size_t back = (num_entries - 1 - i) * 2;
-      std::swap(_data[front], _data[back]);         // Swap timestamp.
-      std::swap(_data[front + 1], _data[back + 1]); // Swap SQL query
+      std::swap(_data[front], _data[back]);        
+      std::swap(_data[front + 1], _data[back + 1]); 
 }
 
       _data_frame_end = _row_count;
