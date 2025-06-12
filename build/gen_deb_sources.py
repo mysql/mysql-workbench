@@ -4,7 +4,8 @@
 # from the input debian.in directory contents
 
 
-output_distros = [
+output_distros = [   
+    ("plucky", "ubuntu25.04", "2504", ""),
     ("oracular", "ubuntu24.10", "2410", ""),
     ("noble", "ubuntu24.04", "2404", ""),
     ("mantic", "ubuntu23.10", "2310", ""),
