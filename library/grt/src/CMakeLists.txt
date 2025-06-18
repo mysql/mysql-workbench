@@ -39,7 +39,7 @@ target_include_directories(grt
 )
 
 
-target_compile_options(grt PRIVATE ${WB_CXXFLAGS})
+target_compile_options(grt PRIVATE ${WB_CXXFLAGS} -Wno-missing-field-initializers)
 
 target_link_libraries(grt
   PUBLIC 
