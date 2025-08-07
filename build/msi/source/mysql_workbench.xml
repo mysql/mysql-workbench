@@ -225,6 +225,11 @@
       <ComponentRef Id="sys_triggers" />
     </Feature>
 
+    <?ifdef env.SWBWIXPATH?>
+    <FeatureRef Id="MySQLShellWorkbenchFeature">
+    </FeatureRef>
+    <?endif?>
+
     <Feature Id="WorkbenchProgramShortcut" Description="Place a Shortcut to MySQL Workbench in your Startmenus MySQL Folder" Level="1" Title="Program Shortcut">
       <ComponentRef Id="MySQLWorkbenchProgramLink" />
     </Feature>
@@ -259,6 +264,64 @@
     <Property Id="LAUNCHAPPONEXIT" Value="1" />
     <CustomAction Id="LaunchApplication" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" FileRef="file1056" />
 
+    <?ifdef env.SWBWIXPATH?>
+    <SetProperty
+        Id="CleanupPycPython"
+        Value="&quot;[SystemFolder]cmd.exe&quot; /c del /s /q /f &quot;[INSTALLDIR]$(env.SWBFOLDER)/*.pyc&quot; &quot;[INSTALL_ROOT]*.pyo&quot;"
+        Before="CleanupPycPython"
+        Sequence="execute" />
+    <CustomAction
+        Id="CleanupPycPython"
+        BinaryRef="Wix4UtilCA_X86"
+        DllEntry="WixQuietExec"
+        Execute="deferred"
+        Return="ignore"
+        HideTarget="no"
+        Impersonate="no" />
+    <SetProperty
+        Id="CleanupCachePython"
+        Value="&quot;[SystemFolder]cmd.exe&quot; /c FOR /d /r &quot;[INSTALLDIR]$(env.SWBFOLDER)&quot; %d IN (&quot;__pycache__&quot;) DO @IF EXIST &quot;%d&quot; rd /s /q &quot;%d&quot;"
+        Before="CleanupCachePython"
+        Sequence="execute" />
+    <CustomAction
+        Id="CleanupCachePython"
+        BinaryRef="Wix4UtilCA_X86"
+        DllEntry="WixQuietExec"
+        Execute="deferred"
+        Return="ignore"
+        HideTarget="no"
+        Impersonate="no" />
+
+    <SetProperty
+        Id="CleanupLogs"
+        Value="&quot;[SystemFolder]cmd.exe&quot; /c rmdir /s /q &quot;[INSTALLDIR]$(env.SWBFOLDER)/logs&quot;"
+        Before="CleanupLogs"
+        Sequence="execute" />
+    <CustomAction
+        Id="CleanupLogs"
+        BinaryRef="Wix4UtilCA_X86"
+        DllEntry="WixQuietExec"
+        Execute="deferred"
+        Return="ignore"
+        HideTarget="no"
+        Impersonate="no" />
+
+    <SetProperty
+        Id="CleanupWebView2LeftOvers"
+        Value="&quot;[SystemFolder]cmd.exe&quot; /c rmdir /s /q &quot;[INSTALLDIR]$(env.SWBFOLDER)/MySQLShellWorkbench.exe.WebView2&quot;"
+        Before="CleanupWebView2LeftOvers"
+        Sequence="execute" />
+    <CustomAction
+        Id="CleanupWebView2LeftOvers"
+        BinaryRef="Wix4UtilCA_X86"
+        DllEntry="WixQuietExec"
+        Execute="deferred"
+        Return="ignore"
+        HideTarget="no"
+        Impersonate="no" />
+    <?endif?>
+
+
     <InstallExecuteSequence>
       <Custom Action="SetAdditionalCleanupDir1" Before="InstallInitialize"/>
       <Custom Action="SetAdditionalCleanupDir2" Before="InstallInitialize"/>
@@ -288,6 +351,14 @@
       <Custom Action="SetAllUsers" Before="FindRelatedProducts" Condition="NOT UPGRADINGPRODUCTCODE" />
       <Custom Action="RevertAllUsers" After="FindRelatedProducts" Condition="NOT UPGRADINGPRODUCTCODE" />
       <?endif?>
+
+      <?ifdef env.SWBWIXPATH?>
+      <Custom Action="CleanupPycPython" Before="CleanupCachePython" Condition="REMOVE=&quot;ALL&quot;" />
+      <Custom Action="CleanupCachePython" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
+      <Custom Action="CleanupLogs" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
+      <Custom Action="CleanupWebView2LeftOvers" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
+      <?endif?>
+
 
     </InstallExecuteSequence>
 

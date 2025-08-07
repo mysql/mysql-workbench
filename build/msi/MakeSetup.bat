@@ -48,6 +48,9 @@ set UTIL_PATH=%WB_3DPARTY_PATH%\bin
 set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%.msi
 set OUTPUT_FILENAME_UNSIGNED=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%-unsigned.msi
 
+rem Set the folder where SWB will be stored if required
+set SWBFOLDER=swb
+
 if not exist %BIN_DIR% goto ERROR
 if not exist %DIST_DIR% mkdir %DIST_DIR%
 
@@ -70,6 +73,11 @@ rem ----------------------------------------------------------------------------
 echo Copying WiX source files ...
 copy source\mysql_workbench.xml mysql_workbench.xml
 copy source\mysql_workbench_fragment.xml mysql_workbench_fragment.xml
+if defined SWBWIXPATH (
+  copy %SWBWIXPATH%\directories.wxs swb_directories.xml /Y
+  copy %SWBWIXPATH%\features.wxs swb_features.xml /Y
+  copy %SWBWIXPATH%\files.wxs swb_files.xml /Y
+)
 echo .
 
 

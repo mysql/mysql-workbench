@@ -37,6 +37,9 @@ set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH
 set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%FILENAME_ARCH%)"
 set TMP_DIR=.\temp
 
+rem Set the folder where SWB will be stored if required
+set SWBFOLDER=swb
+
 set path=%path%;%PYTHON_EXE_PATH%
 
 if not exist %BIN_DIR% goto ERROR1
@@ -88,7 +91,11 @@ FOR /d /r %%F IN (__pycache__?) DO (
     @IF EXIST %%F RMDIR /S /Q "%%F"
 )
 echo .
-  
+
+if defined SWBPACKAGE (
+  xcopy %SWBPACKAGE%  %OUTPUT_DIRNAME%\%SWBFOLDER% /I /S /Y /Q
+)
+
 zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%
 if %ERRORLEVEL% == 1 goto ERROR6
 popd

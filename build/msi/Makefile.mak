@@ -16,8 +16,18 @@ COMMON_GUI=source
 
 all: mysql_workbench.msi
 
-mysql_workbench.msi: mysql_workbench.xml mysql_workbench_fragment.xml $(COMMON_GUI)\mysql_common_ui.xml
-  $(WIX) -out $@ -b $(BIN_DIR) -d LICENSE_TYPE=$(LICENSE_TYPE) -d SETUP_TYPE=$(SETUP_TYPE) -d VERSION_MAIN=$(VERSION_MAIN) -d VERSION_DETAIL=$(VERSION_DETAIL) -d LICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE) mysql_workbench.xml mysql_workbench_fragment.xml
+# Always present dependencies
+CORE_FILES = mysql_workbench.xml mysql_workbench_fragment.xml
+
+# Conditionally defined dependencies
+!IFDEF SWBWIXPATH
+SWB_DEPENDENCIES = swb_features.xml swb_directories.xml swb_files.xml
+!ELSE
+SWB_DEPENDENCIES =
+!ENDIF
+
+mysql_workbench.msi:  $(CORE_FILES) $(SWB_DEPENDENCIES) $(COMMON_GUI)\mysql_common_ui.xml
+  $(WIX) -out $@ -b $(BIN_DIR) -d LICENSE_TYPE=$(LICENSE_TYPE) -d SETUP_TYPE=$(SETUP_TYPE) -d VERSION_MAIN=$(VERSION_MAIN) -d VERSION_DETAIL=$(VERSION_DETAIL) -d LICENSE_SCREEN=$(LICENSE_SCREEN) -arch $(ARCHITECTURE) $(CORE_FILES) $(SWB_DEPENDENCIES)
 
 clean:
   del mysql_workbench.msi 1> nul 2> nul
