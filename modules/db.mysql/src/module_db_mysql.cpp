@@ -127,7 +127,13 @@ namespace {
         if (strlen(part->minRows().c_str()))
           sql.append(" MIN_ROWS = ").append(base::escape_sql_string(part->minRows().c_str()));
 
-        // TODO: process TABLESPACE and NODEGROUP cluster-specific options
+        // Add TABLESPACE support (for NDB and InnoDB storage engines)
+        if (strlen(part->tableSpace().c_str()))
+          sql.append(" TABLESPACE = ").append(base::escape_sql_string(part->tableSpace().c_str()));
+        
+        // Add NODEGROUP support (for NDB Cluster storage engine)
+        if (part->nodeGroupId() > 0)
+          sql.append(" NODEGROUP = ").append(std::to_string(part->nodeGroupId()))
       }
     };
 

@@ -41,15 +41,8 @@
 
 DEFAULT_LOG_DOMAIN("main")
 
-#if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
-extern "C" {
-// gnome-keyring has been deprecated in favor of libsecret
-// More informations can be found here  https://mail.gnome.org/archives/commits-list/2013-October/msg08876.html
-// Below defines will turn off deprecations and allow build with never Gnome until we will not move to libsecret.
-#define GNOME_KEYRING_DEPRECATED
-#define GNOME_KEYRING_DEPRECATED_FOR(x)
-#include <gnome-keyring.h>
-};
+#ifdef HAVE_LIBSECRET_KEYRING
+#include <libsecret/secret.h>
 #endif
 #include <X11/Xlib.h>
 
@@ -107,16 +100,9 @@ int main(int argc, char **argv) {
   std::string user_data_dir = std::string(g_get_home_dir()).append("/.mysql/workbench");
   base::Logger log(user_data_dir, getenv("MWB_LOG_TO_STDERR") != NULL);
 
-#if defined(HAVE_GNOME_KEYRING) || defined(HAVE_OLD_GNOME_KEYRING)
-  if (getenv("WB_NO_GNOME_KEYRING"))
-    logInfo("WB_NO_GNOME_KEYRING environment variable has been set. Stored passwords will be lost once quit.\n");
-  else {
-    if (!gnome_keyring_is_available()) {
-      setenv("WB_NO_GNOME_KEYRING", "1", 1);
-      logError(
-        "Can't communicate with gnome-keyring, it's probably not running. Stored passwords will be lost once quit.\n");
-    }
-  }
+#ifdef HAVE_LIBSECRET_KEYRING
+  if (getenv("WB_NO_KEYRING"))
+    logInfo("WB_NO_KEYRING environment variable has been set. Stored passwords will be lost once quit.\n");
 #endif
 
   wb::WBOptions wboptions(argv[0]);

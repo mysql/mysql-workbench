@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Uncomment the following line if you're having trouble with gnome-keyring lockups.
+# Uncomment the following line if you're having trouble with keyring/libsecret lockups.
 # This will cause passwords to be stored only temporarily for the session.
-#WB_NO_GNOME_KEYRING=1
+#WB_NO_KEYRING=1
 
 # force disable the Mac style single menu hack in Ubuntu Unity
 export UBUNTU_MENUPROXY=0
