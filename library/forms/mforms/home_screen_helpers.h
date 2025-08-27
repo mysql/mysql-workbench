@@ -56,6 +56,7 @@ namespace mforms {
     ActionNone,
 
     ActionOpenConnectionFromList,
+    ActionOpenMigrationAssistant,
     ActionNewConnection,
     ActionManageConnections,
     ActionFilesWithConnection,
@@ -75,6 +76,7 @@ namespace mforms {
     ActionOpenDocs,
     ActionOpenBlog,
     ActionOpenForum,
+    ActionOpenMigrationDoc,
 
     CloseWelcomeMessage,
     

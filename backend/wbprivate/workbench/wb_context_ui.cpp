@@ -342,6 +342,9 @@ void WBContextUI::add_backend_builtin_commands() {
 
   _command_ui->add_builtin_command(
       "web_mysql_forum", std::bind(&WBContextUI::show_web_page, this, "https://forums.mysql.com/list.php?152", true));
+ 
+  _command_ui->add_builtin_command(
+    "web_migration_asistant_learn_more", std::bind(&WBContextUI::show_web_page, this, "https://mysqlworkbench.org/", true));
 
   if (_wb->is_commercial()) {
     _command_ui->add_builtin_command("web_support",

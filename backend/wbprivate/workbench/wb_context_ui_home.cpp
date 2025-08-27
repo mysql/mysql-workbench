@@ -22,6 +22,9 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#ifdef _MSC_VER
+#include <shellapi.h>
+#endif
 #include <glib/gstdio.h>
 
 #include "base/file_functions.h"
@@ -65,6 +68,36 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
 using namespace bec;
 using namespace wb;
 using namespace base;
+
+
+static void ExecuteProcess(std::string const&exe, std::string const&param) {
+#if _MSC_VER
+  SHELLEXECUTEINFO shellExeInfo;
+  memset(&shellExeInfo, 0, sizeof(shellExeInfo));
+  shellExeInfo.cbSize = sizeof(shellExeInfo);
+  shellExeInfo.lpVerb = L"";
+  shellExeInfo.lpFile = base::string_to_wstring(exe).c_str();
+  shellExeInfo.lpParameters = base::string_to_wstring(param).c_str();
+  shellExeInfo.nShow = SW_NORMAL;
+  shellExeInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+  SetLastError(ERROR_SUCCESS);
+
+  if (ShellExecuteEx(&shellExeInfo) == FALSE) {
+    LPVOID msgBuf = NULL;
+    DWORD lastErr = GetLastError();
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, lastErr,
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&msgBuf, 0, nullptr);
+    std::wstring msg = (LPCTSTR)msgBuf;
+    LocalFree(msgBuf);
+    SetLastError(ERROR_SUCCESS);
+    throw std::runtime_error(base::wstring_to_string(msg));
+  }
+#elif defined(__APPLE__)
+  // TODO
+#else
+  // TODO
+#endif
+}
 
 /**
  * Helper method to construct a human-readable server description.
@@ -818,6 +851,19 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       break;
     }
 
+    case HomeScreenAction::ActionOpenMigrationAssistant: {
+      db_mgmt_ConnectionRef object;
+      if (!anyObject.isNull()) {
+        object = getConnectionById(anyObject.as<std::string>());
+      }
+      if (object.is_valid()) {
+        db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
+        std::string filePath = save_connection_json(connection);
+        ExecuteProcess("ShellWorkbench", "--migrate=" + filePath);
+      }
+      break;
+    }
+
     case HomeScreenAction::ActionFilesWithConnection: {
       if (_processing_action_open_connection)
         break;
@@ -985,6 +1031,10 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       _command_ui->activate_command("builtin:web_mysql_forum");
       break;
 
+    case HomeScreenAction::ActionOpenMigrationDoc:
+      _command_ui->activate_command("builtin:web_migration_asistant_learn_more");
+      break;
+
     case HomeScreenAction::CloseWelcomeMessage:
       _connectionsSection->showWelcomeHeading(false);
       bec::GRTManager::get()->set_app_option("HomeScreen:HeadingMessage", grt::IntegerRef(0));
@@ -996,6 +1046,39 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
     default:
       logError("Unknown Action.\n");
   }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+std::string WBContextUI::save_connection_json(db_mgmt_ConnectionRef connection) {
+  std::string datadir = mforms::App::get()->get_user_data_folder();
+  std::string filename = datadir + std::string("connection") + connection.id() + std::string(".json");
+  db_mgmt_DriverRef driver = connection->driver();
+  std::string json = "{\n";
+  json += std::string("  \"id\": \"") + connection.id() + std::string("\",\n");
+  json += std::string("  \"driver\": \"") + driver->name().c_str() + std::string("\"\n");
+  json += std::string("  \"hostIdentifier\": \"") + connection->hostIdentifier().c_str() + std::string("\",\n");
+  json += "  \"parameterValues\": {\n";
+  json += "    \"SQL_MODE\": \"" + connection->parameterValues().get_string("SQL_MODE")+ "\",\n";
+  json += "    \"hostName\": \"" + connection->parameterValues().get_string("hostName") + "\",\n";
+  json += "    \"port\": " + std::to_string(connection->parameterValues().get_int("port")) + ",\n";
+  json += "    \"schema\": \"" + connection->parameterValues().get_string("schema") + "\",\n";
+  json += "    \"serverVersion\": \"" + connection->parameterValues().get_string("serverVersion") + "\",\n";
+  json += "    \"sslCA\": \"" + connection->parameterValues().get_string("sslCA") + "\",\n";
+  json += "    \"sslCert\": \"" + connection->parameterValues().get_string("sslCert") + "\",\n";
+  json += "    \"sslCipher\": \"" + connection->parameterValues().get_string("sslCipher") + "\",\n";
+  json += "    \"sslKey\": \"" + connection->parameterValues().get_string("sslKey") + "\",\n";
+  json += "    \"useSSL\": " + std::to_string(connection->parameterValues().get_int("useSSL")) + ",\n";
+  json += "    \"userName\": \"" + connection->parameterValues().get_string("userName") + "\"\n";
+  json += "  },\n";
+  json += std::string("  \"name\": \"") + connection->name().c_str() + std::string("\",\n");
+  json += "}\n";
+
+  std::ofstream ofs(filename);
+  ofs << json;
+  ofs.close();
+
+  return filename;
 }
 
 //--------------------------------------------------------------------------------------------------

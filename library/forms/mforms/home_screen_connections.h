@@ -66,7 +66,10 @@ namespace mforms {
     HomeAccessibleButton _readBlogButton;
     HomeAccessibleButton _discussButton;
 
+    HomeAccessibleButton _migrationLearnMoreButton;
+
     cairo_surface_t *_closeIcon;
+    cairo_surface_t *_migrationBanner;
 
     base::Color _textColor;
 

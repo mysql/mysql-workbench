@@ -165,6 +165,7 @@ namespace wb {
     std::string get_title();
     std::string get_document_name();
 
+    std::string save_connection_json(db_mgmt_ConnectionRef connection);
     void refresh_home_connections(bool clear_state = true);
     void refresh_home_documents();
 
@@ -202,6 +203,7 @@ namespace wb {
     void show_log_file();
 
     void handle_home_action(mforms::HomeScreenAction action, const base::any &anyObject);
+
 
     void remove_connection(const db_mgmt_ConnectionRef &connection);
     void handle_home_context_menu(const base::any &object, const std::string &action);

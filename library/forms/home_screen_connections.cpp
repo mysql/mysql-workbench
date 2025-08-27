@@ -43,6 +43,10 @@ using namespace mforms;
 class mforms::ConnectionEntry : public base::Accessible {
   friend class ConnectionsSection;
 
+private:
+  cairo_surface_t *_migrationButton;
+  base::Rect _migrationButtonBounds;
+
 public:
   std::string connectionId;
 
@@ -165,6 +169,13 @@ public:
 
   ConnectionEntry(ConnectionsSection *aowner) : owner(aowner), compute_strings(false) {
     draw_info_tab = true;
+    _migrationButton = Utilities::load_icon("migration_btn.png", true);
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
+  virtual ~ConnectionEntry() {
+    deleteSurface(_migrationButton);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -274,6 +285,23 @@ public:
     cairo_show_text(cr, title.c_str());
     cairo_stroke(cr);
 
+    // Display _migrationButton in the bottom right corner of this->bounds
+    if (_migrationButton) {
+      auto btn_size = Utilities::getImageSize(_migrationButton);
+      double btn_scale = 0.8;
+      double btn_width = btn_size.width * btn_scale;
+      double btn_height = btn_size.height * btn_scale;
+      double btn_x = bounds.right() - btn_width - 5;
+      double btn_y = bounds.bottom() - btn_height - 5;
+      _migrationButtonBounds = base::Rect(btn_x, btn_y, btn_width, btn_height); 
+      cairo_save(cr);
+      cairo_translate(cr, btn_x, btn_y);
+      cairo_scale(cr, btn_scale, btn_scale);
+      cairo_set_source_surface(cr, _migrationButton, 0, 0);
+      cairo_paint(cr);
+      cairo_restore(cr);
+    }
+
     cairo_set_font_size(cr, mforms::HomeScreenSettings::HOME_SMALL_INFO_FONT_SIZE);
 
     draw_tile_text(cr, x, y, alpha);
@@ -304,8 +332,12 @@ public:
 
   //--------------------------------------------------------------------------------------------------------------------
 
-  virtual void activate() {
-    owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, connectionId);
+  virtual void activate(int x = -1, int y = -1) {
+    if (x > 0 && y > 0 && _migrationButtonBounds.contains(x, y)) {
+      owner->_owner->trigger_callback(HomeScreenAction::ActionOpenMigrationAssistant, connectionId);
+    } else {
+      owner->_owner->trigger_callback(HomeScreenAction::ActionOpenConnectionFromList, connectionId);
+    }
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -401,7 +433,7 @@ public:
 
   //--------------------------------------------------------------------------------------------------------------------
 
-  virtual void activate() override {
+  virtual void activate(int, int) override {
     owner->change_to_folder(shared_from_this());
   }
 
@@ -506,7 +538,7 @@ public:
 
   //--------------------------------------------------------------------------------------------------------------------
 
-  virtual void activate() override {
+  virtual void activate(int, int) override {
     owner->change_to_folder(std::shared_ptr<FolderEntry>());
   }
 
@@ -543,7 +575,14 @@ ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(o
     _owner->trigger_callback(HomeScreenAction::ActionOpenForum, base::any());
   };
 
+  _migrationLearnMoreButton.title = "Learn more >";
+  _migrationLearnMoreButton.description = "Open Migration Doc";
+  _migrationLearnMoreButton.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionOpenMigrationDoc, base::any());
+  };
+
   _closeIcon = nullptr;
+  _migrationBanner = nullptr;
 
   _heading = "Welcome to MySQL Workbench";
   _content = {
@@ -558,6 +597,7 @@ ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(o
 
 ConnectionsWelcomeScreen::~ConnectionsWelcomeScreen() {
   deleteSurface(_closeIcon);
+  deleteSurface(_migrationBanner);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -609,6 +649,8 @@ Accessible* ConnectionsWelcomeScreen::getAccessibilityChild(size_t index) {
       return &_readBlogButton;
     case 3:
       return &_discussButton;
+    case 4:
+      return &_migrationLearnMoreButton;
     default:
       return &_closeHomeScreenButton;
   }
@@ -637,6 +679,10 @@ Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(ssize_t x, ssize_t y)
 
   if (_closeHomeScreenButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_closeHomeScreenButton;
+  }
+
+  if (_migrationLearnMoreButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
+    return &_migrationLearnMoreButton;
   }
 
   return nullptr;
@@ -694,7 +740,28 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
     pos += 0.25;
   }
 
-  _totalHeight = yoffset + 20;
+  yoffset += 40;
+
+  // draw migration assistant banner, scaled and centered
+  size = Utilities::getImageSize(_migrationBanner);
+  double banner_scale = 0.6;
+  double banner_width = size.width * banner_scale;
+  double banner_height = size.height * banner_scale;
+  x = (get_width() - banner_width) / 2.0;
+  cairo_save(cr);
+  cairo_translate(cr, floor(x), floor(yoffset));
+  cairo_scale(cr, banner_scale, banner_scale);
+  cairo_set_source_surface(cr, _migrationBanner, 0, 0);
+  cairo_paint(cr);
+  // Place _migrationLearnMoreButton as a dummy clickable area (no text) in bottom right corner of banner with 15px
+  // margin
+  double btn_width = banner_width * 0.20;
+  double btn_height = banner_height * 0.25;
+  double btn_x = floor(x + banner_width - btn_width);
+  double btn_y = floor(yoffset + banner_height - btn_height);
+  _migrationLearnMoreButton.bounds = base::Rect(btn_x, btn_y, btn_width - 15, btn_height - 15);
+
+  _totalHeight = yoffset + (int)banner_height + 20;
 
   cairo_restore(cr);
 }
@@ -717,13 +784,16 @@ void ConnectionsWelcomeScreen::updateIcons() {
     _closeIcon = Utilities::load_icon("home_screen_close_dark.png", true);
   else
     _closeIcon = Utilities::load_icon("home_screen_close_light.png", true);
+
+  cairo_surface_destroy(_migrationBanner);
+  _migrationBanner = Utilities::load_icon("migration_banner.png", true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, int y) {
   if (button == MouseButtonLeft) {
-    HomeAccessibleButton * button = dynamic_cast<HomeAccessibleButton *>(accessibilityHitTest(x, y));
+    HomeAccessibleButton *button = dynamic_cast<HomeAccessibleButton *>(accessibilityHitTest(x, y));
     if (button != nullptr) {
       button->accessibilityDoDefaultAction();
       return true;
@@ -734,9 +804,11 @@ bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, in
 
 //------------------ ConnectionsSection --------------------------------------------------------------------------------
 
-ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("sidebar_wb.png"),
-  _search_box(true), _search_text(mforms::SmallSearchEntry), _showWelcomeHeading(true) {
-
+ConnectionsSection::ConnectionsSection(HomeScreen *owner)
+  : HomeScreenSection("sidebar_wb.png"),
+    _search_box(true),
+    _search_text(mforms::SmallSearchEntry),
+    _showWelcomeHeading(true) {
   _owner = owner;
   _welcomeScreen = nullptr;
   _container = nullptr;
@@ -751,6 +823,7 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner) : HomeScreenSection("s
   _network_icon = nullptr;
   _plus_icon = nullptr;
   _sakila_icon = nullptr;
+
   _user_icon = nullptr;
   _manage_icon = nullptr;
 
@@ -1523,7 +1596,7 @@ bool ConnectionsSection::mouse_click(mforms::MouseButton button, int x, int y) {
       }
 
       if (_hot_entry) {
-        _hot_entry->activate();
+          _hot_entry->activate(x, y);
         return true;
       }
 
