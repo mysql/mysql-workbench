@@ -1399,6 +1399,7 @@ void WBContext::set_default_options(grt::DictRef options) {
   set_default(options, "workbench.physical:DeleteObjectConfirmation", "ask");
 
   set_default(options, "HomeScreen:HeadingMessage", 1); // By default display Welcome Message
+  set_default(options, "HomeScreen:MigrationBannerMessage", 1); // By default display Welcome Message
 
   set_default(options, "grtshell:ShellLanguage", "python");
   set_default(options, "@grtshell:ShellLanguage/Items", "python");

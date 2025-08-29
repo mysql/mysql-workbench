@@ -79,6 +79,7 @@ namespace mforms {
     ActionOpenMigrationDoc,
 
     CloseWelcomeMessage,
+    CloseMigrationAssistantBannerMessage,
     
     RescanLocalServers
   };

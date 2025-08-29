@@ -70,6 +70,8 @@ namespace mforms {
 
     cairo_surface_t *_closeIcon;
     cairo_surface_t *_migrationBanner;
+    cairo_surface_t *_mbNewSticker;
+    bool _showNewSticker;
 
     base::Color _textColor;
 
@@ -77,6 +79,29 @@ namespace mforms {
     std::vector<std::string> _content;
     
     virtual void repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) override;
+    virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
+  };
+
+  class MFORMS_EXPORT ConnectionsMigrationBanner : public mforms::DrawBox {
+  public:
+    ConnectionsMigrationBanner(HomeScreen *owner);
+    virtual ~ConnectionsMigrationBanner();
+    virtual base::Size getLayoutSize(base::Size proposedSize) override;
+    void updateColors();
+    void updateIcons();
+
+  private:
+    int _totalHeight = 100;
+    std::string _heading;
+    HomeScreen *_owner;
+    HomeAccessibleButton _migrationLearnMoreButton;
+    HomeAccessibleButton _closeMigrationAssistantBannerButton;
+    cairo_surface_t *_closeIcon;
+    cairo_surface_t *_migrationBanner;
+    cairo_surface_t *_mbNewSticker;
+    bool _showNewSticker;
+
+    virtual void repaint(cairo_t * cr, int areax, int areay, int areaw, int areah) override;
     virtual bool mouse_click(mforms::MouseButton button, int x, int y) override;
   };
 
@@ -134,8 +159,10 @@ namespace mforms {
     base::Rect _mouse_down_position; // Used to determine if the user starts a drag/drop operation.
 
     bool _showWelcomeHeading;
+    bool _showMigrationAssistantBanner;
 
     ConnectionsWelcomeScreen *_welcomeScreen;
+    ConnectionsMigrationBanner *_migrationAssistantBanner;
     mforms::Box *_container;
 
     ConnectionVector const& displayed_connections() const;
@@ -199,6 +226,7 @@ namespace mforms {
     void clear_connections(bool clear_state = true);
     void focus_search_box();
     void showWelcomeHeading(bool state = true);
+    void showMigrationBanner(bool state = true);
 
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
     virtual const char* getTitle() override;

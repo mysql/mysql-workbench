@@ -44,6 +44,8 @@ class mforms::ConnectionEntry : public base::Accessible {
   friend class ConnectionsSection;
 
 private:
+  cairo_surface_t *_mbNewSticker;
+  bool _showNewSticker = false;
   cairo_surface_t *_migrationButton;
   base::Rect _migrationButtonBounds;
 
@@ -584,6 +586,19 @@ ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(o
   _closeIcon = nullptr;
   _migrationBanner = nullptr;
 
+  // Load newsticker if lock file does not exist
+  std::string userdir = mforms::App::get()->get_user_data_folder();
+  std::string lockfile = userdir + "/ma_lock_fisrt.lck";
+  FILE *f = fopen(lockfile.c_str(), "r");
+  if (!f) {
+    _mbNewSticker = Utilities::load_icon("newsticker.png", true);
+    _showNewSticker = true;
+  } else {
+    _mbNewSticker = nullptr;
+    _showNewSticker = false;
+    fclose(f);
+  }
+
   _heading = "Welcome to MySQL Workbench";
   _content = {
     "MySQL Workbench is the official graphical user interface (GUI) tool for MySQL. It allows you to design,",
@@ -598,6 +613,7 @@ ConnectionsWelcomeScreen::ConnectionsWelcomeScreen(HomeScreen *owner) : _owner(o
 ConnectionsWelcomeScreen::~ConnectionsWelcomeScreen() {
   deleteSurface(_closeIcon);
   deleteSurface(_migrationBanner);
+  deleteSurface(_mbNewSticker);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -761,6 +777,16 @@ void ConnectionsWelcomeScreen::repaint(cairo_t *cr, int areax, int areay, int ar
   double btn_y = floor(yoffset + banner_height - btn_height);
   _migrationLearnMoreButton.bounds = base::Rect(btn_x, btn_y, btn_width - 15, btn_height - 15);
 
+  // Draw newsticker in the top right corner (centered on corner)
+  if (_showNewSticker && _mbNewSticker) {
+    Size sticker_size = Utilities::getImageSize(_mbNewSticker);
+    double sticker_x = x + banner_width;
+    double sticker_y = -sticker_size.height / 2.0;
+    cairo_save(cr);
+    cairo_set_source_surface(cr, _mbNewSticker, sticker_x, sticker_y);
+    cairo_paint(cr);
+  }
+
   _totalHeight = yoffset + (int)banner_height + 20;
 
   cairo_restore(cr);
@@ -787,11 +813,137 @@ void ConnectionsWelcomeScreen::updateIcons() {
 
   cairo_surface_destroy(_migrationBanner);
   _migrationBanner = Utilities::load_icon("migration_banner.png", true);
+
+  cairo_surface_destroy(_mbNewSticker);
+  _mbNewSticker = Utilities::load_icon("new_sticker.png", true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 bool ConnectionsWelcomeScreen::mouse_click(mforms::MouseButton button, int x, int y) {
+  if (button == MouseButtonLeft) {
+    HomeAccessibleButton *button = dynamic_cast<HomeAccessibleButton *>(accessibilityHitTest(x, y));
+    if (button != nullptr) {
+      button->accessibilityDoDefaultAction();
+      return true;
+    }
+  }
+  return false;
+}
+
+//----------------- ConnectionsMigrationBanner ---------------------------------------------------------------------------
+
+ConnectionsMigrationBanner::ConnectionsMigrationBanner(HomeScreen *owner) : _owner(owner) {
+  logDebug("Creating Connections Migration Assistant Banner\n");  \
+
+  _closeMigrationAssistantBannerButton.title = "Close MigrationAssistant Screen";
+  _closeMigrationAssistantBannerButton.description = "Close MigrationAssistant Screen";
+  _closeMigrationAssistantBannerButton.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::CloseMigrationAssistantBannerMessage, base::any());
+  };
+
+  _migrationLearnMoreButton.title = "Learn more >";
+  _migrationLearnMoreButton.description = "Open Migration Doc";
+  _migrationLearnMoreButton.defaultHandler = [this]() {
+    _owner->trigger_callback(HomeScreenAction::ActionOpenMigrationDoc, base::any());
+  };
+
+  _closeIcon = nullptr;
+  _migrationBanner = nullptr;
+
+  // Load newsticker if lock file does not exist
+  std::string userdir = mforms::App::get()->get_user_data_folder();
+  std::string lockfile = userdir + "/ma_lock_fisrt.lck";
+  FILE *f = fopen(lockfile.c_str(), "r");
+  if (!f) {
+    _mbNewSticker = Utilities::load_icon("newsticker.png", true);
+    _showNewSticker = true;
+  } else {
+    _mbNewSticker = nullptr;
+    _showNewSticker = false;
+    fclose(f);
+  }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+ConnectionsMigrationBanner::~ConnectionsMigrationBanner() {
+  deleteSurface(_closeIcon);
+  deleteSurface(_migrationBanner);
+  deleteSurface(_mbNewSticker);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+base::Size ConnectionsMigrationBanner::getLayoutSize(base::Size proposedSize) {
+  return base::Size(proposedSize.width, _totalHeight); // Height doesn't change. Constant content.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ConnectionsMigrationBanner::repaint(cairo_t *cr, int areax, int areay, int areaw, int areah) {
+  Size size = Utilities::getImageSize(_closeIcon);
+  _closeMigrationAssistantBannerButton.bounds = base::Rect(get_width() - size.width - 8, 8, size.width, size.height);
+
+  cairo_save(cr);
+  mforms::Utilities::paint_icon(cr, _closeIcon, _closeMigrationAssistantBannerButton.bounds.left(),
+                                _closeMigrationAssistantBannerButton.bounds.top());
+
+  int yoffset = 100;
+
+  // draw migration assistant banner, scaled and centered
+  size = Utilities::getImageSize(_migrationBanner);
+  double banner_scale = 0.6;
+  double banner_width = size.width * banner_scale;
+  double banner_height = size.height * banner_scale;
+  double x = (get_width() - banner_width) / 2.0;
+  cairo_save(cr);
+  cairo_translate(cr, floor(x), floor(yoffset));
+  cairo_scale(cr, banner_scale, banner_scale);
+  cairo_set_source_surface(cr, _migrationBanner, 0, 0);
+  cairo_paint(cr);
+  // Place _migrationLearnMoreButton as a dummy clickable area (no text) in bottom right corner of banner with 15px
+  // margin
+  double btn_width = banner_width * 0.20;
+  double btn_height = banner_height * 0.25;
+  double btn_x = floor(x + banner_width - btn_width);
+  double btn_y = floor(yoffset + banner_height - btn_height);
+  _migrationLearnMoreButton.bounds = base::Rect(btn_x, btn_y, btn_width - 15, btn_height - 15);
+
+  // Draw newsticker in the top right corner (centered on corner)
+  if (_showNewSticker && _mbNewSticker) {
+    Size sticker_size = Utilities::getImageSize(_mbNewSticker);
+    double sticker_x = x + banner_width;
+    double sticker_y = -sticker_size.height / 2.0;
+    cairo_save(cr);
+    cairo_set_source_surface(cr, _mbNewSticker, sticker_x, sticker_y);
+    cairo_paint(cr);
+  }
+
+  _totalHeight = yoffset + (int)banner_height + 20;
+
+  cairo_restore(cr);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ConnectionsMigrationBanner::updateIcons() {
+  cairo_surface_destroy(_closeIcon);
+  if (_owner->isDarkModeActive())
+    _closeIcon = Utilities::load_icon("home_screen_close_dark.png", true);
+  else
+    _closeIcon = Utilities::load_icon("home_screen_close_light.png", true);
+
+  cairo_surface_destroy(_migrationBanner);
+  _migrationBanner = Utilities::load_icon("migration_banner.png", true);
+
+  cairo_surface_destroy(_mbNewSticker);
+  _mbNewSticker = Utilities::load_icon("new_sticker.png", true);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool ConnectionsMigrationBanner::mouse_click(mforms::MouseButton button, int x, int y) {
   if (button == MouseButtonLeft) {
     HomeAccessibleButton *button = dynamic_cast<HomeAccessibleButton *>(accessibilityHitTest(x, y));
     if (button != nullptr) {
@@ -808,9 +960,11 @@ ConnectionsSection::ConnectionsSection(HomeScreen *owner)
   : HomeScreenSection("sidebar_wb.png"),
     _search_box(true),
     _search_text(mforms::SmallSearchEntry),
-    _showWelcomeHeading(true) {
+    _showWelcomeHeading(true), 
+    _showMigrationAssistantBanner(true) {
   _owner = owner;
   _welcomeScreen = nullptr;
+  _migrationAssistantBanner = nullptr;
   _container = nullptr;
   _connection_context_menu = nullptr;
   _folder_context_menu = nullptr;
@@ -975,8 +1129,12 @@ void ConnectionsSection::updateIcons() {
     _user_icon = mforms::Utilities::load_icon("wb_tile_user_light.png");
   }
 
-  if (_welcomeScreen != nullptr)
+  if (_welcomeScreen != nullptr) {
     _welcomeScreen->updateIcons();
+  }
+  if (_migrationAssistantBanner != nullptr) {
+    _migrationAssistantBanner->updateIcons();
+  }
 }
 
 //------------------------------------------------------------------------------------------------
@@ -991,6 +1149,16 @@ void ConnectionsSection::showWelcomeHeading(bool state) {
   _showWelcomeHeading = state;
   if (_welcomeScreen != nullptr)
     _welcomeScreen->show(state);
+
+  set_layout_dirty(true);
+}
+
+//------------------------------------------------------------------------------------------------
+
+void ConnectionsSection::showMigrationBanner(bool state) {
+  _showMigrationAssistantBanner = state;
+  if (_migrationAssistantBanner != nullptr)
+    _migrationAssistantBanner->show(state);
 
   set_layout_dirty(true);
 }
@@ -2078,6 +2246,14 @@ mforms::View *ConnectionsSection::getContainer() {
     _welcomeScreen->setInternalName("welcomeScreen");
     _welcomeScreen->set_layout_dirty(true);
     _container->add(_welcomeScreen, false, true);
+
+    /*_migrationAssistantBanner = mforms::manage(new ConnectionsMigrationBanner(_owner));
+    if (!_showMigrationAssistantBanner) {
+      _migrationAssistantBanner->show(false);
+    }
+    _container->add(_migrationAssistantBanner, false, true);*/
+
+
     _container->add(this, true, true);
   }
   return _container;

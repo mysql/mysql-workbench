@@ -69,15 +69,14 @@ using namespace bec;
 using namespace wb;
 using namespace base;
 
-
-static void ExecuteProcess(std::string const&exe, std::string const&param) {
 #if _MSC_VER
+static void ExecuteProcess(std::wstring const &exe, std::wstring const &param) {
   SHELLEXECUTEINFO shellExeInfo;
   memset(&shellExeInfo, 0, sizeof(shellExeInfo));
   shellExeInfo.cbSize = sizeof(shellExeInfo);
   shellExeInfo.lpVerb = L"";
-  shellExeInfo.lpFile = base::string_to_wstring(exe).c_str();
-  shellExeInfo.lpParameters = base::string_to_wstring(param).c_str();
+  shellExeInfo.lpFile = exe.c_str();
+  shellExeInfo.lpParameters = param.c_str();
   shellExeInfo.nShow = SW_NORMAL;
   shellExeInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
   SetLastError(ERROR_SUCCESS);
@@ -92,12 +91,48 @@ static void ExecuteProcess(std::string const&exe, std::string const&param) {
     SetLastError(ERROR_SUCCESS);
     throw std::runtime_error(base::wstring_to_string(msg));
   }
-#elif defined(__APPLE__)
-  // TODO
-#else
-  // TODO
-#endif
 }
+#elif defined(__APPLE__)
+#include <spawn.h>
+#include <sys/wait.h>
+#include <unistd.h>
+extern char **environ;
+bool ExecuteProcess(const std::string &path, const std::vector<std::string> &args) {
+  pid_t pid;
+  std::vector<char *> argv;
+  argv.push_back(const_cast<char *>(path.c_str()));
+  for (const auto &arg : args)
+    argv.push_back(const_cast<char *>(arg.c_str()));
+  argv.push_back(nullptr);
+
+  int status = posix_spawn(&pid, path.c_str(), nullptr, nullptr, argv.data(), environ);
+  if (status == 0) {
+    waitpid(pid, &status, 0);
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+  }
+  return false;
+}
+#elif defined(__linux__)
+#include <spawn.h>
+#include <sys/wait.h>
+#include <unistd.h>
+extern char **environ;
+bool ExecuteProcess(const std::string &path, const std::vector<std::string> &args) {
+  pid_t pid;
+  std::vector<char *> argv;
+  argv.push_back(const_cast<char *>(path.c_str()));
+  for (const auto &arg : args)
+    argv.push_back(const_cast<char *>(arg.c_str()));
+  argv.push_back(nullptr);
+
+  int status = posix_spawn(&pid, path.c_str(), nullptr, nullptr, argv.data(), environ);
+  if (status == 0) {
+    waitpid(pid, &status, 0);
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+  }
+  return false;
+}
+#endif
 
 /**
  * Helper method to construct a human-readable server description.
@@ -859,7 +894,13 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       if (object.is_valid()) {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
         std::string filePath = save_connection_json(connection);
-        ExecuteProcess("ShellWorkbench", "--migrate=" + filePath);
+#ifdef _MSC_VER
+        ExecuteProcess(L"MySQLShellWorkbench\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(filePath));
+#elif defined(__APPLE__)
+        ExecuteProcess("/usr/bin/open", { "/Applications/MySQLShellWorkbench.app", "--migrate", filePath });
+#elif defined(__linux__)
+        ExecuteProcess("MySQLShellWorkbench", { "--migrate", filePath });
+#endif
       }
       break;
     }
@@ -1040,6 +1081,11 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       bec::GRTManager::get()->set_app_option("HomeScreen:HeadingMessage", grt::IntegerRef(0));
       break;
 
+    case HomeScreenAction::CloseMigrationAssistantBannerMessage:
+      _connectionsSection->showMigrationBanner(false);
+      bec::GRTManager::get()->set_app_option("HomeScreen:MigrationBannerMessage", grt::IntegerRef(0));
+      break;
+
     case HomeScreenAction::RescanLocalServers:
       _wb->execute_plugin("wb.tools.createMissingLocalConnections", ArgumentPool());
       break;
@@ -1059,7 +1105,7 @@ std::string WBContextUI::save_connection_json(db_mgmt_ConnectionRef connection) 
   json += std::string("  \"driver\": \"") + driver->name().c_str() + std::string("\"\n");
   json += std::string("  \"hostIdentifier\": \"") + connection->hostIdentifier().c_str() + std::string("\",\n");
   json += "  \"parameterValues\": {\n";
-  json += "    \"SQL_MODE\": \"" + connection->parameterValues().get_string("SQL_MODE")+ "\",\n";
+  json += "    \"SQL_MODE\": \"" + connection->parameterValues().get_string("SQL_MODE") + "\",\n";
   json += "    \"hostName\": \"" + connection->parameterValues().get_string("hostName") + "\",\n";
   json += "    \"port\": " + std::to_string(connection->parameterValues().get_int("port")) + ",\n";
   json += "    \"schema\": \"" + connection->parameterValues().get_string("schema") + "\",\n";
