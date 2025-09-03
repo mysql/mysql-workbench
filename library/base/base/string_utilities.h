@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #pragma once
@@ -59,6 +59,7 @@ namespace base {
 #else
   BASELIBRARY_PUBLIC_FUNC std::string path_from_utf8(const std::string &s);
 #endif
+  BASELIBRARY_PUBLIC_FUNC std::string to_base64(const std::string &input);
 
   // use this to convert a utf8 std::string to a std::string that can be used to open files in windows (noop elsewhere)
   BASELIBRARY_PUBLIC_FUNC std::string string_to_path_for_open(const std::string &s);

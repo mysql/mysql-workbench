@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2025, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -19,9 +19,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 
 #include "base/ui_form.h"
 #include "base/string_utilities.h"
@@ -1481,6 +1480,11 @@ mforms::View *PreferencesForm::create_others_page()
     check->set_text(_("Show Welcome Message on Connections Screen"));
     check->set_tooltip("");
     vbox->add(check, true);
+
+    mforms::CheckBox *checkMigration = new_checkbox_option("HomeScreen:MigrationBannerMessage");
+    checkMigration->set_text(_("Show Migration Assistant Banner on Connections Screen"));
+    checkMigration->set_tooltip("");
+    vbox->add(checkMigration, true);
   }
 
   OptionTable *timeouts_table;

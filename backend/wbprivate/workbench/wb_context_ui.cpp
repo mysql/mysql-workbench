@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2025, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -73,6 +73,19 @@ DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI)
 
 //--------------------------------------------------------------------------------------------------
 
+static void write_lock_file() {
+  std::string userdir = mforms::App::get()->get_user_data_folder();
+  std::string lockfile = userdir + "/ma_lock_fisrt.lck";
+  struct stat buffer;
+  if (stat(lockfile.c_str(), &buffer) != 0) { // file does not exist
+    std::ofstream ofs(lockfile);
+    ofs << "locked";
+    ofs.close();
+  }
+}
+
+//--------------------------------------------------------------------------------------------------
+
 std::shared_ptr<WBContextUI> WBContextUI::get() {
   static std::shared_ptr<WBContextUI> _singleton(new WBContextUI());
   return _singleton;
@@ -128,10 +141,12 @@ void WBContextUI::cleanUp() {
   delete _command_ui;
   _command_ui = nullptr;
 
-
   // home screen should be released by undock operation,
   // but it will be left in bad state, we have to clear this
   _home_screen = nullptr;
+
+  // write lock indicator for new sticker (migration assistant)
+  write_lock_file();
 }
 
 //--------------------------------------------------------------------------------------------------

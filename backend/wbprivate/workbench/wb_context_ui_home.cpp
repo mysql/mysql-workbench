@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008, 2025, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -62,6 +62,9 @@
 #include "mforms/home_screen_documents.h"
 #include "mforms/menubar.h"
 #include <zip.h>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
 
@@ -365,10 +368,15 @@ void WBContextUI::show_home_screen() {
     _connectionsSection = mforms::manage(new mforms::ConnectionsSection(_home_screen));
     _connectionsSection->set_name("Home Screen Connections Section");
     _connectionsSection->setInternalName("homeScreenConnectionsSection");
-    _connectionsSection->showWelcomeHeading(bec::GRTManager::get()->get_app_option_int("HomeScreen:HeadingMessage", 1) == 1);
-    _connectionsSection->getConnectionInfoCallback = std::bind([=] (const std::string &connectionId) -> mforms::anyMap {
-      return connectionToMap(getConnectionById(connectionId));
-    }, std::placeholders::_1);
+    _connectionsSection->showWelcomeHeading(
+      bec::GRTManager::get()->get_app_option_int("HomeScreen:HeadingMessage", 1) == 1);
+    _connectionsSection->showMigrationBanner(
+      bec::GRTManager::get()->get_app_option_int("HomeScreen:MigrationBannerMessage", 1) == 1);
+    _connectionsSection->getConnectionInfoCallback = std::bind(
+      [=](const std::string &connectionId) -> mforms::anyMap {
+        return connectionToMap(getConnectionById(connectionId));
+      },
+      std::placeholders::_1);
 
     _home_screen->addSection(_connectionsSection);
 
@@ -893,13 +901,13 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       }
       if (object.is_valid()) {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
-        std::string filePath = save_connection_json(connection);
+        std::string data = save_connection_json(connection);
 #ifdef _MSC_VER
-        ExecuteProcess(L"MySQLShellWorkbench\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(filePath));
+        ExecuteProcess(L"MySQLShellWorkbench\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
 #elif defined(__APPLE__)
-        ExecuteProcess("/usr/bin/open", { "/Applications/MySQLShellWorkbench.app", "--migrate", filePath });
+        ExecuteProcess("/usr/bin/open", { "/Applications/MySQLShellWorkbench.app", "--migrate", data });
 #elif defined(__linux__)
-        ExecuteProcess("MySQLShellWorkbench", { "--migrate", filePath });
+        ExecuteProcess("MySQLShellWorkbench", { "--migrate", data });
 #endif
       }
       break;
@@ -1097,34 +1105,46 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 //--------------------------------------------------------------------------------------------------
 
 std::string WBContextUI::save_connection_json(db_mgmt_ConnectionRef connection) {
-  std::string datadir = mforms::App::get()->get_user_data_folder();
-  std::string filename = datadir + std::string("connection") + connection.id() + std::string(".json");
   db_mgmt_DriverRef driver = connection->driver();
-  std::string json = "{\n";
-  json += std::string("  \"id\": \"") + connection.id() + std::string("\",\n");
-  json += std::string("  \"driver\": \"") + driver->name().c_str() + std::string("\"\n");
-  json += std::string("  \"hostIdentifier\": \"") + connection->hostIdentifier().c_str() + std::string("\",\n");
-  json += "  \"parameterValues\": {\n";
-  json += "    \"SQL_MODE\": \"" + connection->parameterValues().get_string("SQL_MODE") + "\",\n";
-  json += "    \"hostName\": \"" + connection->parameterValues().get_string("hostName") + "\",\n";
-  json += "    \"port\": " + std::to_string(connection->parameterValues().get_int("port")) + ",\n";
-  json += "    \"schema\": \"" + connection->parameterValues().get_string("schema") + "\",\n";
-  json += "    \"serverVersion\": \"" + connection->parameterValues().get_string("serverVersion") + "\",\n";
-  json += "    \"sslCA\": \"" + connection->parameterValues().get_string("sslCA") + "\",\n";
-  json += "    \"sslCert\": \"" + connection->parameterValues().get_string("sslCert") + "\",\n";
-  json += "    \"sslCipher\": \"" + connection->parameterValues().get_string("sslCipher") + "\",\n";
-  json += "    \"sslKey\": \"" + connection->parameterValues().get_string("sslKey") + "\",\n";
-  json += "    \"useSSL\": " + std::to_string(connection->parameterValues().get_int("useSSL")) + ",\n";
-  json += "    \"userName\": \"" + connection->parameterValues().get_string("userName") + "\"\n";
-  json += "  },\n";
-  json += std::string("  \"name\": \"") + connection->name().c_str() + std::string("\",\n");
-  json += "}\n";
 
-  std::ofstream ofs(filename);
-  ofs << json;
-  ofs.close();
+  rapidjson::Document doc;
+  doc.SetObject();
+  rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
 
-  return filename;
+  doc.AddMember("id", rapidjson::Value(connection.id(), allocator), allocator);
+  doc.AddMember("driver", rapidjson::Value(driver->name(), allocator), allocator);
+  doc.AddMember("hostIdentifier", rapidjson::Value(connection->hostIdentifier(), allocator), allocator);
+  doc.AddMember("name", rapidjson::Value(connection->name(), allocator), allocator);
+
+  rapidjson::Value paramValues(rapidjson::kObjectType);
+  paramValues.AddMember("SQL_MODE", rapidjson::Value(connection->parameterValues().get_string("SQL_MODE"), allocator),
+                        allocator);
+  paramValues.AddMember("hostName", rapidjson::Value(connection->parameterValues().get_string("hostName"), allocator),
+                        allocator);
+  paramValues.AddMember("port", connection->parameterValues().get_int("port"), allocator);
+  paramValues.AddMember("schema", rapidjson::Value(connection->parameterValues().get_string("schema"), allocator),
+                        allocator);
+  paramValues.AddMember(
+    "serverVersion", rapidjson::Value(connection->parameterValues().get_string("serverVersion"), allocator), allocator);
+  paramValues.AddMember("sslCA", rapidjson::Value(connection->parameterValues().get_string("sslCA"), allocator),
+                        allocator);
+  paramValues.AddMember("sslCert", rapidjson::Value(connection->parameterValues().get_string("sslCert"), allocator),
+                        allocator);
+  paramValues.AddMember("sslCipher", rapidjson::Value(connection->parameterValues().get_string("sslCipher"), allocator),
+                        allocator);
+  paramValues.AddMember("sslKey", rapidjson::Value(connection->parameterValues().get_string("sslKey"), allocator),
+                        allocator);
+  paramValues.AddMember("useSSL", connection->parameterValues().get_int("useSSL"), allocator);
+  paramValues.AddMember("userName", rapidjson::Value(connection->parameterValues().get_string("userName"), allocator),
+                        allocator);
+
+  doc.AddMember("parameterValues", paramValues, allocator);
+
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  doc.Accept(writer);
+
+  return base::to_base64(buffer.GetString());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1298,5 +1318,3 @@ void WBContextUI::refresh_home_documents() {
       _documentsSection->add_document(*f, stbuf.st_mtime, wb::ModelFile::read_comment(*f), stbuf.st_size);
   }
 }
-
-//--------------------------------------------------------------------------------------------------

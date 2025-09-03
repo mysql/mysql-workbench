@@ -47,6 +47,7 @@
       <value type="string" key="FKColumnNameTemplate">%table%_%column%</value>
       <value type="string" key="FKNameTemplate">fk_%stable%_%dtable%</value>
       <value type="int" key="HomeScreen:HeadingMessage">1</value>
+      <value type="int" key="HomeScreen:MigrationBannerMessage">1</value>
       <value type="int" key="Migration:ConnectionTimeOut">60</value>
       <value type="string" key="PkColumnNameTemplate">id%table%</value>
       <value type="string" key="ProxyServer"></value>

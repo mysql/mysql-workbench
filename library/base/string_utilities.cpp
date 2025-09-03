@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA 
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 #include "base/string_utilities.h"
@@ -131,6 +131,33 @@ namespace base {
 #else
     return s;
 #endif
+  }
+
+  //--------------------------------------------------------------------------------------------------
+
+  std::string to_base64(const std::string &input) {
+    static const char *base64_chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz"
+      "0123456789+/";
+
+    std::string ret;
+    int val = 0, valb = -6;
+    for (unsigned char c : input) {
+      val = (val << 8) + c;
+      valb += 8;
+      while (valb >= 0) {
+        ret.push_back(base64_chars[(val >> valb) & 0x3F]);
+        valb -= 6;
+      }
+    }
+    if (valb > -6) {
+      ret.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+    while (ret.size() % 4) {
+      ret.push_back('=');
+    }
+    return ret;
   }
 
   //--------------------------------------------------------------------------------------------------

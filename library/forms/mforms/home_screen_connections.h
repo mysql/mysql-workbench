@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2025, Oracle and/or its affiliates. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2.0,
@@ -65,13 +65,7 @@ namespace mforms {
     HomeAccessibleButton _browseDocButton;
     HomeAccessibleButton _readBlogButton;
     HomeAccessibleButton _discussButton;
-
-    HomeAccessibleButton _migrationLearnMoreButton;
-
     cairo_surface_t *_closeIcon;
-    cairo_surface_t *_migrationBanner;
-    cairo_surface_t *_mbNewSticker;
-    bool _showNewSticker;
 
     base::Color _textColor;
 
@@ -87,7 +81,7 @@ namespace mforms {
     ConnectionsMigrationBanner(HomeScreen *owner);
     virtual ~ConnectionsMigrationBanner();
     virtual base::Size getLayoutSize(base::Size proposedSize) override;
-    void updateColors();
+    Accessible *accessibilityHitTest(ssize_t x, ssize_t y);
     void updateIcons();
 
   private:
