@@ -2735,6 +2735,10 @@
 		D0437C002B1F433E00114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
 		D0437C012B1F434B00114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
 		D0437C022B1F435700114F67 /* Python.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E4E66F425D697060060A2FA /* Python.framework */; };
+		D060B2582E6B42810028BD48 /* migration_banner.png in Resources */ = {isa = PBXBuildFile; fileRef = D060B2572E6B42810028BD48 /* migration_banner.png */; };
+		D060B25C2E6B42B10028BD48 /* new_sticker@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D060B25B2E6B42B10028BD48 /* new_sticker@2x.png */; };
+		D060B25D2E6B42B10028BD48 /* new_sticker.png in Resources */ = {isa = PBXBuildFile; fileRef = D060B25A2E6B42B10028BD48 /* new_sticker.png */; };
+		D060B25E2E6B42B10028BD48 /* migration_btn.png in Resources */ = {isa = PBXBuildFile; fileRef = D060B2592E6B42B10028BD48 /* migration_btn.png */; };
 		D0C16BAE2CD22242004A912E /* mysql_native_password.so in Resources */ = {isa = PBXBuildFile; fileRef = D0C16BAD2CD22242004A912E /* mysql_native_password.so */; };
 		D0C16BAF2CD22282004A912E /* mysql_native_password.so in Copy Files (dylibs) */ = {isa = PBXBuildFile; fileRef = D0C16BAD2CD22242004A912E /* mysql_native_password.so */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		D0C16BB22CD259CA004A912E /* authentication_webauthn_client.so in Resources */ = {isa = PBXBuildFile; fileRef = D0C16BB12CD259CA004A912E /* authentication_webauthn_client.so */; };
@@ -6745,6 +6749,10 @@
 		8EF64AAA225F69BE00AA8BD1 /* wb_model_file_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_model_file_specs.cpp; sourceTree = "<group>"; };
 		8EF64AAE2260D05F00AA8BD1 /* wb_context_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_context_specs.cpp; sourceTree = "<group>"; };
 		8EF64AB82267563200AA8BD1 /* wb_lowlevel_specs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wb_lowlevel_specs.cpp; sourceTree = "<group>"; };
+		D060B2572E6B42810028BD48 /* migration_banner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = migration_banner.png; path = images/home/migration_banner.png; sourceTree = "<group>"; };
+		D060B2592E6B42B10028BD48 /* migration_btn.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = migration_btn.png; path = images/home/migration_btn.png; sourceTree = "<group>"; };
+		D060B25A2E6B42B10028BD48 /* new_sticker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = new_sticker.png; path = images/home/new_sticker.png; sourceTree = "<group>"; };
+		D060B25B2E6B42B10028BD48 /* new_sticker@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "new_sticker@2x.png"; path = "images/home/new_sticker@2x.png"; sourceTree = "<group>"; };
 		D0C16BAD2CD22242004A912E /* mysql_native_password.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = mysql_native_password.so; path = "3rd-party-ce/lib/plugin/mysql_native_password.so"; sourceTree = "<group>"; };
 		D0C16BB12CD259CA004A912E /* authentication_webauthn_client.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = authentication_webauthn_client.so; path = "3rd-party-ce/lib/plugin/authentication_webauthn_client.so"; sourceTree = "<group>"; };
 		D0C16BB32CD259D9004A912E /* authentication_openid_connect_client.so */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.bundle"; name = authentication_openid_connect_client.so; path = "3rd-party-ce/lib/plugin/authentication_openid_connect_client.so"; sourceTree = "<group>"; };
@@ -8167,9 +8175,13 @@
 		27F77A9E1096EE020060EBBF /* Home Screen Icons */ = {
 			isa = PBXGroup;
 			children = (
+				D060B2592E6B42B10028BD48 /* migration_btn.png */,
+				D060B25A2E6B42B10028BD48 /* new_sticker.png */,
+				D060B25B2E6B42B10028BD48 /* new_sticker@2x.png */,
+				D060B2572E6B42810028BD48 /* migration_banner.png */,
 				2761608B21875B7D002BA8E3 /* home_screen_close_dark.png */,
-				2761608A21875B7D002BA8E3 /* home_screen_close_dark@2x.png */,
 				278767AA1E323FD400EC07AC /* home_screen_close_light.png */,
+				2761608A21875B7D002BA8E3 /* home_screen_close_dark@2x.png */,
 				278767AB1E323FD400EC07AC /* home_screen_close_light@2x.png */,
 				444937261DBA37C9007263D8 /* sidebar_launchers.png */,
 				444937271DBA37C9007263D8 /* sidebar_launchers@2x.png */,
@@ -13732,6 +13744,9 @@
 				273DC71721A1D902008A7D37 /* editor_current_pos.png in Resources */,
 				27F2E99D1A65CE7D00BD2996 /* ac_sysvar.png in Resources */,
 				27F2E9851A65CE7D00BD2996 /* ac_charset.png in Resources */,
+				D060B25C2E6B42B10028BD48 /* new_sticker@2x.png in Resources */,
+				D060B25D2E6B42B10028BD48 /* new_sticker.png in Resources */,
+				D060B25E2E6B42B10028BD48 /* migration_btn.png in Resources */,
 				2BB9A0A60FB12A7C001F9968 /* WBModelDiagram.xib in Resources */,
 				2B7CE99B0FB88BC900DCC700 /* db.mgmt.Connection.48x48.png in Resources */,
 				2B7CE99C0FB88BC900DCC700 /* db.mgmt.Connection.manage.48x48.png in Resources */,
@@ -13766,6 +13781,7 @@
 				2761608821873731002BA8E3 /* wb_tile_number_dark.png in Resources */,
 				2BD4206E198034C10061895B /* db.Schema.side.16x16@2x.png in Resources */,
 				2720518E111847920013E88B /* message_wb_lock.png in Resources */,
+				D060B2582E6B42810028BD48 /* migration_banner.png in Resources */,
 				2B7FC434112D9BE5008C07BF /* change_alert_thin.png in Resources */,
 				2B7FC435112D9BE5008C07BF /* change_backward.png in Resources */,
 				2B7FC436112D9BE5008C07BF /* change_forward.png in Resources */,

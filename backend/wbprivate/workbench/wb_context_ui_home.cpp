@@ -1111,33 +1111,49 @@ std::string WBContextUI::save_connection_json(db_mgmt_ConnectionRef connection) 
   doc.SetObject();
   rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
 
-  doc.AddMember("id", rapidjson::Value(connection.id(), allocator), allocator);
-  doc.AddMember("driver", rapidjson::Value(driver->name(), allocator), allocator);
-  doc.AddMember("hostIdentifier", rapidjson::Value(connection->hostIdentifier(), allocator), allocator);
-  doc.AddMember("name", rapidjson::Value(connection->name(), allocator), allocator);
+  // Add string member correctly using RapidJSON allocator (std::string -> Value)
+  {
+    const std::string &idStr = connection.id();
+    rapidjson::Value idValue;
+    idValue.SetString(idStr.c_str(), static_cast<rapidjson::SizeType>(idStr.size()), allocator);
+    doc.AddMember("id", idValue, allocator);
+  }
+  doc.AddMember("driver", rapidjson::Value(driver->name().c_str(), allocator), allocator);
+  doc.AddMember("hostIdentifier", rapidjson::Value(connection->hostIdentifier().c_str(), allocator), allocator);
+  doc.AddMember("name", rapidjson::Value(connection->name().c_str(), allocator), allocator);
 
   rapidjson::Value paramValues(rapidjson::kObjectType);
-  paramValues.AddMember("SQL_MODE", rapidjson::Value(connection->parameterValues().get_string("SQL_MODE"), allocator),
-                        allocator);
-  paramValues.AddMember("hostName", rapidjson::Value(connection->parameterValues().get_string("hostName"), allocator),
-                        allocator);
-  paramValues.AddMember("port", connection->parameterValues().get_int("port"), allocator);
-  paramValues.AddMember("schema", rapidjson::Value(connection->parameterValues().get_string("schema"), allocator),
+  paramValues.AddMember(
+    "SQL_MODE", rapidjson::Value(connection->parameterValues().get_string("SQL_MODE").c_str(), allocator), allocator);
+  paramValues.AddMember(
+    "hostName", rapidjson::Value(connection->parameterValues().get_string("hostName").c_str(), allocator), allocator);
+  {
+    auto port = connection->parameterValues().get_int("port");
+    rapidjson::Value vPort;
+    vPort.SetInt(port);
+    paramValues.AddMember(rapidjson::StringRef("port"), vPort, allocator);
+  }
+  paramValues.AddMember(
+    "schema", rapidjson::Value(connection->parameterValues().get_string("schema").c_str(), allocator), allocator);
+  paramValues.AddMember("serverVersion",
+                        rapidjson::Value(connection->parameterValues().get_string("serverVersion").c_str(), allocator),
+                    allocator);
+  paramValues.AddMember("sslCA", rapidjson::Value(connection->parameterValues().get_string("sslCA").c_str(), allocator),
                         allocator);
   paramValues.AddMember(
-    "serverVersion", rapidjson::Value(connection->parameterValues().get_string("serverVersion"), allocator), allocator);
-  paramValues.AddMember("sslCA", rapidjson::Value(connection->parameterValues().get_string("sslCA"), allocator),
-                        allocator);
-  paramValues.AddMember("sslCert", rapidjson::Value(connection->parameterValues().get_string("sslCert"), allocator),
-                        allocator);
-  paramValues.AddMember("sslCipher", rapidjson::Value(connection->parameterValues().get_string("sslCipher"), allocator),
-                        allocator);
-  paramValues.AddMember("sslKey", rapidjson::Value(connection->parameterValues().get_string("sslKey"), allocator),
-                        allocator);
-  paramValues.AddMember("useSSL", connection->parameterValues().get_int("useSSL"), allocator);
-  paramValues.AddMember("userName", rapidjson::Value(connection->parameterValues().get_string("userName"), allocator),
-                        allocator);
-
+    "sslCert", rapidjson::Value(connection->parameterValues().get_string("sslCert").c_str(), allocator), allocator);
+  paramValues.AddMember(
+    "sslCipher", rapidjson::Value(connection->parameterValues().get_string("sslCipher").c_str(), allocator), allocator);
+  paramValues.AddMember(
+    "sslKey", rapidjson::Value(connection->parameterValues().get_string("sslKey").c_str(), allocator), allocator);
+  {
+    auto useSSL = connection->parameterValues().get_int("useSSL");
+    rapidjson::Value vUseSSL;
+    vUseSSL.SetInt(useSSL);
+    paramValues.AddMember(rapidjson::StringRef("useSSL"), vUseSSL, allocator);
+  }
+  paramValues.AddMember(
+    "userName", rapidjson::Value(connection->parameterValues().get_string("userName").c_str(), allocator), allocator);
   doc.AddMember("parameterValues", paramValues, allocator);
 
   rapidjson::StringBuffer buffer;

@@ -23,6 +23,12 @@
  */
 
 #include <string>
+#if !defined(_MSC_VER)
+#include <fstream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <glib.h>
+#endif
 
 #include "base/ui_form.h"
 #include "base/string_utilities.h"
