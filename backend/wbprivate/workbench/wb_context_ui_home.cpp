@@ -905,7 +905,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 #ifdef _MSC_VER
         ExecuteProcess(L"MySQLShellWorkbench\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
 #elif defined(__APPLE__)
-        ExecuteProcess("/usr/bin/open", { "/Applications/MySQLShellWorkbench.app", "--migrate", data });
+        ExecuteProcess("/usr/bin/open", { "/Applications/MySQL Shell Workbench.app", "--migrate", data });
 #elif defined(__linux__)
         ExecuteProcess("MySQLShellWorkbench", { "--migrate", data });
 #endif
