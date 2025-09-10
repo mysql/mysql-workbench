@@ -93,7 +93,7 @@ FOR /d /r %%F IN (__pycache__?) DO (
 echo .
 
 if defined SWBPACKAGE (
-  xcopy %SWBPACKAGE%  %OUTPUT_DIRNAME%\%SWBFOLDER% /I /S /Y /Q
+  robocopy %SWBPACKAGE%  %OUTPUT_DIRNAME%\%SWBFOLDER% /MIR /E
 )
 
 zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%

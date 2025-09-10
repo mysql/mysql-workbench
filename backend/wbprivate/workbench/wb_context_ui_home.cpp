@@ -903,7 +903,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
         std::string data = save_connection_json(connection);
 #ifdef _MSC_VER
-        ExecuteProcess(L"MySQLShellWorkbench\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
+        ExecuteProcess(L"swb\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
 #elif defined(__APPLE__)
         ExecuteProcess("/usr/bin/open", { "/Applications/MySQL Shell Workbench.app", "--migrate", data });
 #elif defined(__linux__)
