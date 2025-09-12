@@ -73,6 +73,28 @@ using namespace wb;
 using namespace base;
 
 #if _MSC_VER
+
+static void ExecuteProcessEx(std::wstring const &exe, std::wstring const &param) {
+  STARTUPINFOW si;
+  PROCESS_INFORMATION pi;
+  memset(&si, 0, sizeof(si));
+  si.cb = sizeof(si);
+  memset(&pi, 0, sizeof(pi));
+
+  std::wstring cmd = exe + L" " + param;
+  if (!CreateProcessW(NULL, &cmd[0], NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+    DWORD lastErr = GetLastError();
+    LPVOID msgBuf = NULL;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, nullptr, lastErr,
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&msgBuf, 0, nullptr);
+    std::wstring msg = (LPWSTR)msgBuf;
+    LocalFree(msgBuf);
+    throw std::runtime_error(base::wstring_to_string(msg));
+  }
+  // Do not wait for process to finish, just close handles and return
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+}
 static void ExecuteProcess(std::wstring const &exe, std::wstring const &param) {
   SHELLEXECUTEINFO shellExeInfo;
   memset(&shellExeInfo, 0, sizeof(shellExeInfo));
@@ -903,7 +925,7 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
         std::string data = save_connection_json(connection);
 #ifdef _MSC_VER
-        ExecuteProcess(L"swb\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
+        ExecuteProcessEx(L"swb\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
 #elif defined(__APPLE__)
         ExecuteProcess("/usr/bin/open", { "/Applications/MySQL Shell Workbench.app", "--migrate", data });
 #elif defined(__linux__)
