@@ -93,7 +93,11 @@ FOR /d /r %%F IN (__pycache__?) DO (
 echo .
 
 if defined SWBPACKAGE (
-  robocopy %SWBPACKAGE%  %OUTPUT_DIRNAME%\%SWBFOLDER% /MIR /E
+  echo Bundling MySQl Shell Workbench
+  robocopy %SWBPACKAGE%  %OUTPUT_DIRNAME%\%SWBFOLDER% * /LOG:robocopy.log /MIR /E
+
+  echo SWB Bundle Log
+  type robocopy.log
 )
 
 zip -q -9 -r %OUTPUT_FILENAME% %OUTPUT_DIRNAME%
