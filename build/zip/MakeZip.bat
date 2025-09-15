@@ -35,7 +35,11 @@ set PYTHON_EXE_PATH=%WB_3DPARTY_PATH%\python\python.exe
 set PYTHONPATH=%WB_3DPARTY_PATH%\Python
 set OUTPUT_FILENAME=mysql-workbench-%SETUP_TYPE%-%VERSION_DETAIL%-%FILENAME_ARCH%.zip
 set OUTPUT_DIRNAME="MySQL Workbench %VERSION_DETAIL%%SETUP_TYPE_UC% (%FILENAME_ARCH%)"
-set TMP_DIR=.\temp
+IF DEFINED TMPDIR (
+  set TMP_DIR=%TMPDIR%
+) ELSE (
+  set TMP_DIR=.\temp
+)
 
 rem Set the folder where SWB will be stored if required
 set SWBFOLDER=swb
