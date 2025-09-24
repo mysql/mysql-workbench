@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -36,6 +36,9 @@
 		16B2EA620F54A3D200D583B1 /* MacTableEditorInformationSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16B2EA5C0F54A3D200D583B1 /* MacTableEditorInformationSource.mm */; };
 		16B2EA630F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16B2EA5E0F54A3D200D583B1 /* MacTableEditorColumnsInformationSource.mm */; };
 		16F7A2460F1CFFDC0084C11D /* WBObjectPropertiesController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16F7A2440F1CFFDC0084C11D /* WBObjectPropertiesController.mm */; };
+		1FC995082E8456D0002D65DF /* swb in Resources */ = {isa = PBXBuildFile; fileRef = 1FC995072E8456D0002D65DF /* swb */; };
+		1FC9950B2E846450002D65DF /* swb in Resources */ = {isa = PBXBuildFile; fileRef = 1FC995072E8456D0002D65DF /* swb */; };
+		1FC9950C2E846C4F002D65DF /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BDC26090E8561EB0018CE34 /* CoreFoundation.framework */; };
 		270124222099F97F00FE448E /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 27D6EE242099C1580050B26B /* libglib-2.0.0.dylib */; };
 		270124242099F9D200FE448E /* libmysqlclient.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 270124232099F9D100FE448E /* libmysqlclient.dylib */; };
 		2701535014EBE9FF00AD28BC /* Scintilla.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2744E6800FC1831900E85C33 /* Scintilla.framework */; };
@@ -4143,6 +4146,7 @@
 		16F7A2450F1CFFDC0084C11D /* WBObjectPropertiesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBObjectPropertiesController.h; path = frontend/mac/workbench/WBObjectPropertiesController.h; sourceTree = "<group>"; };
 		16F7A3B80F1F0D2E0084C11D /* WBColorCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WBColorCell.h; path = frontend/mac/components/WBColorCell/WBColorCell.h; sourceTree = "<group>"; };
 		16F7A3B90F1F0D2E0084C11D /* WBColorCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WBColorCell.m; path = frontend/mac/components/WBColorCell/WBColorCell.m; sourceTree = "<group>"; };
+		1FC995072E8456D0002D65DF /* swb */ = {isa = PBXFileReference; lastKnownFileType = folder; path = swb; sourceTree = "<group>"; };
 		270124232099F9D100FE448E /* libmysqlclient.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmysqlclient.dylib; path = "3rd-party-ce/lib/mysql/libmysqlclient.dylib"; sourceTree = "<group>"; };
 		27041ABC21ABFDD000CDB7B2 /* dashboard_header_innodb_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_innodb_dark@2x.png"; path = "images/admin/dashboard_header_innodb_dark@2x.png"; sourceTree = "<group>"; };
 		27041ABD21ABFDD000CDB7B2 /* dashboard_header_mysql_dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "dashboard_header_mysql_dark@2x.png"; path = "images/admin/dashboard_header_mysql_dark@2x.png"; sourceTree = "<group>"; };
@@ -7116,6 +7120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FC9950C2E846C4F002D65DF /* CoreFoundation.framework in Frameworks */,
 				272D317B25DD17B800170B5E /* libxml2.tbd in Frameworks */,
 				278DFF2420A2F86A00D7E439 /* libwbssh.dylib in Frameworks */,
 				2752564B1D951B3B0028ACAB /* libparsers.dylib in Frameworks */,
@@ -8232,6 +8237,7 @@
 		29B97314FDCFA39411CA2CEA /* MySQLWorkbench */ = {
 			isa = PBXGroup;
 			children = (
+				1FC995072E8456D0002D65DF /* swb */,
 				2744E6780FC1831900E85C33 /* ScintillaFramework.xcodeproj */,
 				2B825EBD0E0B68EC00BE52DF /* Backend */,
 				2B1E2FCC172F03670037D3DD /* Commercial Plugins */,
@@ -13220,6 +13226,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "MySQLWorkbench" */;
 			buildPhases = (
+				1FC9950A2E8463E3002D65DF /* ShellScript */,
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
@@ -13370,6 +13377,14 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1FC995062E84569D002D65DF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1FC995082E8456D0002D65DF /* swb in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2B17AFD60F4D94590087ED42 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -13426,6 +13441,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FC9950B2E846450002D65DF /* swb in Resources */,
 				27781AD41CCF887C0070AC40 /* wb_tile_folder_mini_light.png in Resources */,
 				27987718195C534F003E8E44 /* wb_item_overlay_result@2x.png in Resources */,
 				2B825D210E0B578600BE52DF /* InfoPlist.strings in Resources */,
@@ -14392,6 +14408,24 @@
 			shellPath = /bin/bash;
 			shellScript = "#!/bin/bash\n\nexecfile=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\nNEWLIBPATH=${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\nPLUGINPATH=${BUILT_PRODUCTS_DIR}/${PLUGINS_FOLDER_PATH}\nEXEPATH=${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}\nPYTHONMODULESPATH=${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/libraries\n\nRES_SOURCE_PATH_CE=${SRCROOT}/3rd-party-ce\nRES_SOURCE_PATH_SE=${SRCROOT}/3rd-party-se\n\nNEWTARGETPATH=\"@executable_path/../Frameworks\"\nRELNEWTARGETPATH=\"@loader_path/../Frameworks\"\n\nfixer=$SRCROOT/build/fixup_dylib_paths.sh\npythonfixer=$SRCROOT/build/fixup_python_paths.sh\n\n# copy file if it doesnt exist or is newer\nfunction copy() {\n    from=$1\n    to=$2/`basename $from`\n    if [ ! -f $to ] || [ $from -nt $to ]; then\n        cp -f $from $to\n    fi\n}\n\nfunction copySymlink() {\n    fromPath=$1\n    fromDir=`dirname $fromPath`\n    destName=`readlink $fromPath`\n    while [ -L \"$fromDir/$destName\" ]\n    do\n        destName=`readlink $fromDir/$destName`\n    done\n    destPath=$2/$destName\n    if [ ! -f $fromPath ] || [ $fromPath -nt $destPath ]; then\n        cp -f $fromPath $destPath\n    fi\n}\n\n\necho \"Copy special 3rd party libraries into bundle\"\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/License*.txt\nrm -f ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/README*.txt\n\ncopy ${RES_SOURCE_PATH_SE}/bin/ogrinfo ${EXEPATH}\ncopy ${RES_SOURCE_PATH_SE}/bin/ogr2ogr ${EXEPATH}\n\necho \"Copy symlink'ed destinations into bundle\"\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libproj.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libssh.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libzip.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libmysqlcppconn.dylib ${NEWLIBPATH}\ncopySymlink ${RES_SOURCE_PATH_SE}/lib/libgdal.dylib ${NEWLIBPATH}\n\n# Use commercial libs if wba_audit module is present\nif [ -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/plugins/wba_audit ]; then\n    echo \"Copying libraries for standard edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_SE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_SE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License-commercial.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README-commercial.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nelse\n    echo \"Copying libraries for community edition\"\n    copy ${RES_SOURCE_PATH_SE}/lib/mysql/libmysqlclient.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/lib/mysql/libmysqlclient.*.dylib ${NEWLIBPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysql ${EXEPATH}\n    copy ${RES_SOURCE_PATH_CE}/bin/mysqldump ${EXEPATH}\n\n    copy ${RES_SOURCE_PATH_CE}/lib/libsqlite3.so ${NEWLIBPATH}\n\n    copy ${SRCROOT}/License.txt ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n    copy ${SRCROOT}/README.md ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\nfi\n\n\n# Pre-compile Python module\necho \"Pre-compiling Python code\"\npython3 -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\npython3 -O -m compileall ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\necho \"Adjusting paths\"\n$fixer $execfile\n$fixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n$fixer $NEWLIBPATH/libwbbase.dylib\n#$fixer $NEWLIBPATH/libgrt.dylib\n#$fixer $NEWLIBPATH/libwbprivate.be.dylib\n#$fixer $NEWLIBPATH/libwbpublic.be.dylib\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $fixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    CHANGEPATHS='(@executable_path/../Frameworks|/usr/local)' $fixer $libpath\ndone\n\necho \"Adjusting python paths\"\n$pythonfixer $execfile\n$pythonfixer ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/wbcopytables\n$pythonfixer $NEWLIBPATH/libwbbase.dylib\n$pythonfixer $NEWLIBPATH/libgrt.dylib\n$pythonfixer $NEWLIBPATH/libwbprivate.be.dylib\n$pythonfixer $NEWLIBPATH/libwbpublic.be.dylib\n\n# Fix frameworks\nfor libpath in \"$NEWLIBPATH/*.framework\"; do\n    $pythonfixer \"$libpath/*\"\ndone\n\n# Fix python modules\nfor libpath in \"$PYTHONMODULESPATH/*.so\"; do\n    $pythonfixer $libpath\ndone\n\n$pythonfixer ${BUILT_PRODUCTS_DIR}/libwbbase.dylib\n$pythonfixer ${BUILT_PRODUCTS_DIR}/libgrt.dylib\n$pythonfixer ${BUILT_PRODUCTS_DIR}/libwbprivate.be.dylib\n$pythonfixer ${BUILT_PRODUCTS_DIR}/libwbpublic.be.dylib\n$pythonfixer ${BUILT_PRODUCTS_DIR}/_mforms.so\n$pythonfixer ${BUILT_PRODUCTS_DIR}/_cairo.so\n";
 			showEnvVarsInLog = 0;
+		};
+		1FC9950A2E8463E3002D65DF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Ensures the referenced folder for shell workbench is present\nif [ ! -e \"${SOURCE_ROOT}/swb\" ]; then\n  mkdir -p \"${SOURCE_ROOT}/swb\"\nfi\n";
 		};
 		2731DE7521A2D4E4002EEE8A /* Copy some binaries */ = {
 			isa = PBXShellScriptBuildPhase;

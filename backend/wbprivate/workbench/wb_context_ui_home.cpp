@@ -66,6 +66,25 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
+#if defined(__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+
+std::string get_resources_path(const char *resourceName) {
+  CFBundleRef mainBundle = CFBundleGetMainBundle();
+  CFStringRef resourceNameRef = CFStringCreateWithCString(nullptr, resourceName, kCFStringEncodingUTF8);
+  CFURLRef resourceURL = CFBundleCopyResourceURL(mainBundle, resourceNameRef, nullptr, nullptr);
+
+  char path[PATH_MAX];
+  if (resourceURL && CFURLGetFileSystemRepresentation(resourceURL, TRUE, (UInt8 *)path, PATH_MAX)) {
+    CFRelease(resourceURL);
+    CFRelease(resourceNameRef);
+    return std::string(path);
+  }
+  CFRelease(resourceNameRef);
+  return "";
+}
+#endif
+
 DEFAULT_LOG_DOMAIN(DOMAIN_WB_CONTEXT_UI);
 
 using namespace bec;
@@ -927,7 +946,8 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
 #ifdef _MSC_VER
         ExecuteProcessEx(L"swb\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
 #elif defined(__APPLE__)
-        ExecuteProcess("/usr/bin/open", { "/Applications/MySQL Shell Workbench.app", "--migrate", data });
+        std::string path = get_resources_path("swb/MySQL Shell Workbench.app");
+        ExecuteProcess("/usr/bin/open", { path, "--args", "--migrate", data });
 #elif defined(__linux__)
         ExecuteProcess("MySQLShellWorkbench", { "--migrate", data });
 #endif
