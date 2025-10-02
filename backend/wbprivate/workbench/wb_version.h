@@ -25,7 +25,7 @@
 
 #define APP_MAJOR_NUMBER 8
 #define APP_MINOR_NUMBER 0
-#define APP_RELEASE_NUMBER 43
+#define APP_RELEASE_NUMBER 44
 
 #define APP_BUILD_NUMBER 0
 #define APP_RELEASE_TYPE "commercial"
