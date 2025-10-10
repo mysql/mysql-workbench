@@ -44,8 +44,8 @@ class mforms::ConnectionEntry : public base::Accessible {
   friend class ConnectionsSection;
 
 private:
-  cairo_surface_t *_mbNewSticker;
-  bool _showNewSticker = false;
+  //cairo_surface_t *_mbNewSticker;
+  //bool _showNewSticker = false;
   cairo_surface_t *_migrationButton;
   base::Rect _migrationButtonBounds;
 
@@ -657,7 +657,7 @@ base::Rect ConnectionsWelcomeScreen::getAccessibilityBounds() {
 //----------------------------------------------------------------------------------------------------------------------
 
 Accessible* ConnectionsWelcomeScreen::accessibilityHitTest(ssize_t x, ssize_t y) {
-  if (_browseDocButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
+   if (_browseDocButton.bounds.contains(static_cast<double>(x), static_cast<double>(y))) {
     return &_browseDocButton;
   }
 
@@ -787,17 +787,17 @@ ConnectionsMigrationBanner::ConnectionsMigrationBanner(HomeScreen *owner) : _own
   _migrationBanner = nullptr;
 
   // Load newsticker if lock file does not exist
-  std::string userdir = mforms::App::get()->get_user_data_folder();
-  std::string lockfile = userdir + "/ma_lock_fisrt.lck";
-  FILE *f = fopen(lockfile.c_str(), "r");
-  if (!f) {
-    _mbNewSticker = Utilities::load_icon("newsticker.png", true);
-    _showNewSticker = true;
-  } else {
-    _mbNewSticker = nullptr;
-    _showNewSticker = false;
-    fclose(f);
-  }
+  //std::string userdir = mforms::App::get()->get_user_data_folder();
+  //std::string lockfile = userdir + "/ma_lock_fisrt.lck";
+  //FILE *f = fopen(lockfile.c_str(), "r");
+  //if (!f) {
+  //  _mbNewSticker = Utilities::load_icon("newsticker.png", true);
+  //  _showNewSticker = true;
+  //} else {
+  //  _mbNewSticker = nullptr;
+  //  _showNewSticker = false;
+  //  fclose(f);
+  //}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -818,7 +818,7 @@ Accessible *ConnectionsMigrationBanner::accessibilityHitTest(ssize_t x, ssize_t 
 ConnectionsMigrationBanner::~ConnectionsMigrationBanner() {
   deleteSurface(_closeIcon);
   deleteSurface(_migrationBanner);
-  deleteSurface(_mbNewSticker);
+  //deleteSurface(_mbNewSticker);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -859,14 +859,14 @@ void ConnectionsMigrationBanner::repaint(cairo_t *cr, int areax, int areay, int 
   _migrationLearnMoreButton.bounds = base::Rect(btn_x, btn_y, btn_width - 15, btn_height - 15);
 
   // Draw newsticker in the top right corner (centered on corner)
-  if (_showNewSticker && _mbNewSticker) {
-    Size sticker_size = Utilities::getImageSize(_mbNewSticker);
-    double sticker_x = x + banner_width;
-    double sticker_y = -sticker_size.height / 2.0;
-    cairo_save(cr);
-    cairo_set_source_surface(cr, _mbNewSticker, sticker_x, sticker_y);
-    cairo_paint(cr);
-  }
+  //if (_showNewSticker && _mbNewSticker) {
+  //  Size sticker_size = Utilities::getImageSize(_mbNewSticker);
+  //  double sticker_x = x + banner_width;
+  //  double sticker_y = -sticker_size.height / 2.0;
+  //  cairo_save(cr);
+  //  cairo_set_source_surface(cr, _mbNewSticker, sticker_x, sticker_y);
+  //  cairo_paint(cr);
+  //}
 
   _totalHeight = yoffset + (int)banner_height + 20;
 
@@ -885,8 +885,8 @@ void ConnectionsMigrationBanner::updateIcons() {
   cairo_surface_destroy(_migrationBanner);
   _migrationBanner = Utilities::load_icon("migration_banner.png", true);
 
-  cairo_surface_destroy(_mbNewSticker);
-  _mbNewSticker = Utilities::load_icon("new_sticker.png", true);
+  //cairo_surface_destroy(_mbNewSticker);
+  //_mbNewSticker = Utilities::load_icon("new_sticker.png", true);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
