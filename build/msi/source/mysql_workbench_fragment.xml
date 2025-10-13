@@ -823,6 +823,9 @@
                     <File Id="wb_tile_open_dark" Name="wb_tile_open_dark.png" />
                     <File Id="home_screen_close_dark" Name="home_screen_close_dark.png" />
                     <File Id="home_screen_close_light" Name="home_screen_close_light.png" />
+                    <File Id="migration_banner" Name="migration_banner.png" />
+                    <File Id="migration_btn" Name="migration_btn.png" />
+                    <File Id="new_sticker" Name="new_sticker.png" />
                   </Component>
                 </Directory>
 
