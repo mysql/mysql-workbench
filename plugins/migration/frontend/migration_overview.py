@@ -1,4 +1,4 @@
-# Copyright (c) 2012, 2018, Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2012, 2025, Oracle and/or its affiliates. All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2.0,
@@ -22,6 +22,7 @@
 
 import mforms
 import grt
+import sys
 from workbench.ui import WizardPage
 from workbench.utils import server_version_str2tuple
 
@@ -46,6 +47,21 @@ class MainView(WizardPage):
               "You can also use this wizard to copy databases from one MySQL instance to another.")
         label.set_name("Introduction")
         self.content.add(label, False, True)
+
+        if sys.platform in ["darwin", "win32"]:
+            hbox = mforms.Box(True)
+            hbox.set_spacing(12)
+            logo = mforms.newImageBox()
+            logo.set_image(mforms.App.get().get_resource_path("migration_btn.png"))
+            hbox.add(logo, False, True)
+
+            label = mforms.newLabel("Note: To migrate MySQL databases to the MySQL HeatWave Service in Oracle Cloud, use the new\n"+
+                   "MySQL HeatWave Migration Assistant by clicking the green cloud migration icon in the MySQL connections view.")
+            label.set_name("AssistantNote")
+            hbox.add(label, True, True)
+
+            self.content.add(hbox, False, True)
+
         label = mforms.newLabel("Prerequisites")
         label.set_name("Prerequisites")
         label.set_style(mforms.BoldStyle)
