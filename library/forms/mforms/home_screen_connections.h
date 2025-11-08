@@ -137,6 +137,7 @@ namespace mforms {
     mforms::Menu *_generic_context_menu;
 
     std::shared_ptr<ConnectionEntry> _hot_entry;      // The connection entry under the mouse.
+    bool _on_migration;
     std::shared_ptr<ConnectionEntry> _entry_for_menu; // The entry that was hot when the context menu was opened.
 
     ssize_t _drag_index; // The index of the entry that is being dragged.

@@ -135,6 +135,12 @@ protected:
 
   //--------------------------------------------------------------------------------------------------------------------
 
+  base::Rect getMigrationButtonBounds() {
+    return _migrationButtonBounds;
+  }
+
+  //--------------------------------------------------------------------------------------------------------------------
+
   /**
    * Draws the icon followed by the given text. The given position is that of the upper left corner
    * of the image.
@@ -244,7 +250,7 @@ public:
 
   //--------------------------------------------------------------------------------------------------------------------
 
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging) {
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging, bool on_migration = false) {
     base::Color titleColor = getTitleColor();
     base::Rect bounds = this->bounds;
     if (for_dragging)
@@ -300,7 +306,17 @@ public:
       cairo_translate(cr, btn_x, btn_y);
       cairo_scale(cr, btn_scale, btn_scale);
       cairo_set_source_surface(cr, _migrationButton, 0, 0);
-      cairo_paint(cr);
+
+      float image_alpha =  0.25;
+      if (hot) {
+        image_alpha += 0.25;
+
+        if (on_migration) {
+          image_alpha += 0.5;
+        }
+      }
+
+      cairo_paint_with_alpha(cr, image_alpha * alpha);
       cairo_restore(cr);
     }
 
@@ -512,7 +528,7 @@ public:
   /**
    * Separate tile drawing for the special back tile (to return from a folder).
    */
-  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging) override {
+  virtual void draw_tile(cairo_t *cr, bool hot, double alpha, bool for_dragging, bool for_migration = false) override {
     draw_tile_background(cr, hot, alpha, for_dragging);
 
     // Title string.
@@ -1383,7 +1399,7 @@ void ConnectionsSection::repaint(cairo_t *cr, int areax, int areay, int areaw, i
       connections[index]->bounds = bounds;
 
       bool draw_hot = connections[index] == _hot_entry;
-      connections[index]->draw_tile(cr, draw_hot, 1.0, false);
+      connections[index]->draw_tile(cr, draw_hot, 1.0, false, _on_migration);
 
       // Draw drop indicator.
       if (static_cast<ssize_t>(index) == _drop_index) {
@@ -1756,8 +1772,9 @@ bool ConnectionsSection::mouse_leave() {
 //------------------------------------------------------------------------------------------------
 
 bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y) {
-
   std::shared_ptr<ConnectionEntry> entry = entry_from_point(x, y);
+  bool was_on_migration = _on_migration;
+  _on_migration = entry && entry->getMigrationButtonBounds().contains(x, y);
 
   if (entry && !_mouse_down_position.empty() && (!_mouse_down_position.contains(x, y))) {
     if (!entry->is_movable()) {
@@ -1776,6 +1793,9 @@ bool ConnectionsSection::mouse_move(mforms::MouseButton button, int x, int y) {
     if (button == mforms::MouseButtonNone) {
       if (entry != _hot_entry) {
         _hot_entry = entry;
+        set_needs_repaint();
+        return true;
+      } else if (was_on_migration != _on_migration) {
         set_needs_repaint();
         return true;
       }
