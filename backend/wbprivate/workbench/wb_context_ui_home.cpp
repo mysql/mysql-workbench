@@ -638,6 +638,17 @@ static bool isSSHConnection(const db_mgmt_ConnectionRef &connection) {
 
 //--------------------------------------------------------------------------------------------------
 
+static bool isSupportedForMigration(const db_mgmt_ConnectionRef &connection) {
+  if (connection.is_valid()) {
+    std::string driver = connection->driver().is_valid() ? connection->driver()->name() : "";
+    return (driver == "MysqlNative");
+  }
+  return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+
 /**
  * Determines if the given connection is a local connection (i.e. to the current box).
  */
@@ -942,6 +953,15 @@ void WBContextUI::handle_home_action(mforms::HomeScreenAction action, const base
       }
       if (object.is_valid()) {
         db_mgmt_ConnectionRef connection(db_mgmt_ConnectionRef::cast_from(object));
+        if (!isSupportedForMigration(connection)) {
+          mforms::Utilities::show_message(
+            _("Unsupported Connection Type"),
+            strfmt(_("The selected connection uses an unsupported connetion type (%s). "
+                     "This Migration Assistant currently only supports Standard TCP/IP connections."),
+                   connection->driver()->caption().c_str()),
+            _("Ok"));
+          return;
+        }
         std::string data = save_connection_json(connection);
 #ifdef _MSC_VER
         ExecuteProcessEx(L"swb\\MySQLShellWorkbench.exe", L"--migrate=" + base::string_to_wstring(data));
@@ -1161,6 +1181,7 @@ std::string WBContextUI::save_connection_json(db_mgmt_ConnectionRef connection) 
     doc.AddMember("id", idValue, allocator);
   }
   doc.AddMember("name", rapidjson::Value(connection->name().c_str(), allocator), allocator);
+  doc.AddMember("driver", rapidjson::Value(connection->driver()->name().c_str(), allocator), allocator);
   doc.AddMember(
     "host", rapidjson::Value(connection->parameterValues().get_string("hostName").c_str(), allocator), allocator);
   {
