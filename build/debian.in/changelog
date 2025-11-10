@@ -1,3 +1,9 @@
+mysql-workbench-@edition@ (8.0.45-1@distrov@) @distro@; urgency=low
+
+  * New release
+
+ -- Rene Ramirez <j.rene.ramirez@oracle.com>  Mon, 10 Nov 2025 16:09:11 -0600
+
 mysql-workbench-@edition@ (8.0.44-1@distrov@) @distro@; urgency=low
 
   * New release
