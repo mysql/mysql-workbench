@@ -36,7 +36,10 @@ namespace MySQLCA
         Process proc = new Process();
 
         proc.StartInfo.FileName = installpath + "\\python.exe";
-        proc.StartInfo.Arguments = "-mcompileall ..";
+        proc.StartInfo.Arguments = "-mcompileall .. -x swb";
+
+        session.Log("Executing CustomAction: PrecompilePythonFiles: " +
+          proc.StartInfo.FileName + " " + proc.StartInfo.Arguments);
 
         proc.StartInfo.UseShellExecute = true;
         proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
