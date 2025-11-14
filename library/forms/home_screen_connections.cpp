@@ -35,6 +35,10 @@
 
 DEFAULT_LOG_DOMAIN("home");
 
+#if defined(__APPLE__) || defined(_WIN64)
+#define HAS_MIGRATION_ASSISTANT 1
+#endif
+
 using namespace base;
 using namespace mforms;
 
@@ -177,13 +181,18 @@ public:
 
   ConnectionEntry(ConnectionsSection *aowner) : owner(aowner), compute_strings(false) {
     draw_info_tab = true;
+#ifdef HAS_MIGRATION_ASSISTANT
     _migrationButton = Utilities::load_icon("migration_btn.png", true);
+#else
+    _migrationButton = nullptr;
+#endif
   }
 
   //--------------------------------------------------------------------------------------------------------------------
 
   virtual ~ConnectionEntry() {
-    deleteSurface(_migrationButton);
+    if (_migrationButton)
+      deleteSurface(_migrationButton);
   }
 
   //--------------------------------------------------------------------------------------------------------------------
@@ -2215,12 +2224,15 @@ mforms::View *ConnectionsSection::getContainer() {
     _welcomeScreen->set_layout_dirty(true);
     _container->add(_welcomeScreen, false, true);
 
+#ifdef HAS_MIGRATION_ASSISTANT
     _migrationAssistantBanner = mforms::manage(new ConnectionsMigrationBanner(_owner));
     if (!_showMigrationAssistantBanner) {
       _migrationAssistantBanner->show(false);
     }
     _container->add(_migrationAssistantBanner, false, true);
-
+#else
+    _migrationAssistantBanner = nullptr;
+#endif
 
     _container->add(this, true, true);
   }
