@@ -2915,8 +2915,9 @@ std::shared_ptr<SqlEditorForm> WBContext::add_new_query_window(const db_mgmt_Con
                 "A connection to this database can be established but some MySQL Workbench features may not work "
                 "properly since the database is not fully compatible with the supported versions of MySQL.\n\n"
                 "MySQL Workbench is developed and tested for MySQL Server versions 5.6, 5.7 and 8.0.\n"
-                "Please note: there may be some incompatibilities with version 8.4.\n"
-                "For MySQL Server older than 5.6, please use MySQL Workbench version 6.3.",
+                "Please note: there may be some incompatibilities with version 8.4,\n"
+                "except the MySQL HeatWave Migration Assistant which supports MySQL servers up to 9.x.\n"
+                "For MySQL Server older than 5.6, please use MySQL Workbench version 6.3.\n",
                 bec::sanitize_server_version_number(form->connection_details()["dbmsProductVersion"]).c_str()),
               "Continue Anyway", "Cancel", "", "wb.supported_server_check.suppress_warning",
               "Don't show this message again") != mforms::ResultOk) {
