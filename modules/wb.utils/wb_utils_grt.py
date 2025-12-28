@@ -593,10 +593,19 @@ class CheckForUpdateThread(threading.Thread):
             import json
             import base64
 
+            # Check if SSL module is available
+            ssl_available = False
+            try:
+                import ssl
+                ssl_available = True
+            except (ImportError, OSError):
+                # SSL module not available, will use curl as fallback
+                pass
+
             class LoginForm(mforms.Form):
                 def __init__(self):
                     mforms.Form.__init__(self, None)
-
+                    
                     self.set_title("Apply Changes to MySQL configuration File")
                     content = mforms.newBox(False)
                     content.set_padding(12)
@@ -716,7 +725,41 @@ class CheckForUpdateThread(threading.Thread):
 
             urllib.request.install_opener(opener)
 
-            self.json = json.load(urllib.request.urlopen("http://workbench.mysql.com/current-release")) 
+            # Try to fetch update information
+            url = "https://workbench.mysql.com/current-release"
+            
+            # First, try using curl as it has its own SSL/TLS support
+            try:
+                import subprocess
+                result = subprocess.run(['curl', '-s', '-L', url], 
+                                      capture_output=True, 
+                                      text=True, 
+                                      timeout=10)
+                if result.returncode == 0 and result.stdout:
+                    self.json = json.loads(result.stdout)
+                else:
+                    raise Exception("curl failed or returned empty response")
+            except Exception as curl_error:
+                # Fallback to urllib if curl fails
+                if not ssl_available:
+                    raise Exception("HTTPS support is not available.\n\n"
+                                   "The SSL module cannot be loaded and curl is not available.\n"
+                                   "You can check for updates manually at:\n"
+                                   "https://www.mysql.com/downloads/workbench/")
+                
+                try:
+                    context = ssl._create_unverified_context()
+                    self.json = json.load(urllib.request.urlopen(url, context=context))
+                except AttributeError:
+                    self.json = json.load(urllib.request.urlopen(url))
+                except urllib.error.URLError as e:
+                    error_msg = str(e)
+                    if 'unknown url type: https' in error_msg or 'CERTIFICATE_VERIFY_FAILED' in error_msg:
+                        raise Exception("HTTPS support is not available.\n"
+                                       "You can check for updates manually at:\n"
+                                       "https://www.mysql.com/downloads/workbench/")
+                    else:
+                        raise
         except Exception as error:
 
             self.json = None
