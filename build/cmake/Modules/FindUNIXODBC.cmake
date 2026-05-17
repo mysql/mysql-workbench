@@ -36,6 +36,29 @@ if (UNIXODBC_INCLUDE_DIRS AND UNIXODBC_LIBRARIES)
   set(UNIXODBC_FOUND true)
 endif(UNIXODBC_INCLUDE_DIRS AND UNIXODBC_LIBRARIES)
 
+if (UNIXODBC_INCLUDE_DIRS AND NOT UNIXODBC_LIBRARIES)
+  find_library(UNIXODBC_ODBC_LIBRARY NAMES odbc libodbc.so
+    PATHS ${CMAKE_SYSTEM_LIBRARY_PATH}
+          /usr/lib
+          /usr/local/lib
+          /usr/lib/x86_64-linux-gnu
+  )
+  find_library(UNIXODBC_ODBCINST_LIBRARY NAMES odbcinst libodbcinst.so
+    PATHS ${CMAKE_SYSTEM_LIBRARY_PATH}
+          /usr/lib
+          /usr/local/lib
+          /usr/lib/x86_64-linux-gnu
+  )
+
+  if (UNIXODBC_ODBC_LIBRARY)
+    set(UNIXODBC_LIBRARIES ${UNIXODBC_ODBC_LIBRARY})
+    if (UNIXODBC_ODBCINST_LIBRARY)
+      list(APPEND UNIXODBC_LIBRARIES ${UNIXODBC_ODBCINST_LIBRARY})
+    endif()
+    set(UNIXODBC_FOUND true)
+  endif()
+endif()
+
 if (UNIXODBC_CONFIG_PATH)
 
   if (UNIXODBC_LIBRARIES_PATH)

@@ -1385,7 +1385,7 @@ namespace grt {
     }
 
   protected:
-    explicit ListRef<internal::Integer>(const ValueRef &lvalue) : BaseListRef(lvalue) {
+    explicit ListRef(const ValueRef &lvalue) : BaseListRef(lvalue) {
       if (lvalue.is_valid() && content().content_type() != IntegerType)
         throw type_error(IntegerType, content().content_type(), ListType);
     }
@@ -1813,7 +1813,7 @@ namespace grt {
     }
 
   protected:
-    explicit ListRef<internal::Dict>(const ValueRef &lvalue) : BaseListRef(lvalue) {
+    explicit ListRef(const ValueRef &lvalue) : BaseListRef(lvalue) {
       if (lvalue.is_valid() && content().content_type() != DictType)
         throw type_error(DictType, content().content_type(), ListType);
     }

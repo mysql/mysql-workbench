@@ -53,6 +53,9 @@ add_library(parsers
 
 
 target_compile_options(parsers PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-sign-compare -Wno-type-limits -Wno-unused -Wno-missing-field-initializers -Wno-implicit-fallthrough>)
+target_compile_options(parsers PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-include>
+    $<$<CXX_COMPILER_ID:GNU,Clang>:${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime-compat.h>)
 
 set(NEW_WB_CFLAGS ${WB_CFLAGS})
 list(REMOVE_ITEM NEW_WB_CFLAGS -Werror)
@@ -100,5 +103,4 @@ if(COMMAND cotire)
 endif()
 
 install(TARGETS parsers DESTINATION ${WB_INSTALL_LIB_DIR})
-
 
