@@ -606,11 +606,11 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
   if (PyUnicode_Check($input))
   {
     PyObject *tmp = PyUnicode_AsUTF8String($input);
-    $1 = new std::string(PyString_AsString(tmp));
+    $1 = new std::string(PyBytes_AsString(tmp));
     Py_DECREF(tmp);
   }
-  else if (PyString_Check($input))
-    $1 = new std::string(PyString_AsString($input));
+  else if (PyBytes_Check($input))
+    $1 = new std::string(PyBytes_AsString($input));
   else
   {
     PyErr_SetString(PyExc_TypeError, "not a string");
@@ -635,11 +635,11 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
       if (PyUnicode_Check(item))
       {
         PyObject *tmp = PyUnicode_AsUTF8String(item);
-        $1->push_back(PyString_AsString(tmp));
+        $1->push_back(PyBytes_AsString(tmp));
         Py_DECREF(tmp);
       }
-      else if (PyString_Check(item))
-        $1->push_back(PyString_AsString(item));
+      else if (PyBytes_Check(item))
+        $1->push_back(PyBytes_AsString(item));
       else
       {
         delete $1;
@@ -698,11 +698,11 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
       if (PyUnicode_Check(item))
       {
         PyObject *tmp = PyUnicode_AsUTF8String(item);
-        $1->push_back(PyString_AsString(tmp));
+        $1->push_back(PyBytes_AsString(tmp));
         Py_DECREF(tmp);
       }
-      else if (PyString_Check(item))
-        $1->push_back(PyString_AsString(item));
+      else if (PyBytes_Check(item))
+        $1->push_back(PyBytes_AsString(item));
       else
       {
         delete $1;

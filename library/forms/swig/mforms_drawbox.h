@@ -164,7 +164,7 @@ namespace mforms {
          {
            PyObject *repr = PyObject_Repr(self);
            printf("Error calling method %s from PyDrawBox delegate %s\n", method,
-                  PyString_AsString(repr));
+                  PyBytes_AsString(repr));
            Py_DECREF(repr);
          }*/
       }
