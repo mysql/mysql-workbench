@@ -137,7 +137,7 @@ static void show_python_exception()
   std::string result;
 
   /* See if we can get a full traceback */
-  moduleName = PyString_FromString("traceback");
+  moduleName = PyUnicode_FromString("traceback");
   pythonModule = PyImport_Import(moduleName);
   Py_DECREF(moduleName);
 
