@@ -722,7 +722,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 %typemap(argout) std::string &ret_password {
     PyObject *o= PyUnicode_DecodeUTF8(($1)->data(), ($1)->size(), NULL);
-    $result= SWIG_Python_AppendOutput($result, o);
+    $result= SWIG_AppendOutput($result, o);
 }
 
 %typemap(in,numinputs=0) std::string &ret_password(std::string temp) {
@@ -731,7 +731,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 %typemap(argout) std::string &ret_value {
     PyObject *o= PyUnicode_DecodeUTF8(($1)->data(), ($1)->size(), NULL);
-    $result= SWIG_Python_AppendOutput($result, o);
+    $result= SWIG_AppendOutput($result, o);
 }
 
 %typemap(in,numinputs=0) std::string &ret_value(std::string temp) {
@@ -741,7 +741,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
 
 %typemap(argout) bool &ret_store {
     if (*$1) Py_INCREF(Py_True); else Py_INCREF(Py_False);
-    $result= SWIG_Python_AppendOutput($result, *$1 ? Py_True : Py_False);
+    $result= SWIG_AppendOutput($result, *$1 ? Py_True : Py_False);
 }
 
 %typemap(in,numinputs=0) bool &ret_store(bool temp) {

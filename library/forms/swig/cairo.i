@@ -125,7 +125,7 @@
 
 %typemap(argout) cairo_text_extents_t *extents {
       PyObject *o= SWIG_NewPointerObj(new cairo_text_extents_t(*$1), SWIGTYPE_p_cairo_text_extents_t, 0 |  0 );
-      $result= SWIG_Python_AppendOutput($result, o);
+      $result= SWIG_AppendOutput($result, o);
 }
 
 %typemap(in) const char* (std::string s) {
