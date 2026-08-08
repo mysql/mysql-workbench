@@ -656,7 +656,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
    $result = PyList_New(0);
    for (std::vector<int>::const_iterator iter = $1.begin(); iter != $1.end(); ++iter)
    {
-     PyList_Append($result, PyInt_FromLong(*iter));
+     PyList_Append($result, PyLong_FromLong(*iter));
    }
 }
 
@@ -664,7 +664,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
    $result = PyList_New(0);
    for (std::vector<size_t>::const_iterator iter = $1.begin(); iter != $1.end(); ++iter)
    {
-     PyList_Append($result, PyInt_FromLong(*iter));
+     PyList_Append($result, PyLong_FromLong(*iter));
    }
 }
 
@@ -674,7 +674,7 @@ inline boost::function<void (mforms::TextEntryAction)> pycall_void_entryaction_f
     for (int c= PyList_Size($input), i= 0; i < c; i++)
     {
       PyObject *item = PyList_GetItem($input, i);
-      $1->push_back(PyInt_AsLong(item));
+      $1->push_back(PyLong_AsLong(item));
     }
   }
   else
@@ -821,8 +821,8 @@ namespace std {
       PyObject *item = PyList_GetItem($input, i);
       if (PyFloat_Check(item))
         $1.push_back(PyFloat_AsDouble(item));
-      else if (PyInt_Check(item))
-        $1.push_back(PyInt_AsLong(item));
+      else if (PyLong_Check(item))
+        $1.push_back(PyLong_AsLong(item));
       else
       {
         SWIG_exception_fail(SWIG_TypeError, "expected list of doubles");
