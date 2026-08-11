@@ -2,7 +2,7 @@
 
 Copyright (c) 2007, 2026, Oracle and/or its affiliates.
 
-This is a release of [MySQL Workbench](https://mysqlworkbench.org), a graphical tool for working with MySQL servers and databases.
+This is a release of [MySQL Workbench](https://www.mysql.com/products/workbench/), a graphical tool for working with MySQL servers and databases.
 
 ![Home screen on Windows](https://dev.mysql.com/doc/workbench/en/images/wb-home-screen-new.png)
 
@@ -21,7 +21,7 @@ MySQL Workbench is brought to you by the MySQL team at Oracle.
 
 # Overview
 
-[MySQL Workbench](https://mysqlworkbench.org) is a graphical tool for working with MySQL servers and databases. MySQL Workbench fully supports MySQL server versions 5.6 and higher.
+[MySQL Workbench](https://www.mysql.com/products/workbench/) is a graphical tool for working with MySQL servers and databases. MySQL Workbench fully supports MySQL server versions 5.6 and higher.
 
 MySQL Workbench functionality covers five main topics:
 
