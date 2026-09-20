@@ -40,6 +40,7 @@
 #include <typeinfo>
 #include <string.h>
 
+#include <boost/static_assert.hpp>
 #include <boost/optional.hpp>
 #include <memory>
 #include <iomanip>
